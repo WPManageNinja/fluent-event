@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Agent"
+  short_description: "Stage, commit, push, and open a PR with a concise why-first description"
+  default_prompt: "Use $git to stage my changes, commit with a Title Case subject using a readme.txt-style prefix (Fixed:/Added:/Improved:/etc.), push the branch, and open a PR. If I shared a ticket/task link or ID, include it in the commit body trailer (Fixes/Refs/Closes) and the PR body. No Claude/AI co-author."
