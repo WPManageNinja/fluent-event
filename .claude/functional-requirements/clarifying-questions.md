@@ -137,6 +137,10 @@ _(team lead)_
 
 - Recommendation: In next phase yes.
 
+6. Keep event-guest-level settings (e.g. per-event notification preference)?
+
+- Recommendation: Not in v1. Global per-user prefs (FR-9.3) are the control. Add the per-event override (tri-state per-channel, `event > calendar > global`) later, only if "mute/override this event" is actually requested.
+
 **Answer:**
 _(team lead)_
 

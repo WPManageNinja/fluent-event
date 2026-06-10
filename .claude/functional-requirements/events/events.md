@@ -48,6 +48,7 @@ Index: `(event_id, status)`, `(user_id)`, `(email)`.
 | `status`         | VARCHAR       | `invited` \| `requested` \| `approved` \| `attending` \| `waitlisted` \| `declined` \| `cancelled` \| `checked_in` |
 | `source`         | VARCHAR       | `invite` \| `link` \| `import` \| `request`                                                                        |
 | `form_response`  | JSON NULL     | answers to the join questions                                                                                      |
+| `settings`       | JSON NULL     | reserved per-guest prefs/overrides; null = inherit. Future home of the per-event notification override (FR-9.3)     |
 | `payment_status` | VARCHAR NULL  | `pending` \| `paid` \| `refunded` \| `failed` (paid events only; null = free)                                      |
 | `payment_ref`    | VARCHAR NULL  | Paymattic transaction/submission id — link to the real record                                                      |
 | `amount`         | DECIMAL NULL  | snapshot of what they paid                                                                                         |
