@@ -8,7 +8,7 @@
 #
 # Rule of record:
 #   Common rules  -> .claude/rules/  (always, controllers-services, routes, vue, fix-patterns)
-#   Area rulesets -> .claude/skills/coding-rules/rulesets/  (outbound-http, email, multisite, deps-build)
+#   Area rulesets -> .claude/rules/  (outbound-http, email, multisite, deps-build)
 #
 # Contract:
 #   stdin  = JSON from Claude Code with tool_name, tool_input{file_path, ...}
@@ -171,7 +171,7 @@ esac
 if grep -qE 'wp_remote_(get|post|request|head)[[:space:]]*\(' "$FILE_PATH" 2>/dev/null; then
   if ! grep -q 'timeout' "$FILE_PATH" 2>/dev/null; then
     LN=$(grep -nE 'wp_remote_(get|post|request|head)[[:space:]]*\(' "$FILE_PATH" 2>/dev/null | head -1 | cut -d: -f1)
-    add_violation "L$LN: wp_remote_* without 'timeout' arg in file. Set timeout + redirection bounds + SSRF private-IP rejection (prefer wp_safe_remote_*). Rule: .claude/skills/coding-rules/rulesets/outbound-http.md."
+    add_violation "L$LN: wp_remote_* without 'timeout' arg in file. Set timeout + redirection bounds + SSRF private-IP rejection (prefer wp_safe_remote_*). Rule: .claude/rules/outbound-http.md."
   fi
 fi
 
@@ -197,7 +197,7 @@ fi
 if grep -q 'switch_to_blog' "$FILE_PATH" 2>/dev/null; then
   if ! grep -q 'restore_current_blog' "$FILE_PATH" 2>/dev/null; then
     LN=$(grep -nE 'switch_to_blog[[:space:]]*\(' "$FILE_PATH" 2>/dev/null | head -1 | cut -d: -f1)
-    add_violation "L$LN: switch_to_blog without restore_current_blog — leaks blog context. Pair in try/finally. Rule: .claude/skills/coding-rules/rulesets/multisite.md."
+    add_violation "L$LN: switch_to_blog without restore_current_blog — leaks blog context. Pair in try/finally. Rule: .claude/rules/multisite.md."
   fi
 fi
 
@@ -205,13 +205,13 @@ fi
 if grep -qE "['\"](Reply-To|From|Cc|Bcc|To):" "$FILE_PATH" 2>/dev/null; then
   if ! grep -qE "str_replace[[:space:]]*\(\s*\[?[[:space:]]*[\"']\\\\r" "$FILE_PATH" 2>/dev/null; then
     LN=$(grep -nE "['\"](Reply-To|From|Cc|Bcc|To):" "$FILE_PATH" 2>/dev/null | head -1 | cut -d: -f1)
-    add_violation "L$LN: email header build present but no CR/LF strip. Header injection risk. str_replace([\"\\r\", \"\\n\"], '', \$value). Rule: .claude/skills/coding-rules/rulesets/email.md."
+    add_violation "L$LN: email header build present but no CR/LF strip. Header injection risk. str_replace([\"\\r\", \"\\n\"], '', \$value). Rule: .claude/rules/email.md."
   fi
 fi
 
 # 14. time() used as enqueue script version (cache-bust antipattern)
 LN=$(match_any 'wp_(enqueue|register)_(script|style)[[:space:]]*\([^)]*,[[:space:]]*time[[:space:]]*\(')
-[ -n "$LN" ] && add_violation "L$LN: time() used as asset version — defeats browser caching. Use FLUENT_EVENTS_PLUGIN_VERSION. Rule: .claude/skills/coding-rules/rulesets/deps-build.md."
+[ -n "$LN" ] && add_violation "L$LN: time() used as asset version — defeats browser caching. Use FLUENT_EVENTS_PLUGIN_VERSION. Rule: .claude/rules/deps-build.md."
 
 # 15. postMessage with target origin '*' (Vue) — diff-aware
 case "$FILE_PATH" in
@@ -234,7 +234,7 @@ if [ -n "$VIOLATIONS" ]; then
     printf '%s' "$VIOLATIONS"
     echo ""
     echo "Fix each violation before continuing."
-    echo "Common rules:  .claude/rules/   |   Area rulesets:  .claude/skills/coding-rules/rulesets/"
+    echo "Rules:  .claude/rules/"
     echo "Per-line opt-out:  add  phpcs:ignore  or  coding-rules-scan:ignore  to the same line"
     echo "Per-file opt-out:  add a comment containing  coding-rules-scan: off"
     echo "Per-session opt-out:  export CODING_RULES_SCAN_OFF=1"

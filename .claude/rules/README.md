@@ -6,11 +6,9 @@ enforces a hard-block subset of these rules on every Edit/Write — diff-aware, 
 only flags patterns introduced by the current edit. These files are the
 human-readable rule of record; the scanner is the safety net.
 
-This folder holds **common coding rules** — universal discipline plus framework-wide
-backend/frontend rules that apply to every file regardless of feature. The
-feature/area rulesets (`email`, `multisite`, `outbound-http`, `deps-build`) stay in
-the broader [`coding-rules` skill](../skills/coding-rules/rulesets/); the scanner
-cites them there.
+This folder holds all coding rules for Fluent Events — universal discipline,
+framework-wide backend/frontend rules, and the scanner-enforced area rules. (The
+former `coding-rules` skill was removed; its enforced rulesets live here now.)
 
 ## Conventions
 
@@ -20,7 +18,7 @@ cites them there.
 - Framework: WPManageNinja / WPFluent ORM — controllers extend a base `Controller`, validate via `$this->validate()`, read input via `$this->request->get()/getSafe()`, respond via `sendSuccess()/sendError()`.
 - Frontend: Vue **Options API only** — no `<script setup>` / Composition API.
 
-## Files (common rules — here)
+## Files
 
 | File | Domain | Scanner rules |
 |------|--------|---------------|
@@ -30,15 +28,10 @@ cites them there.
 | [vue.md](vue.md) | v-html, Options API, postMessage, listeners | 7, 8, 15 |
 | [a11y-i18n.md](a11y-i18n.md) | Frontend a11y + i18n (translation, ARIA, focus, alt) | — (self-audit) |
 | [fix-patterns.md](fix-patterns.md) | unserialize, eval, randomness, hmac | 5, 6, 10, 11 |
-
-## Area rulesets (in the skill — `../skills/coding-rules/rulesets/`)
-
-| File | Domain | Scanner rules |
-|------|--------|---------------|
-| `outbound-http.md` | `wp_remote_*` timeout + SSRF | 9 |
-| `email.md` | Header injection + recipient trust | 13 |
-| `multisite.md` | `switch_to_blog` / scope | 12 |
-| `deps-build.md` | Asset versioning + deps | 14 |
+| [outbound-http.md](outbound-http.md) | `wp_remote_*` timeout + SSRF | 9 |
+| [email.md](email.md) | Header injection + recipient trust | 13 |
+| [multisite.md](multisite.md) | `switch_to_blog` / scope | 12 |
+| [deps-build.md](deps-build.md) | Asset versioning + deps | 14 |
 
 ## Opt-outs (silence the scanner only — the rule still stands)
 
