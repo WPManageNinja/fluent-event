@@ -28,7 +28,7 @@
 **Answer:**
 _(team lead)_
 
-**Affects:** [member-management/member-management.md](functional-requirements/member-management/member-management.md) (add an all-members directory FR, or note management-only), [settings/settings.md](functional-requirements/settings/settings.md) (FR-4.6 privacy — who can view the member list), [02-functional-requirements.md](02-functional-requirements.md) (index)
+**Affects:** [member-management/member-management.md](functional-requirement-parts/member-management/member-management.md) (add an all-members directory FR, or note management-only), [settings/settings.md](functional-requirement-parts/settings/settings.md) (FR-4.6 privacy — who can view the member list), [02-functional-requirements.md](02-functional-requirements.md) (index)
 
 ---
 
@@ -63,13 +63,13 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [settings/settings.md](functional-requirements/settings/settings.md) (FR-4 section list), [02-functional-requirements.md](02-functional-requirements.md) (index)
+**Affects:** [settings/settings.md](functional-requirement-parts/settings/settings.md) (FR-4 section list), [02-functional-requirements.md](02-functional-requirements.md) (index)
 
 ---
 
 ## Q3 — How many email templates do we need?
 
-**Context:** The catalog ([email-settings.md](functional-requirements/settings/email-settings.md)) currently lists **18** emails across account/auth, events, membership, and digest. Need the final set + v1 cut.
+**Context:** The catalog ([email-settings.md](functional-requirement-parts/settings/email-settings.md)) currently lists **18** emails across account/auth, events, membership, and digest. Need the final set + v1 cut.
 
 **Questions:**
 
@@ -84,7 +84,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [settings/email-settings.md](functional-requirements/settings/email-settings.md) (catalog), [settings/settings.md](functional-requirements/settings/settings.md) (FR-4.7)
+**Affects:** [settings/email-settings.md](functional-requirement-parts/settings/email-settings.md) (catalog), [settings/settings.md](functional-requirement-parts/settings/settings.md) (FR-4.7)
 
 ---
 
@@ -113,7 +113,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [activity-tracking/activity-tracking.md](functional-requirements/activity-tracking/activity-tracking.md)
+**Affects:** [activity-tracking/activity-tracking.md](functional-requirement-parts/activity-tracking/activity-tracking.md)
 
 ---
 
@@ -140,7 +140,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [events/events.md](functional-requirements/events/events.md)
+**Affects:** [events/events.md](functional-requirement-parts/events/events.md)
 
 ---
 
@@ -158,6 +158,27 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [calendar/calendar.md](functional-requirements/calendar/calendar.md), [events/events.md](functional-requirements/events/events.md)
+**Affects:** [calendar/calendar.md](functional-requirement-parts/calendar/calendar.md), [calendar/calendar.md](functional-requirement-parts/calendar/calendar.md)
+
+---
+
+## Q6 — Should we show notifications in v1?
+
+**Context:** FR-9 allows to send notifications on different system.
+
+**Questions:**
+
+1. Send notification?
+
+- Recommendation: Not in first phase (implement later).
+
+2. Type of notifications?
+
+- Recommendation: In app, email
+
+**Answer:**
+_(team lead)_
+
+**Affects:** [notification/notification.md](functional-requirements/notifications/notifications.md), [notification/notification.md](functional-requirement/notifications/notifications.md)
 
 ---
