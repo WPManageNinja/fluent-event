@@ -1,0 +1,587 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1672" height="1414" viewBox="0 0 1672 1414" font-family="ui-sans-serif,Segoe UI,Helvetica,Arial,sans-serif">
+<defs>
+<marker id="many" markerWidth="15" markerHeight="15" refX="12" refY="6" orient="auto-start-reverse"><path d="M12,1 L1,6 L12,11 M1,6 L12,6" fill="none" stroke="#475569" stroke-width="1.3"/></marker>
+<marker id="one" markerWidth="12" markerHeight="12" refX="2" refY="6" orient="auto-start-reverse"><path d="M2,1 L2,11" stroke="#475569" stroke-width="1.6"/></marker>
+</defs>
+<rect x="0" y="0" width="1672" height="1414" fill="#f8fafc"/>
+<text x="40" y="44" font-size="25" font-weight="700" fill="#0f172a">Fluent Events — Database Schema</text>
+<text x="40" y="68" font-size="12" fill="#64748b">9 plugin tables (wp_fevents_*) + WP core · solid line = FK · —〈 many · —| one · ◇ polymorphic (object_type/object_id) · events schema derived from FR-6 (doc block is a known dup, Q5).</text>
+<g transform="translate(1372,18)">
+<rect x="0" y="0" width="270" height="40" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<rect x="12" y="14" width="22" height="13" rx="3" fill="#f59e0b"/><text x="23" y="24" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="39" y="24" font-size="9.5" fill="#334155">Primary</text>
+<rect x="100" y="14" width="22" height="13" rx="3" fill="#2563eb"/><text x="111" y="24" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="127" y="24" font-size="9.5" fill="#334155">Foreign</text>
+<rect x="188" y="14" width="22" height="13" rx="3" fill="#9333ea"/><text x="199" y="24" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">UQ</text>
+<text x="215" y="24" font-size="9.5" fill="#334155">Unique</text>
+</g>
+<path d="M444,694 C579,694 579,140 444,140" fill="none" stroke="#6366f1" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M444,712 C579,712 509,134 644,134" fill="none" stroke="#6366f1" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M444,898 C579,898 509,139 644,139" fill="none" stroke="#6366f1" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M444,286 C579,286 509,308 644,308" fill="none" stroke="#4f46e5" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M60,302 C-12,302 -12,110 60,110" fill="none" stroke="#4f46e5" stroke-width="1.6" opacity="0.65" marker-start="url(#many)"/>
+<text x="-10" y="203" font-size="8.5" fill="#4f46e5">self</text>
+<path d="M444,404 C579,404 509,145 644,145" fill="none" stroke="#4f46e5" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M444,422 C579,422 579,1136 444,1136" fill="none" stroke="#4f46e5" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1028,368 C1163,368 1163,848 1028,848" fill="none" stroke="#0d9488" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1028,386 C1163,386 1163,864 1028,864" fill="none" stroke="#0d9488" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1028,436 C1163,436 1163,151 1028,151" fill="none" stroke="#0d9488" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1028,654 C1163,654 1163,324 1028,324" fill="none" stroke="#14b8a6" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1028,670 C1163,670 1163,156 1028,156" fill="none" stroke="#14b8a6" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1228,830 C1093,830 1163,162 1028,162" fill="none" stroke="#d97706" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1028,926 C1163,926 1163,168 1028,168" fill="none" stroke="#db2777" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1228,1068 C1093,1068 1163,173 1028,173" fill="none" stroke="#475569" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1228,150 C1093,150 1163,179 1028,179" fill="none" stroke="#16a34a" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1228,468 C1093,468 1163,185 1028,185" fill="none" stroke="#7c3aed" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<path d="M1228,486 C1093,486 1163,190 1028,190" fill="none" stroke="#7c3aed" stroke-width="1.6" opacity="0.6" marker-start="url(#many)" marker-end="url(#one)"/>
+<g>
+<rect x="60" y="96" width="384" height="481" rx="9" fill="#ffffff" stroke="#4f46e5" stroke-width="1.4"/>
+<path d="M69,96 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#4f46e5"/>
+<text x="72" y="114" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_events</text>
+<rect x="68" y="127.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="78" y="136" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="93" y="136" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="218" y="136" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="136" font-size="8.5" fill="#64748b">Unique event ID</text>
+<rect x="61.5" y="141" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="153" font-size="10.5" fill="#0f172a"><tspan font-weight="600">title</tspan></text>
+<text x="218" y="153" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="153" font-size="8.5" fill="#64748b">Event name</text>
+<rect x="68" y="161.5" width="20" height="11" rx="2.5" fill="#9333ea"/>
+<text x="78" y="170" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">UQ</text>
+<text x="93" y="170" font-size="10.5" fill="#0f172a"><tspan font-weight="600">slug</tspan></text>
+<text x="218" y="170" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="170" font-size="8.5" fill="#64748b">URL-friendly identifier</text>
+<rect x="61.5" y="175" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="187" font-size="10.5" fill="#0f172a"><tspan font-weight="600">description</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="187" font-size="9" fill="#7c3aed">LONGTEXT</text>
+<text x="292" y="187" font-size="8.5" fill="#64748b">Event details/content</text>
+<text x="93" y="204" font-size="10.5" fill="#0f172a"><tspan font-weight="600">status</tspan></text>
+<text x="218" y="204" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="204" font-size="8.5" fill="#64748b">draft|published|archived</text>
+<rect x="61.5" y="209" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="221" font-size="10.5" fill="#0f172a"><tspan font-weight="600">visibility</tspan></text>
+<text x="218" y="221" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="221" font-size="8.5" fill="#64748b">public|unlisted|private</text>
+<text x="93" y="238" font-size="10.5" fill="#0f172a"><tspan font-weight="600">start_at</tspan></text>
+<text x="218" y="238" font-size="9" fill="#7c3aed">DATETIME</text>
+<text x="292" y="238" font-size="8.5" fill="#64748b">Event start in timezone</text>
+<rect x="61.5" y="243" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="255" font-size="10.5" fill="#0f172a"><tspan font-weight="600">end_at</tspan></text>
+<text x="218" y="255" font-size="9" fill="#7c3aed">DATETIME</text>
+<text x="292" y="255" font-size="8.5" fill="#64748b">Event end in timezone</text>
+<text x="93" y="272" font-size="10.5" fill="#0f172a"><tspan font-weight="600">timezone</tspan></text>
+<text x="218" y="272" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="272" font-size="8.5" fill="#64748b">IANA timezone (DST-aware)</text>
+<rect x="61.5" y="277" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="68" y="280.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="78" y="289" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="93" y="289" font-size="10.5" fill="#0f172a"><tspan font-weight="600">calendar_id</tspan></text>
+<text x="218" y="289" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="289" font-size="8.5" fill="#64748b">Parent calendar (v1: default)</text>
+<rect x="68" y="297.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="78" y="306" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="93" y="306" font-size="10.5" fill="#0f172a"><tspan font-weight="600">parent_event_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="306" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="306" font-size="8.5" fill="#64748b">Master in recurring series</text>
+<rect x="61.5" y="311" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="323" font-size="10.5" fill="#0f172a"><tspan font-weight="600">location_address</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="323" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="323" font-size="8.5" fill="#64748b">Physical address (Google Pla…</text>
+<text x="93" y="340" font-size="10.5" fill="#0f172a"><tspan font-weight="600">location_lat</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="340" font-size="9" fill="#7c3aed">DECIMAL</text>
+<text x="292" y="340" font-size="8.5" fill="#64748b">Latitude coordinate</text>
+<rect x="61.5" y="345" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="357" font-size="10.5" fill="#0f172a"><tspan font-weight="600">location_lng</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="357" font-size="9" fill="#7c3aed">DECIMAL</text>
+<text x="292" y="357" font-size="8.5" fill="#64748b">Longitude coordinate</text>
+<text x="93" y="374" font-size="10.5" fill="#0f172a"><tspan font-weight="600">online_meeting_url</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="374" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="374" font-size="8.5" fill="#64748b">Google Meet or Zoom link</text>
+<rect x="61.5" y="379" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="391" font-size="10.5" fill="#0f172a"><tspan font-weight="600">capacity</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="391" font-size="9" fill="#7c3aed">INT</text>
+<text x="292" y="391" font-size="8.5" fill="#64748b">Max attendees; null=unlimited</text>
+<rect x="68" y="399.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="78" y="408" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="93" y="408" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_by</tspan></text>
+<text x="218" y="408" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="408" font-size="8.5" fill="#64748b">Host/creator user</text>
+<rect x="61.5" y="413" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="68" y="416.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="78" y="425" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="93" y="425" font-size="10.5" fill="#0f172a"><tspan font-weight="600">cover_image_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="425" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="425" font-size="8.5" fill="#64748b">Featured image (wp_posts)</text>
+<text x="93" y="442" font-size="10.5" fill="#0f172a"><tspan font-weight="600">settings</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="442" font-size="9" fill="#7c3aed">JSON</text>
+<text x="292" y="442" font-size="8.5" fill="#64748b">Per-event config; recurrence…</text>
+<rect x="61.5" y="447" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="459" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="218" y="459" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="292" y="459" font-size="8.5" fill="#64748b">Record creation time</text>
+<text x="93" y="476" font-size="10.5" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
+<text x="218" y="476" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="292" y="476" font-size="8.5" fill="#64748b">Last modification time</text>
+<line x1="68" y1="485" x2="436" y2="485" stroke="#e2e8f0"/>
+<text x="70" y="498" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="122" y="498" font-size="8.5" fill="#475569">(calendar_id)</text>
+<text x="122" y="511" font-size="8.5" fill="#475569">(created_by)</text>
+<text x="122" y="524" font-size="8.5" fill="#475569">(status, visibility)</text>
+<text x="122" y="537" font-size="8.5" fill="#475569">(start_at, end_at)</text>
+<text x="122" y="550" font-size="8.5" fill="#475569">UNIQUE (slug)</text>
+</g>
+<g>
+<rect x="60" y="641" width="384" height="387" rx="9" fill="#ffffff" stroke="#6366f1" stroke-width="1.4"/>
+<path d="M69,641 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#6366f1"/>
+<text x="72" y="659" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_event_guests</text>
+<rect x="68" y="672.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="78" y="681" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="93" y="681" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="218" y="681" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="681" font-size="8.5" fill="#64748b">Unique guest record ID</text>
+<rect x="61.5" y="686" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="68" y="689.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="78" y="698" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="93" y="698" font-size="10.5" fill="#0f172a"><tspan font-weight="600">event_id</tspan></text>
+<text x="218" y="698" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="698" font-size="8.5" fill="#64748b">Parent event</text>
+<rect x="68" y="706.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="78" y="715" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="93" y="715" font-size="10.5" fill="#0f172a"><tspan font-weight="600">user_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="715" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="715" font-size="8.5" fill="#64748b">Null until account claimed</text>
+<rect x="61.5" y="720" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="732" font-size="10.5" fill="#0f172a"><tspan font-weight="600">email</tspan></text>
+<text x="218" y="732" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="732" font-size="8.5" fill="#64748b">For invite/import pre-account</text>
+<text x="93" y="749" font-size="10.5" fill="#0f172a"><tspan font-weight="600">status</tspan></text>
+<text x="218" y="749" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="749" font-size="8.5" fill="#64748b">invited|requested|approved|a…</text>
+<rect x="61.5" y="754" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="766" font-size="10.5" fill="#0f172a"><tspan font-weight="600">source</tspan></text>
+<text x="218" y="766" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="766" font-size="8.5" fill="#64748b">invite|link|import|request</text>
+<text x="93" y="783" font-size="10.5" fill="#0f172a"><tspan font-weight="600">form_response</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="783" font-size="9" fill="#7c3aed">JSON</text>
+<text x="292" y="783" font-size="8.5" fill="#64748b">Join form answers</text>
+<rect x="61.5" y="788" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="800" font-size="10.5" fill="#0f172a"><tspan font-weight="600">settings</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="800" font-size="9" fill="#7c3aed">JSON</text>
+<text x="292" y="800" font-size="8.5" fill="#64748b">Per-guest prefs/overrides; n…</text>
+<text x="93" y="817" font-size="10.5" fill="#0f172a"><tspan font-weight="600">payment_status</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="817" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="817" font-size="8.5" fill="#64748b">pending|paid|refunded|failed…</text>
+<rect x="61.5" y="822" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="834" font-size="10.5" fill="#0f172a"><tspan font-weight="600">payment_ref</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="834" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="834" font-size="8.5" fill="#64748b">Paymattic transaction/submis…</text>
+<text x="93" y="851" font-size="10.5" fill="#0f172a"><tspan font-weight="600">amount</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="851" font-size="9" fill="#7c3aed">DECIMAL</text>
+<text x="292" y="851" font-size="8.5" fill="#64748b">Snapshot of amount paid</text>
+<rect x="61.5" y="856" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="868" font-size="10.5" fill="#0f172a"><tspan font-weight="600">currency</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="868" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="292" y="868" font-size="8.5" fill="#64748b">ISO currency code snapshot</text>
+<text x="93" y="885" font-size="10.5" fill="#0f172a"><tspan font-weight="600">paid_at</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="885" font-size="9" fill="#7c3aed">DATETIME</text>
+<text x="292" y="885" font-size="8.5" fill="#64748b">Payment timestamp</text>
+<rect x="61.5" y="890" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="68" y="893.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="78" y="902" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="93" y="902" font-size="10.5" fill="#0f172a"><tspan font-weight="600">invited_by</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="902" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="902" font-size="8.5" fill="#64748b">Manager who sent invite</text>
+<text x="93" y="919" font-size="10.5" fill="#0f172a"><tspan font-weight="600">responded_at</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="218" y="919" font-size="9" fill="#7c3aed">DATETIME</text>
+<text x="292" y="919" font-size="8.5" fill="#64748b">RSVP timestamp</text>
+<rect x="61.5" y="924" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="93" y="936" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="218" y="936" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="292" y="936" font-size="8.5" fill="#64748b">Record creation time</text>
+<text x="93" y="953" font-size="10.5" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
+<text x="218" y="953" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="292" y="953" font-size="8.5" fill="#64748b">Last modification time</text>
+<line x1="68" y1="962" x2="436" y2="962" stroke="#e2e8f0"/>
+<text x="70" y="975" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="122" y="975" font-size="8.5" fill="#475569">(event_id, status)</text>
+<text x="122" y="988" font-size="8.5" fill="#475569">(user_id)</text>
+<text x="122" y="1001" font-size="8.5" fill="#475569">(email)</text>
+</g>
+<g>
+<rect x="60" y="1092" width="384" height="53" rx="9" fill="#ffffff" stroke="#64748b" stroke-width="1.4"/>
+<path d="M69,1092 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#64748b"/>
+<text x="72" y="1110" font-size="12.5" font-weight="700" fill="#ffffff">wp_posts</text>
+<rect x="68" y="1123.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="78" y="1132" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="93" y="1132" font-size="10.5" fill="#0f172a"><tspan font-weight="600">ID</tspan></text>
+<text x="218" y="1132" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="292" y="1132" font-size="8.5" fill="#64748b">Attachment / post ID</text>
+</g>
+<g>
+<rect x="644" y="96" width="384" height="104" rx="9" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
+<path d="M653,96 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#1e293b"/>
+<text x="656" y="114" font-size="12.5" font-weight="700" fill="#ffffff">wp_users</text>
+<rect x="652" y="127.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="662" y="136" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="677" y="136" font-size="10.5" fill="#0f172a"><tspan font-weight="600">ID</tspan></text>
+<text x="802" y="136" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="136" font-size="8.5" fill="#64748b">User identity (FK target)</text>
+<rect x="645.5" y="141" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="153" font-size="10.5" fill="#0f172a"><tspan font-weight="600">user_login</tspan></text>
+<text x="802" y="153" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="153" font-size="8.5" fill="#64748b">Login name</text>
+<text x="677" y="170" font-size="10.5" fill="#0f172a"><tspan font-weight="600">user_email</tspan></text>
+<text x="802" y="170" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="170" font-size="8.5" fill="#64748b">Email</text>
+<rect x="645.5" y="175" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="187" font-size="10.5" fill="#0f172a"><tspan font-weight="600">display_name</tspan></text>
+<text x="802" y="187" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="187" font-size="8.5" fill="#64748b">Display name</text>
+</g>
+<g>
+<rect x="644" y="264" width="384" height="272" rx="9" fill="#ffffff" stroke="#0d9488" stroke-width="1.4"/>
+<path d="M653,264 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#0d9488"/>
+<text x="656" y="282" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_calendars</text>
+<rect x="652" y="295.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="662" y="304" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="677" y="304" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="802" y="304" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="304" font-size="8.5" fill="#64748b">Primary key</text>
+<rect x="645.5" y="309" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="321" font-size="10.5" fill="#0f172a"><tspan font-weight="600">name</tspan></text>
+<text x="802" y="321" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="321" font-size="8.5" fill="#64748b">Calendar name</text>
+<rect x="652" y="329.5" width="20" height="11" rx="2.5" fill="#9333ea"/>
+<text x="662" y="338" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">UQ</text>
+<text x="677" y="338" font-size="10.5" fill="#0f172a"><tspan font-weight="600">slug</tspan></text>
+<text x="802" y="338" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="338" font-size="8.5" fill="#64748b">Unique shareable URL</text>
+<rect x="645.5" y="343" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="355" font-size="10.5" fill="#0f172a"><tspan font-weight="600">description</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="355" font-size="9" fill="#7c3aed">TEXT</text>
+<text x="876" y="355" font-size="8.5" fill="#64748b">Calendar description</text>
+<rect x="652" y="363.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="662" y="372" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="677" y="372" font-size="10.5" fill="#0f172a"><tspan font-weight="600">logo_media_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="372" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="372" font-size="8.5" fill="#64748b">FK to wp_fevents_media</text>
+<rect x="645.5" y="377" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="652" y="380.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="662" y="389" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="677" y="389" font-size="10.5" fill="#0f172a"><tspan font-weight="600">cover_media_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="389" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="389" font-size="8.5" fill="#64748b">FK to wp_fevents_media</text>
+<text x="677" y="406" font-size="10.5" fill="#0f172a"><tspan font-weight="600">visibility</tspan></text>
+<text x="802" y="406" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="406" font-size="8.5" fill="#64748b">public|unlisted|private</text>
+<rect x="645.5" y="411" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="423" font-size="10.5" fill="#0f172a"><tspan font-weight="600">settings</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="423" font-size="9" fill="#7c3aed">JSON</text>
+<text x="876" y="423" font-size="8.5" fill="#64748b">theme, manage caps, notif pr…</text>
+<rect x="652" y="431.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="662" y="440" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="677" y="440" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_by</tspan></text>
+<text x="802" y="440" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="440" font-size="8.5" fill="#64748b">host/manager user id</text>
+<rect x="645.5" y="445" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="457" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="802" y="457" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="876" y="457" font-size="8.5" fill="#64748b">Creation timestamp</text>
+<text x="677" y="474" font-size="10.5" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
+<text x="802" y="474" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="876" y="474" font-size="8.5" fill="#64748b">Update timestamp</text>
+<line x1="652" y1="483" x2="1020" y2="483" stroke="#e2e8f0"/>
+<text x="654" y="496" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="706" y="496" font-size="8.5" fill="#475569">(slug)</text>
+<text x="706" y="509" font-size="8.5" fill="#475569">(visibility)</text>
+</g>
+<g>
+<rect x="644" y="600" width="384" height="140" rx="9" fill="#ffffff" stroke="#14b8a6" stroke-width="1.4"/>
+<path d="M653,600 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#14b8a6"/>
+<text x="656" y="618" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_calendar_followers</text>
+<rect x="652" y="631.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="662" y="640" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="677" y="640" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="802" y="640" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="640" font-size="8.5" fill="#64748b">Primary key</text>
+<rect x="645.5" y="645" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="652" y="648.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="662" y="657" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="677" y="657" font-size="10.5" fill="#0f172a"><tspan font-weight="600">calendar_id</tspan></text>
+<text x="802" y="657" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="657" font-size="8.5" fill="#64748b">FK to wp_fevents_calendars</text>
+<rect x="652" y="665.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="662" y="674" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="677" y="674" font-size="10.5" fill="#0f172a"><tspan font-weight="600">user_id</tspan></text>
+<text x="802" y="674" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="674" font-size="8.5" fill="#64748b">follower user id</text>
+<rect x="645.5" y="679" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="691" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="802" y="691" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="876" y="691" font-size="8.5" fill="#64748b">Follow timestamp</text>
+<line x1="652" y1="700" x2="1020" y2="700" stroke="#e2e8f0"/>
+<text x="654" y="713" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="706" y="713" font-size="8.5" fill="#475569">UNIQUE (calendar_id, user_id)</text>
+</g>
+<g>
+<rect x="644" y="804" width="384" height="349" rx="9" fill="#ffffff" stroke="#db2777" stroke-width="1.4"/>
+<path d="M653,804 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#db2777"/>
+<text x="656" y="822" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_media</text>
+<text x="1016" y="822" font-size="9" fill="#ffffff" opacity="0.85" text-anchor="end">◇ polymorphic</text>
+<rect x="652" y="835.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="662" y="844" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="677" y="844" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="802" y="844" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="844" font-size="8.5" fill="#64748b">Primary key</text>
+<rect x="645.5" y="849" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="652" y="852.5" width="20" height="11" rx="2.5" fill="#9333ea"/>
+<text x="662" y="861" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">UQ</text>
+<text x="677" y="861" font-size="10.5" fill="#0f172a"><tspan font-weight="600">media_key</tspan></text>
+<text x="802" y="861" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="861" font-size="8.5" fill="#64748b">Unique handle to reference m…</text>
+<text x="677" y="878" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_type</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="878" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="878" font-size="8.5" fill="#64748b">event, calendar, user, email…</text>
+<rect x="645.5" y="883" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="895" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="895" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="895" font-size="8.5" fill="#64748b">Attached entity ID; NULL=orp…</text>
+<text x="677" y="912" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_source</tspan></text>
+<text x="802" y="912" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="912" font-size="8.5" fill="#64748b">Semantic slot: event_cover, …</text>
+<rect x="645.5" y="917" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="652" y="920.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="662" y="929" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="677" y="929" font-size="10.5" fill="#0f172a"><tspan font-weight="600">user_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="929" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="876" y="929" font-size="8.5" fill="#64748b">Uploader user ID</text>
+<text x="677" y="946" font-size="10.5" fill="#0f172a"><tspan font-weight="600">status</tspan></text>
+<text x="802" y="946" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="946" font-size="8.5" fill="#64748b">active or deleted</text>
+<rect x="645.5" y="951" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="963" font-size="10.5" fill="#0f172a"><tspan font-weight="600">media_type</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="963" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="963" font-size="8.5" fill="#64748b">MIME type or category</text>
+<text x="677" y="980" font-size="10.5" fill="#0f172a"><tspan font-weight="600">driver</tspan></text>
+<text x="802" y="980" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="876" y="980" font-size="8.5" fill="#64748b">Storage backend: local, s3</text>
+<rect x="645.5" y="985" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="997" font-size="10.5" fill="#0f172a"><tspan font-weight="600">media_path</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="997" font-size="9" fill="#7c3aed">TEXT</text>
+<text x="876" y="997" font-size="8.5" fill="#64748b">Storage path on driver</text>
+<text x="677" y="1014" font-size="10.5" fill="#0f172a"><tspan font-weight="600">media_url</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="1014" font-size="9" fill="#7c3aed">TEXT</text>
+<text x="876" y="1014" font-size="8.5" fill="#64748b">Public URL</text>
+<rect x="645.5" y="1019" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="1031" font-size="10.5" fill="#0f172a"><tspan font-weight="600">settings</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="802" y="1031" font-size="9" fill="#7c3aed">JSON</text>
+<text x="876" y="1031" font-size="8.5" fill="#64748b">Dimensions, alt text, sizes</text>
+<text x="677" y="1048" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="802" y="1048" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="876" y="1048" font-size="8.5" fill="#64748b">Creation timestamp</text>
+<rect x="645.5" y="1053" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="677" y="1065" font-size="10.5" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
+<text x="802" y="1065" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="876" y="1065" font-size="8.5" fill="#64748b">Last update timestamp</text>
+<line x1="652" y1="1074" x2="1020" y2="1074" stroke="#e2e8f0"/>
+<text x="654" y="1087" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="706" y="1087" font-size="8.5" fill="#475569">(object_type, object_id)</text>
+<text x="706" y="1100" font-size="8.5" fill="#475569">(media_key)</text>
+<text x="706" y="1113" font-size="8.5" fill="#475569">(status)</text>
+<text x="706" y="1126" font-size="8.5" fill="#475569">(user_id)</text>
+</g>
+<g>
+<rect x="1228" y="96" width="384" height="255" rx="9" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+<path d="M1237,96 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#16a34a"/>
+<text x="1240" y="114" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_profiles</text>
+<rect x="1236" y="127.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="1246" y="136" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="1261" y="136" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="1386" y="136" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="136" font-size="8.5" fill="#64748b">Auto-increment primary key</text>
+<rect x="1229.5" y="141" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="1236" y="144.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="1246" y="153" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">P/F</text>
+<text x="1261" y="153" font-size="10.5" fill="#0f172a"><tspan font-weight="600">user_id</tspan></text>
+<text x="1386" y="153" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="153" font-size="8.5" fill="#64748b">FK to wp_users.ID (1:1)</text>
+<text x="1261" y="170" font-size="10.5" fill="#0f172a"><tspan font-weight="600">username</tspan></text>
+<text x="1386" y="170" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="170" font-size="8.5" fill="#64748b">Unique public handle / profi…</text>
+<rect x="1229.5" y="175" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="187" font-size="10.5" fill="#0f172a"><tspan font-weight="600">display_name</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="187" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="187" font-size="8.5" fill="#64748b">Shown across events/calendars</text>
+<text x="1261" y="204" font-size="10.5" fill="#0f172a"><tspan font-weight="600">avatar</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="204" font-size="9" fill="#7c3aed">TEXT</text>
+<text x="1460" y="204" font-size="8.5" fill="#64748b">URL; fallback to gravatar / …</text>
+<rect x="1229.5" y="209" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="221" font-size="10.5" fill="#0f172a"><tspan font-weight="600">status</tspan></text>
+<text x="1386" y="221" font-size="9" fill="#7c3aed">ENUM(&#x27;active…</text>
+<text x="1460" y="221" font-size="8.5" fill="#64748b">Account state: active, pendi…</text>
+<text x="1261" y="238" font-size="10.5" fill="#0f172a"><tspan font-weight="600">is_verified</tspan></text>
+<text x="1386" y="238" font-size="9" fill="#7c3aed">TINYINT</text>
+<text x="1460" y="238" font-size="8.5" fill="#64748b">Email-verified flag (1=verif…</text>
+<rect x="1229.5" y="243" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="255" font-size="10.5" fill="#0f172a"><tspan font-weight="600">meta</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="255" font-size="9" fill="#7c3aed">LONGTEXT</text>
+<text x="1460" y="255" font-size="8.5" fill="#64748b">Extensible JSON: bio, cover …</text>
+<text x="1261" y="272" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="1386" y="272" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="1460" y="272" font-size="8.5" fill="#64748b">Profile creation timestamp</text>
+<rect x="1229.5" y="277" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="289" font-size="10.5" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
+<text x="1386" y="289" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="1460" y="289" font-size="8.5" fill="#64748b">Profile last update timestamp</text>
+<line x1="1236" y1="298" x2="1604" y2="298" stroke="#e2e8f0"/>
+<text x="1238" y="311" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="1290" y="311" font-size="8.5" fill="#475569">(id)</text>
+<text x="1290" y="324" font-size="8.5" fill="#475569">UNIQUE (user_id)</text>
+</g>
+<g>
+<rect x="1228" y="415" width="384" height="281" rx="9" fill="#ffffff" stroke="#7c3aed" stroke-width="1.4"/>
+<path d="M1237,415 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#7c3aed"/>
+<text x="1240" y="433" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_notifications</text>
+<text x="1600" y="433" font-size="9" fill="#ffffff" opacity="0.85" text-anchor="end">◇ polymorphic</text>
+<rect x="1236" y="446.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="1246" y="455" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="1261" y="455" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="1386" y="455" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="455" font-size="8.5" fill="#64748b">Notification record identifi…</text>
+<rect x="1229.5" y="460" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="1236" y="463.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="1246" y="472" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="1261" y="472" font-size="10.5" fill="#0f172a"><tspan font-weight="600">recipient_id</tspan></text>
+<text x="1386" y="472" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="472" font-size="8.5" fill="#64748b">User who sees the notificati…</text>
+<rect x="1236" y="480.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="1246" y="489" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="1261" y="489" font-size="10.5" fill="#0f172a"><tspan font-weight="600">actor_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="489" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="489" font-size="8.5" fill="#64748b">User who triggered it; null …</text>
+<rect x="1229.5" y="494" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="506" font-size="10.5" fill="#0f172a"><tspan font-weight="600">action</tspan></text>
+<text x="1386" y="506" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="506" font-size="8.5" fill="#64748b">Typed action (e.g. event.joi…</text>
+<text x="1261" y="523" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_type</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="523" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="523" font-size="8.5" fill="#64748b">Type of object (event, calen…</text>
+<rect x="1229.5" y="528" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="540" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="540" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="540" font-size="8.5" fill="#64748b">ID of the related object</text>
+<text x="1261" y="557" font-size="10.5" fill="#0f172a"><tspan font-weight="600">data</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="557" font-size="9" fill="#7c3aed">JSON</text>
+<text x="1460" y="557" font-size="8.5" fill="#64748b">Render context: names, title…</text>
+<rect x="1229.5" y="562" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="574" font-size="10.5" fill="#0f172a"><tspan font-weight="600">route</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="574" font-size="9" fill="#7c3aed">TEXT</text>
+<text x="1460" y="574" font-size="8.5" fill="#64748b">Deep link to relevant portal…</text>
+<text x="1261" y="591" font-size="10.5" fill="#0f172a"><tspan font-weight="600">read_at</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="591" font-size="9" fill="#7c3aed">DATETIME</text>
+<text x="1460" y="591" font-size="8.5" fill="#64748b">When read; null = unread</text>
+<rect x="1229.5" y="596" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="608" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="1386" y="608" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="1460" y="608" font-size="8.5" fill="#64748b">When notification was created</text>
+<line x1="1236" y1="617" x2="1604" y2="617" stroke="#e2e8f0"/>
+<text x="1238" y="630" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="1290" y="630" font-size="8.5" fill="#475569">(recipient_id, read_at)</text>
+<text x="1290" y="643" font-size="8.5" fill="#475569">(object_type, object_id)</text>
+<text x="1290" y="656" font-size="8.5" fill="#475569">(action)</text>
+<text x="1290" y="669" font-size="8.5" fill="#475569">UNIQUE (recipient_id, action, object_id)</text>
+</g>
+<g>
+<rect x="1228" y="760" width="384" height="191" rx="9" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/>
+<path d="M1237,760 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#d97706"/>
+<text x="1240" y="778" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_meta</text>
+<text x="1600" y="778" font-size="9" fill="#ffffff" opacity="0.85" text-anchor="end">◇ polymorphic</text>
+<rect x="1236" y="791.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="1246" y="800" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="1261" y="800" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="1386" y="800" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="800" font-size="8.5" fill="#64748b">Auto-increment primary key</text>
+<rect x="1229.5" y="805" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="817" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_type</tspan></text>
+<text x="1386" y="817" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="817" font-size="8.5" fill="#64748b">option|user|event|calendar; …</text>
+<rect x="1236" y="825.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="1246" y="834" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="1261" y="834" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="834" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="834" font-size="8.5" fill="#64748b">user_id/event_id/calendar_id…</text>
+<rect x="1229.5" y="839" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="851" font-size="10.5" fill="#0f172a"><tspan font-weight="600">meta_key</tspan></text>
+<text x="1386" y="851" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="851" font-size="8.5" fill="#64748b">Section name or meta key</text>
+<text x="1261" y="868" font-size="10.5" fill="#0f172a"><tspan font-weight="600">value</tspan></text>
+<text x="1386" y="868" font-size="9" fill="#7c3aed">LONGTEXT</text>
+<text x="1460" y="868" font-size="8.5" fill="#64748b">JSON or serialized data</text>
+<rect x="1229.5" y="873" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="885" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="1386" y="885" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="1460" y="885" font-size="8.5" fill="#64748b">Creation timestamp</text>
+<text x="1261" y="902" font-size="10.5" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
+<text x="1386" y="902" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="1460" y="902" font-size="8.5" fill="#64748b">Last update timestamp</text>
+<line x1="1236" y1="911" x2="1604" y2="911" stroke="#e2e8f0"/>
+<text x="1238" y="924" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="1290" y="924" font-size="8.5" fill="#475569">(object_type, object_id, meta_key)</text>
+</g>
+<g>
+<rect x="1228" y="1015" width="384" height="311" rx="9" fill="#ffffff" stroke="#475569" stroke-width="1.4"/>
+<path d="M1237,1015 h366 a9,9 0 0 1 9,9 v19 h-384 v-19 a9,9 0 0 1 9,-9 z" fill="#475569"/>
+<text x="1240" y="1033" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_activities</text>
+<text x="1600" y="1033" font-size="9" fill="#ffffff" opacity="0.85" text-anchor="end">◇ polymorphic</text>
+<rect x="1236" y="1046.5" width="20" height="11" rx="2.5" fill="#f59e0b"/>
+<text x="1246" y="1055" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+<text x="1261" y="1055" font-size="10.5" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
+<text x="1386" y="1055" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="1055" font-size="8.5" fill="#64748b">Auto-increment primary key</text>
+<rect x="1229.5" y="1060" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<rect x="1236" y="1063.5" width="20" height="11" rx="2.5" fill="#2563eb"/>
+<text x="1246" y="1072" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
+<text x="1261" y="1072" font-size="10.5" fill="#0f172a"><tspan font-weight="600">actor_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="1072" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="1072" font-size="8.5" fill="#64748b">Who performed it; NULL = sys…</text>
+<text x="1261" y="1089" font-size="10.5" fill="#0f172a"><tspan font-weight="600">actor_type</tspan></text>
+<text x="1386" y="1089" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="1089" font-size="8.5" fill="#64748b">user | system | guest</text>
+<rect x="1229.5" y="1094" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="1106" font-size="10.5" fill="#0f172a"><tspan font-weight="600">action</tspan></text>
+<text x="1386" y="1106" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="1106" font-size="8.5" fill="#64748b">From the registry (e.g. even…</text>
+<text x="1261" y="1123" font-size="10.5" fill="#0f172a"><tspan font-weight="600">category</tspan></text>
+<text x="1386" y="1123" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="1123" font-size="8.5" fill="#64748b">auth | event | member | admi…</text>
+<rect x="1229.5" y="1128" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="1140" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_type</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="1140" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="1140" font-size="8.5" fill="#64748b">event | calendar | member | …</text>
+<text x="1261" y="1157" font-size="10.5" fill="#0f172a"><tspan font-weight="600">object_id</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="1157" font-size="9" fill="#7c3aed">BIGINT</text>
+<text x="1460" y="1157" font-size="8.5" fill="#64748b">The acted-on entity</text>
+<rect x="1229.5" y="1162" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="1174" font-size="10.5" fill="#0f172a"><tspan font-weight="600">context</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="1174" font-size="9" fill="#7c3aed">JSON</text>
+<text x="1460" y="1174" font-size="8.5" fill="#64748b">Structured detail — before/a…</text>
+<text x="1261" y="1191" font-size="10.5" fill="#0f172a"><tspan font-weight="600">ip</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="1191" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="1191" font-size="8.5" fill="#64748b">Actor IP (audit)</text>
+<rect x="1229.5" y="1196" width="381" height="17" fill="#f1f5f9" opacity="0.6"/>
+<text x="1261" y="1208" font-size="10.5" fill="#0f172a"><tspan font-weight="600">user_agent</tspan><tspan fill="#94a3b8" font-size="8">?</tspan></text>
+<text x="1386" y="1208" font-size="9" fill="#7c3aed">VARCHAR</text>
+<text x="1460" y="1208" font-size="8.5" fill="#64748b">Actor UA (audit)</text>
+<text x="1261" y="1225" font-size="10.5" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
+<text x="1386" y="1225" font-size="9" fill="#7c3aed">TIMESTAMP</text>
+<text x="1460" y="1225" font-size="8.5" fill="#64748b">Set once — no updated_at</text>
+<line x1="1236" y1="1234" x2="1604" y2="1234" stroke="#e2e8f0"/>
+<text x="1238" y="1247" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
+<text x="1290" y="1247" font-size="8.5" fill="#475569">(actor_id)</text>
+<text x="1290" y="1260" font-size="8.5" fill="#475569">(object_type, object_id)</text>
+<text x="1290" y="1273" font-size="8.5" fill="#475569">(action)</text>
+<text x="1290" y="1286" font-size="8.5" fill="#475569">(category)</text>
+<text x="1290" y="1299" font-size="8.5" fill="#475569">(created_at)</text>
+</g>
+</svg>
