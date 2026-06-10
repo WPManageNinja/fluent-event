@@ -28,6 +28,7 @@ cites them there.
 | [controllers-services.md](controllers-services.md) | Layering + mass assignment | 2, 3 |
 | [routes.md](routes.md) | REST/AJAX permission + ownership | 4 |
 | [vue.md](vue.md) | v-html, Options API, postMessage, listeners | 7, 8, 15 |
+| [a11y-i18n.md](a11y-i18n.md) | Frontend a11y + i18n (translation, ARIA, focus, alt) | — (self-audit) |
 | [fix-patterns.md](fix-patterns.md) | unserialize, eval, randomness, hmac | 5, 6, 10, 11 |
 
 ## Area rulesets (in the skill — `../skills/coding-rules/rulesets/`)
