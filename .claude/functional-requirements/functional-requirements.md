@@ -51,3 +51,9 @@
 **Summary:** Space-owned calendars that group events. Host/managers create calendars; events file under them via `calendar_id`. Each has a shareable public page members browse + follow, plus per-calendar settings, insights, and notifications.
 
 → Full spec: [functional-requirements/calendar/calendar.md](functional-requirements/calendar/calendar.md)
+
+## FR-9: Notifications
+
+**Summary:** Notification system across channels — in-app feed (with unread state) + email (FR-4.7). Per-recipient rows, typed action registry, polymorphic object, render-at-read, per-user per-channel preferences. The dispatcher fans a trigger out to the right recipients on their enabled channels.
+
+→ Full spec: [functional-requirements/notifications/notifications.md](functional-requirements/notifications/notifications.md)
