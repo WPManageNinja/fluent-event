@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="634" viewBox="0 0 980 634" font-family="ui-sans-serif,Segoe UI,Helvetica,Arial,sans-serif">
+<defs>
+<marker id="ar64748b" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto-start-reverse"><path d="M1,1 L9,5 L1,9 z" fill="#64748b"/></marker>
+<marker id="ar7c3aed" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto-start-reverse"><path d="M1,1 L9,5 L1,9 z" fill="#7c3aed"/></marker>
+<marker id="ar0d9488" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto-start-reverse"><path d="M1,1 L9,5 L1,9 z" fill="#0d9488"/></marker>
+</defs>
+<rect x="0" y="0" width="980" height="634" fill="#f8fafc"/>
+<text x="40" y="40" font-size="24" font-weight="700" fill="#0f172a">Fluent Events — Calendar Lifecycle &amp; Sharing</text>
+<text x="40" y="60" font-size="12" fill="#64748b">Create → configure → share (public page) → events file under it → members follow → notify followers.</text>
+<text x="580" y="350" font-size="10" font-weight="700" fill="#7c3aed" letter-spacing="0.5">NOTIFICATIONS  (calendar.*)</text>
+<path d="M280.0,166 C280.0,206 280.0,152 280.0,192" fill="none" stroke="#64748b" stroke-width="1.9" opacity="0.8" marker-end="url(#ar64748b)"/>
+<path d="M280.0,256 C280.0,296 280.0,242 280.0,282" fill="none" stroke="#64748b" stroke-width="1.9" opacity="0.8" marker-end="url(#ar64748b)"/>
+<path d="M280.0,338 C280.0,378 280.0,324 280.0,364" fill="none" stroke="#64748b" stroke-width="1.9" opacity="0.8" marker-end="url(#ar64748b)"/>
+<rect x="240" y="343" width="80" height="14" rx="3" fill="#f8fafc" opacity="0.92"/>
+<text x="280" y="353" font-size="8.6" fill="#64748b" text-anchor="middle">events filed</text>
+<path d="M280.0,422 C280.0,462 280.0,408 280.0,448" fill="none" stroke="#64748b" stroke-width="1.9" opacity="0.8" marker-end="url(#ar64748b)"/>
+<path d="M280.0,506 C280.0,546 280.0,492 280.0,532" fill="none" stroke="#64748b" stroke-width="1.9" opacity="0.8" marker-end="url(#ar64748b)"/>
+<path d="M500,310.0 C540,310.0 540,174.0 580,174.0" fill="none" stroke="#0d9488" stroke-width="1.6" opacity="0.8" stroke-dasharray="3,3" marker-end="url(#ar0d9488)"/>
+<rect x="506" y="234" width="68" height="14" rx="3" fill="#f8fafc" opacity="0.92"/>
+<text x="540" y="244" font-size="8.6" fill="#0d9488" text-anchor="middle">visibility</text>
+<path d="M500,393.0 C540,393.0 540,388.0 580,388.0" fill="none" stroke="#7c3aed" stroke-width="1.6" opacity="0.8" stroke-dasharray="6,4" marker-end="url(#ar7c3aed)"/>
+<path d="M500,393.0 C540,393.0 540,440.0 580,440.0" fill="none" stroke="#7c3aed" stroke-width="1.6" opacity="0.8" stroke-dasharray="6,4" marker-end="url(#ar7c3aed)"/>
+<g><rect x="60" y="92" width="440" height="74" rx="9" fill="#ffffff" stroke="#4f46e5" stroke-width="1.8"/>
+<rect x="60" y="92" width="6" height="74" rx="3" fill="#4f46e5"/>
+<text x="76" y="114" font-size="13" font-weight="700" fill="#4f46e5">1 · Create calendar  (host / managers)</text>
+<text x="76" y="132" font-size="8.8" fill="#475569">name · slug · description · logo / cover · visibility · settings</text>
+<text x="76" y="146" font-size="8.8" fill="#475569">v1: hidden “Default Calendar” auto-created on the first event</text>
+</g>
+<g><rect x="60" y="192" width="440" height="64" rx="9" fill="#ffffff" stroke="#16a34a" stroke-width="1.8"/>
+<rect x="60" y="192" width="6" height="64" rx="3" fill="#16a34a"/>
+<text x="76" y="214" font-size="13" font-weight="700" fill="#16a34a">2 · Configure</text>
+<text x="76" y="232" font-size="8.8" fill="#475569">visibility (public / unlisted / private) · branding (logo, cover)</text>
+<text x="76" y="246" font-size="8.8" fill="#475569">managers + caps · per-calendar notification prefs · insights</text>
+</g>
+<g><rect x="60" y="282" width="440" height="56" rx="9" fill="#ffffff" stroke="#0d9488" stroke-width="1.8"/>
+<rect x="60" y="282" width="6" height="56" rx="3" fill="#0d9488"/>
+<text x="76" y="304" font-size="13" font-weight="700" fill="#0d9488">3 · Share — public page</text>
+<text x="76" y="322" font-size="8.8" fill="#475569">shareable URL  /&lt;slug&gt;  ·  members browse the calendar</text>
+</g>
+<g><rect x="60" y="364" width="440" height="58" rx="9" fill="#ffffff" stroke="#4338ca" stroke-width="1.8"/>
+<rect x="60" y="364" width="6" height="58" rx="3" fill="#4338ca"/>
+<text x="76" y="386" font-size="13" font-weight="700" fill="#4338ca">4 · Events filed under it</text>
+<text x="76" y="404" font-size="8.8" fill="#475569">events carry calendar_id → grouped &amp; shown · insights aggregate</text>
+</g>
+<g><rect x="60" y="448" width="440" height="58" rx="9" fill="#ffffff" stroke="#14b8a6" stroke-width="1.8"/>
+<rect x="60" y="448" width="6" height="58" rx="3" fill="#14b8a6"/>
+<text x="76" y="470" font-size="13" font-weight="700" fill="#14b8a6">5 · Members follow</text>
+<text x="76" y="488" font-size="8.8" fill="#475569">calendar_followers · one row per user (unique) · opt-in to updates</text>
+</g>
+<g><rect x="60" y="532" width="440" height="56" rx="9" fill="#ffffff" stroke="#475569" stroke-width="1.8"/>
+<rect x="60" y="532" width="6" height="56" rx="3" fill="#475569"/>
+<text x="76" y="554" font-size="13" font-weight="700" fill="#475569">6 · Manage</text>
+<text x="76" y="572" font-size="8.8" fill="#475569">unfollow · edit settings · delete</text>
+</g>
+<g><rect x="580" y="366" width="360" height="44" rx="8" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.4"/>
+<text x="592" y="384" font-size="10.5" font-weight="700" fill="#7c3aed">calendar.new_event</text>
+<text x="592" y="398" font-size="8.8" fill="#7c3aed" opacity="0.85">→ followers  (event published here)</text>
+</g>
+<g><rect x="580" y="418" width="360" height="44" rx="8" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.4"/>
+<text x="592" y="436" font-size="10.5" font-weight="700" fill="#7c3aed">calendar.event_updated</text>
+<text x="592" y="450" font-size="8.8" fill="#7c3aed" opacity="0.85">→ followers  (FR-8.9)</text>
+</g>
+<g><rect x="580" y="92" width="360" height="164" rx="9" fill="#f0fdfa" stroke="#0d9488" stroke-width="1.6"/>
+<rect x="580" y="92" width="6" height="164" rx="3" fill="#0d9488"/>
+<text x="596" y="116" font-size="12.5" font-weight="700" fill="#0d9488">Sharing &amp; visibility</text>
+<text x="596" y="138" font-size="9.3" fill="#475569">Public  —  anyone (incl. logged-out) browses + follows</text>
+<text x="596" y="162" font-size="9.3" fill="#475569">Unlisted  —  reachable only via the link</text>
+<text x="596" y="186" font-size="9.3" fill="#475569">Private  —  managers / invited only</text>
+<text x="596" y="210" font-size="9.3" fill="#475569">Public page: shareable  /&lt;slug&gt;  ·  Follow button</text>
+</g>
+<g transform="translate(40,612)">
+<line x1="0" y1="-3" x2="26" y2="-3" stroke="#64748b" stroke-width="1.9" marker-end="url(#ar64748b)"/>
+<text x="32" y="0" font-size="9.5" fill="#334155">lifecycle step</text>
+<line x1="190" y1="-3" x2="216" y2="-3" stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#ar7c3aed)"/>
+<text x="222" y="0" font-size="9.5" fill="#334155">notification fired</text>
+<line x1="380" y1="-3" x2="406" y2="-3" stroke="#0d9488" stroke-width="1.6" stroke-dasharray="3,3" marker-end="url(#ar0d9488)"/>
+<text x="412" y="0" font-size="9.5" fill="#334155">visibility / sharing</text>
+</g>
+</svg>
