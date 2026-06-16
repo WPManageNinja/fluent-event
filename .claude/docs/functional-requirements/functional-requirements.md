@@ -57,3 +57,9 @@
 **Summary:** Notification system across channels — in-app feed (with unread state) + email (FR-4.7). Per-recipient rows, typed action registry, polymorphic object, render-at-read, per-user per-channel preferences. The dispatcher fans a trigger out to the right recipients on their enabled channels.
 
 → Full spec: [functional-requirements/notifications/notifications.md](functional-requirements/notifications/notifications.md)
+
+## FR-10: FluentCommunity Integration
+
+**Summary:** Optional bridge that deep-integrates Fluent Events into FluentCommunity. When fcom is active, registers a new `event` space type whose space is 1:1-bound to a Fluent Events calendar (auto-created, title-synced, also shown in the standalone portal). Events always live in `wp_fevents_*` (fcom stores none); in integrated mode fcom is the canonical identity.
+
+→ Full spec: [functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md](functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md)

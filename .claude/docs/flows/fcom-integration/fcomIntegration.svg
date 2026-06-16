@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1225" height="576" viewBox="0 0 1225 576" font-family="ui-sans-serif,Segoe UI,Helvetica,Arial,sans-serif">
+<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M1,1 L8,5 L1,9 z" fill="#94a3b8"/></marker></defs>
+<rect x="0" y="0" width="1225" height="576" fill="#f8fafc"/>
+<text x="40" y="44" font-size="23" font-weight="700" fill="#0f172a">FR-10 — fcom ↔ Fluent Events: event-driven flows</text>
+<text x="40" y="66" font-size="12" fill="#64748b">Each row: a FluentCommunity action → (guard) → hook fired → Fluent Events result. Events &amp; calendars always live in wp_fevents_*.</text>
+<text x="40" y="145" font-size="11" font-weight="700" fill="#334155">Create</text>
+<line x1="332" y1="141" x2="355" y2="141" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="480" y1="141" x2="503" y2="141" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="655" y1="141" x2="678" y2="141" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="900" y1="141" x2="923" y2="141" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="210" y="120" width="118" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="210" y="120" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="271" y="145" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Space created</text>
+<rect x="358" y="120" width="118" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="358" y="120" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="419" y="145" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">type == event?</text>
+<rect x="506" y="120" width="145" height="42" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="1.7"/>
+<rect x="506" y="120" width="5" height="42" rx="2.5" fill="#d97706"/>
+<text x="580" y="145" font-size="10" font-weight="600" fill="#d97706" text-anchor="middle">hook: space/created</text>
+<rect x="681" y="120" width="215" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="681" y="120" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="790" y="145" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Create calendar (name = title)</text>
+<rect x="926" y="120" width="259" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="926" y="120" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="1058" y="145" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Link saved · calendar_id · title-sync</text>
+<text x="40" y="211" font-size="11" font-weight="700" fill="#334155">Rename</text>
+<line x1="332" y1="207" x2="355" y2="207" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="507" y1="207" x2="530" y2="207" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="210" y="186" width="118" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="210" y="186" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="271" y="211" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Space renamed</text>
+<rect x="358" y="186" width="145" height="42" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="1.7"/>
+<rect x="358" y="186" width="5" height="42" rx="2.5" fill="#d97706"/>
+<text x="432" y="211" font-size="10" font-weight="600" fill="#d97706" text-anchor="middle">hook: space/updated</text>
+<rect x="533" y="186" width="208" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="533" y="186" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="639" y="211" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Calendar renamed (2-way sync)</text>
+<text x="40" y="277" font-size="11" font-weight="700" fill="#334155">Delete</text>
+<line x1="378" y1="273" x2="401" y2="273" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="526" y1="273" x2="549" y2="273" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="764" y1="273" x2="787" y2="273" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="914" y1="273" x2="937" y2="273" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="210" y="252" width="164" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="210" y="252" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="294" y="277" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Space delete initiated</text>
+<rect x="404" y="252" width="118" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="404" y="252" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="465" y="277" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">type == event?</text>
+<rect x="552" y="252" width="208" height="42" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="1.7"/>
+<rect x="552" y="252" width="5" height="42" rx="2.5" fill="#d97706"/>
+<text x="658" y="277" font-size="10" font-weight="600" fill="#d97706" text-anchor="middle">hook: before_delete / deleted</text>
+<rect x="790" y="252" width="120" height="42" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="1.7"/>
+<rect x="790" y="252" width="5" height="42" rx="2.5" fill="#d97706"/>
+<text x="852" y="277" font-size="10" font-weight="600" fill="#d97706" text-anchor="middle">Settle deletion</text>
+<rect x="940" y="252" width="215" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="940" y="252" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="1050" y="277" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Cancel calendar + events  (Q7)</text>
+<text x="40" y="343" font-size="11" font-weight="700" fill="#334155">New event · in space</text>
+<line x1="397" y1="339" x2="420" y2="339" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="210" y="318" width="183" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="210" y="318" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="304" y="343" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Create event — fcom space</text>
+<rect x="423" y="318" width="259" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="423" y="318" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="554" y="343" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Write wp_fevents_events · calendar_id</text>
+<text x="40" y="409" font-size="11" font-weight="700" fill="#334155">New event · in portal</text>
+<line x1="416" y1="405" x2="439" y2="405" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="210" y="384" width="202" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="210" y="384" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="313" y="409" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Create event — events portal</text>
+<rect x="442" y="384" width="252" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="442" y="384" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="570" y="409" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Shows in space (load by calendar_id)</text>
+<text x="40" y="475" font-size="11" font-weight="700" fill="#334155">Notify</text>
+<line x1="422" y1="471" x2="445" y2="471" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="578" y1="471" x2="601" y2="471" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="816" y1="471" x2="839" y2="471" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="964" y1="471" x2="987" y2="471" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="210" y="450" width="208" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="210" y="450" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="316" y="475" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Event / calendar notification</text>
+<rect x="448" y="450" width="126" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="448" y="450" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="513" y="475" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">calendar linked?</text>
+<rect x="604" y="450" width="208" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="604" y="450" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="710" y="475" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Fluent Events: in-app + email</text>
+<rect x="842" y="450" width="118" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="842" y="450" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="903" y="475" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">fcom bell</text>
+<rect x="990" y="450" width="118" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="990" y="450" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="1051" y="475" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">both? (Q9)</text>
+<g transform="translate(40,542)">
+<rect x="0" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/><rect x="0" y="-10" width="4" height="13" rx="2" fill="#4338ca"/>
+<text x="22" y="0" font-size="9.5" fill="#334155">FluentCommunity</text>
+<rect x="200" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#475569" stroke-width="1.7"/><rect x="200" y="-10" width="4" height="13" rx="2" fill="#475569"/>
+<text x="222" y="0" font-size="9.5" fill="#334155">guard / decision</text>
+<rect x="400" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#d97706" stroke-width="1.7"/><rect x="400" y="-10" width="4" height="13" rx="2" fill="#d97706"/>
+<text x="422" y="0" font-size="9.5" fill="#334155">bridge hook</text>
+<rect x="600" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/><rect x="600" y="-10" width="4" height="13" rx="2" fill="#0d9488"/>
+<text x="622" y="0" font-size="9.5" fill="#334155">Fluent Events</text>
+</g>
+</svg>
