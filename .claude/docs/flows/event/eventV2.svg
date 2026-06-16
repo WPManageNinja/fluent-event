@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1310" height="750" viewBox="0 0 1310 750" font-family="ui-sans-serif,Segoe UI,Helvetica,Arial,sans-serif">
+<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M1,1 L8,5 L1,9 z" fill="#94a3b8"/></marker></defs>
+<rect x="0" y="0" width="1310" height="750" fill="#f8fafc"/>
+<text x="40" y="44" font-size="23" font-weight="700" fill="#0f172a">Fluent Events — Event Lifecycle (flow)</text>
+<text x="40" y="66" font-size="12" fill="#64748b">Each row: a scenario. Steps left→right. Violet = a notification fires.</text>
+<text x="40" y="143" font-size="11" font-weight="700" fill="#334155">Create</text>
+<line x1="367" y1="139" x2="388" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="505" y1="139" x2="526" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="643" y1="139" x2="664" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="118" width="148" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="118" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="291" y="143" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Create event · draft</text>
+<rect x="391" y="118" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="391" y="118" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="448" y="143" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Publish</text>
+<rect x="529" y="118" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="529" y="118" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="586" y="143" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Published</text>
+<rect x="667" y="118" width="259" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="667" y="118" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="798" y="143" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">notify: calendar.new_event → followers</text>
+<text x="40" y="207" font-size="11" font-weight="700" fill="#334155">Join · open</text>
+<line x1="329" y1="203" x2="350" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="467" y1="203" x2="488" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="182" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="182" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="272" y="207" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Join</text>
+<rect x="353" y="182" width="110" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="353" y="182" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="410" y="207" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">space free?</text>
+<rect x="491" y="182" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="491" y="182" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="548" y="207" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Attending</text>
+<text x="40" y="271" font-size="11" font-weight="700" fill="#334155">Join · approval</text>
+<line x1="329" y1="267" x2="350" y2="267" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="467" y1="267" x2="488" y2="267" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="698" y1="267" x2="719" y2="267" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="886" y1="267" x2="907" y2="267" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="1024" y1="267" x2="1045" y2="267" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="246" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="246" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="272" y="271" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Join</text>
+<rect x="353" y="246" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="353" y="246" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="410" y="271" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Requested</text>
+<rect x="491" y="246" width="203" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="491" y="246" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="594" y="271" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">notify: join_requested → host</text>
+<rect x="722" y="246" width="160" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="722" y="246" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="804" y="271" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">host Approve / Decline</text>
+<rect x="910" y="246" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="910" y="246" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="967" y="271" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Approved</text>
+<rect x="1048" y="246" width="222" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="1048" y="246" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="1161" y="271" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">notify: join_accepted / declined</text>
+<text x="40" y="335" font-size="11" font-weight="700" fill="#334155">Join · paid</text>
+<line x1="329" y1="331" x2="350" y2="331" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="474" y1="331" x2="495" y2="331" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="612" y1="331" x2="633" y2="331" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="750" y1="331" x2="771" y2="331" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="950" y1="331" x2="971" y2="331" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="310" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="215" y="310" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="272" y="335" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Approved</text>
+<rect x="353" y="310" width="117" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="353" y="310" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="414" y="335" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Pay · Paymattic</text>
+<rect x="498" y="310" width="110" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
+<rect x="498" y="310" width="5" height="42" rx="2.5" fill="#0d9488"/>
+<text x="555" y="335" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">webhook</text>
+<rect x="636" y="310" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="636" y="310" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="693" y="335" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Paid</text>
+<rect x="774" y="310" width="172" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="774" y="310" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="862" y="335" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">notify: payment_received</text>
+<rect x="974" y="310" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="974" y="310" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="1031" y="335" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Attending</text>
+<text x="40" y="399" font-size="11" font-weight="700" fill="#334155">Join · full</text>
+<line x1="329" y1="395" x2="350" y2="395" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="467" y1="395" x2="488" y2="395" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="605" y1="395" x2="626" y2="395" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="743" y1="395" x2="764" y2="395" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="374" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="374" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="272" y="399" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Join</text>
+<rect x="353" y="374" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="353" y="374" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="410" y="399" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Waitlisted</text>
+<rect x="491" y="374" width="110" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="491" y="374" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="548" y="399" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">spot frees</text>
+<rect x="629" y="374" width="110" height="42" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="1.7"/>
+<rect x="629" y="374" width="5" height="42" rx="2.5" fill="#d97706"/>
+<text x="686" y="399" font-size="10" font-weight="600" fill="#d97706" text-anchor="middle">auto-promote</text>
+<rect x="767" y="374" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="767" y="374" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="824" y="399" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Attending</text>
+<text x="40" y="463" font-size="11" font-weight="700" fill="#334155">No account</text>
+<line x1="329" y1="459" x2="350" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="467" y1="459" x2="488" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="680" y1="459" x2="701" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="438" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="438" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="272" y="463" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Join</text>
+<rect x="353" y="438" width="110" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="353" y="438" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="410" y="463" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">no account?</text>
+<rect x="491" y="438" width="185" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="491" y="438" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="586" y="463" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">auto-register + email code</text>
+<rect x="704" y="438" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="704" y="438" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="761" y="463" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">auto-login</text>
+<text x="40" y="527" font-size="11" font-weight="700" fill="#334155">Reminder</text>
+<line x1="329" y1="523" x2="350" y2="523" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="548" y1="523" x2="569" y2="523" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="502" width="110" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="215" y="502" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="272" y="527" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">before start</text>
+<rect x="353" y="502" width="191" height="42" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="1.7"/>
+<rect x="353" y="502" width="5" height="42" rx="2.5" fill="#d97706"/>
+<text x="450" y="527" font-size="10" font-weight="600" fill="#d97706" text-anchor="middle">Reminder · Action Scheduler</text>
+<rect x="572" y="502" width="216" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="572" y="502" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="682" y="527" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">notify: event.reminder → guests</text>
+<text x="40" y="591" font-size="11" font-weight="700" fill="#334155">Live → End</text>
+<line x1="329" y1="587" x2="350" y2="587" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="474" y1="587" x2="495" y2="587" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="612" y1="587" x2="633" y2="587" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="750" y1="587" x2="771" y2="587" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="566" width="110" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="215" y="566" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="272" y="591" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">start time</text>
+<rect x="353" y="566" width="117" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="353" y="566" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="414" y="591" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Live · check-in</text>
+<rect x="498" y="566" width="110" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="498" y="566" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="555" y="591" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">end time</text>
+<rect x="636" y="566" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="636" y="566" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="693" y="591" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Ended</text>
+<rect x="774" y="566" width="123" height="42" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="1.7"/>
+<rect x="774" y="566" width="5" height="42" rx="2.5" fill="#d97706"/>
+<text x="838" y="591" font-size="10" font-weight="600" fill="#d97706" text-anchor="middle">recurring → next</text>
+<text x="40" y="655" font-size="11" font-weight="700" fill="#334155">Host anytime</text>
+<line x1="329" y1="651" x2="350" y2="651" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="517" y1="651" x2="538" y2="651" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="655" y1="651" x2="676" y2="651" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="793" y1="651" x2="814" y2="651" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="993" y1="651" x2="1014" y2="651" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="630" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="630" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="272" y="655" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Update</text>
+<rect x="353" y="630" width="160" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="353" y="630" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="435" y="655" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">event.updated → guests</text>
+<rect x="541" y="630" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="541" y="630" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="598" y="655" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Cancel</text>
+<rect x="679" y="630" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="679" y="630" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="736" y="655" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Cancelled</text>
+<rect x="817" y="630" width="172" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="817" y="630" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="905" y="655" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">event.cancelled → guests</text>
+<rect x="1017" y="630" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="1017" y="630" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="1074" y="655" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Delete (soft)</text>
+<g transform="translate(40,724)">
+<rect x="0" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#4338ca" stroke-width="1.6"/><rect x="0" y="-10" width="4" height="13" rx="2" fill="#4338ca"/>
+<text x="22" y="0" font-size="9.3" fill="#334155">action</text>
+<rect x="64.8" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/><rect x="64.8" y="-10" width="4" height="13" rx="2" fill="#16a34a"/>
+<text x="86.8" y="0" font-size="9.3" fill="#334155">state</text>
+<rect x="123.8" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/><rect x="123.8" y="-10" width="4" height="13" rx="2" fill="#7c3aed"/>
+<text x="145.8" y="0" font-size="9.3" fill="#334155">notification</text>
+<rect x="223.39999999999998" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#475569" stroke-width="1.6"/><rect x="223.39999999999998" y="-10" width="4" height="13" rx="2" fill="#475569"/>
+<text x="245.39999999999998" y="0" font-size="9.3" fill="#334155">decision</text>
+<rect x="299.79999999999995" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#0d9488" stroke-width="1.6"/><rect x="299.79999999999995" y="-10" width="4" height="13" rx="2" fill="#0d9488"/>
+<text x="321.79999999999995" y="0" font-size="9.3" fill="#334155">external</text>
+<rect x="376.19999999999993" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#d97706" stroke-width="1.6"/><rect x="376.19999999999993" y="-10" width="4" height="13" rx="2" fill="#d97706"/>
+<text x="398.19999999999993" y="0" font-size="9.3" fill="#334155">async / system</text>
+</g></svg>

@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="978" height="622" viewBox="0 0 978 622" font-family="ui-sans-serif,Segoe UI,Helvetica,Arial,sans-serif">
+<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M1,1 L8,5 L1,9 z" fill="#94a3b8"/></marker></defs>
+<rect x="0" y="0" width="978" height="622" fill="#f8fafc"/>
+<text x="40" y="44" font-size="23" font-weight="700" fill="#0f172a">Fluent Events — Calendar Lifecycle (flow)</text>
+<text x="40" y="66" font-size="12" fill="#64748b">Each row: a scenario. Steps left→right. Violet = a notification fires.</text>
+<text x="40" y="143" font-size="11" font-weight="700" fill="#334155">Create</text>
+<line x1="379" y1="139" x2="400" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="517" y1="139" x2="538" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="693" y1="139" x2="714" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="118" width="160" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="118" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="297" y="143" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Create calendar · host</text>
+<rect x="403" y="118" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="403" y="118" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="460" y="143" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Calendar</text>
+<rect x="541" y="118" width="148" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="541" y="118" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="617" y="143" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">v1: default (hidden)</text>
+<rect x="717" y="118" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="717" y="118" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="774" y="143" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Configure</text>
+<text x="40" y="207" font-size="11" font-weight="700" fill="#334155">Configure</text>
+<line x1="373" y1="203" x2="394" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="518" y1="203" x2="539" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="182" width="154" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="182" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="294" y="207" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">visibility · branding</text>
+<rect x="397" y="182" width="117" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="397" y="182" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="458" y="207" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">managers + caps</text>
+<rect x="542" y="182" width="135" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="542" y="182" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="612" y="207" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">notification prefs</text>
+<text x="40" y="271" font-size="11" font-weight="700" fill="#334155">Share</text>
+<line x1="404" y1="267" x2="425" y2="267" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="246" width="185" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="246" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="310" y="271" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Share · public page  /slug</text>
+<rect x="428" y="246" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="428" y="246" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="485" y="271" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">members browse</text>
+<text x="40" y="335" font-size="11" font-weight="700" fill="#334155">Visibility</text>
+<line x1="336" y1="331" x2="357" y2="331" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="505" y1="331" x2="526" y2="331" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="310" width="117" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="215" y="310" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="276" y="335" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Public → anyone</text>
+<rect x="360" y="310" width="141" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="360" y="310" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="432" y="335" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Unlisted → via link</text>
+<rect x="529" y="310" width="135" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="529" y="310" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="598" y="335" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Private → managers</text>
+<text x="40" y="399" font-size="11" font-weight="700" fill="#334155">Events filed</text>
+<line x1="329" y1="395" x2="350" y2="395" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="467" y1="395" x2="488" y2="395" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="655" y1="395" x2="676" y2="395" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="374" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="374" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="272" y="399" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">New event</text>
+<rect x="353" y="374" width="110" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
+<rect x="353" y="374" width="5" height="42" rx="2.5" fill="#475569"/>
+<text x="410" y="399" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">calendar_id</text>
+<rect x="491" y="374" width="160" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="491" y="374" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="573" y="399" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">grouped under calendar</text>
+<rect x="679" y="374" width="259" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="679" y="374" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="810" y="399" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">notify: calendar.new_event → followers</text>
+<text x="40" y="463" font-size="11" font-weight="700" fill="#334155">Follow</text>
+<line x1="329" y1="459" x2="350" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="548" y1="459" x2="569" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="438" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="438" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="272" y="463" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">member Follow</text>
+<rect x="353" y="438" width="191" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="353" y="438" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="450" y="463" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">calendar_followers (unique)</text>
+<rect x="572" y="438" width="129" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="572" y="438" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="638" y="463" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">opt-in to updates</text>
+<text x="40" y="527" font-size="11" font-weight="700" fill="#334155">Update / Manage</text>
+<line x1="329" y1="523" x2="350" y2="523" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="641" y1="523" x2="662" y2="523" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="215" y="502" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="215" y="502" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="272" y="527" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Event updated</text>
+<rect x="353" y="502" width="284" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="353" y="502" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="497" y="527" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">notify: calendar.event_updated → followers</text>
+<rect x="665" y="502" width="172" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="665" y="502" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="753" y="527" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">unfollow · edit · delete</text>
+<g transform="translate(40,596)">
+<rect x="0" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#4338ca" stroke-width="1.6"/><rect x="0" y="-10" width="4" height="13" rx="2" fill="#4338ca"/>
+<text x="22" y="0" font-size="9.3" fill="#334155">action</text>
+<rect x="64.8" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/><rect x="64.8" y="-10" width="4" height="13" rx="2" fill="#16a34a"/>
+<text x="86.8" y="0" font-size="9.3" fill="#334155">state</text>
+<rect x="123.8" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#475569" stroke-width="1.6"/><rect x="123.8" y="-10" width="4" height="13" rx="2" fill="#475569"/>
+<text x="145.8" y="0" font-size="9.3" fill="#334155">decision</text>
+<rect x="200.2" y="-10" width="16" height="13" rx="3" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/><rect x="200.2" y="-10" width="4" height="13" rx="2" fill="#7c3aed"/>
+<text x="222.2" y="0" font-size="9.3" fill="#334155">notification</text>
+</g></svg>
