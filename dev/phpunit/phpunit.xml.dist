@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<phpunit
+	colors="true"
+	cacheResult ="false"
+	backupGlobals="false"
+	stopOnFailure="true"
+	bootstrap="../vendor/wpfluent/devtools/src/Test/Inc/bootstrap.php"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+	<testsuites>
+		<testsuite name="unit">
+			<directory suffix=".php">../test/tests/Unit</directory>
+		</testsuite>
+		<testsuite name="integration">
+			<directory suffix=".php">../test/tests/Integration</directory>
+		</testsuite>
+		<testsuite name="feature">
+			<directory suffix=".php">../test/tests/Feature</directory>
+		</testsuite>
+	</testsuites>
+	<php>
+		<env name="WPF_ENV" value="testing"/>
+        <ini name="display_errors" value="On" />
+        <ini name="display_startup_errors" value="On" />
+    </php>
+    <logging>
+        <log type="testdox-text" target="php://stdout"/>
+    </logging>
+</phpunit>

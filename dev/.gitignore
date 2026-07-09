@@ -1,0 +1,8 @@
+/vendor
+/.namespace.lock
+
+# AI artifacts — per-developer, per-plugin, local. Contains the SQLite memory
+# palace (.ai/mem/memory.db + WAL sidecars) and future AI-related caches /
+# session logs / prompt history. Uncomment to share via git, but expect
+# binary-file merge conflicts on every parallel session.
+/.ai/

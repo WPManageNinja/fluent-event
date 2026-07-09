@@ -1,0 +1,25 @@
+/test
+.idea
+
+# Dependencies (regenerable — never commit)
+node_modules
+
+# Secrets / local env
+.env
+.env.local
+
+# OS cruft
+.DS_Store
+
+dev/.phpcs-cache
+dev/phpstan/cache
+dev/phpstan/security-cache
+
+# Stray tool caches that end up at plugin root when an analyzer is run from
+# the wrong cwd. phpstan/cache/ gets created relative to the invocation dir
+# when the .neon file doesn't set tmpDir, so a `phpstan analyse ...` from the
+# plugin root (instead of dev/) leaves an orphan cache tree here that PCP
+# would otherwise flag as "PHP file missing ABSPATH guard" on every cached
+# result file.
+/phpstan
+/.phpunit.result.cache

@@ -1,0 +1,3 @@
+# Exclude from distribution (git archive / zip downloads)
+# Kept in repo for future v3.x framework use
+app/Utils/Support/ export-ignore

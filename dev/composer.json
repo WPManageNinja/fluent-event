@@ -1,0 +1,34 @@
+{
+    "name": "wpfluent/framework-devtools",
+    "version": "2.0.0",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/wpfluent/devtools"
+        }
+    ],
+    "require": {
+        "wpfluent/devtools": "^1.0",
+        "fakerphp/faker": "^1.21"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dev\\Factories\\": "test/factories/",
+            "Dev\\Test\\Tests\\": "test/tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sheikh Heera",
+            "email": "heera.sheikh77@gmail.com"
+        }
+    ],
+    "config": {
+        "platform": {
+            "php": "7.4"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

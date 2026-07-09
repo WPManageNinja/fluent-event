@@ -1,0 +1,163 @@
+{
+    "version": 1,
+    "description": "Code review rules for WPFluent plugins. Edit to add/remove/modify rules. Used by ./wpf review and pre-commit hook.",
+    "rules": [
+        {
+            "id": "no-response-wrapper",
+            "pattern": "response()->",
+            "match": "contains",
+            "type": "violation",
+            "message": "response() does not exist in this framework. Return raw arrays or Model instances."
+        },
+        {
+            "id": "no-response-json",
+            "pattern": "Response::json",
+            "match": "contains",
+            "type": "violation",
+            "message": "Response::json does not exist. Return raw arrays or Model instances."
+        },
+        {
+            "id": "no-illuminate",
+            "pattern": "Illuminate\\",
+            "match": "contains",
+            "type": "violation",
+            "message": "Laravel 'Illuminate' namespace detected. Use WPFluent namespaces instead."
+        },
+        {
+            "id": "no-eloquent",
+            "pattern": "Eloquent\\Model",
+            "match": "contains",
+            "type": "violation",
+            "message": "Eloquent\\Model detected. Use {namespace}\\App\\Models\\Model instead."
+        },
+        {
+            "id": "no-illuminate-facades",
+            "pattern": "Illuminate\\Support\\Facades\\",
+            "match": "contains",
+            "type": "violation",
+            "message": "Do not use Laravel facades. Use {namespace}\\Facade\\ServiceName for dynamic facades."
+        },
+        {
+            "id": "no-form-request",
+            "pattern": "extends FormRequest",
+            "match": "contains",
+            "type": "violation",
+            "message": "Use {namespace}\\Framework\\Foundation\\RequestGuard, not Laravel's FormRequest."
+        },
+        {
+            "id": "no-direct-query-builder",
+            "pattern": "new QueryBuilder",
+            "match": "contains",
+            "type": "violation",
+            "message": "Never instantiate QueryBuilder directly. Use Model::where() etc."
+        },
+        {
+            "id": "no-global-redirect",
+            "pattern": "redirect(",
+            "match": "word_boundary",
+            "type": "violation",
+            "message": "redirect() does not exist — return data from controllers."
+        },
+        {
+            "id": "no-global-view",
+            "pattern": "view(",
+            "match": "word_boundary",
+            "type": "violation",
+            "message": "view() global does not exist — use the View class if needed."
+        },
+        {
+            "id": "no-superglobal-get",
+            "pattern": "$_GET",
+            "match": "contains",
+            "type": "security",
+            "message": "Direct access to '$_GET'. Use $request->get('key') or $request->getInt('page')."
+        },
+        {
+            "id": "no-superglobal-post",
+            "pattern": "$_POST",
+            "match": "contains",
+            "type": "security",
+            "message": "Direct access to '$_POST'. Use $request->get('key') or $request->getText('name')."
+        },
+        {
+            "id": "no-superglobal-request",
+            "pattern": "$_REQUEST",
+            "match": "contains",
+            "type": "security",
+            "message": "Direct access to '$_REQUEST'. Use $request->get('key') or $request->only(['key1'])."
+        },
+        {
+            "id": "no-superglobal-files",
+            "pattern": "$_FILES",
+            "match": "contains",
+            "type": "security",
+            "message": "Direct access to '$_FILES'. Use $request->file('photo')->save()."
+        },
+        {
+            "id": "no-superglobal-cookie",
+            "pattern": "$_COOKIE",
+            "match": "contains",
+            "type": "security",
+            "message": "Direct access to '$_COOKIE'. Use $request->cookie('name')."
+        },
+        {
+            "id": "no-wpdb-without-prepare",
+            "pattern": "$wpdb->query(",
+            "match": "contains",
+            "not_contains": "$wpdb->prepare(",
+            "type": "security",
+            "message": "$wpdb->query() without $wpdb->prepare() — SQL injection risk. Use the ORM instead."
+        },
+        {
+            "id": "no-eval",
+            "pattern": "eval(",
+            "match": "word_boundary",
+            "type": "security",
+            "message": "eval() is dangerous — never execute dynamic code."
+        },
+        {
+            "id": "no-unserialize",
+            "pattern": "unserialize(",
+            "match": "word_boundary",
+            "type": "security",
+            "message": "unserialize() is unsafe with user data. Use json_decode() instead.",
+            "skip_files": "Serializer.php"
+        },
+        {
+            "id": "no-extract",
+            "pattern": "extract(",
+            "match": "word_boundary",
+            "type": "security",
+            "message": "extract() imports variables unsafely. Access array keys directly."
+        },
+        {
+            "id": "no-raw-file-get",
+            "pattern": "file_get_contents(",
+            "match": "word_boundary",
+            "type": "security",
+            "message": "Raw file_get_contents detected. Use {namespace}\\Framework\\Support\\File::get($path)."
+        },
+        {
+            "id": "no-raw-file-put",
+            "pattern": "file_put_contents(",
+            "match": "word_boundary",
+            "type": "security",
+            "message": "Raw file_put_contents detected. Use {namespace}\\Framework\\Support\\File::put($path, $content)."
+        },
+        {
+            "id": "no-move-uploaded",
+            "pattern": "move_uploaded_file(",
+            "match": "word_boundary",
+            "type": "security",
+            "message": "Raw move_uploaded_file detected. Use {namespace}\\Framework\\Support\\Media::upload()."
+        },
+        {
+            "id": "no-unescaped-echo",
+            "pattern": "echo $",
+            "match": "starts_with",
+            "not_contains": "esc_html",
+            "type": "security",
+            "message": "'echo $variable' without escaping — XSS risk. Fix: echo esc_html($variable);"
+        }
+    ]
+}

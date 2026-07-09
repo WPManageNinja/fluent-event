@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+(function() {
+	Dev\Cli\Application::boot(__DIR__);
+})(
+	(function() {
+		// Load plugin's dev globals if present
+		$globals = __DIR__ . '/dev/globals.php';
+		if (file_exists($globals)) {
+			require $globals;
+		}
+	})(),
+	require __DIR__ . '/dev/vendor/autoload.php'
+);
