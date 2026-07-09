@@ -4,6 +4,6 @@ $router->menu('primary', function ($router) {
     $router->add('/', 'modules/dashboard')
         ->name('dashboard')
         ->icon('HomeFilled')
-        ->title(__('Dashboard', 'fluent-event'))
+        ->title(__('Dashboard', 'fluent-events'))
         ->middleware('auth');
 });

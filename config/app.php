@@ -4,11 +4,11 @@
 
  return array (
   'name' => 'Fluent Events',
-  'slug' => 'fluent-event',
+  'slug' => 'fluent-events',
   'domain_path' => '/language',
-  'text_domain' => 'fluent-event',
-  'hook_prefix' => 'fluent-event',
-  'rest_namespace' => 'fluent-event',
+  'text_domain' => 'fluent-events',
+  'hook_prefix' => 'fluent-events',
+  'rest_namespace' => 'fluent-events',
   'rest_version' => 'v2',
   'env' => 'dev',
 );

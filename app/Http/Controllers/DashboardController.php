@@ -18,7 +18,7 @@ class DashboardController extends Controller
     public function get(Request $request)
     {
         return [
-            'message' => __('Welcome to the dashboard.', 'fluent-event'),
+            'message' => __('Welcome to the dashboard.', 'fluent-events'),
         ];
     }
 }

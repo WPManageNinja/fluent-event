@@ -59,8 +59,8 @@ class AdminMenuHandler
     public function add()
     {
         add_menu_page(
-            __('Fluent Events', 'fluent-event'),
-            __('Fluent Events', 'fluent-event'),
+            __('Fluent Events', 'fluent-events'),
+            __('Fluent Events', 'fluent-events'),
             'manage_options',
             $this->slug,
             [$this, 'render'],
