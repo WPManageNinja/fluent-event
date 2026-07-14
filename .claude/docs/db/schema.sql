@@ -1,6 +1,7 @@
 -- Fluent Events — Database Schema (DrawSQL import)
--- 5 plugin tables (wp_fevents_*) + WP core stubs (wp_users, wp_posts).
--- Attendee identity: WP users (hosts/managers) + email-only guests (wp_fevents_guests).
+-- 7 plugin tables (wp_fevents_*) + WP core stubs (wp_users, wp_posts).
+-- Ticketing: event → ticket_types (tiers) → registrations (buyer+payment, N slots) → guests (1 per slot).
+-- Attendee identity: WP users (hosts/managers) + anonymous guests (name/email/phone per slot).
 -- No custom profile table — profile pivot removed (email-only entry, config via wp-admin).
 -- Media: WP media library — image columns store a wp_posts attachment ID (no custom media table).
 -- Tables ordered referenced-first so inline FKs resolve on import.
@@ -68,11 +69,15 @@ CREATE TABLE `wp_fevents_events` (
   `timezone`           VARCHAR(64)  NOT NULL COMMENT 'IANA timezone (DST-aware)',
   `calendar_id`        BIGINT UNSIGNED NOT NULL COMMENT 'Parent calendar (v1: default)',
   `parent_event_id`    BIGINT UNSIGNED NULL COMMENT 'Master in recurring series',
-  `location_address`   VARCHAR(255) NULL COMMENT 'Physical address (Google Places)',
+  `venue_type`         VARCHAR(20)  NOT NULL DEFAULT 'offline' COMMENT 'online|offline|hybrid',
+  `location_address`   VARCHAR(255) NULL COMMENT 'Physical address (offline/hybrid)',
   `location_lat`       DECIMAL(10,8) NULL COMMENT 'Latitude coordinate',
   `location_lng`       DECIMAL(11,8) NULL COMMENT 'Longitude coordinate',
-  `online_meeting_url` VARCHAR(255) NULL COMMENT 'Google Meet or Zoom link',
-  `capacity`           INT          NULL COMMENT 'Max attendees; null = unlimited',
+  `online_meeting_url` VARCHAR(255) NULL COMMENT 'Meeting link (online/hybrid)',
+  `join_policy`        VARCHAR(20)  NOT NULL DEFAULT 'open' COMMENT 'open|approval|invite_only',
+  `is_paid`            TINYINT(1)   NOT NULL DEFAULT 0 COMMENT 'Has paid ticket types',
+  `capacity`           INT          NULL COMMENT 'Overall cap across tiers; null = unlimited',
+  `form_fields`        JSON         NULL COMMENT 'Dynamic form definition (field list)',
   `created_by`         BIGINT UNSIGNED NOT NULL COMMENT 'Host/creator user',
   `cover_image_id`     BIGINT UNSIGNED NULL COMMENT 'Featured image — WP attachment ID (wp_posts)',
   `settings`           JSON         NULL COMMENT 'Per-event config; recurrence rule',
@@ -91,30 +96,83 @@ CREATE TABLE `wp_fevents_events` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- wp_fevents_guests
+-- wp_fevents_ticket_types  (price tiers per event)
 -- ============================================================
 
-CREATE TABLE `wp_fevents_guests` (
+CREATE TABLE `wp_fevents_ticket_types` (
   `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `event_id`       BIGINT UNSIGNED NOT NULL COMMENT 'Parent event',
-  `name`           VARCHAR(191) NULL COMMENT 'Guest-provided name (anonymous entry)',
-  `email`          VARCHAR(191) NOT NULL COMMENT 'Guest email — identity key for an anonymous guest',
-  `status`         VARCHAR(20)  NOT NULL COMMENT 'invited|requested|approved|attended',
-  `source`         VARCHAR(20)  NOT NULL COMMENT 'invite|link|import|request',
-  `form_response`  JSON         NULL COMMENT 'Join form answers',
-  `settings`       JSON         NULL COMMENT 'Per-guest prefs/overrides',
-  `payment_status` VARCHAR(20)  NULL COMMENT 'pending|paid|refunded|failed',
-  `payment_ref`    VARCHAR(191) NULL COMMENT 'Paymattic transaction/submission',
-  `amount`         DECIMAL(10,2) NULL COMMENT 'Snapshot of amount paid',
-  `currency`       VARCHAR(3)   NULL COMMENT 'ISO currency code snapshot',
-  `paid_at`        DATETIME     NULL COMMENT 'Payment timestamp',
-  `responded_at`   DATETIME     NULL COMMENT 'RSVP timestamp',
+  `name`           VARCHAR(191) NOT NULL DEFAULT 'General' COMMENT 'Tier name; auto "General" if none defined',
+  `description`    TEXT         NULL,
+  `price`          DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '0 = free',
+  `currency`       VARCHAR(3)   NULL COMMENT 'ISO code (paid tiers)',
+  `capacity`       INT          NULL COMMENT 'Seats for this tier; null = unlimited',
+  `sold`           INT          NOT NULL DEFAULT 0 COMMENT 'Cached count; remaining = capacity - sold (sold-out computed)',
+  `min_per_order`  INT          NOT NULL DEFAULT 1 COMMENT 'Min slots per registration',
+  `max_per_order`  INT          NULL COMMENT 'Max slots per registration',
+  `sale_starts_at` DATETIME     NULL COMMENT 'Sales window open',
+  `sale_ends_at`   DATETIME     NULL COMMENT 'Sales window close',
+  `status`         VARCHAR(20)  NOT NULL DEFAULT 'active' COMMENT 'active|hidden',
+  `sort_order`     INT          NOT NULL DEFAULT 0,
   `created_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  KEY `idx_ticket_event_status` (`event_id`, `status`),
+  CONSTRAINT `fk_ticket_event` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- wp_fevents_registrations  (one purchase/registration: buyer + payment, N slots)
+-- ============================================================
+
+CREATE TABLE `wp_fevents_registrations` (
+  `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id`       BIGINT UNSIGNED NOT NULL COMMENT 'Parent event',
+  `buyer_name`     VARCHAR(191) NOT NULL COMMENT 'Registrant name',
+  `buyer_email`    VARCHAR(191) NOT NULL COMMENT 'Registrant email',
+  `buyer_phone`    VARCHAR(32)  NULL COMMENT 'Registrant phone',
+  `slots`          INT          NOT NULL DEFAULT 1 COMMENT 'Number of slots in this registration',
+  `status`         VARCHAR(20)  NOT NULL DEFAULT 'pending' COMMENT 'pending|confirmed|cancelled|refunded',
+  `payment_status` VARCHAR(20)  NOT NULL DEFAULT 'free' COMMENT 'free|pending|paid|refunded|failed',
+  `payment_ref`    VARCHAR(191) NULL COMMENT 'Paymattic transaction/submission id',
+  `total_amount`   DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'Registration total',
+  `currency`       VARCHAR(3)   NULL COMMENT 'ISO code',
+  `paid_at`        DATETIME     NULL COMMENT 'Payment timestamp',
+  `source`         VARCHAR(20)  NOT NULL DEFAULT 'link' COMMENT 'invite|link|import|request',
+  `created_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_reg_event_status` (`event_id`, `status`),
+  KEY `idx_reg_email`        (`buyer_email`),
+  CONSTRAINT `fk_reg_event` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- wp_fevents_guests  (one row per slot — each attendee's info)
+-- ============================================================
+
+CREATE TABLE `wp_fevents_guests` (
+  `id`              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id`        BIGINT UNSIGNED NOT NULL COMMENT 'Parent event (denormalized for queries)',
+  `registration_id` BIGINT UNSIGNED NOT NULL COMMENT 'Parent registration',
+  `ticket_type_id`  BIGINT UNSIGNED NOT NULL COMMENT 'Ticket tier for this slot',
+  `name`            VARCHAR(191) NULL COMMENT 'Attendee name',
+  `email`           VARCHAR(191) NULL COMMENT 'Attendee email',
+  `phone`           VARCHAR(32)  NULL COMMENT 'Attendee phone',
+  `status`          VARCHAR(20)  NOT NULL DEFAULT 'confirmed' COMMENT 'invited|requested|approved|confirmed|attending|checked_in|waitlisted|cancelled|declined',
+  `form_response`   JSON         NULL COMMENT 'This attendee''s form answers',
+  `ticket_code`     VARCHAR(64)  NULL COMMENT 'QR / check-in code',
+  `checked_in_at`   DATETIME     NULL COMMENT 'Offline check-in time',
+  `created_at`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_guest_ticket_code` (`ticket_code`),
   KEY `idx_guest_event_status` (`event_id`, `status`),
+  KEY `idx_guest_registration` (`registration_id`),
   KEY `idx_guest_email`        (`email`),
-  CONSTRAINT `fk_guest_event`   FOREIGN KEY (`event_id`)   REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
+  CONSTRAINT `fk_guest_event`        FOREIGN KEY (`event_id`)        REFERENCES `wp_fevents_events` (`id`)        ON DELETE CASCADE,
+  CONSTRAINT `fk_guest_registration` FOREIGN KEY (`registration_id`) REFERENCES `wp_fevents_registrations` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_guest_ticket_type`  FOREIGN KEY (`ticket_type_id`)  REFERENCES `wp_fevents_ticket_types` (`id`)  ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
@@ -128,7 +186,8 @@ CREATE TABLE `wp_fevents_notifications` (
   `action`       VARCHAR(64)  NOT NULL COMMENT 'Typed action (e.g. event.join)',
   `object_type`  VARCHAR(32)  NULL COMMENT 'Type of object (event, calendar, ...)',
   `object_id`    BIGINT UNSIGNED NULL COMMENT 'ID of the related object',
-  `data`         JSON         NULL COMMENT 'Render context: names, titles',
+  `title`        VARCHAR(191) NULL COMMENT 'Rendered notification title',
+  `content`      TEXT         NULL COMMENT 'Rendered notification body',
   `route`        TEXT         NULL COMMENT 'Deep link to relevant portal',
   `read_at`      DATETIME     NULL COMMENT 'When read; null = unread',
   `created_at`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When notification was created',

@@ -1,63 +1,87 @@
 # FR-6: Events (core)
 
-**Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events. Visitors find, view, and join them — **anonymously, by entering their details (name, email)** — free or paid, with optional approval and a limit on spots. Covers content, location, online meetings, invites, guests, who-can-see, insights, embedding, copying, deleting, and recurring events.
+**Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events of **any kind** (meetup, wedding, conference, wordcamp…). Visitors register **anonymously** (no account) — pick a **ticket tier**, choose how many **slots**, and enter details (name/email/phone + a dynamic form) **per slot**. Events are online / offline / hybrid, free or paid, open or approval-gated, with per-tier capacity. Covers content, location/online, ticket types, multi-slot registration, dynamic per-attendee forms, invites, guests, check-in, visibility, insights, embedding, cloning, deleting, and recurring events.
 
-**Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md) — an event can belong to a calendar). Joining needs **no account** — a guest is a `wp_fevents_guests` row keyed by email.
+**Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md)). Registration needs **no account** — a registration + its guest rows are keyed by email, no `user_id` link.
 
 ## Approach
 
-- **New tables** `wp_fevents_events` + `wp_fevents_guests`. Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
-- **Only host/managers can manage events** (WP-admin capability `fevents_manage_events`). Visitors just join.
-- **Joining is anonymous, no account.** A visitor enters their details (name, email, plus any custom form answers) and submits — this writes a `wp_fevents_guests` row. No login, signup, password, or account. Invite links and imports pre-create guest rows the same way. Guests are identified by `email` — there is **no** `user_id` link to WP users.
-- **Outside services** — Google Places to pick a location + show a map; Google Meet or Zoom for online meetings. API keys are set in settings.
-- **Payments** — go through **Paymattic** (our payment-forms plugin), which handles the gateways (Stripe, PayPal, etc.). Enabled in settings.
+- **Four tables**: `wp_fevents_events` (the event) → `wp_fevents_ticket_types` (price tiers) → `wp_fevents_registrations` (one purchase: buyer + payment) → `wp_fevents_guests` (one row per slot/attendee). Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
+- **Only host/managers manage events** (WP-admin capability `fevents_manage_events`). Visitors register.
+- **Registration is anonymous, no account.** A visitor picks a tier + quantity, enters the buyer contact (name/email/phone) and one set of details **per slot**, and submits → one `registrations` row + N `guests` rows. No login/signup/password. Invite links + imports pre-create these rows the same way. Keyed by `email`, no `user_id`.
+- **One buyer, many slots.** Buy 3 → **1 registration** (one payment) + **3 guests** (three attendees' info). Each slot has its own name/email/phone + form answers.
+- **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
+- **Dynamic form.** The event defines fields in `events.form_fields` (JSON); each attendee's answers save to `guests.form_response` (JSON).
+- **Mode** via `events.venue_type` (online / offline / hybrid); **policy** via `events.join_policy` (open / approval / invite_only).
+- **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
+- **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per registration** (one payment covers all its slots), not per guest.
 
 ## Data model
 
-**Table: `wp_fevents_events`**
+Chain: **event → ticket_types → registrations → guests**. Full DDL in [schema.sql](../../db/schema.sql); key columns below.
 
-| Column           | Type          | Notes                                                                                                              |
-| ---------------- | ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `id`             | BIGINT PK     |                                                                                                                    |
-| `event_id`       | BIGINT        | FK → event                                                                                                         |
-| `name`           | VARCHAR       | guest's provided name (anonymous entry)                                                                            |
-| `email`          | VARCHAR       | guest's email — the identity key for an anonymous guest                                                            |
-| `status`         | VARCHAR       | `invited` \| `requested` \| `approved` \| `attending` \| `waitlisted` \| `declined` \| `cancelled` \| `checked_in` |
-| `source`         | VARCHAR       | `invite` \| `link` \| `import` \| `request`                                                                        |
-| `form_response`  | JSON NULL     | answers to the join questions                                                                                      |
-| `payment_status` | VARCHAR NULL  | `pending` \| `paid` \| `refunded` \| `failed` (paid events only; null = free)                                      |
-| `payment_ref`    | VARCHAR NULL  | Paymattic transaction/submission id — link to the real record                                                      |
-| `amount`         | DECIMAL NULL  | snapshot of what they paid                                                                                         |
-| `currency`       | VARCHAR NULL  | snapshot ISO code                                                                                                  |
-| `paid_at`        | DATETIME NULL |                                                                                                                    |
-| `responded_at`   | DATETIME NULL |                                                                                                                    |
-| `created_at`     | TIMESTAMP     |                                                                                                                    |
-| `updated_at`     | TIMESTAMP     |                                                                                                                    |
+**`wp_fevents_events`** — the event. Beyond content/time/calendar/cover:
 
-Index: `(event_id, status)`, `(email)`.
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `venue_type` | VARCHAR | `online` \| `offline` \| `hybrid` |
+| `location_address` / `location_lat` / `location_lng` | — | offline/hybrid venue (Google Places) |
+| `online_meeting_url` | VARCHAR | online/hybrid link |
+| `join_policy` | VARCHAR | `open` \| `approval` \| `invite_only` |
+| `is_paid` | TINYINT | has paid tiers (fast filter) |
+| `capacity` | INT NULL | overall cap across tiers; null = unlimited |
+| `form_fields` | JSON NULL | **dynamic form definition** (the fields to ask) |
 
-**Table: `wp_fevents_guests`** — one row per person attached to an event.
+**`wp_fevents_ticket_types`** — price tiers.
 
-| Column           | Type          | Notes                                                                                                              |
-| ---------------- | ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `id`             | BIGINT PK     |                                                                                                                    |
-| `event_id`       | BIGINT        | FK → event                                                                                                         |
-| `name`           | VARCHAR       | guest's provided name (anonymous entry)                                                                            |
-| `email`          | VARCHAR       | guest's email — the identity key for an anonymous guest                                                            |
-| `status`         | VARCHAR       | `invited` \| `requested` \| `approved` \| `attending` \| `waitlisted` \| `declined` \| `cancelled` \| `checked_in` |
-| `source`         | VARCHAR       | `invite` \| `link` \| `import` \| `request`                                                                        |
-| `form_response`  | JSON NULL     | answers to the join questions                                                                                      |
-| `settings`       | JSON NULL     | reserved per-guest prefs/overrides; null = inherit. Future home of the per-event notification override (FR-9.3)     |
-| `payment_status` | VARCHAR NULL  | `pending` \| `paid` \| `refunded` \| `failed` (paid events only; null = free)                                      |
-| `payment_ref`    | VARCHAR NULL  | Paymattic transaction/submission id — link to the real record                                                      |
-| `amount`         | DECIMAL NULL  | snapshot of what they paid                                                                                         |
-| `currency`       | VARCHAR NULL  | snapshot ISO code                                                                                                  |
-| `paid_at`        | DATETIME NULL |                                                                                                                    |
-| `responded_at`   | DATETIME NULL |                                                                                                                    |
-| `created_at`     | TIMESTAMP     |                                                                                                                    |
-| `updated_at`     | TIMESTAMP     |                                                                                                                    |
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `id` | BIGINT PK | |
+| `event_id` | BIGINT FK | → event |
+| `name` | VARCHAR | tier name; auto **"General"** if none defined |
+| `price` | DECIMAL | `0` = free |
+| `currency` | VARCHAR NULL | |
+| `capacity` | INT NULL | seats for this tier; null = unlimited |
+| `sold` | INT | cached — **remaining = capacity − sold**; sold-out is computed |
+| `min_per_order` / `max_per_order` | INT | slots-per-registration limits |
+| `sale_starts_at` / `sale_ends_at` | DATETIME NULL | early-bird windows |
+| `status` | VARCHAR | `active` \| `hidden` |
+| `sort_order` | INT | |
 
-Index: `(event_id, status)`, `(email)`.
+Index: `(event_id, status)`.
+
+**`wp_fevents_registrations`** — one purchase (buyer + payment, N slots). **Payment lives here.**
+
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `id` | BIGINT PK | |
+| `event_id` | BIGINT FK | → event |
+| `buyer_name` / `buyer_email` / `buyer_phone` | VARCHAR | the registrant |
+| `slots` | INT | number of slots in this registration |
+| `status` | VARCHAR | `pending` \| `confirmed` \| `cancelled` \| `refunded` |
+| `payment_status` | VARCHAR | `free` \| `pending` \| `paid` \| `refunded` \| `failed` |
+| `payment_ref` | VARCHAR NULL | Paymattic txn id (thin reference — no card/gateway data our side) |
+| `total_amount` / `currency` | — | order total |
+| `paid_at` | DATETIME NULL | |
+| `source` | VARCHAR | `invite` \| `link` \| `import` \| `request` |
+
+Index: `(event_id, status)`, `(buyer_email)`.
+
+**`wp_fevents_guests`** — one row per **slot** (each attendee).
+
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `id` | BIGINT PK | |
+| `event_id` | BIGINT FK | → event (denormalized for queries) |
+| `registration_id` | BIGINT FK | → registration |
+| `ticket_type_id` | BIGINT FK | → ticket tier |
+| `name` / `email` / `phone` | VARCHAR NULL | this attendee |
+| `status` | VARCHAR | see status values below |
+| `form_response` | JSON NULL | this attendee's answers |
+| `ticket_code` | VARCHAR UNIQUE | QR / check-in code |
+| `checked_in_at` | DATETIME NULL | offline check-in |
+
+Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(registration_id)`, `(email)`.
 
 **`status` values:**
 
@@ -90,21 +114,24 @@ Index: `(event_id, status)`, `(email)`.
 - For online events, create or paste a **Google Meet or Zoom** link. (unfiltered #5)
 - The link is shown only to people allowed to see it.
 
-### FR-6.4 — Capacity, approval, free/paid
+### FR-6.4 — Ticket tiers, capacity, approval, free/paid
 
-- Set a max number of spots (blank = unlimited). On join, check capacity; if **full**, the joiner is **auto-waitlisted** (`waitlisted`). When a spot frees (a guest cancels/declines), the oldest waitlisted guest is auto-promoted to `attending`. _(Waitlist may ship post-v1 — see Q5; the schema already supports it.)_
-- Optionally require the **host to approve** who joins.
-- Event can be **free or paid**; paid events take payment through **Paymattic** before the spot is confirmed.
-- **Payment record = thin reference, not duplication.** Paymattic is the source of truth (gateways, receipts, refunds, card data). We store only `payment_status` / `payment_ref` / `amount` / `currency` / `paid_at` on the guest row. Flow: pay → Paymattic processes → **webhook** back → we set `payment_status = paid` + `payment_ref` → guest flips to `attending`. Receipts/refund details link out by `payment_ref`. No card/gateway data stored on our side (keeps us out of PCI scope).
+- **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `capacity`, `min_per_order` / `max_per_order`, and an optional sale window.
+- **Capacity is per tier** (+ an optional overall `events.capacity`). `remaining = capacity − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the slot is **auto-waitlisted** (`waitlisted`). Freeing a slot auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
+- **Approval** via `events.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
+- **Free or paid.** Paid events take payment through **Paymattic** before the registration is `confirmed`. Payment is **per registration** (one payment for all its slots).
+- **Payment record = thin reference on the registration.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `total_amount` / `currency` / `paid_at` on `registrations`. Flow: pay → Paymattic → **webhook** → set `payment_status = paid` + `payment_ref` → registration `confirmed`, its guests `attending`. No card/gateway data our side (out of PCI scope).
 
 ### FR-6.5 — Visibility & discovery
 
 - `public` (listed, anyone can find), `unlisted` (only people with the link), `private` (invite-only).
 - Public events show in listings; they still follow calendar + space access rules. (unfiltered #12)
 
-### FR-6.6 — Custom join form
+### FR-6.6 — Dynamic registration form
 
-- The host can add extra questions people answer when they join; answers are saved with the guest (`form_response`). (unfiltered #18)
+- The host defines custom fields (the form) on the event → stored in `events.form_fields` (JSON: field key, label, type, required, options). (unfiltered #18)
+- On registration the form is asked **per slot** — each attendee's answers save to that guest's `form_response` (JSON). Buy 3 → 3 sets of answers.
+- Buyer contact (name/email/phone) is captured on the `registration`; per-attendee identity + answers on each `guest`.
 
 ### FR-6.7 — Invite guests, invite link, import
 

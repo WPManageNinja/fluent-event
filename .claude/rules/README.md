@@ -13,7 +13,7 @@ former `coding-rules` skill was removed; its enforced rulesets live here now.)
 ## Conventions
 
 - Version constant: `FLUENT_EVENTS_PLUGIN_VERSION` — confirm against the plugin bootstrap file once it exists.
-- Tables: `wp_fevents_*` (events, guests, calendars, notifications, meta). Attendee identity = WP users (hosts/managers) + email-only guests; no custom profile/auth/activity tables. Media = WP library (`wp_posts` attachment IDs).
+- Tables: `wp_fevents_*` (events, ticket_types, registrations, guests, calendars, notifications, meta). Ticketing: event → ticket_types → registrations (buyer+payment) → guests (1 per slot). Attendee identity = WP users (hosts/managers) + anonymous guests (name/email/phone); no custom profile/auth/activity tables. Media = WP library (`wp_posts` attachment IDs).
 - REST namespace: `fluent-events/v1` (assumed; confirm against `config/app.php`). Hook prefix: `fluent_events/`. Text domain: `fluent-events`. Namespace: `FluentEvents\`.
 - Framework: WPManageNinja / WPFluent ORM — controllers extend a base `Controller`, validate via `$this->validate()`, read input via `$this->request->get()/getSafe()`, respond via `sendSuccess()/sendError()`.
 - Frontend: Vue **Options API only** — no `<script setup>` / Composition API.

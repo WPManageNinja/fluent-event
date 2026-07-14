@@ -18,7 +18,7 @@
 
 ## FR-6: Events (core)
 
-**Summary:** The core event entity + lifecycle — create, configure, publish, manage events; visitors discover, view, and join (free/paid, approval, capacity). Covers content, location + map, online meetings, invites/guests/import, visibility, custom forms, insights, embed, clone, delete, reminders. Joining is **email-only guest entry** — a `wp_fevents_guests` row, no account.
+**Summary:** The core event entity + lifecycle — create, configure, publish, manage events of any kind; visitors register anonymously. **Ticketing model**: event → `ticket_types` (tiers) → `registrations` (buyer + payment, N slots) → `guests` (one per slot). Online/offline/hybrid, free/paid, open/approval, per-tier capacity, dynamic per-attendee forms, check-in. No account — keyed by email.
 
 → Full spec: [functional-requirements/events/events.md](functional-requirements/events/events.md)
 
