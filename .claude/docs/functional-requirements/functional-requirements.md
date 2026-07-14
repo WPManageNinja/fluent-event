@@ -4,23 +4,11 @@
 
 ---
 
-## FR-1: Authentication
+## Identity model (no custom auth)
 
-**Summary:** Visitors log in or sign up directly from any event. Auth runs on WordPress core; identity is the WordPress `users` table. A plugin-owned `wp_fevents_profiles` table holds everything else (1:1 per user). Joinees with no account are auto-registered and confirmed by email code. Covers signup, login, verify-by-code, forgot-password, host-accept auto-login, invitation links, and profile provisioning/lifecycle.
+**Fluent Events has no custom authentication, profile, or member-management layer.** Event configuration happens in **wp-admin**, performed by WordPress users (hosts / managers, gated by capability). Public event pages are **open for email-only entry** — an attendee is captured as a `wp_fevents_guests` row (`name` + `email`, no `user_id` link), never a plugin-owned account. No front-end login, profile area, OTP, forgot-password, or member moderation.
 
-→ Full spec: [functional-requirements/authentication/authentication.md](functional-requirements/authentication/authentication.md)
-
-## FR-2: User Profile & Account Management
-
-**Summary:** After login, users edit their profile details, change password and email (both OTP-gated), and deactivate or delete their account.
-
-→ Full spec: [functional-requirements/authentication/user-profile-management.md](functional-requirements/authentication/user-profile-management.md)
-
-## FR-3: Member Management
-
-**Summary:** Users with member-edit permission view and manage the member list (from profiles) — filterable by status tabs, card/table views, sortable. Managers update member status; blocked/suspended members are locked out of the portal with a warning.
-
-→ Full spec: [functional-requirements/member-management/member-management.md](functional-requirements/member-management/member-management.md)
+> **Removed in pivot:** former **FR-1 Authentication**, **FR-2 User Profile & Account Management**, **FR-3 Member Management**, and **FR-5 Activity Tracking (Audit Log)**. Numbering keeps the gaps so existing cross-references stay valid.
 
 ## FR-4: Settings & Configuration
 
@@ -28,33 +16,27 @@
 
 → Full spec: [functional-requirements/settings/settings.md](functional-requirements/settings/settings.md)
 
-## FR-5: Activity Tracking (Audit Log)
-
-**Summary:** Append-only activity log — who did what to which object, with structured context — for audit, debugging, and activity views. Typed action registry, polymorphic typed object, actor/object split, context JSON, audit fields (ip/UA).
-
-→ Full spec: [functional-requirements/activity-tracking/activity-tracking.md](functional-requirements/activity-tracking/activity-tracking.md)
-
 ## FR-6: Events (core)
 
-**Summary:** The core event entity + lifecycle — create, configure, publish, manage events; members discover, view, and join (free/paid, approval, capacity). Covers content, location + map, online meetings, invites/guests/import, visibility, custom forms, insights, embed, clone, delete, reminders. Attend/auth flows reuse FR-1.
+**Summary:** The core event entity + lifecycle — create, configure, publish, manage events; visitors discover, view, and join (free/paid, approval, capacity). Covers content, location + map, online meetings, invites/guests/import, visibility, custom forms, insights, embed, clone, delete, reminders. Joining is **email-only guest entry** — a `wp_fevents_guests` row, no account.
 
 → Full spec: [functional-requirements/events/events.md](functional-requirements/events/events.md)
 
-## FR-7: Media Archive
+## FR-7: Media (WordPress media library)
 
-**Summary:** One shared `wp_fevents_media` table tracking every upload — event covers/galleries, calendar images, avatars, email branding. Polymorphic (object_type/id), driver-aware (local/s3), with upload→attach flow and orphan cleanup (status: active/deleted).
+**Summary:** All imagery — event covers/galleries, calendar logos/covers, email branding — uses the **WordPress media library**. No custom media table; image columns store a `wp_posts` attachment ID. WP handles storage, sizes (thumbnails/`srcset`), alt text, and s3/CDN offload (via WP Offload Media). Low volume makes a custom table not worth it.
 
 → Full spec: [functional-requirements/media-archive/media-archive.md](functional-requirements/media-archive/media-archive.md)
 
 ## FR-8: Calendars
 
-**Summary:** Space-owned calendars that group events. Host/managers create calendars; events file under them via `calendar_id`. Each has a shareable public page members browse + follow, plus per-calendar settings, insights, and notifications.
+**Summary:** Space-owned calendars that group events. Host/managers create calendars; events file under them via `calendar_id`. Each has a shareable public page members browse, plus per-calendar settings and insights.
 
 → Full spec: [functional-requirements/calendar/calendar.md](functional-requirements/calendar/calendar.md)
 
 ## FR-9: Notifications
 
-**Summary:** Notification system across channels — in-app feed (with unread state) + email (FR-4.7). Per-recipient rows, typed action registry, polymorphic object, render-at-read, per-user per-channel preferences. The dispatcher fans a trigger out to the right recipients on their enabled channels.
+**Summary:** Notification system across channels — in-app feed for logged-in WP users (hosts/managers, with unread state) + email (FR-4.7). Account-less event guests are reached by **email only**. Per-recipient rows, typed action registry, polymorphic object, render-at-read, per-user per-channel preferences. The dispatcher fans a trigger out to the right recipients on their enabled channels.
 
 → Full spec: [functional-requirements/notifications/notifications.md](functional-requirements/notifications/notifications.md)
 

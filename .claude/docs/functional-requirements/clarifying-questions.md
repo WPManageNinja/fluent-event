@@ -6,29 +6,7 @@
 
 ## Q1 — Is there an "all members" page (member directory)?
 
-**Context:** FR-3 (Member Management) specs a _management_ screen — gated, for managers only, to administer members. That's distinct from a public-facing **member directory** where ordinary members browse who else is in the space (like a community members list).
-
-**Questions:**
-
-1. Does an "all members" page exist at all?
-
-- Recommendation: Yes
-
-2. If yes, **who can view it?**
-   - Public (anyone, logged-out included)
-   - Logged-in users only
-   - Specific roles / managers only
-
-- Recommendation: Only specific roles / managers
-
-3. What's visible per member (avatar, display name, profile link) vs hidden (email, status)?
-
-- Recommendation: Avatar, display name, profile link, status, email (since we are showing this on permission already)
-
-**Answer:**
-_(team lead)_
-
-**Affects:** [member-management/member-management.md](functional-requirement-parts/member-management/member-management.md) (add an all-members directory FR, or note management-only), [settings/settings.md](functional-requirement-parts/settings/settings.md) (FR-4.6 privacy — who can view the member list), [02-functional-requirements.md](02-functional-requirements.md) (index)
+**Resolved — obsolete after the email-only pivot.** There are no members: attendees are **anonymous email guests** (no accounts) and hosts/managers are **WP users** managed in wp-admin. FR-3 Member Management was removed, so there is no member list or public directory. Per-event **guest lists** (managers-only, FR-6.8) cover any list need.
 
 ---
 
@@ -90,30 +68,7 @@ _(team lead)_
 
 ## Q4 — Activity tracking scope
 
-**Context:** FR-5 keeps a history of user actions (an activity log). Before building, we need to decide what to track, how long to keep it, and who can see it.
-
-**Questions:**
-
-1. Should we record failed login attempts and users' IP addresses?
-
-- Recommendation: Yes.
-
-2. When an action happens, do we save it right away, or in the background?
-
-- Recommendation: In the background (Fire & Forget type, Asynchornous)
-
-3. Can members see their own activity, or is the log only for managers/admins?
-
-- Recommendation: Only managers or admin.
-
-4. Should old records be deleted automatically on a schedule (e.g. delete logs older than 60 days)? Should some types (like security events) be kept longer?
-
-- Recommendation: Yes, we can keep last 6 months data (max), then delete older.
-
-**Answer:**
-_(team lead)_
-
-**Affects:** [activity-tracking/activity-tracking.md](functional-requirement-parts/activity-tracking/activity-tracking.md)
+**Resolved — obsolete.** FR-5 Activity Tracking (the `wp_fevents_activities` audit log) was removed from scope. There is no activity/audit log. This question no longer applies.
 
 ---
 
@@ -207,17 +162,17 @@ _(team lead)_
 
 ## Q8 — Identity & audience when both plugins are active (fcom integration)
 
-**Context:** FR-10.5. With both Fluent Events and FluentCommunity active, each keeps a 1:1 profile per WP user (`wp_fevents_profiles` vs fcom XProfile). Need to confirm the canonical identity and how a linked calendar's notification audience is resolved.
+**Context:** FR-10.5. Fluent Events has no profile table (attendees are anonymous email guests; hosts/managers are WP users). With FluentCommunity active, fcom's XProfile supplies community identity data, keyed off `wp_users.ID`. Need to confirm the canonical identity and how a linked calendar's notification audience is resolved.
 
 **Questions:**
 
-1. Identity source when both are active — fcom canonical (reuse fcom users / XProfile / space members; don't create `wp_fevents_profiles`)? Or keep both and sync key fields? Or independent (only WP user shared)?
+1. Identity source when both are active — fcom canonical (reuse fcom users / XProfile / space members)? Or independent (only the WP user shared)?
 
-- Recommendation: fcom canonical — one source, no drift. Standalone (no fcom) still uses Fluent Events' own profiles + auth (FR-1).
+- Recommendation: fcom canonical — one source, no drift. Identity is always `wp_users.ID`; Fluent Events keeps no profile table of its own in either mode.
 
-2. Notification audience for a linked calendar — the fcom space's members, not `wp_fevents_calendar_followers`?
+2. Notification audience for a linked calendar — the fcom space's members?
 
-- Recommendation: Yes. Space members are the audience for linked calendars; the followers table is only for standalone calendars.
+- Resolved: Yes. Space members are the audience for a linked calendar's event notifications. There is no calendar follow/subscribe concept (the `wp_fevents_calendar_followers` table was dropped); standalone calendars have no subscriber list, so their event notifications reach the event's guests only (FR-9).
 
 **Answer:**
 _(team lead)_

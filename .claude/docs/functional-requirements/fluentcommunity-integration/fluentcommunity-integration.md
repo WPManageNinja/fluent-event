@@ -2,7 +2,7 @@
 
 **Summary:** Connect Fluent Events with FluentCommunity (fcom). This is optional. Fluent Events still works on its own. When fcom is installed, a new space type called `event` shows up. Each event space is tied to one Fluent Events calendar. The events themselves always live in the `wp_fevents_*` tables — fcom never stores event data. When both plugins are on, fcom owns the user identity.
 
-**Depends on:** FR-1 (identity), FR-6 (events), FR-8 (calendars), FR-9 (notifications).
+**Depends on:** FR-6 (events), FR-8 (calendars), FR-9 (notifications). Identity is WordPress users; fcom adds its XProfile for community data, both keyed off `wp_users.ID`.
 
 ## How it works
 
@@ -15,7 +15,7 @@
 
 ### FR-10.1 — Turn on only with fcom
 
-The bridge loads only if fcom is detected (`class_exists` / version check). No fcom → Fluent Events runs standalone, exactly as FR-1…FR-9.
+The bridge loads only if fcom is detected (`class_exists` / version check). No fcom → Fluent Events runs standalone, exactly as FR-4…FR-9.
 
 ### FR-10.2 — The `event` space type
 
@@ -38,8 +38,8 @@ The bridge loads only if fcom is detected (`class_exists` / version check). No f
 
 ### FR-10.5 — Identity and audience
 
-- With fcom on, **fcom is the source of identity** — its users, profiles, and space members. Don't create `wp_fevents_profiles` in this mode. Standalone (no fcom) still uses Fluent Events' own profiles and auth (FR-1).
-- For a linked calendar, the **audience is the space's members**. The `wp_fevents_calendar_followers` table is only for standalone calendars.
+- Identity is always **WordPress users** (`wp_users`). With fcom on, fcom's XProfile / space members supply community identity data, keyed off `wp_users.ID`. Fluent Events has no profile table of its own in either mode (attendees are anonymous email guests; hosts/managers are WP users).
+- For a linked calendar, event notifications also reach the **space's members** (FR-10.6). There is no calendar follow/subscribe concept — standalone calendars have no subscriber list, so their event notifications reach the event's guests only (FR-9).
 - To confirm with the team lead: see [clarifying-questions.md](../clarifying-questions.md) (Q8).
 
 ### FR-10.6 — Notifications
@@ -71,7 +71,7 @@ The bridge loads only if fcom is detected (`class_exists` / version check). No f
 
 ## Acceptance criteria
 
-- fcom off → Fluent Events works exactly as FR-1…FR-9. The bridge does nothing.
+- fcom off → Fluent Events works exactly as FR-4…FR-9. The bridge does nothing.
 - Create an event space → one linked calendar is created, shows in the events portal too, and titles stay in sync.
 - An event created in the fcom space and one created in the events portal (same calendar) both show on both sides.
 - With fcom on, identity comes from fcom, and a linked calendar's notification audience is the space's members.

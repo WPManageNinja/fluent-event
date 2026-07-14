@@ -1,14 +1,14 @@
 # FR-6: Events (core)
 
-**Summary:** The main event feature. Hosts and managers create, set up, publish, and manage events. Members find, view, and join them — free or paid, with optional approval and a limit on spots. Covers content, location, online meetings, invites, guests, who-can-see, insights, embedding, copying, deleting, and recurring events.
+**Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events. Visitors find, view, and join them — **anonymously, by entering their details (name, email)** — free or paid, with optional approval and a limit on spots. Covers content, location, online meetings, invites, guests, who-can-see, insights, embedding, copying, deleting, and recurring events.
 
-**Builds on FR-1** (login/join), **FR-3** (members), **FR-4** (settings + permissions), **FR-5** (activity log), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md) — an event can belong to a calendar).
+**Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md) — an event can belong to a calendar). Joining needs **no account** — a guest is a `wp_fevents_guests` row keyed by email.
 
 ## Approach
 
-- **New tables** `wp_fevents_events` + `wp_fevents_event_guests`. Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
-- **Only host/managers can manage events** (permission `fevents_manage_events`). Members just join.
-- **Joining reuses FR-1.** The login/sign-up parts of joining — request to join, auto-create account, email code, auto-login, invite links — are defined in FR-1. This doc points to them instead of repeating them.
+- **New tables** `wp_fevents_events` + `wp_fevents_guests`. Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
+- **Only host/managers can manage events** (WP-admin capability `fevents_manage_events`). Visitors just join.
+- **Joining is anonymous, no account.** A visitor enters their details (name, email, plus any custom form answers) and submits — this writes a `wp_fevents_guests` row. No login, signup, password, or account. Invite links and imports pre-create guest rows the same way. Guests are identified by `email` — there is **no** `user_id` link to WP users.
 - **Outside services** — Google Places to pick a location + show a map; Google Meet or Zoom for online meetings. API keys are set in settings.
 - **Payments** — go through **Paymattic** (our payment-forms plugin), which handles the gateways (Stripe, PayPal, etc.). Enabled in settings.
 
@@ -20,8 +20,8 @@
 | ---------------- | ------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `id`             | BIGINT PK     |                                                                                                                    |
 | `event_id`       | BIGINT        | FK → event                                                                                                         |
-| `user_id`        | BIGINT NULL   | null until claimed (invited stub)                                                                                  |
-| `email`          | VARCHAR       | for invite/import before account                                                                                   |
+| `name`           | VARCHAR       | guest's provided name (anonymous entry)                                                                            |
+| `email`          | VARCHAR       | guest's email — the identity key for an anonymous guest                                                            |
 | `status`         | VARCHAR       | `invited` \| `requested` \| `approved` \| `attending` \| `waitlisted` \| `declined` \| `cancelled` \| `checked_in` |
 | `source`         | VARCHAR       | `invite` \| `link` \| `import` \| `request`                                                                        |
 | `form_response`  | JSON NULL     | answers to the join questions                                                                                      |
@@ -30,21 +30,20 @@
 | `amount`         | DECIMAL NULL  | snapshot of what they paid                                                                                         |
 | `currency`       | VARCHAR NULL  | snapshot ISO code                                                                                                  |
 | `paid_at`        | DATETIME NULL |                                                                                                                    |
-| `invited_by`     | BIGINT NULL   | manager who invited                                                                                                |
 | `responded_at`   | DATETIME NULL |                                                                                                                    |
 | `created_at`     | TIMESTAMP     |                                                                                                                    |
 | `updated_at`     | TIMESTAMP     |                                                                                                                    |
 
-Index: `(event_id, status)`, `(user_id)`, `(email)`.
+Index: `(event_id, status)`, `(email)`.
 
-**Table: `wp_fevents_event_guests`** — one row per person attached to an event.
+**Table: `wp_fevents_guests`** — one row per person attached to an event.
 
 | Column           | Type          | Notes                                                                                                              |
 | ---------------- | ------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `id`             | BIGINT PK     |                                                                                                                    |
 | `event_id`       | BIGINT        | FK → event                                                                                                         |
-| `user_id`        | BIGINT NULL   | null until claimed (invited stub)                                                                                  |
-| `email`          | VARCHAR       | for invite/import before account                                                                                   |
+| `name`           | VARCHAR       | guest's provided name (anonymous entry)                                                                            |
+| `email`          | VARCHAR       | guest's email — the identity key for an anonymous guest                                                            |
 | `status`         | VARCHAR       | `invited` \| `requested` \| `approved` \| `attending` \| `waitlisted` \| `declined` \| `cancelled` \| `checked_in` |
 | `source`         | VARCHAR       | `invite` \| `link` \| `import` \| `request`                                                                        |
 | `form_response`  | JSON NULL     | answers to the join questions                                                                                      |
@@ -54,12 +53,11 @@ Index: `(event_id, status)`, `(user_id)`, `(email)`.
 | `amount`         | DECIMAL NULL  | snapshot of what they paid                                                                                         |
 | `currency`       | VARCHAR NULL  | snapshot ISO code                                                                                                  |
 | `paid_at`        | DATETIME NULL |                                                                                                                    |
-| `invited_by`     | BIGINT NULL   | manager who invited                                                                                                |
 | `responded_at`   | DATETIME NULL |                                                                                                                    |
 | `created_at`     | TIMESTAMP     |                                                                                                                    |
 | `updated_at`     | TIMESTAMP     |                                                                                                                    |
 
-Index: `(event_id, status)`, `(user_id)`, `(email)`.
+Index: `(event_id, status)`, `(email)`.
 
 **`status` values:**
 
@@ -111,7 +109,7 @@ Index: `(event_id, status)`, `(user_id)`, `(email)`.
 ### FR-6.7 — Invite guests, invite link, import
 
 - Invite people by email, share an **invite link**, or **import** a guest list (CSV / Google Sheet). (unfiltered #9, #10, #11)
-- Creating the account + accepting is handled by **FR-1.6 / FR-1.7**.
+- Each creates a guest row (email, optional name). Invitees accept via an emailed event link — no account, no login.
 
 ### FR-6.8 — Guest list management
 
@@ -119,8 +117,8 @@ Index: `(event_id, status)`, `(user_id)`, `(email)`.
 
 ### FR-6.9 — Request to join & approval
 
-- A member asks to join and fills the form; the host approves or declines. (joinee #1, #3; login via FR-1)
-- Once approved → the guest is `attending` and gets an auto-login link (FR-1.5 / FR-1.6).
+- A visitor asks to join and fills the form (name, email, custom questions); the host approves or declines. (joinee #1, #3)
+- Once approved → the guest is `attending` and gets a confirmation email with the event link. No login.
 
 ### FR-6.10 — Event detail & listing
 
@@ -178,7 +176,7 @@ Index: `(event_id, status)`, `(user_id)`, `(email)`.
 - Joining a free, no-approval event → the member is `attending` right away.
 - Approval event → the member stays `requested` until the host approves; a paid event isn't confirmed until payment succeeds.
 - When an event is full → new joiners are auto-`waitlisted`; freeing a spot auto-promotes the oldest waitlisted to `attending`.
-- Invite by email, invite link, and import each create the right guest rows and run the FR-1 account flow.
+- Invite by email, invite link, and import each create the right guest rows (email + optional name), no account flow.
 - Cloning makes a separate draft; deleting removes the event and notifies confirmed guests.
 - Event times show in each viewer's own timezone.
 

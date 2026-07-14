@@ -2,7 +2,7 @@
 
 **Summary:** A central settings page where the host/admin/manager(with full permission) configures everything: general settings, customization, feature addons, managers, access management, privacy, and email templates. Each area is a section in one settings screen.
 
-**Depends on FR-1** (identity, capabilities, status) and the product model (single-tenant, WP roles + capabilities).
+**Depends on** the product model (single-tenant, WP users + roles + capabilities). Identity is WordPress users; there is no custom auth/profile layer.
 
 ## Approach
 
@@ -17,7 +17,7 @@
 In `wp_fevents_meta`:
 
 - **One row per settings section** — `object_type = 'option'`, one row each: `customization`, `addons`, `access`, `privacy`, `emails`. Editing one section never rewrites another → no write-clobber races. Not autoloaded → no bloat. Cached helper.
-- **Same table holds per-user meta** (`object_type = 'user'`): manager roles (`_fevents_roles`), `auth_hash` (FR-1 signed links), user prefs.
+- **Same table holds per-user meta** (`object_type = 'user'`): manager roles (`_fevents_roles`), user prefs. Per-user meta is for WP users (managers) only.
 - **Managers stored per-user** there — assignments travel with the user and are queryable. Sits alongside the product-model WP-admin tier: WP admins (`manage_options`) are always full managers; the host promotes additional users here.
 - **Email templates** = the `emails` section row (one entry per system email).
 - **Per-object settings live on the object.** Per-calendar / per-event settings are a `settings` JSON column on those entities (not here). This screen is global config only.
@@ -50,7 +50,7 @@ In `wp_fevents_meta`:
 
 - **Enable dark mode** (and/or follow system).
 - **Event default layout** — default view for event listings.
-- **Member list default layout** — card grid vs table (FR-3.3 default).
+- **Guest list default layout** — card grid vs table for an event's guest list.
 - Other UI defaults (theme accent, density, etc.) — expandable.
 
 ### FR-4.3 — Feature addons
@@ -74,21 +74,19 @@ In `wp_fevents_meta`:
 
 ### FR-4.6 — Privacy settings
 
-- **Who can do what** — visibility + capability rules: who can view the member list, who can join events, who can see guest lists, whether profiles are public, etc.
+- **Who can do what** — visibility + capability rules: who can manage events, who can see guest lists, event visibility defaults, etc.
 - Maps to capabilities / roles where it concerns management actions.
 
 ### FR-4.7 — Email settings
 
-- Every system email is **customizable**: subject + body, with merge tags (name, event, code, link, etc.), and an enable/disable toggle per email. Sent via `wp_mail()` (FluentSMTP).
+- Every system email is **customizable**: subject + body, with merge tags (guest name, event, link, etc.), and an enable/disable toggle per email. Sent via `wp_mail()` (FluentSMTP).
 - Covered emails (at least):
-  - Email **verification code** (FR-1.4)
-  - **Forgot password** (FR-1.5)
-  - **Password changed** confirmation (FR-2.2)
-  - **Email changed** alert to old address (FR-2.3)
-  - **Event invitation** (FR-1.7)
-  - **Join request** received / accepted (FR-1.6)
+  - **Event invitation** (FR-6.7)
+  - **Join request** received / accepted / declined (FR-6.9)
   - **Event reminder** (date approaching)
-  - **Member status change** (FR-3.5)
+  - **Event updated / cancelled**
+  - **Payment receipt** (paid events)
+  - **Manager role changed** (FR-4.4)
 - A shared email **template/branding** (logo, colors, footer) wraps all of them — mirrors fcom's `email.template`.
 
 → Full email catalog + per-email config: [email-settings.md](email-settings.md).
@@ -97,10 +95,10 @@ In `wp_fevents_meta`:
 
 - Only `manage_options` users can open settings.
 - General: setting light/dark logos + title + access level persists and applies across the portal.
-- Customization: changing member-list default layout flips FR-3's default view.
+- Customization: changing the guest-list default layout flips its default view.
 - Addons: disabling a module hides its UI + endpoints.
 - Managers: promoting a non-admin user grants their role; they gain the matching management screens; removing it revokes access.
-- Access management: an external plugin cannot read events/members data unless explicitly allow-listed.
+- Access management: an external plugin cannot read events data unless explicitly allow-listed.
 - Email: editing the "event invitation" subject/body changes what invitees receive; disabling an email stops it sending.
 
 ## Open questions

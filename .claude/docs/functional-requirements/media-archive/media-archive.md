@@ -1,63 +1,30 @@
-# FR-7: Media Archive
+# FR-7: Media (WordPress media library)
 
-**Summary:** A shared media table tracking every upload the plugin manages — event covers & galleries, calendar logos/images, profile avatars, email branding. One archive, referenced by all features, with orphan cleanup.
+**Summary:** All plugin imagery — event covers/galleries, calendar logos/covers, email branding — uses the **WordPress media library**. There is **no custom media table**; image columns store a WP **attachment ID** (`wp_posts`, `post_type='attachment'`). WP owns storage, sizes, and delivery.
 
-**Used by FR-2** (avatars), **FR-6** (event cover/gallery), **FR-7+** (calendars), **FR-4.7** (email branding).
+**Used by FR-6** (event cover/gallery), **FR-8** (calendars), **FR-4.7** (email branding).
 
 ## Approach
 
-- **One shared table** `wp_fevents_media` — polymorphic (`object_type` + `object_id`) like `wp_fevents_meta`, so any feature attaches media without its own table.
-- **Upload then attach.** A new upload is `status = active` but **unattached** (`object_id` NULL) — an orphan. It becomes owned when saved onto an entity (`object_id` set). A scheduled job prunes long-unattached rows → no junk pile-up.
-- **Driver-aware.** `driver` records the backend (`local`, `s3`, …) so storage can move without touching consumers.
-- **Reference, don't inline.** Entities store a media reference (id / `media_key`), not raw URLs — one source of truth, easy to swap/cleanup.
+- **Store an attachment ID, not a URL.** `events.cover_image_id`, `calendars.logo_media_id` / `cover_media_id` hold a `wp_posts` attachment ID (nullable). One int — WP owns the file, its metadata (`wp_postmeta`: `_wp_attached_file`, `_wp_attachment_metadata`, `_wp_attachment_image_alt`), and the bytes (`wp-content/uploads/YYYY/MM/`).
+- **WP does the heavy lifting** — thumbnail sizes, `srcset`, alt text, and s3/CDN offload (via WP Offload Media / Smush) come free; no custom `driver`/storage layer.
+- **Low volume justifies it.** A cover per event, a logo/cover per calendar, email branding — a handful of attachments. `wp_posts` bloat is negligible, so a custom media table isn't worth the code. (Contrast: fcom is fully custom for feed/avatar scale; fluent-cart uses the WP library for product images and a custom driver only for gated downloads — we have no gated files, so WP library all the way.)
 
-## Data model
+## Upload → store → render
 
-**Table: `wp_fevents_media`**
+- **Pick / upload** — a host/manager (WP user with `upload_files`) picks via the `wp.media` modal, or the SPA POSTs the file to core `POST /wp/v2/media`, which creates the attachment and returns its `id`. Anonymous guests never upload.
+- **Programmatic** — `media_handle_upload()` (does `wp_handle_upload` + `wp_insert_attachment` + `wp_generate_attachment_metadata`) returns the id.
+- **Validate on save** — the stored id runs through `absint()` and must be a real attachment: reject if `get_post_type( $id ) !== 'attachment'` (stops pointing a column at an arbitrary post).
+- **Render** — resolve at the sink: `wp_get_attachment_image_url( $id, 'large' )` / `wp_get_attachment_image( $id, 'medium', false, [ 'alt' => … ] )`. REST responses send the resolved, `esc_url()`'d URL — not the raw id.
 
-| Column                      | Type         | Notes                                                                       |
-| --------------------------- | ------------ | --------------------------------------------------------------------------- |
-| `id`                        | BIGINT PK    |                                                                             |
-| `media_key`                 | VARCHAR      | unique handle used to reference the media                                   |
-| `object_type`               | VARCHAR NULL | `event` \| `calendar` \| `user` \| `email` … what it's attached to          |
-| `object_id`                 | BIGINT NULL  | the attached entity                                                         |
-| `object_source`             | VARCHAR      | semantic slot — `event_cover`, `event_gallery`, `calendar_logo`, `avatar` … |
-| `user_id`                   | BIGINT NULL  | uploader                                                                    |
-| `status`                    | VARCHAR      | `active` = live · `deleted` = soft-deleted. (Orphan = `active` with `object_id` NULL.) |
-| `media_type`                | VARCHAR NULL | mime / category (image, file)                                               |
-| `driver`                    | VARCHAR      | storage backend — `local` \| `s3` … (default `local`)                       |
-| `media_path`                | TEXT NULL    | storage path                                                                |
-| `media_url`                 | TEXT NULL    | public URL                                                                  |
-| `settings`                  | JSON NULL    | extra — dimensions, alt text, sizes                                         |
-| `created_at` / `updated_at` | TIMESTAMP    |                                                                             |
+## Lifecycle
 
-Indexes: `(object_type, object_id)`, `(media_key)`, `(status)`, `(user_id)`.
-
-## Functional requirements
-
-### FR-7.1 — Upload
-
-- Accept an upload → store via the configured `driver` → create a row with `status = active`, `object_id` NULL (unattached).
-- Return `media_key` + URL for the UI to reference.
-- Validate type/size; capability-gated where the context requires it.
-
-### FR-7.2 — Attach
-
-- When an entity saves and uses a media item, set `object_type` / `object_id` / `object_source` (now attached).
-- Replacing an entity's media → old one's `object_id` cleared (orphan) or `status = deleted`.
-
-### FR-7.3 — Serve & reference
-
-- Entities reference media by `id` / `media_key`; the archive resolves the current URL (driver-aware).
-
-### FR-7.4 — Orphan cleanup
-
-- A scheduled job deletes long-unattached rows (`object_id` NULL) older than a threshold (and their stored files).
-- Deleting an entity orphans (or deletes) its media.
+- **Ownership** — the attachment belongs to WP; our column only references it. DB-level `ON DELETE SET NULL` (see diagram) plus a render-time guard for a missing/trashed attachment (resolve-or-fallback).
+- **Deleting an entity** — decide per case: leave the attachment (reusable — safe default) or `wp_delete_attachment( $id, true )` when the image is exclusively entity-owned.
 
 ## Acceptance criteria
 
-- Upload creates an `active`, unattached row (`object_id` NULL) + returns a reference; the file is not lost if the form is abandoned (it stays unattached until cleanup).
-- Saving an entity links object_type/id (attaches it).
-- Swapping media leaves the old one unattached or `deleted`, not dangling-referenced.
-- Cleanup removes only long-orphaned inactive rows + their files.
+- Picking/uploading an image yields an attachment id stored on the entity; the file lives in the WP media library.
+- A saved id is validated as an `attachment` before it persists.
+- Rendering resolves the id → sized URL via WP helpers; a trashed/missing attachment falls back gracefully — no broken reference.
+- Deleting an entity leaves no dangling FK (`SET NULL`) and does not delete a shared attachment unless it is entity-owned.
