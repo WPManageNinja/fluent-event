@@ -1,0 +1,152 @@
+// Fluent Events — Database Schema (DBML for dbdiagram.io)
+// Docs: https://dbml.dbdiagram.io/docs
+// 5 plugin tables (wp_fevents_*) + WP core stubs (wp_users, wp_posts).
+// Attendee identity: WP users (hosts/managers) + email-only guests (wp_fevents_guests). No profile table.
+// Media: WP media library — image columns store a wp_posts attachment ID (no custom media table).
+// Refs declared inline on the FK column ([ref: > target]).
+// Polymorphic slots (object_type/object_id) are indexed columns, NOT refs
+//   (one column can't reference many tables).
+
+// ============================================================
+// WP core (stub — ref target only)
+// ============================================================
+
+Table wp_users {
+  ID           bigint [primary key]
+  user_login   varchar
+  user_email   varchar
+  display_name varchar
+}
+
+// WP media library: image columns store an attachment ID (post_type='attachment').
+Table wp_posts {
+  ID bigint [primary key, note: 'Attachment / post ID']
+}
+
+// ============================================================
+// wp_fevents_calendars
+// ============================================================
+
+Table wp_fevents_calendars {
+  id             bigint  [primary key, increment]
+  name           varchar [not null, note: 'Calendar name']
+  slug           varchar [not null, unique, note: 'Unique shareable URL']
+  description    text
+  logo_media_id  bigint  [ref: > wp_posts.ID, note: 'WP attachment ID']
+  cover_media_id bigint  [ref: > wp_posts.ID, note: 'WP attachment ID']
+  visibility     varchar [not null, default: 'public', note: 'public|unlisted|private']
+  settings       json    [note: 'theme, manage caps, notif prefs']
+  created_by     bigint  [ref: > wp_users.ID, not null, note: 'host/manager user id']
+  created_at     timestamp
+  updated_at     timestamp
+
+  indexes {
+    visibility [name: 'idx_calendar_visibility']
+  }
+}
+
+// ============================================================
+// wp_fevents_events
+// ============================================================
+
+Table wp_fevents_events {
+  id                 bigint     [primary key, increment]
+  title              varchar    [not null, note: 'Event name']
+  slug               varchar    [not null, unique, note: 'URL-friendly identifier']
+  description        longtext   [note: 'Event details/content']
+  status             varchar    [not null, default: 'draft', note: 'draft|published|archived']
+  visibility         varchar    [not null, default: 'public', note: 'public|unlisted|private']
+  start_at           datetime   [not null, note: 'Event start in timezone']
+  end_at             datetime   [not null, note: 'Event end in timezone']
+  timezone           varchar    [not null, note: 'IANA timezone (DST-aware)']
+  calendar_id        bigint     [ref: > wp_fevents_calendars.id, not null, note: 'Parent calendar (v1: default)']
+  parent_event_id    bigint     [ref: > wp_fevents_events.id, note: 'Master in recurring series (self)']
+  location_address   varchar    [note: 'Physical address (Google Places)']
+  location_lat       decimal    [note: 'Latitude coordinate']
+  location_lng       decimal    [note: 'Longitude coordinate']
+  online_meeting_url varchar    [note: 'Google Meet or Zoom link']
+  capacity           int        [note: 'Max attendees; null = unlimited']
+  created_by         bigint     [ref: > wp_users.ID, not null, note: 'Host/creator user']
+  cover_image_id     bigint     [ref: > wp_posts.ID, note: 'Featured image — WP attachment ID']
+  settings           json       [note: 'Per-event config; recurrence rule']
+  created_at         timestamp
+  updated_at         timestamp
+
+  indexes {
+    calendar_id          [name: 'idx_event_calendar']
+    created_by           [name: 'idx_event_creator']
+    (status, visibility) [name: 'idx_event_state']
+    (start_at, end_at)   [name: 'idx_event_window']
+  }
+}
+
+// ============================================================
+// wp_fevents_guests
+// ============================================================
+
+Table wp_fevents_guests {
+  id             bigint   [primary key, increment]
+  event_id       bigint   [ref: > wp_fevents_events.id, not null, note: 'Parent event']
+  name           varchar  [note: 'Guest-provided name (anonymous entry)']
+  email          varchar  [not null, note: 'Guest email — identity key']
+  status         varchar  [not null, note: 'invited|requested|approved|attended']
+  source         varchar  [not null, note: 'invite|link|import|request']
+  form_response  json     [note: 'Join form answers']
+  settings       json     [note: 'Per-guest prefs/overrides']
+  payment_status varchar  [note: 'pending|paid|refunded|failed']
+  payment_ref    varchar  [note: 'Paymattic transaction/submission']
+  amount         decimal  [note: 'Snapshot of amount paid']
+  currency       varchar  [note: 'ISO currency code snapshot']
+  paid_at        datetime [note: 'Payment timestamp']
+  responded_at   datetime [note: 'RSVP timestamp']
+  created_at     timestamp
+  updated_at     timestamp
+
+  indexes {
+    (event_id, status) [name: 'idx_guest_event_status']
+    email              [name: 'idx_guest_email']
+  }
+}
+
+// ============================================================
+// wp_fevents_notifications  ◇ polymorphic (object_type/object_id)
+// ============================================================
+
+Table wp_fevents_notifications {
+  id           bigint   [primary key, increment]
+  recipient_id bigint   [ref: > wp_users.ID, not null, note: 'User who sees the notification']
+  actor_id     bigint   [ref: > wp_users.ID, note: 'User who triggered it; null = system']
+  action       varchar  [not null, note: 'Typed action (e.g. event.join)']
+  object_type  varchar  [note: 'Type of object (event, calendar, ...)']
+  object_id    bigint   [note: 'ID of the related object']
+  data         json     [note: 'Render context: names, titles']
+  route        text     [note: 'Deep link to relevant portal']
+  read_at      datetime [note: 'When read; null = unread']
+  created_at   timestamp [note: 'When notification was created']
+
+  indexes {
+    (recipient_id, action, object_id) [unique, name: 'uq_notification']
+    (recipient_id, read_at)           [name: 'idx_notif_recipient']
+    (object_type, object_id)          [name: 'idx_notif_object']
+    action                            [name: 'idx_notif_action']
+  }
+}
+
+// ============================================================
+// wp_fevents_meta  ◇ polymorphic (object_type/object_id) — no ref
+// ============================================================
+
+Table wp_fevents_meta {
+  id          bigint   [primary key, increment]
+  object_type varchar  [not null, note: 'option|user|event|calendar']
+  object_id   bigint   [note: 'user_id/event_id/calendar_id; null for option']
+  meta_key    varchar  [not null, note: 'Section name or meta key']
+  value       longtext [note: 'JSON or serialized data']
+  created_at  timestamp
+  updated_at  timestamp
+
+  indexes {
+    (object_type, object_id, meta_key) [name: 'idx_meta_lookup']
+  }
+}
+
