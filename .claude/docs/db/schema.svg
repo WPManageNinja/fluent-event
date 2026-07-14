@@ -1,475 +1,368 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1690" height="1738" viewBox="0 0 1690 1738" font-family="ui-sans-serif,Segoe UI,Helvetica,Arial,sans-serif">
-<defs>
-<marker id="many" markerWidth="15" markerHeight="15" refX="12" refY="6" orient="auto-start-reverse"><path d="M12,1 L1,6 L12,11 M1,6 L12,6" fill="none" stroke="#475569" stroke-width="1.3"/></marker>
-<marker id="one" markerWidth="12" markerHeight="12" refX="2" refY="6" orient="auto-start-reverse"><path d="M2,1 L2,11" stroke="#475569" stroke-width="1.6"/></marker>
-</defs>
-<rect x="0" y="0" width="1690" height="1738" fill="#f8fafc"/>
-<text x="40" y="44" font-size="25" font-weight="700" fill="#0f172a">Fluent Events — Database Schema</text>
-<text x="40" y="68" font-size="12" fill="#64748b">7 plugin tables (wp_fevents_*) + WP core stubs (wp_users, wp_posts) · solid line = FK · —〈 many · —| one · ◇ polymorphic · ticketing: event → ticket_types → registrations → guests · media = WP library (wp_posts).</text>
-<g transform="translate(1390,18)">
-<rect x="0" y="0" width="270" height="40" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
-<rect x="12" y="14" width="22" height="13" rx="3" fill="#f59e0b"/><text x="23" y="24" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">PK</text><text x="39" y="24" font-size="9.5" fill="#334155">Primary</text>
-<rect x="100" y="14" width="22" height="13" rx="3" fill="#2563eb"/><text x="111" y="24" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">FK</text><text x="127" y="24" font-size="9.5" fill="#334155">Foreign</text>
-<rect x="188" y="14" width="22" height="13" rx="3" fill="#9333ea"/><text x="199" y="24" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">UQ</text><text x="215" y="24" font-size="9.5" fill="#334155">Unique</text>
-</g>
-<path d="M660,411 C602,411 602,238 660,238" fill="none" stroke="#0d9488" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M660,427 C602,427 602,241 660,241" fill="none" stroke="#0d9488" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M660,477 C602,477 602,112 660,112" fill="none" stroke="#0d9488" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M550,279 C605,279 605,330 660,330" fill="none" stroke="#4f46e5" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M110,295 C52,295 52,106 110,106" fill="none" stroke="#4f46e5" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M550,460 C605,460 605,109 660,109" fill="none" stroke="#4f46e5" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M550,477 C605,477 605,244 660,244" fill="none" stroke="#4f46e5" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M110,706 C52,706 52,115 110,115" fill="none" stroke="#0891b2" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M110,1065 C52,1065 52,106 110,106" fill="none" stroke="#7c3aed" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M110,1421 C52,1421 52,109 110,109" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M110,1437 C52,1437 52,1030 110,1030" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M110,1454 C52,1454 52,674 110,674" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M1210,147 C1155,147 1155,106 1100,106" fill="none" stroke="#7c3aed" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
-<path d="M1210,163 C1155,163 1155,109 1100,109" fill="none" stroke="#7c3aed" stroke-width="1.5" opacity="0.55" marker-start="url(#many)" marker-end="url(#one)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1302" viewBox="0 0 1500 1302" font-family="Menlo,Consolas,monospace">
+<defs><marker id="cf" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#3f5060" stroke-width="1.5"/></marker><marker id="one" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#3f5060" stroke-width="1.5"/></marker><linearGradient id="tb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d5dfea"/><stop offset="1" stop-color="#b3c2d4"/></linearGradient></defs>
+<rect x="0" y="0" width="1500" height="1302" fill="#fbfcfd"/>
+<path d="M0,0 V1302 M20,0 V1302 M40,0 V1302 M60,0 V1302 M80,0 V1302 M100,0 V1302 M120,0 V1302 M140,0 V1302 M160,0 V1302 M180,0 V1302 M200,0 V1302 M220,0 V1302 M240,0 V1302 M260,0 V1302 M280,0 V1302 M300,0 V1302 M320,0 V1302 M340,0 V1302 M360,0 V1302 M380,0 V1302 M400,0 V1302 M420,0 V1302 M440,0 V1302 M460,0 V1302 M480,0 V1302 M500,0 V1302 M520,0 V1302 M540,0 V1302 M560,0 V1302 M580,0 V1302 M600,0 V1302 M620,0 V1302 M640,0 V1302 M660,0 V1302 M680,0 V1302 M700,0 V1302 M720,0 V1302 M740,0 V1302 M760,0 V1302 M780,0 V1302 M800,0 V1302 M820,0 V1302 M840,0 V1302 M860,0 V1302 M880,0 V1302 M900,0 V1302 M920,0 V1302 M940,0 V1302 M960,0 V1302 M980,0 V1302 M1000,0 V1302 M1020,0 V1302 M1040,0 V1302 M1060,0 V1302 M1080,0 V1302 M1100,0 V1302 M1120,0 V1302 M1140,0 V1302 M1160,0 V1302 M1180,0 V1302 M1200,0 V1302 M1220,0 V1302 M1240,0 V1302 M1260,0 V1302 M1280,0 V1302 M1300,0 V1302 M1320,0 V1302 M1340,0 V1302 M1360,0 V1302 M1380,0 V1302 M1400,0 V1302 M1420,0 V1302 M1440,0 V1302 M1460,0 V1302 M1480,0 V1302 M0,0 H1500 M0,20 H1500 M0,40 H1500 M0,60 H1500 M0,80 H1500 M0,100 H1500 M0,120 H1500 M0,140 H1500 M0,160 H1500 M0,180 H1500 M0,200 H1500 M0,220 H1500 M0,240 H1500 M0,260 H1500 M0,280 H1500 M0,300 H1500 M0,320 H1500 M0,340 H1500 M0,360 H1500 M0,380 H1500 M0,400 H1500 M0,420 H1500 M0,440 H1500 M0,460 H1500 M0,480 H1500 M0,500 H1500 M0,520 H1500 M0,540 H1500 M0,560 H1500 M0,580 H1500 M0,600 H1500 M0,620 H1500 M0,640 H1500 M0,660 H1500 M0,680 H1500 M0,700 H1500 M0,720 H1500 M0,740 H1500 M0,760 H1500 M0,780 H1500 M0,800 H1500 M0,820 H1500 M0,840 H1500 M0,860 H1500 M0,880 H1500 M0,900 H1500 M0,920 H1500 M0,940 H1500 M0,960 H1500 M0,980 H1500 M0,1000 H1500 M0,1020 H1500 M0,1040 H1500 M0,1060 H1500 M0,1080 H1500 M0,1100 H1500 M0,1120 H1500 M0,1140 H1500 M0,1160 H1500 M0,1180 H1500 M0,1200 H1500 M0,1220 H1500 M0,1240 H1500 M0,1260 H1500 M0,1280 H1500 M0,1300 H1500" stroke="#eceff2" stroke-width="1"/>
+<path d="M340,431 H354 V49 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M340,449 H366 V53 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M340,755 H378 V49 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M340,773 H390 V53 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M340,845 H402 V57 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M600,323 H414 V661 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M600,341 H426 V139 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M600,485 H438 V61 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M600,503 H450 V57 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M1160,89 H914 V143 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M600,701 H462 V147 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M600,1025 H474 V151 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M600,1043 H486 V661 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M900,1061 H926 V49 H1160" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M1160,431 H938 V155 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M1160,467 H950 V61 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M1160,683 H962 V159 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M1160,773 H974 V65 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
 <g>
-<rect x="660" y="96" width="440" height="98" rx="9" fill="#ffffff" stroke="#1e293b" stroke-width="1.4"/>
-<path d="M669,96 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#1e293b"/>
-<text x="672" y="113" font-size="12.5" font-weight="700" fill="#ffffff">wp_users</text>
-<rect x="668" y="125.0" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="678" y="133.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="690" y="134.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">ID</tspan></text>
-<text x="825" y="134.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="900" y="134.0" font-size="8.3" fill="#64748b">User identity (FK target)</text>
-<rect x="661.5" y="138.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="690" y="150.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">user_login</tspan></text>
-<text x="825" y="150.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="900" y="150.5" font-size="8.3" fill="#64748b">Login name = public handle</text>
-<text x="690" y="167.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">user_email</tspan></text>
-<text x="825" y="167.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="900" y="167.0" font-size="8.3" fill="#64748b">Email</text>
-<rect x="661.5" y="171.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="690" y="183.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">display_name</tspan></text>
-<text x="825" y="183.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="900" y="183.5" font-size="8.3" fill="#64748b">Display name</text>
-</g>
+<rect x="40" y="40" width="300" height="110" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M40,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="48" y="47" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="64" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_users</text>
+<path d="M326,49 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="51" cy="71.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,71.0 L59,71.0 M57,71.0 L57,73.5 M59,71.0 L59,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,85.0 L56,89.0 L52,93.0 L48,89.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="92" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">user_login</tspan> <tspan fill="#5a6470">VARCHAR(60)</tspan></text>
+<path d="M52,103.0 L56,107.0 L52,111.0 L48,107.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="110" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">user_email</tspan> <tspan fill="#5a6470">VARCHAR(100)</tspan></text>
+<path d="M52,121.0 L56,125.0 L52,129.0 L48,125.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="128" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">display_name</tspan> <tspan fill="#5a6470">VARCHAR(250)</tspan></text>
+<rect x="40" y="134" width="300" height="16" fill="#c3cedb"/>
+<text x="48" y="145" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M326,139 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 <g>
-<rect x="660" y="228.0" width="440" height="48" rx="9" fill="#ffffff" stroke="#64748b" stroke-width="1.4"/>
-<path d="M669,228.0 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#64748b"/>
-<text x="672" y="245.0" font-size="12.5" font-weight="700" fill="#ffffff">wp_posts</text>
-<rect x="668" y="257.0" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="678" y="265.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="690" y="266.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">ID</tspan></text>
-<text x="825" y="266.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="900" y="266.0" font-size="8.3" fill="#64748b">Attachment ID (WP media library)</text>
-</g>
+<rect x="600" y="40" width="300" height="56" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M600,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="608" y="47" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="624" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_posts</text>
+<path d="M886,49 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="611" cy="71.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M613.5,71.0 L619,71.0 M617,71.0 L617,73.5 M619,71.0 L619,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="622" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<rect x="600" y="80" width="300" height="16" fill="#c3cedb"/>
+<text x="608" y="91" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M886,85 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 <g>
-<rect x="660" y="310.5" width="440" height="256" rx="9" fill="#ffffff" stroke="#0d9488" stroke-width="1.4"/>
-<path d="M669,310.5 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#0d9488"/>
-<text x="672" y="327.5" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_calendars</text>
-<rect x="668" y="339.5" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="678" y="348.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="690" y="348.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
-<text x="825" y="348.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="900" y="348.5" font-size="8.3" fill="#64748b">Primary key</text>
-<rect x="661.5" y="353.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="690" y="365.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">name</tspan></text>
-<text x="825" y="365.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="900" y="365.0" font-size="8.3" fill="#64748b">Calendar name</text>
-<rect x="668" y="372.5" width="20" height="11" rx="2.5" fill="#9333ea"/><text x="678" y="381.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">UQ</text>
-<text x="690" y="381.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">slug</tspan></text>
-<text x="825" y="381.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="900" y="381.5" font-size="8.3" fill="#64748b">Shareable URL</text>
-<rect x="661.5" y="386.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="690" y="398.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">description</tspan></text>
-<text x="825" y="398.0" font-size="8.8" fill="#7c3aed">TEXT</text>
-<rect x="668" y="405.5" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="678" y="414.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="690" y="414.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">logo_media_id</tspan></text>
-<text x="825" y="414.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="900" y="414.5" font-size="8.3" fill="#64748b">WP attachment (wp_posts)</text>
-<rect x="661.5" y="419.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="668" y="422.0" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="678" y="430.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="690" y="431.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">cover_media_id</tspan></text>
-<text x="825" y="431.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="900" y="431.0" font-size="8.3" fill="#64748b">WP attachment (wp_posts)</text>
-<text x="690" y="447.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">visibility</tspan></text>
-<text x="825" y="447.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="900" y="447.5" font-size="8.3" fill="#64748b">public|unlisted|private</text>
-<rect x="661.5" y="452.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="690" y="464.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">settings</tspan></text>
-<text x="825" y="464.0" font-size="8.8" fill="#7c3aed">JSON</text>
-<text x="900" y="464.0" font-size="8.3" fill="#64748b">theme, caps, notif prefs</text>
-<rect x="668" y="471.5" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="678" y="480.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="690" y="480.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_by</tspan></text>
-<text x="825" y="480.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="900" y="480.5" font-size="8.3" fill="#64748b">host/manager user</text>
-<rect x="661.5" y="485.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="690" y="497.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
-<text x="825" y="497.0" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<text x="690" y="513.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
-<text x="825" y="513.5" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<line x1="668" y1="522.0" x2="1092" y2="522.0" stroke="#e2e8f0"/>
-<text x="670" y="534.0" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
-<text x="722" y="534.0" font-size="8.5" fill="#475569">UNIQUE (slug)</text>
-<text x="722" y="547.0" font-size="8.5" fill="#475569">(visibility)</text>
-</g>
+<rect x="40" y="184" width="300" height="164" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M40,188 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="48" y="191" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="64" y="199" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_meta</text>
+<path d="M326,193 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="51" cy="215.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,215.0 L59,215.0 M57,215.0 L57,217.5 M59,215.0 L59,217.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,229.0 L56,233.0 L52,237.0 L48,233.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,247.0 L56,251.0 L52,255.0 L48,251.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,265.0 L56,269.0 L52,273.0 L48,269.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">meta_key</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,283.0 L56,287.0 L52,291.0 L48,287.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">value</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
+<path d="M52,301.0 L56,305.0 L52,309.0 L48,305.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M52,319.0 L56,323.0 L52,327.0 L48,323.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="326" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="40" y="332" width="300" height="16" fill="#c3cedb"/>
+<text x="48" y="343" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M326,337 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 <g>
-<rect x="110" y="96" width="440" height="526" rx="9" fill="#ffffff" stroke="#4f46e5" stroke-width="1.4"/>
-<path d="M119,96 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#4f46e5"/>
-<text x="122" y="113" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_events</text>
-<rect x="118" y="125.0" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="128" y="133.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="140" y="134.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
-<text x="275" y="134.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="134.0" font-size="8.3" fill="#64748b">Unique event ID</text>
-<rect x="111.5" y="138.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="150.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">title</tspan></text>
-<text x="275" y="150.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="150.5" font-size="8.3" fill="#64748b">Event name</text>
-<rect x="118" y="158.0" width="20" height="11" rx="2.5" fill="#9333ea"/><text x="128" y="166.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">UQ</text>
-<text x="140" y="167.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">slug</tspan></text>
-<text x="275" y="167.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="167.0" font-size="8.3" fill="#64748b">URL identifier</text>
-<rect x="111.5" y="171.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="183.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">description</tspan></text>
-<text x="275" y="183.5" font-size="8.8" fill="#7c3aed">LONGTEXT</text>
-<text x="350" y="183.5" font-size="8.3" fill="#64748b">Content</text>
-<text x="140" y="200.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">status</tspan></text>
-<text x="275" y="200.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="200.0" font-size="8.3" fill="#64748b">draft|published|archived</text>
-<rect x="111.5" y="204.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="216.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">visibility</tspan></text>
-<text x="275" y="216.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="216.5" font-size="8.3" fill="#64748b">public|unlisted|private</text>
-<text x="140" y="233.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">start_at</tspan></text>
-<text x="275" y="233.0" font-size="8.8" fill="#7c3aed">DATETIME</text>
-<text x="350" y="233.0" font-size="8.3" fill="#64748b">Start in timezone</text>
-<rect x="111.5" y="237.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="249.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">end_at</tspan></text>
-<text x="275" y="249.5" font-size="8.8" fill="#7c3aed">DATETIME</text>
-<text x="350" y="249.5" font-size="8.3" fill="#64748b">End in timezone</text>
-<text x="140" y="266.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">timezone</tspan></text>
-<text x="275" y="266.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="266.0" font-size="8.3" fill="#64748b">IANA (DST-aware)</text>
-<rect x="111.5" y="270.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="118" y="273.5" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="282.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="282.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">calendar_id</tspan></text>
-<text x="275" y="282.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="282.5" font-size="8.3" fill="#64748b">Parent calendar</text>
-<rect x="118" y="290.0" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="298.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="299.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">parent_event_id</tspan></text>
-<text x="275" y="299.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="299.0" font-size="8.3" fill="#64748b">Recurring master (self)</text>
-<rect x="111.5" y="303.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="315.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">location_address</tspan></text>
-<text x="275" y="315.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="315.5" font-size="8.3" fill="#64748b">Physical address</text>
-<text x="140" y="332.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">location_lat</tspan></text>
-<text x="275" y="332.0" font-size="8.8" fill="#7c3aed">DECIMAL</text>
-<text x="350" y="332.0" font-size="8.3" fill="#64748b">Latitude</text>
-<rect x="111.5" y="336.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="348.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">location_lng</tspan></text>
-<text x="275" y="348.5" font-size="8.8" fill="#7c3aed">DECIMAL</text>
-<text x="350" y="348.5" font-size="8.3" fill="#64748b">Longitude</text>
-<text x="140" y="365.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">venue_type</tspan></text>
-<text x="275" y="365.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="365.0" font-size="8.3" fill="#64748b">online|offline|hybrid</text>
-<rect x="111.5" y="369.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="381.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">online_meeting_url</tspan></text>
-<text x="275" y="381.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="381.5" font-size="8.3" fill="#64748b">Meeting link (online/hybrid)</text>
-<text x="140" y="398.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">join_policy</tspan></text>
-<text x="275" y="398.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="398.0" font-size="8.3" fill="#64748b">open|approval|invite_only</text>
-<rect x="111.5" y="402.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="414.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">is_paid</tspan></text>
-<text x="275" y="414.5" font-size="8.8" fill="#7c3aed">TINYINT</text>
-<text x="350" y="414.5" font-size="8.3" fill="#64748b">Has paid tiers</text>
-<text x="140" y="431.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">capacity</tspan></text>
-<text x="275" y="431.0" font-size="8.8" fill="#7c3aed">INT</text>
-<text x="350" y="431.0" font-size="8.3" fill="#64748b">Overall cap; null=unlimited</text>
-<rect x="111.5" y="435.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="447.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">form_fields</tspan></text>
-<text x="275" y="447.5" font-size="8.8" fill="#7c3aed">JSON</text>
-<text x="350" y="447.5" font-size="8.3" fill="#64748b">Dynamic form definition</text>
-<rect x="118" y="455.0" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="463.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="464.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_by</tspan></text>
-<text x="275" y="464.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="464.0" font-size="8.3" fill="#64748b">Host (wp_users)</text>
-<rect x="111.5" y="468.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="118" y="471.5" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="480.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="480.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">cover_image_id</tspan></text>
-<text x="275" y="480.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="480.5" font-size="8.3" fill="#64748b">Cover — WP attachment (wp_posts)</text>
-<text x="140" y="497.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">settings</tspan></text>
-<text x="275" y="497.0" font-size="8.8" fill="#7c3aed">JSON</text>
-<text x="350" y="497.0" font-size="8.3" fill="#64748b">Per-event config; recurrence</text>
-<rect x="111.5" y="501.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="513.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
-<text x="275" y="513.5" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<text x="140" y="530.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
-<text x="275" y="530.0" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<line x1="118" y1="538.5" x2="542" y2="538.5" stroke="#e2e8f0"/>
-<text x="120" y="550.5" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
-<text x="172" y="550.5" font-size="8.5" fill="#475569">UNIQUE (slug)</text>
-<text x="172" y="563.5" font-size="8.5" fill="#475569">(calendar_id)</text>
-<text x="172" y="576.5" font-size="8.5" fill="#475569">(created_by)</text>
-<text x="172" y="589.5" font-size="8.5" fill="#475569">(status, visibility)</text>
-<text x="172" y="602.5" font-size="8.5" fill="#475569">(start_at, end_at)</text>
-</g>
+<rect x="40" y="382" width="300" height="236" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M40,386 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="48" y="389" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="64" y="397" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_notifications</text>
+<path d="M326,391 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="51" cy="413.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,413.0 L59,413.0 M57,413.0 L57,415.5 M59,413.0 L59,415.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="416" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,427.0 L56,431.0 L52,435.0 L48,431.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="434" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">recipient_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,445.0 L56,449.0 L52,453.0 L48,449.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="452" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">actor_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,463.0 L56,467.0 L52,471.0 L48,467.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">action</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,481.0 L56,485.0 L52,489.0 L48,485.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="488" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,499.0 L56,503.0 L52,507.0 L48,503.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,517.0 L56,521.0 L52,525.0 L48,521.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">title</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,535.0 L56,539.0 L52,543.0 L48,539.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">content</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
+<path d="M52,553.0 L56,557.0 L52,561.0 L48,557.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="560" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">route</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
+<path d="M52,571.0 L56,575.0 L52,579.0 L48,575.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="578" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">read_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M52,589.0 L56,593.0 L52,597.0 L48,593.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="596" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="40" y="602" width="300" height="16" fill="#c3cedb"/>
+<text x="48" y="613" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M326,607 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 <g>
-<rect x="110" y="655.5" width="440" height="325" rx="9" fill="#ffffff" stroke="#0891b2" stroke-width="1.4"/>
-<path d="M119,655.5 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#0891b2"/>
-<text x="122" y="672.5" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_ticket_types</text>
-<rect x="118" y="684.5" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="128" y="693.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="140" y="693.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
-<text x="275" y="693.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="693.5" font-size="8.3" fill="#64748b">Primary key</text>
-<rect x="111.5" y="698.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="118" y="701.0" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="709.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="710.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">event_id</tspan></text>
-<text x="275" y="710.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="710.0" font-size="8.3" fill="#64748b">Parent event</text>
-<text x="140" y="726.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">name</tspan></text>
-<text x="275" y="726.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="726.5" font-size="8.3" fill="#64748b">Tier; auto &#x27;General&#x27;</text>
-<rect x="111.5" y="731.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="743.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">description</tspan></text>
-<text x="275" y="743.0" font-size="8.8" fill="#7c3aed">TEXT</text>
-<text x="140" y="759.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">price</tspan></text>
-<text x="275" y="759.5" font-size="8.8" fill="#7c3aed">DECIMAL</text>
-<text x="350" y="759.5" font-size="8.3" fill="#64748b">0 = free</text>
-<rect x="111.5" y="764.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="776.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">currency</tspan></text>
-<text x="275" y="776.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="776.0" font-size="8.3" fill="#64748b">ISO (paid)</text>
-<text x="140" y="792.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">capacity</tspan></text>
-<text x="275" y="792.5" font-size="8.8" fill="#7c3aed">INT</text>
-<text x="350" y="792.5" font-size="8.3" fill="#64748b">Seats; null=unlimited</text>
-<rect x="111.5" y="797.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="809.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">sold</tspan></text>
-<text x="275" y="809.0" font-size="8.8" fill="#7c3aed">INT</text>
-<text x="350" y="809.0" font-size="8.3" fill="#64748b">remaining = capacity - sold</text>
-<text x="140" y="825.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">min_per_order</tspan></text>
-<text x="275" y="825.5" font-size="8.8" fill="#7c3aed">INT</text>
-<text x="350" y="825.5" font-size="8.3" fill="#64748b">Min slots/registration</text>
-<rect x="111.5" y="830.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="842.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">max_per_order</tspan></text>
-<text x="275" y="842.0" font-size="8.8" fill="#7c3aed">INT</text>
-<text x="350" y="842.0" font-size="8.3" fill="#64748b">Max slots/registration</text>
-<text x="140" y="858.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">sale_starts_at</tspan></text>
-<text x="275" y="858.5" font-size="8.8" fill="#7c3aed">DATETIME</text>
-<text x="350" y="858.5" font-size="8.3" fill="#64748b">Sales window open</text>
-<rect x="111.5" y="863.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="875.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">sale_ends_at</tspan></text>
-<text x="275" y="875.0" font-size="8.8" fill="#7c3aed">DATETIME</text>
-<text x="350" y="875.0" font-size="8.3" fill="#64748b">Sales window close</text>
-<text x="140" y="891.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">status</tspan></text>
-<text x="275" y="891.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="891.5" font-size="8.3" fill="#64748b">active|hidden</text>
-<rect x="111.5" y="896.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="908.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">sort_order</tspan></text>
-<text x="275" y="908.0" font-size="8.8" fill="#7c3aed">INT</text>
-<text x="140" y="924.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
-<text x="275" y="924.5" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<rect x="111.5" y="929.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="941.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
-<text x="275" y="941.0" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<line x1="118" y1="949.5" x2="542" y2="949.5" stroke="#e2e8f0"/>
-<text x="120" y="961.5" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
-<text x="172" y="961.5" font-size="8.5" fill="#475569">(event_id, status)</text>
-</g>
+<rect x="40" y="652" width="300" height="254" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M40,656 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="48" y="659" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="64" y="667" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_calendars</text>
+<path d="M326,661 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="51" cy="683.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,683.0 L59,683.0 M57,683.0 L57,685.5 M59,683.0 L59,685.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="686" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,697.0 L56,701.0 L52,705.0 L48,701.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="704" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,715.0 L56,719.0 L52,723.0 L48,719.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="722" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,733.0 L56,737.0 L52,741.0 L48,737.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="740" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
+<path d="M52,751.0 L56,755.0 L52,759.0 L48,755.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="758" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">logo_media_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,769.0 L56,773.0 L52,777.0 L48,773.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="776" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">cover_media_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,787.0 L56,791.0 L52,795.0 L48,791.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="794" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">visibility</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,805.0 L56,809.0 L52,813.0 L48,809.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="812" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
+<path d="M52,823.0 L56,827.0 L52,831.0 L48,827.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="830" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,841.0 L56,845.0 L52,849.0 L48,845.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="848" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_by</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,859.0 L56,863.0 L52,867.0 L48,863.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="866" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M52,877.0 L56,881.0 L52,885.0 L48,881.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="884" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="40" y="890" width="300" height="16" fill="#c3cedb"/>
+<text x="48" y="901" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M326,895 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 <g>
-<rect x="110" y="1014.5" width="440" height="322" rx="9" fill="#ffffff" stroke="#7c3aed" stroke-width="1.4"/>
-<path d="M119,1014.5 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#7c3aed"/>
-<text x="122" y="1031.5" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_registrations</text>
-<rect x="118" y="1043.5" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="128" y="1052.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="140" y="1052.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
-<text x="275" y="1052.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="1052.5" font-size="8.3" fill="#64748b">Primary key</text>
-<rect x="111.5" y="1057.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="118" y="1060.0" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="1068.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="1069.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">event_id</tspan></text>
-<text x="275" y="1069.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="1069.0" font-size="8.3" fill="#64748b">Parent event</text>
-<text x="140" y="1085.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">buyer_name</tspan></text>
-<text x="275" y="1085.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1085.5" font-size="8.3" fill="#64748b">Registrant name</text>
-<rect x="111.5" y="1090.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1102.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">buyer_email</tspan></text>
-<text x="275" y="1102.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1102.0" font-size="8.3" fill="#64748b">Registrant email</text>
-<text x="140" y="1118.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">buyer_phone</tspan></text>
-<text x="275" y="1118.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1118.5" font-size="8.3" fill="#64748b">Registrant phone</text>
-<rect x="111.5" y="1123.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1135.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">slots</tspan></text>
-<text x="275" y="1135.0" font-size="8.8" fill="#7c3aed">INT</text>
-<text x="350" y="1135.0" font-size="8.3" fill="#64748b">Number of slots</text>
-<text x="140" y="1151.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">status</tspan></text>
-<text x="275" y="1151.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1151.5" font-size="8.3" fill="#64748b">pending|confirmed|cancelled|refunded</text>
-<rect x="111.5" y="1156.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1168.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">payment_status</tspan></text>
-<text x="275" y="1168.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1168.0" font-size="8.3" fill="#64748b">free|pending|paid|refunded|failed</text>
-<text x="140" y="1184.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">payment_ref</tspan></text>
-<text x="275" y="1184.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1184.5" font-size="8.3" fill="#64748b">Paymattic txn id</text>
-<rect x="111.5" y="1189.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1201.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">total_amount</tspan></text>
-<text x="275" y="1201.0" font-size="8.8" fill="#7c3aed">DECIMAL</text>
-<text x="350" y="1201.0" font-size="8.3" fill="#64748b">Registration total</text>
-<text x="140" y="1217.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">currency</tspan></text>
-<text x="275" y="1217.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1217.5" font-size="8.3" fill="#64748b">ISO code</text>
-<rect x="111.5" y="1222.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1234.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">paid_at</tspan></text>
-<text x="275" y="1234.0" font-size="8.8" fill="#7c3aed">DATETIME</text>
-<text x="140" y="1250.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">source</tspan></text>
-<text x="275" y="1250.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1250.5" font-size="8.3" fill="#64748b">invite|link|import|request</text>
-<rect x="111.5" y="1255.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1267.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
-<text x="275" y="1267.0" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<text x="140" y="1283.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
-<text x="275" y="1283.5" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<line x1="118" y1="1292.0" x2="542" y2="1292.0" stroke="#e2e8f0"/>
-<text x="120" y="1304.0" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
-<text x="172" y="1304.0" font-size="8.5" fill="#475569">(event_id, status)</text>
-<text x="172" y="1317.0" font-size="8.5" fill="#475569">(buyer_email)</text>
-</g>
+<rect x="600" y="130" width="300" height="488" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M600,134 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="608" y="137" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="624" y="145" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_events</text>
+<path d="M886,139 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="611" cy="161.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M613.5,161.0 L619,161.0 M617,161.0 L617,163.5 M619,161.0 L619,163.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="622" y="164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,175.0 L616,179.0 L612,183.0 L608,179.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">title</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M612,193.0 L616,197.0 L612,201.0 L608,197.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M612,211.0 L616,215.0 L612,219.0 L608,215.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
+<path d="M612,229.0 L616,233.0 L612,237.0 L608,233.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,247.0 L616,251.0 L612,255.0 L608,251.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">visibility</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,265.0 L616,269.0 L612,273.0 L608,269.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">start_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M612,283.0 L616,287.0 L612,291.0 L608,287.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">end_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M612,301.0 L616,305.0 L612,309.0 L608,305.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">timezone</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,319.0 L616,323.0 L612,327.0 L608,323.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="622" y="326" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">calendar_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,337.0 L616,341.0 L612,345.0 L608,341.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="622" y="344" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">parent_event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,355.0 L616,359.0 L612,363.0 L608,359.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="362" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">venue_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,373.0 L616,377.0 L612,381.0 L608,377.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="380" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">address</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M612,391.0 L616,395.0 L612,399.0 L608,395.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="398" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">lat</tspan> <tspan fill="#5a6470">DECIMAL(10,8)</tspan></text>
+<path d="M612,409.0 L616,413.0 L612,417.0 L608,413.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="416" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">lon</tspan> <tspan fill="#5a6470">DECIMAL(11,8)</tspan></text>
+<path d="M612,427.0 L616,431.0 L612,435.0 L608,431.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="434" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">online_meeting_url</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M612,445.0 L616,449.0 L612,453.0 L608,449.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="452" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">join_policy</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,463.0 L616,467.0 L612,471.0 L608,467.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">waitlist_enabled</tspan> <tspan fill="#5a6470">TINYINT(1)</tspan></text>
+<path d="M612,481.0 L616,485.0 L612,489.0 L608,485.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="622" y="488" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_by</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,499.0 L616,503.0 L612,507.0 L608,503.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="622" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">cover_image_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,517.0 L616,521.0 L612,525.0 L608,521.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">currency</tspan> <tspan fill="#5a6470">VARCHAR(3)</tspan></text>
+<path d="M612,535.0 L616,539.0 L612,543.0 L608,539.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">form_fields</tspan> <tspan fill="#5a6470">JSON</tspan></text>
+<path d="M612,553.0 L616,557.0 L612,561.0 L608,557.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="560" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
+<path d="M612,571.0 L616,575.0 L612,579.0 L608,575.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="578" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M612,589.0 L616,593.0 L612,597.0 L608,593.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="596" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="600" y="602" width="300" height="16" fill="#c3cedb"/>
+<text x="608" y="613" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M886,607 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 <g>
-<rect x="110" y="1370.0" width="440" height="314" rx="9" fill="#ffffff" stroke="#6366f1" stroke-width="1.4"/>
-<path d="M119,1370.0 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#6366f1"/>
-<text x="122" y="1387.0" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_guests</text>
-<rect x="118" y="1399.0" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="128" y="1407.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="140" y="1408.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
-<text x="275" y="1408.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="1408.0" font-size="8.3" fill="#64748b">One row per slot</text>
-<rect x="111.5" y="1412.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="118" y="1415.5" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="1424.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="1424.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">event_id</tspan></text>
-<text x="275" y="1424.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="1424.5" font-size="8.3" fill="#64748b">Parent event (denormalized)</text>
-<rect x="118" y="1432.0" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="1440.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="1441.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">registration_id</tspan></text>
-<text x="275" y="1441.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="1441.0" font-size="8.3" fill="#64748b">Parent registration</text>
-<rect x="111.5" y="1445.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="118" y="1448.5" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="128" y="1457.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="140" y="1457.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">ticket_type_id</tspan></text>
-<text x="275" y="1457.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="350" y="1457.5" font-size="8.3" fill="#64748b">Ticket tier</text>
-<text x="140" y="1474.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">name</tspan></text>
-<text x="275" y="1474.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1474.0" font-size="8.3" fill="#64748b">Attendee name</text>
-<rect x="111.5" y="1478.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1490.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">email</tspan></text>
-<text x="275" y="1490.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1490.5" font-size="8.3" fill="#64748b">Attendee email</text>
-<text x="140" y="1507.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">phone</tspan></text>
-<text x="275" y="1507.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1507.0" font-size="8.3" fill="#64748b">Attendee phone</text>
-<rect x="111.5" y="1511.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1523.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">status</tspan></text>
-<text x="275" y="1523.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1523.5" font-size="8.3" fill="#64748b">confirmed|checked_in|waitlisted…</text>
-<text x="140" y="1540.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">form_response</tspan></text>
-<text x="275" y="1540.0" font-size="8.8" fill="#7c3aed">JSON</text>
-<text x="350" y="1540.0" font-size="8.3" fill="#64748b">This attendee&#x27;s answers</text>
-<rect x="111.5" y="1544.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="118" y="1547.5" width="20" height="11" rx="2.5" fill="#9333ea"/><text x="128" y="1556.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">UQ</text>
-<text x="140" y="1556.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">ticket_code</tspan></text>
-<text x="275" y="1556.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="350" y="1556.5" font-size="8.3" fill="#64748b">QR / check-in code</text>
-<text x="140" y="1573.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">checked_in_at</tspan></text>
-<text x="275" y="1573.0" font-size="8.8" fill="#7c3aed">DATETIME</text>
-<text x="350" y="1573.0" font-size="8.3" fill="#64748b">Check-in time</text>
-<rect x="111.5" y="1577.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="140" y="1589.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
-<text x="275" y="1589.5" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<text x="140" y="1606.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
-<text x="275" y="1606.0" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<line x1="118" y1="1614.5" x2="542" y2="1614.5" stroke="#e2e8f0"/>
-<text x="120" y="1626.5" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
-<text x="172" y="1626.5" font-size="8.5" fill="#475569">UNIQUE (ticket_code)</text>
-<text x="172" y="1639.5" font-size="8.5" fill="#475569">(event_id, status)</text>
-<text x="172" y="1652.5" font-size="8.5" fill="#475569">(registration_id)</text>
-<text x="172" y="1665.5" font-size="8.5" fill="#475569">(email)</text>
-</g>
+<rect x="1160" y="40" width="300" height="308" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1160,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1168" y="47" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1184" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_ticket_types</text>
+<path d="M1446,49 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="1171" cy="71.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1173.5,71.0 L1179,71.0 M1177,71.0 L1177,73.5 M1179,71.0 L1179,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1182" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1172,85.0 L1176,89.0 L1172,93.0 L1168,89.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1182" y="92" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1172,103.0 L1176,107.0 L1172,111.0 L1168,107.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="110" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1172,121.0 L1176,125.0 L1172,129.0 L1168,125.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="128" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1172,139.0 L1176,143.0 L1172,147.0 L1168,143.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="146" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">price</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
+<path d="M1172,157.0 L1176,161.0 L1172,165.0 L1168,161.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">capacity</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1172,175.0 L1176,179.0 L1172,183.0 L1168,179.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sold</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1172,193.0 L1176,197.0 L1172,201.0 L1168,197.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">min_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1172,211.0 L1176,215.0 L1172,219.0 L1168,215.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">max_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1172,229.0 L1176,233.0 L1172,237.0 L1168,233.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_start_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M1172,247.0 L1176,251.0 L1172,255.0 L1168,251.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_end_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M1172,265.0 L1176,269.0 L1172,273.0 L1168,269.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1172,283.0 L1176,287.0 L1172,291.0 L1168,287.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1172,301.0 L1176,305.0 L1172,309.0 L1168,305.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M1172,319.0 L1176,323.0 L1172,327.0 L1168,323.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="326" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="1160" y="332" width="300" height="16" fill="#c3cedb"/>
+<text x="1168" y="343" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M1446,337 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 <g>
-<rect x="1210" y="96" width="440" height="282" rx="9" fill="#ffffff" stroke="#7c3aed" stroke-width="1.4"/>
-<path d="M1219,96 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#7c3aed"/>
-<text x="1222" y="113" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_notifications</text>
-<text x="1638" y="113" font-size="9" fill="#ffffff" opacity="0.85" text-anchor="end">◇ polymorphic</text>
-<rect x="1218" y="125.0" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="1228" y="133.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="1240" y="134.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
-<text x="1375" y="134.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="1450" y="134.0" font-size="8.3" fill="#64748b">Notification ID</text>
-<rect x="1211.5" y="138.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<rect x="1218" y="141.5" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="1228" y="150.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="1240" y="150.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">recipient_id</tspan></text>
-<text x="1375" y="150.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="1450" y="150.5" font-size="8.3" fill="#64748b">WP user who sees it</text>
-<rect x="1218" y="158.0" width="20" height="11" rx="2.5" fill="#2563eb"/><text x="1228" y="166.5" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">FK</text>
-<text x="1240" y="167.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">actor_id</tspan></text>
-<text x="1375" y="167.0" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="1450" y="167.0" font-size="8.3" fill="#64748b">Who triggered; null=system</text>
-<rect x="1211.5" y="171.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="1240" y="183.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">action</tspan></text>
-<text x="1375" y="183.5" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="1450" y="183.5" font-size="8.3" fill="#64748b">Typed (event.join…)</text>
-<text x="1240" y="200.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">object_type</tspan></text>
-<text x="1375" y="200.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="1450" y="200.0" font-size="8.3" fill="#64748b">event | calendar…</text>
-<rect x="1211.5" y="204.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="1240" y="216.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">object_id</tspan></text>
-<text x="1375" y="216.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="1450" y="216.5" font-size="8.3" fill="#64748b">Related object</text>
-<text x="1240" y="233.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">title</tspan></text>
-<text x="1375" y="233.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="1450" y="233.0" font-size="8.3" fill="#64748b">Rendered title</text>
-<rect x="1211.5" y="237.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="1240" y="249.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">content</tspan></text>
-<text x="1375" y="249.5" font-size="8.8" fill="#7c3aed">TEXT</text>
-<text x="1450" y="249.5" font-size="8.3" fill="#64748b">Rendered body</text>
-<text x="1240" y="266.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">route</tspan></text>
-<text x="1375" y="266.0" font-size="8.8" fill="#7c3aed">TEXT</text>
-<text x="1450" y="266.0" font-size="8.3" fill="#64748b">Deep link</text>
-<rect x="1211.5" y="270.5" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="1240" y="282.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">read_at</tspan></text>
-<text x="1375" y="282.5" font-size="8.8" fill="#7c3aed">DATETIME</text>
-<text x="1450" y="282.5" font-size="8.3" fill="#64748b">null = unread</text>
-<text x="1240" y="299.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
-<text x="1375" y="299.0" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<line x1="1218" y1="307.5" x2="1642" y2="307.5" stroke="#e2e8f0"/>
-<text x="1220" y="319.5" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
-<text x="1272" y="319.5" font-size="8.5" fill="#475569">UNIQUE (recipient_id, action, object_id)</text>
-<text x="1272" y="332.5" font-size="8.5" fill="#475569">(recipient_id, read_at)</text>
-<text x="1272" y="345.5" font-size="8.5" fill="#475569">(object_type, object_id)</text>
-<text x="1272" y="358.5" font-size="8.5" fill="#475569">(action)</text>
-</g>
+<rect x="600" y="652" width="300" height="290" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M600,656 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="608" y="659" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="624" y="667" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_registrations</text>
+<path d="M886,661 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="611" cy="683.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M613.5,683.0 L619,683.0 M617,683.0 L617,685.5 M619,683.0 L619,685.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="622" y="686" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,697.0 L616,701.0 L612,705.0 L608,701.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="622" y="704" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,715.0 L616,719.0 L612,723.0 L608,719.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="722" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M612,733.0 L616,737.0 L612,741.0 L608,737.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="740" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
+<path d="M612,751.0 L616,755.0 L612,759.0 L608,755.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="758" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_phone</tspan> <tspan fill="#5a6470">VARCHAR(16)</tspan></text>
+<path d="M612,769.0 L616,773.0 L612,777.0 L608,773.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="776" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">tickets</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M612,787.0 L616,791.0 L612,795.0 L608,791.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="794" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,805.0 L616,809.0 L612,813.0 L608,809.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="812" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">payment_status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,823.0 L616,827.0 L612,831.0 L608,827.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="830" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">payment_ref</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M612,841.0 L616,845.0 L612,849.0 L608,845.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="848" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">total_amount</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
+<path d="M612,859.0 L616,863.0 L612,867.0 L608,863.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="866" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">paid_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M612,877.0 L616,881.0 L612,885.0 L608,881.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="884" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">source</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,895.0 L616,899.0 L612,903.0 L608,899.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="902" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M612,913.0 L616,917.0 L612,921.0 L608,917.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="920" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="600" y="926" width="300" height="16" fill="#c3cedb"/>
+<text x="608" y="937" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M886,931 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 <g>
-<rect x="1210" y="411.5" width="440" height="176" rx="9" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/>
-<path d="M1219,411.5 h422 a9,9 0 0 1 9,9 v17 h-440 v-17 a9,9 0 0 1 9,-9 z" fill="#d97706"/>
-<text x="1222" y="428.5" font-size="12.5" font-weight="700" fill="#ffffff">wp_fevents_meta</text>
-<text x="1638" y="428.5" font-size="9" fill="#ffffff" opacity="0.85" text-anchor="end">◇ polymorphic</text>
-<rect x="1218" y="440.5" width="20" height="11" rx="2.5" fill="#f59e0b"/><text x="1228" y="449.0" font-size="7.3" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
-<text x="1240" y="449.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">id</tspan></text>
-<text x="1375" y="449.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="1450" y="449.5" font-size="8.3" fill="#64748b">Primary key</text>
-<rect x="1211.5" y="454.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="1240" y="466.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">object_type</tspan></text>
-<text x="1375" y="466.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="1450" y="466.0" font-size="8.3" fill="#64748b">option|user|event|calendar</text>
-<text x="1240" y="482.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">object_id</tspan></text>
-<text x="1375" y="482.5" font-size="8.8" fill="#7c3aed">BIGINT</text>
-<text x="1450" y="482.5" font-size="8.3" fill="#64748b">id; null for option</text>
-<rect x="1211.5" y="487.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="1240" y="499.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">meta_key</tspan></text>
-<text x="1375" y="499.0" font-size="8.8" fill="#7c3aed">VARCHAR</text>
-<text x="1450" y="499.0" font-size="8.3" fill="#64748b">Section / meta key</text>
-<text x="1240" y="515.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">value</tspan></text>
-<text x="1375" y="515.5" font-size="8.8" fill="#7c3aed">LONGTEXT</text>
-<text x="1450" y="515.5" font-size="8.3" fill="#64748b">JSON / serialized</text>
-<rect x="1211.5" y="520.0" width="437" height="16.5" fill="#f1f5f9" opacity="0.6"/>
-<text x="1240" y="532.0" font-size="10.3" fill="#0f172a"><tspan font-weight="600">created_at</tspan></text>
-<text x="1375" y="532.0" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<text x="1240" y="548.5" font-size="10.3" fill="#0f172a"><tspan font-weight="600">updated_at</tspan></text>
-<text x="1375" y="548.5" font-size="8.8" fill="#7c3aed">TIMESTAMP</text>
-<line x1="1218" y1="557.0" x2="1642" y2="557.0" stroke="#e2e8f0"/>
-<text x="1220" y="569.0" font-size="8.5" font-weight="700" fill="#475569">INDEXES</text>
-<text x="1272" y="569.0" font-size="8.5" fill="#475569">(object_type, object_id, meta_key)</text>
-</g>
+<rect x="600" y="976" width="300" height="272" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M600,980 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="608" y="983" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="624" y="991" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_guests</text>
+<path d="M886,985 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="611" cy="1007.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M613.5,1007.0 L619,1007.0 M617,1007.0 L617,1009.5 M619,1007.0 L619,1009.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="622" y="1010" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,1021.0 L616,1025.0 L612,1029.0 L608,1025.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="622" y="1028" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,1039.0 L616,1043.0 L612,1047.0 L608,1043.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="622" y="1046" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">registration_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,1057.0 L616,1061.0 L612,1065.0 L608,1061.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="622" y="1064" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">ticket_type_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M612,1075.0 L616,1079.0 L612,1083.0 L608,1079.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="1082" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M612,1093.0 L616,1097.0 L612,1101.0 L608,1097.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="1100" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
+<path d="M612,1111.0 L616,1115.0 L612,1119.0 L608,1115.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="1118" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">phone</tspan> <tspan fill="#5a6470">VARCHAR(16)</tspan></text>
+<path d="M612,1129.0 L616,1133.0 L612,1137.0 L608,1133.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="1136" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,1147.0 L616,1151.0 L612,1155.0 L608,1151.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="1154" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">form_response</tspan> <tspan fill="#5a6470">JSON</tspan></text>
+<path d="M612,1165.0 L616,1169.0 L612,1173.0 L608,1169.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="1172" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">ticket_code</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M612,1183.0 L616,1187.0 L612,1191.0 L608,1187.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="622" y="1190" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">checked_in_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M612,1201.0 L616,1205.0 L612,1209.0 L608,1205.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="1208" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M612,1219.0 L616,1223.0 L612,1227.0 L608,1223.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="622" y="1226" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="600" y="1232" width="300" height="16" fill="#c3cedb"/>
+<text x="608" y="1243" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M886,1237 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<g>
+<rect x="1160" y="382" width="300" height="218" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1160,386 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1168" y="389" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1184" y="397" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_sponsors</text>
+<path d="M1446,391 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="1171" cy="413.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1173.5,413.0 L1179,413.0 M1177,413.0 L1177,415.5 M1179,413.0 L1179,415.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1182" y="416" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1172,427.0 L1176,431.0 L1172,435.0 L1168,431.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1182" y="434" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1172,445.0 L1176,449.0 L1172,453.0 L1168,449.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="452" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1172,463.0 L1176,467.0 L1172,471.0 L1168,467.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1182" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">logo_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1172,481.0 L1176,485.0 L1172,489.0 L1168,485.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="488" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">website</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1172,499.0 L1176,503.0 L1172,507.0 L1168,503.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1172,517.0 L1176,521.0 L1172,525.0 L1168,521.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">amount</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
+<path d="M1172,535.0 L1176,539.0 L1172,543.0 L1168,539.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1172,553.0 L1176,557.0 L1172,561.0 L1168,557.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="560" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M1172,571.0 L1176,575.0 L1172,579.0 L1168,575.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="578" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="1160" y="584" width="300" height="16" fill="#c3cedb"/>
+<text x="1168" y="595" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M1446,589 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<g>
+<rect x="1160" y="634" width="300" height="236" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1160,638 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1168" y="641" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1184" y="649" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_people</text>
+<path d="M1446,643 l6,0 l-3,4 z" fill="#4a6fa5"/>
+<circle cx="1171" cy="665.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1173.5,665.0 L1179,665.0 M1177,665.0 L1177,667.5 M1179,665.0 L1179,667.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1182" y="668" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1172,679.0 L1176,683.0 L1172,687.0 L1168,683.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1182" y="686" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1172,697.0 L1176,701.0 L1172,705.0 L1168,701.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="704" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1172,715.0 L1176,719.0 L1172,723.0 L1168,719.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="722" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1172,733.0 L1176,737.0 L1172,741.0 L1168,737.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="740" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">designation</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1172,751.0 L1176,755.0 L1172,759.0 L1168,755.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="758" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">is_primary</tspan> <tspan fill="#5a6470">TINYINT(1)</tspan></text>
+<path d="M1172,769.0 L1176,773.0 L1172,777.0 L1168,773.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1182" y="776" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">photo_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1172,787.0 L1176,791.0 L1172,795.0 L1168,791.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1182" y="794" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">links</tspan> <tspan fill="#5a6470">JSON</tspan></text>
+<path d="M1172,805.0 L1176,809.0 L1172,813.0 L1168,809.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="812" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1172,823.0 L1176,827.0 L1172,831.0 L1168,827.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="830" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M1172,841.0 L1176,845.0 L1172,849.0 L1168,845.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1182" y="848" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="1160" y="854" width="300" height="16" fill="#c3cedb"/>
+<text x="1168" y="865" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<path d="M1446,859 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
 </svg>

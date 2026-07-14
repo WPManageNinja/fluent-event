@@ -1,210 +1,191 @@
-// Fluent Events — Database Schema (DBML for dbdiagram.io)
-// Docs: https://dbml.dbdiagram.io/docs
-// 7 plugin tables (wp_fevents_*) + WP core stubs (wp_users, wp_posts).
-// Ticketing: event -> ticket_types (tiers) -> registrations (buyer+payment, N slots) -> guests (1 per slot).
-// Attendee identity: WP users (hosts/managers) + anonymous guests (name/email/phone per slot). No profile table.
-// Media: WP media library — image columns store a wp_posts attachment ID (no custom media table).
-// Refs declared inline on the FK column ([ref: > target]).
-// Polymorphic slots (object_type/object_id) are indexed columns, NOT refs
-//   (one column can't reference many tables).
-
-// ============================================================
-// WP core (stub — ref target only)
-// ============================================================
+// Fluent Events — Database Schema (DBML for dbdiagram.io). Generated — do not hand-edit.
+// 9 plugin tables + WP core stubs. Ticketing + roster + WP-native media/identity.
 
 Table wp_users {
-  ID           bigint [primary key]
-  user_login   varchar
-  user_email   varchar
-  display_name varchar
+  ID bigint [primary key, increment]
+  user_login varchar [not null]
+  user_email varchar [not null]
+  display_name varchar [not null]
 }
 
-// WP media library: image columns store an attachment ID (post_type='attachment').
 Table wp_posts {
-  ID bigint [primary key, note: 'Attachment / post ID']
+  id bigint [primary key, increment]
 }
-
-// ============================================================
-// wp_fevents_calendars
-// ============================================================
-
-Table wp_fevents_calendars {
-  id             bigint  [primary key, increment]
-  name           varchar [not null, note: 'Calendar name']
-  slug           varchar [not null, unique, note: 'Unique shareable URL']
-  description    text
-  logo_media_id  bigint  [ref: > wp_posts.ID, note: 'WP attachment ID']
-  cover_media_id bigint  [ref: > wp_posts.ID, note: 'WP attachment ID']
-  visibility     varchar [not null, default: 'public', note: 'public|unlisted|private']
-  settings       json    [note: 'theme, manage caps, notif prefs']
-  created_by     bigint  [ref: > wp_users.ID, not null, note: 'host/manager user id']
-  created_at     timestamp
-  updated_at     timestamp
-
-  indexes {
-    visibility [name: 'idx_calendar_visibility']
-  }
-}
-
-// ============================================================
-// wp_fevents_events
-// ============================================================
-
-Table wp_fevents_events {
-  id                 bigint     [primary key, increment]
-  title              varchar    [not null, note: 'Event name']
-  slug               varchar    [not null, unique, note: 'URL-friendly identifier']
-  description        longtext   [note: 'Event details/content']
-  status             varchar    [not null, default: 'draft', note: 'draft|published|archived']
-  visibility         varchar    [not null, default: 'public', note: 'public|unlisted|private']
-  start_at           datetime   [not null, note: 'Event start in timezone']
-  end_at             datetime   [not null, note: 'Event end in timezone']
-  timezone           varchar    [not null, note: 'IANA timezone (DST-aware)']
-  calendar_id        bigint     [ref: > wp_fevents_calendars.id, not null, note: 'Parent calendar (v1: default)']
-  parent_event_id    bigint     [ref: > wp_fevents_events.id, note: 'Master in recurring series (self)']
-  venue_type         varchar    [not null, default: 'offline', note: 'online|offline|hybrid']
-  location_address   varchar    [note: 'Physical address (offline/hybrid)']
-  location_lat       decimal    [note: 'Latitude coordinate']
-  location_lng       decimal    [note: 'Longitude coordinate']
-  online_meeting_url varchar    [note: 'Meeting link (online/hybrid)']
-  join_policy        varchar    [not null, default: 'open', note: 'open|approval|invite_only']
-  is_paid            tinyint    [not null, default: 0, note: 'Has paid ticket types']
-  capacity           int        [note: 'Overall cap across tiers; null = unlimited']
-  form_fields        json       [note: 'Dynamic form definition (field list)']
-  created_by         bigint     [ref: > wp_users.ID, not null, note: 'Host/creator user']
-  cover_image_id     bigint     [ref: > wp_posts.ID, note: 'Featured image — WP attachment ID']
-  settings           json       [note: 'Per-event config; recurrence rule']
-  created_at         timestamp
-  updated_at         timestamp
-
-  indexes {
-    calendar_id          [name: 'idx_event_calendar']
-    created_by           [name: 'idx_event_creator']
-    (status, visibility) [name: 'idx_event_state']
-    (start_at, end_at)   [name: 'idx_event_window']
-  }
-}
-
-// ============================================================
-// wp_fevents_ticket_types  (price tiers per event)
-// ============================================================
-
-Table wp_fevents_ticket_types {
-  id             bigint    [primary key, increment]
-  event_id       bigint    [ref: > wp_fevents_events.id, not null, note: 'Parent event']
-  name           varchar   [not null, default: 'General', note: 'Tier name; auto "General" if none']
-  description    text
-  price          decimal   [not null, default: 0, note: '0 = free']
-  currency       varchar   [note: 'ISO code (paid tiers)']
-  capacity       int       [note: 'Seats for this tier; null = unlimited']
-  sold           int       [not null, default: 0, note: 'Cached; remaining = capacity - sold']
-  min_per_order  int       [not null, default: 1, note: 'Min slots per registration']
-  max_per_order  int       [note: 'Max slots per registration']
-  sale_starts_at datetime  [note: 'Sales window open']
-  sale_ends_at   datetime  [note: 'Sales window close']
-  status         varchar   [not null, default: 'active', note: 'active|hidden']
-  sort_order     int       [not null, default: 0]
-  created_at     timestamp
-  updated_at     timestamp
-
-  indexes {
-    (event_id, status) [name: 'idx_ticket_event_status']
-  }
-}
-
-// ============================================================
-// wp_fevents_registrations  (one purchase: buyer + payment, N slots)
-// ============================================================
-
-Table wp_fevents_registrations {
-  id             bigint    [primary key, increment]
-  event_id       bigint    [ref: > wp_fevents_events.id, not null, note: 'Parent event']
-  buyer_name     varchar   [not null, note: 'Registrant name']
-  buyer_email    varchar   [not null, note: 'Registrant email']
-  buyer_phone    varchar   [note: 'Registrant phone']
-  slots          int       [not null, default: 1, note: 'Number of slots']
-  status         varchar   [not null, default: 'pending', note: 'pending|confirmed|cancelled|refunded']
-  payment_status varchar   [not null, default: 'free', note: 'free|pending|paid|refunded|failed']
-  payment_ref    varchar   [note: 'Paymattic transaction id']
-  total_amount   decimal   [not null, default: 0, note: 'Registration total']
-  currency       varchar   [note: 'ISO code']
-  paid_at        datetime  [note: 'Payment timestamp']
-  source         varchar   [not null, default: 'link', note: 'invite|link|import|request']
-  created_at     timestamp
-  updated_at     timestamp
-
-  indexes {
-    (event_id, status) [name: 'idx_reg_event_status']
-    buyer_email        [name: 'idx_reg_email']
-  }
-}
-
-// ============================================================
-// wp_fevents_guests  (one row per slot — each attendee's info)
-// ============================================================
-
-Table wp_fevents_guests {
-  id              bigint   [primary key, increment]
-  event_id        bigint   [ref: > wp_fevents_events.id, not null, note: 'Parent event (denormalized)']
-  registration_id bigint   [ref: > wp_fevents_registrations.id, not null, note: 'Parent registration']
-  ticket_type_id  bigint   [ref: > wp_fevents_ticket_types.id, not null, note: 'Ticket tier for this slot']
-  name            varchar  [note: 'Attendee name']
-  email           varchar  [note: 'Attendee email']
-  phone           varchar  [note: 'Attendee phone']
-  status          varchar  [not null, default: 'confirmed', note: 'invited|requested|approved|confirmed|attending|checked_in|waitlisted|cancelled|declined']
-  form_response   json     [note: "This attendee's form answers"]
-  ticket_code     varchar  [unique, note: 'QR / check-in code']
-  checked_in_at   datetime [note: 'Offline check-in time']
-  created_at      timestamp
-  updated_at      timestamp
-
-  indexes {
-    (event_id, status) [name: 'idx_guest_event_status']
-    registration_id    [name: 'idx_guest_registration']
-    email              [name: 'idx_guest_email']
-  }
-}
-
-// ============================================================
-// wp_fevents_notifications  ◇ polymorphic (object_type/object_id)
-// ============================================================
-
-Table wp_fevents_notifications {
-  id           bigint   [primary key, increment]
-  recipient_id bigint   [ref: > wp_users.ID, not null, note: 'User who sees the notification']
-  actor_id     bigint   [ref: > wp_users.ID, note: 'User who triggered it; null = system']
-  action       varchar  [not null, note: 'Typed action (e.g. event.join)']
-  object_type  varchar  [note: 'Type of object (event, calendar, ...)']
-  object_id    bigint   [note: 'ID of the related object']
-  title        varchar  [note: 'Rendered notification title']
-  content      text     [note: 'Rendered notification body']
-  route        text     [note: 'Deep link to relevant portal']
-  read_at      datetime [note: 'When read; null = unread']
-  created_at   timestamp [note: 'When notification was created']
-
-  indexes {
-    (recipient_id, action, object_id) [unique, name: 'uq_notification']
-    (recipient_id, read_at)           [name: 'idx_notif_recipient']
-    (object_type, object_id)          [name: 'idx_notif_object']
-    action                            [name: 'idx_notif_action']
-  }
-}
-
-// ============================================================
-// wp_fevents_meta  ◇ polymorphic (object_type/object_id) — no ref
-// ============================================================
 
 Table wp_fevents_meta {
-  id          bigint   [primary key, increment]
-  object_type varchar  [not null, note: 'option|user|event|calendar']
-  object_id   bigint   [note: 'user_id/event_id/calendar_id; null for option']
-  meta_key    varchar  [not null, note: 'Section name or meta key']
-  value       longtext [note: 'JSON or serialized data']
-  created_at  timestamp
-  updated_at  timestamp
-
+  id bigint [primary key, increment]
+  object_type varchar [not null]
+  object_id bigint
+  meta_key varchar [not null]
+  value longtext
+  created_at timestamp
+  updated_at timestamp
   indexes {
     (object_type, object_id, meta_key) [name: 'idx_meta_lookup']
   }
 }
 
+Table wp_fevents_calendars {
+  id bigint [primary key, increment]
+  name varchar [not null]
+  slug varchar [not null, unique]
+  description text
+  logo_media_id bigint [ref: > wp_posts.id]
+  cover_media_id bigint [ref: > wp_posts.id]
+  visibility varchar [not null]
+  settings json
+  status varchar [not null]
+  created_by bigint [not null, ref: > wp_users.ID]
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    visibility [name: 'idx_calendar_visibility']
+    status [name: 'idx_calendar_status']
+  }
+}
+
+Table wp_fevents_events {
+  id bigint [primary key, increment]
+  title varchar [not null]
+  slug varchar [not null, unique]
+  description longtext
+  status varchar [not null]
+  visibility varchar [not null]
+  start_at datetime [not null]
+  end_at datetime [not null]
+  timezone varchar [not null]
+  calendar_id bigint [not null, ref: > wp_fevents_calendars.id]
+  parent_event_id bigint [ref: > wp_fevents_events.id]
+  venue_type varchar [not null]
+  address varchar
+  lat decimal
+  lon decimal
+  online_meeting_url varchar
+  join_policy varchar [not null]
+  waitlist_enabled tinyint [not null]
+  created_by bigint [not null, ref: > wp_users.ID]
+  cover_image_id bigint [ref: > wp_posts.id]
+  currency varchar
+  form_fields json
+  settings json
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    (status, visibility) [name: 'idx_event_state']
+    (start_at, end_at) [name: 'idx_event_window']
+  }
+}
+
+Table wp_fevents_ticket_types {
+  id bigint [primary key, increment]
+  event_id bigint [not null, ref: > wp_fevents_events.id]
+  type varchar [not null]
+  description varchar
+  price decimal [not null]
+  capacity int
+  sold int [not null]
+  min_per_reg int [not null]
+  max_per_reg int
+  sale_start_at datetime
+  sale_end_at datetime
+  status varchar [not null]
+  sort_order int [not null]
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    (event_id, status) [name: 'idx_ticket_event_status']
+  }
+}
+
+Table wp_fevents_registrations {
+  id bigint [primary key, increment]
+  event_id bigint [not null, ref: > wp_fevents_events.id]
+  buyer_name varchar [not null]
+  buyer_email varchar [not null]
+  buyer_phone varchar
+  tickets int [not null]
+  status varchar [not null]
+  payment_status varchar [not null]
+  payment_ref varchar
+  total_amount decimal [not null]
+  paid_at datetime
+  source varchar [not null]
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    (event_id, status) [name: 'idx_reg_event_status']
+    buyer_email [name: 'idx_reg_email']
+  }
+}
+
+Table wp_fevents_guests {
+  id bigint [primary key, increment]
+  event_id bigint [not null, ref: > wp_fevents_events.id]
+  registration_id bigint [not null, ref: > wp_fevents_registrations.id]
+  ticket_type_id bigint [not null, ref: > wp_fevents_ticket_types.id]
+  name varchar
+  email varchar
+  phone varchar
+  status varchar [not null]
+  form_response json
+  ticket_code varchar [unique]
+  checked_in_at datetime
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    (event_id, status) [name: 'idx_guest_event_status']
+  }
+}
+
+Table wp_fevents_sponsors {
+  id bigint [primary key, increment]
+  event_id bigint [not null, ref: > wp_fevents_events.id]
+  name varchar [not null]
+  logo_id bigint [ref: > wp_posts.id]
+  website varchar
+  type varchar
+  amount decimal
+  sort_order int [not null]
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    (event_id, type) [name: 'idx_sponsor_event_type']
+  }
+}
+
+Table wp_fevents_people {
+  id bigint [primary key, increment]
+  event_id bigint [not null, ref: > wp_fevents_events.id]
+  type varchar [not null]
+  name varchar [not null]
+  designation varchar
+  is_primary tinyint [not null]
+  photo_id bigint [ref: > wp_posts.id]
+  links json
+  sort_order int [not null]
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    (event_id, type) [name: 'idx_people_event_type']
+  }
+}
+
+Table wp_fevents_notifications {
+  id bigint [primary key, increment]
+  recipient_id bigint [not null, ref: > wp_users.ID]
+  actor_id bigint [ref: > wp_users.ID]
+  action varchar [not null]
+  object_type varchar
+  object_id bigint
+  title varchar
+  content text
+  route text
+  read_at datetime
+  created_at timestamp
+  indexes {
+    (recipient_id, action, object_id) [unique, name: 'uq_notification']
+    (recipient_id, read_at) [name: 'idx_notif_recipient']
+    (object_type, object_id) [name: 'idx_notif_object']
+    action [name: 'idx_notif_action']
+  }
+}

@@ -1,20 +1,20 @@
 # FR-6: Events (core)
 
-**Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events of **any kind** (meetup, wedding, conference, wordcamp…). Visitors register **anonymously** (no account) — pick a **ticket tier**, choose how many **slots**, and enter details (name/email/phone + a dynamic form) **per slot**. Events are online / offline / hybrid, free or paid, open or approval-gated, with per-tier capacity. Covers content, location/online, ticket types, multi-slot registration, dynamic per-attendee forms, invites, guests, check-in, visibility, insights, embedding, cloning, deleting, and recurring events.
+**Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events of **any kind** (meetup, wedding, conference, wordcamp…). Visitors register **anonymously** (no account) — pick a **ticket tier**, choose how many **tickets**, and enter details (name/email/phone + a dynamic form) **per ticket**. Events are online / offline / hybrid, free or paid, open or approval-gated, with per-tier capacity. Covers content, location/online, ticket types, multi-ticket registration, dynamic per-attendee forms, invites, guests, check-in, visibility, insights, embedding, cloning, deleting, and recurring events.
 
 **Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md)). Registration needs **no account** — a registration + its guest rows are keyed by email, no `user_id` link.
 
 ## Approach
 
-- **Four tables**: `wp_fevents_events` (the event) → `wp_fevents_ticket_types` (price tiers) → `wp_fevents_registrations` (one purchase: buyer + payment) → `wp_fevents_guests` (one row per slot/attendee). Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
+- **Four tables**: `wp_fevents_events` (the event) → `wp_fevents_ticket_types` (price tiers) → `wp_fevents_registrations` (one purchase: buyer + payment) → `wp_fevents_guests` (one row per ticket/attendee). Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
 - **Only host/managers manage events** (WP-admin capability `fevents_manage_events`). Visitors register.
-- **Registration is anonymous, no account.** A visitor picks a tier + quantity, enters the buyer contact (name/email/phone) and one set of details **per slot**, and submits → one `registrations` row + N `guests` rows. No login/signup/password. Invite links + imports pre-create these rows the same way. Keyed by `email`, no `user_id`.
-- **One buyer, many slots.** Buy 3 → **1 registration** (one payment) + **3 guests** (three attendees' info). Each slot has its own name/email/phone + form answers.
+- **Registration is anonymous, no account.** A visitor picks a tier + quantity, enters the buyer contact (name/email/phone) and one set of details **per ticket**, and submits → one `registrations` row + N `guests` rows. No login/signup/password. Invite links + imports pre-create these rows the same way. Keyed by `email`, no `user_id`.
+- **One buyer, many tickets.** Buy 3 → **1 registration** (one payment) + **3 guests** (three attendees' info). Each ticket has its own name/email/phone + form answers.
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `events.form_fields` (JSON); each attendee's answers save to `guests.form_response` (JSON).
 - **Mode** via `events.venue_type` (online / offline / hybrid); **policy** via `events.join_policy` (open / approval / invite_only).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
-- **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per registration** (one payment covers all its slots), not per guest.
+- **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per registration** (one payment covers all its tickets), not per guest.
 
 ## Data model
 
@@ -25,11 +25,11 @@ Chain: **event → ticket_types → registrations → guests**. Full DDL in [sch
 | Column | Type | Notes |
 | ------ | ---- | ----- |
 | `venue_type` | VARCHAR | `online` \| `offline` \| `hybrid` |
-| `location_address` / `location_lat` / `location_lng` | — | offline/hybrid venue (Google Places) |
+| `address` / `lat` / `lon` | — | offline/hybrid venue (Google Places) |
 | `online_meeting_url` | VARCHAR | online/hybrid link |
 | `join_policy` | VARCHAR | `open` \| `approval` \| `invite_only` |
-| `is_paid` | TINYINT | has paid tiers (fast filter) |
-| `capacity` | INT NULL | overall cap across tiers; null = unlimited |
+| `currency` | VARCHAR NULL | ISO 4217 for the event (one currency per event) |
+| `waitlist_enabled` | TINYINT | auto-waitlist when a tier is full |
 | `form_fields` | JSON NULL | **dynamic form definition** (the fields to ask) |
 
 **`wp_fevents_ticket_types`** — price tiers.
@@ -38,36 +38,35 @@ Chain: **event → ticket_types → registrations → guests**. Full DDL in [sch
 | ------ | ---- | ----- |
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event |
-| `name` | VARCHAR | tier name; auto **"General"** if none defined |
-| `price` | DECIMAL | `0` = free |
-| `currency` | VARCHAR NULL | |
+| `type` | VARCHAR | tier name; auto **"General"** if none defined |
+| `price` | DECIMAL(10,2) | `0` = free (currency on the event) |
 | `capacity` | INT NULL | seats for this tier; null = unlimited |
 | `sold` | INT | cached — **remaining = capacity − sold**; sold-out is computed |
-| `min_per_order` / `max_per_order` | INT | slots-per-registration limits |
-| `sale_starts_at` / `sale_ends_at` | DATETIME NULL | early-bird windows |
+| `min_per_reg` / `max_per_reg` | INT | tickets-per-registration limits |
+| `sale_start_at` / `sale_end_at` | DATETIME NULL | early-bird windows |
 | `status` | VARCHAR | `active` \| `hidden` |
 | `sort_order` | INT | |
 
 Index: `(event_id, status)`.
 
-**`wp_fevents_registrations`** — one purchase (buyer + payment, N slots). **Payment lives here.**
+**`wp_fevents_registrations`** — one purchase (buyer + payment, N tickets). **Payment lives here.**
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event |
 | `buyer_name` / `buyer_email` / `buyer_phone` | VARCHAR | the registrant |
-| `slots` | INT | number of slots in this registration |
+| `tickets` | INT | number of tickets in this registration |
 | `status` | VARCHAR | `pending` \| `confirmed` \| `cancelled` \| `refunded` |
 | `payment_status` | VARCHAR | `free` \| `pending` \| `paid` \| `refunded` \| `failed` |
 | `payment_ref` | VARCHAR NULL | Paymattic txn id (thin reference — no card/gateway data our side) |
-| `total_amount` / `currency` | — | order total |
+| `total_amount` | DECIMAL | order total (currency on the event) |
 | `paid_at` | DATETIME NULL | |
 | `source` | VARCHAR | `invite` \| `link` \| `import` \| `request` |
 
 Index: `(event_id, status)`, `(buyer_email)`.
 
-**`wp_fevents_guests`** — one row per **slot** (each attendee).
+**`wp_fevents_guests`** — one row per **ticket** (each attendee).
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
@@ -96,6 +95,42 @@ Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(registration_id)`, `(emai
 | `cancelled`  | Was in, then pulled out (or was removed).                      |
 | `checked_in` | Showed up and checked in at the event.                         |
 
+### Event roster (people + sponsors)
+
+Two small event-scoped tables for who's shown on an event. Rule: **person → `people`**, **organization → `sponsors`**.
+
+**`wp_fevents_people`** — persons (speakers, organizers, staff, host).
+
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `id` | BIGINT PK | |
+| `event_id` | BIGINT FK | → event |
+| `type` | VARCHAR | `speaker` \| `organizer` \| `manager` \| `staff` \| `host` |
+| `is_primary` | TINYINT | main/lead of this type (primary vs other speakers) |
+| `name` / `designation` | VARCHAR | display name + tagline |
+| `photo_id` | BIGINT NULL FK | → wp_posts (WP attachment) |
+| `links` | JSON NULL | website / social |
+| `sort_order` | INT | |
+
+Index: `(event_id, type)`.
+
+**`wp_fevents_sponsors`** — organizations (not persons).
+
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `id` | BIGINT PK | |
+| `event_id` | BIGINT FK | → event |
+| `name` | VARCHAR | company / org |
+| `logo_id` | BIGINT NULL FK | → wp_posts (logo) |
+| `website` | VARCHAR NULL | |
+| `type` | VARCHAR NULL | `gold` \| `silver` \| `bronze` \| `partner` \| `community` (order set in `event.settings`) |
+| `amount` | DECIMAL(10,2) NULL | contribution (optional, private) |
+| `sort_order` | INT | |
+
+Index: `(event_id, type)`.
+
+> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fevents_roles` in `wp_fevents_meta`, FR-4). `people` is **display/credit only** — no `user_id`, no permissions. A WP-user organizer who also manages appears here as a display row **and** holds a capability there.
+
 ## Functional requirements
 
 ### FR-6.1 — Create & edit event
@@ -116,10 +151,10 @@ Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(registration_id)`, `(emai
 
 ### FR-6.4 — Ticket tiers, capacity, approval, free/paid
 
-- **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `capacity`, `min_per_order` / `max_per_order`, and an optional sale window.
-- **Capacity is per tier** (+ an optional overall `events.capacity`). `remaining = capacity − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the slot is **auto-waitlisted** (`waitlisted`). Freeing a slot auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
+- **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `capacity`, `min_per_reg` / `max_per_reg`, and an optional sale window.
+- **Capacity is per tier** (total event capacity = sum of tier capacities). `remaining = capacity − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). Freeing a ticket auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
 - **Approval** via `events.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
-- **Free or paid.** Paid events take payment through **Paymattic** before the registration is `confirmed`. Payment is **per registration** (one payment for all its slots).
+- **Free or paid.** Paid events take payment through **Paymattic** before the registration is `confirmed`. Payment is **per registration** (one payment for all its tickets).
 - **Payment record = thin reference on the registration.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `total_amount` / `currency` / `paid_at` on `registrations`. Flow: pay → Paymattic → **webhook** → set `payment_status = paid` + `payment_ref` → registration `confirmed`, its guests `attending`. No card/gateway data our side (out of PCI scope).
 
 ### FR-6.5 — Visibility & discovery
@@ -130,7 +165,7 @@ Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(registration_id)`, `(emai
 ### FR-6.6 — Dynamic registration form
 
 - The host defines custom fields (the form) on the event → stored in `events.form_fields` (JSON: field key, label, type, required, options). (unfiltered #18)
-- On registration the form is asked **per slot** — each attendee's answers save to that guest's `form_response` (JSON). Buy 3 → 3 sets of answers.
+- On registration the form is asked **per ticket** — each attendee's answers save to that guest's `form_response` (JSON). Buy 3 → 3 sets of answers.
 - Buyer contact (name/email/phone) is captured on the `registration`; per-attendee identity + answers on each `guest`.
 
 ### FR-6.7 — Invite guests, invite link, import
@@ -196,6 +231,12 @@ Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(registration_id)`, `(emai
 - **Rolling window:** generate only occurrences within a window (e.g. next 90 days / next N), not to infinity. The job re-runs and tops up as dates pass, so an open-ended series stays bounded. The master tracks `generated_until` (in `settings`/meta) so re-runs don't duplicate.
 - **Timezone:** occurrence datetimes computed in the event's `timezone` (DST-aware), then stored as concrete `starts_at` per occurrence.
 - **Edit semantics:** "this occurrence" marks that row overridden (regeneration won't overwrite it); "this + following" ends the master's rule before this date and spawns a new master from here; "whole series" updates the master + future non-overridden occurrences.
+
+### FR-6.17 — Event roster (speakers, organizers, sponsors)
+
+- Attach **people** with a `type` (speaker/organizer/staff/host); mark the lead with `is_primary` (primary vs other speakers); order via `sort_order`. Each has name/title/bio/photo/links — pure display, no account link.
+- Attach **sponsors** (organizations) with a `type` (the tier — gold/silver/bronze…), logo, website; displayed grouped by type (order set in `event.settings.sponsor_tiers`).
+- Both are display content on the event page — any event type uses as many or few as it needs (a wedding: none; a conference: many speakers + sponsors).
 
 ## Acceptance criteria
 

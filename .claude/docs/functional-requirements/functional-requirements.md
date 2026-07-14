@@ -18,7 +18,7 @@
 
 ## FR-6: Events (core)
 
-**Summary:** The core event entity + lifecycle — create, configure, publish, manage events of any kind; visitors register anonymously. **Ticketing model**: event → `ticket_types` (tiers) → `registrations` (buyer + payment, N slots) → `guests` (one per slot). Online/offline/hybrid, free/paid, open/approval, per-tier capacity, dynamic per-attendee forms, check-in. No account — keyed by email.
+**Summary:** The core event entity + lifecycle — create, configure, publish, manage events of any kind; visitors register anonymously. **Ticketing model**: event → `ticket_types` (tiers) → `registrations` (buyer + payment, N tickets) → `guests` (one per ticket). Online/offline/hybrid, free/paid, open/approval, per-tier capacity, dynamic per-attendee forms, check-in. **Roster**: `people` (speakers/organizers/staff) + `sponsors` (orgs). No account — keyed by email.
 
 → Full spec: [functional-requirements/events/events.md](functional-requirements/events/events.md)
 

@@ -9,7 +9,7 @@
 - **One row per recipient** (not one shared row) — clean per-user read state.
 - **Typed action** from a registry (constants), not free text.
 - **Polymorphic object** (`object_type` + `object_id`) — know what it's about.
-- **Render at read time** from `action` + `data` (i18n-friendly) — don't freeze title/content.
+- **Store rendered `title` + `content`** (like fcom) — read is a plain select, no object re-resolve, and display survives the source object being deleted. In-app audience is managers only, so per-viewer i18n isn't a concern.
 - **Channels via prefs** — the dispatcher decides in-app + email per the user's settings.
 - **User-facing, not a system log.** FR-9 is per-recipient, read/unread, with deep links — for the person, not an immutable admin audit trail.
 
@@ -25,7 +25,8 @@
 | `action`       | VARCHAR       | typed registry (e.g. `event.join_requested`) |
 | `object_type`  | VARCHAR NULL  | `event` \| `calendar` …                      |
 | `object_id`    | BIGINT NULL   | what it's about                              |
-| `data`         | JSON NULL     | render context — names, event title, etc.    |
+| `title`        | VARCHAR NULL  | rendered notification title                  |
+| `content`      | TEXT NULL     | rendered notification body                   |
 | `route`        | TEXT NULL     | deep link in the portal                      |
 | `read_at`      | DATETIME NULL | null = unread                                |
 | `created_at`   | TIMESTAMP     |                                              |
@@ -47,7 +48,7 @@ Indexes: `(recipient_id, read_at)`, `(object_type, object_id)`, `(action)`. **Un
 
 Dispatch is **always asynchronous** — the triggering request never resolves recipients or writes notification rows. It only enqueues, so a host action (approve, publish, cancel) returns immediately regardless of audience size.
 
-**1. Enqueue (in-request, O(1)).** On a trigger the producer builds a *descriptor* — `action`, `actor_id`, `object_type`, `object_id`, `data`, `route`, and an **audience spec** (not a resolved list — e.g. `{ "type": "event_guests", "event_id": 9 }`). It enqueues one async job and returns. Fail-soft: the enqueue is wrapped so a queue failure never breaks the triggering action.
+**1. Enqueue (in-request, O(1)).** On a trigger the producer builds a *descriptor* — `action`, `actor_id`, `object_type`, `object_id`, rendered `title` + `content`, `route`, and an **audience spec** (not a resolved list — e.g. `{ "type": "event_guests", "event_id": 9 }`). It enqueues one async job and returns. Fail-soft: the enqueue is wrapped so a queue failure never breaks the triggering action.
 
 - Tech: Action Scheduler (`as_enqueue_async_action`), group `fluent-events`. An **async** action runs on the next loopback ASAP (seconds), not on the cron interval — so even a single-recipient notification appears near-instantly.
 
@@ -59,7 +60,7 @@ Dispatch is **always asynchronous** — the triggering request never resolves re
 - Hand the `email`-eligible slice to the email channel (FR-4.7) — its own chunked queue. Guest audiences go straight here (email is their only channel).
 - Advance the cursor. If runtime exceeds a budget (~25s) reschedule self with the cursor; else continue until the audience is exhausted.
 
-**3. Thin rows + render-at-read.** Rows store `action` + `object_id` + a small `data` blob — never a frozen content string. Title/content is rendered at read time (see design principles) by resolving the object, so a 100k-recipient fan-out is 100k skinny rows, not 100k HTML blobs.
+**3. Rendered rows.** The producer renders `title` + `content` once (at enqueue) and the fan-out writes them onto each recipient row — read is a plain select, no per-view object resolution, and a later-deleted source object doesn't break the feed. Manager-scale audiences make the per-row duplication trivial (contrast fcom, which shares one content row across a large member fan-out).
 
 **4. Idempotency.** The cursor lives in the action args and the unique index makes re-runs safe: a worker crash mid-fan-out re-runs from the persisted cursor, and duplicate inserts bounce off the key. At-least-once delivery, exactly-once rows.
 

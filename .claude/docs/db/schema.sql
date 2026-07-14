@@ -1,219 +1,211 @@
--- Fluent Events — Database Schema (DrawSQL import)
--- 7 plugin tables (wp_fevents_*) + WP core stubs (wp_users, wp_posts).
--- Ticketing: event → ticket_types (tiers) → registrations (buyer+payment, N slots) → guests (1 per slot).
--- Attendee identity: WP users (hosts/managers) + anonymous guests (name/email/phone per slot).
--- No custom profile table — profile pivot removed (email-only entry, config via wp-admin).
--- Media: WP media library — image columns store a wp_posts attachment ID (no custom media table).
--- Tables ordered referenced-first so inline FKs resolve on import.
--- Polymorphic slots (object_type/object_id) are indexed columns, NOT foreign keys
---   (one column can't reference many tables). Kept as plain BIGINT + composite index.
--- wp_users / wp_posts are minimal stubs — present only so FK relationships render.
+-- Fluent Events — Database Schema (MySQL, DrawSQL/Workbench import)
+-- 9 plugin tables (wp_fevents_*) + WP core stubs (wp_users, wp_posts). Generated — do not hand-edit.
+-- Ticketing: event -> ticket_types -> registrations (buyer+payment) -> guests (1 per ticket).
+-- Roster: people (persons) + sponsors (orgs). Media/identity = WP core (wp_posts/wp_users).
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ============================================================
--- WP core (stub — FK target only)
--- ============================================================
-
 CREATE TABLE `wp_users` (
-  `ID`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `user_login`   VARCHAR(60)  NOT NULL DEFAULT '',
-  `user_email`   VARCHAR(100) NOT NULL DEFAULT '',
-  `display_name` VARCHAR(250) NOT NULL DEFAULT '',
+  `ID` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_login` VARCHAR(60) NOT NULL,
+  `user_email` VARCHAR(100) NOT NULL,
+  `display_name` VARCHAR(250) NOT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- WP media library: image columns store an attachment ID (post_type='attachment').
 CREATE TABLE `wp_posts` (
-  `ID` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Attachment / post ID',
-  PRIMARY KEY (`ID`)
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- wp_fevents_calendars
--- ============================================================
+CREATE TABLE `wp_fevents_meta` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `object_type` VARCHAR(64) NOT NULL,
+  `object_id` BIGINT UNSIGNED NULL,
+  `meta_key` VARCHAR(255) NOT NULL,
+  `value` LONGTEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_meta_lookup` (`object_type`, `object_id`, `meta_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_fevents_calendars` (
-  `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name`           VARCHAR(255) NOT NULL COMMENT 'Calendar name',
-  `slug`           VARCHAR(191) NOT NULL COMMENT 'Unique shareable URL',
-  `description`    TEXT         NULL,
-  `logo_media_id`  BIGINT UNSIGNED NULL COMMENT 'WP attachment ID (wp_posts)',
-  `cover_media_id` BIGINT UNSIGNED NULL COMMENT 'WP attachment ID (wp_posts)',
-  `visibility`     VARCHAR(20)  NOT NULL DEFAULT 'public' COMMENT 'public|unlisted|private',
-  `settings`       JSON         NULL COMMENT 'theme, manage caps, notif prefs',
-  `created_by`     BIGINT UNSIGNED NOT NULL COMMENT 'host/manager user id',
-  `created_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `slug` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `logo_media_id` BIGINT UNSIGNED NULL,
+  `cover_media_id` BIGINT UNSIGNED NULL,
+  `visibility` VARCHAR(64) NOT NULL,
+  `settings` JSON NULL,
+  `status` VARCHAR(64) NOT NULL,
+  `created_by` BIGINT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_calendar_slug` (`slug`),
+  UNIQUE KEY `uq_calendars_slug` (`slug`),
   KEY `idx_calendar_visibility` (`visibility`),
-  CONSTRAINT `fk_calendar_logo`    FOREIGN KEY (`logo_media_id`)  REFERENCES `wp_posts` (`ID`) ON DELETE SET NULL,
-  CONSTRAINT `fk_calendar_cover`   FOREIGN KEY (`cover_media_id`) REFERENCES `wp_posts` (`ID`) ON DELETE SET NULL,
-  CONSTRAINT `fk_calendar_creator` FOREIGN KEY (`created_by`)     REFERENCES `wp_users` (`ID`) ON DELETE RESTRICT
+  KEY `idx_calendar_status` (`status`),
+  CONSTRAINT `fk_logo_media_id_calendars` FOREIGN KEY (`logo_media_id`) REFERENCES `wp_posts` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_cover_media_id_calendars` FOREIGN KEY (`cover_media_id`) REFERENCES `wp_posts` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_created_by_calendars` FOREIGN KEY (`created_by`) REFERENCES `wp_users` (`ID`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
--- wp_fevents_events
--- ============================================================
 
 CREATE TABLE `wp_fevents_events` (
-  `id`                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `title`              VARCHAR(255) NOT NULL COMMENT 'Event name',
-  `slug`               VARCHAR(191) NOT NULL COMMENT 'URL-friendly identifier',
-  `description`        LONGTEXT     NULL COMMENT 'Event details/content',
-  `status`             VARCHAR(20)  NOT NULL DEFAULT 'draft' COMMENT 'draft|published|archived',
-  `visibility`         VARCHAR(20)  NOT NULL DEFAULT 'public' COMMENT 'public|unlisted|private',
-  `start_at`           DATETIME     NOT NULL COMMENT 'Event start in timezone',
-  `end_at`             DATETIME     NOT NULL COMMENT 'Event end in timezone',
-  `timezone`           VARCHAR(64)  NOT NULL COMMENT 'IANA timezone (DST-aware)',
-  `calendar_id`        BIGINT UNSIGNED NOT NULL COMMENT 'Parent calendar (v1: default)',
-  `parent_event_id`    BIGINT UNSIGNED NULL COMMENT 'Master in recurring series',
-  `venue_type`         VARCHAR(20)  NOT NULL DEFAULT 'offline' COMMENT 'online|offline|hybrid',
-  `location_address`   VARCHAR(255) NULL COMMENT 'Physical address (offline/hybrid)',
-  `location_lat`       DECIMAL(10,8) NULL COMMENT 'Latitude coordinate',
-  `location_lng`       DECIMAL(11,8) NULL COMMENT 'Longitude coordinate',
-  `online_meeting_url` VARCHAR(255) NULL COMMENT 'Meeting link (online/hybrid)',
-  `join_policy`        VARCHAR(20)  NOT NULL DEFAULT 'open' COMMENT 'open|approval|invite_only',
-  `is_paid`            TINYINT(1)   NOT NULL DEFAULT 0 COMMENT 'Has paid ticket types',
-  `capacity`           INT          NULL COMMENT 'Overall cap across tiers; null = unlimited',
-  `form_fields`        JSON         NULL COMMENT 'Dynamic form definition (field list)',
-  `created_by`         BIGINT UNSIGNED NOT NULL COMMENT 'Host/creator user',
-  `cover_image_id`     BIGINT UNSIGNED NULL COMMENT 'Featured image — WP attachment ID (wp_posts)',
-  `settings`           JSON         NULL COMMENT 'Per-event config; recurrence rule',
-  `created_at`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(255) NOT NULL,
+  `slug` VARCHAR(255) NOT NULL,
+  `description` LONGTEXT NULL,
+  `status` VARCHAR(64) NOT NULL,
+  `visibility` VARCHAR(64) NOT NULL,
+  `start_at` DATETIME NOT NULL,
+  `end_at` DATETIME NOT NULL,
+  `timezone` VARCHAR(64) NOT NULL,
+  `calendar_id` BIGINT UNSIGNED NOT NULL,
+  `parent_event_id` BIGINT UNSIGNED NULL,
+  `venue_type` VARCHAR(64) NOT NULL,
+  `address` VARCHAR(255) NULL,
+  `lat` DECIMAL(10,8) NULL,
+  `lon` DECIMAL(11,8) NULL,
+  `online_meeting_url` VARCHAR(255) NULL,
+  `join_policy` VARCHAR(64) NOT NULL,
+  `waitlist_enabled` TINYINT(1) NOT NULL,
+  `created_by` BIGINT UNSIGNED NOT NULL,
+  `cover_image_id` BIGINT UNSIGNED NULL,
+  `currency` VARCHAR(3) NULL,
+  `form_fields` JSON NULL,
+  `settings` JSON NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_event_slug` (`slug`),
-  KEY `idx_event_calendar` (`calendar_id`),
-  KEY `idx_event_creator`  (`created_by`),
-  KEY `idx_event_state`    (`status`, `visibility`),
-  KEY `idx_event_window`   (`start_at`, `end_at`),
-  CONSTRAINT `fk_event_calendar` FOREIGN KEY (`calendar_id`)     REFERENCES `wp_fevents_calendars` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_event_parent`   FOREIGN KEY (`parent_event_id`) REFERENCES `wp_fevents_events` (`id`)    ON DELETE SET NULL,
-  CONSTRAINT `fk_event_creator`  FOREIGN KEY (`created_by`)      REFERENCES `wp_users` (`ID`)  ON DELETE RESTRICT,
-  CONSTRAINT `fk_event_cover`    FOREIGN KEY (`cover_image_id`)  REFERENCES `wp_posts` (`ID`)  ON DELETE SET NULL
+  UNIQUE KEY `uq_events_slug` (`slug`),
+  KEY `idx_event_state` (`status`, `visibility`),
+  KEY `idx_event_window` (`start_at`, `end_at`),
+  CONSTRAINT `fk_calendar_id_events` FOREIGN KEY (`calendar_id`) REFERENCES `wp_fevents_calendars` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_parent_event_id_events` FOREIGN KEY (`parent_event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_created_by_events` FOREIGN KEY (`created_by`) REFERENCES `wp_users` (`ID`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_cover_image_id_events` FOREIGN KEY (`cover_image_id`) REFERENCES `wp_posts` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
--- wp_fevents_ticket_types  (price tiers per event)
--- ============================================================
 
 CREATE TABLE `wp_fevents_ticket_types` (
-  `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `event_id`       BIGINT UNSIGNED NOT NULL COMMENT 'Parent event',
-  `name`           VARCHAR(191) NOT NULL DEFAULT 'General' COMMENT 'Tier name; auto "General" if none defined',
-  `description`    TEXT         NULL,
-  `price`          DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '0 = free',
-  `currency`       VARCHAR(3)   NULL COMMENT 'ISO code (paid tiers)',
-  `capacity`       INT          NULL COMMENT 'Seats for this tier; null = unlimited',
-  `sold`           INT          NOT NULL DEFAULT 0 COMMENT 'Cached count; remaining = capacity - sold (sold-out computed)',
-  `min_per_order`  INT          NOT NULL DEFAULT 1 COMMENT 'Min slots per registration',
-  `max_per_order`  INT          NULL COMMENT 'Max slots per registration',
-  `sale_starts_at` DATETIME     NULL COMMENT 'Sales window open',
-  `sale_ends_at`   DATETIME     NULL COMMENT 'Sales window close',
-  `status`         VARCHAR(20)  NOT NULL DEFAULT 'active' COMMENT 'active|hidden',
-  `sort_order`     INT          NOT NULL DEFAULT 0,
-  `created_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id` BIGINT UNSIGNED NOT NULL,
+  `type` VARCHAR(64) NOT NULL,
+  `description` VARCHAR(255) NULL,
+  `price` DECIMAL(10,2) NOT NULL,
+  `capacity` INT NULL,
+  `sold` INT NOT NULL,
+  `min_per_reg` INT NOT NULL,
+  `max_per_reg` INT NULL,
+  `sale_start_at` DATETIME NULL,
+  `sale_end_at` DATETIME NULL,
+  `status` VARCHAR(64) NOT NULL,
+  `sort_order` INT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_ticket_event_status` (`event_id`, `status`),
-  CONSTRAINT `fk_ticket_event` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
+  CONSTRAINT `fk_event_id_types` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
--- wp_fevents_registrations  (one purchase/registration: buyer + payment, N slots)
--- ============================================================
 
 CREATE TABLE `wp_fevents_registrations` (
-  `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `event_id`       BIGINT UNSIGNED NOT NULL COMMENT 'Parent event',
-  `buyer_name`     VARCHAR(191) NOT NULL COMMENT 'Registrant name',
-  `buyer_email`    VARCHAR(191) NOT NULL COMMENT 'Registrant email',
-  `buyer_phone`    VARCHAR(32)  NULL COMMENT 'Registrant phone',
-  `slots`          INT          NOT NULL DEFAULT 1 COMMENT 'Number of slots in this registration',
-  `status`         VARCHAR(20)  NOT NULL DEFAULT 'pending' COMMENT 'pending|confirmed|cancelled|refunded',
-  `payment_status` VARCHAR(20)  NOT NULL DEFAULT 'free' COMMENT 'free|pending|paid|refunded|failed',
-  `payment_ref`    VARCHAR(191) NULL COMMENT 'Paymattic transaction/submission id',
-  `total_amount`   DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'Registration total',
-  `currency`       VARCHAR(3)   NULL COMMENT 'ISO code',
-  `paid_at`        DATETIME     NULL COMMENT 'Payment timestamp',
-  `source`         VARCHAR(20)  NOT NULL DEFAULT 'link' COMMENT 'invite|link|import|request',
-  `created_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id` BIGINT UNSIGNED NOT NULL,
+  `buyer_name` VARCHAR(255) NOT NULL,
+  `buyer_email` VARCHAR(192) NOT NULL,
+  `buyer_phone` VARCHAR(16) NULL,
+  `tickets` INT NOT NULL,
+  `status` VARCHAR(64) NOT NULL,
+  `payment_status` VARCHAR(64) NOT NULL,
+  `payment_ref` VARCHAR(255) NULL,
+  `total_amount` DECIMAL(10,2) NOT NULL,
+  `paid_at` DATETIME NULL,
+  `source` VARCHAR(64) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_reg_event_status` (`event_id`, `status`),
-  KEY `idx_reg_email`        (`buyer_email`),
-  CONSTRAINT `fk_reg_event` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
+  KEY `idx_reg_email` (`buyer_email`),
+  CONSTRAINT `fk_event_id_registrations` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
--- wp_fevents_guests  (one row per slot — each attendee's info)
--- ============================================================
 
 CREATE TABLE `wp_fevents_guests` (
-  `id`              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `event_id`        BIGINT UNSIGNED NOT NULL COMMENT 'Parent event (denormalized for queries)',
-  `registration_id` BIGINT UNSIGNED NOT NULL COMMENT 'Parent registration',
-  `ticket_type_id`  BIGINT UNSIGNED NOT NULL COMMENT 'Ticket tier for this slot',
-  `name`            VARCHAR(191) NULL COMMENT 'Attendee name',
-  `email`           VARCHAR(191) NULL COMMENT 'Attendee email',
-  `phone`           VARCHAR(32)  NULL COMMENT 'Attendee phone',
-  `status`          VARCHAR(20)  NOT NULL DEFAULT 'confirmed' COMMENT 'invited|requested|approved|confirmed|attending|checked_in|waitlisted|cancelled|declined',
-  `form_response`   JSON         NULL COMMENT 'This attendee''s form answers',
-  `ticket_code`     VARCHAR(64)  NULL COMMENT 'QR / check-in code',
-  `checked_in_at`   DATETIME     NULL COMMENT 'Offline check-in time',
-  `created_at`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id` BIGINT UNSIGNED NOT NULL,
+  `registration_id` BIGINT UNSIGNED NOT NULL,
+  `ticket_type_id` BIGINT UNSIGNED NOT NULL,
+  `name` VARCHAR(255) NULL,
+  `email` VARCHAR(192) NULL,
+  `phone` VARCHAR(16) NULL,
+  `status` VARCHAR(64) NOT NULL,
+  `form_response` JSON NULL,
+  `ticket_code` VARCHAR(64) NULL,
+  `checked_in_at` DATETIME NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_guest_ticket_code` (`ticket_code`),
+  UNIQUE KEY `uq_guests_ticket_code` (`ticket_code`),
   KEY `idx_guest_event_status` (`event_id`, `status`),
-  KEY `idx_guest_registration` (`registration_id`),
-  KEY `idx_guest_email`        (`email`),
-  CONSTRAINT `fk_guest_event`        FOREIGN KEY (`event_id`)        REFERENCES `wp_fevents_events` (`id`)        ON DELETE CASCADE,
-  CONSTRAINT `fk_guest_registration` FOREIGN KEY (`registration_id`) REFERENCES `wp_fevents_registrations` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_guest_ticket_type`  FOREIGN KEY (`ticket_type_id`)  REFERENCES `wp_fevents_ticket_types` (`id`)  ON DELETE RESTRICT
+  CONSTRAINT `fk_event_id_guests` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_registration_id_guests` FOREIGN KEY (`registration_id`) REFERENCES `wp_fevents_registrations` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_ticket_type_id_guests` FOREIGN KEY (`ticket_type_id`) REFERENCES `wp_fevents_ticket_types` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- wp_fevents_notifications  ◇ polymorphic (object_type/object_id)
--- ============================================================
+CREATE TABLE `wp_fevents_sponsors` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id` BIGINT UNSIGNED NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `logo_id` BIGINT UNSIGNED NULL,
+  `website` VARCHAR(255) NULL,
+  `type` VARCHAR(64) NULL,
+  `amount` DECIMAL(10,2) NULL,
+  `sort_order` INT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_sponsor_event_type` (`event_id`, `type`),
+  CONSTRAINT `fk_event_id_sponsors` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_logo_id_sponsors` FOREIGN KEY (`logo_id`) REFERENCES `wp_posts` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `wp_fevents_people` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id` BIGINT UNSIGNED NOT NULL,
+  `type` VARCHAR(64) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `designation` VARCHAR(255) NULL,
+  `is_primary` TINYINT(1) NOT NULL,
+  `photo_id` BIGINT UNSIGNED NULL,
+  `links` JSON NULL,
+  `sort_order` INT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_people_event_type` (`event_id`, `type`),
+  CONSTRAINT `fk_event_id_people` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_photo_id_people` FOREIGN KEY (`photo_id`) REFERENCES `wp_posts` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_fevents_notifications` (
-  `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `recipient_id` BIGINT UNSIGNED NOT NULL COMMENT 'User who sees the notification',
-  `actor_id`     BIGINT UNSIGNED NULL COMMENT 'User who triggered it; null = system',
-  `action`       VARCHAR(64)  NOT NULL COMMENT 'Typed action (e.g. event.join)',
-  `object_type`  VARCHAR(32)  NULL COMMENT 'Type of object (event, calendar, ...)',
-  `object_id`    BIGINT UNSIGNED NULL COMMENT 'ID of the related object',
-  `title`        VARCHAR(191) NULL COMMENT 'Rendered notification title',
-  `content`      TEXT         NULL COMMENT 'Rendered notification body',
-  `route`        TEXT         NULL COMMENT 'Deep link to relevant portal',
-  `read_at`      DATETIME     NULL COMMENT 'When read; null = unread',
-  `created_at`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When notification was created',
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `recipient_id` BIGINT UNSIGNED NOT NULL,
+  `actor_id` BIGINT UNSIGNED NULL,
+  `action` VARCHAR(64) NOT NULL,
+  `object_type` VARCHAR(64) NULL,
+  `object_id` BIGINT UNSIGNED NULL,
+  `title` VARCHAR(255) NULL,
+  `content` TEXT NULL,
+  `route` TEXT NULL,
+  `read_at` DATETIME NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_notification` (`recipient_id`, `action`, `object_id`),
   KEY `idx_notif_recipient` (`recipient_id`, `read_at`),
-  KEY `idx_notif_object`    (`object_type`, `object_id`),
-  KEY `idx_notif_action`    (`action`),
-  CONSTRAINT `fk_notif_recipient` FOREIGN KEY (`recipient_id`) REFERENCES `wp_users` (`ID`) ON DELETE CASCADE,
-  CONSTRAINT `fk_notif_actor`     FOREIGN KEY (`actor_id`)     REFERENCES `wp_users` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
--- wp_fevents_meta  ◇ polymorphic (object_type/object_id) — no FK
--- ============================================================
-
-CREATE TABLE `wp_fevents_meta` (
-  `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `object_type` VARCHAR(20)  NOT NULL COMMENT 'option|user|event|calendar',
-  `object_id`   BIGINT UNSIGNED NULL COMMENT 'user_id/event_id/calendar_id; null for option',
-  `meta_key`    VARCHAR(191) NOT NULL COMMENT 'Section name or meta key',
-  `value`       LONGTEXT     NULL COMMENT 'JSON or serialized data',
-  `created_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_meta_lookup` (`object_type`, `object_id`, `meta_key`)
+  KEY `idx_notif_object` (`object_type`, `object_id`),
+  KEY `idx_notif_action` (`action`),
+  CONSTRAINT `fk_recipient_id_notifications` FOREIGN KEY (`recipient_id`) REFERENCES `wp_users` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `fk_actor_id_notifications` FOREIGN KEY (`actor_id`) REFERENCES `wp_users` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;
