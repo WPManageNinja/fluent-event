@@ -19,7 +19,7 @@
 <rect x="649" y="118" width="110" height="42" rx="8" fill="#ffffff" stroke="#0f172a" stroke-width="1.7"/>
 <rect x="649" y="118" width="5" height="42" rx="2.5" fill="#0f172a"/>
 <text x="706" y="143" font-size="10" font-weight="600" fill="#0f172a" text-anchor="middle">Database</text>
-<text x="40" y="207" font-size="11" font-weight="700" fill="#334155">Auth</text>
+<text x="40" y="207" font-size="11" font-weight="700" fill="#334155">Guest entry</text>
 <line x1="329" y1="203" x2="350" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <line x1="467" y1="203" x2="488" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <line x1="649" y1="203" x2="670" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
@@ -31,10 +31,10 @@
 <text x="410" y="207" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">AJAX · _nopriv</text>
 <rect x="491" y="182" width="154" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
 <rect x="491" y="182" width="5" height="42" rx="2.5" fill="#4338ca"/>
-<text x="570" y="207" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Authentication (FR-1)</text>
+<text x="570" y="207" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Guest join (FR-6)</text>
 <rect x="673" y="182" width="110" height="42" rx="8" fill="#ffffff" stroke="#0f172a" stroke-width="1.7"/>
 <rect x="673" y="182" width="5" height="42" rx="2.5" fill="#0f172a"/>
-<text x="730" y="207" font-size="10" font-weight="600" fill="#0f172a" text-anchor="middle">WP users</text>
+<text x="730" y="207" font-size="10" font-weight="600" fill="#0f172a" text-anchor="middle">event_guests</text>
 <text x="40" y="271" font-size="11" font-weight="700" fill="#334155">Side-effect</text>
 <line x1="329" y1="267" x2="350" y2="267" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <line x1="511" y1="267" x2="532" y2="267" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>

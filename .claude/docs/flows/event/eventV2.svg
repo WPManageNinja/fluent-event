@@ -6,7 +6,6 @@
 <text x="40" y="143" font-size="11" font-weight="700" fill="#334155">Create</text>
 <line x1="367" y1="139" x2="388" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <line x1="505" y1="139" x2="526" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
-<line x1="643" y1="139" x2="664" y2="139" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <rect x="215" y="118" width="148" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
 <rect x="215" y="118" width="5" height="42" rx="2.5" fill="#4338ca"/>
 <text x="291" y="143" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Create event · draft</text>
@@ -16,9 +15,6 @@
 <rect x="529" y="118" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
 <rect x="529" y="118" width="5" height="42" rx="2.5" fill="#16a34a"/>
 <text x="586" y="143" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Published</text>
-<rect x="667" y="118" width="259" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
-<rect x="667" y="118" width="5" height="42" rx="2.5" fill="#7c3aed"/>
-<text x="798" y="143" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">notify: calendar.new_event → followers</text>
 <text x="40" y="207" font-size="11" font-weight="700" fill="#334155">Join · open</text>
 <line x1="329" y1="203" x2="350" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <line x1="467" y1="203" x2="488" y2="203" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
@@ -99,22 +95,22 @@
 <rect x="767" y="374" width="110" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
 <rect x="767" y="374" width="5" height="42" rx="2.5" fill="#16a34a"/>
 <text x="824" y="399" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">Attending</text>
-<text x="40" y="463" font-size="11" font-weight="700" fill="#334155">No account</text>
+<text x="40" y="463" font-size="11" font-weight="700" fill="#334155">Guest join</text>
 <line x1="329" y1="459" x2="350" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
-<line x1="467" y1="459" x2="488" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
-<line x1="680" y1="459" x2="701" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="507" y1="459" x2="528" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="675" y1="459" x2="696" y2="459" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <rect x="215" y="438" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
 <rect x="215" y="438" width="5" height="42" rx="2.5" fill="#4338ca"/>
 <text x="272" y="463" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Join</text>
-<rect x="353" y="438" width="110" height="42" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.7" stroke-dasharray="5,3"/>
-<rect x="353" y="438" width="5" height="42" rx="2.5" fill="#475569"/>
-<text x="410" y="463" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">no account?</text>
-<rect x="491" y="438" width="185" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
-<rect x="491" y="438" width="5" height="42" rx="2.5" fill="#4338ca"/>
-<text x="586" y="463" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">auto-register + email code</text>
-<rect x="704" y="438" width="110" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
-<rect x="704" y="438" width="5" height="42" rx="2.5" fill="#4338ca"/>
-<text x="761" y="463" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">auto-login</text>
+<rect x="353" y="438" width="150" height="42" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="1.7"/>
+<rect x="353" y="438" width="5" height="42" rx="2.5" fill="#4338ca"/>
+<text x="430" y="463" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">enter name + email</text>
+<rect x="531" y="438" width="140" height="42" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.7"/>
+<rect x="531" y="438" width="5" height="42" rx="2.5" fill="#16a34a"/>
+<text x="603" y="463" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">event_guests row</text>
+<rect x="699" y="438" width="222" height="42" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.7"/>
+<rect x="699" y="438" width="5" height="42" rx="2.5" fill="#7c3aed"/>
+<text x="812" y="463" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">confirmation email · event link</text>
 <text x="40" y="527" font-size="11" font-weight="700" fill="#334155">Reminder</text>
 <line x1="329" y1="523" x2="350" y2="523" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <line x1="548" y1="523" x2="569" y2="523" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
