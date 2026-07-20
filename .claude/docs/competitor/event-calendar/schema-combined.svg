@@ -1,0 +1,260 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2180" height="900" viewBox="0 0 2180 900" font-family="Menlo,Consolas,monospace">
+<defs><marker id="cf" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#3f5060" stroke-width="1.5"/></marker><marker id="one" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#3f5060" stroke-width="1.5"/></marker><linearGradient id="tb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d5dfea"/><stop offset="1" stop-color="#b3c2d4"/></linearGradient><linearGradient id="tbA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0e2c8"/><stop offset="1" stop-color="#e2cfa6"/></linearGradient></defs>
+<rect x="0" y="0" width="2180" height="900" fill="#fbfcfd"/>
+<path d="M0,0 V900 M20,0 V900 M40,0 V900 M60,0 V900 M80,0 V900 M100,0 V900 M120,0 V900 M140,0 V900 M160,0 V900 M180,0 V900 M200,0 V900 M220,0 V900 M240,0 V900 M260,0 V900 M280,0 V900 M300,0 V900 M320,0 V900 M340,0 V900 M360,0 V900 M380,0 V900 M400,0 V900 M420,0 V900 M440,0 V900 M460,0 V900 M480,0 V900 M500,0 V900 M520,0 V900 M540,0 V900 M560,0 V900 M580,0 V900 M600,0 V900 M620,0 V900 M640,0 V900 M660,0 V900 M680,0 V900 M700,0 V900 M720,0 V900 M740,0 V900 M760,0 V900 M780,0 V900 M800,0 V900 M820,0 V900 M840,0 V900 M860,0 V900 M880,0 V900 M900,0 V900 M920,0 V900 M940,0 V900 M960,0 V900 M980,0 V900 M1000,0 V900 M1020,0 V900 M1040,0 V900 M1060,0 V900 M1080,0 V900 M1100,0 V900 M1120,0 V900 M1140,0 V900 M1160,0 V900 M1180,0 V900 M1200,0 V900 M1220,0 V900 M1240,0 V900 M1260,0 V900 M1280,0 V900 M1300,0 V900 M1320,0 V900 M1340,0 V900 M1360,0 V900 M1380,0 V900 M1400,0 V900 M1420,0 V900 M1440,0 V900 M1460,0 V900 M1480,0 V900 M1500,0 V900 M1520,0 V900 M1540,0 V900 M1560,0 V900 M1580,0 V900 M1600,0 V900 M1620,0 V900 M1640,0 V900 M1660,0 V900 M1680,0 V900 M1700,0 V900 M1720,0 V900 M1740,0 V900 M1760,0 V900 M1780,0 V900 M1800,0 V900 M1820,0 V900 M1840,0 V900 M1860,0 V900 M1880,0 V900 M1900,0 V900 M1920,0 V900 M1940,0 V900 M1960,0 V900 M1980,0 V900 M2000,0 V900 M2020,0 V900 M2040,0 V900 M2060,0 V900 M2080,0 V900 M2100,0 V900 M2120,0 V900 M2140,0 V900 M2160,0 V900 M2180,0 V900 M0,0 H2180 M0,20 H2180 M0,40 H2180 M0,60 H2180 M0,80 H2180 M0,100 H2180 M0,120 H2180 M0,140 H2180 M0,160 H2180 M0,180 H2180 M0,200 H2180 M0,220 H2180 M0,240 H2180 M0,260 H2180 M0,280 H2180 M0,300 H2180 M0,320 H2180 M0,340 H2180 M0,360 H2180 M0,380 H2180 M0,400 H2180 M0,420 H2180 M0,440 H2180 M0,460 H2180 M0,480 H2180 M0,500 H2180 M0,520 H2180 M0,540 H2180 M0,560 H2180 M0,580 H2180 M0,600 H2180 M0,620 H2180 M0,640 H2180 M0,660 H2180 M0,680 H2180 M0,700 H2180 M0,720 H2180 M0,740 H2180 M0,760 H2180 M0,780 H2180 M0,800 H2180 M0,820 H2180 M0,840 H2180 M0,860 H2180 M0,880 H2180 M0,900 H2180" stroke="#eceff2" stroke-width="1"/>
+<text x="40" y="24" font-size="15" font-weight="700" fill="#1c2b3a">The Events Calendar + Event Tickets — combined data model</text>
+<path d="M480,139 H402.0 V85 H340" fill="none" stroke="#5c7a52" stroke-width="1.2" stroke-dasharray="1,0" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M480,157 H420.0 V255 H340" fill="none" stroke="#5c7a52" stroke-width="1.2" stroke-dasharray="1,0" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M480,175 H438.0 V417 H340" fill="none" stroke="#5c7a52" stroke-width="1.2" stroke-dasharray="1,0" marker-start="url(#cf)" marker-end="url(#cf)"/>
+<path d="M920,103 H842.0 V85 H780" fill="none" stroke="#5c7a52" stroke-width="1.2" stroke-dasharray="1,0" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M1360,121 H1282.0 V85 H1220" fill="none" stroke="#5c7a52" stroke-width="1.2" stroke-dasharray="1,0" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M1660,139 H1722.0 V85 H1800" fill="none" stroke="#5c7a52" stroke-width="1.2" stroke-dasharray="1,0" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M920,435 H860.0 V79 H780" fill="none" stroke="#7d8b99" stroke-width="1.2" stroke-dasharray="5,3" marker-start="url(#one)" marker-end="url(#one)"/>
+<path d="M1220,687 H1266 V417 H1220" fill="none" stroke="#7d8b99" stroke-width="1.2" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M920,705 H878.0 V91 H780" fill="none" stroke="#7d8b99" stroke-width="1.2" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M2100,675 H2146 V417 H2100" fill="none" stroke="#7d8b99" stroke-width="1.2" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<path d="M2100,693 H2164 V79 H2100" fill="none" stroke="#7d8b99" stroke-width="1.2" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<g>
+<rect x="480" y="40" width="300" height="178" rx="4" fill="#fff" stroke="#b89a5e" stroke-width="1.2"/>
+<path d="M480,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tbA)" stroke="#b89a5e" stroke-width="0.8"/>
+<rect x="488" y="47" width="10" height="8" rx="1.5" fill="#b8863a"/>
+<text x="504" y="55" font-size="11.5" font-weight="700" fill="#4a3410">Event</text>
+<rect x="480" y="62" width="300" height="14" fill="#f6efe0"/>
+<text x="490" y="72" font-size="8.5" font-style="italic" fill="#7a6636">CPT  post_type=tribe_events</text>
+<circle cx="491" cy="85" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M493.5,85 L499,85 M497,85 L497,87.5 M499,85 L499,87.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="502" y="88" font-size="10" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">wp_posts.ID</tspan></text>
+<circle cx="492" cy="103" r="2.4" fill="#b8863a"/>
+<text x="502" y="106" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_EventStartDate</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="492" cy="121" r="2.4" fill="#b8863a"/>
+<text x="502" y="124" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_EventEndDate</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<path d="M492,135 L496,139 L492,143 L488,139 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="502" y="142" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_EventVenueID</tspan> <tspan fill="#8a2820">→ Venue</tspan></text>
+<path d="M492,153 L496,157 L492,161 L488,157 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="502" y="160" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_EventOrganizerID</tspan> <tspan fill="#8a2820">→ Organizer</tspan></text>
+<path d="M492,171 L496,175 L492,179 L488,175 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="502" y="178" font-size="10" fill="#1a1a1a"><tspan font-weight="400">tribe_events_cat</tspan> <tspan fill="#8a2820">→ Category</tspan></text>
+<circle cx="492" cy="193" r="2.4" fill="#b8863a"/>
+<text x="502" y="196" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_EventCost</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<rect x="480" y="202" width="300" height="16" fill="#e6dcc4"/>
+<text x="488" y="213" font-size="9.5" font-weight="700" fill="#6a582c">Indexes</text>
+</g>
+<g>
+<rect x="40" y="40" width="300" height="124" rx="4" fill="#fff" stroke="#b89a5e" stroke-width="1.2"/>
+<path d="M40,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tbA)" stroke="#b89a5e" stroke-width="0.8"/>
+<rect x="48" y="47" width="10" height="8" rx="1.5" fill="#b8863a"/>
+<text x="64" y="55" font-size="11.5" font-weight="700" fill="#4a3410">Venue</text>
+<rect x="40" y="62" width="300" height="14" fill="#f6efe0"/>
+<text x="50" y="72" font-size="8.5" font-style="italic" fill="#7a6636">CPT  post_type=tribe_venue</text>
+<circle cx="51" cy="85" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,85 L59,85 M57,85 L57,87.5 M59,85 L59,87.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="88" font-size="10" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">wp_posts.ID</tspan></text>
+<circle cx="52" cy="103" r="2.4" fill="#b8863a"/>
+<text x="62" y="106" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_VenueAddress</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="52" cy="121" r="2.4" fill="#b8863a"/>
+<text x="62" y="124" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_VenueCity</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="52" cy="139" r="2.4" fill="#b8863a"/>
+<text x="62" y="142" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_VenueZip</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<rect x="40" y="148" width="300" height="16" fill="#e6dcc4"/>
+<text x="48" y="159" font-size="9.5" font-weight="700" fill="#6a582c">Indexes</text>
+</g>
+<g>
+<rect x="40" y="210" width="300" height="106" rx="4" fill="#fff" stroke="#b89a5e" stroke-width="1.2"/>
+<path d="M40,214 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tbA)" stroke="#b89a5e" stroke-width="0.8"/>
+<rect x="48" y="217" width="10" height="8" rx="1.5" fill="#b8863a"/>
+<text x="64" y="225" font-size="11.5" font-weight="700" fill="#4a3410">Organizer</text>
+<rect x="40" y="232" width="300" height="14" fill="#f6efe0"/>
+<text x="50" y="242" font-size="8.5" font-style="italic" fill="#7a6636">CPT  post_type=tribe_organizer</text>
+<circle cx="51" cy="255" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,255 L59,255 M57,255 L57,257.5 M59,255 L59,257.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="258" font-size="10" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">wp_posts.ID</tspan></text>
+<circle cx="52" cy="273" r="2.4" fill="#b8863a"/>
+<text x="62" y="276" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_OrganizerEmail</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="52" cy="291" r="2.4" fill="#b8863a"/>
+<text x="62" y="294" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_OrganizerPhone</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<rect x="40" y="300" width="300" height="16" fill="#e6dcc4"/>
+<text x="48" y="311" font-size="9.5" font-weight="700" fill="#6a582c">Indexes</text>
+</g>
+<g>
+<rect x="40" y="372" width="300" height="106" rx="4" fill="#fff" stroke="#b89a5e" stroke-width="1.2"/>
+<path d="M40,376 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tbA)" stroke="#b89a5e" stroke-width="0.8"/>
+<rect x="48" y="379" width="10" height="8" rx="1.5" fill="#b8863a"/>
+<text x="64" y="387" font-size="11.5" font-weight="700" fill="#4a3410">Category</text>
+<rect x="40" y="394" width="300" height="14" fill="#f6efe0"/>
+<text x="50" y="404" font-size="8.5" font-style="italic" fill="#7a6636">taxonomy  tribe_events_cat</text>
+<circle cx="51" cy="417" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,417 L59,417 M57,417 L57,419.5 M59,417 L59,419.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="420" font-size="10" fill="#1a1a1a"><tspan font-weight="700">term_id</tspan> <tspan fill="#5a6470">wp_terms.term_id</tspan></text>
+<circle cx="52" cy="435" r="2.4" fill="#b8863a"/>
+<text x="62" y="438" font-size="10" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">wp_terms</tspan></text>
+<circle cx="52" cy="453" r="2.4" fill="#b8863a"/>
+<text x="62" y="456" font-size="10" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">wp_terms</tspan></text>
+<rect x="40" y="462" width="300" height="16" fill="#e6dcc4"/>
+<text x="48" y="473" font-size="9.5" font-weight="700" fill="#6a582c">Indexes</text>
+</g>
+<g>
+<rect x="920" y="40" width="300" height="160" rx="4" fill="#fff" stroke="#b89a5e" stroke-width="1.2"/>
+<path d="M920,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tbA)" stroke="#b89a5e" stroke-width="0.8"/>
+<rect x="928" y="47" width="10" height="8" rx="1.5" fill="#b8863a"/>
+<text x="944" y="55" font-size="11.5" font-weight="700" fill="#4a3410">Ticket</text>
+<rect x="920" y="62" width="300" height="14" fill="#f6efe0"/>
+<text x="930" y="72" font-size="8.5" font-style="italic" fill="#7a6636">CPT  post_type=tec_tc_ticket</text>
+<circle cx="931" cy="85" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M933.5,85 L939,85 M937,85 L937,87.5 M939,85 L939,87.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="942" y="88" font-size="10" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">wp_posts.ID</tspan></text>
+<path d="M932,99 L936,103 L932,107 L928,103 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="942" y="106" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_tec_tickets_commerce_event</tspan> <tspan fill="#8a2820">→ Event</tspan></text>
+<circle cx="932" cy="121" r="2.4" fill="#b8863a"/>
+<text x="942" y="124" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_price</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="932" cy="139" r="2.4" fill="#b8863a"/>
+<text x="942" y="142" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_stock / _capacity</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="932" cy="157" r="2.4" fill="#b8863a"/>
+<text x="942" y="160" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_ticket_start_date</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="932" cy="175" r="2.4" fill="#b8863a"/>
+<text x="942" y="178" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_ticket_end_date</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<rect x="920" y="184" width="300" height="16" fill="#e6dcc4"/>
+<text x="928" y="195" font-size="9.5" font-weight="700" fill="#6a582c">Indexes</text>
+</g>
+<g>
+<rect x="1360" y="40" width="300" height="178" rx="4" fill="#fff" stroke="#b89a5e" stroke-width="1.2"/>
+<path d="M1360,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tbA)" stroke="#b89a5e" stroke-width="0.8"/>
+<rect x="1368" y="47" width="10" height="8" rx="1.5" fill="#b8863a"/>
+<text x="1384" y="55" font-size="11.5" font-weight="700" fill="#4a3410">Attendee</text>
+<rect x="1360" y="62" width="300" height="14" fill="#f6efe0"/>
+<text x="1370" y="72" font-size="8.5" font-style="italic" fill="#7a6636">CPT  post_type=tec_tc_attendee</text>
+<circle cx="1371" cy="85" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1373.5,85 L1379,85 M1377,85 L1377,87.5 M1379,85 L1379,87.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1382" y="88" font-size="10" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">wp_posts.ID</tspan></text>
+<path d="M1372,99 L1376,103 L1372,107 L1368,103 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1382" y="106" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_..commerce_event</tspan> <tspan fill="#8a2820">→ Event</tspan></text>
+<path d="M1372,117 L1376,121 L1372,125 L1368,121 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1382" y="124" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_..commerce_ticket</tspan> <tspan fill="#8a2820">→ Ticket</tspan></text>
+<path d="M1372,135 L1376,139 L1372,143 L1368,139 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1382" y="142" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_..commerce_order</tspan> <tspan fill="#8a2820">→ Order</tspan></text>
+<circle cx="1372" cy="157" r="2.4" fill="#b8863a"/>
+<text x="1382" y="160" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_..full_name</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="1372" cy="175" r="2.4" fill="#b8863a"/>
+<text x="1382" y="178" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_..email</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="1372" cy="193" r="2.4" fill="#b8863a"/>
+<text x="1382" y="196" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_..checked_in</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<rect x="1360" y="202" width="300" height="16" fill="#e6dcc4"/>
+<text x="1368" y="213" font-size="9.5" font-weight="700" fill="#6a582c">Indexes</text>
+</g>
+<g>
+<rect x="1800" y="40" width="300" height="142" rx="4" fill="#fff" stroke="#b89a5e" stroke-width="1.2"/>
+<path d="M1800,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tbA)" stroke="#b89a5e" stroke-width="0.8"/>
+<rect x="1808" y="47" width="10" height="8" rx="1.5" fill="#b8863a"/>
+<text x="1824" y="55" font-size="11.5" font-weight="700" fill="#4a3410">Order</text>
+<rect x="1800" y="62" width="300" height="14" fill="#f6efe0"/>
+<text x="1810" y="72" font-size="8.5" font-style="italic" fill="#7a6636">CPT  post_type=tec_tc_order</text>
+<circle cx="1811" cy="85" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1813.5,85 L1819,85 M1817,85 L1817,87.5 M1819,85 L1819,87.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1822" y="88" font-size="10" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">wp_posts.ID</tspan></text>
+<circle cx="1812" cy="103" r="2.4" fill="#b8863a"/>
+<text x="1822" y="106" font-size="10" fill="#1a1a1a"><tspan font-weight="400">post_status</tspan> <tspan fill="#5a6470">= order state</tspan></text>
+<circle cx="1812" cy="121" r="2.4" fill="#b8863a"/>
+<text x="1822" y="124" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_tec_tc_order_items</tspan> <tspan fill="#5a6470">JSON → tickets</tspan></text>
+<circle cx="1812" cy="139" r="2.4" fill="#b8863a"/>
+<text x="1822" y="142" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_..total_value</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<circle cx="1812" cy="157" r="2.4" fill="#b8863a"/>
+<text x="1822" y="160" font-size="10" fill="#1a1a1a"><tspan font-weight="400">_..purchaser_email</tspan> <tspan fill="#5a6470">meta</tspan></text>
+<rect x="1800" y="166" width="300" height="16" fill="#e6dcc4"/>
+<text x="1808" y="177" font-size="9.5" font-weight="700" fill="#6a582c">Indexes</text>
+</g>
+<g>
+<rect x="920" y="372" width="300" height="196" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M920,376 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="928" y="379" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="944" y="387" font-size="11.5" font-weight="700" fill="#1c2b3a">tec_events</text>
+<rect x="920" y="394" width="300" height="14" fill="#eef2f6"/>
+<text x="930" y="404" font-size="8.5" font-style="italic" fill="#5a6470">custom table (TEC)</text>
+<circle cx="931" cy="417" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M933.5,417 L939,417 M937,417 L937,419.5 M939,417 L939,419.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="942" y="420" font-size="10" fill="#1a1a1a"><tspan font-weight="700">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M932,431 L936,435 L932,439 L928,435 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="942" y="438" font-size="10" fill="#1a1a1a"><tspan font-weight="400">post_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M932,449 L936,453 L932,457 L928,453 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="942" y="456" font-size="10" fill="#1a1a1a"><tspan font-weight="400">start_date</tspan> <tspan fill="#5a6470">VARCHAR(19)</tspan></text>
+<path d="M932,467 L936,471 L932,475 L928,471 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="942" y="474" font-size="10" fill="#1a1a1a"><tspan font-weight="400">end_date</tspan> <tspan fill="#5a6470">VARCHAR(19)</tspan></text>
+<path d="M932,485 L936,489 L932,493 L928,489 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="942" y="492" font-size="10" fill="#1a1a1a"><tspan font-weight="400">timezone</tspan> <tspan fill="#5a6470">VARCHAR(30)</tspan></text>
+<path d="M932,503 L936,507 L932,511 L928,507 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="942" y="510" font-size="10" fill="#1a1a1a"><tspan font-weight="400">start_date_utc</tspan> <tspan fill="#5a6470">VARCHAR(19)</tspan></text>
+<path d="M932,521 L936,525 L932,529 L928,525 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="942" y="528" font-size="10" fill="#1a1a1a"><tspan font-weight="400">duration</tspan> <tspan fill="#5a6470">MEDIUMINT</tspan></text>
+<path d="M932,539 L936,543 L932,547 L928,543 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="942" y="546" font-size="10" fill="#1a1a1a"><tspan font-weight="400">hash</tspan> <tspan fill="#5a6470">VARCHAR(40)</tspan></text>
+<rect x="920" y="552" width="300" height="16" fill="#c3cedb"/>
+<text x="928" y="563" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g>
+<rect x="920" y="624" width="300" height="178" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M920,628 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="928" y="631" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="944" y="639" font-size="11.5" font-weight="700" fill="#1c2b3a">tec_occurrences</text>
+<rect x="920" y="646" width="300" height="14" fill="#eef2f6"/>
+<text x="930" y="656" font-size="8.5" font-style="italic" fill="#5a6470">custom table (TEC)</text>
+<circle cx="931" cy="669" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M933.5,669 L939,669 M937,669 L937,671.5 M939,669 L939,671.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="942" y="672" font-size="10" fill="#1a1a1a"><tspan font-weight="700">occurrence_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M932,683 L936,687 L932,691 L928,687 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="942" y="690" font-size="10" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M932,701 L936,705 L932,709 L928,705 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="942" y="708" font-size="10" fill="#1a1a1a"><tspan font-weight="400">post_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M932,719 L936,723 L932,727 L928,723 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="942" y="726" font-size="10" fill="#1a1a1a"><tspan font-weight="400">start_date</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M932,737 L936,741 L932,745 L928,741 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="942" y="744" font-size="10" fill="#1a1a1a"><tspan font-weight="400">end_date</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M932,755 L936,759 L932,763 L928,759 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="942" y="762" font-size="10" fill="#1a1a1a"><tspan font-weight="400">start_date_utc</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M932,773 L936,777 L932,781 L928,777 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="942" y="780" font-size="10" fill="#1a1a1a"><tspan font-weight="400">hash</tspan> <tspan fill="#5a6470">VARCHAR(40)</tspan></text>
+<rect x="920" y="786" width="300" height="16" fill="#c3cedb"/>
+<text x="928" y="797" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g>
+<rect x="1800" y="372" width="300" height="160" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1800,376 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1808" y="379" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1824" y="387" font-size="11.5" font-weight="700" fill="#1c2b3a">tec_order_modifiers</text>
+<rect x="1800" y="394" width="300" height="14" fill="#eef2f6"/>
+<text x="1810" y="404" font-size="8.5" font-style="italic" fill="#5a6470">custom table (Event Tickets)</text>
+<circle cx="1811" cy="417" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1813.5,417 L1819,417 M1817,417 L1817,419.5 M1819,417 L1819,419.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1822" y="420" font-size="10" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1812,431 L1816,435 L1812,439 L1808,435 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1822" y="438" font-size="10" fill="#1a1a1a"><tspan font-weight="400">modifier_type</tspan> <tspan fill="#5a6470">VARCHAR(150)</tspan></text>
+<path d="M1812,449 L1816,453 L1812,457 L1808,453 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1822" y="456" font-size="10" fill="#1a1a1a"><tspan font-weight="400">sub_type</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1812,467 L1816,471 L1812,475 L1808,471 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1822" y="474" font-size="10" fill="#1a1a1a"><tspan font-weight="400">raw_amount</tspan> <tspan fill="#5a6470">DECIMAL(18,6)</tspan></text>
+<path d="M1812,485 L1816,489 L1812,493 L1808,489 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1822" y="492" font-size="10" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">VARCHAR(150)</tspan></text>
+<path d="M1812,503 L1816,507 L1812,511 L1808,507 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1822" y="510" font-size="10" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(20)</tspan></text>
+<rect x="1800" y="516" width="300" height="16" fill="#c3cedb"/>
+<text x="1808" y="527" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g>
+<rect x="1800" y="612" width="300" height="124" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1800,616 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1808" y="619" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1824" y="627" font-size="11.5" font-weight="700" fill="#1c2b3a">tec_order_modifier_relationships</text>
+<rect x="1800" y="634" width="300" height="14" fill="#eef2f6"/>
+<text x="1810" y="644" font-size="8.5" font-style="italic" fill="#5a6470">fees/coupons ↔ posts</text>
+<circle cx="1811" cy="657" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1813.5,657 L1819,657 M1817,657 L1817,659.5 M1819,657 L1819,659.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1822" y="660" font-size="10" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1812,671 L1816,675 L1812,679 L1808,675 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1822" y="678" font-size="10" fill="#1a1a1a"><tspan font-weight="400">modifier_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1812,689 L1816,693 L1812,697 L1808,693 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1822" y="696" font-size="10" fill="#1a1a1a"><tspan font-weight="400">post_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1812,707 L1816,711 L1812,715 L1808,711 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1822" y="714" font-size="10" fill="#1a1a1a"><tspan font-weight="400">post_type</tspan> <tspan fill="#5a6470">VARCHAR(20)</tspan></text>
+<rect x="1800" y="720" width="300" height="16" fill="#c3cedb"/>
+<text x="1808" y="731" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g><rect x="480" y="620" width="360" height="150" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1"/>
+<text x="492" y="640" font-size="10.5" font-weight="700" fill="#1c2b3a">Legend — how it is stored</text>
+<g transform="translate(498,657)"><rect x="0" y="-7" width="12" height="9" rx="1.5" fill="#b8863a"/></g>
+<text x="518" y="660" font-size="9.5" fill="#33404d">amber = CPT entity: one row in wp_posts (post_type)</text>
+<text x="518" y="678" font-size="9.5" fill="#33404d">         its _meta fields live in wp_postmeta (EAV)</text>
+<g transform="translate(498,693)"><rect x="0" y="-7" width="12" height="9" rx="1.5" fill="#4a6fa5"/></g>
+<text x="518" y="696" font-size="9.5" fill="#33404d">blue = real custom / core SQL table</text>
+<g transform="translate(498,711)"><path d="M0,-3 L4,1 L0,5 L-4,1 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/></g>
+<text x="518" y="714" font-size="9.5" fill="#33404d">red diamond = pointer / FK  (→ target)</text>
+<g transform="translate(498,729)"><path d="M-6,0 h12 M6,0 l-5,-4 M6,0 l-5,4" stroke="#3f5060" stroke-width="1.2" fill="none"/></g>
+<text x="518" y="732" font-size="9.5" fill="#33404d">crow's foot = many   |   double-bar = one</text>
+<text x="518" y="750" font-size="9.5" fill="#33404d">green line = meta-pointer link   ·   dashed = real FK</text>
+</g>
+</svg>
