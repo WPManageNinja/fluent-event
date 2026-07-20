@@ -4,6 +4,9 @@
 > Source-verified: post types, taxonomies, custom tables (dbDelta), and the
 > event-create + booking/purchase write paths grepped + adversarially checked.
 
+Diagrams: [schema.svg](schema.svg) — data model over the WP core tables (CPT
+entities + the 3 ticket tables + wp_posts/postmeta/users/taxonomy, wired).
+[db-flow.svg](db-flow.svg) — create → browse → book → pay → after write flow.
 
 ### 1. Storage model verdict
 

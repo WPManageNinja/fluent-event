@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2320" height="574" viewBox="0 0 2320 574" font-family="Menlo,Consolas,monospace">
+<defs><marker id="ar" markerWidth="12" markerHeight="12" refX="8" refY="5" orient="auto"><path d="M1,1 L9,5 L1,9" fill="none" stroke="#5c6a78" stroke-width="1.8"/></marker></defs>
+<rect x="0" y="0" width="2320" height="574" fill="#fbfcfd"/>
+<path d="M0,0 V574 M20,0 V574 M40,0 V574 M60,0 V574 M80,0 V574 M100,0 V574 M120,0 V574 M140,0 V574 M160,0 V574 M180,0 V574 M200,0 V574 M220,0 V574 M240,0 V574 M260,0 V574 M280,0 V574 M300,0 V574 M320,0 V574 M340,0 V574 M360,0 V574 M380,0 V574 M400,0 V574 M420,0 V574 M440,0 V574 M460,0 V574 M480,0 V574 M500,0 V574 M520,0 V574 M540,0 V574 M560,0 V574 M580,0 V574 M600,0 V574 M620,0 V574 M640,0 V574 M660,0 V574 M680,0 V574 M700,0 V574 M720,0 V574 M740,0 V574 M760,0 V574 M780,0 V574 M800,0 V574 M820,0 V574 M840,0 V574 M860,0 V574 M880,0 V574 M900,0 V574 M920,0 V574 M940,0 V574 M960,0 V574 M980,0 V574 M1000,0 V574 M1020,0 V574 M1040,0 V574 M1060,0 V574 M1080,0 V574 M1100,0 V574 M1120,0 V574 M1140,0 V574 M1160,0 V574 M1180,0 V574 M1200,0 V574 M1220,0 V574 M1240,0 V574 M1260,0 V574 M1280,0 V574 M1300,0 V574 M1320,0 V574 M1340,0 V574 M1360,0 V574 M1380,0 V574 M1400,0 V574 M1420,0 V574 M1440,0 V574 M1460,0 V574 M1480,0 V574 M1500,0 V574 M1520,0 V574 M1540,0 V574 M1560,0 V574 M1580,0 V574 M1600,0 V574 M1620,0 V574 M1640,0 V574 M1660,0 V574 M1680,0 V574 M1700,0 V574 M1720,0 V574 M1740,0 V574 M1760,0 V574 M1780,0 V574 M1800,0 V574 M1820,0 V574 M1840,0 V574 M1860,0 V574 M1880,0 V574 M1900,0 V574 M1920,0 V574 M1940,0 V574 M1960,0 V574 M1980,0 V574 M2000,0 V574 M2020,0 V574 M2040,0 V574 M2060,0 V574 M2080,0 V574 M2100,0 V574 M2120,0 V574 M2140,0 V574 M2160,0 V574 M2180,0 V574 M2200,0 V574 M2220,0 V574 M2240,0 V574 M2260,0 V574 M2280,0 V574 M2300,0 V574 M2320,0 V574 M0,0 H2320 M0,20 H2320 M0,40 H2320 M0,60 H2320 M0,80 H2320 M0,100 H2320 M0,120 H2320 M0,140 H2320 M0,160 H2320 M0,180 H2320 M0,200 H2320 M0,220 H2320 M0,240 H2320 M0,260 H2320 M0,280 H2320 M0,300 H2320 M0,320 H2320 M0,340 H2320 M0,360 H2320 M0,380 H2320 M0,400 H2320 M0,420 H2320 M0,440 H2320 M0,460 H2320 M0,480 H2320 M0,500 H2320 M0,520 H2320 M0,540 H2320 M0,560 H2320" stroke="#eceff2" stroke-width="1"/>
+<text x="40" y="46" font-size="18" font-weight="700" fill="#1c2b3a">EventPrime — database write flow</text>
+<text x="40" y="70" font-size="11" fill="#6a7684">Create event &#8594; browse &#8594; book &#8594; pay &#8594; after. Colour = table the rows land in.</text>
+<g>
+<rect x="40" y="96" width="420" height="268" rx="6" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M40,102 a6,6 0 0 1 6,-6 h408 a6,6 0 0 1 6,6 v26 h-420 z" fill="#3d5a80"/>
+<circle cx="58" cy="112" r="10" fill="#fff" opacity="0.9"/>
+<text x="58" y="116" font-size="13" font-weight="700" fill="#3d5a80" text-anchor="middle">1</text>
+<text x="76" y="116" font-size="13" font-weight="700" fill="#fff">CREATE EVENT</text>
+<text x="450" y="140" font-size="9.5" font-style="italic" fill="#7a8694" text-anchor="end">admin</text>
+<text x="52" y="155" font-size="9" font-weight="700" fill="#9aa6b2" letter-spacing="0.5">WRITES</text>
+<rect x="52" y="169" width="9" height="9" rx="1.5" fill="#4a6fa5"/>
+<text x="67" y="176" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#4a6fa5">wp_posts</tspan><tspan fill="#4a5561">  em_event (+ em_performer)</tspan></text>
+<text x="68" y="197" font-size="9.3" fill="#8a94a0">post_type = em_event / em_performer</text>
+<rect x="52" y="211" width="9" height="9" rx="1.5" fill="#6b7a89"/>
+<text x="67" y="218" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#6b7a89">wp_postmeta</tspan><tspan fill="#4a5561">  em_start_date, em_end_date,</tspan></text>
+<text x="68" y="239" font-size="9.3" fill="#8a94a0">em_capacity, em_enable_booking, em_price…</text>
+<rect x="52" y="253" width="9" height="9" rx="1.5" fill="#b8863a"/>
+<text x="67" y="260" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#b8863a">wp_term_relationships</tspan><tspan fill="#4a5561">  type / venue / organizer</tspan></text>
+<rect x="52" y="274" width="9" height="9" rx="1.5" fill="#5c7a52"/>
+<text x="67" y="281" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#5c7a52">wp_em_price_options</tspan><tspan fill="#4a5561">  N ticket-type rows</tspan></text>
+<text x="68" y="302" font-size="9.3" fill="#8a94a0">event_id FK -&gt; em_event post</text>
+<rect x="52" y="316" width="9" height="9" rx="1.5" fill="#5c7a52"/>
+<text x="67" y="323" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#5c7a52">..ticket_categories</tspan><tspan fill="#4a5561">  category rows (event_id FK)</tspan></text>
+<text x="68" y="344" font-size="9.3" fill="#8a94a0">tickets = the ONLY real custom tables</text>
+</g>
+<g>
+<rect x="500" y="96" width="420" height="226" rx="6" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M500,102 a6,6 0 0 1 6,-6 h408 a6,6 0 0 1 6,6 v26 h-420 z" fill="#4a7a52"/>
+<circle cx="518" cy="112" r="10" fill="#fff" opacity="0.9"/>
+<text x="518" y="116" font-size="13" font-weight="700" fill="#4a7a52" text-anchor="middle">2</text>
+<text x="536" y="116" font-size="13" font-weight="700" fill="#fff">BROWSE</text>
+<text x="910" y="140" font-size="9.5" font-style="italic" fill="#7a8694" text-anchor="end">visitor</text>
+<text x="512" y="155" font-size="9" font-weight="700" fill="#9aa6b2" letter-spacing="0.5">READS</text>
+<rect x="512" y="169" width="9" height="9" rx="1.5" fill="#8a99ab"/>
+<text x="527" y="176" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#8a99ab">wp_posts + meta</tspan><tspan fill="#4a5561">  event details</tspan></text>
+<rect x="512" y="190" width="9" height="9" rx="1.5" fill="#8a99ab"/>
+<text x="527" y="197" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#8a99ab">wp_em_price_options</tspan><tspan fill="#4a5561">  ticket types + price</tspan></text>
+<text x="528" y="218" font-size="9.3" fill="#8a94a0">remaining = capacity - COUNT(bookings)</text>
+<text x="528" y="239" font-size="9.3" fill="#8a94a0">  LIVE count of em_booking posts,</text>
+<text x="528" y="260" font-size="9.3" fill="#8a94a0">  no stock column, no counter</text>
+<text x="512" y="281" font-size="9" font-weight="700" fill="#9aa6b2" letter-spacing="0.5">WRITE</text>
+<text x="528" y="302" font-size="9.3" fill="#8a94a0">none - no cart table; cart built client-side</text>
+</g>
+<g>
+<rect x="960" y="96" width="420" height="268" rx="6" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M960,102 a6,6 0 0 1 6,-6 h408 a6,6 0 0 1 6,6 v26 h-420 z" fill="#4a7a52"/>
+<circle cx="978" cy="112" r="10" fill="#fff" opacity="0.9"/>
+<text x="978" y="116" font-size="13" font-weight="700" fill="#4a7a52" text-anchor="middle">3</text>
+<text x="996" y="116" font-size="13" font-weight="700" fill="#fff">BOOK</text>
+<text x="1370" y="140" font-size="9.5" font-style="italic" fill="#7a8694" text-anchor="end">visitor</text>
+<text x="972" y="155" font-size="9" font-weight="700" fill="#9aa6b2" letter-spacing="0.5">WRITES</text>
+<rect x="972" y="169" width="9" height="9" rx="1.5" fill="#9a7bb0"/>
+<text x="987" y="176" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#9a7bb0">wp_users</tspan><tspan fill="#4a5561">  find-or-create buyer</tspan></text>
+<text x="988" y="197" font-size="9.3" fill="#8a94a0">guest checkout via _nopriv_ AJAX</text>
+<rect x="972" y="211" width="9" height="9" rx="1.5" fill="#4a6fa5"/>
+<text x="987" y="218" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#4a6fa5">wp_posts</tspan><tspan fill="#4a5561">  1 em_booking post</tspan></text>
+<text x="988" y="239" font-size="9.3" fill="#8a94a0">post_status = failed (initial)</text>
+<rect x="972" y="253" width="9" height="9" rx="1.5" fill="#6b7a89"/>
+<text x="987" y="260" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#6b7a89">em_order_info</tspan><tspan fill="#4a5561">  serialized ORDER</tspan></text>
+<rect x="972" y="274" width="9" height="9" rx="1.5" fill="#6b7a89"/>
+<text x="987" y="281" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#6b7a89">em_attendee_names</tspan><tspan fill="#4a5561">  serialized ATTENDEES</tspan></text>
+<rect x="972" y="295" width="9" height="9" rx="1.5" fill="#6b7a89"/>
+<text x="987" y="302" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#6b7a89">em_payment_log=[]</tspan><tspan fill="#4a5561">  + ep_order_key, em_event</tspan></text>
+<text x="988" y="323" font-size="9.3" fill="#8a94a0">order + attendees + payment ALL in meta</text>
+<text x="988" y="344" font-size="9.3" fill="#8a94a0">-&gt; no bookings / attendees / txn tables</text>
+</g>
+<g>
+<rect x="1420" y="96" width="420" height="226" rx="6" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1420,102 a6,6 0 0 1 6,-6 h408 a6,6 0 0 1 6,6 v26 h-420 z" fill="#4a7a52"/>
+<circle cx="1438" cy="112" r="10" fill="#fff" opacity="0.9"/>
+<text x="1438" y="116" font-size="13" font-weight="700" fill="#4a7a52" text-anchor="middle">4</text>
+<text x="1456" y="116" font-size="13" font-weight="700" fill="#fff">PAY</text>
+<text x="1830" y="140" font-size="9.5" font-style="italic" fill="#7a8694" text-anchor="end">visitor</text>
+<text x="1432" y="155" font-size="9" font-weight="700" fill="#9aa6b2" letter-spacing="0.5">WRITES</text>
+<rect x="1432" y="169" width="9" height="9" rx="1.5" fill="#8a99ab"/>
+<text x="1447" y="176" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#8a99ab">verify_paypal_order()</tspan><tspan fill="#4a5561">  server-side</tspan></text>
+<text x="1448" y="197" font-size="9.3" fill="#8a94a0">wp_remote to PayPal /v2/checkout/orders</text>
+<text x="1448" y="218" font-size="9.3" fill="#8a94a0">ownership: hash_equals(em_random_order_id)</text>
+<rect x="1432" y="232" width="9" height="9" rx="1.5" fill="#4a6fa5"/>
+<text x="1447" y="239" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#4a6fa5">post_status</tspan><tspan fill="#4a5561">  -&gt; completed</tspan></text>
+<rect x="1432" y="253" width="9" height="9" rx="1.5" fill="#6b7a89"/>
+<text x="1447" y="260" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#6b7a89">em_payment_log</tspan><tspan fill="#4a5561">  gateway txn record</tspan></text>
+<rect x="1432" y="274" width="9" height="9" rx="1.5" fill="#6b7a89"/>
+<text x="1447" y="281" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#6b7a89">em_status</tspan><tspan fill="#4a5561">  -&gt; completed</tspan></text>
+<text x="1448" y="302" font-size="9.3" fill="#8a94a0">free (total=0) -&gt; auto-complete, no gateway</text>
+</g>
+<g>
+<rect x="1880" y="96" width="420" height="247" rx="6" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1880,102 a6,6 0 0 1 6,-6 h408 a6,6 0 0 1 6,6 v26 h-420 z" fill="#3d5a80"/>
+<circle cx="1898" cy="112" r="10" fill="#fff" opacity="0.9"/>
+<text x="1898" y="116" font-size="13" font-weight="700" fill="#3d5a80" text-anchor="middle">5</text>
+<text x="1916" y="116" font-size="13" font-weight="700" fill="#fff">AFTER  (cancel / refund)</text>
+<text x="2290" y="140" font-size="9.5" font-style="italic" fill="#7a8694" text-anchor="end">admin</text>
+<text x="1892" y="155" font-size="9" font-weight="700" fill="#9aa6b2" letter-spacing="0.5">CANCEL / REFUND</text>
+<rect x="1892" y="169" width="9" height="9" rx="1.5" fill="#4a6fa5"/>
+<text x="1907" y="176" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#4a6fa5">post_status</tspan><tspan fill="#4a5561">  -&gt; cancelled</tspan></text>
+<rect x="1892" y="190" width="9" height="9" rx="1.5" fill="#6b7a89"/>
+<text x="1907" y="197" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#6b7a89">em_status</tspan><tspan fill="#4a5561">  + em_payment_log[offline]</tspan></text>
+<text x="1892" y="218" font-size="9" font-weight="700" fill="#9aa6b2" letter-spacing="0.5">INVENTORY</text>
+<text x="1908" y="239" font-size="9.3" fill="#8a94a0">NO decrement, NO restore -</text>
+<text x="1908" y="260" font-size="9.3" fill="#8a94a0">remaining always recomputed live</text>
+<text x="1892" y="281" font-size="9" font-weight="700" fill="#9aa6b2" letter-spacing="0.5">SEATING (paid ext.)</text>
+<rect x="1892" y="295" width="9" height="9" rx="1.5" fill="#6b7a89"/>
+<text x="1907" y="302" font-size="10" fill="#1a1a1a"><tspan font-weight="700" fill="#6b7a89">em_seat_data</tspan><tspan fill="#4a5561">  seat -&gt; type=sold</tspan></text>
+<text x="1908" y="323" font-size="9.3" fill="#8a94a0">on em_event post, not a table</text>
+</g>
+<path d="M466,118 H492" stroke="#5c6a78" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M926,118 H952" stroke="#5c6a78" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1386,118 H1412" stroke="#5c6a78" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1846,118 H1872" stroke="#5c6a78" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="40" y="404" width="2240" height="132" rx="6" fill="#f4f6f8" stroke="#8a99ab" stroke-width="1"/>
+<text x="60" y="432" font-size="14" font-weight="700" fill="#1c2b3a">One booking (buyer, N tickets) — EventPrime vs our custom-table design</text>
+<rect x="60" y="448" width="10" height="10" rx="2" fill="#c0453b"/>
+<text x="78" y="457" font-size="11.5" font-weight="700" fill="#8a2820">EventPrime</text>
+<text x="80" y="476" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">1 em_booking post  +  serialized em_order_info (order) + em_attendee_names</text>
+<text x="80" y="491" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">(attendees) + em_payment_log (txn)  — all 3 in ONE postmeta blob set</text>
+<text x="80" y="506" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">inventory = count-based (capacity - COUNT(bookings), no stock column)</text>
+<text x="80" y="521" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">= few post+meta rows, but order/attendees/payment un-queryable (serialized)</text>
+<rect x="1230" y="448" width="10" height="10" rx="2" fill="#5c7a52"/>
+<text x="1248" y="457" font-size="11.5" font-weight="700" fill="#3f5a37">Fluent Events (custom-table design)</text>
+<text x="1250" y="476" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">1 INSERT  wp_fevents_registrations   (buyer + payment + status columns)</text>
+<text x="1250" y="491" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">N INSERT  wp_fevents_guests          (one typed row per ticket = attendee)</text>
+<text x="1250" y="506" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">1 UPDATE  wp_fevents_ticket_types SET sold = sold + N   (real counter)</text>
+<text x="1250" y="521" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">= typed rows across 3 indexed tables; order/attendee/payment all queryable</text>
+</svg>
