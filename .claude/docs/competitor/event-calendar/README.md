@@ -4,8 +4,10 @@ Competitor teardown of the two StellarWP / Modern Tribe plugins that pair up to 
 what Fluent Events does in one: **The Events Calendar** (events) + **Event Tickets**
 (ticketing).
 
-- [schema-combined.svg](schema-combined.svg) — **combined logical model** across both
-  plugins (Event / Venue / Organizer / Category + Ticket / Attendee / Order). Start here.
+- [schema-combined.svg](schema-combined.svg) — **combined model** across both plugins
+  (Event / Venue / Organizer / Category + Ticket / Attendee / Order) shown **over the
+  WordPress core tables they actually live in** (`wp_posts`, `wp_postmeta`, `wp_users`,
+  the taxonomy trio) with every connection drawn. Start here.
 - [schema.svg](schema.svg) — TEC-only **physical** ER diagram (wp_posts, wp_postmeta,
   tec_events, tec_occurrences, taxonomy).
 
@@ -18,18 +20,34 @@ subsystems* (fees, seating, webhooks).
 
 ## The combined model (schema-combined.svg)
 
-**Amber box** = a CPT entity (one `wp_posts` row, `post_type` shown; its `_meta` fields
-live in `wp_postmeta`). **Blue box** = a real SQL table. **Red diamond** = a pointer/FK.
+Two bands. **Top (amber)** = the logical CPT/taxonomy entities. **Bottom (blue)** = the
+real SQL tables they live in — WordPress core + the plugins' custom tables. Every link
+is drawn so you can see exactly how a "ticket" or a "venue" is actually stored.
+
+- **Amber box** = a CPT entity — one row in `wp_posts` (`post_type` shown); its `_meta`
+  fields are rows in `wp_postmeta`.
+- **Blue box** = a real SQL table.
+- **Green line** = meta-pointer (entity → entity). **Grey dashed** = real foreign key.
+  **Purple dotted** = "this entity is one row in `wp_posts`". **Red diamond** = pointer/FK.
 
 ```
 Venue ──┐
 Organizer ──┤ (meta _EventVenueID / _EventOrganizerID)
 Category ───┴─► Event ◄── Ticket ◄── Attendee ──► Order
- (taxonomy)      │         (_..event) (_..ticket) (_..order)
-                 ├─ tec_events        (real: mirrored dates, post_id → Event)
-                 └─ tec_occurrences   (real: one row per occurrence)
-                                       Order ─ tec_order_modifiers (real: fees/coupons)
+ (taxonomy)                (_..event) (_..ticket) (_..order)
+   │  every amber entity above ─ purple ─► wp_posts (1 row each, post_type distinguishes)
+   │  every _meta field ───────────────► wp_postmeta.post_id → wp_posts.ID
+   │  post_author / attendee / purchaser ─► wp_users.ID
+   └─ Category ─► wp_terms + wp_term_taxonomy, event↔term via wp_term_relationships.object_id → wp_posts
+       Event ─► tec_events / tec_occurrences (real: mirrored dates), post_id → wp_posts
+       Order ─► tec_order_modifiers (real: fees/coupons ↔ posts)
 ```
+
+**The takeaway the diagram makes visual:** there is almost nothing these two plugins
+store *outside* `wp_posts` + `wp_postmeta`. Six different "entities" are all just post
+rows; their every attribute is an EAV meta row; the only real tables are WP's taxonomy
+trio plus a few plugin-added query/aux tables (`tec_events`, `tec_occurrences`,
+`tec_order_modifiers`).
 
 ### The Events Calendar side
 
