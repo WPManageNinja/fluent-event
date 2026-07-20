@@ -10,6 +10,9 @@ what Fluent Events does in one: **The Events Calendar** (events) + **Event Ticke
   the taxonomy trio) with every connection drawn. Start here.
 - [schema.svg](schema.svg) — TEC-only **physical** ER diagram (wp_posts, wp_postmeta,
   tec_events, tec_occurrences, taxonomy).
+- [db-flow.md](db-flow.md) + [db-flow.svg](db-flow.svg) — **end-to-end DB write flow**:
+  create event → add tickets → browse → buy → check-in/refund, every row traced +
+  source-verified. Shows the post/meta row explosion vs our custom-table design.
 
 ## One-line summary
 
