@@ -1,368 +1,435 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1302" viewBox="0 0 1500 1302" font-family="Menlo,Consolas,monospace">
-<defs><marker id="cf" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#3f5060" stroke-width="1.5"/></marker><marker id="one" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#3f5060" stroke-width="1.5"/></marker><linearGradient id="tb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d5dfea"/><stop offset="1" stop-color="#b3c2d4"/></linearGradient></defs>
-<rect x="0" y="0" width="1500" height="1302" fill="#fbfcfd"/>
-<path d="M0,0 V1302 M20,0 V1302 M40,0 V1302 M60,0 V1302 M80,0 V1302 M100,0 V1302 M120,0 V1302 M140,0 V1302 M160,0 V1302 M180,0 V1302 M200,0 V1302 M220,0 V1302 M240,0 V1302 M260,0 V1302 M280,0 V1302 M300,0 V1302 M320,0 V1302 M340,0 V1302 M360,0 V1302 M380,0 V1302 M400,0 V1302 M420,0 V1302 M440,0 V1302 M460,0 V1302 M480,0 V1302 M500,0 V1302 M520,0 V1302 M540,0 V1302 M560,0 V1302 M580,0 V1302 M600,0 V1302 M620,0 V1302 M640,0 V1302 M660,0 V1302 M680,0 V1302 M700,0 V1302 M720,0 V1302 M740,0 V1302 M760,0 V1302 M780,0 V1302 M800,0 V1302 M820,0 V1302 M840,0 V1302 M860,0 V1302 M880,0 V1302 M900,0 V1302 M920,0 V1302 M940,0 V1302 M960,0 V1302 M980,0 V1302 M1000,0 V1302 M1020,0 V1302 M1040,0 V1302 M1060,0 V1302 M1080,0 V1302 M1100,0 V1302 M1120,0 V1302 M1140,0 V1302 M1160,0 V1302 M1180,0 V1302 M1200,0 V1302 M1220,0 V1302 M1240,0 V1302 M1260,0 V1302 M1280,0 V1302 M1300,0 V1302 M1320,0 V1302 M1340,0 V1302 M1360,0 V1302 M1380,0 V1302 M1400,0 V1302 M1420,0 V1302 M1440,0 V1302 M1460,0 V1302 M1480,0 V1302 M0,0 H1500 M0,20 H1500 M0,40 H1500 M0,60 H1500 M0,80 H1500 M0,100 H1500 M0,120 H1500 M0,140 H1500 M0,160 H1500 M0,180 H1500 M0,200 H1500 M0,220 H1500 M0,240 H1500 M0,260 H1500 M0,280 H1500 M0,300 H1500 M0,320 H1500 M0,340 H1500 M0,360 H1500 M0,380 H1500 M0,400 H1500 M0,420 H1500 M0,440 H1500 M0,460 H1500 M0,480 H1500 M0,500 H1500 M0,520 H1500 M0,540 H1500 M0,560 H1500 M0,580 H1500 M0,600 H1500 M0,620 H1500 M0,640 H1500 M0,660 H1500 M0,680 H1500 M0,700 H1500 M0,720 H1500 M0,740 H1500 M0,760 H1500 M0,780 H1500 M0,800 H1500 M0,820 H1500 M0,840 H1500 M0,860 H1500 M0,880 H1500 M0,900 H1500 M0,920 H1500 M0,940 H1500 M0,960 H1500 M0,980 H1500 M0,1000 H1500 M0,1020 H1500 M0,1040 H1500 M0,1060 H1500 M0,1080 H1500 M0,1100 H1500 M0,1120 H1500 M0,1140 H1500 M0,1160 H1500 M0,1180 H1500 M0,1200 H1500 M0,1220 H1500 M0,1240 H1500 M0,1260 H1500 M0,1280 H1500 M0,1300 H1500" stroke="#eceff2" stroke-width="1"/>
-<path d="M340,431 H354 V49 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M340,449 H366 V53 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M340,755 H378 V49 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M340,773 H390 V53 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M340,845 H402 V57 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M600,323 H414 V661 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M600,341 H426 V139 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M600,485 H438 V61 H340" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M600,503 H450 V57 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M1160,89 H914 V143 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M600,701 H462 V147 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M600,1025 H474 V151 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M600,1043 H486 V661 H600" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M900,1061 H926 V49 H1160" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M1160,431 H938 V155 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M1160,467 H950 V61 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M1160,683 H962 V159 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
-<path d="M1160,773 H974 V65 H900" fill="none" stroke="#7d8b99" stroke-width="1" stroke-dasharray="5,3" marker-start="url(#cf)" marker-end="url(#one)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1820" height="1328" viewBox="0 0 1820 1328" font-family="Menlo,Consolas,monospace">
+<defs><linearGradient id="tb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d5dfea"/><stop offset="1" stop-color="#b3c2d4"/></linearGradient><linearGradient id="tt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2daf0"/><stop offset="1" stop-color="#cdc0e6"/></linearGradient><marker id="cf_c2f9e5b" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#2f9e5b" stroke-width="1.6"/></marker><marker id="one_c2f9e5b" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#2f9e5b" stroke-width="1.6"/></marker><marker id="cf_cd98a1a" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#d98a1a" stroke-width="1.6"/></marker><marker id="one_cd98a1a" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#d98a1a" stroke-width="1.6"/></marker><marker id="cf_c1298a4" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#1298a4" stroke-width="1.6"/></marker><marker id="one_c1298a4" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#1298a4" stroke-width="1.6"/></marker><marker id="cf_c2f6fd0" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#2f6fd0" stroke-width="1.6"/></marker><marker id="one_c2f6fd0" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#2f6fd0" stroke-width="1.6"/></marker><marker id="cf_cc0468a" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#c0468a" stroke-width="1.6"/></marker><marker id="one_cc0468a" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#c0468a" stroke-width="1.6"/></marker><marker id="cf_c8a7514" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#8a7514" stroke-width="1.6"/></marker><marker id="one_c8a7514" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#8a7514" stroke-width="1.6"/></marker><marker id="cf_c8a5a2b" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#8a5a2b" stroke-width="1.6"/></marker><marker id="one_c8a5a2b" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#8a5a2b" stroke-width="1.6"/></marker><marker id="cf_c6a5acd" markerWidth="22" markerHeight="22" refX="17" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M17,11 L3,3 M17,11 L3,11 M17,11 L3,19" fill="none" stroke="#6a5acd" stroke-width="1.6"/></marker><marker id="one_c6a5acd" markerWidth="16" markerHeight="22" refX="12" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M7,3 L7,19 M11,3 L11,19" fill="none" stroke="#6a5acd" stroke-width="1.6"/></marker></defs>
+<rect x="0" y="0" width="1820" height="1328" fill="#fbfcfd"/>
+<path d="M0,0 V1328 M20,0 V1328 M40,0 V1328 M60,0 V1328 M80,0 V1328 M100,0 V1328 M120,0 V1328 M140,0 V1328 M160,0 V1328 M180,0 V1328 M200,0 V1328 M220,0 V1328 M240,0 V1328 M260,0 V1328 M280,0 V1328 M300,0 V1328 M320,0 V1328 M340,0 V1328 M360,0 V1328 M380,0 V1328 M400,0 V1328 M420,0 V1328 M440,0 V1328 M460,0 V1328 M480,0 V1328 M500,0 V1328 M520,0 V1328 M540,0 V1328 M560,0 V1328 M580,0 V1328 M600,0 V1328 M620,0 V1328 M640,0 V1328 M660,0 V1328 M680,0 V1328 M700,0 V1328 M720,0 V1328 M740,0 V1328 M760,0 V1328 M780,0 V1328 M800,0 V1328 M820,0 V1328 M840,0 V1328 M860,0 V1328 M880,0 V1328 M900,0 V1328 M920,0 V1328 M940,0 V1328 M960,0 V1328 M980,0 V1328 M1000,0 V1328 M1020,0 V1328 M1040,0 V1328 M1060,0 V1328 M1080,0 V1328 M1100,0 V1328 M1120,0 V1328 M1140,0 V1328 M1160,0 V1328 M1180,0 V1328 M1200,0 V1328 M1220,0 V1328 M1240,0 V1328 M1260,0 V1328 M1280,0 V1328 M1300,0 V1328 M1320,0 V1328 M1340,0 V1328 M1360,0 V1328 M1380,0 V1328 M1400,0 V1328 M1420,0 V1328 M1440,0 V1328 M1460,0 V1328 M1480,0 V1328 M1500,0 V1328 M1520,0 V1328 M1540,0 V1328 M1560,0 V1328 M1580,0 V1328 M1600,0 V1328 M1620,0 V1328 M1640,0 V1328 M1660,0 V1328 M1680,0 V1328 M1700,0 V1328 M1720,0 V1328 M1740,0 V1328 M1760,0 V1328 M1780,0 V1328 M1800,0 V1328 M1820,0 V1328 M0,0 H1820 M0,20 H1820 M0,40 H1820 M0,60 H1820 M0,80 H1820 M0,100 H1820 M0,120 H1820 M0,140 H1820 M0,160 H1820 M0,180 H1820 M0,200 H1820 M0,220 H1820 M0,240 H1820 M0,260 H1820 M0,280 H1820 M0,300 H1820 M0,320 H1820 M0,340 H1820 M0,360 H1820 M0,380 H1820 M0,400 H1820 M0,420 H1820 M0,440 H1820 M0,460 H1820 M0,480 H1820 M0,500 H1820 M0,520 H1820 M0,540 H1820 M0,560 H1820 M0,580 H1820 M0,600 H1820 M0,620 H1820 M0,640 H1820 M0,660 H1820 M0,680 H1820 M0,700 H1820 M0,720 H1820 M0,740 H1820 M0,760 H1820 M0,780 H1820 M0,800 H1820 M0,820 H1820 M0,840 H1820 M0,860 H1820 M0,880 H1820 M0,900 H1820 M0,920 H1820 M0,940 H1820 M0,960 H1820 M0,980 H1820 M0,1000 H1820 M0,1020 H1820 M0,1040 H1820 M0,1060 H1820 M0,1080 H1820 M0,1100 H1820 M0,1120 H1820 M0,1140 H1820 M0,1160 H1820 M0,1180 H1820 M0,1200 H1820 M0,1220 H1820 M0,1240 H1820 M0,1260 H1820 M0,1280 H1820 M0,1300 H1820 M0,1320 H1820" stroke="#eceff2" stroke-width="1"/>
+<text x="40" y="26" font-size="15" font-weight="700" fill="#1c2b3a">Fluent Events — DB schema (event = CPT hybrid + WP taxonomies)</text>
+<text x="40" y="44" font-size="10" fill="#6a7684">Line colour = the table it points to (crow&#39;s-foot = many side, double-bar = one side). See legend, lower-left.</text>
+<path d="M340,293 H422.0 V71 H520" fill="none" stroke="#2f9e5b" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f9e5b)" marker-end="url(#one_c2f9e5b)"/>
+<path d="M340,311 H444.0 V65 H520" fill="none" stroke="#2f9e5b" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f9e5b)" marker-end="url(#one_c2f9e5b)"/>
+<path d="M340,383 H384 V71 H340" fill="none" stroke="#d98a1a" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_cd98a1a)" marker-end="url(#one_cd98a1a)"/>
+<path d="M520,89 H466.0 V65 H340" fill="none" stroke="#d98a1a" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_cd98a1a)" marker-end="url(#one_cd98a1a)"/>
+<path d="M820,299 H864 V77 H820" fill="none" stroke="#2f9e5b" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f9e5b)" marker-end="url(#one_c2f9e5b)"/>
+<path d="M820,469 H886 V59 H820" fill="none" stroke="#2f9e5b" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f9e5b)" marker-end="url(#one_c2f9e5b)"/>
+<path d="M520,559 H488.0 V221 H340" fill="none" stroke="#1298a4" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c1298a4)" marker-end="url(#one_c1298a4)"/>
+<path d="M820,577 H908 V451 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
+<path d="M1000,89 H902.0 V445 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
+<path d="M1000,449 H924.0 V457 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
+<path d="M1000,779 H946.0 V439 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
+<path d="M1300,797 H1344 V431 H1300" fill="none" stroke="#c0468a" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_cc0468a)" marker-end="url(#one_cc0468a)"/>
+<path d="M1300,815 H1366 V71 H1300" fill="none" stroke="#8a7514" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c8a7514)" marker-end="url(#one_c8a7514)"/>
+<path d="M1000,1089 H968.0 V463 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
+<path d="M1000,1125 H990.0 V83 H820" fill="none" stroke="#2f9e5b" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f9e5b)" marker-end="url(#one_c2f9e5b)"/>
+<path d="M340,709 H406 V77 H340" fill="none" stroke="#d98a1a" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_cd98a1a)" marker-end="url(#one_cd98a1a)"/>
+<path d="M340,727 H428 V59 H340" fill="none" stroke="#d98a1a" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_cd98a1a)" marker-end="url(#one_cd98a1a)"/>
+<path d="M1780,221 H1824 V71 H1780" fill="none" stroke="#8a5a2b" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c8a5a2b)" marker-end="url(#one_c8a5a2b)"/>
+<path d="M1780,533 H1846 V65 H1780" fill="none" stroke="#8a5a2b" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c8a5a2b)" marker-end="url(#one_c8a5a2b)"/>
+<path d="M1780,401 H1868 V203 H1780" fill="none" stroke="#6a5acd" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c6a5acd)" marker-end="url(#one_c6a5acd)"/>
+<path d="M1480,383 H1142.0 V53 H820" fill="none" stroke="#2f9e5b" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f9e5b)" marker-end="url(#one_c2f9e5b)"/>
 <g>
 <rect x="40" y="40" width="300" height="110" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M40,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="48" y="47" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
 <text x="64" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_users</text>
-<path d="M326,49 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="51" cy="71.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,71.0 L59,71.0 M57,71.0 L57,73.5 M59,71.0 L59,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<circle cx="51" cy="71" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,71 L59,71 M57,71 L57,73.5 M59,71 L59,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="62" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,85.0 L56,89.0 L52,93.0 L48,89.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<path d="M52,85 L56,89 L52,93 L48,89 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="62" y="92" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">user_login</tspan> <tspan fill="#5a6470">VARCHAR(60)</tspan></text>
-<path d="M52,103.0 L56,107.0 L52,111.0 L48,107.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<path d="M52,103 L56,107 L52,111 L48,107 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="62" y="110" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">user_email</tspan> <tspan fill="#5a6470">VARCHAR(100)</tspan></text>
-<path d="M52,121.0 L56,125.0 L52,129.0 L48,125.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<path d="M52,121 L56,125 L52,129 L48,125 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="62" y="128" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">display_name</tspan> <tspan fill="#5a6470">VARCHAR(250)</tspan></text>
 <rect x="40" y="134" width="300" height="16" fill="#c3cedb"/>
 <text x="48" y="145" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M326,139 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+</g>
 <g>
-<rect x="600" y="40" width="300" height="56" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M600,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="608" y="47" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="624" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_posts</text>
-<path d="M886,49 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="611" cy="71.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M613.5,71.0 L619,71.0 M617,71.0 L617,73.5 M619,71.0 L619,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="622" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<rect x="600" y="80" width="300" height="16" fill="#c3cedb"/>
-<text x="608" y="91" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M886,85 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="40" y="190" width="300" height="254" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M40,194 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="48" y="197" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="64" y="205" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_calendars</text>
+<circle cx="51" cy="221" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,221 L59,221 M57,221 L57,223.5 M59,221 L59,223.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="224" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,235 L56,239 L52,243 L48,239 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="242" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,253 L56,257 L52,261 L48,257 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="260" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,271 L56,275 L52,279 L48,275 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="278" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
+<path d="M52,289 L56,293 L52,297 L48,293 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="296" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">logo_media_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,307 L56,311 L52,315 L48,311 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="314" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">cover_media_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,325 L56,329 L52,333 L48,329 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="332" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">visibility</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,343 L56,347 L52,351 L48,347 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="350" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
+<path d="M52,361 L56,365 L52,369 L48,365 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="368" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,379 L56,383 L52,387 L48,383 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="386" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_by</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,397 L56,401 L52,405 L48,401 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="404" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M52,415 L56,419 L52,423 L48,419 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="422" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="40" y="428" width="300" height="16" fill="#c3cedb"/>
+<text x="48" y="439" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="40" y="184" width="300" height="164" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M40,188 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="48" y="191" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="64" y="199" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_meta</text>
-<path d="M326,193 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="51" cy="215.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,215.0 L59,215.0 M57,215.0 L57,217.5 M59,215.0 L59,217.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="62" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,229.0 L56,233.0 L52,237.0 L48,233.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M52,247.0 L56,251.0 L52,255.0 L48,251.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,265.0 L56,269.0 L52,273.0 L48,269.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">meta_key</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M52,283.0 L56,287.0 L52,291.0 L48,287.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">value</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
-<path d="M52,301.0 L56,305.0 L52,309.0 L48,305.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M52,319.0 L56,323.0 L52,327.0 L48,323.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="326" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="40" y="332" width="300" height="16" fill="#c3cedb"/>
-<text x="48" y="343" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M326,337 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="40" y="470" width="300" height="164" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M40,474 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="48" y="477" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="64" y="485" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_meta</text>
+<circle cx="51" cy="501" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,501 L59,501 M57,501 L57,503.5 M59,501 L59,503.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="504" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,515 L56,519 L52,523 L48,519 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="522" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,533 L56,537 L52,541 L48,537 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="540" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,551 L56,555 L52,559 L48,555 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="558" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">meta_key</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,569 L56,573 L52,577 L48,573 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="576" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">value</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
+<path d="M52,587 L56,591 L52,595 L48,591 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="594" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M52,605 L56,609 L52,613 L48,609 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="612" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="40" y="618" width="300" height="16" fill="#c3cedb"/>
+<text x="48" y="629" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="40" y="382" width="300" height="236" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M40,386 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="48" y="389" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="64" y="397" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_notifications</text>
-<path d="M326,391 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="51" cy="413.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,413.0 L59,413.0 M57,413.0 L57,415.5 M59,413.0 L59,415.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="62" y="416" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,427.0 L56,431.0 L52,435.0 L48,431.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="62" y="434" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">recipient_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,445.0 L56,449.0 L52,453.0 L48,449.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="62" y="452" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">actor_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,463.0 L56,467.0 L52,471.0 L48,467.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">action</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M52,481.0 L56,485.0 L52,489.0 L48,485.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="488" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M52,499.0 L56,503.0 L52,507.0 L48,503.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,517.0 L56,521.0 L52,525.0 L48,521.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">title</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M52,535.0 L56,539.0 L52,543.0 L48,539.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">content</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
-<path d="M52,553.0 L56,557.0 L52,561.0 L48,557.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="560" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">route</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
-<path d="M52,571.0 L56,575.0 L52,579.0 L48,575.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="578" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">read_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
-<path d="M52,589.0 L56,593.0 L52,597.0 L48,593.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="596" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="40" y="602" width="300" height="16" fill="#c3cedb"/>
-<text x="48" y="613" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M326,607 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="40" y="660" width="300" height="236" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M40,664 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="48" y="667" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="64" y="675" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_notifications</text>
+<circle cx="51" cy="691" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,691 L59,691 M57,691 L57,693.5 M59,691 L59,693.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="62" y="694" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,705 L56,709 L52,713 L48,709 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="712" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">recipient_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,723 L56,727 L52,731 L48,727 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="730" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">actor_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,741 L56,745 L52,749 L48,745 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="748" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">action</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,759 L56,763 L52,767 L48,763 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="766" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,777 L56,781 L52,785 L48,781 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="784" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">object_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M52,795 L56,799 L52,803 L48,799 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="802" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">title</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,813 L56,817 L52,821 L48,817 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="820" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">content</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
+<path d="M52,831 L56,835 L52,839 L48,835 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="838" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">route</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
+<path d="M52,849 L56,853 L52,857 L48,853 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="62" y="856" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">read_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M52,867 L56,871 L52,875 L48,871 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="874" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="40" y="880" width="300" height="16" fill="#c3cedb"/>
+<text x="48" y="891" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="40" y="652" width="300" height="254" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M40,656 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="48" y="659" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="64" y="667" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_calendars</text>
-<path d="M326,661 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="51" cy="683.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,683.0 L59,683.0 M57,683.0 L57,685.5 M59,683.0 L59,685.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="62" y="686" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,697.0 L56,701.0 L52,705.0 L48,701.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="704" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M52,715.0 L56,719.0 L52,723.0 L48,719.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="722" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M52,733.0 L56,737.0 L52,741.0 L48,737.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="740" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
-<path d="M52,751.0 L56,755.0 L52,759.0 L48,755.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="62" y="758" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">logo_media_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,769.0 L56,773.0 L52,777.0 L48,773.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="62" y="776" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">cover_media_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,787.0 L56,791.0 L52,795.0 L48,791.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="794" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">visibility</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M52,805.0 L56,809.0 L52,813.0 L48,809.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="812" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
-<path d="M52,823.0 L56,827.0 L52,831.0 L48,827.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="830" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M52,841.0 L56,845.0 L52,849.0 L48,845.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="62" y="848" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_by</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,859.0 L56,863.0 L52,867.0 L48,863.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="866" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M52,877.0 L56,881.0 L52,885.0 L48,881.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="884" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="40" y="890" width="300" height="16" fill="#c3cedb"/>
-<text x="48" y="901" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M326,895 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="520" y="40" width="300" height="182" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M520,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="528" y="47" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="544" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_posts</text>
+<circle cx="531" cy="71" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M533.5,71 L539,71 M537,71 L537,73.5 M539,71 L539,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="542" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">ID</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M532,85 L536,89 L532,93 L528,89 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="542" y="92" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_author</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M532,103 L536,107 L532,111 L528,107 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="110" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_title</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
+<path d="M532,121 L536,125 L532,129 L528,125 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="542" y="128" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_content</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
+<path d="M532,139 L536,143 L532,147 L528,143 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="146" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_name</tspan> <tspan fill="#5a6470">VARCHAR(200)</tspan></text>
+<path d="M532,157 L536,161 L532,165 L528,161 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_status</tspan> <tspan fill="#5a6470">VARCHAR(20)</tspan></text>
+<path d="M532,175 L536,179 L532,183 L528,179 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_type</tspan> <tspan fill="#5a6470">VARCHAR(20)</tspan></text>
+<path d="M532,193 L536,197 L532,201 L528,197 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_date</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<rect x="520" y="206" width="300" height="16" fill="#c3cedb"/>
+<text x="528" y="217" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="600" y="130" width="300" height="488" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M600,134 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="608" y="137" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="624" y="145" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_events</text>
-<path d="M886,139 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="611" cy="161.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M613.5,161.0 L619,161.0 M617,161.0 L617,163.5 M619,161.0 L619,163.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="622" y="164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,175.0 L616,179.0 L612,183.0 L608,179.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">title</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M612,193.0 L616,197.0 L612,201.0 L608,197.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M612,211.0 L616,215.0 L612,219.0 L608,215.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
-<path d="M612,229.0 L616,233.0 L612,237.0 L608,233.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,247.0 L616,251.0 L612,255.0 L608,251.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">visibility</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,265.0 L616,269.0 L612,273.0 L608,269.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">start_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
-<path d="M612,283.0 L616,287.0 L612,291.0 L608,287.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">end_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
-<path d="M612,301.0 L616,305.0 L612,309.0 L608,305.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">timezone</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,319.0 L616,323.0 L612,327.0 L608,323.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="622" y="326" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">calendar_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,337.0 L616,341.0 L612,345.0 L608,341.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="622" y="344" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">parent_event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,355.0 L616,359.0 L612,363.0 L608,359.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="362" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">venue_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,373.0 L616,377.0 L612,381.0 L608,377.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="380" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">address</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M612,391.0 L616,395.0 L612,399.0 L608,395.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="398" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">lat</tspan> <tspan fill="#5a6470">DECIMAL(10,8)</tspan></text>
-<path d="M612,409.0 L616,413.0 L612,417.0 L608,413.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="416" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">lon</tspan> <tspan fill="#5a6470">DECIMAL(11,8)</tspan></text>
-<path d="M612,427.0 L616,431.0 L612,435.0 L608,431.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="434" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">online_meeting_url</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M612,445.0 L616,449.0 L612,453.0 L608,449.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="452" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">join_policy</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,463.0 L616,467.0 L612,471.0 L608,467.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">waitlist_enabled</tspan> <tspan fill="#5a6470">TINYINT(1)</tspan></text>
-<path d="M612,481.0 L616,485.0 L612,489.0 L608,485.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="622" y="488" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_by</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,499.0 L616,503.0 L612,507.0 L608,503.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="622" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">cover_image_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,517.0 L616,521.0 L612,525.0 L608,521.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">currency</tspan> <tspan fill="#5a6470">VARCHAR(3)</tspan></text>
-<path d="M612,535.0 L616,539.0 L612,543.0 L608,539.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">form_fields</tspan> <tspan fill="#5a6470">JSON</tspan></text>
-<path d="M612,553.0 L616,557.0 L612,561.0 L608,557.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="560" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
-<path d="M612,571.0 L616,575.0 L612,579.0 L608,575.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="578" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M612,589.0 L616,593.0 L612,597.0 L608,593.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="596" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="600" y="602" width="300" height="16" fill="#c3cedb"/>
-<text x="608" y="613" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M886,607 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="520" y="250" width="300" height="110" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M520,254 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="528" y="257" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="544" y="265" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_postmeta</text>
+<circle cx="531" cy="281" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M533.5,281 L539,281 M537,281 L537,283.5 M539,281 L539,283.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="542" y="284" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">meta_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M532,295 L536,299 L532,303 L528,299 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="542" y="302" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M532,313 L536,317 L532,321 L528,317 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="542" y="320" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">meta_key</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M532,331 L536,335 L532,339 L528,335 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="542" y="338" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">meta_value</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
+<rect x="520" y="344" width="300" height="16" fill="#c3cedb"/>
+<text x="528" y="355" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="1160" y="40" width="300" height="308" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M1160,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="1168" y="47" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="1184" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_ticket_types</text>
-<path d="M1446,49 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="1171" cy="71.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1173.5,71.0 L1179,71.0 M1177,71.0 L1177,73.5 M1179,71.0 L1179,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="1182" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1172,85.0 L1176,89.0 L1172,93.0 L1168,89.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="1182" y="92" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1172,103.0 L1176,107.0 L1172,111.0 L1168,107.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="110" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M1172,121.0 L1176,125.0 L1172,129.0 L1168,125.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="128" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M1172,139.0 L1176,143.0 L1172,147.0 L1168,143.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="146" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">price</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
-<path d="M1172,157.0 L1176,161.0 L1172,165.0 L1168,161.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">capacity</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M1172,175.0 L1176,179.0 L1172,183.0 L1168,179.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sold</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M1172,193.0 L1176,197.0 L1172,201.0 L1168,197.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">min_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M1172,211.0 L1176,215.0 L1172,219.0 L1168,215.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">max_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M1172,229.0 L1176,233.0 L1172,237.0 L1168,233.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_start_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
-<path d="M1172,247.0 L1176,251.0 L1172,255.0 L1168,251.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_end_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
-<path d="M1172,265.0 L1176,269.0 L1172,273.0 L1168,269.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M1172,283.0 L1176,287.0 L1172,291.0 L1168,287.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M1172,301.0 L1176,305.0 L1172,309.0 L1168,305.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M1172,319.0 L1176,323.0 L1172,327.0 L1168,323.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="326" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="1160" y="332" width="300" height="16" fill="#c3cedb"/>
-<text x="1168" y="343" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M1446,337 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="520" y="420" width="300" height="308" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M520,424 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="528" y="427" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="544" y="435" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_events</text>
+<circle cx="531" cy="451" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M533.5,451 L539,451 M537,451 L537,453.5 M539,451 L539,453.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="542" y="454" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M532,465 L536,469 L532,473 L528,469 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="542" y="472" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">post_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M532,483 L536,487 L532,491 L528,487 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="490" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M532,501 L536,505 L532,509 L528,505 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="508" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">start_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M532,519 L536,523 L532,527 L528,523 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="526" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">end_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M532,537 L536,541 L532,545 L528,541 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="544" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">timezone</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M532,555 L536,559 L532,563 L528,559 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="542" y="562" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">calendar_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M532,573 L536,577 L532,581 L528,577 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="542" y="580" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">parent_event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M532,591 L536,595 L532,599 L528,595 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="598" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">venue_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M532,609 L536,613 L532,617 L528,613 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="542" y="616" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">online_meeting_url</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M532,627 L536,631 L532,635 L528,631 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="634" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">join_policy</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M532,645 L536,649 L532,653 L528,649 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="652" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">waitlist_enabled</tspan> <tspan fill="#5a6470">TINYINT(1)</tspan></text>
+<path d="M532,663 L536,667 L532,671 L528,667 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="542" y="670" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">currency</tspan> <tspan fill="#5a6470">VARCHAR(3)</tspan></text>
+<path d="M532,681 L536,685 L532,689 L528,685 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="688" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M532,699 L536,703 L532,707 L528,703 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="706" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="520" y="712" width="300" height="16" fill="#c3cedb"/>
+<text x="528" y="723" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="600" y="652" width="300" height="290" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M600,656 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="608" y="659" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="624" y="667" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_registrations</text>
-<path d="M886,661 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="611" cy="683.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M613.5,683.0 L619,683.0 M617,683.0 L617,685.5 M619,683.0 L619,685.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="622" y="686" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,697.0 L616,701.0 L612,705.0 L608,701.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="622" y="704" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,715.0 L616,719.0 L612,723.0 L608,719.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="722" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M612,733.0 L616,737.0 L612,741.0 L608,737.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="740" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
-<path d="M612,751.0 L616,755.0 L612,759.0 L608,755.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="758" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_phone</tspan> <tspan fill="#5a6470">VARCHAR(16)</tspan></text>
-<path d="M612,769.0 L616,773.0 L612,777.0 L608,773.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="776" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">tickets</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M612,787.0 L616,791.0 L612,795.0 L608,791.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="794" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,805.0 L616,809.0 L612,813.0 L608,809.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="812" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">payment_status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,823.0 L616,827.0 L612,831.0 L608,827.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="830" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">payment_ref</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M612,841.0 L616,845.0 L612,849.0 L608,845.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="848" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">total_amount</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
-<path d="M612,859.0 L616,863.0 L612,867.0 L608,863.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="866" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">paid_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
-<path d="M612,877.0 L616,881.0 L612,885.0 L608,881.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="884" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">source</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,895.0 L616,899.0 L612,903.0 L608,899.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="902" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M612,913.0 L616,917.0 L612,921.0 L608,917.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="920" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="600" y="926" width="300" height="16" fill="#c3cedb"/>
-<text x="608" y="937" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M886,931 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="1000" y="40" width="300" height="308" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1000,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1008" y="47" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1024" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_ticket_types</text>
+<circle cx="1011" cy="71" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1013.5,71 L1019,71 M1017,71 L1017,73.5 M1019,71 L1019,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1022" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,85 L1016,89 L1012,93 L1008,89 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="92" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,103 L1016,107 L1012,111 L1008,107 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="110" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1012,121 L1016,125 L1012,129 L1008,125 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="128" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1012,139 L1016,143 L1012,147 L1008,143 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="146" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">price</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
+<path d="M1012,157 L1016,161 L1012,165 L1008,161 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">capacity</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,175 L1016,179 L1012,183 L1008,179 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sold</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,193 L1016,197 L1012,201 L1008,197 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">min_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,211 L1016,215 L1012,219 L1008,215 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">max_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,229 L1016,233 L1012,237 L1008,233 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_start_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M1012,247 L1016,251 L1012,255 L1008,251 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_end_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M1012,265 L1016,269 L1012,273 L1008,269 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1012,283 L1016,287 L1012,291 L1008,287 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,301 L1016,305 L1012,309 L1008,305 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M1012,319 L1016,323 L1012,327 L1008,323 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="326" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="1000" y="332" width="300" height="16" fill="#c3cedb"/>
+<text x="1008" y="343" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="600" y="976" width="300" height="272" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M600,980 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="608" y="983" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="624" y="991" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_guests</text>
-<path d="M886,985 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="611" cy="1007.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M613.5,1007.0 L619,1007.0 M617,1007.0 L617,1009.5 M619,1007.0 L619,1009.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="622" y="1010" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,1021.0 L616,1025.0 L612,1029.0 L608,1025.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="622" y="1028" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,1039.0 L616,1043.0 L612,1047.0 L608,1043.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="622" y="1046" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">registration_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,1057.0 L616,1061.0 L612,1065.0 L608,1061.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="622" y="1064" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">ticket_type_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M612,1075.0 L616,1079.0 L612,1083.0 L608,1079.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="1082" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M612,1093.0 L616,1097.0 L612,1101.0 L608,1097.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="1100" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
-<path d="M612,1111.0 L616,1115.0 L612,1119.0 L608,1115.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="1118" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">phone</tspan> <tspan fill="#5a6470">VARCHAR(16)</tspan></text>
-<path d="M612,1129.0 L616,1133.0 L612,1137.0 L608,1133.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="1136" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,1147.0 L616,1151.0 L612,1155.0 L608,1151.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="1154" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">form_response</tspan> <tspan fill="#5a6470">JSON</tspan></text>
-<path d="M612,1165.0 L616,1169.0 L612,1173.0 L608,1169.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="1172" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">ticket_code</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M612,1183.0 L616,1187.0 L612,1191.0 L608,1187.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="622" y="1190" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">checked_in_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
-<path d="M612,1201.0 L616,1205.0 L612,1209.0 L608,1205.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="1208" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M612,1219.0 L616,1223.0 L612,1227.0 L608,1223.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="622" y="1226" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="600" y="1232" width="300" height="16" fill="#c3cedb"/>
-<text x="608" y="1243" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M886,1237 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="1000" y="400" width="300" height="290" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1000,404 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1008" y="407" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1024" y="415" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_registrations</text>
+<circle cx="1011" cy="431" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1013.5,431 L1019,431 M1017,431 L1017,433.5 M1019,431 L1019,433.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1022" y="434" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,445 L1016,449 L1012,453 L1008,449 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="452" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,463 L1016,467 L1012,471 L1008,467 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1012,481 L1016,485 L1012,489 L1008,485 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="488" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
+<path d="M1012,499 L1016,503 L1012,507 L1008,503 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_phone</tspan> <tspan fill="#5a6470">VARCHAR(16)</tspan></text>
+<path d="M1012,517 L1016,521 L1012,525 L1008,521 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">tickets</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,535 L1016,539 L1012,543 L1008,539 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1012,553 L1016,557 L1012,561 L1008,557 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="560" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">payment_status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1012,571 L1016,575 L1012,579 L1008,575 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="578" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">payment_ref</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1012,589 L1016,593 L1012,597 L1008,593 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="596" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">total_amount</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
+<path d="M1012,607 L1016,611 L1012,615 L1008,611 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="614" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">paid_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M1012,625 L1016,629 L1012,633 L1008,629 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="632" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">source</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1012,643 L1016,647 L1012,651 L1008,647 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="650" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M1012,661 L1016,665 L1012,669 L1008,665 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="668" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="1000" y="674" width="300" height="16" fill="#c3cedb"/>
+<text x="1008" y="685" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="1160" y="382" width="300" height="218" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M1160,386 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="1168" y="389" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="1184" y="397" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_sponsors</text>
-<path d="M1446,391 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="1171" cy="413.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1173.5,413.0 L1179,413.0 M1177,413.0 L1177,415.5 M1179,413.0 L1179,415.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="1182" y="416" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1172,427.0 L1176,431.0 L1172,435.0 L1168,431.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="1182" y="434" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1172,445.0 L1176,449.0 L1172,453.0 L1168,449.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="452" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M1172,463.0 L1176,467.0 L1172,471.0 L1168,467.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="1182" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">logo_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1172,481.0 L1176,485.0 L1172,489.0 L1168,485.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="488" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">website</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M1172,499.0 L1176,503.0 L1172,507.0 L1168,503.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M1172,517.0 L1176,521.0 L1172,525.0 L1168,521.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">amount</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
-<path d="M1172,535.0 L1176,539.0 L1172,543.0 L1168,539.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M1172,553.0 L1176,557.0 L1172,561.0 L1168,557.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="560" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M1172,571.0 L1176,575.0 L1172,579.0 L1168,575.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="578" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="1160" y="584" width="300" height="16" fill="#c3cedb"/>
-<text x="1168" y="595" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M1446,589 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="1000" y="730" width="300" height="272" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1000,734 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1008" y="737" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1024" y="745" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_guests</text>
+<circle cx="1011" cy="761" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1013.5,761 L1019,761 M1017,761 L1017,763.5 M1019,761 L1019,763.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1022" y="764" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,775 L1016,779 L1012,783 L1008,779 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="782" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,793 L1016,797 L1012,801 L1008,797 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="800" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">registration_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,811 L1016,815 L1012,819 L1008,815 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="818" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">ticket_type_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,829 L1016,833 L1012,837 L1008,833 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="836" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1012,847 L1016,851 L1012,855 L1008,851 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="854" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
+<path d="M1012,865 L1016,869 L1012,873 L1008,869 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="872" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">phone</tspan> <tspan fill="#5a6470">VARCHAR(16)</tspan></text>
+<path d="M1012,883 L1016,887 L1012,891 L1008,887 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="890" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1012,901 L1016,905 L1012,909 L1008,905 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="908" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">form_response</tspan> <tspan fill="#5a6470">JSON</tspan></text>
+<path d="M1012,919 L1016,923 L1012,927 L1008,923 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="926" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">ticket_code</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1012,937 L1016,941 L1012,945 L1008,941 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="944" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">checked_in_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M1012,955 L1016,959 L1012,963 L1008,959 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="962" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M1012,973 L1016,977 L1012,981 L1008,977 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="980" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="1000" y="986" width="300" height="16" fill="#c3cedb"/>
+<text x="1008" y="997" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
 <g>
-<rect x="1160" y="634" width="300" height="236" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
-<path d="M1160,638 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
-<rect x="1168" y="641" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="1184" y="649" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_people</text>
-<path d="M1446,643 l6,0 l-3,4 z" fill="#4a6fa5"/>
-<circle cx="1171" cy="665.0" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1173.5,665.0 L1179,665.0 M1177,665.0 L1177,667.5 M1179,665.0 L1179,667.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
-<text x="1182" y="668" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1172,679.0 L1176,683.0 L1172,687.0 L1168,683.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="1182" y="686" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1172,697.0 L1176,701.0 L1172,705.0 L1168,701.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="704" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M1172,715.0 L1176,719.0 L1172,723.0 L1168,719.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="722" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M1172,733.0 L1176,737.0 L1172,741.0 L1168,737.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="740" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">designation</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M1172,751.0 L1176,755.0 L1172,759.0 L1168,755.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="758" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">is_primary</tspan> <tspan fill="#5a6470">TINYINT(1)</tspan></text>
-<path d="M1172,769.0 L1176,773.0 L1172,777.0 L1168,773.0 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="1182" y="776" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">photo_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1172,787.0 L1176,791.0 L1172,795.0 L1168,791.0 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1182" y="794" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">links</tspan> <tspan fill="#5a6470">JSON</tspan></text>
-<path d="M1172,805.0 L1176,809.0 L1172,813.0 L1168,809.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="812" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M1172,823.0 L1176,827.0 L1172,831.0 L1168,827.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="830" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M1172,841.0 L1176,845.0 L1172,849.0 L1168,845.0 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1182" y="848" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="1160" y="854" width="300" height="16" fill="#c3cedb"/>
-<text x="1168" y="865" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
-<path d="M1446,859 l6,0 l-3,5 z" fill="#5a6a7a"/></g>
+<rect x="1000" y="1040" width="300" height="218" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<path d="M1000,1044 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
+<rect x="1008" y="1047" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
+<text x="1024" y="1055" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_sponsors</text>
+<circle cx="1011" cy="1071" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1013.5,1071 L1019,1071 M1017,1071 L1017,1073.5 M1019,1071 L1019,1073.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1022" y="1074" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,1085 L1016,1089 L1012,1093 L1008,1089 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="1092" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,1103 L1016,1107 L1012,1111 L1008,1107 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="1110" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1012,1121 L1016,1125 L1012,1129 L1008,1125 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="1128" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">logo_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,1139 L1016,1143 L1012,1147 L1008,1143 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="1146" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">website</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1012,1157 L1016,1161 L1012,1165 L1008,1161 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="1164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M1012,1175 L1016,1179 L1012,1183 L1008,1179 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="1182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">amount</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
+<path d="M1012,1193 L1016,1197 L1012,1201 L1008,1197 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="1200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,1211 L1016,1215 L1012,1219 L1008,1215 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="1218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M1012,1229 L1016,1233 L1012,1237 L1008,1233 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="1236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="1000" y="1242" width="300" height="16" fill="#c3cedb"/>
+<text x="1008" y="1253" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g>
+<rect x="1480" y="40" width="300" height="92" rx="4" fill="#fff" stroke="#9a8fb0" stroke-width="1.2"/>
+<path d="M1480,44 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tt)" stroke="#9a8fb0" stroke-width="0.8"/>
+<rect x="1488" y="47" width="10" height="8" rx="1.5" fill="#7a5fa0"/>
+<text x="1504" y="55" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_terms</text>
+<circle cx="1491" cy="71" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1493.5,71 L1499,71 M1497,71 L1497,73.5 M1499,71 L1499,73.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1502" y="74" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">term_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1492,85 L1496,89 L1492,93 L1488,89 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1502" y="92" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(200)</tspan></text>
+<path d="M1492,103 L1496,107 L1492,111 L1488,107 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1502" y="110" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">VARCHAR(200)</tspan></text>
+<rect x="1480" y="116" width="300" height="16" fill="#ddd3ea"/>
+<text x="1488" y="127" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g>
+<rect x="1480" y="172" width="300" height="146" rx="4" fill="#fff" stroke="#9a8fb0" stroke-width="1.2"/>
+<path d="M1480,176 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tt)" stroke="#9a8fb0" stroke-width="0.8"/>
+<rect x="1488" y="179" width="10" height="8" rx="1.5" fill="#7a5fa0"/>
+<text x="1504" y="187" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_term_taxonomy</text>
+<circle cx="1491" cy="203" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1493.5,203 L1499,203 M1497,203 L1497,205.5 M1499,203 L1499,205.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1502" y="206" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">term_taxonomy_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1492,217 L1496,221 L1492,225 L1488,221 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1502" y="224" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">term_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1492,235 L1496,239 L1492,243 L1488,239 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1502" y="242" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">taxonomy</tspan> <tspan fill="#5a6470">VARCHAR(32)</tspan></text>
+<path d="M1492,253 L1496,257 L1492,261 L1488,257 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1502" y="260" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
+<path d="M1492,271 L1496,275 L1492,279 L1488,275 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1502" y="278" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">parent</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1492,289 L1496,293 L1492,297 L1488,293 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1502" y="296" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">count</tspan> <tspan fill="#5a6470">BIGINT</tspan></text>
+<rect x="1480" y="302" width="300" height="16" fill="#ddd3ea"/>
+<text x="1488" y="313" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g>
+<rect x="1480" y="352" width="300" height="92" rx="4" fill="#fff" stroke="#9a8fb0" stroke-width="1.2"/>
+<path d="M1480,356 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tt)" stroke="#9a8fb0" stroke-width="0.8"/>
+<rect x="1488" y="359" width="10" height="8" rx="1.5" fill="#7a5fa0"/>
+<text x="1504" y="367" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_term_relationships</text>
+<circle cx="1491" cy="383" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1493.5,383 L1499,383 M1497,383 L1497,385.5 M1499,383 L1499,385.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1502" y="386" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">object_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<circle cx="1491" cy="401" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1493.5,401 L1499,401 M1497,401 L1497,403.5 M1499,401 L1499,403.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1502" y="404" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">term_taxonomy_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1492,415 L1496,419 L1492,423 L1488,419 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1502" y="422" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">term_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<rect x="1480" y="428" width="300" height="16" fill="#ddd3ea"/>
+<text x="1488" y="439" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g>
+<rect x="1480" y="484" width="300" height="110" rx="4" fill="#fff" stroke="#9a8fb0" stroke-width="1.2"/>
+<path d="M1480,488 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tt)" stroke="#9a8fb0" stroke-width="0.8"/>
+<rect x="1488" y="491" width="10" height="8" rx="1.5" fill="#7a5fa0"/>
+<text x="1504" y="499" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_termmeta</text>
+<circle cx="1491" cy="515" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1493.5,515 L1499,515 M1497,515 L1497,517.5 M1499,515 L1499,517.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
+<text x="1502" y="518" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">meta_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1492,529 L1496,533 L1492,537 L1488,533 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1502" y="536" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">term_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1492,547 L1496,551 L1492,555 L1488,551 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1502" y="554" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">meta_key</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1492,565 L1496,569 L1492,573 L1488,569 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1502" y="572" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">meta_value</tspan> <tspan fill="#5a6470">LONGTEXT</tspan></text>
+<rect x="1480" y="578" width="300" height="16" fill="#ddd3ea"/>
+<text x="1488" y="589" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+</g>
+<g><rect x="40" y="1010" width="430" height="188" rx="5" fill="#fff" stroke="#8a99ab" stroke-width="1"/>
+<text x="52" y="1030" font-size="11" font-weight="700" fill="#1c2b3a">Connector colour = points to&#8230;</text>
+<path d="M54,1047 h26" stroke="#2f9e5b" stroke-width="2.2"/>
+<text x="90" y="1050" font-size="10" fill="#33404d">wp_posts</text>
+<path d="M54,1067 h26" stroke="#d98a1a" stroke-width="2.2"/>
+<text x="90" y="1070" font-size="10" fill="#33404d">wp_users</text>
+<path d="M54,1087 h26" stroke="#1298a4" stroke-width="2.2"/>
+<text x="90" y="1090" font-size="10" fill="#33404d">wp_fevents_calendars</text>
+<path d="M54,1107 h26" stroke="#2f6fd0" stroke-width="2.2"/>
+<text x="90" y="1110" font-size="10" fill="#33404d">wp_fevents_events</text>
+<path d="M54,1127 h26" stroke="#c0468a" stroke-width="2.2"/>
+<text x="90" y="1130" font-size="10" fill="#33404d">wp_fevents_registrations</text>
+<path d="M54,1147 h26" stroke="#8a7514" stroke-width="2.2"/>
+<text x="90" y="1150" font-size="10" fill="#33404d">wp_fevents_ticket_types</text>
+<path d="M54,1167 h26" stroke="#8a5a2b" stroke-width="2.2"/>
+<text x="90" y="1170" font-size="10" fill="#33404d">wp_terms</text>
+<path d="M54,1187 h26" stroke="#6a5acd" stroke-width="2.2"/>
+<text x="90" y="1190" font-size="10" fill="#33404d">wp_term_taxonomy</text>
+</g>
+<g><rect x="1480" y="660" width="300" height="150" rx="4" fill="#fff" stroke="#9a8fb0" stroke-width="1"/>
+<text x="1492" y="680" font-size="10.5" font-weight="700" fill="#4a3a5a">Taxonomies (purple = WP-native)</text>
+<text x="1492" y="700" font-size="9" fill="#4a5561">registered on post_type=fevents_event:</text>
+<text x="1492" y="715" font-size="9" fill="#4a5561">· fevents_event_type  (color, icon)</text>
+<text x="1492" y="730" font-size="9" fill="#4a5561">· fevents_venue       (address, map)</text>
+<text x="1492" y="745" font-size="9" fill="#4a5561">· fevents_organizer   (email, phone, logo)</text>
+<text x="1492" y="760" font-size="9" fill="#4a5561">extra fields -&gt; wp_termmeta</text>
+<text x="1492" y="775" font-size="9" fill="#4a5561">event &lt;-&gt; term -&gt; wp_term_relationships</text>
+<text x="1492" y="790" font-size="9" fill="#4a5561">performer/speaker = later CPT</text>
+</g>
 </svg>

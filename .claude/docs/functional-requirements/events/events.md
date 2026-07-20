@@ -20,17 +20,30 @@
 
 Chain: **event → ticket_types → registrations → guests**. Full DDL in [schema.sql](../../db/schema.sql); key columns below.
 
-**`wp_fevents_events`** — the event. Beyond content/time/calendar/cover:
+**Event = CPT hybrid.** Identity (title, description, slug, status, author, cover) lives
+in **`wp_posts`** (`post_type=fevents_event`); config (`_fevents_form_fields`,
+`_fevents_settings`, addon fields) in **`wp_postmeta`**; typed relational data in
+**`wp_fevents_events`** (1:1 via `post_id`). Category / venue / organizer are **WP
+taxonomies** on the post (`fevents_event_type` / `fevents_venue` / `fevents_organizer`) —
+the physical place (address/map) is `fevents_venue` term meta, not an event column. See
+[db/implementation.md](../../db/implementation.md).
+
+**`wp_fevents_events`** — the typed extension row (what ticketing FKs to):
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
+| `post_id` | BIGINT FK UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor |
+| `status` | VARCHAR | lifecycle: `active` \| `cancelled` \| `completed` (editorial draft/publish = `post_status`) |
+| `start_at` / `end_at` / `timezone` | DATETIME / VARCHAR | indexed date window |
 | `venue_type` | VARCHAR | `online` \| `offline` \| `hybrid` |
-| `address` / `lat` / `lon` | — | offline/hybrid venue (Google Places) |
 | `online_meeting_url` | VARCHAR | online/hybrid link |
 | `join_policy` | VARCHAR | `open` \| `approval` \| `invite_only` |
+| `calendar_id` | BIGINT FK | → calendar (grouping stays a custom table) |
 | `currency` | VARCHAR NULL | ISO 4217 for the event (one currency per event) |
 | `waitlist_enabled` | TINYINT | auto-waitlist when a tier is full |
-| `form_fields` | JSON NULL | **dynamic form definition** (the fields to ask) |
+
+*(the **dynamic form definition** now lives in `wp_postmeta._fevents_form_fields`, not a
+table column.)*
 
 **`wp_fevents_ticket_types`** — price tiers.
 
@@ -95,26 +108,21 @@ Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(registration_id)`, `(emai
 | `cancelled`  | Was in, then pulled out (or was removed).                      |
 | `checked_in` | Showed up and checked in at the event.                         |
 
-### Event roster (people + sponsors)
+### Classification + roster
 
-Two small event-scoped tables for who's shown on an event. Rule: **person → `people`**, **organization → `sponsors`**.
+**Organizer, venue, event type = WP taxonomies** on the `fevents_event` post
+(`fevents_organizer` / `fevents_venue` / `fevents_event_type`) — reusable across events,
+filterable, each with a free public archive + auto event count. Extra fields live in
+`wp_termmeta` (organizer: email/phone/website/logo; venue: address/city/map; type:
+color/icon). Assign with `wp_set_object_terms($post_id, $termIds, $tax)`; query with
+`tax_query`. Full flows in [db/implementation.md](../../db/implementation.md).
 
-**`wp_fevents_people`** — persons (speakers, organizers, staff, host).
+**Performer / speaker = deferred** — a speaker is a content entity (bio, photo, profile
+page), so it arrives later as its own CPT (`fevents_performer`), not a taxonomy and not a
+column. There is **no `people` table**.
 
-| Column | Type | Notes |
-| ------ | ---- | ----- |
-| `id` | BIGINT PK | |
-| `event_id` | BIGINT FK | → event |
-| `type` | VARCHAR | `speaker` \| `organizer` \| `manager` \| `staff` \| `host` |
-| `is_primary` | TINYINT | main/lead of this type (primary vs other speakers) |
-| `name` / `designation` | VARCHAR | display name + tagline |
-| `photo_id` | BIGINT NULL FK | → wp_posts (WP attachment) |
-| `links` | JSON NULL | website / social |
-| `sort_order` | INT | |
-
-Index: `(event_id, type)`.
-
-**`wp_fevents_sponsors`** — organizations (not persons).
+**`wp_fevents_sponsors`** — per-event organizations (kept as a custom table: per-event
+`amount`/`type`, display-scoped; not reused across events).
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
@@ -129,7 +137,7 @@ Index: `(event_id, type)`.
 
 Index: `(event_id, type)`.
 
-> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fevents_roles` in `wp_fevents_meta`, FR-4). `people` is **display/credit only** — no `user_id`, no permissions. A WP-user organizer who also manages appears here as a display row **and** holds a capability there.
+> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fevents_roles` in `wp_fevents_meta`, FR-4). The organizer **taxonomy** is **display/credit only** — a term, no `user_id`, no permissions. A WP-user organizer who also manages appears as an organizer term **and** holds a capability there.
 
 ## Functional requirements
 
@@ -232,11 +240,12 @@ Index: `(event_id, type)`.
 - **Timezone:** occurrence datetimes computed in the event's `timezone` (DST-aware), then stored as concrete `starts_at` per occurrence.
 - **Edit semantics:** "this occurrence" marks that row overridden (regeneration won't overwrite it); "this + following" ends the master's rule before this date and spawns a new master from here; "whole series" updates the master + future non-overridden occurrences.
 
-### FR-6.17 — Event roster (speakers, organizers, sponsors)
+### FR-6.17 — Classification, organizers & sponsors
 
-- Attach **people** with a `type` (speaker/organizer/staff/host); mark the lead with `is_primary` (primary vs other speakers); order via `sort_order`. Each has name/title/bio/photo/links — pure display, no account link.
-- Attach **sponsors** (organizations) with a `type` (the tier — gold/silver/bronze…), logo, website; displayed grouped by type (order set in `event.settings.sponsor_tiers`).
-- Both are display content on the event page — any event type uses as many or few as it needs (a wedding: none; a conference: many speakers + sponsors).
+- Assign **organizers**, **venue**, and **event type** by picking/creating **taxonomy terms** (`fevents_organizer` / `fevents_venue` / `fevents_event_type`) — reusable across events, each surfaced on a filterable public archive with an auto event count; organizer/venue details (email/phone/address/map/logo) come from term meta.
+- Attach **sponsors** (organizations) with a `type` (the tier — gold/silver/bronze…), logo, website via the per-event `sponsors` table; displayed grouped by type (order set in `event.settings.sponsor_tiers`).
+- **Speakers/performers** are deferred to a future CPT (`fevents_performer`) — a profile entity, not part of this milestone.
+- Any event type uses as many or few as it needs (a wedding: none; a conference: many organizers + sponsors).
 
 ## Acceptance criteria
 
