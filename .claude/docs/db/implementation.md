@@ -130,8 +130,8 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
   `_thumbnail_id`; `form_fields` / `settings` → `wp_postmeta`; `address` / `lat` / `lon`
   → `fevents_venue` term meta. **Added** `post_id` (1:1 FK, unique, taxonomy anchor).
 - **Added** the 3 taxonomies + `wp_termmeta` usage (WP-native, not our tables).
-- **Kept** `sponsors` as a per-event table (per-event `amount`/`type`, display-scoped —
-  revisit only if sponsors must be reused across events).
+- **Dropped** `wp_fevents_sponsors` — not needed now. If sponsors return, they'll be a
+  taxonomy (`fevents_sponsor`) like organizer, not a table.
 
 ## 7. Guardrails that apply
 

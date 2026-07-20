@@ -164,22 +164,6 @@ Table wp_fevents_guests {
   }
 }
 
-Table wp_fevents_sponsors {
-  id bigint [primary key, increment]
-  event_id bigint [not null, ref: > wp_fevents_events.id]
-  name varchar [not null]
-  logo_id bigint [ref: > wp_posts.ID]
-  website varchar
-  type varchar
-  amount decimal
-  sort_order int [not null]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-  indexes {
-    (event_id, type) [name: 'idx_sponsor_event_type']
-  }
-}
-
 Table wp_terms {
   term_id bigint [primary key, increment]
   name varchar [not null]

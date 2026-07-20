@@ -13,7 +13,7 @@ former `coding-rules` skill was removed; its enforced rulesets live here now.)
 ## Conventions
 
 - Version constant: `FLUENT_EVENTS_PLUGIN_VERSION` — confirm against the plugin bootstrap file once it exists.
-- Tables: `wp_fevents_*` (events, ticket_types, registrations, guests, sponsors, calendars, notifications, meta). Ticketing: event → ticket_types → registrations (buyer+payment) → guests (1 per ticket). Attendee identity = WP users (hosts/managers) + anonymous guests (name/email/phone); no custom profile/auth/activity tables. Media = WP library (`wp_posts` attachment IDs).
+- Tables: `wp_fevents_*` (events, ticket_types, registrations, guests, calendars, notifications, meta). Ticketing: event → ticket_types → registrations (buyer+payment) → guests (1 per ticket). Attendee identity = WP users (hosts/managers) + anonymous guests (name/email/phone); no custom profile/auth/activity tables. Media = WP library (`wp_posts` attachment IDs).
 - **Event = CPT hybrid**: `wp_posts` (`post_type=fevents_event`: title/slug/body/status/author/cover) + `wp_postmeta` (form_fields, settings, addon fields) + `wp_fevents_events` (1:1 `post_id` FK: typed dates/venue_type/join_policy/calendar_id — what ticketing FKs to). See [docs/db/implementation.md](../docs/db/implementation.md).
 - **Classification = WP taxonomies** on `fevents_event`: `fevents_event_type`, `fevents_venue`, `fevents_organizer` (reusable, filterable, term meta for extra fields). Performer/speaker = deferred (future CPT `fevents_performer`); no `people` table.
 - REST namespace: `fluent-events/v1` (assumed; confirm against `config/app.php`). Hook prefix: `fluent_events/`. Text domain: `fluent-events`. Namespace: `FluentEvents\`.

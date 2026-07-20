@@ -180,23 +180,6 @@ CREATE TABLE `wp_fevents_guests` (
   CONSTRAINT `fk_guests_ticket_type_id` FOREIGN KEY (`ticket_type_id`) REFERENCES `wp_fevents_ticket_types` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `wp_fevents_sponsors` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `event_id` BIGINT UNSIGNED NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `logo_id` BIGINT UNSIGNED NULL,
-  `website` VARCHAR(255) NULL,
-  `type` VARCHAR(64) NULL,
-  `amount` DECIMAL(10,2) NULL,
-  `sort_order` INT NOT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_sponsor_event_type` (`event_id`, `type`),
-  CONSTRAINT `fk_sponsors_event_id` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_sponsors_logo_id` FOREIGN KEY (`logo_id`) REFERENCES `wp_posts` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE `wp_terms` (
   `term_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(200) NOT NULL,

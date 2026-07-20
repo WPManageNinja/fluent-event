@@ -121,21 +121,8 @@ color/icon). Assign with `wp_set_object_terms($post_id, $termIds, $tax)`; query 
 page), so it arrives later as its own CPT (`fevents_performer`), not a taxonomy and not a
 column. There is **no `people` table**.
 
-**`wp_fevents_sponsors`** — per-event organizations (kept as a custom table: per-event
-`amount`/`type`, display-scoped; not reused across events).
-
-| Column | Type | Notes |
-| ------ | ---- | ----- |
-| `id` | BIGINT PK | |
-| `event_id` | BIGINT FK | → event |
-| `name` | VARCHAR | company / org |
-| `logo_id` | BIGINT NULL FK | → wp_posts (logo) |
-| `website` | VARCHAR NULL | |
-| `type` | VARCHAR NULL | `gold` \| `silver` \| `bronze` \| `partner` \| `community` (order set in `event.settings`) |
-| `amount` | DECIMAL(10,2) NULL | contribution (optional, private) |
-| `sort_order` | INT | |
-
-Index: `(event_id, type)`.
+**Sponsors = deferred** — no sponsor table in this milestone. If sponsors return they'll
+be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 > **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fevents_roles` in `wp_fevents_meta`, FR-4). The organizer **taxonomy** is **display/credit only** — a term, no `user_id`, no permissions. A WP-user organizer who also manages appears as an organizer term **and** holds a capability there.
 
@@ -240,12 +227,11 @@ Index: `(event_id, type)`.
 - **Timezone:** occurrence datetimes computed in the event's `timezone` (DST-aware), then stored as concrete `starts_at` per occurrence.
 - **Edit semantics:** "this occurrence" marks that row overridden (regeneration won't overwrite it); "this + following" ends the master's rule before this date and spawns a new master from here; "whole series" updates the master + future non-overridden occurrences.
 
-### FR-6.17 — Classification, organizers & sponsors
+### FR-6.17 — Classification & organizers
 
 - Assign **organizers**, **venue**, and **event type** by picking/creating **taxonomy terms** (`fevents_organizer` / `fevents_venue` / `fevents_event_type`) — reusable across events, each surfaced on a filterable public archive with an auto event count; organizer/venue details (email/phone/address/map/logo) come from term meta.
-- Attach **sponsors** (organizations) with a `type` (the tier — gold/silver/bronze…), logo, website via the per-event `sponsors` table; displayed grouped by type (order set in `event.settings.sponsor_tiers`).
-- **Speakers/performers** are deferred to a future CPT (`fevents_performer`) — a profile entity, not part of this milestone.
-- Any event type uses as many or few as it needs (a wedding: none; a conference: many organizers + sponsors).
+- **Speakers/performers** and **sponsors** are deferred — a future CPT (`fevents_performer`) and a future taxonomy (`fevents_sponsor`) respectively; not part of this milestone.
+- Any event type uses as many or few organizers as it needs (a wedding: none; a conference: many).
 
 ## Acceptance criteria
 
