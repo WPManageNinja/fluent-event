@@ -120,9 +120,9 @@ CREATE TABLE `wp_fevents_ticket_types` (
 CREATE TABLE `wp_fevents_registrations` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `event_id` BIGINT UNSIGNED NOT NULL,
+  `calendar_id` BIGINT UNSIGNED NOT NULL,
   `buyer_name` VARCHAR(255) NOT NULL,
   `buyer_email` VARCHAR(192) NOT NULL,
-  `buyer_phone` VARCHAR(16) NULL,
   `tickets` INT NOT NULL,
   `status` VARCHAR(64) NOT NULL,
   `payment_status` VARCHAR(64) NOT NULL,
@@ -134,18 +134,20 @@ CREATE TABLE `wp_fevents_registrations` (
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_reg_event_status` (`event_id`, `status`),
+  KEY `idx_reg_calendar` (`calendar_id`, `status`),
   KEY `idx_reg_email` (`buyer_email`),
-  CONSTRAINT `fk_registrations_event_id` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
+  CONSTRAINT `fk_registrations_event_id` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_registrations_calendar_id` FOREIGN KEY (`calendar_id`) REFERENCES `wp_fevents_calendars` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_fevents_guests` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `event_id` BIGINT UNSIGNED NOT NULL,
+  `calendar_id` BIGINT UNSIGNED NOT NULL,
   `registration_id` BIGINT UNSIGNED NOT NULL,
   `ticket_type_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NULL,
   `email` VARCHAR(192) NULL,
-  `phone` VARCHAR(16) NULL,
   `status` VARCHAR(64) NOT NULL,
   `form_response` JSON NULL,
   `ticket_code` VARCHAR(64) NULL,
@@ -155,7 +157,9 @@ CREATE TABLE `wp_fevents_guests` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_guests_ticket_code` (`ticket_code`),
   KEY `idx_guest_event_status` (`event_id`, `status`),
+  KEY `idx_guest_calendar` (`calendar_id`, `status`),
   CONSTRAINT `fk_guests_event_id` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_guests_calendar_id` FOREIGN KEY (`calendar_id`) REFERENCES `wp_fevents_calendars` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_guests_registration_id` FOREIGN KEY (`registration_id`) REFERENCES `wp_fevents_registrations` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_guests_ticket_type_id` FOREIGN KEY (`ticket_type_id`) REFERENCES `wp_fevents_ticket_types` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -144,3 +144,10 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
 - The event↔post is 1:1 — deleting the `fevents_event` post cascades the
   `wp_fevents_events` row (`ON DELETE CASCADE`), which cascades ticket_types /
   registrations / guests. A guest's `ticket_type_id` is `RESTRICT` (can't orphan a sold ticket).
+- `registrations.calendar_id` / `guests.calendar_id` are **denormalized** copies of the
+  event's calendar, written at registration time so "who registered under calendar X"
+  is a direct index scan (`(calendar_id, status)`) with no event join. Resolve the
+  **effective** calendar on write — for a recurrence occurrence (`post_id` NULL) the
+  `calendar_id` is inherited, so `COALESCE(occurrence.calendar_id, master.calendar_id)`.
+  Both are `RESTRICT` → a calendar with registrations/guests can't be deleted (the event
+  FK already blocks it; this is belt-and-suspenders).

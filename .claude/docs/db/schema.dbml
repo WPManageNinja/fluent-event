@@ -115,9 +115,9 @@ Table wp_fevents_ticket_types {
 Table wp_fevents_registrations {
   id bigint [primary key, increment]
   event_id bigint [not null, ref: > wp_fevents_events.id]
+  calendar_id bigint [not null, ref: > wp_fevents_calendars.id]
   buyer_name varchar [not null]
   buyer_email varchar [not null]
-  buyer_phone varchar
   tickets int [not null]
   status varchar [not null]
   payment_status varchar [not null]
@@ -129,6 +129,7 @@ Table wp_fevents_registrations {
   updated_at timestamp [not null]
   indexes {
     (event_id, status) [name: 'idx_reg_event_status']
+    (calendar_id, status) [name: 'idx_reg_calendar']
     buyer_email [name: 'idx_reg_email']
   }
 }
@@ -136,11 +137,11 @@ Table wp_fevents_registrations {
 Table wp_fevents_guests {
   id bigint [primary key, increment]
   event_id bigint [not null, ref: > wp_fevents_events.id]
+  calendar_id bigint [not null, ref: > wp_fevents_calendars.id]
   registration_id bigint [not null, ref: > wp_fevents_registrations.id]
   ticket_type_id bigint [not null, ref: > wp_fevents_ticket_types.id]
   name varchar
   email varchar
-  phone varchar
   status varchar [not null]
   form_response json
   ticket_code varchar [unique]
@@ -150,6 +151,7 @@ Table wp_fevents_guests {
   indexes {
     ticket_code [name: 'uq_guests_ticket_code', unique]
     (event_id, status) [name: 'idx_guest_event_status']
+    (calendar_id, status) [name: 'idx_guest_calendar']
   }
 }
 

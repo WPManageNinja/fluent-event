@@ -8,9 +8,11 @@
 <path d="M820,137 H864 V101 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
 <path d="M1000,119 H902.0 V95 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
 <path d="M1000,485 H924.0 V107 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
+<path d="M1000,503 H662.0 V95 H340" fill="none" stroke="#1298a4" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c1298a4)" marker-end="url(#one_c1298a4)"/>
 <path d="M1000,815 H946.0 V89 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
-<path d="M1300,833 H1344 V467 H1300" fill="none" stroke="#c0468a" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_cc0468a)" marker-end="url(#one_cc0468a)"/>
-<path d="M1300,851 H1366 V101 H1300" fill="none" stroke="#8a7514" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c8a7514)" marker-end="url(#one_c8a7514)"/>
+<path d="M1000,833 H684.0 V107 H340" fill="none" stroke="#1298a4" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c1298a4)" marker-end="url(#one_c1298a4)"/>
+<path d="M1300,851 H1344 V467 H1300" fill="none" stroke="#c0468a" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_cc0468a)" marker-end="url(#one_cc0468a)"/>
+<path d="M1300,869 H1366 V101 H1300" fill="none" stroke="#8a7514" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c8a7514)" marker-end="url(#one_c8a7514)"/>
 <g>
 <rect x="40" y="70" width="300" height="254" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M40,74 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
@@ -202,12 +204,12 @@
 <text x="1022" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M1012,481 L1016,485 L1012,489 L1008,485 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
 <text x="1022" y="488" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1012,499 L1016,503 L1012,507 L1008,503 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1022" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1012,499 L1016,503 L1012,507 L1008,503 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">calendar_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M1012,517 L1016,521 L1012,525 L1008,521 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1022" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
-<path d="M1012,535 L1016,539 L1012,543 L1008,539 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_phone</tspan> <tspan fill="#5a6470">VARCHAR(16)</tspan></text>
+<text x="1022" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M1012,535 L1016,539 L1012,543 L1008,539 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">buyer_email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
 <path d="M1012,553 L1016,557 L1012,561 L1008,557 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="1022" y="560" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">tickets</tspan> <tspan fill="#5a6470">INT</tspan></text>
 <path d="M1012,571 L1016,575 L1012,579 L1008,575 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
@@ -239,15 +241,15 @@
 <path d="M1012,811 L1016,815 L1012,819 L1008,815 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
 <text x="1022" y="818" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">event_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M1012,829 L1016,833 L1012,837 L1008,833 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="1022" y="836" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">registration_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<text x="1022" y="836" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">calendar_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M1012,847 L1016,851 L1012,855 L1008,851 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="1022" y="854" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">ticket_type_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M1012,865 L1016,869 L1012,873 L1008,869 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="872" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<text x="1022" y="854" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">registration_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<path d="M1012,865 L1016,869 L1012,873 L1008,869 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="1022" y="872" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">ticket_type_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M1012,883 L1016,887 L1012,891 L1008,887 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="890" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
+<text x="1022" y="890" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">name</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
 <path d="M1012,901 L1016,905 L1012,909 L1008,905 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="908" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">phone</tspan> <tspan fill="#5a6470">VARCHAR(16)</tspan></text>
+<text x="1022" y="908" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">email</tspan> <tspan fill="#5a6470">VARCHAR(192)</tspan></text>
 <path d="M1012,919 L1016,923 L1012,927 L1008,923 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="1022" y="926" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
 <path d="M1012,937 L1016,941 L1012,945 L1008,941 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>

@@ -1,6 +1,6 @@
 # FR-6: Events (core)
 
-**Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events of **any kind** (meetup, wedding, conference, wordcamp…). Visitors register **anonymously** (no account) — pick a **ticket tier**, choose how many **tickets**, and enter details (name/email/phone + a dynamic form) **per ticket**. Events are online / offline / hybrid, free or paid, open or approval-gated, with per-tier capacity. Covers content, location/online, ticket types, multi-ticket registration, dynamic per-attendee forms, invites, guests, check-in, visibility, insights, embedding, cloning, deleting, and recurring events.
+**Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events of **any kind** (meetup, wedding, conference, wordcamp…). Visitors register **anonymously** (no account) — pick a **ticket tier**, choose how many **tickets**, and enter details (name/email + a dynamic form) **per ticket**. Events are online / offline / hybrid, free or paid, open or approval-gated, with per-tier capacity. Covers content, location/online, ticket types, multi-ticket registration, dynamic per-attendee forms, invites, guests, check-in, visibility, insights, embedding, cloning, deleting, and recurring events.
 
 **Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md)). Registration needs **no account** — a registration + its guest rows are keyed by email, no `user_id` link.
 
@@ -8,8 +8,8 @@
 
 - **Four tables**: `wp_fevents_events` (the event) → `wp_fevents_ticket_types` (price tiers) → `wp_fevents_registrations` (one purchase: buyer + payment) → `wp_fevents_guests` (one row per ticket/attendee). Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
 - **Only host/managers manage events** (WP-admin capability `fevents_manage_events`). Visitors register.
-- **Registration is anonymous, no account.** A visitor picks a tier + quantity, enters the buyer contact (name/email/phone) and one set of details **per ticket**, and submits → one `registrations` row + N `guests` rows. No login/signup/password. Invite links + imports pre-create these rows the same way. Keyed by `email`, no `user_id`.
-- **One buyer, many tickets.** Buy 3 → **1 registration** (one payment) + **3 guests** (three attendees' info). Each ticket has its own name/email/phone + form answers.
+- **Registration is anonymous, no account.** A visitor picks a tier + quantity, enters the buyer contact (name/email) and one set of details **per ticket**, and submits → one `registrations` row + N `guests` rows. No login/signup/password. Invite links + imports pre-create these rows the same way. Keyed by `email`, no `user_id`.
+- **One buyer, many tickets.** Buy 3 → **1 registration** (one payment) + **3 guests** (three attendees' info). Each ticket has its own name/email + form answers.
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `events.form_fields` (JSON); each attendee's answers save to `guests.form_response` (JSON).
 - **Mode** via `events.venue_type` (online / offline / hybrid); **policy** via `events.settings.join_policy` (open / approval / invite_only).
@@ -76,7 +76,8 @@ Index: `(event_id, status)`. Only queried columns are real (event_id, status, ca
 | ------ | ---- | ----- |
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event |
-| `buyer_name` / `buyer_email` / `buyer_phone` | VARCHAR | the registrant |
+| `calendar_id` | BIGINT FK | → calendar (denormalized from the event's effective calendar; direct calendar-scoped queries) |
+| `buyer_name` / `buyer_email` | VARCHAR | the registrant (name + email; no phone) |
 | `tickets` | INT | number of tickets in this registration |
 | `status` | VARCHAR | `pending` \| `confirmed` \| `cancelled` \| `refunded` |
 | `payment_status` | VARCHAR | `free` \| `pending` \| `paid` \| `refunded` \| `failed` |
@@ -85,7 +86,7 @@ Index: `(event_id, status)`. Only queried columns are real (event_id, status, ca
 | `paid_at` | DATETIME NULL | |
 | `source` | VARCHAR | `invite` \| `link` \| `import` \| `request` |
 
-Index: `(event_id, status)`, `(buyer_email)`.
+Index: `(event_id, status)`, `(calendar_id, status)`, `(buyer_email)`.
 
 **`wp_fevents_guests`** — one row per **ticket** (each attendee).
 
@@ -93,15 +94,16 @@ Index: `(event_id, status)`, `(buyer_email)`.
 | ------ | ---- | ----- |
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event (denormalized for queries) |
+| `calendar_id` | BIGINT FK | → calendar (denormalized from the event's effective calendar; direct calendar-scoped queries) |
 | `registration_id` | BIGINT FK | → registration |
 | `ticket_type_id` | BIGINT FK | → ticket tier |
-| `name` / `email` / `phone` | VARCHAR NULL | this attendee |
+| `name` / `email` | VARCHAR NULL | this attendee (name + email; no phone) |
 | `status` | VARCHAR | see status values below |
 | `form_response` | JSON NULL | this attendee's answers |
 | `ticket_code` | VARCHAR UNIQUE | QR / check-in code |
 | `checked_in_at` | DATETIME NULL | offline check-in |
 
-Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(registration_id)`, `(email)`.
+Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(calendar_id, status)`, `(registration_id)`, `(email)`.
 
 **`status` values:**
 
@@ -170,7 +172,7 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 - The host defines custom fields (the form) on the event → stored in `events.form_fields` (JSON: field key, label, type, required, options). (unfiltered #18)
 - On registration the form is asked **per ticket** — each attendee's answers save to that guest's `form_response` (JSON). Buy 3 → 3 sets of answers.
-- Buyer contact (name/email/phone) is captured on the `registration`; per-attendee identity + answers on each `guest`.
+- Buyer contact (name/email) is captured on the `registration`; per-attendee identity + answers on each `guest`.
 
 ### FR-6.7 — Invite guests, invite link, import
 
