@@ -2,23 +2,25 @@
 
 **Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events of **any kind** (meetup, wedding, conference, wordcamp…). Visitors register **anonymously** (no account) — pick a **ticket tier**, choose how many **tickets**, and enter details (name/email + a dynamic form) **per ticket**. Events are online / offline / hybrid, free or paid, open or approval-gated, with per-tier capacity. Covers content, location/online, ticket types, multi-ticket registration, dynamic per-attendee forms, invites, guests, check-in, visibility, insights, embedding, cloning, deleting, and recurring events.
 
-**Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md)). Registration needs **no account** — a registration + its guest rows are keyed by email, no `user_id` link.
+**Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md)). Registration needs **no account** — guest rows (grouped by `registration_no`) are keyed by email; a nullable `user_id` **optionally** links a row to a WP account when the attendee happens to be logged in.
 
 ## Approach
 
-- **Four tables**: `wp_fevents_events` (the event) → `wp_fevents_ticket_types` (price tiers) → `wp_fevents_registrations` (one purchase: buyer + payment) → `wp_fevents_guests` (one row per ticket/attendee). Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
+- **Three tables**: `wp_fevents_events` (the event) → `wp_fevents_ticket_types` (price tiers) → `wp_fevents_guests` (one row per ticket/attendee; the buyer's row also carries the order + payment). Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
 - **Only host/managers manage events** (WP-admin capability `fevents_manage_events`). Visitors register.
-- **Registration is anonymous, no account.** A visitor picks a tier + quantity, enters the buyer contact (name/email) and one set of details **per ticket**, and submits → one `registrations` row + N `guests` rows. No login/signup/password. Invite links + imports pre-create these rows the same way. Keyed by `email`, no `user_id`.
-- **One buyer, many tickets.** Buy 3 → **1 registration** (one payment) + **3 guests** (three attendees' info). Each ticket has its own name/email + form answers.
+- **Registration is anonymous, no account.** A visitor picks a tier + quantity, enters details **per ticket**, and submits → **N `guests` rows** sharing one `registration_no` (the purchase group), **one flagged `is_buyer=1`**. No login/signup/password. Invite links + imports pre-create the same rows. Keyed by `email`; `user_id` is set only when the registrant is a logged-in WP user (else NULL).
+- **Merged order + attendee (no separate registrations table).** Most orders are 1 ticket, so a split order-row would double the writes for the common case. Instead a purchase is a **group of guest rows** sharing `registration_no`; the **`is_buyer=1` row** carries the order/payment fields (`payment_status`, `payment_ref`, `price`, `paid_at`, `source`) — **NULL on companion rows**. Buyer contact = that row's own `name`/`email`.
+  - **Why this stays clean:** `SUM(price)` ignores the NULL companions → correct revenue with no `WHERE` guard; a payment webhook/refund updates **one** row (`WHERE registration_no=? AND is_buyer=1`); ticket count = `COUNT(*)` of the group; a full order = `SELECT * WHERE registration_no=?`.
+- **One buyer, many tickets.** Buy 3 → **3 guest rows**, one `is_buyer=1` (holds the single payment), each with its own name/email + form answers.
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `events.form_fields` (JSON); each attendee's answers save to `guests.form_response` (JSON).
 - **Mode** via `events.venue_type` (online / offline / hybrid); **policy** via `events.settings.join_policy` (open / approval / invite_only).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
-- **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per registration** (one payment covers all its tickets), not per guest.
+- **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per order** (one payment covers all tickets in a `registration_no` group), recorded on the `is_buyer=1` row — not per guest.
 
 ## Data model
 
-Chain: **event → ticket_types → registrations → guests**. Full DDL in [schema.sql](../../db/schema.sql); key columns below.
+Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `registration_no`). Full DDL in [schema.sql](../../db/schema.sql); key columns below.
 
 **Event = CPT hybrid.** Identity (title, description, slug, status, author, cover) lives
 in **`wp_posts`** (`post_type=fevents_event`); addon config in **`wp_postmeta`**; typed
@@ -70,40 +72,32 @@ is per-event in `settings`, never term meta.)*
 
 Index: `(event_id, status)`. Only queried columns are real (event_id, status, capacity, sold, sale window, price, sort_order); display-only fields live in `settings`.
 
-**`wp_fevents_registrations`** — one purchase (buyer + payment, N tickets). **Payment lives here.**
-
-| Column | Type | Notes |
-| ------ | ---- | ----- |
-| `id` | BIGINT PK | |
-| `event_id` | BIGINT FK | → event |
-| `calendar_id` | BIGINT FK | → calendar (denormalized from the event's effective calendar; direct calendar-scoped queries) |
-| `buyer_name` / `buyer_email` | VARCHAR | the registrant (name + email; no phone) |
-| `tickets` | INT | number of tickets in this registration |
-| `status` | VARCHAR | `pending` \| `confirmed` \| `cancelled` \| `refunded` |
-| `payment_status` | VARCHAR | `free` \| `pending` \| `paid` \| `refunded` \| `failed` |
-| `payment_ref` | VARCHAR NULL | Paymattic txn id (thin reference — no card/gateway data our side) |
-| `total_amount` | DECIMAL | order total (currency on the event) |
-| `paid_at` | DATETIME NULL | |
-| `source` | VARCHAR | `invite` \| `link` \| `import` \| `request` |
-
-Index: `(event_id, status)`, `(calendar_id, status)`, `(buyer_email)`.
-
-**`wp_fevents_guests`** — one row per **ticket** (each attendee).
+**`wp_fevents_guests`** — one row per **ticket** (each attendee). A purchase is a **group** of these rows sharing `registration_no`; the **`is_buyer=1`** row also carries the order + payment (NULL on companions). No separate registrations table.
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event (denormalized for queries) |
 | `calendar_id` | BIGINT FK | → calendar (denormalized from the event's effective calendar; direct calendar-scoped queries) |
-| `registration_id` | BIGINT FK | → registration |
+| `registration_no` | VARCHAR | **order group key** — same value across all tickets of one purchase (generated at checkout; `random_bytes`/`wp_generate_password`) |
+| `is_buyer` | TINYINT(1) | `1` on the payer's row (carries order/payment); `0` on companions. Exactly one `1` per group |
 | `ticket_type_id` | BIGINT FK | → ticket tier |
-| `name` / `email` | VARCHAR NULL | this attendee (name + email; no phone) |
-| `status` | VARCHAR | see status values below |
+| `name` / `email` | VARCHAR NULL | this attendee (name + email; no phone). The `is_buyer` row's = the payer's contact |
+| `user_id` | BIGINT NULL | → WP user, **optional** — set when the attendee is logged in; NULL for anonymous. Enables "my tickets" + in-app notifications. FK enforced in app (core ref) |
+| `status` | VARCHAR | attendee status — see values below |
 | `form_response` | JSON NULL | this attendee's answers |
-| `ticket_code` | VARCHAR UNIQUE | QR / check-in code |
+| `hash` | VARCHAR UNIQUE | QR / check-in code (per ticket) |
 | `checked_in_at` | DATETIME NULL | offline check-in |
+| **— order/payment (only on `is_buyer=1`, else NULL) —** | | |
+| `payment_status` | VARCHAR NULL | `free` \| `pending` \| `paid` \| `refunded` \| `failed` |
+| `payment_ref` | VARCHAR NULL | Paymattic txn id (thin reference — no card/gateway data our side) |
+| `price` | DECIMAL NULL | **order total** — sum of all tickets in the group (currency on the event); NULL companions → `SUM` = revenue, no guard. (≠ `ticket_types.price`, the unit tier price) |
+| `paid_at` | DATETIME NULL | |
+| `source` | VARCHAR NULL | `invite` \| `link` \| `import` \| `request` |
 
-Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(calendar_id, status)`, `(registration_id)`, `(email)`.
+Index: UNIQUE `(hash)`, `(event_id, status)`, `(calendar_id, status)`, `(registration_no)`, `(email)`.
+
+- **Revenue** = `SUM(price)` (companions NULL, no `WHERE` guard). **Orders** = `COUNT(*) WHERE is_buyer=1`. **Order total tickets** = `COUNT(*)` of the `registration_no` group. **Payment update** (webhook/refund) = `UPDATE … WHERE registration_no=? AND is_buyer=1` (1 row). **Whole order** = `SELECT … WHERE registration_no=?`.
 
 **`status` values:**
 
@@ -160,8 +154,8 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 - **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `capacity`, `min_per_reg` / `max_per_reg`, and an optional sale window.
 - **Capacity is per tier** (total event capacity = sum of tier capacities). `remaining = capacity − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). Freeing a ticket auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
 - **Approval** via `events.settings.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
-- **Free or paid.** Paid events take payment through **Paymattic** before the registration is `confirmed`. Payment is **per registration** (one payment for all its tickets).
-- **Payment record = thin reference on the registration.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `total_amount` / `currency` / `paid_at` on `registrations`. Flow: pay → Paymattic → **webhook** → set `payment_status = paid` + `payment_ref` → registration `confirmed`, its guests `attending`. No card/gateway data our side (out of PCI scope).
+- **Free or paid.** Paid events take payment through **Paymattic** before the order is confirmed. Payment is **per order** (one payment for all tickets in a `registration_no` group).
+- **Payment record = thin reference on the `is_buyer=1` row.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `price` / `paid_at` on that row (currency lives on the event), NULL on companion tickets. Flow: pay → Paymattic → **webhook** → `UPDATE … WHERE registration_no=? AND is_buyer=1` sets `payment_status = paid` + `payment_ref` → the group's guests go `attending`. No card/gateway data our side (out of PCI scope).
 
 ### FR-6.5 — Visibility & discovery
 
@@ -172,7 +166,7 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 - The host defines custom fields (the form) on the event → stored in `events.form_fields` (JSON: field key, label, type, required, options). (unfiltered #18)
 - On registration the form is asked **per ticket** — each attendee's answers save to that guest's `form_response` (JSON). Buy 3 → 3 sets of answers.
-- Buyer contact (name/email) is captured on the `registration`; per-attendee identity + answers on each `guest`.
+- Buyer contact (name/email) is the `is_buyer=1` guest row's own name/email; per-attendee identity + answers on each `guest` row of the group.
 
 ### FR-6.7 — Invite guests, invite link, import
 

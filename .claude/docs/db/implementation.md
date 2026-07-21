@@ -14,7 +14,7 @@
 | Event flexible / config — `_fevents_form_fields`, `_fevents_settings`, addon fields | **`wp_postmeta`** | open-ended, extensible by add-ons, never range-queried |
 | Event machine data — dates, timezone, venue_type, join_policy, waitlist, calendar_id, currency, status | **`wp_fevents_events`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
 | Category / type, venue, organizer, performer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
-| Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`registrations`→`guests`) | high-volume, transactional, typed, `SUM`/`sold<capacity` queries |
+| Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `registration_no`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<capacity` queries |
 | Performer detail | `fevents_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
 
 **Key identity rule:** `wp_fevents_events.id` is the internal PK all ticketing FKs use
@@ -142,12 +142,19 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
 - Event body (`post_content`) rendered through `wp_kses_post`; term/name output escaped
   at the sink ([always.md](../../rules/always.md)).
 - The event↔post is 1:1 — deleting the `fevents_event` post cascades the
-  `wp_fevents_events` row (`ON DELETE CASCADE`), which cascades ticket_types /
-  registrations / guests. A guest's `ticket_type_id` is `RESTRICT` (can't orphan a sold ticket).
-- `registrations.calendar_id` / `guests.calendar_id` are **denormalized** copies of the
-  event's calendar, written at registration time so "who registered under calendar X"
-  is a direct index scan (`(calendar_id, status)`) with no event join. Resolve the
-  **effective** calendar on write — for a recurrence occurrence (`post_id` NULL) the
-  `calendar_id` is inherited, so `COALESCE(occurrence.calendar_id, master.calendar_id)`.
-  Both are `RESTRICT` → a calendar with registrations/guests can't be deleted (the event
-  FK already blocks it; this is belt-and-suspenders).
+  `wp_fevents_events` row (`ON DELETE CASCADE`), which cascades ticket_types / guests.
+  A guest's `ticket_type_id` is `RESTRICT` (can't orphan a sold ticket).
+- **Order = a group of `guests` rows** sharing `registration_no` (no separate registrations
+  table — most orders are 1 ticket, so a split order row would double writes for the common
+  case). Exactly one row per group has `is_buyer=1` and carries the order/payment fields
+  (`payment_status`, `payment_ref`, `price`, `paid_at`, `source`) — **NULL on companions**.
+  So `SUM(price)` = revenue with no `WHERE` guard, a payment webhook/refund updates one row
+  (`WHERE registration_no=? AND is_buyer=1`), ticket count = `COUNT(*)` of the group. Generate
+  `registration_no` at checkout (`random_bytes`/`wp_generate_password`). Optional nullable
+  `user_id` links a row to a WP account when the attendee is logged in (core ref, FK in app).
+- `guests.calendar_id` is a **denormalized** copy of the event's calendar, written at
+  registration time so "who registered under calendar X" is a direct index scan
+  (`(calendar_id, status)`) with no event join. Resolve the **effective** calendar on write —
+  for a recurrence occurrence (`post_id` NULL) the `calendar_id` is inherited, so
+  `COALESCE(occurrence.calendar_id, master.calendar_id)`. It's `RESTRICT` → a calendar with
+  guests can't be deleted (the event FK already blocks it; belt-and-suspenders).

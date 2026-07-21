@@ -61,21 +61,16 @@ T = {
     ("sale_start_at","DATETIME",""),("sale_end_at","DATETIME",""),("status","VARCHAR(64)","!"),
     ("sort_order","INT","!"),("settings","JSON",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
- "wp_fevents_registrations": ("app", COL2, 400, [
+ "wp_fevents_guests": ("app", COL2, 400, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),
-    ("calendar_id","BIGINT UNSIGNED","F!"),
-    ("buyer_name","VARCHAR(255)","!"),("buyer_email","VARCHAR(192)","!"),
-    ("tickets","INT","!"),("status","VARCHAR(64)","!"),
-    ("payment_status","VARCHAR(64)","!"),("payment_ref","VARCHAR(255)",""),
-    ("total_amount","DECIMAL(10,2)","!"),("paid_at","DATETIME",""),("source","VARCHAR(64)","!"),
+    ("calendar_id","BIGINT UNSIGNED","F!"),("registration_no","VARCHAR(64)","!"),
+    ("is_buyer","TINYINT(1)","!"),("ticket_type_id","BIGINT UNSIGNED","F!"),
+    ("name","VARCHAR(255)",""),("email","VARCHAR(192)",""),("user_id","BIGINT UNSIGNED","F"),
+    ("status","VARCHAR(64)","!"),("form_response","JSON",""),
+    ("hash","VARCHAR(64)","U"),("checked_in_at","DATETIME",""),
+    ("payment_status","VARCHAR(64)",""),("payment_ref","VARCHAR(255)",""),
+    ("price","DECIMAL(10,2)",""),("paid_at","DATETIME",""),("source","VARCHAR(64)",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
- "wp_fevents_guests": ("app", COL2, 730, [
-    ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),
-    ("calendar_id","BIGINT UNSIGNED","F!"),
-    ("registration_id","BIGINT UNSIGNED","F!"),("ticket_type_id","BIGINT UNSIGNED","F!"),
-    ("name","VARCHAR(255)",""),("email","VARCHAR(192)",""),
-    ("status","VARCHAR(64)","!"),("form_response","JSON",""),("ticket_code","VARCHAR(64)","U"),
-    ("checked_in_at","DATETIME",""),("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fevents_notification_users": ("app", COL2, 1040, [
     ("id","BIGINT UNSIGNED","P"),("object_type","VARCHAR(64)","!"),
     ("notification_type","VARCHAR(64)","!"),("object_id","BIGINT UNSIGNED","!"),
@@ -105,11 +100,10 @@ IDX = {
     ("idx_event_status",["status"],False),("idx_event_window",["start_at","end_at"],False),
     ("idx_event_parent",["parent_event_id","start_at"],False)],
  "wp_fevents_ticket_types": [("idx_ticket_event_status",["event_id","status"],False)],
- "wp_fevents_registrations": [("idx_reg_event_status",["event_id","status"],False),
-    ("idx_reg_calendar",["calendar_id","status"],False),("idx_reg_email",["buyer_email"],False)],
- "wp_fevents_guests": [("uq_guests_ticket_code",["ticket_code"],True),
+ "wp_fevents_guests": [("uq_guests_hash",["hash"],True),
     ("idx_guest_event_status",["event_id","status"],False),
-    ("idx_guest_calendar",["calendar_id","status"],False)],
+    ("idx_guest_calendar",["calendar_id","status"],False),
+    ("idx_guest_order",["registration_no"],False),("idx_guest_email",["email"],False)],
  "wp_fevents_notifications": [("idx_notif_object",["object_type","object_id"],False),
     ("idx_notif_action",["action"],False)],
  "wp_fevents_notification_users": [
@@ -128,12 +122,10 @@ FK = [
  ("wp_fevents_events","calendar_id","wp_fevents_calendars","id","RESTRICT"),
  ("wp_fevents_events","parent_event_id","wp_fevents_events","id","CASCADE"),
  ("wp_fevents_ticket_types","event_id","wp_fevents_events","id","CASCADE"),
- ("wp_fevents_registrations","event_id","wp_fevents_events","id","CASCADE"),
- ("wp_fevents_registrations","calendar_id","wp_fevents_calendars","id","RESTRICT"),
  ("wp_fevents_guests","event_id","wp_fevents_events","id","CASCADE"),
  ("wp_fevents_guests","calendar_id","wp_fevents_calendars","id","RESTRICT"),
- ("wp_fevents_guests","registration_id","wp_fevents_registrations","id","CASCADE"),
  ("wp_fevents_guests","ticket_type_id","wp_fevents_ticket_types","id","RESTRICT"),
+ ("wp_fevents_guests","user_id","wp_users","ID","SET NULL"),
  ("wp_fevents_notifications","user_id","wp_users","ID","SET NULL"),
  ("wp_fevents_notification_users","user_id","wp_users","ID","CASCADE"),
  ("wp_term_taxonomy","term_id","wp_terms","term_id","CASCADE"),
@@ -154,8 +146,7 @@ _LAYOUT = {
     "wp_fevents_notification_users": (COL0, 808),
     "wp_fevents_events":             (COL1, 70),
     "wp_fevents_ticket_types":       (COL2, 70),
-    "wp_fevents_registrations":      (COL2, 436),
-    "wp_fevents_guests":             (COL2, 766),
+    "wp_fevents_guests":             (COL2, 436),
 }
 T = {n: (T[n][0], x, y, T[n][3]) for n, (x, y) in _LAYOUT.items()}
 FK = [f for f in FK if f[0] in T and f[2] in T]   # keep app↔app FKs only
@@ -195,7 +186,8 @@ def emit_sql():
      "-- point at WP core (post_id, created_by, user_id) carry no DB FK —",
      "-- enforced in app (dbDelta strips core FKs; engine/collation portability).",
      "-- Event = CPT hybrid (wp_posts + wp_postmeta + wp_fevents_events post_id 1:1).",
-     "-- Ticketing: event -> ticket_types -> registrations (buyer+payment) -> guests (1 per ticket).",
+     "-- Ticketing: event -> ticket_types -> guests (1 row per ticket; the is_buyer=1 row",
+     "-- of an order carries order/payment fields, NULL on companion rows).",
      "", "SET FOREIGN_KEY_CHECKS = 0;", ""]
     fk_by = {}
     for c,col,p,pc,od in FK: fk_by.setdefault(c, []).append((col,p,pc,od))
@@ -335,7 +327,6 @@ PARENT_COLOR = {
  "wp_posts":              "#2f9e5b",  # green  — the CPT identity / media
  "wp_users":              "#d98a1a",  # amber  — people (author/host/recipient)
  "wp_fevents_calendars":  "#1298a4",  # teal   — calendar grouping
- "wp_fevents_registrations":"#c0468a",# rose   — order -> guest
  "wp_fevents_ticket_types":"#8a7514", # olive  — ticket tier -> guest
  "wp_terms":              "#8a5a2b",  # brown  — taxonomy term
  "wp_term_taxonomy":      "#6a5acd",  # violet — term-in-taxonomy
