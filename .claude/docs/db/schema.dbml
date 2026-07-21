@@ -108,6 +108,7 @@ Table wp_fevents_ticket_types {
   type varchar [not null]
   description varchar
   price decimal [not null]
+  compare_at_price decimal
   capacity int
   sold int [not null]
   min_per_reg int [not null]

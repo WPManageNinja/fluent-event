@@ -122,6 +122,7 @@ CREATE TABLE `wp_fevents_ticket_types` (
   `type` VARCHAR(64) NOT NULL,
   `description` VARCHAR(255) NULL,
   `price` DECIMAL(10,2) NOT NULL,
+  `compare_at_price` DECIMAL(10,2) NULL,
   `capacity` INT NULL,
   `sold` INT NOT NULL,
   `min_per_reg` INT NOT NULL,

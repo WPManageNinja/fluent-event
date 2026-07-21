@@ -52,7 +52,8 @@ table column.)*
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event |
 | `type` | VARCHAR | tier name; auto **"General"** if none defined |
-| `price` | DECIMAL(10,2) | `0` = free (currency on the event) |
+| `price` | DECIMAL(10,2) | actual charge; `0` = free (currency on the event) |
+| `compare_at_price` | DECIMAL(10,2) NULL | "was" price, shown struck-through (early-bird). Display-only; NULL = not on sale. Maps 1:1 to FluentCart `compare_price`. Coupons/discount codes stay in FluentCart. |
 | `capacity` | INT NULL | seats for this tier; null = unlimited |
 | `sold` | INT | cached — **remaining = capacity − sold**; sold-out is computed |
 | `min_per_reg` / `max_per_reg` | INT | tickets-per-registration limits |
