@@ -74,11 +74,6 @@ T = {
     ("name","VARCHAR(255)",""),("email","VARCHAR(192)",""),("phone","VARCHAR(16)",""),
     ("status","VARCHAR(64)","!"),("form_response","JSON",""),("ticket_code","VARCHAR(64)","U"),
     ("checked_in_at","DATETIME",""),("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
- "wp_fevents_notification_prefs": ("app", COL2, 1040, [
-    ("id","BIGINT UNSIGNED","P"),("user_id","BIGINT UNSIGNED","F!"),
-    ("object_type","VARCHAR(20)","!"),("object_id","BIGINT UNSIGNED","!"),
-    ("pref_key","VARCHAR(64)","!"),("enabled","TINYINT(1)","!"),
-    ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
 
  "wp_terms": ("tax", COL3, 40, [
     ("term_id","BIGINT UNSIGNED","P"),("name","VARCHAR(200)","!"),("slug","VARCHAR(200)","!")]),
@@ -109,9 +104,6 @@ IDX = {
  "wp_fevents_notifications": [("uq_notification",["recipient_id","action","object_id"],True),
     ("idx_notif_recipient",["recipient_id","read_at"],False),
     ("idx_notif_object",["object_type","object_id"],False),("idx_notif_action",["action"],False)],
- "wp_fevents_notification_prefs": [
-    ("uq_notif_pref",["user_id","object_type","object_id","pref_key"],True),
-    ("idx_pref_object",["object_type","object_id","pref_key","enabled"],False)],
  "wp_term_taxonomy": [("uq_term_taxonomy",["term_id","taxonomy"],True)],
 }
 
@@ -130,7 +122,6 @@ FK = [
  ("wp_fevents_guests","ticket_type_id","wp_fevents_ticket_types","id","RESTRICT"),
  ("wp_fevents_notifications","recipient_id","wp_users","ID","CASCADE"),
  ("wp_fevents_notifications","actor_id","wp_users","ID","SET NULL"),
- ("wp_fevents_notification_prefs","user_id","wp_users","ID","CASCADE"),
  ("wp_term_taxonomy","term_id","wp_terms","term_id","CASCADE"),
  ("wp_termmeta","term_id","wp_terms","term_id","CASCADE"),
  ("wp_term_relationships","term_taxonomy_id","wp_term_taxonomy","term_taxonomy_id","CASCADE"),
