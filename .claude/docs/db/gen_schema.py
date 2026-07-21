@@ -32,7 +32,7 @@ T = {
     ("object_id","BIGINT UNSIGNED",""),("meta_key","VARCHAR(255)","!"),
     ("value","LONGTEXT",""),("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fevents_notifications": ("app", COL0, 660, [
-    ("id","BIGINT UNSIGNED","P"),("actor_id","BIGINT UNSIGNED","F"),
+    ("id","BIGINT UNSIGNED","P"),("user_id","BIGINT UNSIGNED","F"),
     ("action","VARCHAR(64)","!"),
     ("object_type","VARCHAR(64)",""),("object_id","BIGINT UNSIGNED",""),
     ("title","VARCHAR(255)",""),("content","TEXT",""),("route","TEXT",""),
@@ -128,7 +128,7 @@ FK = [
  ("wp_fevents_guests","event_id","wp_fevents_events","id","CASCADE"),
  ("wp_fevents_guests","registration_id","wp_fevents_registrations","id","CASCADE"),
  ("wp_fevents_guests","ticket_type_id","wp_fevents_ticket_types","id","RESTRICT"),
- ("wp_fevents_notifications","actor_id","wp_users","ID","SET NULL"),
+ ("wp_fevents_notifications","user_id","wp_users","ID","SET NULL"),
  ("wp_fevents_notification_users","user_id","wp_users","ID","CASCADE"),
  ("wp_term_taxonomy","term_id","wp_terms","term_id","CASCADE"),
  ("wp_termmeta","term_id","wp_terms","term_id","CASCADE"),
@@ -138,7 +138,7 @@ FK = [
 
 # Emit only our wp_fevents_* tables. WP core (wp_posts/postmeta/users) + taxonomy
 # tables are NOT drawn — their USAGE is documented in db/implementation.md + the FR
-# docs. FK columns that point at WP core (post_id, created_by, actor_id, user_id)
+# docs. FK columns that point at WP core (post_id, created_by, user_id)
 # stay as columns (red diamond = external ref); their FK is enforced in app, not DB
 # (dbDelta strips FKs to core; engine/collation portability). App↔app FKs are kept.
 _LAYOUT = {
@@ -186,7 +186,7 @@ def emit_sql():
      "-- Only our wp_fevents_* tables are defined here. WP core tables (wp_posts,",
      "-- wp_postmeta, wp_users) and the taxonomy tables are NOT created by us — we",
      "-- REFERENCE them (see footer + db/implementation.md for how). FK columns that",
-     "-- point at WP core (post_id, created_by, actor_id, user_id) carry no DB FK —",
+     "-- point at WP core (post_id, created_by, user_id) carry no DB FK —",
      "-- enforced in app (dbDelta strips core FKs; engine/collation portability).",
      "-- Event = CPT hybrid (wp_posts + wp_postmeta + wp_fevents_events post_id 1:1).",
      "-- Ticketing: event -> ticket_types -> registrations (buyer+payment) -> guests (1 per ticket).",
@@ -378,7 +378,7 @@ def emit_svg():
     lines=["event   = wp_posts (post_type=fevents_event) + wp_postmeta",
       "classify = WP taxonomies: event_type, venue, organizer,",
       "           performer  (wp_terms / wp_term_relationships)",
-      "post_id / created_by / actor_id / user_id  ->  wp_posts /",
+      "post_id / created_by / user_id  ->  wp_posts /",
       "           wp_users   (red diamond; FK enforced in app, not DB)",
       "media    = wp_posts attachment ids (event cover = _thumbnail_id)"]
     for i,ln in enumerate(lines):

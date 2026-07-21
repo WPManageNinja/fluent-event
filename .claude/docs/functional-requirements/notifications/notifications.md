@@ -21,7 +21,7 @@
 | Column        | Type          | Notes                                        |
 | ------------- | ------------- | -------------------------------------------- |
 | `id`          | BIGINT PK     |                                              |
-| `actor_id`    | BIGINT NULL   | who triggered it; null = system              |
+| `user_id`     | BIGINT NULL   | who **triggered** it (the actor); null = system. (Recipients are in `notification_users`, not here.) |
 | `action`      | VARCHAR       | typed registry (e.g. `event.join_requested`) |
 | `object_type` | VARCHAR NULL  | `event` \| `calendar` …                      |
 | `object_id`   | BIGINT NULL   | what it's about                              |
@@ -52,7 +52,7 @@ Reading the inbox = `notification_users` (the user's `object_type='notification'
 
 Dispatch is **always asynchronous** — the triggering request never resolves recipients or writes notification rows. It only enqueues, so a host action (approve, publish, cancel) returns immediately regardless of audience size.
 
-**1. Enqueue (in-request, O(1)).** On a trigger the producer builds a *descriptor* — `action`, `actor_id`, `object_type`, `object_id`, rendered `title` + `content`, `route`, and an **audience spec** (not a resolved list — e.g. `{ "type": "event_guests", "event_id": 9 }`). It enqueues one async job and returns. Fail-soft: the enqueue is wrapped so a queue failure never breaks the triggering action.
+**1. Enqueue (in-request, O(1)).** On a trigger the producer builds a *descriptor* — `action`, `user_id` (the actor), `object_type`, `object_id`, rendered `title` + `content`, `route`, and an **audience spec** (not a resolved list — e.g. `{ "type": "event_guests", "event_id": 9 }`). It enqueues one async job and returns. Fail-soft: the enqueue is wrapped so a queue failure never breaks the triggering action.
 
 - Tech: Action Scheduler (`as_enqueue_async_action`), group `fluent-events`. An **async** action runs on the next loopback ASAP (seconds), not on the cron interval — so even a single-recipient notification appears near-instantly.
 

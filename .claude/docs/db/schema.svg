@@ -73,7 +73,7 @@
 <circle cx="51" cy="599" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,599 L59,599 M57,599 L57,601.5 M59,599 L59,601.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="62" y="602" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M52,613 L56,617 L52,621 L48,617 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="62" y="620" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">actor_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
+<text x="62" y="620" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">user_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M52,631 L56,635 L52,639 L48,635 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="62" y="638" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">action</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
 <path d="M52,649 L56,653 L52,657 L48,653 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
@@ -279,7 +279,7 @@
 <text x="532" y="682" font-size="9" fill="#4a5561">event   = wp_posts (post_type=fevents_event) + wp_postmeta</text>
 <text x="532" y="701" font-size="9" fill="#4a5561">classify = WP taxonomies: event_type, venue, organizer,</text>
 <text x="532" y="720" font-size="9" fill="#4a5561">           performer  (wp_terms / wp_term_relationships)</text>
-<text x="532" y="739" font-size="9" fill="#4a5561">post_id / created_by / actor_id / user_id  -&gt;  wp_posts /</text>
+<text x="532" y="739" font-size="9" fill="#4a5561">post_id / created_by / user_id  -&gt;  wp_posts /</text>
 <text x="532" y="758" font-size="9" fill="#4a5561">           wp_users   (red diamond; FK enforced in app, not DB)</text>
 <text x="532" y="777" font-size="9" fill="#4a5561">media    = wp_posts attachment ids (event cover = _thumbnail_id)</text>
 </g>

@@ -2,7 +2,7 @@
 -- Only our wp_fevents_* tables are defined here. WP core tables (wp_posts,
 -- wp_postmeta, wp_users) and the taxonomy tables are NOT created by us — we
 -- REFERENCE them (see footer + db/implementation.md for how). FK columns that
--- point at WP core (post_id, created_by, actor_id, user_id) carry no DB FK —
+-- point at WP core (post_id, created_by, user_id) carry no DB FK —
 -- enforced in app (dbDelta strips core FKs; engine/collation portability).
 -- Event = CPT hybrid (wp_posts + wp_postmeta + wp_fevents_events post_id 1:1).
 -- Ticketing: event -> ticket_types -> registrations (buyer+payment) -> guests (1 per ticket).
@@ -42,7 +42,7 @@ CREATE TABLE `wp_fevents_meta` (
 
 CREATE TABLE `wp_fevents_notifications` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `actor_id` BIGINT UNSIGNED NULL,
+  `user_id` BIGINT UNSIGNED NULL,
   `action` VARCHAR(64) NOT NULL,
   `object_type` VARCHAR(64) NULL,
   `object_id` BIGINT UNSIGNED NULL,
