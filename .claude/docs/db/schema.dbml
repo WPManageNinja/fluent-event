@@ -165,6 +165,22 @@ Table wp_fevents_guests {
   }
 }
 
+Table wp_fevents_notification_prefs {
+  id bigint [primary key, increment]
+  user_id bigint [not null, ref: > wp_users.ID]
+  scope_type varchar [not null]
+  scope_id bigint [not null]
+  event_key varchar [not null]
+  channel varchar [not null]
+  enabled tinyint [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  indexes {
+    (user_id, scope_type, scope_id, event_key, channel) [name: 'uq_notif_pref', unique]
+    (event_key, channel, enabled) [name: 'idx_pref_trigger']
+  }
+}
+
 Table wp_terms {
   term_id bigint [primary key, increment]
   name varchar [not null]

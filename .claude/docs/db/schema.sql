@@ -179,6 +179,22 @@ CREATE TABLE `wp_fevents_guests` (
   CONSTRAINT `fk_guests_ticket_type_id` FOREIGN KEY (`ticket_type_id`) REFERENCES `wp_fevents_ticket_types` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `wp_fevents_notification_prefs` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `scope_type` VARCHAR(20) NOT NULL,
+  `scope_id` BIGINT UNSIGNED NOT NULL,
+  `event_key` VARCHAR(64) NOT NULL,
+  `channel` VARCHAR(20) NOT NULL,
+  `enabled` TINYINT(1) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_notif_pref` (`user_id`, `scope_type`, `scope_id`, `event_key`, `channel`),
+  KEY `idx_pref_trigger` (`event_key`, `channel`, `enabled`),
+  CONSTRAINT `fk_notification_prefs_user_id` FOREIGN KEY (`user_id`) REFERENCES `wp_users` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `wp_terms` (
   `term_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(200) NOT NULL,
