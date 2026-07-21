@@ -68,15 +68,17 @@ Table wp_fevents_notification_users {
 
 Table wp_fevents_events {
   id bigint [primary key, increment]
-  post_id bigint [unique, not null]
+  post_id bigint [unique]
+  parent_event_id bigint [ref: > wp_fevents_events.id]
+  is_overridden tinyint
   status varchar [not null]
   start_at datetime [not null]
   end_at datetime [not null]
-  timezone varchar [not null]
-  calendar_id bigint [not null, ref: > wp_fevents_calendars.id]
-  parent_event_id bigint [ref: > wp_fevents_events.id]
-  venue_type varchar [not null]
+  timezone varchar
+  calendar_id bigint [ref: > wp_fevents_calendars.id]
+  venue_type varchar
   currency varchar
+  form_fields json
   settings json
   created_at timestamp [not null]
   updated_at timestamp [not null]
@@ -84,6 +86,7 @@ Table wp_fevents_events {
     post_id [name: 'uq_events_post', unique]
     status [name: 'idx_event_status']
     (start_at, end_at) [name: 'idx_event_window']
+    (parent_event_id, start_at) [name: 'idx_event_parent']
   }
 }
 

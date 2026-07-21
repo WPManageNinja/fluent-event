@@ -72,15 +72,17 @@ CREATE TABLE `wp_fevents_notification_users` (
 
 CREATE TABLE `wp_fevents_events` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `post_id` BIGINT UNSIGNED NOT NULL,
+  `post_id` BIGINT UNSIGNED NULL,
+  `parent_event_id` BIGINT UNSIGNED NULL,
+  `is_overridden` TINYINT(1) NULL,
   `status` VARCHAR(64) NOT NULL,
   `start_at` DATETIME NOT NULL,
   `end_at` DATETIME NOT NULL,
-  `timezone` VARCHAR(64) NOT NULL,
-  `calendar_id` BIGINT UNSIGNED NOT NULL,
-  `parent_event_id` BIGINT UNSIGNED NULL,
-  `venue_type` VARCHAR(64) NOT NULL,
+  `timezone` VARCHAR(64) NULL,
+  `calendar_id` BIGINT UNSIGNED NULL,
+  `venue_type` VARCHAR(64) NULL,
   `currency` VARCHAR(3) NULL,
+  `form_fields` JSON NULL,
   `settings` JSON NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -88,8 +90,9 @@ CREATE TABLE `wp_fevents_events` (
   UNIQUE KEY `uq_events_post` (`post_id`),
   KEY `idx_event_status` (`status`),
   KEY `idx_event_window` (`start_at`, `end_at`),
+  KEY `idx_event_parent` (`parent_event_id`, `start_at`),
   CONSTRAINT `fk_events_calendar_id` FOREIGN KEY (`calendar_id`) REFERENCES `wp_fevents_calendars` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_events_parent_event_id` FOREIGN KEY (`parent_event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE SET NULL
+  CONSTRAINT `fk_events_parent_event_id` FOREIGN KEY (`parent_event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_fevents_ticket_types` (

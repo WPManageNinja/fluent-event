@@ -21,29 +21,36 @@
 Chain: **event → ticket_types → registrations → guests**. Full DDL in [schema.sql](../../db/schema.sql); key columns below.
 
 **Event = CPT hybrid.** Identity (title, description, slug, status, author, cover) lives
-in **`wp_posts`** (`post_type=fevents_event`); config (`_fevents_form_fields`,
-`_fevents_settings`, addon fields) in **`wp_postmeta`**; typed relational data in
-**`wp_fevents_events`** (1:1 via `post_id`). Category / venue / organizer are **WP
-taxonomies** on the post (`fevents_event_type` / `fevents_venue` / `fevents_organizer`) —
-the physical place (address/map) is `fevents_venue` term meta, not an event column. See
+in **`wp_posts`** (`post_type=fevents_event`); addon config in **`wp_postmeta`**; typed
+relational data + the per-guest form in **`wp_fevents_events`** (1:1 via `post_id`).
+Category / venue / organizer / performer are **WP taxonomies** on the post — the physical
+place (address/map) is `fevents_venue` term meta, not an event column. See
 [db/implementation.md](../../db/implementation.md).
 
-**`wp_fevents_events`** — the typed extension row (what ticketing FKs to):
+**`wp_fevents_events`** — the typed extension row (what ticketing FKs to). Also carries
+**recurrence occurrences** (see FR-6.16):
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
-| `post_id` | BIGINT FK UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor |
-| `status` | VARCHAR | lifecycle: `active` \| `cancelled` \| `completed` (editorial draft/publish = `post_status`) |
-| `start_at` / `end_at` | DATETIME (**UTC**) | stored in UTC; indexed window (`idx_event_window`) |
-| `timezone` | VARCHAR | IANA tz (e.g. `Asia/Dhaka`) — to display, handle DST, ICS export, reminders |
-| `venue_type` | VARCHAR | event **mode**: `online` \| `offline` \| `hybrid`. The physical place = `fevents_venue` **term** (address/lat/lon/map/website in term meta, reused across events). |
-| `calendar_id` | BIGINT FK | → calendar (grouping stays a custom table) |
-| `currency` | VARCHAR NULL | ISO 4217 for the event (one currency; qualifies ticket price) |
-| `settings` | JSON NULL | per-event behavior/display config — `online_meeting_url` (per-event link), `join_policy` (`open`/`approval`/`invite_only`), `waitlist_enabled`, + future. Not queried. |
+| `post_id` | BIGINT NULL UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **NULL on a recurrence occurrence** (it has no own post — inherits content/taxonomies from the master). |
+| `parent_event_id` | BIGINT NULL FK→self | NULL = master/standalone; set = a recurrence **occurrence** of that master (ON DELETE CASCADE). |
+| `is_overridden` | TINYINT NULL | occurrence manually edited → the regen cron skips it. |
+| `status` | VARCHAR | lifecycle: `active` \| `cancelled` (upcoming/live/past = derived from dates; editorial draft/publish = `post_status`) — **always per-row** |
+| `start_at` / `end_at` | DATETIME (**UTC**) | stored in UTC; indexed window — **always per-row** (an occurrence's own date) |
+| `timezone` | VARCHAR NULL | IANA tz (e.g. `Asia/Dhaka`) — display, DST, ICS, reminders. *Inheritable.* |
+| `venue_type` | VARCHAR NULL | event **mode**: `online`/`offline`/`hybrid`. Place = `fevents_venue` term (address/map in term meta). *Inheritable.* |
+| `calendar_id` | BIGINT NULL FK | → calendar. *Inheritable.* |
+| `currency` | VARCHAR NULL | ISO 4217; qualifies ticket price. *Inheritable.* |
+| `form_fields` | JSON NULL | **per-guest dynamic form definition** (fields to collect from each attendee). *Inheritable.* |
+| `settings` | JSON NULL | per-event config — `online_meeting_url`, `join_policy` (`open`/`approval`/`invite_only`), `waitlist_enabled`, `recurrence` (FR-6.16), + future. Not queried. *Inheritable (merge).* |
 
-*(Only **queried** columns are typed; per-event config lives in `settings`, dynamic form
-in `wp_postmeta._fevents_form_fields`. Venue **place** data → `fevents_venue` term meta;
-the **online link is per-event** (`settings`), never term meta.)*
+**Master / occurrence inheritance.** On a recurrence **occurrence** (`parent_event_id` set,
+`post_id` NULL), the *inheritable* columns are **NULL = inherit from the master**; set only
+what deviates. Read via `COALESCE(occurrence.col, master.col)` (scalars) / `array_merge`
+(the JSON blobs). Only `start_at`/`end_at`/`status` are always the occurrence's own. Occurrences
+**can't change post-level things** (title/body/slug/cover/taxonomies) — no own post, so those
+always come from the master. *(Venue place data → `fevents_venue` term meta; the online link
+is per-event in `settings`, never term meta.)*
 
 **`wp_fevents_ticket_types`** — price tiers.
 
@@ -206,28 +213,27 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 ### FR-6.16 — Recurring events
 
-- The host can set a **repeat rule** when creating an event — daily / weekly / monthly, an interval, specific days, and an end (a date or a number of times). Stored as `recurrence_rule` on the **series master**.
-- The system **generates occurrences** as separate event rows linked by `parent_event_id`. Each occurrence has its own date, guests, and capacity — people join one occurrence, not the whole series.
-- Occurrences are materialized on a rolling window (background job), not all at once, so an open-ended series doesn't create infinite rows.
-- **Edit / cancel scope:** this occurrence only, this + following, or the whole series.
-- Deleting the master cancels the series (and its future occurrences).
+- The host sets a **repeat rule** — daily / weekly / monthly / yearly, an interval, specific days, and an end (a date or N times). Stored as a standard **iCal RRULE string** on the **series master** (`settings.recurrence.rrule`).
+- Occurrences are **rows in `wp_fevents_events`** — `parent_event_id` = master, `post_id` NULL (no own post). Each has its own date/status/capacity/guests; inheritable columns are **NULL = inherit from the master**. People join one occurrence, not the whole series.
+- Materialized on a **rolling window** by a daily cron — not all at once, so an open-ended series stays bounded.
+- **Edit / cancel scope:** this occurrence, this + following, or the whole series.
+- Deleting the master **cascades** its occurrences (`parent_event_id` FK ON DELETE CASCADE).
 
 **How it works:**
 
-- **Rule** (RRULE-like JSON on the master, anchored to its `starts_at`):
+- **Rule = an iCal RRULE string** on the master (`settings.recurrence`). The standard already covers everything, incl. future nth-weekday patterns — **no schema change ever**:
   ```json
-  {
-  	"freq": "weekly",
-  	"interval": 1,
-  	"byday": ["MO", "WE"],
-  	"until": "2026-09-01"
-  }
+  { "recurrence": {
+      "rrule": "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE;UNTIL=20260901",
+      "generated_until": "2026-06-30",
+      "window_days": 90 } }
   ```
-  (`count: N` instead of `until` = "N times".)
-- **Generation:** a background job (action-scheduler) computes occurrence dates from the rule — using a proven RRULE library (e.g. `simshaun/recurr`), not hand-rolled date math (DST + month-end edge cases) — and creates an occurrence row per date.
-- **Rolling window:** generate only occurrences within a window (e.g. next 90 days / next N), not to infinity. The job re-runs and tops up as dates pass, so an open-ended series stays bounded. The master tracks `generated_until` (in `settings`/meta) so re-runs don't duplicate.
-- **Timezone:** occurrence datetimes computed in the event's `timezone` (DST-aware), then stored as concrete `starts_at` per occurrence.
-- **Edit semantics:** "this occurrence" marks that row overridden (regeneration won't overwrite it); "this + following" ends the master's rule before this date and spawns a new master from here; "whole series" updates the master + future non-overridden occurrences.
+  `FREQ=MONTHLY;BYDAY=1SU` = *first Sunday of each month*; `BYDAY=-1FR` = *last Friday*. Prefer the RRULE string over bespoke JSON — the vocabulary is free.
+- **Generation:** a daily **Action Scheduler** job expands the RRULE with a proven library (**`rlanvin/php-rrule`**, what FluentBooking uses — never hand-rolled date math / DST bugs) and creates the missing occurrence rows up to `now + window_days`, advancing `generated_until`. **Dedup** via `parent_event_id` + `start_at` (`idx_event_parent`) so re-runs never double-create. `window_days` = master override else a global plugin default.
+- **Occurrence = NULL-inherit row:** `post_id` NULL (inherits title/body/slug/cover/taxonomies from the master — **can't change post-level things**), inheritable columns NULL unless deviating. Read = `COALESCE(occurrence.col, master.col)` + `array_merge` for the JSON blobs.
+- **Timezone:** occurrence `start_at` computed from the rule in the master's `timezone` (DST-aware via the library), stored as concrete UTC per occurrence.
+- **Override one occurrence** (e.g. "this Monday moved online"): set only the changed columns on that row (`venue_type='online'`, `settings.online_meeting_url=…`) + **`is_overridden=1`** so the regen cron skips it. No duplication — just the delta.
+- **Edit semantics:** *this occurrence* → set its columns + `is_overridden`; *this + following* → set `UNTIL` on the master's RRULE before this date, spawn a new master from here; *whole series* → update the master; occurrences inherit automatically (except `is_overridden` ones).
 
 ### FR-6.17 — Classification & organizers
 
