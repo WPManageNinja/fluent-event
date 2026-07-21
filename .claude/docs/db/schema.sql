@@ -124,7 +124,7 @@ CREATE TABLE `wp_fevents_guests` (
   `calendar_id` BIGINT UNSIGNED NOT NULL,
   `registration_no` VARCHAR(64) NOT NULL,
   `is_buyer` TINYINT(1) NOT NULL,
-  `ticket_type_id` BIGINT UNSIGNED NOT NULL,
+  `ticket_type_id` BIGINT UNSIGNED NULL,
   `name` VARCHAR(255) NULL,
   `email` VARCHAR(192) NULL,
   `user_id` BIGINT UNSIGNED NULL,

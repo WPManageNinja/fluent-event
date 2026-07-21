@@ -64,7 +64,7 @@ T = {
  "wp_fevents_guests": ("app", COL2, 400, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),
     ("calendar_id","BIGINT UNSIGNED","F!"),("registration_no","VARCHAR(64)","!"),
-    ("is_buyer","TINYINT(1)","!"),("ticket_type_id","BIGINT UNSIGNED","F!"),
+    ("is_buyer","TINYINT(1)","!"),("ticket_type_id","BIGINT UNSIGNED","F"),
     ("name","VARCHAR(255)",""),("email","VARCHAR(192)",""),("user_id","BIGINT UNSIGNED","F"),
     ("status","VARCHAR(64)","!"),("form_response","JSON",""),
     ("hash","VARCHAR(64)","U"),("checked_in_at","DATETIME",""),

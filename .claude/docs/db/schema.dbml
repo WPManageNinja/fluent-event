@@ -118,7 +118,7 @@ Table wp_fevents_guests {
   calendar_id bigint [not null, ref: > wp_fevents_calendars.id]
   registration_no varchar [not null]
   is_buyer tinyint [not null]
-  ticket_type_id bigint [not null, ref: > wp_fevents_ticket_types.id]
+  ticket_type_id bigint [ref: > wp_fevents_ticket_types.id]
   name varchar
   email varchar
   user_id bigint

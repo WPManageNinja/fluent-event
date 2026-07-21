@@ -15,6 +15,11 @@
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `events.form_fields` (JSON); each attendee's answers save to `guests.form_response` (JSON).
 - **Mode** via `events.venue_type` (online / offline / hybrid); **policy** via `events.settings.join_policy` (open / approval / invite_only).
+- **Entry mode** via `events.settings.registration_type` — three ways in, one set of tables:
+  - **`ticketed`** — buy tickets. Guest rows **require** `ticket_type_id` (paid or free tier), payment on the `is_buyer=1` row. (`ticket_type_id` is now nullable at the DB level — ticketed mode enforces it in the service layer.)
+  - **`rsvp`** — free "I'm coming". Guest rows with **`ticket_type_id` = NULL** (no tier at all). Going / not-going tracked purely via `status` (`attending` / `declined`). Headcount = `COUNT(*) WHERE status='attending'`.
+  - **`open`** — no registration. **Zero guest rows, zero ticket_types.** Just a published listing (unlimited, free, show up). The event = its `wp_posts` + `wp_fevents_events` row, no children.
+  - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.capacity IS NULL`).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
 - **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per order** (one payment covers all tickets in a `registration_no` group), recorded on the `is_buyer=1` row — not per guest.
 
@@ -81,7 +86,7 @@ Index: `(event_id, status)`. Only queried columns are real (event_id, status, ca
 | `calendar_id` | BIGINT FK | → calendar (denormalized from the event's effective calendar; direct calendar-scoped queries) |
 | `registration_no` | VARCHAR | **order group key** — same value across all tickets of one purchase (generated at checkout; `random_bytes`/`wp_generate_password`) |
 | `is_buyer` | TINYINT(1) | `1` on the payer's row (carries order/payment); `0` on companions. Exactly one `1` per group |
-| `ticket_type_id` | BIGINT FK | → ticket tier |
+| `ticket_type_id` | BIGINT NULL FK | → ticket tier. Set in **ticketed** mode; **NULL for RSVP** (no tier). `RESTRICT` — can't delete a tier that has tickets |
 | `name` / `email` | VARCHAR NULL | this attendee (name + email; no phone). The `is_buyer` row's = the payer's contact |
 | `user_id` | BIGINT NULL | → WP user, **optional** — set when the attendee is logged in; NULL for anonymous. Enables "my tickets" + in-app notifications. FK enforced in app (core ref) |
 | `status` | VARCHAR | attendee status — see values below |
@@ -111,6 +116,8 @@ Index: UNIQUE `(hash)`, `(event_id, status)`, `(calendar_id, status)`, `(registr
 | `declined`   | The join didn't happen — host rejected, or invite refused.     |
 | `cancelled`  | Was in, then pulled out (or was removed).                      |
 | `checked_in` | Showed up and checked in at the event.                         |
+
+**Per entry mode:** `ticketed` uses the payment-driven flow (`approved` → `attending` after pay, `waitlisted` when full). `rsvp` reuses the **same column, no new values** — `attending` = "going", `declined` = "not going", `waitlisted` = capped-RSVP overflow. `open` writes no guest rows at all, so `status` never applies. Keep one vocabulary; the mode decides which subset is in play.
 
 ### Classification + roster
 
