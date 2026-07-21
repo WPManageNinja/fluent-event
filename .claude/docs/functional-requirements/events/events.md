@@ -110,16 +110,17 @@ Index: UNIQUE `(ticket_code)`, `(event_id, status)`, `(registration_id)`, `(emai
 
 ### Classification + roster
 
-**Organizer, venue, event type = WP taxonomies** on the `fevents_event` post
-(`fevents_organizer` / `fevents_venue` / `fevents_event_type`) — reusable across events,
-filterable, each with a free public archive + auto event count. Extra fields live in
-`wp_termmeta` (organizer: email/phone/website/logo; venue: address/city/map; type:
-color/icon). Assign with `wp_set_object_terms($post_id, $termIds, $tax)`; query with
-`tax_query`. Full flows in [db/implementation.md](../../db/implementation.md).
+**Organizer, venue, event type, performer = WP taxonomies** on the `fevents_event` post
+(`fevents_organizer` / `fevents_venue` / `fevents_event_type` / `fevents_performer`) —
+reusable across events, filterable, each with a free public archive + auto event count.
+Extra fields live in `wp_termmeta` (organizer: email/phone/website/logo; venue:
+address/city/map; type: color/icon; performer: photo/designation/social). Assign with
+`wp_set_object_terms($post_id, $termIds, $tax)`; query with `tax_query`. Full flows in
+[db/implementation.md](../../db/implementation.md).
 
-**Performer / speaker = deferred** — a speaker is a content entity (bio, photo, profile
-page), so it arrives later as its own CPT (`fevents_performer`), not a taxonomy and not a
-column. There is **no `people` table**.
+> **Performer is intentionally thin** — a name + photo you tag events with, no bio/profile
+> page. If rich speaker profiles are ever needed it'd migrate to a CPT; for now taxonomy
+> is enough. There is **no `people` table**.
 
 **Sponsors = deferred** — no sponsor table in this milestone. If sponsors return they'll
 be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
@@ -229,9 +230,9 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 ### FR-6.17 — Classification & organizers
 
-- Assign **organizers**, **venue**, and **event type** by picking/creating **taxonomy terms** (`fevents_organizer` / `fevents_venue` / `fevents_event_type`) — reusable across events, each surfaced on a filterable public archive with an auto event count; organizer/venue details (email/phone/address/map/logo) come from term meta.
-- **Speakers/performers** and **sponsors** are deferred — a future CPT (`fevents_performer`) and a future taxonomy (`fevents_sponsor`) respectively; not part of this milestone.
-- Any event type uses as many or few organizers as it needs (a wedding: none; a conference: many).
+- Assign **organizers**, **venue**, **event type**, and **performers** by picking/creating **taxonomy terms** (`fevents_organizer` / `fevents_venue` / `fevents_event_type` / `fevents_performer`) — reusable across events, each surfaced on a filterable public archive with an auto event count; details (email/phone/address/map/logo/photo) come from term meta.
+- Performer terms are **thin** (name + photo + designation) — no bio/profile page this milestone. **Sponsors** are deferred (future taxonomy `fevents_sponsor`).
+- Any event type uses as many or few as it needs (a wedding: none; a conference: many organizers + speakers).
 
 ## Acceptance criteria
 

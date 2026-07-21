@@ -230,5 +230,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 --       term meta: fevents_address, fevents_city, fevents_map_url, fevents_lat, fevents_lng
 --   fevents_organizer  (hierarchical) — who runs it (reusable across events)
 --       term meta: fevents_email, fevents_phone, fevents_website, fevents_social, fevents_logo_id
--- Roster performer/speaker = deferred (future CPT 'fevents_performer').
+--   fevents_performer  (flat) — speaker/artist (thin: name + photo, no profile page)
+--       term meta: fevents_photo_id, fevents_designation, fevents_social
+-- Sponsors = deferred (future taxonomy 'fevents_sponsor' if needed).
 -- ============================================================

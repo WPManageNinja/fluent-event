@@ -199,3 +199,4 @@ Table wp_termmeta {
 //   fevents_event_type (hierarchical) — category/type of event; term meta: fevents_color, fevents_icon_id
 //   fevents_venue (hierarchical) — where (view-only place); term meta: fevents_address, fevents_city, fevents_map_url, fevents_lat, fevents_lng
 //   fevents_organizer (hierarchical) — who runs it (reusable across events); term meta: fevents_email, fevents_phone, fevents_website, fevents_social, fevents_logo_id
+//   fevents_performer (flat) — speaker/artist (thin: name + photo, no profile page); term meta: fevents_photo_id, fevents_designation, fevents_social

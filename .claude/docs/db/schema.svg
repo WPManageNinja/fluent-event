@@ -398,8 +398,8 @@
 <text x="1492" y="715" font-size="9" fill="#4a5561">· fevents_event_type  (color, icon)</text>
 <text x="1492" y="730" font-size="9" fill="#4a5561">· fevents_venue       (address, map)</text>
 <text x="1492" y="745" font-size="9" fill="#4a5561">· fevents_organizer   (email, phone, logo)</text>
-<text x="1492" y="760" font-size="9" fill="#4a5561">extra fields -&gt; wp_termmeta</text>
-<text x="1492" y="775" font-size="9" fill="#4a5561">event &lt;-&gt; term -&gt; wp_term_relationships</text>
-<text x="1492" y="790" font-size="9" fill="#4a5561">performer/speaker = later CPT</text>
+<text x="1492" y="760" font-size="9" fill="#4a5561">· fevents_performer   (photo, designation)</text>
+<text x="1492" y="775" font-size="9" fill="#4a5561">extra fields -&gt; wp_termmeta</text>
+<text x="1492" y="790" font-size="9" fill="#4a5561">event &lt;-&gt; term -&gt; wp_term_relationships</text>
 </g>
 </svg>

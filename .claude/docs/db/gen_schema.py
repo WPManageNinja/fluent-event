@@ -137,6 +137,8 @@ TAXONOMIES = [
     ["fevents_address","fevents_city","fevents_map_url","fevents_lat","fevents_lng"]),
  ("fevents_organizer", "hierarchical", "who runs it (reusable across events)",
     ["fevents_email","fevents_phone","fevents_website","fevents_social","fevents_logo_id"]),
+ ("fevents_performer", "flat", "speaker/artist (thin: name + photo, no profile page)",
+    ["fevents_photo_id","fevents_designation","fevents_social"]),
 ]
 
 def esc(s): return html.escape(s, quote=False)
@@ -188,7 +190,7 @@ def emit_sql():
     for tax,hier,purpose,metas in TAXONOMIES:
         L.append(f"--   {tax}  ({hier}) — {purpose}")
         L.append(f"--       term meta: {', '.join(metas)}")
-    L.append("-- Roster performer/speaker = deferred (future CPT 'fevents_performer').")
+    L.append("-- Sponsors = deferred (future taxonomy 'fevents_sponsor' if needed).")
     L.append("-- ============================================================")
     open(os.path.join(DIR,"schema.sql"),"w").write("\n".join(L)+"\n")
 
@@ -347,8 +349,8 @@ def emit_svg():
     P.append(f'<text x="{nx+12}" y="{ny+20}" font-size="10.5" font-weight="700" fill="#4a3a5a">Taxonomies (purple = WP-native)</text>')
     lines=["registered on post_type=fevents_event:","· fevents_event_type  (color, icon)",
       "· fevents_venue       (address, map)","· fevents_organizer   (email, phone, logo)",
-      "extra fields -> wp_termmeta","event <-> term -> wp_term_relationships",
-      "performer/speaker = later CPT"]
+      "· fevents_performer   (photo, designation)","extra fields -> wp_termmeta",
+      "event <-> term -> wp_term_relationships"]
     for i,ln in enumerate(lines):
         P.append(f'<text x="{nx+12}" y="{ny+40+i*15}" font-size="9" fill="#4a5561">{esc(ln)}</text>')
     P.append('</g>')

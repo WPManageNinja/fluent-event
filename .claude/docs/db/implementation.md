@@ -2,7 +2,7 @@
 
 > How the schema is put together and how we build against it. Locked decisions:
 > **event = CPT hybrid** (wp_posts + wp_postmeta + `wp_fevents_events`); **category,
-> venue, organizer = WP taxonomies**; **performer/speaker = deferred** (future CPT).
+> venue, organizer, performer = WP taxonomies** (performer thin: name+photo, no profile).
 > Diagram: [schema.svg](schema.svg). DDL: [schema.sql](schema.sql). Generator:
 > [gen_schema.py](gen_schema.py) — edit the spec there, never hand-edit the 3 outputs.
 
@@ -13,9 +13,9 @@
 | Event identity — title, description, slug, status, author, cover | **`wp_posts`** (`post_type=fevents_event`) | free permalink `/events/x/`, block editor, admin, REST, search, archive |
 | Event flexible / config — `_fevents_form_fields`, `_fevents_settings`, addon fields | **`wp_postmeta`** | open-ended, extensible by add-ons, never range-queried |
 | Event machine data — dates, timezone, venue_type, join_policy, waitlist, calendar_id, currency, status | **`wp_fevents_events`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
-| Category / type, venue, organizer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
+| Category / type, venue, organizer, performer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
 | Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`registrations`→`guests`) | high-volume, transactional, typed, `SUM`/`sold<capacity` queries |
-| Performer / speaker | **later** — future CPT `fevents_performer` | it's a content entity (bio, photo, profile page), not a label |
+| Performer detail | `fevents_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
 
 **Key identity rule:** `wp_fevents_events.id` is the internal PK all ticketing FKs use
 (`event_id`). `wp_fevents_events.post_id` is the 1:1 link to the `wp_posts` row and the
@@ -36,12 +36,12 @@ register_post_type('fevents_event', [
 
 // Classification — reusable, filterable, browsable, with term meta.
 foreach ([
-    'fevents_event_type' => ['label' => 'Event Types'],
-    'fevents_venue'      => ['label' => 'Venues'],
-    'fevents_organizer'  => ['label' => 'Organizers'],
+    'fevents_event_type' => ['label' => 'Event Types', 'hierarchical' => true],
+    'fevents_venue'      => ['label' => 'Venues',       'hierarchical' => true],
+    'fevents_organizer'  => ['label' => 'Organizers',   'hierarchical' => true],
+    'fevents_performer'  => ['label' => 'Performers',    'hierarchical' => false], // flat, like tags
 ] as $tax => $args) {
     register_taxonomy($tax, 'fevents_event', [
-        'hierarchical' => true,             // parent/child + term editor UI
         'public'       => true,
         'show_in_rest' => true,
     ] + $args);
@@ -108,6 +108,7 @@ Term meta keys per taxonomy:
 - `fevents_event_type` → `fevents_color`, `fevents_icon_id`
 - `fevents_venue` → `fevents_address`, `fevents_city`, `fevents_map_url`, `fevents_lat`, `fevents_lng` *(view-only; no geo query)*
 - `fevents_organizer` → `fevents_email`, `fevents_phone`, `fevents_website`, `fevents_social`, `fevents_logo_id`
+- `fevents_performer` → `fevents_photo_id`, `fevents_designation`, `fevents_social` *(thin — no bio/profile)*
 
 ## 5. Reads
 
@@ -124,7 +125,7 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
 
 ## 6. What changed from the previous schema
 
-- **Dropped** `wp_fevents_people` (organizer → taxonomy; speaker → future CPT).
+- **Dropped** `wp_fevents_people` (organizer + performer → taxonomies).
 - **Event** reshaped into a CPT extension: `title` / `slug` / `description` → `wp_posts`;
   `visibility` → `post_status`; `created_by` → `post_author`; `cover_image_id` →
   `_thumbnail_id`; `form_fields` / `settings` → `wp_postmeta`; `address` / `lat` / `lon`
