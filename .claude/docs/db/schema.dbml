@@ -168,16 +168,15 @@ Table wp_fevents_guests {
 Table wp_fevents_notification_prefs {
   id bigint [primary key, increment]
   user_id bigint [not null, ref: > wp_users.ID]
-  scope_type varchar [not null]
-  scope_id bigint [not null]
-  event_key varchar [not null]
-  channel varchar [not null]
+  object_type varchar [not null]
+  object_id bigint [not null]
+  pref_key varchar [not null]
   enabled tinyint [not null]
   created_at timestamp [not null]
   updated_at timestamp [not null]
   indexes {
-    (user_id, scope_type, scope_id, event_key, channel) [name: 'uq_notif_pref', unique]
-    (event_key, channel, enabled) [name: 'idx_pref_trigger']
+    (user_id, object_type, object_id, pref_key) [name: 'uq_notif_pref', unique]
+    (object_type, object_id, pref_key, enabled) [name: 'idx_pref_object']
   }
 }
 
