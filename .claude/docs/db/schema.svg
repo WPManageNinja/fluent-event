@@ -217,23 +217,23 @@
 <path d="M1012,139 L1016,143 L1012,147 L1008,143 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="1022" y="146" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">price</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
 <path d="M1012,157 L1016,161 L1012,165 L1008,161 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">compare_at_price</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
-<path d="M1012,175 L1016,179 L1012,183 L1008,179 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">capacity</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<text x="1022" y="164" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">capacity</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,175 L1016,179 L1012,183 L1008,179 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="182" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sold</tspan> <tspan fill="#5a6470">INT</tspan></text>
 <path d="M1012,193 L1016,197 L1012,201 L1008,197 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1022" y="200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sold</tspan> <tspan fill="#5a6470">INT</tspan></text>
-<path d="M1012,211 L1016,215 L1012,219 L1008,215 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1022" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">min_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<text x="1022" y="200" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">min_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,211 L1016,215 L1012,219 L1008,215 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="218" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">max_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
 <path d="M1012,229 L1016,233 L1012,237 L1008,233 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">max_per_reg</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<text x="1022" y="236" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_start_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
 <path d="M1012,247 L1016,251 L1012,255 L1008,251 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_start_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
-<path d="M1012,265 L1016,269 L1012,273 L1008,269 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_end_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<text x="1022" y="254" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sale_end_at</tspan> <tspan fill="#5a6470">DATETIME</tspan></text>
+<path d="M1012,265 L1016,269 L1012,273 L1008,269 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="1022" y="272" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
 <path d="M1012,283 L1016,287 L1012,291 L1008,287 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1022" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M1012,301 L1016,305 L1012,309 L1008,305 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1022" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<text x="1022" y="290" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sort_order</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<path d="M1012,301 L1016,305 L1012,309 L1008,305 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="1022" y="308" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
 <path d="M1012,319 L1016,323 L1012,327 L1008,323 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="1022" y="326" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
 <path d="M1012,337 L1016,341 L1012,345 L1008,341 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>

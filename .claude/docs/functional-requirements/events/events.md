@@ -53,15 +53,15 @@ table column.)*
 | `event_id` | BIGINT FK | → event |
 | `type` | VARCHAR | tier name; auto **"General"** if none defined |
 | `price` | DECIMAL(10,2) | actual charge; `0` = free (currency on the event) |
-| `compare_at_price` | DECIMAL(10,2) NULL | "was" price, shown struck-through (early-bird). Display-only; NULL = not on sale. Maps 1:1 to FluentCart `compare_price`. Coupons/discount codes stay in FluentCart. |
 | `capacity` | INT NULL | seats for this tier; null = unlimited |
-| `sold` | INT | cached — **remaining = capacity − sold**; sold-out is computed |
+| `sold` | INT | stored counter — **remaining = capacity − sold**; reserved via atomic `UPDATE … WHERE sold+q≤capacity` (CAS, no oversell); display sold/remaining = O(1) |
 | `min_per_reg` / `max_per_reg` | INT | tickets-per-registration limits |
 | `sale_start_at` / `sale_end_at` | DATETIME NULL | early-bird windows |
 | `status` | VARCHAR | `active` \| `hidden` |
-| `sort_order` | INT | |
+| `sort_order` | INT | admin display order of tiers |
+| `settings` | JSON NULL | **view-only / cosmetic fields** — holds `compare_at_price` (the struck-through "was" price, maps to FluentCart `compare_price`) + future per-tier config. Nothing here is queried; real discount codes stay in FluentCart. |
 
-Index: `(event_id, status)`.
+Index: `(event_id, status)`. Only queried columns are real (event_id, status, capacity, sold, sale window, price, sort_order); display-only fields live in `settings`.
 
 **`wp_fevents_registrations`** — one purchase (buyer + payment, N tickets). **Payment lives here.**
 
