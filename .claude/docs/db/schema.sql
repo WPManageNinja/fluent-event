@@ -48,7 +48,6 @@ CREATE TABLE `wp_fevents_meta` (
 
 CREATE TABLE `wp_fevents_notifications` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `recipient_id` BIGINT UNSIGNED NOT NULL,
   `actor_id` BIGINT UNSIGNED NULL,
   `action` VARCHAR(64) NOT NULL,
   `object_type` VARCHAR(64) NULL,
@@ -56,14 +55,10 @@ CREATE TABLE `wp_fevents_notifications` (
   `title` VARCHAR(255) NULL,
   `content` TEXT NULL,
   `route` TEXT NULL,
-  `read_at` DATETIME NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_notification` (`recipient_id`, `action`, `object_id`),
-  KEY `idx_notif_recipient` (`recipient_id`, `read_at`),
   KEY `idx_notif_object` (`object_type`, `object_id`),
   KEY `idx_notif_action` (`action`),
-  CONSTRAINT `fk_notifications_recipient_id` FOREIGN KEY (`recipient_id`) REFERENCES `wp_users` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `fk_notifications_actor_id` FOREIGN KEY (`actor_id`) REFERENCES `wp_users` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -177,6 +172,22 @@ CREATE TABLE `wp_fevents_guests` (
   CONSTRAINT `fk_guests_event_id` FOREIGN KEY (`event_id`) REFERENCES `wp_fevents_events` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_guests_registration_id` FOREIGN KEY (`registration_id`) REFERENCES `wp_fevents_registrations` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_guests_ticket_type_id` FOREIGN KEY (`ticket_type_id`) REFERENCES `wp_fevents_ticket_types` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `wp_fevents_notification_users` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `object_type` VARCHAR(64) NOT NULL,
+  `notification_type` VARCHAR(64) NOT NULL,
+  `object_id` BIGINT UNSIGNED NOT NULL,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `is_read` TINYINT(1) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_notif_user` (`user_id`, `object_type`, `object_id`, `notification_type`),
+  KEY `idx_notif_user_inbox` (`user_id`, `is_read`, `object_type`),
+  KEY `idx_notif_user_object` (`object_id`, `is_read`, `object_type`, `notification_type`),
+  CONSTRAINT `fk_notification_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `wp_users` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_terms` (

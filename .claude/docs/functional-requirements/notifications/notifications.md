@@ -6,41 +6,45 @@
 
 ## Design principles
 
-- **One row per recipient** (not one shared row) — clean per-user read state.
+- **Record + delivery split (fcom)** — content stored **once** in `notifications`; a **thin per-recipient row** in `notification_users` carries read-state. Reading the inbox is a join; content isn't duplicated across recipients.
 - **Typed action** from a registry (constants), not free text.
 - **Polymorphic object** (`object_type` + `object_id`) — know what it's about.
-- **Store rendered `title` + `content`** (like fcom) — read is a plain select, no object re-resolve, and display survives the source object being deleted. In-app audience is managers only, so per-viewer i18n isn't a concern.
+- **Store rendered `title` + `content`** (like fcom, once on the record) — read is a plain select, no object re-resolve, and display survives the source object being deleted. In-app audience is logged-in wp_users, so per-viewer i18n isn't a concern.
+- **Prefs on the same `notification_users` table** (`object_type='notification_pref'`) — no separate prefs table.
 - **Channels via prefs** — the dispatcher decides in-app + email per the user's settings.
 - **User-facing, not a system log.** FR-9 is per-recipient, read/unread, with deep links — for the person, not an immutable admin audit trail.
 
-## Data model
+## Data model — 2 tables (fcom split)
 
-**Table: `wp_fevents_notifications`** — one row per recipient per notification.
+**`wp_fevents_notifications`** — the notification **record**, one row per event (render-once).
 
-| Column         | Type          | Notes                                        |
-| -------------- | ------------- | -------------------------------------------- |
-| `id`           | BIGINT PK     |                                              |
-| `recipient_id` | BIGINT        | who sees it                                  |
-| `actor_id`     | BIGINT NULL   | who triggered it; null = system              |
-| `action`       | VARCHAR       | typed registry (e.g. `event.join_requested`) |
-| `object_type`  | VARCHAR NULL  | `event` \| `calendar` …                      |
-| `object_id`    | BIGINT NULL   | what it's about                              |
-| `title`        | VARCHAR NULL  | rendered notification title                  |
-| `content`      | TEXT NULL     | rendered notification body                   |
-| `route`        | TEXT NULL     | deep link in the portal                      |
-| `read_at`      | DATETIME NULL | null = unread                                |
-| `created_at`   | TIMESTAMP     |                                              |
+| Column        | Type          | Notes                                        |
+| ------------- | ------------- | -------------------------------------------- |
+| `id`          | BIGINT PK     |                                              |
+| `actor_id`    | BIGINT NULL   | who triggered it; null = system              |
+| `action`      | VARCHAR       | typed registry (e.g. `event.join_requested`) |
+| `object_type` | VARCHAR NULL  | `event` \| `calendar` …                      |
+| `object_id`   | BIGINT NULL   | what it's about                              |
+| `title`       | VARCHAR NULL  | rendered title (stored once)                 |
+| `content`     | TEXT NULL     | rendered body (stored once)                  |
+| `route`       | TEXT NULL     | deep link in the portal                      |
+| `created_at`  | TIMESTAMP     |                                              |
 
-Indexes: `(recipient_id, read_at)`, `(object_type, object_id)`, `(action)`. **Unique `(recipient_id, action, object_id)`** — makes the background fan-out idempotent: a re-run `INSERT IGNORE`s, so a retried worker never double-creates rows.
+Indexes: `(object_type, object_id)`, `(action)`. No `recipient_id` — recipients live in the next table.
 
-**Preferences** — no new table. Stored in `wp_fevents_meta` (`object_type='user'`, `meta_key='notification_prefs'`):
+**`wp_fevents_notification_users`** — per-recipient **delivery** AND per-user **prefs** in one table, split by `object_type` (fcom's model):
 
-```json
-{
-	"event.join_requested": { "in_app": true, "email": true },
-	"event.reminder": { "in_app": true, "email": false }
-}
-```
+| Column              | delivery (`object_type='notification'`) | pref (`object_type='notification_pref'`) |
+| ------------------- | --------------------------------------- | ---------------------------------------- |
+| `notification_type` | channel (`web`)                         | the pref key                             |
+| `object_id`         | the `notifications.id`                  | scope (calendar / event id, 0=global)    |
+| `user_id`           | recipient (wp_user)                     | pref owner (wp_user)                     |
+| `is_read`           | read / unread                           | enabled (0/1) — *repurposed*             |
+
+- **Unique `(user_id, object_type, object_id, notification_type)`** — idempotent fan-out (delivery rows `INSERT IGNORE`) **and** one pref per (user, scope, key).
+- Indexes `(user_id, is_read, object_type)` — a user's inbox / a user's prefs; `(object_id, is_read, object_type, notification_type)` — recipients of a notification / who's subscribed to X.
+
+Reading the inbox = `notification_users` (the user's `object_type='notification'` rows) **JOIN** `notifications` (the content). Content stored **once** on the record; delivery rows are thin. **Prefs live here too** (`object_type='notification_pref'`) — no separate prefs table, no `wp_fevents_meta`. **Email → guests only, no rows in either table** (non-negotiable, no DB trace). In-app = logged-in wp_users only.
 
 ## Functional requirements
 
@@ -56,21 +60,21 @@ Dispatch is **always asynchronous** — the triggering request never resolves re
 
 - **Two audience kinds.** A **WP-user audience** (hosts/managers) is keyed by `user_id` → in-app rows **+** email. A **guest audience** (`event_guests`) is keyed by `email` only (anonymous, no account) → **email channel only, no in-app rows**.
 - Resolve the next page from the audience spec — cursor ascending (`user_id` for WP-user audiences, guest row `id` for guest audiences), page ~1000. Re-derive from the spec each chunk; never carry a 100k-id list in the payload.
-- **WP-user audiences:** drop recipients whose `in_app` pref for this `action` is off; **bulk-insert thin rows** (~500–1000 per insert) into `wp_fevents_notifications` with `INSERT IGNORE` against the unique `(recipient_id, action, object_id)` key.
+- **WP-user audiences:** on the first chunk, insert the **one** `wp_fevents_notifications` record (rendered `title`/`content`), keep its `id`. Drop recipients whose `in_app` pref for this `action` is off (read from their `notification_users` `object_type='notification_pref'` rows); **bulk-insert thin delivery rows** (~500–1000 per insert) into `wp_fevents_notification_users` (`object_type='notification'`, `notification_type='web'`, `object_id`=the record id, `is_read=0`) with `INSERT IGNORE` against the unique `(user_id, object_type, object_id, notification_type)` key.
 - Hand the `email`-eligible slice to the email channel (FR-4.7) — its own chunked queue. Guest audiences go straight here (email is their only channel).
 - Advance the cursor. If runtime exceeds a budget (~25s) reschedule self with the cursor; else continue until the audience is exhausted.
 
-**3. Rendered rows.** The producer renders `title` + `content` once (at enqueue) and the fan-out writes them onto each recipient row — read is a plain select, no per-view object resolution, and a later-deleted source object doesn't break the feed. Manager-scale audiences make the per-row duplication trivial (contrast fcom, which shares one content row across a large member fan-out).
+**3. Render once, fan out thin.** The producer renders `title` + `content` once (at enqueue) → **one** `notifications` record. The fan-out writes **thin** `notification_users` delivery rows pointing at it (no content copied per recipient). Read is a join, but content lives in a single row — so wide fan-out stays cheap and a later-deleted source object still renders from the stored record.
 
 **4. Idempotency.** The cursor lives in the action args and the unique index makes re-runs safe: a worker crash mid-fan-out re-runs from the persisted cursor, and duplicate inserts bounce off the key. At-least-once delivery, exactly-once rows.
 
-**5. Inline fast-path (optional).** Default is always-queue. A producer that targets exactly one recipient (e.g. a direct approval) and wants instant feedback may write the single row inline instead of enqueuing — same row shape, same unique key. Not required.
+**5. Inline fast-path (optional).** Default is always-queue. A producer that targets exactly one recipient (e.g. a direct approval) and wants instant feedback may write the record + its one delivery row inline instead of enqueuing — same shape, same unique key. Not required.
 
 Producers fire `do_action('fluent_events/notify', $descriptor)` and never insert notification rows directly; the notification module owns the single subscriber that enqueues the fan-out.
 
 ### FR-9.2 — In-app feed
 
-- A notification list (bell) with an **unread count**; mark one or **all** read (`read_at`).
+- A notification list (bell) with an **unread count**; mark one or **all** read (`is_read` on the user's `notification_users` rows).
 - Clicking a notification follows its `route` to the relevant page.
 
 ### FR-9.3 — Preferences
@@ -91,7 +95,7 @@ Typed, namespaced action registry. At least:
 
 - A trigger creates an in-app row only for recipients whose prefs allow it; email goes only where the email channel is on.
 - Triggering a notification does not block on fan-out — the request returns immediately and rows are written by the background batch worker (near-instant for small audiences, chunked for large); a worker retry never creates duplicate rows.
-- Unread count reflects rows with `read_at IS NULL`; mark-all-read clears it.
+- Unread count reflects `notification_users` rows with `is_read = 0` (`object_type='notification'`); mark-all-read sets `is_read = 1`.
 - Clicking a notification lands on the right page via `route`.
 - Turning off a notification type stops both its in-app and email delivery (per channel toggle).
 - Old read notifications are pruned on schedule.

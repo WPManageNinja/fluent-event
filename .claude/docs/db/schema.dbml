@@ -43,7 +43,6 @@ Table wp_fevents_meta {
 
 Table wp_fevents_notifications {
   id bigint [primary key, increment]
-  recipient_id bigint [not null, ref: > wp_users.ID]
   actor_id bigint [ref: > wp_users.ID]
   action varchar [not null]
   object_type varchar
@@ -51,11 +50,8 @@ Table wp_fevents_notifications {
   title varchar
   content text
   route text
-  read_at datetime
   created_at timestamp [not null]
   indexes {
-    (recipient_id, action, object_id) [name: 'uq_notification', unique]
-    (recipient_id, read_at) [name: 'idx_notif_recipient']
     (object_type, object_id) [name: 'idx_notif_object']
     action [name: 'idx_notif_action']
   }
@@ -162,6 +158,22 @@ Table wp_fevents_guests {
   indexes {
     ticket_code [name: 'uq_guests_ticket_code', unique]
     (event_id, status) [name: 'idx_guest_event_status']
+  }
+}
+
+Table wp_fevents_notification_users {
+  id bigint [primary key, increment]
+  object_type varchar [not null]
+  notification_type varchar [not null]
+  object_id bigint [not null]
+  user_id bigint [not null, ref: > wp_users.ID]
+  is_read tinyint [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  indexes {
+    (user_id, object_type, object_id, notification_type) [name: 'uq_notif_user', unique]
+    (user_id, is_read, object_type) [name: 'idx_notif_user_inbox']
+    (object_id, is_read, object_type, notification_type) [name: 'idx_notif_user_object']
   }
 }
 
