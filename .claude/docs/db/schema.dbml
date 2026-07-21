@@ -76,10 +76,8 @@ Table wp_fevents_events {
   calendar_id bigint [not null, ref: > wp_fevents_calendars.id]
   parent_event_id bigint [ref: > wp_fevents_events.id]
   venue_type varchar [not null]
-  online_meeting_url varchar
-  join_policy varchar [not null]
-  waitlist_enabled tinyint [not null]
   currency varchar
+  settings json
   created_at timestamp [not null]
   updated_at timestamp [not null]
   indexes {

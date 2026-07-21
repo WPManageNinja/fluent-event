@@ -50,8 +50,7 @@ T = {
     ("status","VARCHAR(64)","!"),("start_at","DATETIME","!"),("end_at","DATETIME","!"),
     ("timezone","VARCHAR(64)","!"),("calendar_id","BIGINT UNSIGNED","F!"),
     ("parent_event_id","BIGINT UNSIGNED","F"),("venue_type","VARCHAR(64)","!"),
-    ("online_meeting_url","VARCHAR(255)",""),("join_policy","VARCHAR(64)","!"),
-    ("waitlist_enabled","TINYINT(1)","!"),("currency","VARCHAR(3)",""),
+    ("currency","VARCHAR(3)",""),("settings","JSON",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
 
  "wp_fevents_ticket_types": ("app", COL2, 40, [

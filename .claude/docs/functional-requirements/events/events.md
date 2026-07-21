@@ -12,7 +12,7 @@
 - **One buyer, many tickets.** Buy 3 → **1 registration** (one payment) + **3 guests** (three attendees' info). Each ticket has its own name/email/phone + form answers.
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `events.form_fields` (JSON); each attendee's answers save to `guests.form_response` (JSON).
-- **Mode** via `events.venue_type` (online / offline / hybrid); **policy** via `events.join_policy` (open / approval / invite_only).
+- **Mode** via `events.venue_type` (online / offline / hybrid); **policy** via `events.settings.join_policy` (open / approval / invite_only).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
 - **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per registration** (one payment covers all its tickets), not per guest.
 
@@ -34,16 +34,16 @@ the physical place (address/map) is `fevents_venue` term meta, not an event colu
 | ------ | ---- | ----- |
 | `post_id` | BIGINT FK UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor |
 | `status` | VARCHAR | lifecycle: `active` \| `cancelled` \| `completed` (editorial draft/publish = `post_status`) |
-| `start_at` / `end_at` / `timezone` | DATETIME / VARCHAR | indexed date window |
-| `venue_type` | VARCHAR | `online` \| `offline` \| `hybrid` |
-| `online_meeting_url` | VARCHAR | online/hybrid link |
-| `join_policy` | VARCHAR | `open` \| `approval` \| `invite_only` |
+| `start_at` / `end_at` | DATETIME (**UTC**) | stored in UTC; indexed window (`idx_event_window`) |
+| `timezone` | VARCHAR | IANA tz (e.g. `Asia/Dhaka`) — to display, handle DST, ICS export, reminders |
+| `venue_type` | VARCHAR | event **mode**: `online` \| `offline` \| `hybrid`. The physical place = `fevents_venue` **term** (address/lat/lon/map/website in term meta, reused across events). |
 | `calendar_id` | BIGINT FK | → calendar (grouping stays a custom table) |
-| `currency` | VARCHAR NULL | ISO 4217 for the event (one currency per event) |
-| `waitlist_enabled` | TINYINT | auto-waitlist when a tier is full |
+| `currency` | VARCHAR NULL | ISO 4217 for the event (one currency; qualifies ticket price) |
+| `settings` | JSON NULL | per-event behavior/display config — `online_meeting_url` (per-event link), `join_policy` (`open`/`approval`/`invite_only`), `waitlist_enabled`, + future. Not queried. |
 
-*(the **dynamic form definition** now lives in `wp_postmeta._fevents_form_fields`, not a
-table column.)*
+*(Only **queried** columns are typed; per-event config lives in `settings`, dynamic form
+in `wp_postmeta._fevents_form_fields`. Venue **place** data → `fevents_venue` term meta;
+the **online link is per-event** (`settings`), never term meta.)*
 
 **`wp_fevents_ticket_types`** — price tiers.
 
@@ -150,7 +150,7 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 - **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `capacity`, `min_per_reg` / `max_per_reg`, and an optional sale window.
 - **Capacity is per tier** (total event capacity = sum of tier capacities). `remaining = capacity − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). Freeing a ticket auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
-- **Approval** via `events.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
+- **Approval** via `events.settings.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
 - **Free or paid.** Paid events take payment through **Paymattic** before the registration is `confirmed`. Payment is **per registration** (one payment for all its tickets).
 - **Payment record = thin reference on the registration.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `total_amount` / `currency` / `paid_at` on `registrations`. Flow: pay → Paymattic → **webhook** → set `payment_status = paid` + `payment_ref` → registration `confirmed`, its guests `attending`. No card/gateway data our side (out of PCI scope).
 

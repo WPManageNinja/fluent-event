@@ -116,7 +116,7 @@
 <text x="48" y="985" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
 </g>
 <g>
-<rect x="520" y="70" width="300" height="308" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<rect x="520" y="70" width="300" height="272" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M520,74 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="528" y="77" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
 <text x="544" y="85" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_events</text>
@@ -139,19 +139,15 @@
 <path d="M532,241 L536,245 L532,249 L528,245 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="542" y="248" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">venue_type</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
 <path d="M532,259 L536,263 L532,267 L528,263 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="542" y="266" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">online_meeting_url</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
-<path d="M532,277 L536,281 L532,285 L528,281 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="542" y="284" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">join_policy</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<text x="542" y="266" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">currency</tspan> <tspan fill="#5a6470">VARCHAR(3)</tspan></text>
+<path d="M532,277 L536,281 L532,285 L528,281 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
+<text x="542" y="284" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
 <path d="M532,295 L536,299 L532,303 L528,299 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="542" y="302" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">waitlist_enabled</tspan> <tspan fill="#5a6470">TINYINT(1)</tspan></text>
-<path d="M532,313 L536,317 L532,321 L528,317 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="542" y="320" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">currency</tspan> <tspan fill="#5a6470">VARCHAR(3)</tspan></text>
-<path d="M532,331 L536,335 L532,339 L528,335 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="542" y="338" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M532,349 L536,353 L532,357 L528,353 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="542" y="356" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="520" y="362" width="300" height="16" fill="#c3cedb"/>
-<text x="528" y="373" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<text x="542" y="302" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M532,313 L536,317 L532,321 L528,317 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="542" y="320" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="520" y="326" width="300" height="16" fill="#c3cedb"/>
+<text x="528" y="337" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
 </g>
 <g>
 <rect x="1000" y="70" width="300" height="326" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
