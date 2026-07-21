@@ -22,9 +22,9 @@ T = {
     ("ID","BIGINT UNSIGNED","P"),("user_login","VARCHAR(60)","!"),
     ("user_email","VARCHAR(100)","!"),("display_name","VARCHAR(250)","!")]),
  "wp_fevents_calendars": ("app", COL0, 190, [
-    ("id","BIGINT UNSIGNED","P"),("name","VARCHAR(255)","!"),("slug","VARCHAR(255)","U!"),
-    ("description","TEXT",""),("logo_media_id","BIGINT UNSIGNED","F"),
-    ("cover_media_id","BIGINT UNSIGNED","F"),("visibility","VARCHAR(64)","!"),
+    ("id","BIGINT UNSIGNED","P"),("title","VARCHAR(255)","!"),("slug","VARCHAR(255)","U!"),
+    ("description","TEXT",""),("logo_url","VARCHAR(255)",""),
+    ("cover_url","VARCHAR(255)",""),("visibility","VARCHAR(64)","!"),
     ("settings","JSON",""),("status","VARCHAR(64)","!"),("created_by","BIGINT UNSIGNED","F!"),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fevents_meta": ("app", COL0, 470, [
@@ -109,8 +109,6 @@ IDX = {
 
 # FK: (child, col, parent, pcol, on_delete)
 FK = [
- ("wp_fevents_calendars","logo_media_id","wp_posts","ID","SET NULL"),
- ("wp_fevents_calendars","cover_media_id","wp_posts","ID","SET NULL"),
  ("wp_fevents_calendars","created_by","wp_users","ID","RESTRICT"),
  ("wp_posts","post_author","wp_users","ID","RESTRICT"),
  ("wp_postmeta","post_id","wp_posts","ID","CASCADE"),

@@ -10,11 +10,11 @@ Table wp_users {
 
 Table wp_fevents_calendars {
   id bigint [primary key, increment]
-  name varchar [not null]
+  title varchar [not null]
   slug varchar [unique, not null]
   description text
-  logo_media_id bigint [ref: > wp_posts.ID]
-  cover_media_id bigint [ref: > wp_posts.ID]
+  logo_url varchar
+  cover_url varchar
   visibility varchar [not null]
   settings json
   status varchar [not null]

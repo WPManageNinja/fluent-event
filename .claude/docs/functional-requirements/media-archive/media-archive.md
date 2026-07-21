@@ -6,7 +6,8 @@
 
 ## Approach
 
-- **Store an attachment ID, not a URL.** `events.cover_image_id`, `calendars.logo_media_id` / `cover_media_id` hold a `wp_posts` attachment ID (nullable). One int — WP owns the file, its metadata (`wp_postmeta`: `_wp_attached_file`, `_wp_attachment_metadata`, `_wp_attachment_image_alt`), and the bytes (`wp-content/uploads/YYYY/MM/`).
+- **Event cover: store an attachment ID, not a URL.** The event cover uses `_thumbnail_id` (WP featured image on the `fevents_event` post) — a `wp_posts` attachment ID. WP owns the file, its metadata (`wp_postmeta`: `_wp_attached_file`, `_wp_attachment_metadata`, `_wp_attachment_image_alt`), and the bytes (`wp-content/uploads/YYYY/MM/`).
+- **Calendar logo/cover: store the URL directly.** `calendars.logo_url` / `cover_url` are plain `VARCHAR` URLs — no attachment FK. A calendar's imagery is often external/branding, so the URL is enough; no media-library coupling.
 - **WP does the heavy lifting** — thumbnail sizes, `srcset`, alt text, and s3/CDN offload (via WP Offload Media / Smush) come free; no custom `driver`/storage layer.
 - **Low volume justifies it.** A cover per event, a logo/cover per calendar, email branding — a handful of attachments. `wp_posts` bloat is negligible, so a custom media table isn't worth the code. (Contrast: fcom is fully custom for feed/avatar scale; fluent-cart uses the WP library for product images and a custom driver only for gated downloads — we have no gated files, so WP library all the way.)
 

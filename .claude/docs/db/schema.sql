@@ -16,11 +16,11 @@ CREATE TABLE `wp_users` (
 
 CREATE TABLE `wp_fevents_calendars` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
   `slug` VARCHAR(255) NOT NULL,
   `description` TEXT NULL,
-  `logo_media_id` BIGINT UNSIGNED NULL,
-  `cover_media_id` BIGINT UNSIGNED NULL,
+  `logo_url` VARCHAR(255) NULL,
+  `cover_url` VARCHAR(255) NULL,
   `visibility` VARCHAR(64) NOT NULL,
   `settings` JSON NULL,
   `status` VARCHAR(64) NOT NULL,
@@ -31,8 +31,6 @@ CREATE TABLE `wp_fevents_calendars` (
   UNIQUE KEY `uq_calendars_slug` (`slug`),
   KEY `idx_calendar_visibility` (`visibility`),
   KEY `idx_calendar_status` (`status`),
-  CONSTRAINT `fk_calendars_logo_media_id` FOREIGN KEY (`logo_media_id`) REFERENCES `wp_posts` (`ID`) ON DELETE SET NULL,
-  CONSTRAINT `fk_calendars_cover_media_id` FOREIGN KEY (`cover_media_id`) REFERENCES `wp_posts` (`ID`) ON DELETE SET NULL,
   CONSTRAINT `fk_calendars_created_by` FOREIGN KEY (`created_by`) REFERENCES `wp_users` (`ID`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
