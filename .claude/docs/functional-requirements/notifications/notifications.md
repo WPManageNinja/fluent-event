@@ -49,8 +49,7 @@ silently truncate the routing key).
 | `user_id`           | recipient (wp_user)                     | pref owner (wp_user)                     |
 | `is_read`           | read / unread                           | enabled (0/1) — *repurposed*             |
 
-- **Indexes: `PRIMARY(id)` + the one UNIQUE — nothing else.** `UNIQUE (user_id, object_type,
-  object_id, notification_type)` does **four** jobs at once:
+- **`UNIQUE (user_id, object_type, object_id, notification_type)`** does **four** jobs at once:
   1. **idempotent fan-out** — delivery rows go in with `INSERT IGNORE`, so a worker retry
      can't double-deliver;
   2. **one pref per (user, scope, key)**;
@@ -59,19 +58,22 @@ silently truncate the routing key).
 
   Every column is load-bearing for the uniqueness semantics, so it can't be narrowed.
 
-- **`(user_id, object_type, is_read, object_id)`** — the **unread** path. The badge is
-  `COUNT(*) … AND is_read = 0` with **no `LIMIT`**, so without `is_read` in an index it must
+- **`idx_notif_user_inbox (user_id, is_read, object_type)`** — the **unread** path. The badge
+  is `COUNT(*) … AND is_read = 0` with **no `LIMIT`**, so without `is_read` in an index it must
   test every one of that user's rows (with a back-to-table fetch each) just to return a number
-  — on every page load. Three equality columns then the sort column makes the count
-  **index-only** and the unread list a backward walk with no filesort.
+  — on every page load. All three filter columns are in this index, so the count is
+  **covering** (index-only, zero row fetches).
 
   *Why this is needed even though fan-out is small:* fan-out width (~1–10 recipients per
   trigger) is not inbox depth. A busy host accumulates thousands of rows over a year of
-  events, so this scales with **time**, not recipient count.
+  events, so this scales with **time**, not recipient count. It carries no sort column, so an
+  unread list ordered by date still costs a filesort — acceptable, since the badge (the
+  per-page-load query) is the hot one.
 
-- **Dropped** `(object_id, is_read, object_type, notification_type)` — "who received
-  notification X" is an fcom-scale concern (thousands of recipients per post); our fan-out is
-  tiny and nothing in FR-9 queries it.
+- **`idx_notif_user_object (object_id, is_read, object_type, notification_type)`** —
+  recipients of a given notification, and "who is subscribed to this scope". Note `object_id`
+  is **not** leftmost in either other index, so without this one those questions are a table
+  scan.
 
 **Canonical inbox query** — no filesort, no join until the content fetch:
 
@@ -91,7 +93,7 @@ returns newest-first directly.
 
 `notification_type` is `VARCHAR(128)` to match `notifications.action` (pref keys mirror action
 strings); the unique index key stays ≈788 bytes, well inside InnoDB's 3072-byte limit.
-`is_read` defaults to `0` — a delivery row is unread by definition.
+`is_read` carries no DB default — the fan-out insert sets it explicitly (`0` for a new delivery row).
 
 Reading the inbox = `notification_users` (the user's `object_type='notification'` rows) **JOIN** `notifications` (the content). Content stored **once** on the record; delivery rows are thin. **Prefs live here too** (`object_type='notification_pref'`) — no separate prefs table, no `wp_fe_meta`. **Email → guests only, no rows in either table** (non-negotiable, no DB trace). In-app = logged-in wp_users only.
 

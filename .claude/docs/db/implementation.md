@@ -11,9 +11,9 @@
 | Concern | Store | Why |
 |---|---|---|
 | Event identity — title, description, slug, status, author | **`wp_posts`** (`post_type=fevents_event`) | free permalink `/events/x/`, block editor, admin, REST, search, archive |
-| Event flexible / config — `_fevents_settings`, addon fields | **`wp_postmeta`** | open-ended, extensible by add-ons, never range-queried. *(`form_fields` is a JSON **column** on `wp_fe_event_details`, not postmeta.)* |
+| Event add-on / open-ended fields | **`wp_postmeta`** | extensible by add-ons, never range-queried. *(Core event config is the `settings` JSON **column** on `wp_fe_event_details`, not postmeta.)* |
 | Event machine data — dates, timezone, venue_type, calendar_id, parent_event_id, status | **`wp_fe_event_details`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
-| Event config JSON — registration_type, join_policy, waitlist, cover_url, online_meeting_url, recurrence | **`wp_postmeta`** (`_fevents_settings`) | open-ended, never range-queried; event_details has no settings column |
+| Event config JSON — registration_type, join_policy, waitlist, cover_url, online_meeting_url, recurrence | **`wp_fe_event_details.settings`** (JSON column) | travels with the typed row; never range-queried, so it doesn't earn columns |
 | Category / type, venue, organizer, performer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
 | Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `group_id`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<slot` queries |
 | Performer detail | `fevents_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
@@ -54,7 +54,7 @@ foreach ([
 | # | Writes | Notes |
 |---|---|---|
 | 1 | `wp_posts` — 1 `fevents_event` row | title / editor body / slug / status=publish / author |
-| 2 | `wp_postmeta` — `_fevents_settings` config JSON + addon blobs | holds `cover_url`, `registration_type`, `join_policy`, `waitlist_enabled`, `online_meeting_url`, `recurrence` — `event_details` has no `settings` column |
+| 2 | `wp_postmeta` — add-on / open-ended blobs only | core event config is `event_details.settings` (step 4), not postmeta |
 | 3 | `wp_term_relationships` — event ↔ event_type / venue / organizer terms | `wp_set_object_terms($post_id, $termIds, $tax)` (assign, M:N) |
 | 4 | `wp_fe_event_details` — 1 row (`post_id` FK) | typed: start_at, end_at, timezone, venue_type, calendar_id, parent_event_id, status (all NOT NULL except parent_event_id) |
 | 5 | `wp_fe_ticket_types` — N rows (`event_id` = events.id) | tiers |
@@ -72,22 +72,21 @@ DB::transaction(function () use ($data) {
     wp_set_object_terms($postId, (array) $data['organizer_ids'], 'fevents_organizer');
     wp_set_object_terms($postId, (array) $data['venue_ids'],     'fevents_venue');
     wp_set_object_terms($postId, (array) $data['type_ids'],      'fevents_event_type');
-    // typed machine data
+    // typed machine data + the config JSON, one row
     Event::create([
-        'post_id'          => $postId,
-        'status'           => 'active',
-        'start_at'         => $data['start_at'],
-        'end_at'           => $data['end_at'],
-        'timezone'         => $data['timezone'],
-        'calendar_id'      => absint($data['calendar_id']),
-        'venue_type'       => $data['venue_type'],   // all NOT NULL
-    ]);
-    // config JSON is postmeta, NOT columns on event_details
-    update_post_meta($postId, '_fevents_settings', [
-        'registration_type' => $data['registration_type'],   // open|rsvp|ticketed
-        'join_policy'       => $data['join_policy'],
-        'waitlist_enabled'  => (bool) $data['waitlist_enabled'],
-        'cover_url'         => esc_url_raw($data['cover_url']),
+        'post_id'     => $postId,                       // NOT NULL, unique
+        'calendar_id' => absint($data['calendar_id']),  // NOT NULL
+        'status'      => 'public',                      // public|private|draft|archived
+        'start_at'    => $data['start_at'],             // UTC
+        'end_at'      => $data['end_at'],               // UTC
+        'timezone'    => $data['timezone'] ?: null,     // nullable
+        'venue_type'  => $data['venue_type'] ?: null,   // nullable, defaults 'offline'
+        'settings'    => [
+            'registration_type' => $data['registration_type'],   // open|rsvp|ticketed
+            'join_policy'       => $data['join_policy'],
+            'waitlist_enabled'  => (bool) $data['waitlist_enabled'],
+            'cover_url'         => esc_url_raw($data['cover_url']),
+        ],
     ]);
 });
 ```
@@ -134,7 +133,7 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
 - **Dropped** `wp_fe_people` (organizer + performer → taxonomies).
 - **Event** reshaped into a CPT extension: `title` / `slug` / `description` → `wp_posts`;
   `visibility` → `post_status`; `created_by` → `post_author`; `cover_image_id` →
-  `_fevents_settings.cover_url` in `wp_postmeta` (a plain URL, **not** `_thumbnail_id` — see
+  `event_details.settings.cover_url` (a plain URL, **not** `_thumbnail_id` — see
   [FR-7 media](../functional-requirements/media-archive/media-archive.md) for the trade-off);
   `address` / `lat` / `lon` → `fevents_venue` term meta. **Added** `post_id` (1:1 FK, unique,
   taxonomy anchor).

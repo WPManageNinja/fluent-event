@@ -24,7 +24,7 @@
 
 ## FR-7: Media (WordPress media library)
 
-**Summary:** All imagery — event covers/galleries, calendar logos/covers, email branding — uses the **WordPress media library**. No custom media table and no image columns — the resolved image **URL** is stored as JSON config on the owning record (`_fevents_settings.cover_url` in `wp_postmeta` for events, `calendars.settings.logo_url`/`.cover_url` for calendars). WP handles storage, sizes (thumbnails/`srcset`), alt text, and s3/CDN offload (via WP Offload Media). Low volume makes a custom table not worth it.
+**Summary:** All imagery — event covers/galleries, calendar logos/covers, email branding — uses the **WordPress media library**. No custom media table and no image columns — the resolved image **URL** is stored in the owning record's `settings` JSON column (`event_details.settings.cover_url`, `calendars.settings.logo_url`/`.cover_url`). WP handles storage, sizes (thumbnails/`srcset`), alt text, and s3/CDN offload (via WP Offload Media). Low volume makes a custom table not worth it.
 
 → Full spec: [functional-requirements/media-archive/media-archive.md](functional-requirements/media-archive/media-archive.md)
 

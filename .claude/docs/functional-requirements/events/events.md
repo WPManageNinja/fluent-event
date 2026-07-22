@@ -14,8 +14,8 @@
 - **One buyer, many tickets.** Buy 3 → **3 guest rows**, one `is_buyer=1` (holds the single payment), each with its own name/email + form answers.
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `event_details.form_fields` (JSON column); each attendee's answers save to `guests.form_response` (JSON).
-- **Mode** via `event_details.venue_type` (online / offline / hybrid); **policy** via `_fevents_settings.join_policy` (open / approval / invite_only) in `wp_postmeta`.
-- **Entry mode** via `_fevents_settings.registration_type` (`wp_postmeta`) — three ways in, one set of tables:
+- **Mode** via `event_details.venue_type` (online / offline / hybrid); **policy** via `event_details.settings.join_policy` (open / approval / invite_only).
+- **Entry mode** via `event_details.settings.registration_type` — three ways in, one set of tables:
   - **`ticketed`** — buy tickets. Guest rows **require** `ticket_type_id` (paid or free tier), payment on the `is_buyer=1` row. (`ticket_type_id` is now nullable at the DB level — ticketed mode enforces it in the service layer.)
   - **`rsvp`** — free "I'm coming". Guest rows with **`ticket_type_id` = NULL** (no tier at all). Going / not-going tracked purely via `status` (`attending` / `declined`). Headcount = `COUNT(*) WHERE status='attending'`.
   - **`open`** — no registration. **Zero guest rows, zero ticket_types.** Just a published listing (unlimited, free, show up). The event = its `wp_posts` + `wp_fe_event_details` row, no children.
@@ -40,27 +40,32 @@ place (address/map) is `fevents_venue` term meta, not an event column. See
 | Column | Type | Notes |
 | ------ | ---- | ----- |
 | `id` | BIGINT PK | internal PK — what ticketing FKs to (`event_id`) |
-| `post_id` | BIGINT **NOT NULL** UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **Every** details row has its own post — including each recurrence occurrence. |
-| `status` | VARCHAR NOT NULL | lifecycle: `active` \| `cancelled` (upcoming/live/past = derived from dates; editorial draft/publish = `post_status`) |
-| `start_at` / `end_at` | DATETIME **NOT NULL** (**UTC**) | stored in UTC; the indexed date window |
-| `timezone` | VARCHAR NOT NULL | IANA tz (e.g. `Asia/Dhaka`) — display, DST, ICS, reminders |
-| `calendar_id` | BIGINT NOT NULL FK | → calendar (`RESTRICT`) |
+| `post_id` | BIGINT **NOT NULL** UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **Every** details row has its own post — including each recurrence occurrence |
+| `calendar_id` | BIGINT **NOT NULL** FK | → calendar (`RESTRICT`) |
 | `parent_event_id` | BIGINT NULL FK→self | NULL = master/standalone; set = a recurrence **occurrence** of that master (`ON DELETE CASCADE`) |
-| `venue_type` | VARCHAR NOT NULL | event **mode**: `online`/`offline`/`hybrid`. Place = `fevents_venue` term (address/map in term meta) |
+| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `private` \| `draft` \| `archived` |
+| `start_at` / `end_at` | DATETIME **NOT NULL** (**UTC**) | stored in UTC; the indexed date window |
+| `timezone` | VARCHAR **NULL** | IANA tz (e.g. `Asia/Dhaka`) — to display the organizer's local time; also DST, ICS, reminders |
+| `venue_type` | VARCHAR **NULL**, default `'offline'` | event **mode**: `offline` \| `online` \| `hybrid`. Place = `fevents_venue` term (address/map in term meta) |
 | `form_fields` | JSON NULL | **per-guest dynamic form definition** (fields to collect from each attendee) |
+| `settings` | JSON NULL | per-event config — see below |
 | `created_at` / `updated_at` | TIMESTAMP NOT NULL | |
 
-**Every row is self-contained — no inheritance.** There is no `settings` column, no
-`is_overridden`, and no NULL-means-inherit rule. Each details row (master *or* occurrence)
-carries its own complete typed values, and reads are a plain `SELECT` — no `COALESCE`
-against a parent, no `array_merge` of JSON blobs.
+Indexes: `UNIQUE(post_id)`, `(start_at, end_at)`, `(parent_event_id, start_at)`,
+`(calendar_id, start_at)`. The last two double as the FK-required indexes for
+`parent_event_id` and `calendar_id`, so InnoDB creates no duplicates. There is deliberately
+**no index on `status`** — 2–4 values heavily skewed to `public` means the optimizer would
+full-scan past it anyway.
 
-**Per-event config JSON lives in `wp_postmeta`** under `_fevents_settings`, on the event's own
-post — available for every row precisely because `post_id` is now NOT NULL. It holds what
-used to be the `settings` column:
+**Every row is self-contained — no inheritance.** `post_id` is NOT NULL, so a recurrence
+occurrence owns its **own** `wp_posts` row and its own complete values. There is no
+`is_overridden` and no NULL-means-inherit rule: reads are a plain `SELECT`, never a
+`COALESCE` against a parent.
+
+**Per-event config lives in the `settings` JSON column** on this row:
 
 ```json
-// wp_postmeta: _fevents_settings
+// wp_fe_event_details.settings
 { "registration_type": "ticketed",        // open | rsvp | ticketed  (entry mode)
   "join_policy":       "open",            // open | approval | invite_only
   "cover_url":         "https://…/cover.jpg",
@@ -69,8 +74,12 @@ used to be the `settings` column:
   "recurrence":        { "rrule": "…", "generated_until": "…", "window_days": 90 } }
 ```
 
-*(Venue place data → `fevents_venue` term meta; the online link is per-event in
-`_fevents_settings`, never term meta.)*
+*(Venue place data → `fevents_venue` term meta; the online link is per-event in `settings`,
+never term meta.)*
+
+> **Note on `status`:** it carries visibility semantics (`public`/`private`/`draft`/`archived`)
+> which overlap `wp_posts.post_status`. Pick one as authoritative in the service layer —
+> `event_details.status` is the queryable one, so keep `post_status` in step with it on write.
 
 **`wp_fe_ticket_types`** — price tiers.
 
@@ -78,13 +87,13 @@ used to be the `settings` column:
 | ------ | ---- | ----- |
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event |
-| `tier` | VARCHAR | tier name (`General`, `VIP`, `Early Bird`); auto **"General"** if none defined |
+| `tier` | VARCHAR(128) | tier name (`General`, `VIP`, `Early Bird`); auto **"General"** if none defined |
 | `price` | DECIMAL(10,2) | actual charge; `0` = free. **No currency column** — currency is a single global plugin setting (FR-4), not per event or per tier |
 | `slot` | INT NULL | seats for this tier; null = unlimited |
 | `sold` | INT | stored counter — **remaining = slot − sold**; reserved via atomic `UPDATE … WHERE sold+q≤slot` (CAS, no oversell); display sold/remaining = O(1) |
 | `min_per_reg` / `max_per_reg` | INT | tickets-per-registration limits |
 | `sale_start_at` / `sale_end_at` | DATETIME NULL | early-bird windows |
-| `status` | VARCHAR | `active` \| `hidden` |
+| `status` | VARCHAR NOT NULL, default `'active'` | `active` \| `inactive` |
 | `sort_order` | INT | admin display order of tiers |
 | `settings` | JSON NULL | **view-only / cosmetic fields** — holds `compare_at_price` (the struck-through "was" price, maps to FluentCart `compare_price`) + future per-tier config. Nothing here is queried; real discount codes stay in FluentCart. |
 
@@ -106,7 +115,7 @@ display-only fields live in `settings`. `min_per_reg` defaults to `1`.
 | `event_id` | BIGINT FK | → event (denormalized for queries) |
 | `calendar_id` | BIGINT FK | → calendar (denormalized from the event's effective calendar; direct calendar-scoped queries) |
 | `group_id` | VARCHAR | **order group key** — same value across all tickets of one purchase (generated at checkout; `random_bytes`/`wp_generate_password`) |
-| `is_buyer` | TINYINT(1) | `1` on the payer's row (carries order/payment); `0` on companions. Exactly one `1` per group |
+| `is_buyer` | TINYINT(1) NOT NULL, default `0` | `1` on the payer's row (carries order/payment); `0` on companions. Exactly one `1` per group. Defaulting to `0` fails safe — a forgotten field yields a harmless companion, not a phantom buyer that double-counts revenue |
 | `ticket_type_id` | BIGINT NULL FK | → ticket tier. Set in **ticketed** mode; **NULL for RSVP** (no tier). `RESTRICT` — can't delete a tier that has tickets |
 | `name` / `email` | VARCHAR NULL | this attendee (name + email; no phone). The `is_buyer` row's = the payer's contact |
 | `user_id` | BIGINT NULL | → WP user, **optional** — set when the attendee is logged in; NULL for anonymous. Enables "my tickets" + in-app notifications. FK enforced in app (core ref) |
@@ -121,7 +130,9 @@ display-only fields live in `settings`. `min_per_reg` defaults to `1`.
 | `paid_at` | DATETIME NULL | |
 | `source` | VARCHAR NULL | `invite` \| `link` \| `import` \| `request` |
 
-Index: UNIQUE `(hash)`, `(event_id, status)`, `(calendar_id, status)`, `(group_id)`, `(email)`.
+Indexes: `UNIQUE(hash)` (check-in QR scan + one code per ticket), `(event_id, status)` (the attendee list — the hot query), `(calendar_id, status)`, `(group_id)` (fetch a whole order; the payment webhook and refund path), `(email)` (guest self-service lookup), and `(ticket_type_id)` for the FK.
+
+Deliberately **not** unique on `email` — a buyer commonly uses their own address for companion tickets, and a cancelled guest may re-register, so `UNIQUE(event_id, email)` would block normal behaviour. Detect duplicates softly in the service layer instead ("already registered — resend ticket?"). `hash` is the real per-ticket uniqueness.
 
 - **Revenue** = `SUM(price)` (companions NULL, no `WHERE` guard). **Orders** = `COUNT(*) WHERE is_buyer=1`. **Order total tickets** = `COUNT(*)` of the `group_id` group. **Payment update** (webhook/refund) = `UPDATE … WHERE group_id=? AND is_buyer=1` (1 row). **Whole order** = `SELECT … WHERE group_id=?`.
 
@@ -181,7 +192,7 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 - **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `slot` (seats; null = unlimited), `min_per_reg` / `max_per_reg`, and an optional sale window.
 - **Capacity is per tier** — the `slot` column (total event capacity = sum of tier slots). `remaining = slot − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). Freeing a ticket auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
-- **Approval** via `_fevents_settings.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
+- **Approval** via `settings.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
 - **Free or paid.** Paid events take payment through **Paymattic** before the order is confirmed. Payment is **per order** (one payment for all tickets in a `group_id` group).
 - **Payment record = thin reference on the `is_buyer=1` row.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `price` / `paid_at` on that row (currency is a global plugin setting, stored nowhere per-record), NULL on companion tickets. Flow: pay → Paymattic → **webhook** → `UPDATE … WHERE group_id=? AND is_buyer=1` sets `payment_status = paid` + `payment_ref` → the group's guests go `attending`. No card/gateway data our side (out of PCI scope).
 
@@ -237,7 +248,7 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 ### FR-6.16 — Recurring events
 
-- The host sets a **repeat rule** — daily / weekly / monthly / yearly, an interval, specific days, and an end (a date or N times). Stored as a standard **iCal RRULE string** on the **series master** (`_fevents_settings.recurrence.rrule`).
+- The host sets a **repeat rule** — daily / weekly / monthly / yearly, an interval, specific days, and an end (a date or N times). Stored as a standard **iCal RRULE string** on the **series master** (`settings.recurrence.rrule`).
 - Occurrences are **fully materialized** — each is its own `wp_posts` row **plus** its own `wp_fe_event_details` row with `parent_event_id` = master. Every value is copied at generation time; nothing is inherited at read time. People join one occurrence, not the whole series.
 - Materialized on a **rolling window** by a daily cron — not all at once, so an open-ended series stays bounded.
 - **Edit / cancel scope:** this occurrence, this + following, or the whole series.
@@ -245,7 +256,7 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 **How it works:**
 
-- **Rule = an iCal RRULE string** on the master (`_fevents_settings.recurrence`, in `wp_postmeta`). The standard already covers everything, incl. future nth-weekday patterns — **no schema change ever**:
+- **Rule = an iCal RRULE string** on the master (`settings.recurrence`). The standard already covers everything, incl. future nth-weekday patterns — **no schema change ever**:
   ```json
   { "recurrence": {
       "rrule": "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE;UNTIL=20260901",
@@ -256,7 +267,7 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 - **Generation:** a daily **Action Scheduler** job expands the RRULE with a proven library (**`rlanvin/php-rrule`**, what FluentBooking uses — never hand-rolled date math / DST bugs) and creates the missing occurrences up to `now + window_days`, advancing `generated_until`. Each occurrence = **one `wp_posts` insert** (title/body/taxonomies copied from the master) **+ one `wp_fe_event_details` insert** with `parent_event_id` set and every typed value copied. **Dedup** by checking `parent_event_id` + `start_at` before insert, so re-runs never double-create. `window_days` = master override else a global plugin default.
 - **Occurrence = a full standalone event.** Own post, own taxonomies, own complete details row. Reads never touch the master. The generator copies once at creation; after that the two are independent.
 - **Timezone:** occurrence `start_at` computed from the rule in the master's `timezone` (DST-aware via the library), stored as concrete UTC per occurrence.
-- **Override one occurrence** (e.g. "this Monday moved online"): just edit that occurrence — it owns all its fields (`venue_type='online'`, its own `_fevents_settings.online_meeting_url`). No override flag is needed: the generator only ever *creates future missing* occurrences, it never rewrites existing rows, so an edited occurrence is safe by construction. This is why `is_overridden` was dropped.
+- **Override one occurrence** (e.g. "this Monday moved online"): just edit that occurrence — it owns all its fields (`venue_type='online'`, its own `settings.online_meeting_url`). No override flag is needed: the generator only ever *creates future missing* occurrences, it never rewrites existing rows, so an edited occurrence is safe by construction. This is why `is_overridden` was dropped.
 - **Edit semantics:** *this occurrence* → edit that row/post directly; *this + following* → set `UNTIL` on the master's RRULE before this date, spawn a new master from here; *whole series* → update the master **and fan the change out to future occurrences explicitly** (they no longer inherit, so a series-wide edit is a real bulk update — queue it via Action Scheduler for large series).
 - **Trade-off of full materialization:** heavier writes and more rows (one post + one details row per occurrence) and series-wide edits become explicit bulk updates. In exchange, every read is a plain indexed `SELECT` with no parent join or `COALESCE`, an occurrence can differ from its master in *any* way (including title/body/taxonomies, impossible under the old shared-post model), and the whole inheritance-resolution layer disappears from the codebase.
 
