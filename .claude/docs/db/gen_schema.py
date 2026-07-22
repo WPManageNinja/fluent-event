@@ -23,8 +23,9 @@ T = {
     ("user_email","VARCHAR(100)","!"),("display_name","VARCHAR(250)","!")]),
  "wp_fe_calendars": ("app", COL0, 190, [
     ("id","BIGINT UNSIGNED","P"),("title","VARCHAR(255)","!"),("slug","VARCHAR(255)","U!"),
-    ("description","TEXT",""),("visibility","VARCHAR(64)","!"),
-    ("settings","JSON",""),("status","VARCHAR(64)","!"),("created_by","BIGINT UNSIGNED","F!"),
+    ("description","TEXT",""),("visibility","VARCHAR(64)","!D['public']"),
+    ("status","VARCHAR(64)","!D['active']"),("settings","JSON",""),
+    ("created_by","BIGINT UNSIGNED","F!"),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fe_meta": ("app", COL0, 470, [
     ("id","BIGINT UNSIGNED","P"),("object_type","VARCHAR(64)","!"),
@@ -45,24 +46,26 @@ T = {
     ("meta_id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","F!"),
     ("meta_key","VARCHAR(255)",""),("meta_value","LONGTEXT","")]),
  "wp_fe_event_details": ("app", COL1, 420, [
-    ("id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","FU!"),
-    ("status","VARCHAR(64)","!"),("start_at","DATETIME","!"),("end_at","DATETIME","!"),
-    ("timezone","VARCHAR(64)","!"),("calendar_id","BIGINT UNSIGNED","F!"),
-    ("parent_event_id","BIGINT UNSIGNED","F"),("venue_type","VARCHAR(64)","!"),
-    ("form_fields","JSON",""),
+    ("id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","FU"),
+    ("calendar_id","BIGINT UNSIGNED","F"),("parent_event_id","BIGINT UNSIGNED","F"),
+    ("status","VARCHAR(64)","!D['public']"),
+    ("start_at","DATETIME","!"),("end_at","DATETIME","!"),
+    ("timezone","VARCHAR(64)",""),("venue_type","VARCHAR(64)","D['offline']"),
+    ("form_fields","JSON",""),("settings","JSON",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
 
  "wp_fe_ticket_types": ("app", COL2, 40, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),("tier","VARCHAR(128)","!"),
     ("description","VARCHAR(255)",""),("price","DECIMAL(10,2)","!"),("slot","INT",""),
     ("sold","INT","!"),("min_per_reg","INT","!D[1]"),("max_per_reg","INT",""),
-    ("sale_start_at","DATETIME",""),("sale_end_at","DATETIME",""),("status","VARCHAR(64)","!"),
+    ("sale_start_at","DATETIME",""),("sale_end_at","DATETIME",""),
+    ("status","VARCHAR(64)","!D['active']"),
     ("sort_order","INT","!"),("settings","JSON",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fe_guests": ("app", COL2, 400, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),
-    ("calendar_id","BIGINT UNSIGNED","F!"),("group_id","VARCHAR(64)","!"),
-    ("is_buyer","TINYINT(1)","!"),("ticket_type_id","BIGINT UNSIGNED","F"),
+    ("calendar_id","BIGINT UNSIGNED","F!"),("ticket_type_id","BIGINT UNSIGNED","F"),
+    ("group_id","VARCHAR(64)","!"),("is_buyer","TINYINT(1)","!D[0]"),
     ("name","VARCHAR(255)",""),("email","VARCHAR(192)",""),("user_id","BIGINT UNSIGNED","F"),
     ("status","VARCHAR(64)","!"),("form_response","JSON",""),
     ("hash","VARCHAR(64)","U"),("checked_in_at","DATETIME",""),
@@ -72,7 +75,7 @@ T = {
  "wp_fe_notification_users": ("app", COL2, 1040, [
     ("id","BIGINT UNSIGNED","P"),("object_type","VARCHAR(64)","!"),
     ("notification_type","VARCHAR(128)","!"),("object_id","BIGINT UNSIGNED","!"),
-    ("user_id","BIGINT UNSIGNED","F!"),("is_read","TINYINT(1)","!D[0]"),
+    ("user_id","BIGINT UNSIGNED","F!"),("is_read","TINYINT(1)","!"),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
 
  "wp_terms": ("tax", COL3, 40, [
@@ -108,33 +111,46 @@ def _pull_defaults(spec):
     return out
 T = _pull_defaults(T)
 
+# ---- column comments: (table, col) -> text. Emitted as SQL COMMENT and DBML note. ----
+COMMENTS = {
+ ("wp_fe_calendars","visibility"): "public | private | unlisted",
+ ("wp_fe_calendars","status"): "active | archived | draft",
+ ("wp_fe_calendars","settings"): "Everything settings like logo url, cover url, roles, preferences etc.",
+ ("wp_fe_calendars","created_by"): "User id connected to wp_users table",
+ ("wp_fe_event_details","status"): "public | private | draft | archived",
+ ("wp_fe_event_details","timezone"): "To display the organizer local time",
+ ("wp_fe_event_details","venue_type"): "offline | online | hybrid",
+ ("wp_fe_event_details","form_fields"): "For custom form field per guests",
+ ("wp_fe_event_details","settings"): "Event settings: logo, cover url, roles, customization, join policy, waitlist enabled etc.",
+ ("wp_fe_ticket_types","slot"): "NULL = unlimited",
+ ("wp_fe_ticket_types","max_per_reg"): "NULL = unlimited",
+ ("wp_fe_ticket_types","status"): "active | inactive",
+ ("wp_fe_guests","is_buyer"): "If he is the buyer of the registration",
+ ("wp_fe_guests","status"): "approved | checked_in | cancelled",
+ ("wp_fe_guests","form_response"): "Custom form field response",
+ ("wp_fe_guests","hash"): "Unique hash for each ticket",
+ ("wp_fe_guests","payment_status"): "paid | unpaid | refunded etc.",
+ ("wp_fe_guests","source"): "invite | community | requested etc.",
+}
+
 # indexes: table -> [(name, [cols], unique_bool)]
 IDX = {
  "wp_fe_meta": [("idx_meta_lookup",["object_type","object_id","meta_key"],False)],
- # ~10-100 rows ever: a full scan is 1-2 pages, cheaper than index descent +
- # back-to-table random reads. visibility/status are also 3- and 2-value columns.
- # Only the slug unique stays — it's correctness (no dup slugs), lookup is a side effect.
  "wp_fe_calendars": [("uq_calendars_slug",["slug"],True)],
  "wp_fe_event_details": [("uq_events_post",["post_id"],True),
-    ("idx_event_status",["status"],False),("idx_event_window",["start_at","end_at"],False)],
- # No declared index: event_id is a FK, so InnoDB auto-creates one. Only ~3-5 tiers
- # per event, so adding status as a 2nd column saves ~1 row fetch — not worth the width.
+    ("idx_event_window",["start_at","end_at"],False),
+    ("idx_event_parent",["parent_event_id","start_at"],False),
+    ("fk_events_calendar_startat",["calendar_id","start_at"],False)],
+ "wp_fe_ticket_types": [("fk_ticket_types_event_id_idx",["event_id"],False)],
  "wp_fe_guests": [("uq_guests_hash",["hash"],True),
     ("idx_guest_event_status",["event_id","status"],False),
     ("idx_guest_calendar",["calendar_id","status"],False),
-    ("idx_guest_group",["group_id"],False),("idx_guest_email",["email"],False)],
- # No secondary index: the inbox join fetches by PK, retention deletes by created_at,
- # and notifications deliberately OUTLIVE their object (rendered title/content are stored),
- # so there is no delete-by-object cleanup query to serve.
- # One index, four jobs: idempotent fan-out (INSERT IGNORE on retry), one pref per key,
- # the inbox seek via leftmost (user_id, object_type) ordered by object_id, and it covers
- # the user_id FK. is_read filtering happens in memory on an already-tiny row set.
+    ("idx_guest_order",["group_id"],False),("idx_guest_email",["email"],False),
+    ("fk_guests_ticket_type_id",["ticket_type_id"],False)],
  "wp_fe_notification_users": [
     ("uq_notif_user",["user_id","object_type","object_id","notification_type"],True),
-    # Unread badge = COUNT(*) with no LIMIT, so it must test is_read on EVERY row of that
-    # user. Inbox depth grows with time (a busy host accumulates thousands), independent of
-    # the small fan-out. 3 equality cols then the sort col => covering count, no filesort.
-    ("idx_notif_unread",["user_id","object_type","is_read","object_id"],False)],
+    ("idx_notif_user_inbox",["user_id","is_read","object_type"],False),
+    ("idx_notif_user_object",["object_id","is_read","object_type","notification_type"],False)],
  "wp_term_taxonomy": [("uq_term_taxonomy",["term_id","taxonomy"],True)],
 }
 
@@ -219,7 +235,12 @@ def emit_sql():
     for c,col,p,pc,od in FK: fk_by.setdefault(c, []).append((col,p,pc,od))
     for name,(kind,x,y,cols) in T.items():
         L.append(f"CREATE TABLE `{name}` (")
-        body = [f"  `{c}` {sql_type(t,f,DEFAULTS.get((name,c)))}" for c,t,f in cols]
+        body = []
+        for c,t,f in cols:
+            line = f"  `{c}` {sql_type(t,f,DEFAULTS.get((name,c)))}"
+            cm = COMMENTS.get((name,c))
+            if cm: line += " COMMENT '" + cm.replace("'","''") + "'"
+            body.append(line)
         pks = pk_cols(cols)
         if pks: body.append(f"  PRIMARY KEY ({', '.join('`'+c+'`' for c in pks)})")
         for iname,icols,uniq in IDX.get(name, []):
@@ -266,6 +287,8 @@ def emit_dbml():
             if col_notnull(f) and "P" not in f: attrs.append("not null")
             dv = DEFAULTS.get((name,c))
             if dv is not None: attrs.append(f"default: {dv}")
+            cm = COMMENTS.get((name,c))
+            if cm: attrs.append("note: '" + cm.replace("'","\\'") + "'")
             ref = fk_by.get((name,c))
             if ref: attrs.append(f"ref: > {ref[0]}.{ref[1]}")
             a = f" [{', '.join(attrs)}]" if attrs else ""

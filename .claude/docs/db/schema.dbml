@@ -6,10 +6,10 @@ Table wp_fe_calendars {
   title varchar [not null]
   slug varchar [unique, not null]
   description text
-  visibility varchar [not null]
-  settings json
-  status varchar [not null]
-  created_by bigint [not null]
+  visibility varchar [not null, default: 'public', note: 'public | private | unlisted']
+  status varchar [not null, default: 'active', note: 'active | archived | draft']
+  settings json [note: 'Everything settings like logo url, cover url, roles, preferences etc.']
+  created_by bigint [not null, note: 'User id connected to wp_users table']
   created_at timestamp [not null]
   updated_at timestamp [not null]
   indexes {
@@ -48,32 +48,35 @@ Table wp_fe_notification_users {
   notification_type varchar [not null]
   object_id bigint [not null]
   user_id bigint [not null]
-  is_read tinyint [not null, default: 0]
+  is_read tinyint [not null]
   created_at timestamp [not null]
   updated_at timestamp [not null]
   indexes {
     (user_id, object_type, object_id, notification_type) [name: 'uq_notif_user', unique]
-    (user_id, object_type, is_read, object_id) [name: 'idx_notif_unread']
+    (user_id, is_read, object_type) [name: 'idx_notif_user_inbox']
+    (object_id, is_read, object_type, notification_type) [name: 'idx_notif_user_object']
   }
 }
 
 Table wp_fe_event_details {
   id bigint [primary key, increment]
-  post_id bigint [unique, not null]
-  status varchar [not null]
+  post_id bigint [unique]
+  calendar_id bigint [ref: > wp_fe_calendars.id]
+  parent_event_id bigint [ref: > wp_fe_event_details.id]
+  status varchar [not null, default: 'public', note: 'public | private | draft | archived']
   start_at datetime [not null]
   end_at datetime [not null]
-  timezone varchar [not null]
-  calendar_id bigint [not null, ref: > wp_fe_calendars.id]
-  parent_event_id bigint [ref: > wp_fe_event_details.id]
-  venue_type varchar [not null]
-  form_fields json
+  timezone varchar [note: 'To display the organizer local time']
+  venue_type varchar [default: 'offline', note: 'offline | online | hybrid']
+  form_fields json [note: 'For custom form field per guests']
+  settings json [note: 'Event settings: logo, cover url, roles, customization, join policy, waitlist enabled etc.']
   created_at timestamp [not null]
   updated_at timestamp [not null]
   indexes {
     post_id [name: 'uq_events_post', unique]
-    status [name: 'idx_event_status']
     (start_at, end_at) [name: 'idx_event_window']
+    (parent_event_id, start_at) [name: 'idx_event_parent']
+    (calendar_id, start_at) [name: 'fk_events_calendar_startat']
   }
 }
 
@@ -83,46 +86,50 @@ Table wp_fe_ticket_types {
   tier varchar [not null]
   description varchar
   price decimal [not null]
-  slot int
+  slot int [note: 'NULL = unlimited']
   sold int [not null]
   min_per_reg int [not null, default: 1]
-  max_per_reg int
+  max_per_reg int [note: 'NULL = unlimited']
   sale_start_at datetime
   sale_end_at datetime
-  status varchar [not null]
+  status varchar [not null, default: 'active', note: 'active | inactive']
   sort_order int [not null]
   settings json
   created_at timestamp [not null]
   updated_at timestamp [not null]
+  indexes {
+    event_id [name: 'fk_ticket_types_event_id_idx']
+  }
 }
 
 Table wp_fe_guests {
   id bigint [primary key, increment]
   event_id bigint [not null, ref: > wp_fe_event_details.id]
   calendar_id bigint [not null, ref: > wp_fe_calendars.id]
-  group_id varchar [not null]
-  is_buyer tinyint [not null]
   ticket_type_id bigint [ref: > wp_fe_ticket_types.id]
+  group_id varchar [not null]
+  is_buyer tinyint [not null, default: 0, note: 'If he is the buyer of the registration']
   name varchar
   email varchar
   user_id bigint
-  status varchar [not null]
-  form_response json
-  hash varchar [unique]
+  status varchar [not null, note: 'approved | checked_in | cancelled']
+  form_response json [note: 'Custom form field response']
+  hash varchar [unique, note: 'Unique hash for each ticket']
   checked_in_at datetime
-  payment_status varchar
+  payment_status varchar [note: 'paid | unpaid | refunded etc.']
   payment_ref varchar
   price decimal
   paid_at datetime
-  source varchar
+  source varchar [note: 'invite | community | requested etc.']
   created_at timestamp [not null]
   updated_at timestamp [not null]
   indexes {
     hash [name: 'uq_guests_hash', unique]
     (event_id, status) [name: 'idx_guest_event_status']
     (calendar_id, status) [name: 'idx_guest_calendar']
-    group_id [name: 'idx_guest_group']
+    group_id [name: 'idx_guest_order']
     email [name: 'idx_guest_email']
+    ticket_type_id [name: 'fk_guests_ticket_type_id']
   }
 }
 
