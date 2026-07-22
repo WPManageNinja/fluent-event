@@ -94,8 +94,10 @@ T = {
 # indexes: table -> [(name, [cols], unique_bool)]
 IDX = {
  "wp_fevents_meta": [("idx_meta_lookup",["object_type","object_id","meta_key"],False)],
- "wp_fevents_calendars": [("uq_calendars_slug",["slug"],True),
-    ("idx_calendar_visibility",["visibility"],False),("idx_calendar_status",["status"],False)],
+ # ~10-100 rows ever: a full scan is 1-2 pages, cheaper than index descent +
+ # back-to-table random reads. visibility/status are also 3- and 2-value columns.
+ # Only the slug unique stays — it's correctness (no dup slugs), lookup is a side effect.
+ "wp_fevents_calendars": [("uq_calendars_slug",["slug"],True)],
  "wp_fevents_events": [("uq_events_post",["post_id"],True),
     ("idx_event_status",["status"],False),("idx_event_window",["start_at","end_at"],False),
     ("idx_event_parent",["parent_event_id","start_at"],False)],

@@ -16,8 +16,6 @@ Table wp_fevents_calendars {
   updated_at timestamp [not null]
   indexes {
     slug [name: 'uq_calendars_slug', unique]
-    visibility [name: 'idx_calendar_visibility']
-    status [name: 'idx_calendar_status']
   }
 }
 

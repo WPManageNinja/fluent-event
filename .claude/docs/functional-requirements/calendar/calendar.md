@@ -32,7 +32,12 @@
 | `created_at`     | TIMESTAMP   |                                                  |
 | `updated_at`     | TIMESTAMP   |                                                  |
 
-Indexes: `(slug)`, `(visibility)`.
+Indexes: **`PRIMARY(id)` + `UNIQUE(slug)` only.** No `visibility`/`status` index — this table
+holds ~10–100 rows ever (1–2 pages), so a full scan beats index descent + back-to-table
+random reads, and both columns are 2–3-value (near-zero selectivity); the optimizer would
+skip them anyway. `UNIQUE(slug)` is kept for **correctness** (no duplicate slugs) — the fast
+`/calendar/{slug}` lookup is a side effect. Revisit only if the table ever grows large, and
+then as one composite `(visibility, status)`, never two single-column indexes.
 
 ## Functional requirements
 

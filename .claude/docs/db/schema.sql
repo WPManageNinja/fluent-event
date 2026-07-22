@@ -24,9 +24,7 @@ CREATE TABLE `wp_fevents_calendars` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_calendars_slug` (`slug`),
-  KEY `idx_calendar_visibility` (`visibility`),
-  KEY `idx_calendar_status` (`status`)
+  UNIQUE KEY `uq_calendars_slug` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_fevents_meta` (
