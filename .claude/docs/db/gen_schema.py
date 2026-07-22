@@ -46,8 +46,8 @@ T = {
     ("meta_id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","F!"),
     ("meta_key","VARCHAR(255)",""),("meta_value","LONGTEXT","")]),
  "wp_fe_event_details": ("app", COL1, 420, [
-    ("id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","FU"),
-    ("calendar_id","BIGINT UNSIGNED","F"),("parent_event_id","BIGINT UNSIGNED","F"),
+    ("id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","FU!"),
+    ("calendar_id","BIGINT UNSIGNED","F!"),("parent_event_id","BIGINT UNSIGNED","F"),
     ("status","VARCHAR(64)","!D['public']"),
     ("start_at","DATETIME","!"),("end_at","DATETIME","!"),
     ("timezone","VARCHAR(64)",""),("venue_type","VARCHAR(64)","D['offline']"),

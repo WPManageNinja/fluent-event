@@ -60,8 +60,8 @@ Table wp_fe_notification_users {
 
 Table wp_fe_event_details {
   id bigint [primary key, increment]
-  post_id bigint [unique]
-  calendar_id bigint [ref: > wp_fe_calendars.id]
+  post_id bigint [unique, not null]
+  calendar_id bigint [not null, ref: > wp_fe_calendars.id]
   parent_event_id bigint [ref: > wp_fe_event_details.id]
   status varchar [not null, default: 'public', note: 'public | private | draft | archived']
   start_at datetime [not null]

@@ -100,8 +100,8 @@ DEFAULT CHARACTER SET = utf8mb4;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_event_details` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `post_id` BIGINT UNSIGNED NULL DEFAULT NULL,
-  `calendar_id` BIGINT UNSIGNED NULL DEFAULT NULL,
+  `post_id` BIGINT UNSIGNED NOT NULL,
+  `calendar_id` BIGINT UNSIGNED NOT NULL,
   `parent_event_id` BIGINT UNSIGNED NULL DEFAULT NULL,
   `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft | archived  ',
   `start_at` DATETIME NOT NULL,

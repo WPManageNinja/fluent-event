@@ -67,8 +67,8 @@ CREATE TABLE `wp_fe_notification_users` (
 
 CREATE TABLE `wp_fe_event_details` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `post_id` BIGINT UNSIGNED NULL,
-  `calendar_id` BIGINT UNSIGNED NULL,
+  `post_id` BIGINT UNSIGNED NOT NULL,
+  `calendar_id` BIGINT UNSIGNED NOT NULL,
   `parent_event_id` BIGINT UNSIGNED NULL,
   `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft | archived',
   `start_at` DATETIME NOT NULL,
