@@ -45,12 +45,11 @@ T = {
     ("meta_id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","F!"),
     ("meta_key","VARCHAR(255)",""),("meta_value","LONGTEXT","")]),
  "wp_fe_event_details": ("app", COL1, 420, [
-    ("id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","FU"),
-    ("parent_event_id","BIGINT UNSIGNED","F"),("is_overridden","TINYINT(1)",""),
+    ("id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","FU!"),
     ("status","VARCHAR(64)","!"),("start_at","DATETIME","!"),("end_at","DATETIME","!"),
-    ("timezone","VARCHAR(64)",""),("calendar_id","BIGINT UNSIGNED","F"),
-    ("venue_type","VARCHAR(64)",""),("currency","VARCHAR(3)",""),
-    ("form_fields","JSON",""),("settings","JSON",""),
+    ("timezone","VARCHAR(64)","!"),("calendar_id","BIGINT UNSIGNED","F!"),
+    ("parent_event_id","BIGINT UNSIGNED","F"),("venue_type","VARCHAR(64)","!"),
+    ("form_fields","JSON",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
 
  "wp_fe_ticket_types": ("app", COL2, 40, [
@@ -98,8 +97,7 @@ IDX = {
  # Only the slug unique stays — it's correctness (no dup slugs), lookup is a side effect.
  "wp_fe_calendars": [("uq_calendars_slug",["slug"],True)],
  "wp_fe_event_details": [("uq_events_post",["post_id"],True),
-    ("idx_event_status",["status"],False),("idx_event_window",["start_at","end_at"],False),
-    ("idx_event_parent",["parent_event_id","start_at"],False)],
+    ("idx_event_status",["status"],False),("idx_event_window",["start_at","end_at"],False)],
  "wp_fe_ticket_types": [("idx_ticket_event_status",["event_id","status"],False)],
  "wp_fe_guests": [("uq_guests_hash",["hash"],True),
     ("idx_guest_event_status",["event_id","status"],False),

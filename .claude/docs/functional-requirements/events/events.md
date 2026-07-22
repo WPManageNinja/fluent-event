@@ -13,9 +13,9 @@
   - **Why this stays clean:** `SUM(price)` ignores the NULL companions → correct revenue with no `WHERE` guard; a payment webhook/refund updates **one** row (`WHERE registration_no=? AND is_buyer=1`); ticket count = `COUNT(*)` of the group; a full order = `SELECT * WHERE registration_no=?`.
 - **One buyer, many tickets.** Buy 3 → **3 guest rows**, one `is_buyer=1` (holds the single payment), each with its own name/email + form answers.
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
-- **Dynamic form.** The event defines fields in `events.form_fields` (JSON); each attendee's answers save to `guests.form_response` (JSON).
-- **Mode** via `events.venue_type` (online / offline / hybrid); **policy** via `events.settings.join_policy` (open / approval / invite_only).
-- **Entry mode** via `events.settings.registration_type` — three ways in, one set of tables:
+- **Dynamic form.** The event defines fields in `event_details.form_fields` (JSON column); each attendee's answers save to `guests.form_response` (JSON).
+- **Mode** via `event_details.venue_type` (online / offline / hybrid); **policy** via `_fevents_settings.join_policy` (open / approval / invite_only) in `wp_postmeta`.
+- **Entry mode** via `_fevents_settings.registration_type` (`wp_postmeta`) — three ways in, one set of tables:
   - **`ticketed`** — buy tickets. Guest rows **require** `ticket_type_id` (paid or free tier), payment on the `is_buyer=1` row. (`ticket_type_id` is now nullable at the DB level — ticketed mode enforces it in the service layer.)
   - **`rsvp`** — free "I'm coming". Guest rows with **`ticket_type_id` = NULL** (no tier at all). Going / not-going tracked purely via `status` (`attending` / `declined`). Headcount = `COUNT(*) WHERE status='attending'`.
   - **`open`** — no registration. **Zero guest rows, zero ticket_types.** Just a published listing (unlimited, free, show up). The event = its `wp_posts` + `wp_fe_event_details` row, no children.
@@ -39,26 +39,38 @@ place (address/map) is `fevents_venue` term meta, not an event column. See
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
-| `post_id` | BIGINT NULL UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **NULL on a recurrence occurrence** (it has no own post — inherits content/taxonomies from the master). |
-| `parent_event_id` | BIGINT NULL FK→self | NULL = master/standalone; set = a recurrence **occurrence** of that master (ON DELETE CASCADE). |
-| `is_overridden` | TINYINT NULL | occurrence manually edited → the regen cron skips it. |
-| `status` | VARCHAR | lifecycle: `active` \| `cancelled` (upcoming/live/past = derived from dates; editorial draft/publish = `post_status`) — **always per-row** |
-| `start_at` / `end_at` | DATETIME (**UTC**) | stored in UTC; indexed window — **always per-row** (an occurrence's own date) |
-| `timezone` | VARCHAR NULL | IANA tz (e.g. `Asia/Dhaka`) — display, DST, ICS, reminders. *Inheritable.* |
-| `venue_type` | VARCHAR NULL | event **mode**: `online`/`offline`/`hybrid`. Place = `fevents_venue` term (address/map in term meta). *Inheritable.* |
-| `calendar_id` | BIGINT NULL FK | → calendar. *Inheritable.* |
-| `currency` | VARCHAR NULL | ISO 4217; qualifies ticket price. *Inheritable.* |
-| `form_fields` | JSON NULL | **per-guest dynamic form definition** (fields to collect from each attendee). *Inheritable.* |
-| `settings` | JSON NULL | per-event config — `cover_url` (plain image URL — no column, no attachment FK), `registration_type` (`open`/`rsvp`/`ticketed`), `online_meeting_url`, `join_policy` (`open`/`approval`/`invite_only`), `waitlist_enabled`, `recurrence` (FR-6.16), + future. Not queried. *Inheritable (merge).* |
+| `id` | BIGINT PK | internal PK — what ticketing FKs to (`event_id`) |
+| `post_id` | BIGINT **NOT NULL** UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **Every** details row has its own post — including each recurrence occurrence. |
+| `status` | VARCHAR NOT NULL | lifecycle: `active` \| `cancelled` (upcoming/live/past = derived from dates; editorial draft/publish = `post_status`) |
+| `start_at` / `end_at` | DATETIME **NOT NULL** (**UTC**) | stored in UTC; the indexed date window |
+| `timezone` | VARCHAR NOT NULL | IANA tz (e.g. `Asia/Dhaka`) — display, DST, ICS, reminders |
+| `calendar_id` | BIGINT NOT NULL FK | → calendar (`RESTRICT`) |
+| `parent_event_id` | BIGINT NULL FK→self | NULL = master/standalone; set = a recurrence **occurrence** of that master (`ON DELETE CASCADE`) |
+| `venue_type` | VARCHAR NOT NULL | event **mode**: `online`/`offline`/`hybrid`. Place = `fevents_venue` term (address/map in term meta) |
+| `form_fields` | JSON NULL | **per-guest dynamic form definition** (fields to collect from each attendee) |
+| `created_at` / `updated_at` | TIMESTAMP NOT NULL | |
 
-**Master / occurrence inheritance.** On a recurrence **occurrence** (`parent_event_id` set,
-`post_id` NULL), the *inheritable* columns are **NULL = inherit from the master**; set only
-what deviates. Read via `COALESCE(occurrence.col, master.col)` (scalars) / `array_merge`
-(the JSON blobs). Only `start_at`/`end_at`/`status` are always the occurrence's own. Occurrences
-**can't change post-level things** (title/body/slug/taxonomies) — no own post, so those
-always come from the master. (The **cover** is no longer post-level — it's `settings.cover_url`,
-so an occurrence *can* override it like any other inheritable setting.) *(Venue place data → `fevents_venue` term meta; the online link
-is per-event in `settings`, never term meta.)*
+**Every row is self-contained — no inheritance.** There is no `settings` column, no
+`is_overridden`, and no NULL-means-inherit rule. Each details row (master *or* occurrence)
+carries its own complete typed values, and reads are a plain `SELECT` — no `COALESCE`
+against a parent, no `array_merge` of JSON blobs.
+
+**Per-event config JSON lives in `wp_postmeta`** under `_fevents_settings`, on the event's own
+post — available for every row precisely because `post_id` is now NOT NULL. It holds what
+used to be the `settings` column:
+
+```json
+// wp_postmeta: _fevents_settings
+{ "registration_type": "ticketed",        // open | rsvp | ticketed  (entry mode)
+  "join_policy":       "open",            // open | approval | invite_only
+  "cover_url":         "https://…/cover.jpg",
+  "online_meeting_url": "https://meet…",
+  "waitlist_enabled":  true,
+  "recurrence":        { "rrule": "…", "generated_until": "…", "window_days": 90 } }
+```
+
+*(Venue place data → `fevents_venue` term meta; the online link is per-event in
+`_fevents_settings`, never term meta.)*
 
 **`wp_fe_ticket_types`** — price tiers.
 
@@ -67,7 +79,7 @@ is per-event in `settings`, never term meta.)*
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event |
 | `type` | VARCHAR | tier name; auto **"General"** if none defined |
-| `price` | DECIMAL(10,2) | actual charge; `0` = free (currency on the event) |
+| `price` | DECIMAL(10,2) | actual charge; `0` = free. **No currency column** — currency is a single global plugin setting (FR-4), not per event or per tier |
 | `capacity` | INT NULL | seats for this tier; null = unlimited |
 | `sold` | INT | stored counter — **remaining = capacity − sold**; reserved via atomic `UPDATE … WHERE sold+q≤capacity` (CAS, no oversell); display sold/remaining = O(1) |
 | `min_per_reg` / `max_per_reg` | INT | tickets-per-registration limits |
@@ -97,7 +109,7 @@ Index: `(event_id, status)`. Only queried columns are real (event_id, status, ca
 | **— order/payment (only on `is_buyer=1`, else NULL) —** | | |
 | `payment_status` | VARCHAR NULL | `free` \| `pending` \| `paid` \| `refunded` \| `failed` |
 | `payment_ref` | VARCHAR NULL | Paymattic txn id (thin reference — no card/gateway data our side) |
-| `price` | DECIMAL NULL | **order total** — sum of all tickets in the group (currency on the event); NULL companions → `SUM` = revenue, no guard. (≠ `ticket_types.price`, the unit tier price) |
+| `price` | DECIMAL NULL | **order total** — sum of all tickets in the group (currency = the global plugin setting); NULL companions → `SUM` = revenue, no guard. (≠ `ticket_types.price`, the unit tier price) |
 | `paid_at` | DATETIME NULL | |
 | `source` | VARCHAR NULL | `invite` \| `link` \| `import` \| `request` |
 
@@ -161,9 +173,9 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 - **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `capacity`, `min_per_reg` / `max_per_reg`, and an optional sale window.
 - **Capacity is per tier** (total event capacity = sum of tier capacities). `remaining = capacity − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). Freeing a ticket auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
-- **Approval** via `events.settings.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
+- **Approval** via `_fevents_settings.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
 - **Free or paid.** Paid events take payment through **Paymattic** before the order is confirmed. Payment is **per order** (one payment for all tickets in a `registration_no` group).
-- **Payment record = thin reference on the `is_buyer=1` row.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `price` / `paid_at` on that row (currency lives on the event), NULL on companion tickets. Flow: pay → Paymattic → **webhook** → `UPDATE … WHERE registration_no=? AND is_buyer=1` sets `payment_status = paid` + `payment_ref` → the group's guests go `attending`. No card/gateway data our side (out of PCI scope).
+- **Payment record = thin reference on the `is_buyer=1` row.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `price` / `paid_at` on that row (currency is a global plugin setting, stored nowhere per-record), NULL on companion tickets. Flow: pay → Paymattic → **webhook** → `UPDATE … WHERE registration_no=? AND is_buyer=1` sets `payment_status = paid` + `payment_ref` → the group's guests go `attending`. No card/gateway data our side (out of PCI scope).
 
 ### FR-6.5 — Visibility & discovery
 
@@ -217,15 +229,15 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 ### FR-6.16 — Recurring events
 
-- The host sets a **repeat rule** — daily / weekly / monthly / yearly, an interval, specific days, and an end (a date or N times). Stored as a standard **iCal RRULE string** on the **series master** (`settings.recurrence.rrule`).
-- Occurrences are **rows in `wp_fe_event_details`** — `parent_event_id` = master, `post_id` NULL (no own post). Each has its own date/status/capacity/guests; inheritable columns are **NULL = inherit from the master**. People join one occurrence, not the whole series.
+- The host sets a **repeat rule** — daily / weekly / monthly / yearly, an interval, specific days, and an end (a date or N times). Stored as a standard **iCal RRULE string** on the **series master** (`_fevents_settings.recurrence.rrule`).
+- Occurrences are **fully materialized** — each is its own `wp_posts` row **plus** its own `wp_fe_event_details` row with `parent_event_id` = master. Every value is copied at generation time; nothing is inherited at read time. People join one occurrence, not the whole series.
 - Materialized on a **rolling window** by a daily cron — not all at once, so an open-ended series stays bounded.
 - **Edit / cancel scope:** this occurrence, this + following, or the whole series.
 - Deleting the master **cascades** its occurrences (`parent_event_id` FK ON DELETE CASCADE).
 
 **How it works:**
 
-- **Rule = an iCal RRULE string** on the master (`settings.recurrence`). The standard already covers everything, incl. future nth-weekday patterns — **no schema change ever**:
+- **Rule = an iCal RRULE string** on the master (`_fevents_settings.recurrence`, in `wp_postmeta`). The standard already covers everything, incl. future nth-weekday patterns — **no schema change ever**:
   ```json
   { "recurrence": {
       "rrule": "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE;UNTIL=20260901",
@@ -233,11 +245,12 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
       "window_days": 90 } }
   ```
   `FREQ=MONTHLY;BYDAY=1SU` = *first Sunday of each month*; `BYDAY=-1FR` = *last Friday*. Prefer the RRULE string over bespoke JSON — the vocabulary is free.
-- **Generation:** a daily **Action Scheduler** job expands the RRULE with a proven library (**`rlanvin/php-rrule`**, what FluentBooking uses — never hand-rolled date math / DST bugs) and creates the missing occurrence rows up to `now + window_days`, advancing `generated_until`. **Dedup** via `parent_event_id` + `start_at` (`idx_event_parent`) so re-runs never double-create. `window_days` = master override else a global plugin default.
-- **Occurrence = NULL-inherit row:** `post_id` NULL (inherits title/body/slug/cover/taxonomies from the master — **can't change post-level things**), inheritable columns NULL unless deviating. Read = `COALESCE(occurrence.col, master.col)` + `array_merge` for the JSON blobs.
+- **Generation:** a daily **Action Scheduler** job expands the RRULE with a proven library (**`rlanvin/php-rrule`**, what FluentBooking uses — never hand-rolled date math / DST bugs) and creates the missing occurrences up to `now + window_days`, advancing `generated_until`. Each occurrence = **one `wp_posts` insert** (title/body/taxonomies copied from the master) **+ one `wp_fe_event_details` insert** with `parent_event_id` set and every typed value copied. **Dedup** by checking `parent_event_id` + `start_at` before insert, so re-runs never double-create. `window_days` = master override else a global plugin default.
+- **Occurrence = a full standalone event.** Own post, own taxonomies, own complete details row. Reads never touch the master. The generator copies once at creation; after that the two are independent.
 - **Timezone:** occurrence `start_at` computed from the rule in the master's `timezone` (DST-aware via the library), stored as concrete UTC per occurrence.
-- **Override one occurrence** (e.g. "this Monday moved online"): set only the changed columns on that row (`venue_type='online'`, `settings.online_meeting_url=…`) + **`is_overridden=1`** so the regen cron skips it. No duplication — just the delta.
-- **Edit semantics:** *this occurrence* → set its columns + `is_overridden`; *this + following* → set `UNTIL` on the master's RRULE before this date, spawn a new master from here; *whole series* → update the master; occurrences inherit automatically (except `is_overridden` ones).
+- **Override one occurrence** (e.g. "this Monday moved online"): just edit that occurrence — it owns all its fields (`venue_type='online'`, its own `_fevents_settings.online_meeting_url`). No override flag is needed: the generator only ever *creates future missing* occurrences, it never rewrites existing rows, so an edited occurrence is safe by construction. This is why `is_overridden` was dropped.
+- **Edit semantics:** *this occurrence* → edit that row/post directly; *this + following* → set `UNTIL` on the master's RRULE before this date, spawn a new master from here; *whole series* → update the master **and fan the change out to future occurrences explicitly** (they no longer inherit, so a series-wide edit is a real bulk update — queue it via Action Scheduler for large series).
+- **Trade-off of full materialization:** heavier writes and more rows (one post + one details row per occurrence) and series-wide edits become explicit bulk updates. In exchange, every read is a plain indexed `SELECT` with no parent join or `COALESCE`, an occurrence can differ from its master in *any* way (including title/body/taxonomies, impossible under the old shared-post model), and the whole inheritance-resolution layer disappears from the codebase.
 
 ### FR-6.17 — Classification & organizers
 

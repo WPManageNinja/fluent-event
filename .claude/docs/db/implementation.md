@@ -12,7 +12,8 @@
 |---|---|---|
 | Event identity — title, description, slug, status, author | **`wp_posts`** (`post_type=fevents_event`) | free permalink `/events/x/`, block editor, admin, REST, search, archive |
 | Event flexible / config — `_fevents_form_fields`, `_fevents_settings`, addon fields | **`wp_postmeta`** | open-ended, extensible by add-ons, never range-queried |
-| Event machine data — dates, timezone, venue_type, join_policy, waitlist, calendar_id, currency, status | **`wp_fe_event_details`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
+| Event machine data — dates, timezone, venue_type, calendar_id, parent_event_id, status | **`wp_fe_event_details`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
+| Event config JSON — registration_type, join_policy, waitlist, cover_url, online_meeting_url, recurrence | **`wp_postmeta`** (`_fevents_settings`) | open-ended, never range-queried; event_details has no settings column |
 | Category / type, venue, organizer, performer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
 | Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `registration_no`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<capacity` queries |
 | Performer detail | `fevents_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
@@ -55,7 +56,7 @@ foreach ([
 | 1 | `wp_posts` — 1 `fevents_event` row | title / editor body / slug / status=publish / author |
 | 2 | `wp_postmeta` — addon/open-ended config blobs | cover is **not** here — it's a URL in `wp_fe_event_details.settings.cover_url` |
 | 3 | `wp_term_relationships` — event ↔ event_type / venue / organizer terms | `wp_set_object_terms($post_id, $termIds, $tax)` (assign, M:N) |
-| 4 | `wp_fe_event_details` — 1 row (`post_id` FK) | typed: start_at, end_at, timezone, venue_type, join_policy, waitlist_enabled, calendar_id, currency, status |
+| 4 | `wp_fe_event_details` — 1 row (`post_id` FK) | typed: start_at, end_at, timezone, venue_type, calendar_id, parent_event_id, status (all NOT NULL except parent_event_id) |
 | 5 | `wp_fe_ticket_types` — N rows (`event_id` = events.id) | tiers |
 
 **Service shape (WPFluent ORM + a transaction at the service layer):**
@@ -156,7 +157,12 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
   `user_id` links a row to a WP account when the attendee is logged in (core ref, FK in app).
 - `guests.calendar_id` is a **denormalized** copy of the event's calendar, written at
   registration time so "who registered under calendar X" is a direct index scan
-  (`(calendar_id, status)`) with no event join. Resolve the **effective** calendar on write —
-  for a recurrence occurrence (`post_id` NULL) the `calendar_id` is inherited, so
-  `COALESCE(occurrence.calendar_id, master.calendar_id)`. It's `RESTRICT` → a calendar with
-  guests can't be deleted (the event FK already blocks it; belt-and-suspenders).
+  (`(calendar_id, status)`) with no event join. Just copy `event_details.calendar_id` on write —
+  it's NOT NULL on every row (occurrences included), so there's no inheritance to resolve.
+  It's `RESTRICT` → a calendar with guests can't be deleted (the event FK already blocks it;
+  belt-and-suspenders).
+- **No inheritance anywhere.** `event_details` rows are self-contained: `post_id` is NOT NULL
+  and UNIQUE, so a recurrence occurrence has its **own** post and its own complete typed row.
+  Never write a `COALESCE(occurrence.col, master.col)` read path — that model is gone, along
+  with `is_overridden`. The recurrence generator copies values at creation and never rewrites
+  an existing occurrence.
