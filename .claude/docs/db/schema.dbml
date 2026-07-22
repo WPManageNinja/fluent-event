@@ -85,7 +85,7 @@ Table wp_fe_event_details {
 Table wp_fe_ticket_types {
   id bigint [primary key, increment]
   event_id bigint [not null, ref: > wp_fe_event_details.id]
-  type varchar [not null]
+  tier varchar [not null]
   description varchar
   price decimal [not null]
   slot int

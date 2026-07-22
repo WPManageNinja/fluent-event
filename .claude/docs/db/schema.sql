@@ -91,7 +91,7 @@ CREATE TABLE `wp_fe_event_details` (
 CREATE TABLE `wp_fe_ticket_types` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `event_id` BIGINT UNSIGNED NOT NULL,
-  `type` VARCHAR(64) NOT NULL,
+  `tier` VARCHAR(64) NOT NULL,
   `description` VARCHAR(255) NULL,
   `price` DECIMAL(10,2) NOT NULL,
   `slot` INT NULL,

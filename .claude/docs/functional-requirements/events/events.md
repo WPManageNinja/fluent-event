@@ -78,7 +78,7 @@ used to be the `settings` column:
 | ------ | ---- | ----- |
 | `id` | BIGINT PK | |
 | `event_id` | BIGINT FK | → event |
-| `type` | VARCHAR | tier name; auto **"General"** if none defined |
+| `tier` | VARCHAR | tier name (`General`, `VIP`, `Early Bird`); auto **"General"** if none defined |
 | `price` | DECIMAL(10,2) | actual charge; `0` = free. **No currency column** — currency is a single global plugin setting (FR-4), not per event or per tier |
 | `slot` | INT NULL | seats for this tier; null = unlimited |
 | `sold` | INT | stored counter — **remaining = slot − sold**; reserved via atomic `UPDATE … WHERE sold+q≤slot` (CAS, no oversell); display sold/remaining = O(1) |
