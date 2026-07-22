@@ -61,7 +61,7 @@ T = {
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fe_guests": ("app", COL2, 400, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),
-    ("calendar_id","BIGINT UNSIGNED","F!"),("registration_no","VARCHAR(64)","!"),
+    ("calendar_id","BIGINT UNSIGNED","F!"),("group_id","VARCHAR(64)","!"),
     ("is_buyer","TINYINT(1)","!"),("ticket_type_id","BIGINT UNSIGNED","F"),
     ("name","VARCHAR(255)",""),("email","VARCHAR(192)",""),("user_id","BIGINT UNSIGNED","F"),
     ("status","VARCHAR(64)","!"),("form_response","JSON",""),
@@ -122,7 +122,7 @@ IDX = {
  "wp_fe_guests": [("uq_guests_hash",["hash"],True),
     ("idx_guest_event_status",["event_id","status"],False),
     ("idx_guest_calendar",["calendar_id","status"],False),
-    ("idx_guest_order",["registration_no"],False),("idx_guest_email",["email"],False)],
+    ("idx_guest_group",["group_id"],False),("idx_guest_email",["email"],False)],
  "wp_fe_notifications": [("idx_notif_object",["object_type","object_id"],False),
     ("idx_notif_action",["action"],False)],
  "wp_fe_notification_users": [

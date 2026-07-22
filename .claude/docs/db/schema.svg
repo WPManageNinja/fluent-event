@@ -194,7 +194,7 @@
 <path d="M1012,499 L1016,503 L1012,507 L1008,503 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
 <text x="1022" y="506" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">calendar_id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M1012,517 L1016,521 L1012,525 L1008,521 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="1022" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">registration_no</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<text x="1022" y="524" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">group_id</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
 <path d="M1012,535 L1016,539 L1012,543 L1008,539 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="1022" y="542" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">is_buyer</tspan> <tspan fill="#5a6470">TINYINT(1)</tspan></text>
 <path d="M1012,553 L1016,557 L1012,561 L1008,557 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>

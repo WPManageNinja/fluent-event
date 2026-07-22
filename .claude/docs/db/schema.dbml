@@ -105,7 +105,7 @@ Table wp_fe_guests {
   id bigint [primary key, increment]
   event_id bigint [not null, ref: > wp_fe_event_details.id]
   calendar_id bigint [not null, ref: > wp_fe_calendars.id]
-  registration_no varchar [not null]
+  group_id varchar [not null]
   is_buyer tinyint [not null]
   ticket_type_id bigint [ref: > wp_fe_ticket_types.id]
   name varchar
@@ -126,7 +126,7 @@ Table wp_fe_guests {
     hash [name: 'uq_guests_hash', unique]
     (event_id, status) [name: 'idx_guest_event_status']
     (calendar_id, status) [name: 'idx_guest_calendar']
-    registration_no [name: 'idx_guest_order']
+    group_id [name: 'idx_guest_group']
     email [name: 'idx_guest_email']
   }
 }

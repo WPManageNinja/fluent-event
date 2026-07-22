@@ -15,7 +15,7 @@
 | Event machine data — dates, timezone, venue_type, calendar_id, parent_event_id, status | **`wp_fe_event_details`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
 | Event config JSON — registration_type, join_policy, waitlist, cover_url, online_meeting_url, recurrence | **`wp_postmeta`** (`_fevents_settings`) | open-ended, never range-queried; event_details has no settings column |
 | Category / type, venue, organizer, performer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
-| Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `registration_no`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<slot` queries |
+| Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `group_id`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<slot` queries |
 | Performer detail | `fevents_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
 
 **Key identity rule:** `wp_fe_event_details.id` is the internal PK all ticketing FKs use
@@ -152,13 +152,13 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
 - The event↔post is 1:1 — deleting the `fevents_event` post cascades the
   `wp_fe_event_details` row (`ON DELETE CASCADE`), which cascades ticket_types / guests.
   A guest's `ticket_type_id` is `RESTRICT` (can't orphan a sold ticket).
-- **Order = a group of `guests` rows** sharing `registration_no` (no separate registrations
+- **Order = a group of `guests` rows** sharing `group_id` (no separate registrations
   table — most orders are 1 ticket, so a split order row would double writes for the common
   case). Exactly one row per group has `is_buyer=1` and carries the order/payment fields
   (`payment_status`, `payment_ref`, `price`, `paid_at`, `source`) — **NULL on companions**.
   So `SUM(price)` = revenue with no `WHERE` guard, a payment webhook/refund updates one row
-  (`WHERE registration_no=? AND is_buyer=1`), ticket count = `COUNT(*)` of the group. Generate
-  `registration_no` at checkout (`random_bytes`/`wp_generate_password`). Optional nullable
+  (`WHERE group_id=? AND is_buyer=1`), ticket count = `COUNT(*)` of the group. Generate
+  `group_id` at checkout (`random_bytes`/`wp_generate_password`). Optional nullable
   `user_id` links a row to a WP account when the attendee is logged in (core ref, FK in app).
 - `guests.calendar_id` is a **denormalized** copy of the event's calendar, written at
   registration time so "who registered under calendar X" is a direct index scan
