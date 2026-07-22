@@ -68,7 +68,7 @@ _(team lead)_
 
 ## Q4 — Activity tracking scope
 
-**Resolved — obsolete.** FR-5 Activity Tracking (the `wp_fevents_activities` audit log) was removed from scope. There is no activity/audit log. This question no longer applies.
+**Resolved — obsolete.** FR-5 Activity Tracking (the `wp_fe_activities` audit log) was removed from scope. There is no activity/audit log. This question no longer applies.
 
 ---
 
@@ -172,7 +172,7 @@ _(team lead)_
 
 2. Notification audience for a linked calendar — the fcom space's members?
 
-- Resolved: Yes. Space members are the audience for a linked calendar's event notifications. There is no calendar follow/subscribe concept (the `wp_fevents_calendar_followers` table was dropped); standalone calendars have no subscriber list, so their event notifications reach the event's guests only (FR-9).
+- Resolved: Yes. Space members are the audience for a linked calendar's event notifications. There is no calendar follow/subscribe concept (the `wp_fe_calendar_followers` table was dropped); standalone calendars have no subscriber list, so their event notifications reach the event's guests only (FR-9).
 
 **Answer:**
 _(team lead)_

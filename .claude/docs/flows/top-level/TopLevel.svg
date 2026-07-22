@@ -52,7 +52,7 @@
 <g><rect x="80" y="470" width="360" height="66" rx="9" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
 <rect x="80" y="470" width="6" height="66" rx="3" fill="#0f172a"/>
 <text x="96" y="492" font-size="13.5" font-weight="700" fill="#0f172a">Database</text>
-<text x="96" y="510" font-size="9.2" fill="#64748b">wp_fevents_* tables · WordPress core</text>
+<text x="96" y="510" font-size="9.2" fill="#64748b">wp_fe_* tables · WordPress core</text>
 </g>
 <g><rect x="530" y="318" width="250" height="58" rx="9" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
 <rect x="530" y="318" width="6" height="58" rx="3" fill="#7c3aed"/>

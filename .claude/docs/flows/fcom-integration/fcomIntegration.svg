@@ -2,7 +2,7 @@
 <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M1,1 L8,5 L1,9 z" fill="#94a3b8"/></marker></defs>
 <rect x="0" y="0" width="1225" height="576" fill="#f8fafc"/>
 <text x="40" y="44" font-size="23" font-weight="700" fill="#0f172a">FR-10 — fcom ↔ Fluent Events: event-driven flows</text>
-<text x="40" y="66" font-size="12" fill="#64748b">Each row: a FluentCommunity action → (guard) → hook fired → Fluent Events result. Events &amp; calendars always live in wp_fevents_*.</text>
+<text x="40" y="66" font-size="12" fill="#64748b">Each row: a FluentCommunity action → (guard) → hook fired → Fluent Events result. Events &amp; calendars always live in wp_fe_*.</text>
 <text x="40" y="145" font-size="11" font-weight="700" fill="#334155">Create</text>
 <line x1="332" y1="141" x2="355" y2="141" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <line x1="480" y1="141" x2="503" y2="141" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
@@ -62,7 +62,7 @@
 <text x="304" y="343" font-size="10" font-weight="600" fill="#4338ca" text-anchor="middle">Create event — fcom space</text>
 <rect x="423" y="318" width="259" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>
 <rect x="423" y="318" width="5" height="42" rx="2.5" fill="#0d9488"/>
-<text x="554" y="343" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Write wp_fevents_events · calendar_id</text>
+<text x="554" y="343" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">Write wp_fe_event_details · calendar_id</text>
 <text x="40" y="409" font-size="11" font-weight="700" fill="#334155">New event · in portal</text>
 <line x1="416" y1="405" x2="439" y2="405" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
 <rect x="210" y="384" width="202" height="42" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.7"/>

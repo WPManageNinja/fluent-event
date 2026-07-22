@@ -1,6 +1,6 @@
 # FR-10: FluentCommunity Integration
 
-**Summary:** Connect Fluent Events with FluentCommunity (fcom). This is optional. Fluent Events still works on its own. When fcom is installed, a new space type called `event` shows up. Each event space is tied to one Fluent Events calendar. The events themselves always live in the `wp_fevents_*` tables — fcom never stores event data. When both plugins are on, fcom owns the user identity.
+**Summary:** Connect Fluent Events with FluentCommunity (fcom). This is optional. Fluent Events still works on its own. When fcom is installed, a new space type called `event` shows up. Each event space is tied to one Fluent Events calendar. The events themselves always live in the `wp_fe_*` tables — fcom never stores event data. When both plugins are on, fcom owns the user identity.
 
 **Depends on:** FR-6 (events), FR-8 (calendars), FR-9 (notifications). Identity is WordPress users; fcom adds its XProfile for community data, both keyed off `wp_users.ID`.
 
@@ -9,7 +9,7 @@
 - A **bridge module** inside Fluent Events (`Modules/FluentCommunity/`) turns on only when fcom is active. Without fcom, nothing changes.
 - fcom already supports space types (`community`, `course`, `sidebar_link`) in one table using a `type` column. We add one more: `event`. No change to fcom's database.
 - The link to the calendar is saved in the space's existing `settings` JSON. Again, no new fcom table or column.
-- All event and calendar data stays in `wp_fevents_*`. fcom only shows the space and renders the events UI.
+- All event and calendar data stays in `wp_fe_*`. fcom only shows the space and renders the events UI.
 
 ## Functional requirements
 
@@ -33,7 +33,7 @@ The bridge loads only if fcom is detected (`class_exists` / version check). No f
 
 ### FR-10.4 — Create and show events on both sides
 
-- **In the fcom space:** "Create event" saves a `wp_fevents_events` row with this calendar's `calendar_id`.
+- **In the fcom space:** "Create event" saves a `wp_fe_event_details` row with this calendar's `calendar_id`.
 - **In the events portal:** an event added to that calendar shows up in the fcom space too. The space loads events by `calendar_id`, so there's one source and no duplication.
 
 ### FR-10.5 — Identity and audience
@@ -58,7 +58,7 @@ The bridge loads only if fcom is detected (`class_exists` / version check). No f
 ## Storage
 
 - **fcom side:** no schema change. A `fcom_spaces` row with `type='event'` and `settings.calendar_id`, `settings.is_event_space`, `settings.announce_in_feed`.
-- **Fluent Events side:** the linked calendar is a normal `wp_fevents_calendars` row. Save its origin (e.g. `settings.fcom_space_id`) so we can look it up and keep it in sync. Events use `calendar_id` as usual.
+- **Fluent Events side:** the linked calendar is a normal `wp_fe_calendars` row. Save its origin (e.g. `settings.fcom_space_id`) so we can look it up and keep it in sync. Events use `calendar_id` as usual.
 
 ## fcom hooks used (no edits to fcom core)
 

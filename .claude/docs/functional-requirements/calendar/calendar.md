@@ -8,7 +8,7 @@
 
 ## Approach
 
-- **New table** `wp_fevents_calendars`. Per-calendar extra config in the calendar's `settings` column.
+- **New table** `wp_fe_calendars`. Per-calendar extra config in the calendar's `settings` column.
 - **Space-owned.** Calendars belong to the space; only host/managers (capability `fevents_manage_calendars`) create/manage them. Members browse.
 - **Events link by `calendar_id`** (FR-6). One event → one calendar (or none = unfiled).
 - **Shareable page** keyed by `slug`; lists that calendar's published events.
@@ -16,7 +16,7 @@
 
 ## Data model
 
-**Table: `wp_fevents_calendars`**
+**Table: `wp_fe_calendars`**
 
 | Column           | Type        | Notes                                            |
 | ---------------- | ----------- | ------------------------------------------------ |

@@ -1,7 +1,7 @@
 # Data model + implementation — event CPT hybrid + WP taxonomies
 
 > How the schema is put together and how we build against it. Locked decisions:
-> **event = CPT hybrid** (wp_posts + wp_postmeta + `wp_fevents_events`); **category,
+> **event = CPT hybrid** (wp_posts + wp_postmeta + `wp_fe_event_details`); **category,
 > venue, organizer, performer = WP taxonomies** (performer thin: name+photo, no profile).
 > Diagram: [schema.svg](schema.svg). DDL: [schema.sql](schema.sql). Generator:
 > [gen_schema.py](gen_schema.py) — edit the spec there, never hand-edit the 3 outputs.
@@ -12,15 +12,15 @@
 |---|---|---|
 | Event identity — title, description, slug, status, author | **`wp_posts`** (`post_type=fevents_event`) | free permalink `/events/x/`, block editor, admin, REST, search, archive |
 | Event flexible / config — `_fevents_form_fields`, `_fevents_settings`, addon fields | **`wp_postmeta`** | open-ended, extensible by add-ons, never range-queried |
-| Event machine data — dates, timezone, venue_type, join_policy, waitlist, calendar_id, currency, status | **`wp_fevents_events`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
+| Event machine data — dates, timezone, venue_type, join_policy, waitlist, calendar_id, currency, status | **`wp_fe_event_details`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
 | Category / type, venue, organizer, performer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
 | Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `registration_no`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<capacity` queries |
 | Performer detail | `fevents_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
 
-**Key identity rule:** `wp_fevents_events.id` is the internal PK all ticketing FKs use
-(`event_id`). `wp_fevents_events.post_id` is the 1:1 link to the `wp_posts` row and the
+**Key identity rule:** `wp_fe_event_details.id` is the internal PK all ticketing FKs use
+(`event_id`). `wp_fe_event_details.post_id` is the 1:1 link to the `wp_posts` row and the
 **taxonomy anchor** (`wp_term_relationships.object_id` = that post id). One event = one
-`wp_posts` row + one `wp_fevents_events` row.
+`wp_posts` row + one `wp_fe_event_details` row.
 
 ## 2. Registration (bootstrap)
 
@@ -53,10 +53,10 @@ foreach ([
 | # | Writes | Notes |
 |---|---|---|
 | 1 | `wp_posts` — 1 `fevents_event` row | title / editor body / slug / status=publish / author |
-| 2 | `wp_postmeta` — addon/open-ended config blobs | cover is **not** here — it's a URL in `wp_fevents_events.settings.cover_url` |
+| 2 | `wp_postmeta` — addon/open-ended config blobs | cover is **not** here — it's a URL in `wp_fe_event_details.settings.cover_url` |
 | 3 | `wp_term_relationships` — event ↔ event_type / venue / organizer terms | `wp_set_object_terms($post_id, $termIds, $tax)` (assign, M:N) |
-| 4 | `wp_fevents_events` — 1 row (`post_id` FK) | typed: start_at, end_at, timezone, venue_type, join_policy, waitlist_enabled, calendar_id, currency, status |
-| 5 | `wp_fevents_ticket_types` — N rows (`event_id` = events.id) | tiers |
+| 4 | `wp_fe_event_details` — 1 row (`post_id` FK) | typed: start_at, end_at, timezone, venue_type, join_policy, waitlist_enabled, calendar_id, currency, status |
+| 5 | `wp_fe_ticket_types` — N rows (`event_id` = events.id) | tiers |
 
 **Service shape (WPFluent ORM + a transaction at the service layer):**
 ```php
@@ -121,11 +121,11 @@ new WP_Query(['post_type'=>'fevents_event',
 Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
 ```
 - **Classification / browse / filter / archive** → taxonomy (`WP_Query` `tax_query`, `get_term_link`).
-- **Dates, capacity, ticket sums, check-in** → `wp_fevents_events` + ticketing tables (real SQL, indexed).
+- **Dates, capacity, ticket sums, check-in** → `wp_fe_event_details` + ticketing tables (real SQL, indexed).
 
 ## 6. What changed from the previous schema
 
-- **Dropped** `wp_fevents_people` (organizer + performer → taxonomies).
+- **Dropped** `wp_fe_people` (organizer + performer → taxonomies).
 - **Event** reshaped into a CPT extension: `title` / `slug` / `description` → `wp_posts`;
   `visibility` → `post_status`; `created_by` → `post_author`; `cover_image_id` →
   `settings.cover_url` (a plain URL in the JSON, **not** `_thumbnail_id` — see
@@ -133,7 +133,7 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
   `address` / `lat` / `lon` → `fevents_venue` term meta. **Added** `post_id` (1:1 FK, unique,
   taxonomy anchor).
 - **Added** the 3 taxonomies + `wp_termmeta` usage (WP-native, not our tables).
-- **Dropped** `wp_fevents_sponsors` — not needed now. If sponsors return, they'll be a
+- **Dropped** `wp_fe_sponsors` — not needed now. If sponsors return, they'll be a
   taxonomy (`fevents_sponsor`) like organizer, not a table.
 
 ## 7. Guardrails that apply
@@ -144,7 +144,7 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
 - Event body (`post_content`) rendered through `wp_kses_post`; term/name output escaped
   at the sink ([always.md](../../rules/always.md)).
 - The event↔post is 1:1 — deleting the `fevents_event` post cascades the
-  `wp_fevents_events` row (`ON DELETE CASCADE`), which cascades ticket_types / guests.
+  `wp_fe_event_details` row (`ON DELETE CASCADE`), which cascades ticket_types / guests.
   A guest's `ticket_type_id` is `RESTRICT` (can't orphan a sold ticket).
 - **Order = a group of `guests` rows** sharing `registration_no` (no separate registrations
   table — most orders are 1 ticket, so a split order row would double writes for the common

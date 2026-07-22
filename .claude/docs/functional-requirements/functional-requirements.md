@@ -6,19 +6,19 @@
 
 ## Identity model (no custom auth)
 
-**Fluent Events has no custom authentication, profile, or member-management layer.** Event configuration happens in **wp-admin**, performed by WordPress users (hosts / managers, gated by capability). Public event pages are **open for email-only entry** — an attendee is captured as a `wp_fevents_guests` row (`name` + `email`, no `user_id` link), never a plugin-owned account. No front-end login, profile area, OTP, forgot-password, or member moderation.
+**Fluent Events has no custom authentication, profile, or member-management layer.** Event configuration happens in **wp-admin**, performed by WordPress users (hosts / managers, gated by capability). Public event pages are **open for email-only entry** — an attendee is captured as a `wp_fe_guests` row (`name` + `email`, no `user_id` link), never a plugin-owned account. No front-end login, profile area, OTP, forgot-password, or member moderation.
 
 > **Removed in pivot:** former **FR-1 Authentication**, **FR-2 User Profile & Account Management**, **FR-3 Member Management**, and **FR-5 Activity Tracking (Audit Log)**. Numbering keeps the gaps so existing cross-references stay valid.
 
 ## FR-4: Settings & Configuration
 
-**Summary:** Central settings area (fcom-style) where the host configures general settings, customization, feature addons, managers, access management, privacy, and customizable email templates. Two-store split: bootstrap `general` + db_version in `wp_options` (autoloaded, pre-ORM); all other sections + per-user meta in a generic `wp_fevents_meta` table (one row per section).
+**Summary:** Central settings area (fcom-style) where the host configures general settings, customization, feature addons, managers, access management, privacy, and customizable email templates. Two-store split: bootstrap `general` + db_version in `wp_options` (autoloaded, pre-ORM); all other sections + per-user meta in a generic `wp_fe_meta` table (one row per section).
 
 → Full spec: [functional-requirements/settings/settings.md](functional-requirements/settings/settings.md)
 
 ## FR-6: Events (core)
 
-**Summary:** The core event entity + lifecycle — create, configure, publish, manage events of any kind; visitors register anonymously. **Event = CPT hybrid**: identity in `wp_posts` (`post_type=fevents_event`), config in `wp_postmeta`, typed relational data in `wp_fevents_events` (1:1 `post_id`). **Classification via WP taxonomies**: `fevents_event_type`, `fevents_venue`, `fevents_organizer`, `fevents_performer` (reusable across events, term meta for details). **Ticketing model**: event → `ticket_types` (tiers) → `guests` (one row per ticket; a purchase = guest rows sharing `registration_no`, the `is_buyer=1` row carries order + payment — no separate registrations table). Online/offline/hybrid, free/paid, open/approval, per-tier capacity, dynamic per-attendee forms, check-in. Performers = thin taxonomy (name + photo). Sponsors = deferred. No account — keyed by email. → [db/implementation.md](../db/implementation.md).
+**Summary:** The core event entity + lifecycle — create, configure, publish, manage events of any kind; visitors register anonymously. **Event = CPT hybrid**: identity in `wp_posts` (`post_type=fevents_event`), config in `wp_postmeta`, typed relational data in `wp_fe_event_details` (1:1 `post_id`). **Classification via WP taxonomies**: `fevents_event_type`, `fevents_venue`, `fevents_organizer`, `fevents_performer` (reusable across events, term meta for details). **Ticketing model**: event → `ticket_types` (tiers) → `guests` (one row per ticket; a purchase = guest rows sharing `registration_no`, the `is_buyer=1` row carries order + payment — no separate registrations table). Online/offline/hybrid, free/paid, open/approval, per-tier capacity, dynamic per-attendee forms, check-in. Performers = thin taxonomy (name + photo). Sponsors = deferred. No account — keyed by email. → [db/implementation.md](../db/implementation.md).
 
 → Full spec: [functional-requirements/events/events.md](functional-requirements/events/events.md)
 
@@ -42,6 +42,6 @@
 
 ## FR-10: FluentCommunity Integration
 
-**Summary:** Optional bridge that deep-integrates Fluent Events into FluentCommunity. When fcom is active, registers a new `event` space type whose space is 1:1-bound to a Fluent Events calendar (auto-created, title-synced, also shown in the standalone portal). Events always live in `wp_fevents_*` (fcom stores none); in integrated mode fcom is the canonical identity.
+**Summary:** Optional bridge that deep-integrates Fluent Events into FluentCommunity. When fcom is active, registers a new `event` space type whose space is 1:1-bound to a Fluent Events calendar (auto-created, title-synced, also shown in the standalone portal). Events always live in `wp_fe_*` (fcom stores none); in integrated mode fcom is the canonical identity.
 
 → Full spec: [functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md](functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md)

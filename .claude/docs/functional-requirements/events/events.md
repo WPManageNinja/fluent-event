@@ -6,7 +6,7 @@
 
 ## Approach
 
-- **Three tables**: `wp_fevents_events` (the event) → `wp_fevents_ticket_types` (price tiers) → `wp_fevents_guests` (one row per ticket/attendee; the buyer's row also carries the order + payment). Extra per-event data goes in `wp_fevents_meta` (`object_type='event'`).
+- **Three tables**: `wp_fe_event_details` (the event) → `wp_fe_ticket_types` (price tiers) → `wp_fe_guests` (one row per ticket/attendee; the buyer's row also carries the order + payment). Extra per-event data goes in `wp_fe_meta` (`object_type='event'`).
 - **Only host/managers manage events** (WP-admin capability `fevents_manage_events`). Visitors register.
 - **Registration is anonymous, no account.** A visitor picks a tier + quantity, enters details **per ticket**, and submits → **N `guests` rows** sharing one `registration_no` (the purchase group), **one flagged `is_buyer=1`**. No login/signup/password. Invite links + imports pre-create the same rows. Keyed by `email`; `user_id` is set only when the registrant is a logged-in WP user (else NULL).
 - **Merged order + attendee (no separate registrations table).** Most orders are 1 ticket, so a split order-row would double the writes for the common case. Instead a purchase is a **group of guest rows** sharing `registration_no`; the **`is_buyer=1` row** carries the order/payment fields (`payment_status`, `payment_ref`, `price`, `paid_at`, `source`) — **NULL on companion rows**. Buyer contact = that row's own `name`/`email`.
@@ -18,7 +18,7 @@
 - **Entry mode** via `events.settings.registration_type` — three ways in, one set of tables:
   - **`ticketed`** — buy tickets. Guest rows **require** `ticket_type_id` (paid or free tier), payment on the `is_buyer=1` row. (`ticket_type_id` is now nullable at the DB level — ticketed mode enforces it in the service layer.)
   - **`rsvp`** — free "I'm coming". Guest rows with **`ticket_type_id` = NULL** (no tier at all). Going / not-going tracked purely via `status` (`attending` / `declined`). Headcount = `COUNT(*) WHERE status='attending'`.
-  - **`open`** — no registration. **Zero guest rows, zero ticket_types.** Just a published listing (unlimited, free, show up). The event = its `wp_posts` + `wp_fevents_events` row, no children.
+  - **`open`** — no registration. **Zero guest rows, zero ticket_types.** Just a published listing (unlimited, free, show up). The event = its `wp_posts` + `wp_fe_event_details` row, no children.
   - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.capacity IS NULL`).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
 - **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per order** (one payment covers all tickets in a `registration_no` group), recorded on the `is_buyer=1` row — not per guest.
@@ -29,12 +29,12 @@ Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `r
 
 **Event = CPT hybrid.** Identity (title, description, slug, status, author) lives
 in **`wp_posts`** (`post_type=fevents_event`); addon config in **`wp_postmeta`**; typed
-relational data + the per-guest form in **`wp_fevents_events`** (1:1 via `post_id`).
+relational data + the per-guest form in **`wp_fe_event_details`** (1:1 via `post_id`).
 Category / venue / organizer / performer are **WP taxonomies** on the post — the physical
 place (address/map) is `fevents_venue` term meta, not an event column. See
 [db/implementation.md](../../db/implementation.md).
 
-**`wp_fevents_events`** — the typed extension row (what ticketing FKs to). Also carries
+**`wp_fe_event_details`** — the typed extension row (what ticketing FKs to). Also carries
 **recurrence occurrences** (see FR-6.16):
 
 | Column | Type | Notes |
@@ -60,7 +60,7 @@ always come from the master. (The **cover** is no longer post-level — it's `se
 so an occurrence *can* override it like any other inheritable setting.) *(Venue place data → `fevents_venue` term meta; the online link
 is per-event in `settings`, never term meta.)*
 
-**`wp_fevents_ticket_types`** — price tiers.
+**`wp_fe_ticket_types`** — price tiers.
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
@@ -78,7 +78,7 @@ is per-event in `settings`, never term meta.)*
 
 Index: `(event_id, status)`. Only queried columns are real (event_id, status, capacity, sold, sale window, price, sort_order); display-only fields live in `settings`.
 
-**`wp_fevents_guests`** — one row per **ticket** (each attendee). A purchase is a **group** of these rows sharing `registration_no`; the **`is_buyer=1`** row also carries the order + payment (NULL on companions). No separate registrations table.
+**`wp_fe_guests`** — one row per **ticket** (each attendee). A purchase is a **group** of these rows sharing `registration_no`; the **`is_buyer=1`** row also carries the order + payment (NULL on companions). No separate registrations table.
 
 | Column | Type | Notes |
 | ------ | ---- | ----- |
@@ -137,7 +137,7 @@ address/city/map; type: color/icon; performer: photo/designation/social). Assign
 **Sponsors = deferred** — no sponsor table in this milestone. If sponsors return they'll
 be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
-> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fevents_roles` in `wp_fevents_meta`, FR-4). The organizer **taxonomy** is **display/credit only** — a term, no `user_id`, no permissions. A WP-user organizer who also manages appears as an organizer term **and** holds a capability there.
+> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fevents_roles` in `wp_fe_meta`, FR-4). The organizer **taxonomy** is **display/credit only** — a term, no `user_id`, no permissions. A WP-user organizer who also manages appears as an organizer term **and** holds a capability there.
 
 ## Functional requirements
 
@@ -218,7 +218,7 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 ### FR-6.16 — Recurring events
 
 - The host sets a **repeat rule** — daily / weekly / monthly / yearly, an interval, specific days, and an end (a date or N times). Stored as a standard **iCal RRULE string** on the **series master** (`settings.recurrence.rrule`).
-- Occurrences are **rows in `wp_fevents_events`** — `parent_event_id` = master, `post_id` NULL (no own post). Each has its own date/status/capacity/guests; inheritable columns are **NULL = inherit from the master**. People join one occurrence, not the whole series.
+- Occurrences are **rows in `wp_fe_event_details`** — `parent_event_id` = master, `post_id` NULL (no own post). Each has its own date/status/capacity/guests; inheritable columns are **NULL = inherit from the master**. People join one occurrence, not the whole series.
 - Materialized on a **rolling window** by a daily cron — not all at once, so an open-ended series stays bounded.
 - **Edit / cancel scope:** this occurrence, this + following, or the whole series.
 - Deleting the master **cascades** its occurrences (`parent_event_id` FK ON DELETE CASCADE).

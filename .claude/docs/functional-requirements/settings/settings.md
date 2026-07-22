@@ -12,9 +12,9 @@
   - `fevents_general` — portal **slug**, **access level**, site **title**, **logos**, **logo permalink** (small + hot).
   - `FEVENTS_DB_VERSION` — the migrator reads it before tables are guaranteed to exist.
   - Why `wp_options`: `get_option()` is available immediately (no ORM), autoloaded (already in memory, zero extra query), and survives even if custom tables are missing.
-- **Everything else → `wp_fevents_meta`** (generic polymorphic store: `object_type`, `object_id`, `meta_key`, `value`). **No mega-blob.**
+- **Everything else → `wp_fe_meta`** (generic polymorphic store: `object_type`, `object_id`, `meta_key`, `value`). **No mega-blob.**
 
-In `wp_fevents_meta`:
+In `wp_fe_meta`:
 
 - **One row per settings section** — `object_type = 'option'`, one row each: `customization`, `addons`, `access`, `privacy`, `emails`. Editing one section never rewrites another → no write-clobber races. Not autoloaded → no bloat. Cached helper.
 - **Same table holds per-user meta** (`object_type = 'user'`): manager roles (`_fevents_roles`), user prefs. Per-user meta is for WP users (managers) only.
@@ -23,7 +23,7 @@ In `wp_fevents_meta`:
 - **Per-object settings live on the object.** Per-calendar / per-event settings are a `settings` JSON column on those entities (not here). This screen is global config only.
 - **Access gated** by `manage_options` (host/admin) — only the owner tier configures settings.
 
-**`wp_fevents_meta` schema:**
+**`wp_fe_meta` schema:**
 
 | Column                      | Type                                 | Notes                                                |
 | --------------------------- | ------------------------------------ | ---------------------------------------------------- |
@@ -106,5 +106,5 @@ In `wp_fevents_meta`:
 - [ ] Manager roles: reconcile fcom-style per-user roles with the product model's "WP roles + capabilities." One model or both? Which role names + capability bundles ship in v1?
 - [ ] Access management mechanism: REST API keys, capability filters, or per-integration allow-list? What granularity?
 - [ ] Email editor: plain subject/body + merge tags, or a richer (block/HTML) editor? Per-email or shared template only?
-- [ ] Settings storage: two-store split. Bootstrap `fevents_general` + `FEVENTS_DB_VERSION` in `wp_options` (autoloaded, pre-ORM); all other sections + per-user meta in the generic `wp_fevents_meta` table, one row per section (no mega-blob, not autoloaded).
+- [ ] Settings storage: two-store split. Bootstrap `fevents_general` + `FEVENTS_DB_VERSION` in `wp_options` (autoloaded, pre-ORM); all other sections + per-user meta in the generic `wp_fe_meta` table, one row per section (no mega-blob, not autoloaded).
 - [ ] Privacy vs Access overlap — are these one section or two?

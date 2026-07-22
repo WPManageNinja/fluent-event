@@ -3,7 +3,7 @@
 <rect x="0" y="0" width="1340" height="1060" fill="#fbfcfd"/>
 <path d="M0,0 V1060 M20,0 V1060 M40,0 V1060 M60,0 V1060 M80,0 V1060 M100,0 V1060 M120,0 V1060 M140,0 V1060 M160,0 V1060 M180,0 V1060 M200,0 V1060 M220,0 V1060 M240,0 V1060 M260,0 V1060 M280,0 V1060 M300,0 V1060 M320,0 V1060 M340,0 V1060 M360,0 V1060 M380,0 V1060 M400,0 V1060 M420,0 V1060 M440,0 V1060 M460,0 V1060 M480,0 V1060 M500,0 V1060 M520,0 V1060 M540,0 V1060 M560,0 V1060 M580,0 V1060 M600,0 V1060 M620,0 V1060 M640,0 V1060 M660,0 V1060 M680,0 V1060 M700,0 V1060 M720,0 V1060 M740,0 V1060 M760,0 V1060 M780,0 V1060 M800,0 V1060 M820,0 V1060 M840,0 V1060 M860,0 V1060 M880,0 V1060 M900,0 V1060 M920,0 V1060 M940,0 V1060 M960,0 V1060 M980,0 V1060 M1000,0 V1060 M1020,0 V1060 M1040,0 V1060 M1060,0 V1060 M1080,0 V1060 M1100,0 V1060 M1120,0 V1060 M1140,0 V1060 M1160,0 V1060 M1180,0 V1060 M1200,0 V1060 M1220,0 V1060 M1240,0 V1060 M1260,0 V1060 M1280,0 V1060 M1300,0 V1060 M1320,0 V1060 M1340,0 V1060 M0,0 H1340 M0,20 H1340 M0,40 H1340 M0,60 H1340 M0,80 H1340 M0,100 H1340 M0,120 H1340 M0,140 H1340 M0,160 H1340 M0,180 H1340 M0,200 H1340 M0,220 H1340 M0,240 H1340 M0,260 H1340 M0,280 H1340 M0,300 H1340 M0,320 H1340 M0,340 H1340 M0,360 H1340 M0,380 H1340 M0,400 H1340 M0,420 H1340 M0,440 H1340 M0,460 H1340 M0,480 H1340 M0,500 H1340 M0,520 H1340 M0,540 H1340 M0,560 H1340 M0,580 H1340 M0,600 H1340 M0,620 H1340 M0,640 H1340 M0,660 H1340 M0,680 H1340 M0,700 H1340 M0,720 H1340 M0,740 H1340 M0,760 H1340 M0,780 H1340 M0,800 H1340 M0,820 H1340 M0,840 H1340 M0,860 H1340 M0,880 H1340 M0,900 H1340 M0,920 H1340 M0,940 H1340 M0,960 H1340 M0,980 H1340 M0,1000 H1340 M0,1020 H1340 M0,1040 H1340 M0,1060 H1340" stroke="#eceff2" stroke-width="1"/>
 <text x="40" y="26" font-size="15" font-weight="700" fill="#1c2b3a">Fluent Events — DB schema (event = CPT hybrid + WP taxonomies)</text>
-<text x="40" y="44" font-size="10" fill="#6a7684">Only wp_fevents_* tables shown; WP core (posts/meta/users/taxonomy) is referenced, not drawn — see the note + implementation.md. Line colour = the table it points to.</text>
+<text x="40" y="44" font-size="10" fill="#6a7684">Only wp_fe_* tables shown; WP core (posts/meta/users/taxonomy) is referenced, not drawn — see the note + implementation.md. Line colour = the table it points to.</text>
 <path d="M520,245 H422.0 V101 H340" fill="none" stroke="#1298a4" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c1298a4)" marker-end="url(#one_c1298a4)"/>
 <path d="M820,137 H864 V101 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
 <path d="M1000,119 H902.0 V95 H820" fill="none" stroke="#2f6fd0" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c2f6fd0)" marker-end="url(#one_c2f6fd0)"/>
@@ -14,7 +14,7 @@
 <rect x="40" y="70" width="300" height="218" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M40,74 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="48" y="77" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="64" y="85" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_calendars</text>
+<text x="64" y="85" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fe_calendars</text>
 <circle cx="51" cy="101" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,101 L59,101 M57,101 L57,103.5 M59,101 L59,103.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="62" y="104" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M52,115 L56,119 L52,123 L48,119 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
@@ -42,7 +42,7 @@
 <rect x="40" y="364" width="300" height="164" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M40,368 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="48" y="371" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="64" y="379" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_meta</text>
+<text x="64" y="379" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fe_meta</text>
 <circle cx="51" cy="395" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,395 L59,395 M57,395 L57,397.5 M59,395 L59,397.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="62" y="398" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M52,409 L56,413 L52,417 L48,413 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
@@ -64,7 +64,7 @@
 <rect x="40" y="568" width="300" height="200" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M40,572 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="48" y="575" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="64" y="583" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_notifications</text>
+<text x="64" y="583" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fe_notifications</text>
 <circle cx="51" cy="599" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,599 L59,599 M57,599 L57,601.5 M59,599 L59,601.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="62" y="602" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M52,613 L56,617 L52,621 L48,617 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
@@ -90,7 +90,7 @@
 <rect x="40" y="808" width="300" height="182" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M40,812 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="48" y="815" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="64" y="823" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_notification_users</text>
+<text x="64" y="823" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fe_notification_users</text>
 <circle cx="51" cy="839" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M53.5,839 L59,839 M57,839 L57,841.5 M59,839 L59,841.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="62" y="842" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M52,853 L56,857 L52,861 L48,857 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
@@ -114,7 +114,7 @@
 <rect x="520" y="70" width="300" height="308" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M520,74 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="528" y="77" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="544" y="85" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_events</text>
+<text x="544" y="85" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fe_event_details</text>
 <circle cx="531" cy="101" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M533.5,101 L539,101 M537,101 L537,103.5 M539,101 L539,103.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="542" y="104" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M532,115 L536,119 L532,123 L528,119 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
@@ -152,7 +152,7 @@
 <rect x="1000" y="70" width="300" height="326" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M1000,74 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="1008" y="77" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="1024" y="85" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_ticket_types</text>
+<text x="1024" y="85" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fe_ticket_types</text>
 <circle cx="1011" cy="101" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1013.5,101 L1019,101 M1017,101 L1017,103.5 M1019,101 L1019,103.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="1022" y="104" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M1012,115 L1016,119 L1012,123 L1008,119 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
@@ -192,7 +192,7 @@
 <rect x="1000" y="436" width="300" height="398" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M1000,440 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="1008" y="443" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
-<text x="1024" y="451" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_guests</text>
+<text x="1024" y="451" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fe_guests</text>
 <circle cx="1011" cy="467" r="3.2" fill="none" stroke="#c99a08" stroke-width="1.6"/><path d="M1013.5,467 L1019,467 M1017,467 L1017,469.5 M1019,467 L1019,469.5" stroke="#c99a08" stroke-width="1.6" fill="none"/>
 <text x="1022" y="470" font-size="10.5" fill="#1a1a1a"><tspan font-weight="700">id</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M1012,481 L1016,485 L1012,489 L1008,485 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
@@ -239,11 +239,11 @@
 <g><rect x="520" y="440" width="430" height="88" rx="5" fill="#fff" stroke="#8a99ab" stroke-width="1"/>
 <text x="532" y="460" font-size="11" font-weight="700" fill="#1c2b3a">Connector colour = points to&#8230;</text>
 <path d="M534,477 h26" stroke="#1298a4" stroke-width="2.2"/>
-<text x="570" y="480" font-size="10" fill="#33404d">wp_fevents_calendars</text>
+<text x="570" y="480" font-size="10" fill="#33404d">wp_fe_calendars</text>
 <path d="M534,497 h26" stroke="#2f6fd0" stroke-width="2.2"/>
-<text x="570" y="500" font-size="10" fill="#33404d">wp_fevents_events</text>
+<text x="570" y="500" font-size="10" fill="#33404d">wp_fe_event_details</text>
 <path d="M534,517 h26" stroke="#8a7514" stroke-width="2.2"/>
-<text x="570" y="520" font-size="10" fill="#33404d">wp_fevents_ticket_types</text>
+<text x="570" y="520" font-size="10" fill="#33404d">wp_fe_ticket_types</text>
 </g>
 <g><rect x="520" y="640" width="440" height="164" rx="4" fill="#fff" stroke="#9a8fb0" stroke-width="1"/>
 <text x="532" y="660" font-size="10.5" font-weight="700" fill="#4a3a5a">WP core (not drawn — see implementation.md)</text>

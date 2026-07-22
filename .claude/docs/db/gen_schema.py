@@ -3,7 +3,7 @@
 schema.svg from one spec. Run:  python3 gen_schema.py   (writes all three).
 
 Model: event = CPT hybrid. Identity in wp_posts, flexible/config in wp_postmeta,
-typed relational data in wp_fevents_events (post_id 1:1). Classification
+typed relational data in wp_fe_event_details (post_id 1:1). Classification
 (event_type / venue / organizer) = WP taxonomies + term meta. Roster performer/
 speaker = deferred (future CPT). Ticketing custom tables FK to the event.
 """
@@ -21,16 +21,16 @@ T = {
  "wp_users": ("core", COL0, 40, [
     ("ID","BIGINT UNSIGNED","P"),("user_login","VARCHAR(60)","!"),
     ("user_email","VARCHAR(100)","!"),("display_name","VARCHAR(250)","!")]),
- "wp_fevents_calendars": ("app", COL0, 190, [
+ "wp_fe_calendars": ("app", COL0, 190, [
     ("id","BIGINT UNSIGNED","P"),("title","VARCHAR(255)","!"),("slug","VARCHAR(255)","U!"),
     ("description","TEXT",""),("visibility","VARCHAR(64)","!"),
     ("settings","JSON",""),("status","VARCHAR(64)","!"),("created_by","BIGINT UNSIGNED","F!"),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
- "wp_fevents_meta": ("app", COL0, 470, [
+ "wp_fe_meta": ("app", COL0, 470, [
     ("id","BIGINT UNSIGNED","P"),("object_type","VARCHAR(64)","!"),
     ("object_id","BIGINT UNSIGNED",""),("meta_key","VARCHAR(255)","!"),
     ("value","LONGTEXT",""),("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
- "wp_fevents_notifications": ("app", COL0, 660, [
+ "wp_fe_notifications": ("app", COL0, 660, [
     ("id","BIGINT UNSIGNED","P"),("user_id","BIGINT UNSIGNED","F"),
     ("action","VARCHAR(64)","!"),
     ("object_type","VARCHAR(64)",""),("object_id","BIGINT UNSIGNED",""),
@@ -44,7 +44,7 @@ T = {
  "wp_postmeta": ("core", COL1, 250, [
     ("meta_id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","F!"),
     ("meta_key","VARCHAR(255)",""),("meta_value","LONGTEXT","")]),
- "wp_fevents_events": ("app", COL1, 420, [
+ "wp_fe_event_details": ("app", COL1, 420, [
     ("id","BIGINT UNSIGNED","P"),("post_id","BIGINT UNSIGNED","FU"),
     ("parent_event_id","BIGINT UNSIGNED","F"),("is_overridden","TINYINT(1)",""),
     ("status","VARCHAR(64)","!"),("start_at","DATETIME","!"),("end_at","DATETIME","!"),
@@ -53,14 +53,14 @@ T = {
     ("form_fields","JSON",""),("settings","JSON",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
 
- "wp_fevents_ticket_types": ("app", COL2, 40, [
+ "wp_fe_ticket_types": ("app", COL2, 40, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),("type","VARCHAR(64)","!"),
     ("description","VARCHAR(255)",""),("price","DECIMAL(10,2)","!"),("capacity","INT",""),
     ("sold","INT","!"),("min_per_reg","INT","!"),("max_per_reg","INT",""),
     ("sale_start_at","DATETIME",""),("sale_end_at","DATETIME",""),("status","VARCHAR(64)","!"),
     ("sort_order","INT","!"),("settings","JSON",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
- "wp_fevents_guests": ("app", COL2, 400, [
+ "wp_fe_guests": ("app", COL2, 400, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),
     ("calendar_id","BIGINT UNSIGNED","F!"),("registration_no","VARCHAR(64)","!"),
     ("is_buyer","TINYINT(1)","!"),("ticket_type_id","BIGINT UNSIGNED","F"),
@@ -70,7 +70,7 @@ T = {
     ("payment_status","VARCHAR(64)",""),("payment_ref","VARCHAR(255)",""),
     ("price","DECIMAL(10,2)",""),("paid_at","DATETIME",""),("source","VARCHAR(64)",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
- "wp_fevents_notification_users": ("app", COL2, 1040, [
+ "wp_fe_notification_users": ("app", COL2, 1040, [
     ("id","BIGINT UNSIGNED","P"),("object_type","VARCHAR(64)","!"),
     ("notification_type","VARCHAR(64)","!"),("object_id","BIGINT UNSIGNED","!"),
     ("user_id","BIGINT UNSIGNED","F!"),("is_read","TINYINT(1)","!"),
@@ -92,22 +92,22 @@ T = {
 
 # indexes: table -> [(name, [cols], unique_bool)]
 IDX = {
- "wp_fevents_meta": [("idx_meta_lookup",["object_type","object_id","meta_key"],False)],
+ "wp_fe_meta": [("idx_meta_lookup",["object_type","object_id","meta_key"],False)],
  # ~10-100 rows ever: a full scan is 1-2 pages, cheaper than index descent +
  # back-to-table random reads. visibility/status are also 3- and 2-value columns.
  # Only the slug unique stays — it's correctness (no dup slugs), lookup is a side effect.
- "wp_fevents_calendars": [("uq_calendars_slug",["slug"],True)],
- "wp_fevents_events": [("uq_events_post",["post_id"],True),
+ "wp_fe_calendars": [("uq_calendars_slug",["slug"],True)],
+ "wp_fe_event_details": [("uq_events_post",["post_id"],True),
     ("idx_event_status",["status"],False),("idx_event_window",["start_at","end_at"],False),
     ("idx_event_parent",["parent_event_id","start_at"],False)],
- "wp_fevents_ticket_types": [("idx_ticket_event_status",["event_id","status"],False)],
- "wp_fevents_guests": [("uq_guests_hash",["hash"],True),
+ "wp_fe_ticket_types": [("idx_ticket_event_status",["event_id","status"],False)],
+ "wp_fe_guests": [("uq_guests_hash",["hash"],True),
     ("idx_guest_event_status",["event_id","status"],False),
     ("idx_guest_calendar",["calendar_id","status"],False),
     ("idx_guest_order",["registration_no"],False),("idx_guest_email",["email"],False)],
- "wp_fevents_notifications": [("idx_notif_object",["object_type","object_id"],False),
+ "wp_fe_notifications": [("idx_notif_object",["object_type","object_id"],False),
     ("idx_notif_action",["action"],False)],
- "wp_fevents_notification_users": [
+ "wp_fe_notification_users": [
     ("uq_notif_user",["user_id","object_type","object_id","notification_type"],True),
     ("idx_notif_user_inbox",["user_id","is_read","object_type"],False),
     ("idx_notif_user_object",["object_id","is_read","object_type","notification_type"],False)],
@@ -116,38 +116,38 @@ IDX = {
 
 # FK: (child, col, parent, pcol, on_delete)
 FK = [
- ("wp_fevents_calendars","created_by","wp_users","ID","RESTRICT"),
+ ("wp_fe_calendars","created_by","wp_users","ID","RESTRICT"),
  ("wp_posts","post_author","wp_users","ID","RESTRICT"),
  ("wp_postmeta","post_id","wp_posts","ID","CASCADE"),
- ("wp_fevents_events","post_id","wp_posts","ID","CASCADE"),
- ("wp_fevents_events","calendar_id","wp_fevents_calendars","id","RESTRICT"),
- ("wp_fevents_events","parent_event_id","wp_fevents_events","id","CASCADE"),
- ("wp_fevents_ticket_types","event_id","wp_fevents_events","id","CASCADE"),
- ("wp_fevents_guests","event_id","wp_fevents_events","id","CASCADE"),
- ("wp_fevents_guests","calendar_id","wp_fevents_calendars","id","RESTRICT"),
- ("wp_fevents_guests","ticket_type_id","wp_fevents_ticket_types","id","RESTRICT"),
- ("wp_fevents_guests","user_id","wp_users","ID","SET NULL"),
- ("wp_fevents_notifications","user_id","wp_users","ID","SET NULL"),
- ("wp_fevents_notification_users","user_id","wp_users","ID","CASCADE"),
+ ("wp_fe_event_details","post_id","wp_posts","ID","CASCADE"),
+ ("wp_fe_event_details","calendar_id","wp_fe_calendars","id","RESTRICT"),
+ ("wp_fe_event_details","parent_event_id","wp_fe_event_details","id","CASCADE"),
+ ("wp_fe_ticket_types","event_id","wp_fe_event_details","id","CASCADE"),
+ ("wp_fe_guests","event_id","wp_fe_event_details","id","CASCADE"),
+ ("wp_fe_guests","calendar_id","wp_fe_calendars","id","RESTRICT"),
+ ("wp_fe_guests","ticket_type_id","wp_fe_ticket_types","id","RESTRICT"),
+ ("wp_fe_guests","user_id","wp_users","ID","SET NULL"),
+ ("wp_fe_notifications","user_id","wp_users","ID","SET NULL"),
+ ("wp_fe_notification_users","user_id","wp_users","ID","CASCADE"),
  ("wp_term_taxonomy","term_id","wp_terms","term_id","CASCADE"),
  ("wp_termmeta","term_id","wp_terms","term_id","CASCADE"),
  ("wp_term_relationships","term_taxonomy_id","wp_term_taxonomy","term_taxonomy_id","CASCADE"),
  ("wp_term_relationships","object_id","wp_posts","ID","CASCADE"),
 ]
 
-# Emit only our wp_fevents_* tables. WP core (wp_posts/postmeta/users) + taxonomy
+# Emit only our wp_fe_* tables. WP core (wp_posts/postmeta/users) + taxonomy
 # tables are NOT drawn — their USAGE is documented in db/implementation.md + the FR
 # docs. FK columns that point at WP core (post_id, created_by, user_id)
 # stay as columns (red diamond = external ref); their FK is enforced in app, not DB
 # (dbDelta strips FKs to core; engine/collation portability). App↔app FKs are kept.
 _LAYOUT = {
-    "wp_fevents_calendars":          (COL0, 70),
-    "wp_fevents_meta":               (COL0, 364),
-    "wp_fevents_notifications":      (COL0, 568),
-    "wp_fevents_notification_users": (COL0, 808),
-    "wp_fevents_events":             (COL1, 70),
-    "wp_fevents_ticket_types":       (COL2, 70),
-    "wp_fevents_guests":             (COL2, 436),
+    "wp_fe_calendars":          (COL0, 70),
+    "wp_fe_meta":               (COL0, 364),
+    "wp_fe_notifications":      (COL0, 568),
+    "wp_fe_notification_users": (COL0, 808),
+    "wp_fe_event_details":             (COL1, 70),
+    "wp_fe_ticket_types":       (COL2, 70),
+    "wp_fe_guests":             (COL2, 436),
 }
 T = {n: (T[n][0], x, y, T[n][3]) for n, (x, y) in _LAYOUT.items()}
 FK = [f for f in FK if f[0] in T and f[2] in T]   # keep app↔app FKs only
@@ -181,12 +181,12 @@ def sql_type(t, f):
 
 def emit_sql():
     L = ["-- Fluent Events — Database Schema (MySQL). GENERATED by gen_schema.py — do not hand-edit.",
-     "-- Only our wp_fevents_* tables are defined here. WP core tables (wp_posts,",
+     "-- Only our wp_fe_* tables are defined here. WP core tables (wp_posts,",
      "-- wp_postmeta, wp_users) and the taxonomy tables are NOT created by us — we",
      "-- REFERENCE them (see footer + db/implementation.md for how). FK columns that",
      "-- point at WP core (post_id, created_by, user_id) carry no DB FK —",
      "-- enforced in app (dbDelta strips core FKs; engine/collation portability).",
-     "-- Event = CPT hybrid (wp_posts + wp_postmeta + wp_fevents_events post_id 1:1).",
+     "-- Event = CPT hybrid (wp_posts + wp_postmeta + wp_fe_event_details post_id 1:1).",
      "-- Ticketing: event -> ticket_types -> guests (1 row per ticket; the is_buyer=1 row",
      "-- of an order carries order/payment fields, NULL on companion rows).",
      "", "SET FOREIGN_KEY_CHECKS = 0;", ""]
@@ -201,7 +201,7 @@ def emit_sql():
             kw = "UNIQUE KEY" if uniq else "KEY"
             body.append(f"  {kw} `{iname}` ({', '.join('`'+c+'`' for c in icols)})")
         for col,p,pc,od in fk_by.get(name, []):
-            cn = f"fk_{name.replace('wp_fevents_','').replace('wp_','')}_{col}"
+            cn = f"fk_{name.replace('wp_fe_','').replace('wp_','')}_{col}"
             body.append(f"  CONSTRAINT `{cn}` FOREIGN KEY (`{col}`) REFERENCES `{p}` (`{pc}`) ON DELETE {od}")
         L.append(",\n".join(body))
         stub = "  -- WP core (stub; real table owned by WordPress)" if kind in ("core","tax") else ""
@@ -227,7 +227,7 @@ def dbml_type(t):
 
 def emit_dbml():
     L = ["// Fluent Events — DBML (dbdiagram.io). GENERATED by gen_schema.py — do not hand-edit.",
-     "// Event = CPT hybrid (wp_posts + wp_postmeta + wp_fevents_events). Classification = WP taxonomies.",""]
+     "// Event = CPT hybrid (wp_posts + wp_postmeta + wp_fe_event_details). Classification = WP taxonomies.",""]
     fk_by = {}
     for c,col,p,pc,od in FK: fk_by.setdefault((c,col), (p,pc))
     for name,(kind,x,y,cols) in T.items():
@@ -324,11 +324,11 @@ def edge(ct,cc,pt,pc):
 
 # connectors coloured by the table they POINT TO (the "one" side) so you can trace clusters
 PARENT_COLOR = {
- "wp_fevents_events":     "#2f6fd0",  # blue   — things that belong to an event
+ "wp_fe_event_details":     "#2f6fd0",  # blue   — things that belong to an event
  "wp_posts":              "#2f9e5b",  # green  — the CPT identity / media
  "wp_users":              "#d98a1a",  # amber  — people (author/host/recipient)
- "wp_fevents_calendars":  "#1298a4",  # teal   — calendar grouping
- "wp_fevents_ticket_types":"#8a7514", # olive  — ticket tier -> guest
+ "wp_fe_calendars":  "#1298a4",  # teal   — calendar grouping
+ "wp_fe_ticket_types":"#8a7514", # olive  — ticket tier -> guest
  "wp_terms":              "#8a5a2b",  # brown  — taxonomy term
  "wp_term_taxonomy":      "#6a5acd",  # violet — term-in-taxonomy
 }
@@ -355,7 +355,7 @@ def emit_svg():
     grid=[f"M{gx},0 V{H}" for gx in range(0,W+1,20)]+[f"M0,{gy} H{W}" for gy in range(0,H+1,20)]
     P.append(f'<path d="{" ".join(grid)}" stroke="#eceff2" stroke-width="1"/>')
     P.append(f'<text x="40" y="26" font-size="15" font-weight="700" fill="#1c2b3a">Fluent Events — DB schema (event = CPT hybrid + WP taxonomies)</text>')
-    P.append(f'<text x="40" y="44" font-size="10" fill="#6a7684">Only wp_fevents_* tables shown; WP core (posts/meta/users/taxonomy) is referenced, not drawn — see the note + implementation.md. Line colour = the table it points to.</text>')
+    P.append(f'<text x="40" y="44" font-size="10" fill="#6a7684">Only wp_fe_* tables shown; WP core (posts/meta/users/taxonomy) is referenced, not drawn — see the note + implementation.md. Line colour = the table it points to.</text>')
     for c,col,p,pc,od in FK:
         clr=PARENT_COLOR.get(p,"#7d8b99"); k=_cid(clr)
         P.append(f'<path d="{edge(c,col,p,pc)}" fill="none" stroke="{clr}" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_{k})" marker-end="url(#one_{k})"/>')
