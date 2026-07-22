@@ -130,7 +130,11 @@ IDX = {
  # the inbox seek via leftmost (user_id, object_type) ordered by object_id, and it covers
  # the user_id FK. is_read filtering happens in memory on an already-tiny row set.
  "wp_fe_notification_users": [
-    ("uq_notif_user",["user_id","object_type","object_id","notification_type"],True)],
+    ("uq_notif_user",["user_id","object_type","object_id","notification_type"],True),
+    # Unread badge = COUNT(*) with no LIMIT, so it must test is_read on EVERY row of that
+    # user. Inbox depth grows with time (a busy host accumulates thousands), independent of
+    # the small fan-out. 3 equality cols then the sort col => covering count, no filesort.
+    ("idx_notif_unread",["user_id","object_type","is_read","object_id"],False)],
  "wp_term_taxonomy": [("uq_term_taxonomy",["term_id","taxonomy"],True)],
 }
 

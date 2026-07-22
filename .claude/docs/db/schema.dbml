@@ -53,6 +53,7 @@ Table wp_fe_notification_users {
   updated_at timestamp [not null]
   indexes {
     (user_id, object_type, object_id, notification_type) [name: 'uq_notif_user', unique]
+    (user_id, object_type, is_read, object_id) [name: 'idx_notif_unread']
   }
 }
 

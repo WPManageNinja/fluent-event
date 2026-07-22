@@ -60,7 +60,8 @@ CREATE TABLE `wp_fe_notification_users` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_notif_user` (`user_id`, `object_type`, `object_id`, `notification_type`)
+  UNIQUE KEY `uq_notif_user` (`user_id`, `object_type`, `object_id`, `notification_type`),
+  KEY `idx_notif_unread` (`user_id`, `object_type`, `is_read`, `object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_fe_event_details` (

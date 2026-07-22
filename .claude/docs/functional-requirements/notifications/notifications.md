@@ -57,9 +57,21 @@ silently truncate the routing key).
   3. **the inbox seek** — leftmost `(user_id, object_type)` (see the query below);
   4. **covers the `user_id` FK**, so InnoDB creates no duplicate.
 
-  Every column is load-bearing for the uniqueness semantics, so it can't be narrowed. Separate
-  inbox/object indexes were dropped: `is_read` filtering runs in memory on an already-tiny row
-  set (the in-app audience is hosts/managers — a fan-out is ~1–10 rows, not fcom's thousands).
+  Every column is load-bearing for the uniqueness semantics, so it can't be narrowed.
+
+- **`(user_id, object_type, is_read, object_id)`** — the **unread** path. The badge is
+  `COUNT(*) … AND is_read = 0` with **no `LIMIT`**, so without `is_read` in an index it must
+  test every one of that user's rows (with a back-to-table fetch each) just to return a number
+  — on every page load. Three equality columns then the sort column makes the count
+  **index-only** and the unread list a backward walk with no filesort.
+
+  *Why this is needed even though fan-out is small:* fan-out width (~1–10 recipients per
+  trigger) is not inbox depth. A busy host accumulates thousands of rows over a year of
+  events, so this scales with **time**, not recipient count.
+
+- **Dropped** `(object_id, is_read, object_type, notification_type)` — "who received
+  notification X" is an fcom-scale concern (thousands of recipients per post); our fan-out is
+  tiny and nothing in FR-9 queries it.
 
 **Canonical inbox query** — no filesort, no join until the content fetch:
 
