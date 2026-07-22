@@ -19,7 +19,7 @@
   - **`ticketed`** — buy tickets. Guest rows **require** `ticket_type_id` (paid or free tier), payment on the `is_buyer=1` row. (`ticket_type_id` is now nullable at the DB level — ticketed mode enforces it in the service layer.)
   - **`rsvp`** — free "I'm coming". Guest rows with **`ticket_type_id` = NULL** (no tier at all). Going / not-going tracked purely via `status` (`attending` / `declined`). Headcount = `COUNT(*) WHERE status='attending'`.
   - **`open`** — no registration. **Zero guest rows, zero ticket_types.** Just a published listing (unlimited, free, show up). The event = its `wp_posts` + `wp_fe_event_details` row, no children.
-  - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.capacity IS NULL`).
+  - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.slot IS NULL`).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
 - **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per order** (one payment covers all tickets in a `registration_no` group), recorded on the `is_buyer=1` row — not per guest.
 
@@ -80,15 +80,15 @@ used to be the `settings` column:
 | `event_id` | BIGINT FK | → event |
 | `type` | VARCHAR | tier name; auto **"General"** if none defined |
 | `price` | DECIMAL(10,2) | actual charge; `0` = free. **No currency column** — currency is a single global plugin setting (FR-4), not per event or per tier |
-| `capacity` | INT NULL | seats for this tier; null = unlimited |
-| `sold` | INT | stored counter — **remaining = capacity − sold**; reserved via atomic `UPDATE … WHERE sold+q≤capacity` (CAS, no oversell); display sold/remaining = O(1) |
+| `slot` | INT NULL | seats for this tier; null = unlimited |
+| `sold` | INT | stored counter — **remaining = slot − sold**; reserved via atomic `UPDATE … WHERE sold+q≤slot` (CAS, no oversell); display sold/remaining = O(1) |
 | `min_per_reg` / `max_per_reg` | INT | tickets-per-registration limits |
 | `sale_start_at` / `sale_end_at` | DATETIME NULL | early-bird windows |
 | `status` | VARCHAR | `active` \| `hidden` |
 | `sort_order` | INT | admin display order of tiers |
 | `settings` | JSON NULL | **view-only / cosmetic fields** — holds `compare_at_price` (the struck-through "was" price, maps to FluentCart `compare_price`) + future per-tier config. Nothing here is queried; real discount codes stay in FluentCart. |
 
-Index: `(event_id, status)`. Only queried columns are real (event_id, status, capacity, sold, sale window, price, sort_order); display-only fields live in `settings`.
+Index: `(event_id, status)`. Only queried columns are real (event_id, status, slot, sold, sale window, price, sort_order); display-only fields live in `settings`.
 
 **`wp_fe_guests`** — one row per **ticket** (each attendee). A purchase is a **group** of these rows sharing `registration_no`; the **`is_buyer=1`** row also carries the order + payment (NULL on companions). No separate registrations table.
 
@@ -171,8 +171,8 @@ be a taxonomy (`fevents_sponsor`, like organizer), not a custom table.
 
 ### FR-6.4 — Ticket tiers, capacity, approval, free/paid
 
-- **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `capacity`, `min_per_reg` / `max_per_reg`, and an optional sale window.
-- **Capacity is per tier** (total event capacity = sum of tier capacities). `remaining = capacity − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). Freeing a ticket auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
+- **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `slot` (seats; null = unlimited), `min_per_reg` / `max_per_reg`, and an optional sale window.
+- **Capacity is per tier** — the `slot` column (total event capacity = sum of tier slots). `remaining = slot − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). Freeing a ticket auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
 - **Approval** via `_fevents_settings.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
 - **Free or paid.** Paid events take payment through **Paymattic** before the order is confirmed. Payment is **per order** (one payment for all tickets in a `registration_no` group).
 - **Payment record = thin reference on the `is_buyer=1` row.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `price` / `paid_at` on that row (currency is a global plugin setting, stored nowhere per-record), NULL on companion tickets. Flow: pay → Paymattic → **webhook** → `UPDATE … WHERE registration_no=? AND is_buyer=1` sets `payment_status = paid` + `payment_ref` → the group's guests go `attending`. No card/gateway data our side (out of PCI scope).

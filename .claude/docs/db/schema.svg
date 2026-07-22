@@ -158,7 +158,7 @@
 <path d="M1012,169 L1016,173 L1012,177 L1008,173 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="1022" y="176" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">price</tspan> <tspan fill="#5a6470">DECIMAL(10,2)</tspan></text>
 <path d="M1012,187 L1016,191 L1012,195 L1008,191 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="1022" y="194" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">capacity</tspan> <tspan fill="#5a6470">INT</tspan></text>
+<text x="1022" y="194" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">slot</tspan> <tspan fill="#5a6470">INT</tspan></text>
 <path d="M1012,205 L1016,209 L1012,213 L1008,209 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
 <text x="1022" y="212" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">sold</tspan> <tspan fill="#5a6470">INT</tspan></text>
 <path d="M1012,223 L1016,227 L1012,231 L1008,227 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>

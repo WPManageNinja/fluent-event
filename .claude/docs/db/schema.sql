@@ -94,7 +94,7 @@ CREATE TABLE `wp_fe_ticket_types` (
   `type` VARCHAR(64) NOT NULL,
   `description` VARCHAR(255) NULL,
   `price` DECIMAL(10,2) NOT NULL,
-  `capacity` INT NULL,
+  `slot` INT NULL,
   `sold` INT NOT NULL,
   `min_per_reg` INT NOT NULL,
   `max_per_reg` INT NULL,

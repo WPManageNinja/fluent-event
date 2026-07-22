@@ -88,7 +88,7 @@ Table wp_fe_ticket_types {
   type varchar [not null]
   description varchar
   price decimal [not null]
-  capacity int
+  slot int
   sold int [not null]
   min_per_reg int [not null]
   max_per_reg int

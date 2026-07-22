@@ -54,7 +54,7 @@ T = {
 
  "wp_fe_ticket_types": ("app", COL2, 40, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),("type","VARCHAR(64)","!"),
-    ("description","VARCHAR(255)",""),("price","DECIMAL(10,2)","!"),("capacity","INT",""),
+    ("description","VARCHAR(255)",""),("price","DECIMAL(10,2)","!"),("slot","INT",""),
     ("sold","INT","!"),("min_per_reg","INT","!"),("max_per_reg","INT",""),
     ("sale_start_at","DATETIME",""),("sale_end_at","DATETIME",""),("status","VARCHAR(64)","!"),
     ("sort_order","INT","!"),("settings","JSON",""),

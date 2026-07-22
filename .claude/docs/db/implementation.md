@@ -11,11 +11,11 @@
 | Concern | Store | Why |
 |---|---|---|
 | Event identity — title, description, slug, status, author | **`wp_posts`** (`post_type=fevents_event`) | free permalink `/events/x/`, block editor, admin, REST, search, archive |
-| Event flexible / config — `_fevents_form_fields`, `_fevents_settings`, addon fields | **`wp_postmeta`** | open-ended, extensible by add-ons, never range-queried |
+| Event flexible / config — `_fevents_settings`, addon fields | **`wp_postmeta`** | open-ended, extensible by add-ons, never range-queried. *(`form_fields` is a JSON **column** on `wp_fe_event_details`, not postmeta.)* |
 | Event machine data — dates, timezone, venue_type, calendar_id, parent_event_id, status | **`wp_fe_event_details`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
 | Event config JSON — registration_type, join_policy, waitlist, cover_url, online_meeting_url, recurrence | **`wp_postmeta`** (`_fevents_settings`) | open-ended, never range-queried; event_details has no settings column |
 | Category / type, venue, organizer, performer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
-| Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `registration_no`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<capacity` queries |
+| Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `registration_no`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<slot` queries |
 | Performer detail | `fevents_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
 
 **Key identity rule:** `wp_fe_event_details.id` is the internal PK all ticketing FKs use
@@ -54,7 +54,7 @@ foreach ([
 | # | Writes | Notes |
 |---|---|---|
 | 1 | `wp_posts` — 1 `fevents_event` row | title / editor body / slug / status=publish / author |
-| 2 | `wp_postmeta` — addon/open-ended config blobs | cover is **not** here — it's a URL in `wp_fe_event_details.settings.cover_url` |
+| 2 | `wp_postmeta` — `_fevents_settings` config JSON + addon blobs | holds `cover_url`, `registration_type`, `join_policy`, `waitlist_enabled`, `online_meeting_url`, `recurrence` — `event_details` has no `settings` column |
 | 3 | `wp_term_relationships` — event ↔ event_type / venue / organizer terms | `wp_set_object_terms($post_id, $termIds, $tax)` (assign, M:N) |
 | 4 | `wp_fe_event_details` — 1 row (`post_id` FK) | typed: start_at, end_at, timezone, venue_type, calendar_id, parent_event_id, status (all NOT NULL except parent_event_id) |
 | 5 | `wp_fe_ticket_types` — N rows (`event_id` = events.id) | tiers |
@@ -80,9 +80,14 @@ DB::transaction(function () use ($data) {
         'end_at'           => $data['end_at'],
         'timezone'         => $data['timezone'],
         'calendar_id'      => absint($data['calendar_id']),
-        'venue_type'       => $data['venue_type'],
-        'join_policy'      => $data['join_policy'],
-        'waitlist_enabled' => (int) $data['waitlist_enabled'],
+        'venue_type'       => $data['venue_type'],   // all NOT NULL
+    ]);
+    // config JSON is postmeta, NOT columns on event_details
+    update_post_meta($postId, '_fevents_settings', [
+        'registration_type' => $data['registration_type'],   // open|rsvp|ticketed
+        'join_policy'       => $data['join_policy'],
+        'waitlist_enabled'  => (bool) $data['waitlist_enabled'],
+        'cover_url'         => esc_url_raw($data['cover_url']),
     ]);
 });
 ```
@@ -122,14 +127,14 @@ new WP_Query(['post_type'=>'fevents_event',
 Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
 ```
 - **Classification / browse / filter / archive** → taxonomy (`WP_Query` `tax_query`, `get_term_link`).
-- **Dates, capacity, ticket sums, check-in** → `wp_fe_event_details` + ticketing tables (real SQL, indexed).
+- **Dates, slots, ticket sums, check-in** → `wp_fe_event_details` + ticketing tables (real SQL, indexed).
 
 ## 6. What changed from the previous schema
 
 - **Dropped** `wp_fe_people` (organizer + performer → taxonomies).
 - **Event** reshaped into a CPT extension: `title` / `slug` / `description` → `wp_posts`;
   `visibility` → `post_status`; `created_by` → `post_author`; `cover_image_id` →
-  `settings.cover_url` (a plain URL in the JSON, **not** `_thumbnail_id` — see
+  `_fevents_settings.cover_url` in `wp_postmeta` (a plain URL, **not** `_thumbnail_id` — see
   [FR-7 media](../functional-requirements/media-archive/media-archive.md) for the trade-off);
   `address` / `lat` / `lon` → `fevents_venue` term meta. **Added** `post_id` (1:1 FK, unique,
   taxonomy anchor).
