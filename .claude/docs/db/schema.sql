@@ -40,31 +40,27 @@ CREATE TABLE `wp_fe_meta` (
 CREATE TABLE `wp_fe_notifications` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT UNSIGNED NULL,
-  `action` VARCHAR(64) NOT NULL,
+  `action` VARCHAR(128) NOT NULL,
   `object_type` VARCHAR(64) NULL,
   `object_id` BIGINT UNSIGNED NULL,
   `title` VARCHAR(255) NULL,
   `content` TEXT NULL,
   `route` TEXT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_notif_object` (`object_type`, `object_id`),
-  KEY `idx_notif_action` (`action`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_fe_notification_users` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `object_type` VARCHAR(64) NOT NULL,
-  `notification_type` VARCHAR(64) NOT NULL,
+  `notification_type` VARCHAR(128) NOT NULL,
   `object_id` BIGINT UNSIGNED NOT NULL,
   `user_id` BIGINT UNSIGNED NOT NULL,
-  `is_read` TINYINT(1) NOT NULL,
+  `is_read` TINYINT(1) NOT NULL DEFAULT 0,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_notif_user` (`user_id`, `object_type`, `object_id`, `notification_type`),
-  KEY `idx_notif_user_inbox` (`user_id`, `is_read`, `object_type`),
-  KEY `idx_notif_user_object` (`object_id`, `is_read`, `object_type`, `notification_type`)
+  UNIQUE KEY `uq_notif_user` (`user_id`, `object_type`, `object_id`, `notification_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wp_fe_event_details` (
@@ -91,7 +87,7 @@ CREATE TABLE `wp_fe_event_details` (
 CREATE TABLE `wp_fe_ticket_types` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `event_id` BIGINT UNSIGNED NOT NULL,
-  `tier` VARCHAR(64) NOT NULL,
+  `tier` VARCHAR(128) NOT NULL,
   `description` VARCHAR(255) NULL,
   `price` DECIMAL(10,2) NOT NULL,
   `slot` INT NULL,

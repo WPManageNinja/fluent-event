@@ -40,10 +40,6 @@ Table wp_fe_notifications {
   content text
   route text
   created_at timestamp [not null]
-  indexes {
-    (object_type, object_id) [name: 'idx_notif_object']
-    action [name: 'idx_notif_action']
-  }
 }
 
 Table wp_fe_notification_users {
@@ -52,13 +48,11 @@ Table wp_fe_notification_users {
   notification_type varchar [not null]
   object_id bigint [not null]
   user_id bigint [not null]
-  is_read tinyint [not null]
+  is_read tinyint [not null, default: 0]
   created_at timestamp [not null]
   updated_at timestamp [not null]
   indexes {
     (user_id, object_type, object_id, notification_type) [name: 'uq_notif_user', unique]
-    (user_id, is_read, object_type) [name: 'idx_notif_user_inbox']
-    (object_id, is_read, object_type, notification_type) [name: 'idx_notif_user_object']
   }
 }
 

@@ -30,7 +30,15 @@
 | `route`       | TEXT NULL     | deep link in the portal                      |
 | `created_at`  | TIMESTAMP     |                                              |
 
-Indexes: `(object_type, object_id)`, `(action)`. No `recipient_id` — recipients live in the next table.
+Indexes: **`PRIMARY(id)` only.** The inbox join fetches by `n.id` (the PK), retention (FR-9.5)
+deletes by `created_at`, and notifications deliberately **outlive** their source object — the
+rendered `title`/`content` are stored precisely so a deleted event still renders — so there is
+no delete-by-object cleanup query to index for. Add `(object_type, object_id)` only if an
+"activity for this object" screen ever ships.
+
+No `recipient_id` — recipients live in the next table. `action` is `VARCHAR(128)` to leave room
+for vendor-prefixed add-on actions (widening a VARCHAR costs zero storage; overflow would
+silently truncate the routing key).
 
 **`wp_fe_notification_users`** — per-recipient **delivery** AND per-user **prefs** in one table, split by `object_type` (fcom's model):
 
@@ -41,8 +49,37 @@ Indexes: `(object_type, object_id)`, `(action)`. No `recipient_id` — recipient
 | `user_id`           | recipient (wp_user)                     | pref owner (wp_user)                     |
 | `is_read`           | read / unread                           | enabled (0/1) — *repurposed*             |
 
-- **Unique `(user_id, object_type, object_id, notification_type)`** — idempotent fan-out (delivery rows `INSERT IGNORE`) **and** one pref per (user, scope, key).
-- Indexes `(user_id, is_read, object_type)` — a user's inbox / a user's prefs; `(object_id, is_read, object_type, notification_type)` — recipients of a notification / who's subscribed to X.
+- **Indexes: `PRIMARY(id)` + the one UNIQUE — nothing else.** `UNIQUE (user_id, object_type,
+  object_id, notification_type)` does **four** jobs at once:
+  1. **idempotent fan-out** — delivery rows go in with `INSERT IGNORE`, so a worker retry
+     can't double-deliver;
+  2. **one pref per (user, scope, key)**;
+  3. **the inbox seek** — leftmost `(user_id, object_type)` (see the query below);
+  4. **covers the `user_id` FK**, so InnoDB creates no duplicate.
+
+  Every column is load-bearing for the uniqueness semantics, so it can't be narrowed. Separate
+  inbox/object indexes were dropped: `is_read` filtering runs in memory on an already-tiny row
+  set (the in-app audience is hosts/managers — a fan-out is ~1–10 rows, not fcom's thousands).
+
+**Canonical inbox query** — no filesort, no join until the content fetch:
+
+```sql
+SELECT * FROM wp_fe_notification_users
+WHERE user_id = ? AND object_type = 'notification'
+ORDER BY object_id DESC LIMIT 20
+```
+
+`object_id` **is** the notification id, and ids ascend with time — and it's the third column of
+the unique index, right after the two we filter on. So MySQL walks the index backwards and
+returns newest-first directly.
+
+> ⚠️ Do **not** write `ORDER BY n.created_at DESC` against the joined `notifications` table.
+> Sorting on a joined column forces a materialize + filesort. Order by `nu.object_id DESC` —
+> same chronology, fully indexed.
+
+`notification_type` is `VARCHAR(128)` to match `notifications.action` (pref keys mirror action
+strings); the unique index key stays ≈788 bytes, well inside InnoDB's 3072-byte limit.
+`is_read` defaults to `0` — a delivery row is unread by definition.
 
 Reading the inbox = `notification_users` (the user's `object_type='notification'` rows) **JOIN** `notifications` (the content). Content stored **once** on the record; delivery rows are thin. **Prefs live here too** (`object_type='notification_pref'`) — no separate prefs table, no `wp_fe_meta`. **Email → guests only, no rows in either table** (non-negotiable, no DB trace). In-app = logged-in wp_users only.
 

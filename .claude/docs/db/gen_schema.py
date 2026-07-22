@@ -32,7 +32,7 @@ T = {
     ("value","LONGTEXT",""),("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fe_notifications": ("app", COL0, 660, [
     ("id","BIGINT UNSIGNED","P"),("user_id","BIGINT UNSIGNED","F"),
-    ("action","VARCHAR(64)","!"),
+    ("action","VARCHAR(128)","!"),
     ("object_type","VARCHAR(64)",""),("object_id","BIGINT UNSIGNED",""),
     ("title","VARCHAR(255)",""),("content","TEXT",""),("route","TEXT",""),
     ("created_at","TIMESTAMP","C")]),
@@ -53,7 +53,7 @@ T = {
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
 
  "wp_fe_ticket_types": ("app", COL2, 40, [
-    ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),("tier","VARCHAR(64)","!"),
+    ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),("tier","VARCHAR(128)","!"),
     ("description","VARCHAR(255)",""),("price","DECIMAL(10,2)","!"),("slot","INT",""),
     ("sold","INT","!"),("min_per_reg","INT","!D[1]"),("max_per_reg","INT",""),
     ("sale_start_at","DATETIME",""),("sale_end_at","DATETIME",""),("status","VARCHAR(64)","!"),
@@ -71,8 +71,8 @@ T = {
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fe_notification_users": ("app", COL2, 1040, [
     ("id","BIGINT UNSIGNED","P"),("object_type","VARCHAR(64)","!"),
-    ("notification_type","VARCHAR(64)","!"),("object_id","BIGINT UNSIGNED","!"),
-    ("user_id","BIGINT UNSIGNED","F!"),("is_read","TINYINT(1)","!"),
+    ("notification_type","VARCHAR(128)","!"),("object_id","BIGINT UNSIGNED","!"),
+    ("user_id","BIGINT UNSIGNED","F!"),("is_read","TINYINT(1)","!D[0]"),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
 
  "wp_terms": ("tax", COL3, 40, [
@@ -123,12 +123,14 @@ IDX = {
     ("idx_guest_event_status",["event_id","status"],False),
     ("idx_guest_calendar",["calendar_id","status"],False),
     ("idx_guest_group",["group_id"],False),("idx_guest_email",["email"],False)],
- "wp_fe_notifications": [("idx_notif_object",["object_type","object_id"],False),
-    ("idx_notif_action",["action"],False)],
+ # No secondary index: the inbox join fetches by PK, retention deletes by created_at,
+ # and notifications deliberately OUTLIVE their object (rendered title/content are stored),
+ # so there is no delete-by-object cleanup query to serve.
+ # One index, four jobs: idempotent fan-out (INSERT IGNORE on retry), one pref per key,
+ # the inbox seek via leftmost (user_id, object_type) ordered by object_id, and it covers
+ # the user_id FK. is_read filtering happens in memory on an already-tiny row set.
  "wp_fe_notification_users": [
-    ("uq_notif_user",["user_id","object_type","object_id","notification_type"],True),
-    ("idx_notif_user_inbox",["user_id","is_read","object_type"],False),
-    ("idx_notif_user_object",["object_id","is_read","object_type","notification_type"],False)],
+    ("uq_notif_user",["user_id","object_type","object_id","notification_type"],True)],
  "wp_term_taxonomy": [("uq_term_taxonomy",["term_id","taxonomy"],True)],
 }
 
