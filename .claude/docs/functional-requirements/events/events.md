@@ -27,7 +27,7 @@
 
 Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `registration_no`). Full DDL in [schema.sql](../../db/schema.sql); key columns below.
 
-**Event = CPT hybrid.** Identity (title, description, slug, status, author, cover) lives
+**Event = CPT hybrid.** Identity (title, description, slug, status, author) lives
 in **`wp_posts`** (`post_type=fevents_event`); addon config in **`wp_postmeta`**; typed
 relational data + the per-guest form in **`wp_fevents_events`** (1:1 via `post_id`).
 Category / venue / organizer / performer are **WP taxonomies** on the post — the physical
@@ -49,14 +49,15 @@ place (address/map) is `fevents_venue` term meta, not an event column. See
 | `calendar_id` | BIGINT NULL FK | → calendar. *Inheritable.* |
 | `currency` | VARCHAR NULL | ISO 4217; qualifies ticket price. *Inheritable.* |
 | `form_fields` | JSON NULL | **per-guest dynamic form definition** (fields to collect from each attendee). *Inheritable.* |
-| `settings` | JSON NULL | per-event config — `online_meeting_url`, `join_policy` (`open`/`approval`/`invite_only`), `waitlist_enabled`, `recurrence` (FR-6.16), + future. Not queried. *Inheritable (merge).* |
+| `settings` | JSON NULL | per-event config — `cover_url` (plain image URL — no column, no attachment FK), `registration_type` (`open`/`rsvp`/`ticketed`), `online_meeting_url`, `join_policy` (`open`/`approval`/`invite_only`), `waitlist_enabled`, `recurrence` (FR-6.16), + future. Not queried. *Inheritable (merge).* |
 
 **Master / occurrence inheritance.** On a recurrence **occurrence** (`parent_event_id` set,
 `post_id` NULL), the *inheritable* columns are **NULL = inherit from the master**; set only
 what deviates. Read via `COALESCE(occurrence.col, master.col)` (scalars) / `array_merge`
 (the JSON blobs). Only `start_at`/`end_at`/`status` are always the occurrence's own. Occurrences
-**can't change post-level things** (title/body/slug/cover/taxonomies) — no own post, so those
-always come from the master. *(Venue place data → `fevents_venue` term meta; the online link
+**can't change post-level things** (title/body/slug/taxonomies) — no own post, so those
+always come from the master. (The **cover** is no longer post-level — it's `settings.cover_url`,
+so an occurrence *can* override it like any other inheritable setting.) *(Venue place data → `fevents_venue` term meta; the online link
 is per-event in `settings`, never term meta.)*
 
 **`wp_fevents_ticket_types`** — price tiers.

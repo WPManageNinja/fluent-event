@@ -1,13 +1,14 @@
 # FR-7: Media (WordPress media library)
 
-**Summary:** All plugin imagery — event covers/galleries, calendar logos/covers, email branding — uses the **WordPress media library**. There is **no custom media table**; image columns store a WP **attachment ID** (`wp_posts`, `post_type='attachment'`). WP owns storage, sizes, and delivery.
+**Summary:** All plugin imagery — event covers/galleries, calendar logos/covers, email branding — is uploaded through the **WordPress media library**. There is **no custom media table** and **no image columns**: we persist the resolved **image URL** into the owning record's `settings` JSON. WP owns storage, sizes, and delivery.
 
 **Used by FR-6** (event cover/gallery), **FR-8** (calendars), **FR-4.7** (email branding).
 
 ## Approach
 
-- **Event cover: store an attachment ID, not a URL.** The event cover uses `_thumbnail_id` (WP featured image on the `fevents_event` post) — a `wp_posts` attachment ID. WP owns the file, its metadata (`wp_postmeta`: `_wp_attached_file`, `_wp_attachment_metadata`, `_wp_attachment_image_alt`), and the bytes (`wp-content/uploads/YYYY/MM/`).
-- **Calendar logo/cover: store the URL directly.** `calendars.logo_url` / `cover_url` are plain `VARCHAR` URLs — no attachment FK. A calendar's imagery is often external/branding, so the URL is enough; no media-library coupling.
+- **Images are stored as plain URLs in `settings` JSON — never as columns, never as an attachment FK.** Event cover → `events.settings.cover_url`; calendar logo/cover → `calendars.settings.logo_url` / `.cover_url`. Imagery is display-only (never filtered, sorted, or joined on), so it doesn't earn a column, and storing the URL keeps external/branding images and library uploads on one code path.
+- **The media library is still the uploader.** A host picks/uploads via `wp.media` or `POST /wp/v2/media`; we resolve the chosen attachment to its URL (`wp_get_attachment_image_url()`) and persist **that URL** into `settings`. WP keeps owning the file, its metadata, and the bytes in `wp-content/uploads/YYYY/MM/`.
+- **Known trade-off (event cover).** Because the event cover is a URL in `settings` rather than `_thumbnail_id`, we give up WP's featured-image integrations: the block-editor featured-image panel, theme template calls (`the_post_thumbnail()`), and automatic `og:image`/`srcset` from SEO plugins. Accepted for a consistent one-shape image model; revisit by moving the event cover back to `_thumbnail_id` if SEO/theme integration ever matters.
 - **WP does the heavy lifting** — thumbnail sizes, `srcset`, alt text, and s3/CDN offload (via WP Offload Media / Smush) come free; no custom `driver`/storage layer.
 - **Low volume justifies it.** A cover per event, a logo/cover per calendar, email branding — a handful of attachments. `wp_posts` bloat is negligible, so a custom media table isn't worth the code. (Contrast: fcom is fully custom for feed/avatar scale; fluent-cart uses the WP library for product images and a custom driver only for gated downloads — we have no gated files, so WP library all the way.)
 

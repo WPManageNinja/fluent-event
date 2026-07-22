@@ -11,7 +11,7 @@
 <path d="M1000,503 H662.0 V95 H340" fill="none" stroke="#1298a4" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c1298a4)" marker-end="url(#one_c1298a4)"/>
 <path d="M1300,557 H1344 V101 H1300" fill="none" stroke="#8a7514" stroke-width="1.5" opacity="0.9" marker-start="url(#cf_c8a7514)" marker-end="url(#one_c8a7514)"/>
 <g>
-<rect x="40" y="70" width="300" height="254" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
+<rect x="40" y="70" width="300" height="218" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
 <path d="M40,74 a4,4 0 0 1 4,-4 h292 a4,4 0 0 1 4,4 v18 h-300 z" fill="url(#tb)" stroke="#8a99ab" stroke-width="0.8"/>
 <rect x="48" y="77" width="10" height="8" rx="1.5" fill="#4a6fa5"/>
 <text x="64" y="85" font-size="11.5" font-weight="700" fill="#1c2b3a">wp_fevents_calendars</text>
@@ -23,24 +23,20 @@
 <text x="62" y="140" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">slug</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
 <path d="M52,151 L56,155 L52,159 L48,155 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
 <text x="62" y="158" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">description</tspan> <tspan fill="#5a6470">TEXT</tspan></text>
-<path d="M52,169 L56,173 L52,177 L48,173 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="176" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">logo_url</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<path d="M52,169 L56,173 L52,177 L48,173 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="176" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">visibility</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
 <path d="M52,187 L56,191 L52,195 L48,191 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="194" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">cover_url</tspan> <tspan fill="#5a6470">VARCHAR(255)</tspan></text>
+<text x="62" y="194" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
 <path d="M52,205 L56,209 L52,213 L48,209 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="212" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">visibility</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M52,223 L56,227 L52,231 L48,227 Z" fill="#eef3f8" stroke="#5b7fa6" stroke-width="1.1"/>
-<text x="62" y="230" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">settings</tspan> <tspan fill="#5a6470">JSON</tspan></text>
+<text x="62" y="212" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
+<path d="M52,223 L56,227 L52,231 L48,227 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
+<text x="62" y="230" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_by</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
 <path d="M52,241 L56,245 L52,249 L48,245 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="248" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">status</tspan> <tspan fill="#5a6470">VARCHAR(64)</tspan></text>
-<path d="M52,259 L56,263 L52,267 L48,263 Z" fill="#c0453b" stroke="#8a2820" stroke-width="0.6"/>
-<text x="62" y="266" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_by</tspan> <tspan fill="#5a6470">BIGINT UNSIGNED</tspan></text>
-<path d="M52,277 L56,281 L52,285 L48,281 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="284" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<path d="M52,295 L56,299 L52,303 L48,299 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
-<text x="62" y="302" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
-<rect x="40" y="308" width="300" height="16" fill="#c3cedb"/>
-<text x="48" y="319" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
+<text x="62" y="248" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">created_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<path d="M52,259 L56,263 L52,267 L48,263 Z" fill="#3d6fa0" stroke="#2a5580" stroke-width="0.6"/>
+<text x="62" y="266" font-size="10.5" fill="#1a1a1a"><tspan font-weight="400">updated_at</tspan> <tspan fill="#5a6470">TIMESTAMP</tspan></text>
+<rect x="40" y="272" width="300" height="16" fill="#c3cedb"/>
+<text x="48" y="283" font-size="9.5" font-weight="700" fill="#3a4a5a">Indexes</text>
 </g>
 <g>
 <rect x="40" y="364" width="300" height="164" rx="4" fill="#fff" stroke="#8a99ab" stroke-width="1.2"/>
@@ -256,6 +252,7 @@
 <text x="532" y="720" font-size="9" fill="#4a5561">           performer  (wp_terms / wp_term_relationships)</text>
 <text x="532" y="739" font-size="9" fill="#4a5561">post_id / created_by / user_id  -&gt;  wp_posts /</text>
 <text x="532" y="758" font-size="9" fill="#4a5561">           wp_users   (red diamond; FK enforced in app, not DB)</text>
-<text x="532" y="777" font-size="9" fill="#4a5561">media    = wp_posts attachment ids (event cover = _thumbnail_id)</text>
+<text x="532" y="777" font-size="9" fill="#4a5561">images   = plain URLs in settings JSON (calendar logo/cover,</text>
+<text x="532" y="796" font-size="9" fill="#4a5561">           event cover) — no attachment FK, no image columns</text>
 </g>
 </svg>

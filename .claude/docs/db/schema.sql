@@ -15,8 +15,6 @@ CREATE TABLE `wp_fevents_calendars` (
   `title` VARCHAR(255) NOT NULL,
   `slug` VARCHAR(255) NOT NULL,
   `description` TEXT NULL,
-  `logo_url` VARCHAR(255) NULL,
-  `cover_url` VARCHAR(255) NULL,
   `visibility` VARCHAR(64) NOT NULL,
   `settings` JSON NULL,
   `status` VARCHAR(64) NOT NULL,

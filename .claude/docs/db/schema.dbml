@@ -6,8 +6,6 @@ Table wp_fevents_calendars {
   title varchar [not null]
   slug varchar [unique, not null]
   description text
-  logo_url varchar
-  cover_url varchar
   visibility varchar [not null]
   settings json
   status varchar [not null]

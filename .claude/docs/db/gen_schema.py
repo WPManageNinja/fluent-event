@@ -23,8 +23,7 @@ T = {
     ("user_email","VARCHAR(100)","!"),("display_name","VARCHAR(250)","!")]),
  "wp_fevents_calendars": ("app", COL0, 190, [
     ("id","BIGINT UNSIGNED","P"),("title","VARCHAR(255)","!"),("slug","VARCHAR(255)","U!"),
-    ("description","TEXT",""),("logo_url","VARCHAR(255)",""),
-    ("cover_url","VARCHAR(255)",""),("visibility","VARCHAR(64)","!"),
+    ("description","TEXT",""),("visibility","VARCHAR(64)","!"),
     ("settings","JSON",""),("status","VARCHAR(64)","!"),("created_by","BIGINT UNSIGNED","F!"),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
  "wp_fevents_meta": ("app", COL0, 470, [
@@ -379,7 +378,8 @@ def emit_svg():
       "           performer  (wp_terms / wp_term_relationships)",
       "post_id / created_by / user_id  ->  wp_posts /",
       "           wp_users   (red diamond; FK enforced in app, not DB)",
-      "media    = wp_posts attachment ids (event cover = _thumbnail_id)"]
+      "images   = plain URLs in settings JSON (calendar logo/cover,",
+      "           event cover) — no attachment FK, no image columns"]
     for i,ln in enumerate(lines):
         P.append(f'<text x="{nx+12}" y="{ny+42+i*19}" font-size="9" fill="#4a5561">{esc(ln)}</text>')
     P.append('</g>')

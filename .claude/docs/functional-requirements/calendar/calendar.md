@@ -2,7 +2,7 @@
 
 **Summary:** A calendar groups events inside the space. The host/managers create one or more calendars; events are filed under them. Each calendar has a shareable public page that members can browse, plus its own settings and insights. (Event notifications go to that event's guests, FR-9 — there is no calendar-level subscribe/follow.)
 
-**Builds on FR-6** (events reference a calendar), **FR-4** (settings + permissions). Logo/cover are stored as plain image URLs (`logo_url` / `cover_url`), not WP attachments. Single-tenant: calendars are **space-owned**, managed by WP-user hosts/managers. Identity is WordPress users; there is no member/profile layer.
+**Builds on FR-6** (events reference a calendar), **FR-4** (settings + permissions). Logo/cover are plain image URLs in the `settings` JSON (`settings.logo_url` / `settings.cover_url`) — not columns, not WP attachments. Single-tenant: calendars are **space-owned**, managed by WP-user hosts/managers. Identity is WordPress users; there is no member/profile layer.
 
 > **v1 scope:** Multi-calendar (creating/managing/choosing calendars in the UI) is **deferred**. In v1 the plugin auto-creates a hidden **"Default Calendar"** in the background when the first event is created, and files every event under it — the calendar UI is not shown. Because `calendar_id` is always set, turning on multi-calendar later needs no migration. The rest of this spec describes the full (later) feature.
 
@@ -12,7 +12,7 @@
 - **Space-owned.** Calendars belong to the space; only host/managers (capability `fevents_manage_calendars`) create/manage them. Members browse.
 - **Events link by `calendar_id`** (FR-6). One event → one calendar (or none = unfiled).
 - **Shareable page** keyed by `slug`; lists that calendar's published events.
-- **Logo/cover = direct image URLs** (`logo_url` / `cover_url`) — stored as-is, not WP attachments.
+- **Logo/cover = direct image URLs in `settings` JSON** (`settings.logo_url` / `settings.cover_url`) — not columns, not WP attachments. They're view-only (never filtered or joined on), so per the queried→column / display-only→JSON rule they don't earn columns.
 
 ## Data model
 
@@ -24,10 +24,8 @@
 | `title`          | VARCHAR     | calendar name                                    |
 | `slug`           | VARCHAR     | unique; the shareable URL                        |
 | `description`    | TEXT NULL   |                                                  |
-| `logo_url`       | VARCHAR NULL | image URL (stored directly — not a WP attachment) |
-| `cover_url`      | VARCHAR NULL | image URL (stored directly — not a WP attachment) |
 | `visibility`     | VARCHAR     | `public` \| `unlisted` \| `private`              |
-| `settings`       | JSON NULL   | theme, who-can-manage (caps), notification prefs |
+| `settings`       | JSON NULL   | `logo_url`, `cover_url`, theme, who-can-manage (caps), notification prefs |
 | `created_by`     | BIGINT      | host/manager user id                             |
 | `created_at`     | TIMESTAMP   |                                                  |
 | `updated_at`     | TIMESTAMP   |                                                  |
