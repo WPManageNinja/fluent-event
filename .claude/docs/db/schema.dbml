@@ -90,7 +90,7 @@ Table wp_fe_ticket_types {
   price decimal [not null]
   slot int
   sold int [not null]
-  min_per_reg int [not null]
+  min_per_reg int [not null, default: 1]
   max_per_reg int
   sale_start_at datetime
   sale_end_at datetime
@@ -99,9 +99,6 @@ Table wp_fe_ticket_types {
   settings json
   created_at timestamp [not null]
   updated_at timestamp [not null]
-  indexes {
-    (event_id, status) [name: 'idx_ticket_event_status']
-  }
 }
 
 Table wp_fe_guests {

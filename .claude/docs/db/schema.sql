@@ -96,7 +96,7 @@ CREATE TABLE `wp_fe_ticket_types` (
   `price` DECIMAL(10,2) NOT NULL,
   `slot` INT NULL,
   `sold` INT NOT NULL,
-  `min_per_reg` INT NOT NULL,
+  `min_per_reg` INT NOT NULL DEFAULT 1,
   `max_per_reg` INT NULL,
   `sale_start_at` DATETIME NULL,
   `sale_end_at` DATETIME NULL,
@@ -106,7 +106,6 @@ CREATE TABLE `wp_fe_ticket_types` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `idx_ticket_event_status` (`event_id`, `status`),
   CONSTRAINT `fk_ticket_types_event_id` FOREIGN KEY (`event_id`) REFERENCES `wp_fe_event_details` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

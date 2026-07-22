@@ -7,7 +7,7 @@ typed relational data in wp_fe_event_details (post_id 1:1). Classification
 (event_type / venue / organizer) = WP taxonomies + term meta. Roster performer/
 speaker = deferred (future CPT). Ticketing custom tables FK to the event.
 """
-import html, os
+import html, os, re
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -55,7 +55,7 @@ T = {
  "wp_fe_ticket_types": ("app", COL2, 40, [
     ("id","BIGINT UNSIGNED","P"),("event_id","BIGINT UNSIGNED","F!"),("tier","VARCHAR(64)","!"),
     ("description","VARCHAR(255)",""),("price","DECIMAL(10,2)","!"),("slot","INT",""),
-    ("sold","INT","!"),("min_per_reg","INT","!"),("max_per_reg","INT",""),
+    ("sold","INT","!"),("min_per_reg","INT","!D[1]"),("max_per_reg","INT",""),
     ("sale_start_at","DATETIME",""),("sale_end_at","DATETIME",""),("status","VARCHAR(64)","!"),
     ("sort_order","INT","!"),("settings","JSON",""),
     ("created_at","TIMESTAMP","C"),("updated_at","TIMESTAMP","T")]),
@@ -89,6 +89,25 @@ T = {
     ("meta_key","VARCHAR(255)",""),("meta_value","LONGTEXT","")]),
 }
 
+# ---- column defaults ----
+# Written inline in the flag string as D[<value>] (e.g. "!D[1]" -> NOT NULL DEFAULT 1).
+# Pulled out here into DEFAULTS so the remaining flag chars stay clean for every other
+# consumer (P/F/U/!/C/T checks, SVG, DBML). Keep values numeric or lowercase-quoted.
+DEFAULTS = {}
+def _pull_defaults(spec):
+    out = {}
+    for n, (k, x, y, cols) in spec.items():
+        nc = []
+        for c, t, f in cols:
+            m = re.search(r"D\[(.*?)\]", f)
+            if m:
+                DEFAULTS[(n, c)] = m.group(1)
+                f = f[:m.start()] + f[m.end():]
+            nc.append((c, t, f))
+        out[n] = (k, x, y, nc)
+    return out
+T = _pull_defaults(T)
+
 # indexes: table -> [(name, [cols], unique_bool)]
 IDX = {
  "wp_fe_meta": [("idx_meta_lookup",["object_type","object_id","meta_key"],False)],
@@ -98,7 +117,8 @@ IDX = {
  "wp_fe_calendars": [("uq_calendars_slug",["slug"],True)],
  "wp_fe_event_details": [("uq_events_post",["post_id"],True),
     ("idx_event_status",["status"],False),("idx_event_window",["start_at","end_at"],False)],
- "wp_fe_ticket_types": [("idx_ticket_event_status",["event_id","status"],False)],
+ # No declared index: event_id is a FK, so InnoDB auto-creates one. Only ~3-5 tiers
+ # per event, so adding status as a 2nd column saves ~1 row fetch — not worth the width.
  "wp_fe_guests": [("uq_guests_hash",["hash"],True),
     ("idx_guest_event_status",["event_id","status"],False),
     ("idx_guest_calendar",["calendar_id","status"],False),
@@ -167,14 +187,15 @@ def pk_cols(cols): return [c for c,_,f in cols if "P" in f]
 def col_notnull(f): return any(x in f for x in ("!","P","C","T"))
 
 # ============================== SQL ==============================
-def sql_type(t, f):
+def sql_type(t, f, d=None):
     s = t
+    dflt = f" DEFAULT {d}" if d is not None else ""
     if "P" in f and "F" not in f: s += " NOT NULL AUTO_INCREMENT"   # surrogate id only
     elif "P" in f: s += " NOT NULL"                                  # composite PK member (also FK)
     elif "C" in f: s += " NOT NULL DEFAULT CURRENT_TIMESTAMP"
     elif "T" in f: s += " NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
-    elif "!" in f: s += " NOT NULL"
-    else: s += " NULL"
+    elif "!" in f: s += " NOT NULL" + dflt
+    else: s += " NULL" + dflt
     return s
 
 def emit_sql():
@@ -192,7 +213,7 @@ def emit_sql():
     for c,col,p,pc,od in FK: fk_by.setdefault(c, []).append((col,p,pc,od))
     for name,(kind,x,y,cols) in T.items():
         L.append(f"CREATE TABLE `{name}` (")
-        body = [f"  `{c}` {sql_type(t,f)}" for c,t,f in cols]
+        body = [f"  `{c}` {sql_type(t,f,DEFAULTS.get((name,c)))}" for c,t,f in cols]
         pks = pk_cols(cols)
         if pks: body.append(f"  PRIMARY KEY ({', '.join('`'+c+'`' for c in pks)})")
         for iname,icols,uniq in IDX.get(name, []):
@@ -237,6 +258,8 @@ def emit_dbml():
                 if "F" not in f: attrs.append("increment")
             if "U" in f: attrs.append("unique")
             if col_notnull(f) and "P" not in f: attrs.append("not null")
+            dv = DEFAULTS.get((name,c))
+            if dv is not None: attrs.append(f"default: {dv}")
             ref = fk_by.get((name,c))
             if ref: attrs.append(f"ref: > {ref[0]}.{ref[1]}")
             a = f" [{', '.join(attrs)}]" if attrs else ""

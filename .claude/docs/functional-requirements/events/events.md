@@ -88,7 +88,15 @@ used to be the `settings` column:
 | `sort_order` | INT | admin display order of tiers |
 | `settings` | JSON NULL | **view-only / cosmetic fields** — holds `compare_at_price` (the struck-through "was" price, maps to FluentCart `compare_price`) + future per-tier config. Nothing here is queried; real discount codes stay in FluentCart. |
 
-Index: `(event_id, status)`. Only queried columns are real (event_id, status, slot, sold, sale window, price, sort_order); display-only fields live in `settings`.
+Index: **none declared** — `event_id` is a FK, so InnoDB auto-creates `(event_id)` and that's
+all this table needs. The row count is large (events × 3–5 tiers → tens of thousands), so the
+`event_id` filter is highly selective and *must* be indexed — but with only 3–5 tiers per
+event, adding `status` as a second column saves about one row fetch, which doesn't justify the
+wider index. *(Contrast `calendars`, where the whole table is 10–100 rows and indexes beyond
+the slug unique are pure overhead: index need = table size ÷ result size, not result size.)*
+
+Only queried columns are real (event_id, status, slot, sold, sale window, price, sort_order);
+display-only fields live in `settings`. `min_per_reg` defaults to `1`.
 
 **`wp_fe_guests`** — one row per **ticket** (each attendee). A purchase is a **group** of these rows sharing `registration_no`; the **`is_buyer=1`** row also carries the order + payment (NULL on companions). No separate registrations table.
 
