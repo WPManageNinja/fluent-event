@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query\Grammars;
+namespace FluentEvent\Framework\Database\Query\Grammars;
 
-use FluentEvents\Framework\Database\Query\Builder;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
+use FluentEvent\Framework\Database\Query\Builder;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
 
 class SQLiteGrammar extends Grammar
 {
@@ -23,7 +23,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile the lock into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  bool|string  $value
      * @return string
      */
@@ -46,7 +46,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a "where like" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -84,7 +84,7 @@ class SQLiteGrammar extends Grammar
      * soundex() UDF that must be registered on the connection from PHP's own
      * soundex(). Using the same PHP algorithm on both sides guarantees a match.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @return string
      */
     public function compileSoundsLike($column)
@@ -106,7 +106,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a "where date" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -118,7 +118,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a "where day" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -130,7 +130,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a "where month" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -142,7 +142,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a "where year" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -154,7 +154,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a "where time" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -167,7 +167,7 @@ class SQLiteGrammar extends Grammar
      * Compile a date based where clause.
      *
      * @param  string  $type
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -181,8 +181,8 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile the index hints for the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Query\IndexHint  $indexHint
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\IndexHint  $indexHint
      * @return string
      */
     protected function compileIndexHint(Builder $query, $indexHint)
@@ -266,7 +266,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a group limit clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     protected function compileGroupLimit(Builder $query)
@@ -285,7 +285,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile an update statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -301,7 +301,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile an insert ignore statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -313,7 +313,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile an insert ignore statement using a subquery into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $columns
      * @param  string  $sql
      * @return string
@@ -326,7 +326,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile the columns for an update statement.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -348,7 +348,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile an "upsert" statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @param  array  $uniqueBy
      * @param  array  $update
@@ -403,7 +403,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile an update statement with joins or limit into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -447,7 +447,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a delete statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     public function compileDelete(Builder $query)
@@ -462,7 +462,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a delete statement with joins or limit into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     protected function compileDeleteWithJoinsOrLimit(Builder $query)
@@ -479,7 +479,7 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a truncate table statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return array
      */
     public function compileTruncate(Builder $query)

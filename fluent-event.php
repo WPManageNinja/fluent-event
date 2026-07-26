@@ -3,7 +3,7 @@
 defined('ABSPATH') or die;
 
 /**
- * Plugin Name: Fluent Events 
+ * Plugin Name: Fluent Event 
  * Plugin URI: https://fluentevents.com
  * Description: Event management plugin for WordPress. 
  * Version: 1.0.0
@@ -13,20 +13,20 @@ defined('ABSPATH') or die;
  * Author URI: https://fluentevents.com
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: fluent-events
+ * Text Domain: fluent-event
  * Domain Path: /language
  * Update URI: false
  */
 
-define('FLUENT_EVENTS_PLUGIN_VERSION', '1.0.0');
-define('FLUENT_EVENTS_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('FLUENT_EVENTS_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('FLUENT_EVENTS_DIR_FILE', __FILE__);
-define('FLUENT_EVENTS_START_TIME', microtime(true));
-define('FLUENT_EVENTS_BD_VERSION', '1.0.0');
+define('FLUENT_EVENT_PLUGIN_VERSION', '1.0.0');
+define('FLUENT_EVENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('FLUENT_EVENT_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('FLUENT_EVENT_DIR_FILE', __FILE__);
+define('FLUENT_EVENT_START_TIME', microtime(true));
+define('FLUENT_EVENT_BD_VERSION', '1.0.0');
 
-if(!defined('FLUENT_EVENTS_UPLOAD_DIR')) {
-  define('FLUENT_EVENTS_UPLOAD_DIR', 'fluent-events');
+if(!defined('FLUENT_EVENT_UPLOAD_DIR')) {
+  define('FLUENT_EVENT_UPLOAD_DIR', 'fluent-event');
 }
 
 return (function($boot, $_autoload) {

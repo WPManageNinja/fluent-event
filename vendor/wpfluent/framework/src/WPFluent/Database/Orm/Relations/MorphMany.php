@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Collection;
 
 class MorphMany extends MorphOneOrMany
 {
     /**
      * Convert the relationship to a "morph one" relationship.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphOne
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphOne
      */
     public function one()
     {
@@ -54,7 +54,7 @@ class MorphMany extends MorphOneOrMany
      * Match the eagerly loaded results to their parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @return array
      */
@@ -67,7 +67,7 @@ class MorphMany extends MorphOneOrMany
      * Create a new instance of the related model. Allow mass-assignment.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function forceCreate(array $attributes = [])
     {

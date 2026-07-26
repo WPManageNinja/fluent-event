@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 use WP_User;
 use BadMethodCallException;
 use InvalidArgumentException;
-use FluentEvents\Framework\Http\Request\WPUserProxy;
+use FluentEvent\Framework\Http\Request\WPUserProxy;
 
 trait UserProxyTrait
 {

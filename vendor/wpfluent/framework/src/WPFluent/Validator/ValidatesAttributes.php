@@ -1,17 +1,17 @@
 <?php
 
-namespace FluentEvents\Framework\Validator;
+namespace FluentEvent\Framework\Validator;
 
 use Countable;
 use Exception;
 use ValueError;
 use DateTimeInterface;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\DateTime;
-use FluentEvents\Framework\Validator\Contracts\File;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\DateTime;
+use FluentEvent\Framework\Validator\Contracts\File;
 
 trait ValidatesAttributes
 {
@@ -693,7 +693,7 @@ trait ValidatesAttributes
         }
 
         /**
-         * @var $value \FluentEvents\Framework\Validator\Contracts\File
+         * @var $value \FluentEvent\Framework\Validator\Contracts\File
          */
         return $value->getPath() != '' && in_array(
             $value->guessExtension(), $parameters
@@ -751,7 +751,7 @@ trait ValidatesAttributes
         }
 
         /**
-         * @var $value \FluentEvents\Framework\Validator\Contracts\File
+         * @var $value \FluentEvent\Framework\Validator\Contracts\File
          */
         return strtolower($value->getClientOriginalExtension()) === 'php';
     }

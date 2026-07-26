@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Container\Contracts;
+namespace FluentEvent\Framework\Container\Contracts;
 
 use Closure;
-use FluentEvents\Framework\Container\Contracts\Psr\ContainerInterface;
+use FluentEvent\Framework\Container\Contracts\Psr\ContainerInterface;
 
 interface Container extends ContainerInterface
 {
@@ -115,7 +115,7 @@ interface Container extends ContainerInterface
      * Define a contextual binding.
      *
      * @param  string|array  $concrete
-     * @return \FluentEvents\Framework\Container\Contracts\ContextualBindingBuilder
+     * @return \FluentEvent\Framework\Container\Contracts\ContextualBindingBuilder
      */
     public function when($concrete);
 
@@ -141,7 +141,7 @@ interface Container extends ContainerInterface
      * @param  array  $parameters
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Container\Contracts\BindingResolutionException
+     * @throws \FluentEvent\Framework\Container\Contracts\BindingResolutionException
      */
     public function make($abstract, array $parameters = []);
 

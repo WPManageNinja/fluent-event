@@ -6,7 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'FluentEvents\\Framework\\' => array($vendorDir . '/wpfluent/framework/src/WPFluent'),
-    'FluentEvents\\Dev\\' => array($baseDir . '/dev'),
-    'FluentEvents\\App\\' => array($baseDir . '/app'),
+    'FluentEvent\\Framework\\' => array($vendorDir . '/wpfluent/framework/src/WPFluent'),
+    'FluentEvent\\Dev\\' => array($baseDir . '/dev'),
+    'FluentEvent\\App\\' => array($baseDir . '/app'),
 );

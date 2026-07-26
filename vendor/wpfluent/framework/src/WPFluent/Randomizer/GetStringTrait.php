@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Randomizer;
+namespace FluentEvent\Framework\Randomizer;
 
-use FluentEvents\Framework\Support\InvalidArgumentException;
+use FluentEvent\Framework\Support\InvalidArgumentException;
 
 trait GetStringTrait
 {

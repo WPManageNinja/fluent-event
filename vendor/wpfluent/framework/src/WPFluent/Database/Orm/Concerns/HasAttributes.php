@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Concerns;
 
 use LogicException;
 use ReflectionClass;
@@ -8,23 +8,23 @@ use ReflectionMethod;
 use DateTimeInterface;
 use ReflectionNamedType;
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\DateTime;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Database\Orm\Casts\Attribute;
-use FluentEvents\Framework\Database\Orm\Castable;
-use FluentEvents\Framework\Database\Orm\Casts\AsCollection;
-use FluentEvents\Framework\Database\Orm\Casts\AsArrayObject;
-use FluentEvents\Framework\Database\Orm\Relations\Relation;
-use FluentEvents\Framework\Database\Orm\InvalidCastException;
-use FluentEvents\Framework\Database\Orm\JsonEncodingException;
-use FluentEvents\Framework\Database\LazyLoadingViolationException;
-use FluentEvents\Framework\Database\Orm\CastsInboundAttributes;
-use FluentEvents\Framework\Support\Collection as BaseCollection;
-use FluentEvents\Framework\Database\Orm\MissingAttributeException;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\DateTime;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Database\Orm\Casts\Attribute;
+use FluentEvent\Framework\Database\Orm\Castable;
+use FluentEvent\Framework\Database\Orm\Casts\AsCollection;
+use FluentEvent\Framework\Database\Orm\Casts\AsArrayObject;
+use FluentEvent\Framework\Database\Orm\Relations\Relation;
+use FluentEvent\Framework\Database\Orm\InvalidCastException;
+use FluentEvent\Framework\Database\Orm\JsonEncodingException;
+use FluentEvent\Framework\Database\LazyLoadingViolationException;
+use FluentEvent\Framework\Database\Orm\CastsInboundAttributes;
+use FluentEvent\Framework\Support\Collection as BaseCollection;
+use FluentEvent\Framework\Database\Orm\MissingAttributeException;
 
 trait HasAttributes
 {
@@ -164,7 +164,7 @@ trait HasAttributes
     /**
      * The encrypter instance that is used to encrypt attributes.
      *
-     * @var \FluentEvents\Framework\Encryption\Encrypter
+     * @var \FluentEvent\Framework\Encryption\Encrypter
      */
     public static $encrypter;
 
@@ -474,7 +474,7 @@ trait HasAttributes
      * @param  string  $key
      * @return null
      *
-     * @throws \FluentEvents\Framework\Database\Orm\MissingAttributeException
+     * @throws \FluentEvent\Framework\Database\Orm\MissingAttributeException
      */
     protected function throwMissingAttributeExceptionIfApplicable($key)
     {
@@ -1263,7 +1263,7 @@ trait HasAttributes
     /**
      * Set the encrypter instance that will be used to encrypt attributes.
      *
-     * @param  \FluentEvents\Framework\Encryption\Encrypter  $encrypter
+     * @param  \FluentEvent\Framework\Encryption\Encrypter  $encrypter
      * @return void
      */
     public static function encryptUsing($encrypter)
@@ -1307,7 +1307,7 @@ trait HasAttributes
      * Return a timestamp as DateTime object with time set to 00:00:00.
      *
      * @param  mixed  $value
-     * @return \FluentEvents\Framework\Support\DateTime;
+     * @return \FluentEvent\Framework\Support\DateTime;
      */
     protected function asDate($value)
     {
@@ -1318,7 +1318,7 @@ trait HasAttributes
      * Return a timestamp as DateTime object.
      *
      * @param  mixed  $value
-     * @return \FluentEvents\Framework\Support\DateTime;
+     * @return \FluentEvent\Framework\Support\DateTime;
      */
     protected function asDateTime($value)
     {
@@ -1528,7 +1528,7 @@ trait HasAttributes
      * @param  string  $key
      * @return bool
      *
-     * @throws \FluentEvents\Framework\Database\Orm\InvalidCastException
+     * @throws \FluentEvent\Framework\Database\Orm\InvalidCastException
      */
     protected function isClassCastable($key)
     {
@@ -1578,7 +1578,7 @@ trait HasAttributes
      * @param  string  $key
      * @return bool
      *
-     * @throws \FluentEvents\Framework\Database\Orm\InvalidCastException
+     * @throws \FluentEvent\Framework\Database\Orm\InvalidCastException
      */
     protected function isClassDeviable($key)
     {
@@ -1593,7 +1593,7 @@ trait HasAttributes
      * @param  string  $key
      * @return bool
      *
-     * @throws \FluentEvents\Framework\Database\Orm\InvalidCastException
+     * @throws \FluentEvent\Framework\Database\Orm\InvalidCastException
      */
     protected function isClassSerializable($key)
     {

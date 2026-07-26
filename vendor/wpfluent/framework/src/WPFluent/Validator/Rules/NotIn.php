@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Validator\Rules;
+namespace FluentEvent\Framework\Validator\Rules;
 
 class NotIn
 {

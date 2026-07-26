@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation;
+namespace FluentEvent\Framework\Foundation;
 
-use FluentEvents\Framework\Http\Request\Request;
+use FluentEvent\Framework\Http\Request\Request;
 
 abstract class Policy
 {

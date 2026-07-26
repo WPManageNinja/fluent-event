@@ -10,5 +10,5 @@
  */
 
 /**
- * @var $app FluentEvents\Framework\Foundation\Application
+ * @var $app FluentEvent\Framework\Foundation\Application
  */

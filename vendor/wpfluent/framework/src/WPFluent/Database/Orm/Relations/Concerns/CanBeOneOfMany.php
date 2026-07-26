@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Relations\Concerns;
 
 use Closure;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Query\JoinClause;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Query\JoinClause;
 
 trait CanBeOneOfMany
 {
@@ -29,14 +29,14 @@ trait CanBeOneOfMany
     /**
      * The one of many inner join subselect query builder instance.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Builder|null
+     * @var \FluentEvent\Framework\Database\Orm\Builder|null
      */
     protected $oneOfManySubQuery;
 
     /**
      * Add constraints for inner join subselect for one of many relationships.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
      * @param  string|null  $column
      * @param  string|null  $aggregate
      * @return void
@@ -53,7 +53,7 @@ trait CanBeOneOfMany
     /**
      * Add join query constraints for one of many relationships.
      *
-     * @param  \FluentEvents\Framework\Database\Query\JoinClause  $join
+     * @param  \FluentEvent\Framework\Database\Query\JoinClause  $join
      * @return void
      */
     abstract public function addOneOfManyJoinSubQueryConstraints(JoinClause $join);
@@ -181,7 +181,7 @@ trait CanBeOneOfMany
      * @param  string|array  $groupBy
      * @param  string|null  $column
      * @param  string|null  $aggregate
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function newOneOfManySubQuery($groupBy, $column = null, $aggregate = null)
     {
@@ -205,8 +205,8 @@ trait CanBeOneOfMany
     /**
      * Add the join subquery to the given query on the given column and the relationship's foreign key.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $parent
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $subQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $subQuery
      * @param  string  $on
      * @return void
      */
@@ -226,7 +226,7 @@ trait CanBeOneOfMany
     /**
      * Merge the relationship query joins to the given query builder.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
      * @return void
      */
     protected function mergeOneOfManyJoinsTo(Builder $query)
@@ -239,7 +239,7 @@ trait CanBeOneOfMany
     /**
      * Get the query builder that will contain the relationship constraints.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function getRelationQuery()
     {
@@ -251,7 +251,7 @@ trait CanBeOneOfMany
     /**
      * Get the one of many inner join subselect builder instance.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder|void
+     * @return \FluentEvent\Framework\Database\Orm\Builder|void
      */
     public function getOneOfManySubQuery()
     {

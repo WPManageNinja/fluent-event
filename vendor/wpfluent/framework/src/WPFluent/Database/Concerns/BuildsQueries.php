@@ -1,29 +1,29 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Concerns;
+namespace FluentEvent\Framework\Database\Concerns;
 
 use RuntimeException;
 use InvalidArgumentException;
-use FluentEvents\Framework\Container\Container;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Support\Conditionable;
-use FluentEvents\Framework\Support\LazyCollection;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Query\Expression;
-use FluentEvents\Framework\Database\RecordsNotFoundException;
-use FluentEvents\Framework\Database\MultipleRecordsFoundException;
-use FluentEvents\Framework\Pagination\Cursor;
-use FluentEvents\Framework\Pagination\Paginator;
-use FluentEvents\Framework\Pagination\CursorPaginator;
-use FluentEvents\Framework\Pagination\LengthAwarePaginator;
+use FluentEvent\Framework\Container\Container;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Support\Conditionable;
+use FluentEvent\Framework\Support\LazyCollection;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Query\Expression;
+use FluentEvent\Framework\Database\RecordsNotFoundException;
+use FluentEvent\Framework\Database\MultipleRecordsFoundException;
+use FluentEvent\Framework\Pagination\Cursor;
+use FluentEvent\Framework\Pagination\Paginator;
+use FluentEvent\Framework\Pagination\CursorPaginator;
+use FluentEvent\Framework\Pagination\LengthAwarePaginator;
 
 /**
  * @template TValue
  *
- * @mixin \FluentEvents\Framework\Database\Orm\Builder
- * @mixin \FluentEvents\Framework\Database\Query\Builder
+ * @mixin \FluentEvent\Framework\Database\Orm\Builder
+ * @mixin \FluentEvent\Framework\Database\Query\Builder
  */
 trait BuildsQueries
 {
@@ -33,7 +33,7 @@ trait BuildsQueries
      * Chunk the results of the query.
      *
      * @param  int  $count
-     * @param  callable(\FluentEvents\Framework\Support\Collection<int, TValue>, int): mixed  $callback
+     * @param  callable(\FluentEvent\Framework\Support\Collection<int, TValue>, int): mixed  $callback
      * @return bool
      */
     public function chunk($count, callable $callback)
@@ -76,7 +76,7 @@ trait BuildsQueries
      *
      * @param  callable(TValue): TReturn  $callback
      * @param  int  $count
-     * @return \FluentEvents\Framework\Support\Collection<int, TReturn>
+     * @return \FluentEvent\Framework\Support\Collection<int, TReturn>
      */
     public function chunkMap(callable $callback, $count = 1000)
     {
@@ -115,7 +115,7 @@ trait BuildsQueries
      * Chunk the results of a query by comparing IDs.
      *
      * @param  int  $count
-     * @param  callable(\FluentEvents\Framework\Support\Collection<int, TValue>, int): mixed  $callback
+     * @param  callable(\FluentEvent\Framework\Support\Collection<int, TValue>, int): mixed  $callback
      * @param  string|null  $column
      * @param  string|null  $alias
      * @return bool
@@ -129,7 +129,7 @@ trait BuildsQueries
      * Chunk the results of a query by comparing IDs in descending order.
      *
      * @param  int  $count
-     * @param  callable(\FluentEvents\Framework\Support\Collection<int, TValue>, int): mixed  $callback
+     * @param  callable(\FluentEvent\Framework\Support\Collection<int, TValue>, int): mixed  $callback
      * @param  string|null  $column
      * @param  string|null  $alias
      * @return bool
@@ -145,7 +145,7 @@ trait BuildsQueries
      * Chunk the results of a query by comparing IDs in a given order.
      *
      * @param  int  $count
-     * @param  callable(\FluentEvents\Framework\Support\Collection<int, TValue>, int): mixed  $callback
+     * @param  callable(\FluentEvent\Framework\Support\Collection<int, TValue>, int): mixed  $callback
      * @param  string|null  $column
      * @param  string|null  $alias
      * @param  bool  $descending
@@ -226,7 +226,7 @@ trait BuildsQueries
      * Query lazily, by chunks of the given size.
      *
      * @param  int  $chunkSize
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      *
      * @throws \InvalidArgumentException
      */
@@ -263,7 +263,7 @@ trait BuildsQueries
      * @param  int  $chunkSize
      * @param  string|null  $column
      * @param  string|null  $alias
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      *
      * @throws \InvalidArgumentException
      */
@@ -278,7 +278,7 @@ trait BuildsQueries
      * @param  int  $chunkSize
      * @param  string|null  $column
      * @param  string|null  $alias
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      *
      * @throws \InvalidArgumentException
      */
@@ -294,7 +294,7 @@ trait BuildsQueries
      * @param  string|null  $column
      * @param  string|null  $alias
      * @param  bool  $descending
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      *
      * @throws \InvalidArgumentException
      */
@@ -356,8 +356,8 @@ trait BuildsQueries
      * @param  array|string  $columns
      * @return TValue
      *
-     * @throws \FluentEvents\Framework\Database\RecordsNotFoundException
-     * @throws \FluentEvents\Framework\Database\MultipleRecordsFoundException
+     * @throws \FluentEvent\Framework\Database\RecordsNotFoundException
+     * @throws \FluentEvent\Framework\Database\MultipleRecordsFoundException
      */
     public function sole($columns = ['*'])
     {
@@ -382,8 +382,8 @@ trait BuildsQueries
      * @param  int  $perPage
      * @param  array|string  $columns
      * @param  string  $cursorName
-     * @param  \FluentEvents\Framework\Pagination\Cursor|string|null  $cursor
-     * @return \FluentEvents\Framework\Pagination\CursorPaginator
+     * @param  \FluentEvent\Framework\Pagination\Cursor|string|null  $cursor
+     * @return \FluentEvent\Framework\Pagination\CursorPaginator
      */
     protected function paginateUsingCursor($perPage, $columns = ['*'], $cursorName = 'cursor', $cursor = null)
     {
@@ -478,7 +478,7 @@ trait BuildsQueries
     /**
      * Get the original column name of the given column, without any aliasing.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Orm\Builder<*>  $builder
+     * @param  \FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Orm\Builder<*>  $builder
      * @param  string  $parameter
      * @return string
      */
@@ -506,12 +506,12 @@ trait BuildsQueries
     /**
      * Create a new length-aware paginator instance.
      *
-     * @param  \FluentEvents\Framework\Support\Collection  $items
+     * @param  \FluentEvent\Framework\Support\Collection  $items
      * @param  int  $total
      * @param  int  $perPage
      * @param  int  $currentPage
      * @param  array  $options
-     * @return \FluentEvents\Framework\Pagination\LengthAwarePaginator
+     * @return \FluentEvent\Framework\Pagination\LengthAwarePaginator
      */
     protected function paginator($items, $total, $perPage, $currentPage, $options)
     {
@@ -523,11 +523,11 @@ trait BuildsQueries
     /**
      * Create a new simple paginator instance.
      *
-     * @param  \FluentEvents\Framework\Support\Collection  $items
+     * @param  \FluentEvent\Framework\Support\Collection  $items
      * @param  int  $perPage
      * @param  int  $currentPage
      * @param  array  $options
-     * @return \FluentEvents\Framework\Pagination\Paginator
+     * @return \FluentEvent\Framework\Pagination\Paginator
      */
     protected function simplePaginator($items, $perPage, $currentPage, $options)
     {
@@ -539,11 +539,11 @@ trait BuildsQueries
     /**
      * Create a new cursor paginator instance.
      *
-     * @param  \FluentEvents\Framework\Support\Collection  $items
+     * @param  \FluentEvent\Framework\Support\Collection  $items
      * @param  int  $perPage
-     * @param  \FluentEvents\Framework\Pagination\Cursor  $cursor
+     * @param  \FluentEvent\Framework\Pagination\Cursor  $cursor
      * @param  array  $options
-     * @return \FluentEvents\Framework\Pagination\CursorPaginator
+     * @return \FluentEvent\Framework\Pagination\CursorPaginator
      */
     protected function cursorPaginator($items, $perPage, $cursor, $options)
     {

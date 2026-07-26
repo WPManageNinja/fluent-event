@@ -11,24 +11,24 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
     );
 
     public static $prefixLengthsPsr4 = array (
-        'F' =>
+        'F' => 
         array (
-            'FluentEvents\\Framework\\' => 23,
-            'FluentEvents\\Dev\\' => 17,
-            'FluentEvents\\App\\' => 17,
+            'FluentEvent\\Framework\\' => 22,
+            'FluentEvent\\Dev\\' => 16,
+            'FluentEvent\\App\\' => 16,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'FluentEvents\\Framework\\' =>
+        'FluentEvent\\Framework\\' => 
         array (
             0 => __DIR__ . '/..' . '/wpfluent/framework/src/WPFluent',
         ),
-        'FluentEvents\\Dev\\' =>
+        'FluentEvent\\Dev\\' => 
         array (
             0 => __DIR__ . '/../..' . '/dev',
         ),
-        'FluentEvents\\App\\' =>
+        'FluentEvent\\App\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
         ),
@@ -36,7 +36,7 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'FluentEvents\\Database\\DBMigrator' => __DIR__ . '/../..' . '/database/DBMigrator.php',
+        'FluentEvent\\Database\\DBMigrator' => __DIR__ . '/../..' . '/database/DBMigrator.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

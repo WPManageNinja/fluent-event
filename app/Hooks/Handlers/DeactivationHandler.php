@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\App\Hooks\Handlers;
+namespace FluentEvent\App\Hooks\Handlers;
 
-use FluentEvents\Framework\Foundation\Application;
+use FluentEvent\Framework\Foundation\Application;
 
 class DeactivationHandler
 {
     /**
      * Application container injected by the framework.
      *
-     * @var \FluentEvents\Framework\Foundation\Application|null
+     * @var \FluentEvent\Framework\Foundation\Application|null
      */
     protected $app = null;
 
@@ -17,7 +17,7 @@ class DeactivationHandler
      * Store the Application instance so deactivation routines can reach the
      * container (scheduler, options, etc.) without globals.
      *
-     * @param  \FluentEvents\Framework\Foundation\Application  $app
+     * @param  \FluentEvent\Framework\Foundation\Application  $app
      */
     public function __construct(Application $app)
     {

@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
 use BadMethodCallException;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
 
 class MorphTo extends BelongsTo
 {
@@ -23,7 +23,7 @@ class MorphTo extends BelongsTo
     /**
      * The models whose relations are being eager loaded.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Collection
+     * @var \FluentEvent\Framework\Database\Orm\Collection
      */
     protected $models;
 
@@ -65,8 +65,8 @@ class MorphTo extends BelongsTo
     /**
      * Create a new morph to relationship instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $foreignKey
      * @param  string  $ownerKey
      * @param  string  $type
@@ -94,7 +94,7 @@ class MorphTo extends BelongsTo
     /**
      * Build a dictionary with the models.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $models
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $models
      * @return void
      */
     protected function buildDictionary(Collection $models)
@@ -129,7 +129,7 @@ class MorphTo extends BelongsTo
      * Get all of the relation results for a type.
      *
      * @param  string  $type
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     protected function getResultsByType($type)
     {
@@ -178,7 +178,7 @@ class MorphTo extends BelongsTo
      * Create a new model instance by type.
      *
      * @param  string  $type
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function createModelByType($type)
     {
@@ -195,7 +195,7 @@ class MorphTo extends BelongsTo
      * Match the eagerly loaded results to their parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @return array
      */
@@ -208,7 +208,7 @@ class MorphTo extends BelongsTo
      * Match the results for a given type to their parents.
      *
      * @param  string  $type
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @return void
      */
     protected function matchToMorphParents($type, Collection $results)
@@ -227,8 +227,8 @@ class MorphTo extends BelongsTo
     /**
      * Associate the model instance to the given parent.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function associate($model)
     {
@@ -252,7 +252,7 @@ class MorphTo extends BelongsTo
     /**
      * Dissociate previously associated model from the given parent.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function dissociate()
     {
@@ -278,8 +278,8 @@ class MorphTo extends BelongsTo
     /**
      * Make a new related instance for the given model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     protected function newRelatedInstanceFor(Model $parent)
     {
@@ -310,7 +310,7 @@ class MorphTo extends BelongsTo
      * Specify which relations to load for a given morph type.
      *
      * @param  array  $with
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphTo
      */
     public function morphWith(array $with)
     {
@@ -325,7 +325,7 @@ class MorphTo extends BelongsTo
      * Specify which relationship counts to load for a given morph type.
      *
      * @param  array  $withCount
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphTo
      */
     public function morphWithCount(array $withCount)
     {
@@ -340,7 +340,7 @@ class MorphTo extends BelongsTo
      * Specify constraints on the query for a given morph type.
      *
      * @param  array  $callbacks
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphTo
      */
     public function constrain(array $callbacks)
     {
@@ -405,8 +405,8 @@ class MorphTo extends BelongsTo
     /**
      * Replay stored macro calls on the actual related instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function replayMacros(Builder $query)
     {

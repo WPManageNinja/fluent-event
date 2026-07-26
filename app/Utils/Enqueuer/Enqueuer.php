@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\App\Utils\Enqueuer;
+namespace FluentEvent\App\Utils\Enqueuer;
 
-use FluentEvents\App\App;
+use FluentEvent\App\App;
 
 abstract class Enqueuer
 {

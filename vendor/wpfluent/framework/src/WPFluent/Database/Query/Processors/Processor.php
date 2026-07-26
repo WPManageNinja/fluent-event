@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query\Processors;
+namespace FluentEvent\Framework\Database\Query\Processors;
 
-use FluentEvents\Framework\Database\Query\Builder;
+use FluentEvent\Framework\Database\Query\Builder;
 
 class Processor
 {
     /**
      * Process the results of a "select" query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $results
      * @return array
      */
@@ -21,7 +21,7 @@ class Processor
     /**
      * Process an  "insert get ID" query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $sql
      * @param  array  $values
      * @param  string|null  $sequence

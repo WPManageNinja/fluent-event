@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Database;
+namespace FluentEvent\Database;
 
-use FluentEvents\Framework\Database\Schema;
-use FluentEvents\Framework\Database\Migration\Blueprint;
+use FluentEvent\Framework\Database\Schema;
+use FluentEvent\Framework\Database\Migration\Blueprint;
 
 /**
  * Database Migrator — the central place for all database migrations.

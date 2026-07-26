@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 /**
  * Class Response

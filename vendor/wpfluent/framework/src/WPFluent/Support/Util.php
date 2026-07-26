@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use RuntimeException;
 
@@ -61,7 +61,7 @@ class Util
 	 * Get the user locale.
 	 * 
 	 * @param  int|null $userId
-	 * @return \FluentEvents\Framework\Support\Locale
+	 * @return \FluentEvent\Framework\Support\Locale
 	 */
 	public static function getLocale($userId = null)
 	{

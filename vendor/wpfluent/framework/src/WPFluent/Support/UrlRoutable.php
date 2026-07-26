@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 interface UrlRoutable
 {
@@ -23,7 +23,7 @@ interface UrlRoutable
      *
      * @param  mixed  $value
      * @param  string|null  $field
-     * @return \FluentEvents\Framework\Database\Orm\Model|null
+     * @return \FluentEvent\Framework\Database\Orm\Model|null
      */
     public function resolveRouteBinding($value, $field = null);
 }

@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Request;
+namespace FluentEvent\Framework\Http\Request;
 
 use ArrayAccess;
 use SplFileInfo;
 use JsonSerializable;
 use RuntimeException;
-use FluentEvents\Framework\Support\Util;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Validator\Contracts\File as Contract;
+use FluentEvent\Framework\Support\Util;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Validator\Contracts\File as Contract;
 
 class File extends SplFileInfo implements Contract, JsonSerializable, ArrayAccess
 {

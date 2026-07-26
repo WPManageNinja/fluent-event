@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\App\Utils\Vue;
+namespace FluentEvent\App\Utils\Vue;
 
 class Adder
 {

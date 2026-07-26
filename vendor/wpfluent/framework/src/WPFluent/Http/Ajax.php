@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 use Exception;
 use BadMethodCallException;
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
+use FluentEvent\Framework\Foundation\App;
 
 /**
  * Register AJAX handlers using HTTP-like method names.
@@ -44,7 +44,7 @@ use FluentEvents\Framework\Foundation\App;
 class Ajax
 {
 	/**
-	 * @var \FluentEvents\Framework\Foundation\Application
+	 * @var \FluentEvent\Framework\Foundation\Application
 	 */
 	protected $app = null;
 	
@@ -63,7 +63,7 @@ class Ajax
 	/**
 	 * Consruct the Instance.
 	 * 
-	 * @param \FluentEvents\Framework\Foundation\Application $app
+	 * @param \FluentEvent\Framework\Foundation\Application $app
 	 */
 	public function __construct($app = null)
 	{

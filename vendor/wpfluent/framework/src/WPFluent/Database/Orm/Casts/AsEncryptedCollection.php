@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Casts;
+namespace FluentEvent\Framework\Database\Orm\Casts;
 
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Database\Orm\Castable;
-use FluentEvents\Framework\Database\Orm\CastsAttributes;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Database\Orm\Castable;
+use FluentEvent\Framework\Database\Orm\CastsAttributes;
 
 class AsEncryptedCollection implements Castable
 {

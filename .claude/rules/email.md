@@ -22,7 +22,7 @@ Applies to `wp_mail()` callers and any mail-header build.
 
 ## Async fan-out
 
-- Bulk send is chunked via Action Scheduler (cursor pagination, group `fluent-events`),
+- Bulk send is chunked via Action Scheduler (cursor pagination, group `fluent-event`),
   never a blocking `foreach (...) wp_mail()`. Each chunk is idempotent on retry.
 
 **Enforced by** scanner rule 13 (mail-header literal present, no CR/LF strip in the file).

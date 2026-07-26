@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\SupportsDefaultModels;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\SupportsDefaultModels;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
 
 class HasOneThrough extends HasOneOrManyThrough
 {
@@ -41,7 +41,7 @@ class HasOneThrough extends HasOneOrManyThrough
      * Match the eagerly loaded results to their parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @return array
      */
@@ -67,8 +67,8 @@ class HasOneThrough extends HasOneOrManyThrough
     /**
      * Make a new related instance for the given model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function newRelatedInstanceFor(Model $parent)
     {

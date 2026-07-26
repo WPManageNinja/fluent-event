@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 interface CastsAttributes
 {
     /**
      * Transform the attribute from the underlying model values.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @param  string  $key
      * @param  mixed  $value
      * @param  array  $attributes
@@ -18,7 +18,7 @@ interface CastsAttributes
     /**
      * Transform the attribute to its underlying model values.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @param  string  $key
      * @param  mixed  $value
      * @param  array  $attributes

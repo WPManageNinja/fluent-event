@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Pagination;
+namespace FluentEvent\Framework\Pagination;
 
 use Countable;
 use ArrayAccess;
 use JsonSerializable;
 use IteratorAggregate;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Support\JsonableInterface;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Pagination\PaginatorInterface;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Support\JsonableInterface;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Pagination\PaginatorInterface;
 
 class Paginator extends AbstractPaginator implements ArrayableInterface, ArrayAccess, Countable, IteratorAggregate, JsonSerializable, JsonableInterface, PaginatorInterface
 {

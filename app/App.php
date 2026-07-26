@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\App;
+namespace FluentEvent\App;
 
-use FluentEvents\Framework\Foundation\App as AppFacade;
+use FluentEvent\Framework\Foundation\App as AppFacade;
 
 /**
  * @method static db();

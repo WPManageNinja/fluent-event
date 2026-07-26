@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use ArrayAccess;
 use JsonSerializable;
-use FluentEvents\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Helper;
 
 class Fluent implements ArrayableInterface, ArrayAccess, JsonableInterface, JsonSerializable
 {

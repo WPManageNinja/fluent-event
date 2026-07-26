@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Pagination;
+namespace FluentEvent\Framework\Pagination;
 
 interface CursorPaginatorInterface
 {
     /**
      * Get the URL for a given cursor.
      *
-     * @param  \FluentEvents\Framework\Pagination\Cursor|null  $cursor
+     * @param  \FluentEvent\Framework\Pagination\Cursor|null  $cursor
      * @return string
      */
     public function url($cursor);
@@ -53,14 +53,14 @@ interface CursorPaginatorInterface
     /**
      * Get the "cursor" of the previous set of items.
      *
-     * @return \FluentEvents\Framework\Pagination\Cursor|null
+     * @return \FluentEvent\Framework\Pagination\Cursor|null
      */
     public function previousCursor();
 
     /**
      * Get the "cursor" of the next set of items.
      *
-     * @return \FluentEvents\Framework\Pagination\Cursor|null
+     * @return \FluentEvent\Framework\Pagination\Cursor|null
      */
     public function nextCursor();
 
@@ -74,7 +74,7 @@ interface CursorPaginatorInterface
     /**
      * Get the current cursor being paginated.
      *
-     * @return \FluentEvents\Framework\Pagination\Cursor|null
+     * @return \FluentEvent\Framework\Pagination\Cursor|null
      */
     public function cursor();
 

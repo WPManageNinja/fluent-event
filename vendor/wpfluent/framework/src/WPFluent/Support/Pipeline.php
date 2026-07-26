@@ -1,18 +1,18 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use Throwable;
 use RuntimeException;
-use FluentEvents\Framework\Container\Container;
+use FluentEvent\Framework\Container\Container;
 
 class Pipeline
 {
     /**
      * The container implementation.
      *
-     * @var \FluentEvents\Framework\Container\Container
+     * @var \FluentEvent\Framework\Container\Container
      */
     protected $container;
 
@@ -40,7 +40,7 @@ class Pipeline
     /**
      * Create a new class instance.
      *
-     * @param  \FluentEvents\Framework\Container\Container|null  $container
+     * @param  \FluentEvent\Framework\Container\Container|null  $container
      * @return void
      */
     public function __construct(?Container $container = null)
@@ -221,7 +221,7 @@ class Pipeline
     /**
      * Get the container instance.
      *
-     * @return \FluentEvents\Framework\Container\Container
+     * @return \FluentEvent\Framework\Container\Container
      *
      * @throws \RuntimeException
      */
@@ -239,7 +239,7 @@ class Pipeline
     /**
      * Set the container instance.
      *
-     * @param  \FluentEvents\Framework\Container\Container  $container
+     * @param  \FluentEvent\Framework\Container\Container  $container
      * @return $this
      */
     public function setContainer(Container $container)

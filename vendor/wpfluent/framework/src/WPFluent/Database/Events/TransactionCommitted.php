@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Events;
+namespace FluentEvent\Framework\Database\Events;
 
 class TransactionCommitted extends ConnectionEvent
 {

@@ -29,7 +29,7 @@
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "FluentEvents\\Framework\\": "src/WPFluent"
+                    "FluentEvent\\Framework\\": "src/WPFluent"
                 },
                 "files": [
                     "src/WPFluent/Support/mbstring-loader.php"

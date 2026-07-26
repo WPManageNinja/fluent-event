@@ -7,5 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'FluentEvents\\Database\\DBMigrator' => $baseDir . '/database/DBMigrator.php',
+    'FluentEvent\\Database\\DBMigrator' => $baseDir . '/database/DBMigrator.php',
 );

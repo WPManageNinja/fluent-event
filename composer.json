@@ -1,5 +1,5 @@
 {
-    "name": "wpfluent/fluent-events",
+    "name": "wpfluent/fluent-event",
     "type": "project",
     "description": "WPFluent - The best framework to build WordPress plugins.",
     "keywords": [
@@ -37,8 +37,8 @@
     },
     "autoload": {
         "psr-4": {
-            "FluentEvents\\App\\": "app/",
-            "FluentEvents\\Dev\\": "dev/"
+            "FluentEvent\\App\\": "app/",
+            "FluentEvent\\Dev\\": "dev/"
         },
         "classmap": [
             "database/"
@@ -51,7 +51,7 @@
         },
         "wpfluent": {
             "namespace": {
-                "current": "FluentEvents"
+                "current": "FluentEvent"
             },
             "excludes": [
                 "*"
@@ -60,10 +60,10 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "FluentEvents\\Dev\\ComposerScript::run"
+            "FluentEvent\\Dev\\ComposerScript::run"
         ],
         "post-update-cmd": [
-            "FluentEvents\\Dev\\ComposerScript::run"
+            "FluentEvent\\Dev\\ComposerScript::run"
         ]
     },
     "minimum-stability": "dev",

@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
 class DatabaseTransactionRecord
 {
@@ -21,7 +21,7 @@ class DatabaseTransactionRecord
     /**
      * The parent instance of this transaction.
      *
-     * @var \FluentEvents\Framework\Database\DatabaseTransactionRecord
+     * @var \FluentEvent\Framework\Database\DatabaseTransactionRecord
      */
     public $parent;
 
@@ -44,7 +44,7 @@ class DatabaseTransactionRecord
      *
      * @param  string  $connection
      * @param  int  $level
-     * @param  \FluentEvents\Framework\Database\DatabaseTransactionRecord|null  $parent
+     * @param  \FluentEvent\Framework\Database\DatabaseTransactionRecord|null  $parent
      */
     public function __construct(
         $connection,

@@ -1,35 +1,35 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 use Closure;
 use Exception;
 use ReflectionClass;
 use ReflectionMethod;
 use BadMethodCallException;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Pagination\Paginator;
-use FluentEvents\Framework\Support\ForwardsCalls;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Support\HelperFunctionsTrait;
-use FluentEvents\Framework\Database\Query\Expression;
-use FluentEvents\Framework\Database\Concerns\BuildsQueries;
-use FluentEvents\Framework\Database\RecordsNotFoundException;
-use FluentEvents\Framework\Database\Orm\Relations\Relation;
-use FluentEvents\Framework\Database\Orm\Relations\BelongsToMany;
-use FluentEvents\Framework\Database\Orm\RelationNotFoundException;
-use FluentEvents\Framework\Database\Orm\Concerns\QueriesRelationships;
-use FluentEvents\Framework\Database\UniqueConstraintViolationException;
-use FluentEvents\Framework\Database\Query\Builder as QueryBuilder;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Pagination\Paginator;
+use FluentEvent\Framework\Support\ForwardsCalls;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Support\HelperFunctionsTrait;
+use FluentEvent\Framework\Database\Query\Expression;
+use FluentEvent\Framework\Database\Concerns\BuildsQueries;
+use FluentEvent\Framework\Database\RecordsNotFoundException;
+use FluentEvent\Framework\Database\Orm\Relations\Relation;
+use FluentEvent\Framework\Database\Orm\Relations\BelongsToMany;
+use FluentEvent\Framework\Database\Orm\RelationNotFoundException;
+use FluentEvent\Framework\Database\Orm\Concerns\QueriesRelationships;
+use FluentEvent\Framework\Database\UniqueConstraintViolationException;
+use FluentEvent\Framework\Database\Query\Builder as QueryBuilder;
 
 /**
  * @property-read HigherOrderBuilderProxy $orWhere
  *
- * @mixin \FluentEvents\Framework\Database\Query\Builder
+ * @mixin \FluentEvent\Framework\Database\Query\Builder
  *
- * @template TModel of \FluentEvents\Framework\Database\Orm\Model
+ * @template TModel of \FluentEvent\Framework\Database\Orm\Model
  */
 class Builder
 {
@@ -42,14 +42,14 @@ class Builder
     /**
      * The base query builder instance.
      *
-     * @var \FluentEvents\Framework\Database\Query\Builder
+     * @var \FluentEvent\Framework\Database\Query\Builder
      */
     protected $query;
 
     /**
      * The model being queried.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Model
+     * @var \FluentEvent\Framework\Database\Orm\Model
      */
     protected $model;
 
@@ -167,7 +167,7 @@ class Builder
     /**
      * Create a new Orm query builder instance.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return void
      */
     public function __construct(QueryBuilder $query)
@@ -179,7 +179,7 @@ class Builder
      * Create and return an un-saved model instance.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model|static
+     * @return \FluentEvent\Framework\Database\Orm\Model|static
      */
     public function make(array $attributes = [])
     {
@@ -190,7 +190,7 @@ class Builder
      * Register a new global scope.
      *
      * @param  string  $identifier
-     * @param  \FluentEvents\Framework\Database\Orm\Scope|\Closure  $scope
+     * @param  \FluentEvent\Framework\Database\Orm\Scope|\Closure  $scope
      * @return $this
      */
     public function withGlobalScope($identifier, $scope)
@@ -207,7 +207,7 @@ class Builder
     /**
      * Remove a registered global scope.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Scope|string  $scope
+     * @param  \FluentEvent\Framework\Database\Orm\Scope|string  $scope
      * @return $this
      */
     public function withoutGlobalScope($scope)
@@ -335,7 +335,7 @@ class Builder
     /**
      * Add a basic where clause to the query.
      *
-     * @param  \Closure|string|array|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  \Closure|string|array|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @param  string  $boolean
@@ -357,11 +357,11 @@ class Builder
     /**
      * Add a basic where clause to the query, and return the first result.
      *
-     * @param  \Closure|string|array|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  \Closure|string|array|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @param  string  $boolean
-     * @return \FluentEvents\Framework\Database\Orm\Model|static|null
+     * @return \FluentEvent\Framework\Database\Orm\Model|static|null
      */
     public function firstWhere($column, $operator = null, $value = null, $boolean = 'and')
     {
@@ -371,7 +371,7 @@ class Builder
     /**
      * Add an "or where" clause to the query.
      *
-     * @param  \Closure|array|string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  \Closure|array|string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @return $this
@@ -388,7 +388,7 @@ class Builder
     /**
      * Add a basic "where not" clause to the query.
      *
-     * @param  (\Closure(static): mixed)|string|array|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  (\Closure(static): mixed)|string|array|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @param  string  $boolean
@@ -402,7 +402,7 @@ class Builder
     /**
      * Add an "or where not" clause to the query.
      *
-     * @param  (\Closure(static): mixed)|array|string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  (\Closure(static): mixed)|array|string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @return $this
@@ -415,7 +415,7 @@ class Builder
     /**
      * Add an "order by" clause for a timestamp to the query.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @return $this
      */
     public function latest($column = null)
@@ -432,7 +432,7 @@ class Builder
     /**
      * Add an "order by" clause for a timestamp to the query.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @return $this
      */
     public function oldest($column = null)
@@ -450,7 +450,7 @@ class Builder
      * Create a collection of models from plain arrays.
      *
      * @param  array  $items
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     public function hydrate(array $items, $args = [])
     {
@@ -472,7 +472,7 @@ class Builder
      *
      * @param  string  $query
      * @param  array  $bindings
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     public function fromQuery($query, $bindings = [])
     {
@@ -486,7 +486,7 @@ class Builder
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Model|\FluentEvents\Framework\Database\Orm\Collection|static[]|static|null
+     * @return \FluentEvent\Framework\Database\Orm\Model|\FluentEvent\Framework\Database\Orm\Collection|static[]|static|null
      */
     public function find($id, $columns = ['*'])
     {
@@ -500,9 +500,9 @@ class Builder
     /**
      * Find multiple models by their primary keys.
      *
-     * @param  \FluentEvents\Framework\Support\ArrayableInterface|array  $ids
+     * @param  \FluentEvent\Framework\Support\ArrayableInterface|array  $ids
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     public function findMany($ids, $columns = ['*'])
     {
@@ -520,9 +520,9 @@ class Builder
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Model|\FluentEvents\Framework\Database\Orm\Collection|static|static[]
+     * @return \FluentEvent\Framework\Database\Orm\Model|\FluentEvent\Framework\Database\Orm\Collection|static|static[]
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException
      */
     public function findOrFail($id, $columns = ['*'])
     {
@@ -554,7 +554,7 @@ class Builder
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Model|static
+     * @return \FluentEvent\Framework\Database\Orm\Model|static
      */
     public function findOrNew($id, $columns = ['*'])
     {
@@ -573,7 +573,7 @@ class Builder
      * @param  mixed  $id
      * @param  (\Closure(): TValue)|list<string>|string  $columns
      * @param  (\Closure(): TValue)|null  $callback
-     * @return TModel|TValue|\FluentEvents\Framework\Database\Orm\Collection
+     * @return TModel|TValue|\FluentEvent\Framework\Database\Orm\Collection
      */
     public function findOr($id, $columns = ['*'], ?Closure $callback = null)
     {
@@ -595,7 +595,7 @@ class Builder
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return \FluentEvents\Framework\Database\Orm\Model|static
+     * @return \FluentEvent\Framework\Database\Orm\Model|static
      */
     public function firstOrNew(array $attributes = [], array $values = [])
     {
@@ -611,7 +611,7 @@ class Builder
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return \FluentEvents\Framework\Database\Orm\Model|static
+     * @return \FluentEvent\Framework\Database\Orm\Model|static
      */
     public function firstOrCreate(array $attributes = [], array $values = [])
     {
@@ -645,7 +645,7 @@ class Builder
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return \FluentEvents\Framework\Database\Orm\Model|static
+     * @return \FluentEvent\Framework\Database\Orm\Model|static
      */
     public function updateOrCreate(array $attributes, array $values = [])
     {
@@ -660,9 +660,9 @@ class Builder
      * Execute the query and get the first result or throw an exception.
      *
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Model|static
+     * @return \FluentEvent\Framework\Database\Orm\Model|static
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException
      */
     public function firstOrFail($columns = ['*'])
     {
@@ -678,7 +678,7 @@ class Builder
      *
      * @param  \Closure|array  $columns
      * @param  \Closure|null  $callback
-     * @return \FluentEvents\Framework\Database\Orm\Model|static|mixed
+     * @return \FluentEvent\Framework\Database\Orm\Model|static|mixed
      */
     public function firstOr($columns = ['*'], ?Closure $callback = null)
     {
@@ -699,10 +699,10 @@ class Builder
      * Execute the query and get the first result if it's the sole matching record.
      *
      * @param  array|string  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException
-     * @throws \FluentEvents\Framework\Database\MultipleRecordsFoundException
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException
+     * @throws \FluentEvent\Framework\Database\MultipleRecordsFoundException
      */
     public function sole($columns = ['*'])
     {
@@ -716,7 +716,7 @@ class Builder
     /**
      * Get a single column's value from the first result of a query.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @return mixed
      */
     public function value($column)
@@ -733,11 +733,11 @@ class Builder
     /**
      * Get a single column's value from the first result of a query if it's the sole matching record.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException<TModel>
-     * @throws \FluentEvents\Framework\Database\MultipleRecordsFoundException
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException<TModel>
+     * @throws \FluentEvent\Framework\Database\MultipleRecordsFoundException
      */
     public function soleValue($column)
     {
@@ -751,10 +751,10 @@ class Builder
     /**
      * Get a single column's value from the first result of the query or throw an exception.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException
      */
     public function valueOrFail($column)
     {
@@ -769,7 +769,7 @@ class Builder
      * Execute the query as a "select" statement.
      *
      * @param  array|string  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection|static[]
+     * @return \FluentEvent\Framework\Database\Orm\Collection|static[]
      */
     public function get($columns = ['*'])
     {
@@ -791,7 +791,7 @@ class Builder
      * Get the hydrated models without eager loading.
      *
      * @param  array|string  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Model[]|static[]
+     * @return \FluentEvent\Framework\Database\Orm\Model[]|static[]
      */
     public function getModels($columns = ['*'])
     {
@@ -857,7 +857,7 @@ class Builder
      * Get the relation instance for the given relation name.
      *
      * @param  string  $name
-     * @return \FluentEvents\Framework\Database\Orm\Relations\Relation
+     * @return \FluentEvent\Framework\Database\Orm\Relations\Relation
      */
     public function getRelation($name)
     {
@@ -949,7 +949,7 @@ class Builder
     /**
      * Get a lazy collection for the given query.
      *
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      */
     public function cursor()
     {
@@ -965,7 +965,7 @@ class Builder
     /**
      * Get a lazy collection for the given query using raw query.
      *
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      */
     public function rawCursor()
     {
@@ -993,9 +993,9 @@ class Builder
     /**
      * Get an array with the values of a given column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  string|null  $key
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function pluck($column, $key = null)
     {
@@ -1031,7 +1031,7 @@ class Builder
      * @param  string  $pageName
      * @param  int|null  $page
      * @param  \Closure|int|null  $total
-     * @return \FluentEvents\Framework\Pagination\LengthAwarePaginator
+     * @return \FluentEvent\Framework\Pagination\LengthAwarePaginator
      *
      * @throws \InvalidArgumentException
      */
@@ -1063,7 +1063,7 @@ class Builder
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \FluentEvents\Framework\Pagination\PaginatorInterface
+     * @return \FluentEvent\Framework\Pagination\PaginatorInterface
      */
     public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
@@ -1088,8 +1088,8 @@ class Builder
      * @param  int|null  $perPage
      * @param  array  $columns
      * @param  string  $cursorName
-     * @param  \FluentEvents\Framework\Pagination\Cursor|string|null  $cursor
-     * @return \FluentEvents\Framework\Pagination\CursorPaginator
+     * @param  \FluentEvent\Framework\Pagination\Cursor|string|null  $cursor
+     * @return \FluentEvent\Framework\Pagination\CursorPaginator
      */
     public function cursorPaginate($perPage = null, $columns = ['*'], $cursorName = 'cursor', $cursor = null)
     {
@@ -1102,7 +1102,7 @@ class Builder
      * Ensure the proper order by required for cursor pagination.
      *
      * @param  bool  $shouldReverse
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function ensureOrderForCursorPagination($shouldReverse = false)
     {
@@ -1136,7 +1136,7 @@ class Builder
      * Save a new model and return the instance.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model|$this
+     * @return \FluentEvent\Framework\Database\Orm\Model|$this
      */
     public function create(array $attributes = [])
     {
@@ -1151,7 +1151,7 @@ class Builder
      * Save a new model and return the instance. Allow mass-assignment.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model|$this
+     * @return \FluentEvent\Framework\Database\Orm\Model|$this
      */
     public function forceCreate(array $attributes)
     {
@@ -1237,7 +1237,7 @@ class Builder
     /**
      * Increment a column's value by a given amount.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  float|int  $amount
      * @param  array  $extra
      * @return int
@@ -1252,7 +1252,7 @@ class Builder
     /**
      * Decrement a column's value by a given amount.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  float|int  $amount
      * @param  array  $extra
      * @return int
@@ -1543,7 +1543,7 @@ class Builder
     /**
      * Nest where conditions by slicing them at the given where count.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  int  $originalWhereCount
      * @return void
      */
@@ -1568,7 +1568,7 @@ class Builder
     /**
      * Slice where conditions at the given offset and add them to the query as a nested condition.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $whereSlice
      * @return void
      */
@@ -1656,7 +1656,7 @@ class Builder
      * Create a new instance of the model being queried.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model|static
+     * @return \FluentEvent\Framework\Database\Orm\Model|static
      */
     public function newModelInstance($attributes = [])
     {
@@ -1848,7 +1848,7 @@ class Builder
     /**
      * Get the Eloquent builder instances that are used in the union of the query.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function getUnionBuilders()
     {
@@ -1860,7 +1860,7 @@ class Builder
     /**
      * Get the underlying query builder instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function getQuery()
     {
@@ -1870,7 +1870,7 @@ class Builder
     /**
      * Set the underlying query builder instance.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return $this
      */
     public function setQuery($query)
@@ -1883,7 +1883,7 @@ class Builder
     /**
      * Get a base query builder instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function toBase()
     {
@@ -1949,7 +1949,7 @@ class Builder
     /**
      * Get the model instance being queried.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Model|static
+     * @return \FluentEvent\Framework\Database\Orm\Model|static
      */
     public function getModel()
     {
@@ -1959,7 +1959,7 @@ class Builder
     /**
      * Set a model instance for the model being queried.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @return $this
      */
     public function setModel(Model $model)
@@ -1974,7 +1974,7 @@ class Builder
     /**
      * Qualify the given column name by the model's table.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @return string
      */
     public function qualifyColumn($column)
@@ -1989,7 +1989,7 @@ class Builder
     /**
      * Qualify the given columns with the model's table.
      *
-     * @param  array|\FluentEvents\Framework\Database\Query\Expression  $columns
+     * @param  array|\FluentEvent\Framework\Database\Query\Expression  $columns
      * @return array
      */
     public function qualifyColumns($columns)

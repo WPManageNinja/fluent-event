@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\App\Hooks\Handlers;
+namespace FluentEvent\App\Hooks\Handlers;
 
-use FluentEvents\Framework\Foundation\Application;
+use FluentEvent\Framework\Foundation\Application;
 
 class ExceptionHandler
 {
     /**
      * Application container injected by the framework.
      *
-     * @var \FluentEvents\Framework\Foundation\Application|null
+     * @var \FluentEvent\Framework\Foundation\Application|null
      */
     protected $app = null;
 
@@ -18,7 +18,7 @@ class ExceptionHandler
      * resolved from the container if the default `error_log()` path isn't
      * suitable.
      *
-     * @param  \FluentEvents\Framework\Foundation\Application  $app
+     * @param  \FluentEvent\Framework\Foundation\Application  $app
      */
     public function __construct(Application $app)
     {

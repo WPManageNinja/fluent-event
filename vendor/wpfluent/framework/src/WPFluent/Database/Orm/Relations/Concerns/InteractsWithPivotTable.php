@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Relations\Concerns;
 
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Orm\Relations\Pivot;
-use FluentEvents\Framework\Support\Collection as BaseCollection;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Relations\Pivot;
+use FluentEvent\Framework\Support\Collection as BaseCollection;
 
 trait InteractsWithPivotTable
 {
@@ -66,7 +66,7 @@ trait InteractsWithPivotTable
     /**
      * Sync the intermediate tables with a list of IDs without detaching.
      *
-     * @param  \FluentEvents\Framework\Support\Collection|\FluentEvents\Framework\Database\Orm\Model|array  $ids
+     * @param  \FluentEvent\Framework\Support\Collection|\FluentEvent\Framework\Database\Orm\Model|array  $ids
      * @return array
      */
     public function syncWithoutDetaching($ids)
@@ -77,7 +77,7 @@ trait InteractsWithPivotTable
     /**
      * Sync the intermediate tables with a list of IDs or collection of models.
      *
-     * @param  \FluentEvents\Framework\Support\Collection|\FluentEvents\Framework\Database\Orm\Model|array  $ids
+     * @param  \FluentEvent\Framework\Support\Collection|\FluentEvent\Framework\Database\Orm\Model|array  $ids
      * @param  bool  $detaching
      * @return array
      */
@@ -130,7 +130,7 @@ trait InteractsWithPivotTable
     /**
      * Sync the intermediate tables with a list of IDs or collection of models with the given pivot values.
      *
-     * @param  \FluentEvents\Framework\Support\Collection|\FluentEvents\Framework\Database\Orm\Model|array  $ids
+     * @param  \FluentEvent\Framework\Support\Collection|\FluentEvent\Framework\Database\Orm\Model|array  $ids
      * @param  array  $values
      * @param  bool  $detaching
      * @return array
@@ -495,7 +495,7 @@ trait InteractsWithPivotTable
     /**
      * Get the pivot models that are currently attached.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function getCurrentlyAttachedPivots()
     {
@@ -513,7 +513,7 @@ trait InteractsWithPivotTable
      *
      * @param  array  $attributes
      * @param  bool  $exists
-     * @return \FluentEvents\Framework\Database\Orm\Relations\Pivot
+     * @return \FluentEvent\Framework\Database\Orm\Relations\Pivot
      */
     public function newPivot(array $attributes = [], $exists = false)
     {
@@ -530,7 +530,7 @@ trait InteractsWithPivotTable
      * Create a new existing pivot model instance.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Relations\Pivot
+     * @return \FluentEvent\Framework\Database\Orm\Relations\Pivot
      */
     public function newExistingPivot(array $attributes = [])
     {
@@ -540,7 +540,7 @@ trait InteractsWithPivotTable
     /**
      * Get a new plain query builder for the pivot table.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function newPivotStatement()
     {
@@ -551,7 +551,7 @@ trait InteractsWithPivotTable
      * Get a new pivot statement for a given "other" ID.
      *
      * @param  mixed  $id
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function newPivotStatementForId($id)
     {
@@ -561,7 +561,7 @@ trait InteractsWithPivotTable
     /**
      * Create a new query builder for the pivot table.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function newPivotQuery()
     {

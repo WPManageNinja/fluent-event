@@ -1,18 +1,18 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Relations\Concerns;
 
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
 
 trait AsPivot
 {
     /**
      * The parent model of the relationship.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Model
+     * @var \FluentEvent\Framework\Database\Orm\Model
      */
     public $pivotParent;
 
@@ -33,7 +33,7 @@ trait AsPivot
     /**
      * Create a new pivot model instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  array  $attributes
      * @param  string  $table
      * @param  bool  $exists
@@ -66,7 +66,7 @@ trait AsPivot
     /**
      * Create a new pivot model from raw values returned from a query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  array  $attributes
      * @param  string  $table
      * @param  bool  $exists
@@ -86,8 +86,8 @@ trait AsPivot
     /**
      * Set the keys for a select query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function setKeysForSelectQuery($query)
     {
@@ -107,8 +107,8 @@ trait AsPivot
     /**
      * Set the keys for a save update query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function setKeysForSaveQuery($query)
     {
@@ -142,7 +142,7 @@ trait AsPivot
     /**
      * Get the query builder for a delete operation on the pivot.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function getDeleteQuery()
     {
@@ -271,7 +271,7 @@ trait AsPivot
      * Get a new query to restore one or more models by their queueable IDs.
      *
      * @param  int[]|string[]|string  $ids
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function newQueryForRestoration($ids)
     {
@@ -294,7 +294,7 @@ trait AsPivot
      * Get a new query to restore multiple models by their queueable IDs.
      *
      * @param  int[]|string[]  $ids
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function newQueryForCollectionRestoration(array $ids)
     {

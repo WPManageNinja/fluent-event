@@ -74,14 +74,14 @@ if (!function_exists('ddd')) {
     }
 }
 
-if (!function_exists('fluentevents_log')) {
+if (!function_exists('fluentevent_log')) {
     /**
      * Log a message to the debug.log file.
      * 
      * @param  mix $m
      * @return void
      */
-    function fluentevents_log($m) {
+    function fluentevent_log($m) {
         if (is_array($m) || is_object($m)) {
             $m = json_encode($m, JSON_PRETTY_PRINT);
         }
@@ -115,18 +115,18 @@ if (!function_exists('debug')) {
      * @return void
      */
     function debug($m) {
-        fluentevents_log($m);
+        fluentevent_log($m);
     }
 }
 
-if (!function_exists('fluentevents_eql')) {
+if (!function_exists('fluentevent_eql')) {
     /**
      * Enable query logging and return the current query count.
      *
      * Usage:
-     * $start = fluentevents_eql();
+     * $start = fluentevent_eql();
      */
-    function fluentevents_eql() {
+    function fluentevent_eql() {
         $lastIndex = 0;
         defined('SAVEQUERIES') || define('SAVEQUERIES', true);
         if ($queries = (array) $GLOBALS['wpdb']->queries) {
@@ -136,14 +136,14 @@ if (!function_exists('fluentevents_eql')) {
     }
 }
 
-if (!function_exists('fluentevents_gql')) {
+if (!function_exists('fluentevent_gql')) {
     /**
      * Get the database query log from a given start index.
      *
      * Usage:
-     * $queries = fluentevents_gql($start);
+     * $queries = fluentevent_gql($start);
      */
-    function fluentevents_gql($start = 0) {
+    function fluentevent_gql($start = 0) {
         $result = [];
         $queries = (array) $GLOBALS['wpdb']->queries;
         $queries = $start > 0 ? array_slice($queries, $start) : $queries;
@@ -156,15 +156,15 @@ if (!function_exists('fluentevents_gql')) {
     }
 }
 
-if (!function_exists('fluentevents_wql')) {
+if (!function_exists('fluentevent_wql')) {
     /**
      * Write the database query log to the error log starting from $start index.
      *
      * Usage:
-     * fluentevents_wql($start);
+     * fluentevent_wql($start);
      */
-    function fluentevents_wql($start) {
-        fluentevents_log(fluentevents_gql($start));
+    function fluentevent_wql($start) {
+        fluentevent_log(fluentevent_gql($start));
     }
 }
 

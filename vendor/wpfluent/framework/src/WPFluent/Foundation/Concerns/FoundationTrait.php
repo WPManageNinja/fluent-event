@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation\Concerns;
+namespace FluentEvent\Framework\Foundation\Concerns;
 
-use FluentEvents\Framework\Http\Request\WPUserProxy;
+use FluentEvent\Framework\Http\Request\WPUserProxy;
 
 trait FoundationTrait
 {

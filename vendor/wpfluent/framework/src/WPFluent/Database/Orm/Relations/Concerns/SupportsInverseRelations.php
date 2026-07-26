@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Relations\Concerns;
 
-use FluentEvents\Framework\Database\Orm\RelationNotFoundException;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
+use FluentEvent\Framework\Database\Orm\RelationNotFoundException;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
 
 trait SupportsInverseRelations
 {
@@ -88,9 +88,9 @@ trait SupportsInverseRelations
     /**
      * Set the inverse relation on all models in a collection.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Model|null  $parent
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $models
+     * @param  \FluentEvent\Framework\Database\Orm\Model|null  $parent
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     protected function applyInverseRelationToCollection($models, ?Model $parent = null)
     {
@@ -106,9 +106,9 @@ trait SupportsInverseRelations
     /**
      * Set the inverse relation on a model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
-     * @param  \FluentEvents\Framework\Database\Orm\Model|null  $parent
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model|null  $parent
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     protected function applyInverseRelationToModel(Model $model, ?Model $parent = null)
     {

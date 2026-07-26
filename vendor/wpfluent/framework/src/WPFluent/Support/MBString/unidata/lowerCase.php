@@ -7,7 +7,7 @@
  * which itself derives the data from the Unicode Character Database
  * (UnicodeData.txt, https://www.unicode.org, Unicode license).
  *
- * Used by FluentEvents\Framework\Support\Mbstring as a dependency-free fallback for
+ * Used by FluentEvent\Framework\Support\Mbstring as a dependency-free fallback for
  * mb_strtolower / mb_strtoupper / mb_convert_case when ext-mbstring is
  * absent. Do not edit by hand; refresh from the upstream source.
  */

@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Casts;
+namespace FluentEvent\Framework\Database\Orm\Casts;
 
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Database\Orm\Castable;
-use FluentEvents\Framework\Database\Orm\CastsAttributes;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Database\Orm\Castable;
+use FluentEvent\Framework\Database\Orm\CastsAttributes;
 
 class AsEncryptedArrayObject implements Castable
 {

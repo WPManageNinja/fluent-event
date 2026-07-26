@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
 
 class MorphToMany extends BelongsToMany
 {
@@ -35,8 +35,8 @@ class MorphToMany extends BelongsToMany
     /**
      * Create a new morph to many relationship instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $name
      * @param  string  $table
      * @param  string  $foreignPivotKey
@@ -104,10 +104,10 @@ class MorphToMany extends BelongsToMany
     /**
      * Add the constraints for a relationship count query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
@@ -119,7 +119,7 @@ class MorphToMany extends BelongsToMany
     /**
      * Get the pivot models that are currently attached.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function getCurrentlyAttachedPivots()
     {
@@ -134,7 +134,7 @@ class MorphToMany extends BelongsToMany
     /**
      * Create a new query builder for the pivot table.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function newPivotQuery()
     {
@@ -146,7 +146,7 @@ class MorphToMany extends BelongsToMany
      *
      * @param  array  $attributes
      * @param  bool  $exists
-     * @return \FluentEvents\Framework\Database\Orm\Relations\Pivot
+     * @return \FluentEvent\Framework\Database\Orm\Relations\Pivot
      */
     public function newPivot(array $attributes = [], $exists = false)
     {

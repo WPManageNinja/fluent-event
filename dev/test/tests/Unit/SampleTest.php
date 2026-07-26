@@ -4,7 +4,7 @@ namespace Dev\Test\Tests\Unit;
 
 use Dev\Test\Inc\TestCase;
 use Dev\Test\Inc\RefreshDatabase;
-use FluentEvents\App\Models\User;
+use FluentEvent\App\Models\User;
 
 /**
  * Unit-level samples: demonstrate the plugin's factory + role-switching

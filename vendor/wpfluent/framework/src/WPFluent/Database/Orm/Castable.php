@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 interface Castable
 {
@@ -9,7 +9,7 @@ interface Castable
      *
      * @param  array  $arguments
      * @return string
-     * @return string|\FluentEvents\Framework\Database\Orm\CastsAttributes|\FluentEvents\Framework\Database\Orm\CastsInboundAttributes
+     * @return string|\FluentEvent\Framework\Database\Orm\CastsAttributes|\FluentEvent\Framework\Database\Orm\CastsInboundAttributes
      */
     public static function castUsing(array $arguments);
 }

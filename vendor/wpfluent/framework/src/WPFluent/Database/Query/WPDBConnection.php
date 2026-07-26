@@ -4,32 +4,32 @@
  * WPDB Connection
  */
 
-namespace FluentEvents\Framework\Database\Query;
+namespace FluentEvent\Framework\Database\Query;
 
 use Closure;
 use Exception;
 use DateTimeInterface;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Database\Schema;
-use FluentEvents\Framework\Database\QueryException;
-use FluentEvents\Framework\Database\ConnectionInterface;
-use FluentEvents\Framework\Database\MultipleColumnsSelectedException;
-use FluentEvents\Framework\Database\Events\QueryExecuted;
-use FluentEvents\Framework\Database\Query\Expression;
-use FluentEvents\Framework\Database\Query\Processors\Processor;
-use FluentEvents\Framework\Database\Query\Processors\MySqlProcessor;
-use FluentEvents\Framework\Database\Query\Processors\SQLiteProcessor;
-use FluentEvents\Framework\Database\Query\Builder as QueryBuilder;
-use FluentEvents\Framework\Database\Query\Grammars\Grammar;
-use FluentEvents\Framework\Database\Query\Grammars\MySqlGrammar;
-use FluentEvents\Framework\Database\Query\Grammars\SQLiteGrammar;
-use FluentEvents\Framework\Database\Concerns\ManagesTransactions;
-use FluentEvents\Framework\Database\DetectsLostConnections;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Database\Schema;
+use FluentEvent\Framework\Database\QueryException;
+use FluentEvent\Framework\Database\ConnectionInterface;
+use FluentEvent\Framework\Database\MultipleColumnsSelectedException;
+use FluentEvent\Framework\Database\Events\QueryExecuted;
+use FluentEvent\Framework\Database\Query\Expression;
+use FluentEvent\Framework\Database\Query\Processors\Processor;
+use FluentEvent\Framework\Database\Query\Processors\MySqlProcessor;
+use FluentEvent\Framework\Database\Query\Processors\SQLiteProcessor;
+use FluentEvent\Framework\Database\Query\Builder as QueryBuilder;
+use FluentEvent\Framework\Database\Query\Grammars\Grammar;
+use FluentEvent\Framework\Database\Query\Grammars\MySqlGrammar;
+use FluentEvent\Framework\Database\Query\Grammars\SQLiteGrammar;
+use FluentEvent\Framework\Database\Concerns\ManagesTransactions;
+use FluentEvent\Framework\Database\DetectsLostConnections;
 
-use FluentEvents\Framework\Database\Events\TransactionBeginning;
-use FluentEvents\Framework\Database\Events\TransactionCommitted;
-use FluentEvents\Framework\Database\Events\TransactionCommitting;
-use FluentEvents\Framework\Database\Events\TransactionRolledBack;
+use FluentEvent\Framework\Database\Events\TransactionBeginning;
+use FluentEvent\Framework\Database\Events\TransactionCommitted;
+use FluentEvent\Framework\Database\Events\TransactionCommitting;
+use FluentEvent\Framework\Database\Events\TransactionRolledBack;
 
 class WPDBConnection implements ConnectionInterface
 {
@@ -65,14 +65,14 @@ class WPDBConnection implements ConnectionInterface
     /**
      * The query grammar implementation.
      *
-     * @var \FluentEvents\Framework\Database\Query\Grammars\Grammar
+     * @var \FluentEvent\Framework\Database\Query\Grammars\Grammar
      */
     protected $queryGrammar;
 
     /**
      * The query post processor implementation.
      *
-     * @var \FluentEvents\Framework\Database\Query\Processors\Processor
+     * @var \FluentEvent\Framework\Database\Query\Processors\Processor
      */
     protected $postProcessor;
 
@@ -86,7 +86,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * The transaction manager instance.
      *
-     * @var \FluentEvents\Framework\Database\DatabaseTransactionsManager|null
+     * @var \FluentEvent\Framework\Database\DatabaseTransactionsManager|null
      */
     protected $transactionsManager;
 
@@ -100,7 +100,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * The event dispatcher.
      *
-     * @var \FluentEvents\Framework\Events\Dispatcher
+     * @var \FluentEvent\Framework\Events\Dispatcher
      */
     protected $event = null;
 
@@ -221,7 +221,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Get the default query grammar instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Grammars\Grammar
+     * @return \FluentEvent\Framework\Database\Query\Grammars\Grammar
      */
     protected function getDefaultQueryGrammar()
     {
@@ -241,7 +241,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Get the default post processor instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Processors\Processor
+     * @return \FluentEvent\Framework\Database\Query\Processors\Processor
      */
     protected function getDefaultPostProcessor()
     {
@@ -251,9 +251,9 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Begin a fluent query against a database table.
      *
-     * @param \Closure|\FluentEvents\Framework\Database\Query\Builder|string $table
+     * @param \Closure|\FluentEvent\Framework\Database\Query\Builder|string $table
      * @param string|null $as
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function table($table, $as = null)
     {
@@ -263,7 +263,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Get a new query builder instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function query()
     {
@@ -303,7 +303,7 @@ class WPDBConnection implements ConnectionInterface
      * @param array $bindings
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Database\MultipleColumnsSelectedException
+     * @throws \FluentEvent\Framework\Database\MultipleColumnsSelectedException
      */
     public function scalar($query, $bindings = [])
     {
@@ -731,7 +731,7 @@ class WPDBConnection implements ConnectionInterface
      * Get a new raw query expression.
      *
      * @param mixed $value
-     * @return \FluentEvents\Framework\Database\Query\Expression
+     * @return \FluentEvent\Framework\Database\Query\Expression
      */
     public function raw($value)
     {
@@ -741,7 +741,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Get the query grammar used by the connection.
      *
-     * @return \FluentEvents\Framework\Database\Query\Grammars\Grammar
+     * @return \FluentEvent\Framework\Database\Query\Grammars\Grammar
      */
     public function getQueryGrammar()
     {
@@ -753,7 +753,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Set the query grammar used by the connection.
      *
-     * @param \FluentEvents\Framework\Database\Query\Grammars\Grammar $grammar
+     * @param \FluentEvent\Framework\Database\Query\Grammars\Grammar $grammar
      * @return $this
      */
     public function setQueryGrammar(Grammar $grammar)
@@ -766,7 +766,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Get the query post processor used by the connection.
      *
-     * @return \FluentEvents\Framework\Database\Query\Processors\Processor
+     * @return \FluentEvent\Framework\Database\Query\Processors\Processor
      */
     public function getPostProcessor()
     {
@@ -776,7 +776,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Set the query post processor used by the connection.
      *
-     * @param \FluentEvents\Framework\Database\Query\Processors\Processor $processor
+     * @param \FluentEvent\Framework\Database\Query\Processors\Processor $processor
      * @return $this
      */
     public function setPostProcessor(Processor $processor)
@@ -801,7 +801,7 @@ class WPDBConnection implements ConnectionInterface
     /**
      * Return self as PDO, the Processor instance uses it.
      *
-     * @return \FluentEvents\Framework\Database\Query\WPDBConnection
+     * @return \FluentEvent\Framework\Database\Query\WPDBConnection
      */
     public function getPdo()
     {

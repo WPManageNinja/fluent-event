@@ -6,7 +6,7 @@
  * Vendored from symfony/polyfill-mbstring (MIT, Nicolas Grekas / Symfony),
  * derived from Unicode DerivedCoreProperties.txt (Unicode license).
  *
- * Used by FluentEvents\Framework\Support\Mbstring::convertCase() for MB_CASE_TITLE. Do
+ * Used by FluentEvent\Framework\Support\Mbstring::convertCase() for MB_CASE_TITLE. Do
  * not edit by hand; refresh from the upstream source.
  */
 

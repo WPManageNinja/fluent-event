@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Countable;
 use JsonSerializable;
 use IteratorAggregate;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Support\JsonableInterface;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Support\JsonableInterface;
 
 interface Enumerable extends ArrayableInterface, Countable, IteratorAggregate, JsonableInterface, JsonSerializable
 {
@@ -996,7 +996,7 @@ interface Enumerable extends ArrayableInterface, Countable, IteratorAggregate, J
     /**
      * Collect the values into a collection.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function collect();
 

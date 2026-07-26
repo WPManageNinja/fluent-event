@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 use Closure;
 use Exception;
@@ -11,18 +11,18 @@ use WP_REST_Response;
 use ReflectionClass;
 use BadMethodCallException;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Pipeline;
-use FluentEvents\Framework\Http\Request\Request;
-use FluentEvents\Framework\Http\Request\WPUserProxy;
-use FluentEvents\Framework\Http\SubstituteParameters;
-use FluentEvents\Framework\Http\Middleware\RateLimiter;
-use FluentEvents\Framework\Validator\ValidationException;
-use FluentEvents\Framework\Database\Orm\ModelNotFoundException;
-use FluentEvents\Framework\Foundation\Exceptions\HttpException;
-use FluentEvents\Framework\Foundation\Exceptions\ExceptionHandler;
-use FluentEvents\Framework\Http\Response\Response as WPFluentResponse;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Pipeline;
+use FluentEvent\Framework\Http\Request\Request;
+use FluentEvent\Framework\Http\Request\WPUserProxy;
+use FluentEvent\Framework\Http\SubstituteParameters;
+use FluentEvent\Framework\Http\Middleware\RateLimiter;
+use FluentEvent\Framework\Validator\ValidationException;
+use FluentEvent\Framework\Database\Orm\ModelNotFoundException;
+use FluentEvent\Framework\Foundation\Exceptions\HttpException;
+use FluentEvent\Framework\Foundation\Exceptions\ExceptionHandler;
+use FluentEvent\Framework\Http\Response\Response as WPFluentResponse;
 
 class Route
 {
@@ -30,7 +30,7 @@ class Route
 
     /**
      * Application Instance
-     * @var \FluentEvents\Framework\Foundation\Application
+     * @var \FluentEvent\Framework\Foundation\Application
      */
     protected $app = null;
 
@@ -188,7 +188,7 @@ class Route
     /**
      * Construct the route instance
      *
-     * @param \FluentEvents\Framework\Foundation\Application $app
+     * @param \FluentEvent\Framework\Foundation\Application $app
      * @param string $restNamespace
      * @param string $uri
      * @param string $handler
@@ -294,7 +294,7 @@ class Route
     /**
      * Alternative constructor
      *
-     * @param \FluentEvents\Framework\Foundation\Application $app
+     * @param \FluentEvent\Framework\Foundation\Application $app
      * @param string $namespace
      * @param string $uri
      * @param string $handler

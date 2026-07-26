@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Response;
+namespace FluentEvent\Framework\Http\Response;
 
 use DateTime;
 use WP_Error;
 use DateTimeInterface;
 use WP_REST_Response;
-use FluentEvents\Framework\App\App;
+use FluentEvent\Framework\App\App;
 use InvalidArgumentException;
-use FluentEvents\Framework\Http\Request\File;
+use FluentEvent\Framework\Http\Request\File;
 
 class Response
 {

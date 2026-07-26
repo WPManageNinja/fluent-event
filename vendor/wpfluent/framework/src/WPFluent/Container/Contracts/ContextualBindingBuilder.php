@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Container\Contracts;
+namespace FluentEvent\Framework\Container\Contracts;
 
 interface ContextualBindingBuilder
 {

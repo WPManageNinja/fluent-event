@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\App\Models;
+namespace FluentEvent\App\Models;
 
-use FluentEvents\App\Models\Model;
-use FluentEvents\Framework\Database\Orm\UserProxyTrait;
+use FluentEvent\App\Models\Model;
+use FluentEvent\Framework\Database\Orm\UserProxyTrait;
 
 class User extends Model
 {

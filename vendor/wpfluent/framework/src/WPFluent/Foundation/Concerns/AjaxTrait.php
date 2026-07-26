@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation\Concerns;
+namespace FluentEvent\Framework\Foundation\Concerns;
 
 trait AjaxTrait
 {

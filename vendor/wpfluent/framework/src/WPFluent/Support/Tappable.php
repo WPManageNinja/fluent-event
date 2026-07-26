@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 trait Tappable
 {
@@ -8,7 +8,7 @@ trait Tappable
      * Call the given Closure with this instance then return the instance.
      *
      * @param  callable|null  $callback
-     * @return $this|\FluentEvents\Framework\Support\HigherOrderTapProxy
+     * @return $this|\FluentEvent\Framework\Support\HigherOrderTapProxy
      */
     public function tap($callback = null)
     {

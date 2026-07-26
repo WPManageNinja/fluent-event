@@ -1,16 +1,16 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Relations\Concerns;
 
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\SupportsPartialRelations;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\SupportsPartialRelations;
 
 trait ComparesRelatedModels
 {
     /**
      * Determine if the model is the related instance of the relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model|null  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model|null  $model
      * @return bool
      */
     public function is($model)
@@ -32,7 +32,7 @@ trait ComparesRelatedModels
     /**
      * Determine if the model is not the related instance of the relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model|null  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model|null  $model
      * @return bool
      */
     public function isNot($model)
@@ -50,7 +50,7 @@ trait ComparesRelatedModels
     /**
      * Get the value of the model's related key.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @return mixed
      */
     abstract protected function getRelatedKeyFrom(Model $model);

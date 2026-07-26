@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Pagination;
+namespace FluentEvent\Framework\Pagination;
 
 use RuntimeException;
 

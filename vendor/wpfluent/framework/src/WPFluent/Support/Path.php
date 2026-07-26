@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
-use FluentEvents\Framework\Foundation\App;
+use FluentEvent\Framework\Foundation\App;
 
 class Path
 {

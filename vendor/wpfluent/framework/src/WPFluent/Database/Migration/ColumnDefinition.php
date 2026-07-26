@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Migration;
+namespace FluentEvent\Framework\Database\Migration;
 
-use FluentEvents\Framework\Database\Schema;
+use FluentEvent\Framework\Database\Schema;
 
 class ColumnDefinition
 {

@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Pagination;
+namespace FluentEvent\Framework\Pagination;
 
 use Countable;
 use ArrayAccess;
 use JsonSerializable;
 use IteratorAggregate;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Support\JsonableInterface;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Pagination\CursorPaginatorInterface;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Support\JsonableInterface;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Pagination\CursorPaginatorInterface;
 
 class CursorPaginator extends AbstractCursorPaginator implements ArrayableInterface, ArrayAccess, Countable, IteratorAggregate, JsonableInterface, JsonSerializable, CursorPaginatorInterface
 {
@@ -25,7 +25,7 @@ class CursorPaginator extends AbstractCursorPaginator implements ArrayableInterf
      *
      * @param  mixed  $items
      * @param  int  $perPage
-     * @param  \FluentEvents\Framework\Pagination\Cursor|null  $cursor
+     * @param  \FluentEvent\Framework\Pagination\Cursor|null  $cursor
      * @param  array  $options  (path, query, fragment, pageName)
      * @return void
      */

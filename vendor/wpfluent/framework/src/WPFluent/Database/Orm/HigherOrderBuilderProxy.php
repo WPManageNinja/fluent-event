@@ -1,16 +1,16 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 /**
- * @mixin \FluentEvents\Framework\Database\Orm\Builder
+ * @mixin \FluentEvent\Framework\Database\Orm\Builder
  */
 class HigherOrderBuilderProxy
 {
     /**
      * The collection being operated on.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Builder
+     * @var \FluentEvent\Framework\Database\Orm\Builder
      */
     protected $builder;
 
@@ -24,7 +24,7 @@ class HigherOrderBuilderProxy
     /**
      * Create a new proxy instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $builder
      * @param  string  $method
      * @return void
      */

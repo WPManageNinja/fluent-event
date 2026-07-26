@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use ArrayAccess;
 use JsonSerializable;
-use FluentEvents\Framework\Support\DateTime;
-use FluentEvents\Framework\Support\Tappable;
-use FluentEvents\Framework\Support\Conditionable;
-use FluentEvents\Framework\Support\MacroableTrait;
-use FluentEvents\Framework\Support\HelperFunctionsTrait;
+use FluentEvent\Framework\Support\DateTime;
+use FluentEvent\Framework\Support\Tappable;
+use FluentEvent\Framework\Support\Conditionable;
+use FluentEvent\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Support\HelperFunctionsTrait;
 
 class Stringable implements JsonSerializable
 {
@@ -326,7 +326,7 @@ class Stringable implements JsonSerializable
     /**
      * Determine if the string is an exact match with the given value.
      *
-     * @param  \FluentEvents\Framework\Support\Stringable|string  $value
+     * @param  \FluentEvent\Framework\Support\Stringable|string  $value
      * @return bool
      */
     public function exactly($value)
@@ -343,7 +343,7 @@ class Stringable implements JsonSerializable
      *
      * @param  string  $delimiter
      * @param  int  $limit
-     * @return \FluentEvents\Framework\Support\Collection<int, string>
+     * @return \FluentEvent\Framework\Support\Collection<int, string>
      */
     public function explode($delimiter, $limit = PHP_INT_MAX)
     {
@@ -356,7 +356,7 @@ class Stringable implements JsonSerializable
      * @param  string|int  $pattern
      * @param  int  $limit
      * @param  int  $flags
-     * @return \FluentEvents\Framework\Support\Collection<int, string>
+     * @return \FluentEvent\Framework\Support\Collection<int, string>
      */
     public function split($pattern, $limit = -1, $flags = 0)
     {
@@ -534,7 +534,7 @@ class Stringable implements JsonSerializable
      * Get the string matching the given pattern.
      *
      * @param  string  $pattern
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function matchAll($pattern)
     {
@@ -779,7 +779,7 @@ class Stringable implements JsonSerializable
      * Parse input from a string to a collection, according to a format.
      *
      * @param  string  $format
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function scan($format)
     {
@@ -1009,7 +1009,7 @@ class Stringable implements JsonSerializable
     /**
      * Split a string by uppercase characters.
      *
-     * @return \FluentEvents\Framework\Support\Collection<int, string>
+     * @return \FluentEvent\Framework\Support\Collection<int, string>
      */
     public function ucsplit()
     {
@@ -1302,7 +1302,7 @@ class Stringable implements JsonSerializable
      *
      * @param  string|null  $format
      * @param  string|null  $tz
-     * @return \FluentEvents\Framework\Support\DateTime
+     * @return \FluentEvent\Framework\Support\DateTime
      *
      * @throws \InvalidArgumentException
      */

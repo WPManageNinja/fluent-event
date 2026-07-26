@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
 interface ConnectionResolverInterface
 {
@@ -8,7 +8,7 @@ interface ConnectionResolverInterface
      * Get a database connection instance.
      *
      * @param  string|null  $name
-     * @return \FluentEvents\Framework\Database\ConnectionInterface
+     * @return \FluentEvent\Framework\Database\ConnectionInterface
      */
     public function connection($name = null);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation\Exceptions;
+namespace FluentEvent\Framework\Foundation\Exceptions;
 
 use Throwable;
 use WP_REST_Response;
@@ -21,9 +21,9 @@ use InvalidArgumentException;
  *
  *     namespace Acme\App\Hooks\Handlers;
  *
- *     use FluentEvents\Framework\Foundation\Exceptions\ExceptionHandler as BaseHandler;
- *     use FluentEvents\Framework\Foundation\Exceptions\ServiceUnavailableHttpException;
- *     use FluentEvents\Framework\Foundation\Exceptions\TooManyRequestsHttpException;
+ *     use FluentEvent\Framework\Foundation\Exceptions\ExceptionHandler as BaseHandler;
+ *     use FluentEvent\Framework\Foundation\Exceptions\ServiceUnavailableHttpException;
+ *     use FluentEvent\Framework\Foundation\Exceptions\TooManyRequestsHttpException;
  *
  *     class ExceptionHandler extends BaseHandler
  *     {
@@ -52,7 +52,7 @@ use InvalidArgumentException;
  * `boot/bindings.php`:
  *
  *     $app->singleton(
- *         \FluentEvents\Framework\Foundation\Exceptions\ExceptionHandler::class,
+ *         \FluentEvent\Framework\Foundation\Exceptions\ExceptionHandler::class,
  *         \Acme\App\Hooks\Handlers\ExceptionHandler::class
  *     );
  *
@@ -154,7 +154,7 @@ class ExceptionHandler
      *
      * @param  \Throwable $e
      * @param  mixed      $app  the framework App instance (or null in tests)
-     * @return \FluentEvents\Framework\Foundation\Exceptions\HttpException|\WP_REST_Response|null
+     * @return \FluentEvent\Framework\Foundation\Exceptions\HttpException|\WP_REST_Response|null
      */
     public function render(Throwable $e, $app = null)
     {

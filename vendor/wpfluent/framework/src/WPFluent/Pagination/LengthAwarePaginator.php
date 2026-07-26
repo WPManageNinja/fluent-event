@@ -1,16 +1,16 @@
 <?php
 
-namespace FluentEvents\Framework\Pagination;
+namespace FluentEvent\Framework\Pagination;
 
 use Countable;
 use ArrayAccess;
 use JsonSerializable;
 use IteratorAggregate;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Support\JsonableInterface;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Pagination\AbstractPaginator;
-use FluentEvents\Framework\Pagination\LengthAwarePaginatorInterface;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Support\JsonableInterface;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Pagination\AbstractPaginator;
+use FluentEvent\Framework\Pagination\LengthAwarePaginatorInterface;
 
 class LengthAwarePaginator extends AbstractPaginator implements ArrayableInterface, ArrayAccess, Countable, IteratorAggregate, JsonSerializable, JsonableInterface, LengthAwarePaginatorInterface
 {
@@ -71,7 +71,7 @@ class LengthAwarePaginator extends AbstractPaginator implements ArrayableInterfa
     /**
      * Get the paginator links as a collection (for JSON responses).
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function linkCollection()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
 use Closure;
 
@@ -9,9 +9,9 @@ interface ConnectionInterface
     /**
      * Begin a fluent query against a database table.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|string  $table
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|string  $table
      * @param  string|null  $as
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function table($table, $as = null);
 
@@ -19,7 +19,7 @@ interface ConnectionInterface
      * Get a new raw query expression.
      *
      * @param  mixed  $value
-     * @return \FluentEvents\Framework\Database\Query\Expression
+     * @return \FluentEvent\Framework\Database\Query\Expression
      */
     public function raw($value);
 
@@ -39,7 +39,7 @@ interface ConnectionInterface
      * @param  array  $bindings
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Database\MultipleColumnsSelectedException
+     * @throws \FluentEvent\Framework\Database\MultipleColumnsSelectedException
      */
     public function scalar($query, $bindings = []);
 

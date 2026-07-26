@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Events;
+namespace FluentEvent\Framework\Events;
 
 interface ShouldHandleEventsAfterCommit
 {

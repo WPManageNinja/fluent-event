@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Concerns;
+namespace FluentEvent\Framework\Database\Concerns;
 
 trait MaintainsDatabase
 {

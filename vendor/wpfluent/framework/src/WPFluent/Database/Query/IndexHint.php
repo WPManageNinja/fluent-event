@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query;
+namespace FluentEvent\Framework\Database\Query;
 
 class IndexHint
 {

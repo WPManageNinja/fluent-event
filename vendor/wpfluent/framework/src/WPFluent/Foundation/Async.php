@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation;
+namespace FluentEvent\Framework\Foundation;
 
 use Exception;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Helper;
 use InvalidArgumentException;
 
 /**
- * @property \FluentEvents\Framework\Foundation\Config $config
+ * @property \FluentEvent\Framework\Foundation\Config $config
  */
 class Async
 {
@@ -22,7 +22,7 @@ class Async
 	/**
 	 * The application instance
 	 * 
-	 * @var \FluentEvents\Framework\Foundation\Application
+	 * @var \FluentEvent\Framework\Foundation\Application
 	 */
 	private static $app = null;
 
@@ -116,7 +116,7 @@ class Async
 	/**
 	 * Verify the request by checking the nonce.
 	 * 
-	 * @param  \FluentEvents\Framework\Foundation\Application $app
+	 * @param  \FluentEvent\Framework\Foundation\Application $app
 	 * @param  array $data
 	 * @return void
 	 */
@@ -160,7 +160,7 @@ class Async
 	/**
 	 * Execute the action handler.
 	 * 
-	 * @param  \FluentEvents\Framework\Foundation\Application $app
+	 * @param  \FluentEvent\Framework\Foundation\Application $app
 	 * @param  string $class
 	 * @param  array  $params
 	 * @return void

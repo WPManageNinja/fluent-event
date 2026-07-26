@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Exception;
 use Traversable;
 use JsonException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Stringable;
-use FluentEvents\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Stringable;
+use FluentEvent\Framework\Support\MacroableTrait;
 
 class Str
 {
@@ -39,7 +39,7 @@ class Str
      * Get a new stringable object from the given string.
      *
      * @param  string  $string
-     * @return \FluentEvents\Framework\Support\Stringable
+     * @return \FluentEvent\Framework\Support\Stringable
      */
     public static function of($string)
     {
@@ -923,7 +923,7 @@ class Str
      *
      * @param  string  $pattern
      * @param  string  $subject
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public static function matchAll($pattern, $subject)
     {

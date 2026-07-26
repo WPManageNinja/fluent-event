@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Request;
+namespace FluentEvent\Framework\Http\Request;
 
-use FluentEvents\Framework\Http\Request\File;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Collection;
+use FluentEvent\Framework\Http\Request\File;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Collection;
 
 trait InteractsWithFilesTrait
 {
@@ -136,7 +136,7 @@ trait InteractsWithFilesTrait
      *
      * @param  string|null  $key
      * @param  mixed  $default
-     * @return \FluentEvents\Framework\Http\Request\File|array|null
+     * @return \FluentEvent\Framework\Http\Request\File|array|null
      */
     public function file($key = null, $default = null)
     {

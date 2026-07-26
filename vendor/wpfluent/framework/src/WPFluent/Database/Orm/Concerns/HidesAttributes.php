@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Concerns;
 
 use Closure;
-use FluentEvents\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Helper;
 
 trait HidesAttributes
 {

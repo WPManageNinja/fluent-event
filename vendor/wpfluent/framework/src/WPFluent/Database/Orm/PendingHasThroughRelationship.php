@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 use BadMethodCallException;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Database\Orm\Relations\HasMany;
-use FluentEvents\Framework\Database\Orm\Relations\MorphOneOrMany;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Database\Orm\Relations\HasMany;
+use FluentEvent\Framework\Database\Orm\Relations\MorphOneOrMany;
 
 /**
- * @template TIntermediateModel of \FluentEvents\Framework\Database\Orm\Model
- * @template TDeclaringModel of \FluentEvents\Framework\Database\Orm\Model
+ * @template TIntermediateModel of \FluentEvent\Framework\Database\Orm\Model
+ * @template TDeclaringModel of \FluentEvent\Framework\Database\Orm\Model
  */
 class PendingHasThroughRelationship
 {
@@ -23,7 +23,7 @@ class PendingHasThroughRelationship
     /**
      * The local relationship.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Relations\HasMany|\FluentEvents\Framework\Database\Orm\Relations\HasOne
+     * @var \FluentEvent\Framework\Database\Orm\Relations\HasMany|\FluentEvent\Framework\Database\Orm\Relations\HasOne
      */
     protected $localRelationship;
 
@@ -31,7 +31,7 @@ class PendingHasThroughRelationship
      * Create a pending has-many-through or has-one-through relationship.
      *
      * @param mixed $rootModel
-     * @param \FluentEvents\Framework\Database\Orm\Relations\HasMany|\FluentEvents\Framework\Database\Orm\Relations\HasOne $localRelationship
+     * @param \FluentEvent\Framework\Database\Orm\Relations\HasMany|\FluentEvent\Framework\Database\Orm\Relations\HasOne $localRelationship
      */
     public function __construct($rootModel, $localRelationship)
     {
@@ -44,7 +44,7 @@ class PendingHasThroughRelationship
      * Define the distant relationship that this model has.
      *
      * @param string|callable $callback Either the distant relationship name or a callback returning the local relation.
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasManyThrough|\FluentEvents\Framework\Database\Orm\Relations\HasOneThrough
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasManyThrough|\FluentEvent\Framework\Database\Orm\Relations\HasOneThrough
      *         The distant relationship instance.
      */
     public function has($callback)

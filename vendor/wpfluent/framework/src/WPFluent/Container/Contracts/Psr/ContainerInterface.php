@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace FluentEvents\Framework\Container\Contracts\Psr;
+namespace FluentEvent\Framework\Container\Contracts\Psr;
 
 /**
  * Describes the interface of a container that exposes methods to read its entries.

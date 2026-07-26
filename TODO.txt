@@ -1,2 +1,2 @@
 What left: 
-1. Replace URL of 'fluent-events.php' file
+1. Replace URL of 'fluent-event.php' file

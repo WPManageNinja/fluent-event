@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use stdClass;
@@ -9,10 +9,10 @@ use ArrayIterator;
 use IteratorIterator;
 use DateTimeInterface;
 use IteratorAggregate;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\MacroableTrait;
-use FluentEvents\Framework\Support\EnumeratesValues;
-use FluentEvents\Framework\Support\CanBeEscapedWhenCastToString;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Support\EnumeratesValues;
+use FluentEvent\Framework\Support\CanBeEscapedWhenCastToString;
 
 class LazyCollection implements CanBeEscapedWhenCastToString, Enumerable
 {
@@ -1093,8 +1093,8 @@ class LazyCollection implements CanBeEscapedWhenCastToString, Enumerable
      * @param  mixed  $value
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Support\ItemNotFoundException
-     * @throws \FluentEvents\Framework\Support\MultipleItemsFoundException
+     * @throws \FluentEvent\Framework\Support\ItemNotFoundException
+     * @throws \FluentEvent\Framework\Support\MultipleItemsFoundException
      */
     public function sole($key = null, $operator = null, $value = null)
     {
@@ -1118,7 +1118,7 @@ class LazyCollection implements CanBeEscapedWhenCastToString, Enumerable
      * @param  mixed  $value
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Support\ItemNotFoundException
+     * @throws \FluentEvent\Framework\Support\ItemNotFoundException
      */
     public function firstOrFail($key = null, $operator = null, $value = null)
     {

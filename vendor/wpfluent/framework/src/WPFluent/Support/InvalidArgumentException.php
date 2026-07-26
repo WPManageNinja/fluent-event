@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use ReflectionClass;
-use FluentEvents\Framework\Support\ExceptionInterface;
+use FluentEvent\Framework\Support\ExceptionInterface;
 use InvalidArgumentException as BaseInvalidArgumentException;
 
 use function sprintf;

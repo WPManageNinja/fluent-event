@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\App\Http\Controllers;
+namespace FluentEvent\App\Http\Controllers;
 
-use FluentEvents\Framework\Http\Request\Request;
+use FluentEvent\Framework\Http\Request\Request;
 
 class DashboardController extends Controller
 {
@@ -12,13 +12,13 @@ class DashboardController extends Controller
      * commented-out `$get('dashboard')` call in modules/dashboard/index.vue
      * can read `response.message` directly.
      *
-     * @param  \FluentEvents\Framework\Http\Request\Request  $request
+     * @param  \FluentEvent\Framework\Http\Request\Request  $request
      * @return array{message: string}
      */
     public function get(Request $request)
     {
         return [
-            'message' => __('Welcome to the dashboard.', 'fluent-events'),
+            'message' => __('Welcome to the dashboard.', 'fluent-event'),
         ];
     }
 }

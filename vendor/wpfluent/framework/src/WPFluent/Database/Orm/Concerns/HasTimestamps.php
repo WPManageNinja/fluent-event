@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Concerns;
 
-use FluentEvents\Framework\Support\DateTime;
+use FluentEvent\Framework\Support\DateTime;
 
 trait HasTimestamps
 {

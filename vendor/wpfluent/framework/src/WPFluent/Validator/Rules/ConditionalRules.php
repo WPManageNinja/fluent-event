@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Validator\Rules;
+namespace FluentEvent\Framework\Validator\Rules;
 
-use FluentEvents\Framework\Support\Fluent;
+use FluentEvent\Framework\Support\Fluent;
 
 class ConditionalRules
 {

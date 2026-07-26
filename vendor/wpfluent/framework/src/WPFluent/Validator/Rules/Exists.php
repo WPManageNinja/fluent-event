@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Validator\Rules;
+namespace FluentEvent\Framework\Validator\Rules;
 
-use FluentEvents\Framework\Support\Conditionable;
+use FluentEvent\Framework\Support\Conditionable;
 
 class Exists
 {

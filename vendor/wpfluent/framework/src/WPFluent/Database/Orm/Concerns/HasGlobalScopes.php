@@ -1,18 +1,18 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Concerns;
 
 use Closure;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Database\Orm\Scope;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Database\Orm\Scope;
 
 trait HasGlobalScopes
 {
     /**
      * Register a new global scope on the model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Scope|\Closure|string  $scope
+     * @param  \FluentEvent\Framework\Database\Orm\Scope|\Closure|string  $scope
      * @param  \Closure|null  $implementation
      * @return mixed
      *
@@ -53,7 +53,7 @@ trait HasGlobalScopes
     /**
      * Determine if a model has a global scope.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Scope|string  $scope
+     * @param  \FluentEvent\Framework\Database\Orm\Scope|string  $scope
      * @return bool
      */
     public static function hasGlobalScope($scope)
@@ -64,8 +64,8 @@ trait HasGlobalScopes
     /**
      * Get a global scope registered with the model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Scope|string  $scope
-     * @return \FluentEvents\Framework\Database\Orm\Scope|\Closure|null
+     * @param  \FluentEvent\Framework\Database\Orm\Scope|string  $scope
+     * @return \FluentEvent\Framework\Database\Orm\Scope|\Closure|null
      */
     public static function getGlobalScope($scope)
     {

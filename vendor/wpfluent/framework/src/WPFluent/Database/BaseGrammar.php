@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
 use RuntimeException;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Schema;
-use FluentEvents\Framework\Support\MacroableTrait;
-use FluentEvents\Framework\Database\Query\Expression;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Schema;
+use FluentEvent\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Database\Query\Expression;
 
 abstract class BaseGrammar
 {
@@ -22,7 +22,7 @@ abstract class BaseGrammar
     /**
      * The connection used for escaping values.
      *
-     * @var \FluentEvents\Framework\Database\ConnectionInterface
+     * @var \FluentEvent\Framework\Database\ConnectionInterface
      */
     protected $connection;
 
@@ -65,7 +65,7 @@ abstract class BaseGrammar
     /**
      * Wrap a value in keyword identifiers.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $value
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $value
      * @return string
      */
     public function wrap($value)
@@ -94,7 +94,7 @@ abstract class BaseGrammar
     /**
      * Wrap a table in keyword identifiers.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $table
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $table
      * @return string
      */
     public function wrapTable($table)
@@ -334,7 +334,7 @@ abstract class BaseGrammar
     /**
      * Transforms expressions to their scalar types.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string|int|float  $expression
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string|int|float  $expression
      * @return string|int|float
      */
     public function getValue($expression)
@@ -384,7 +384,7 @@ abstract class BaseGrammar
     /**
      * Set the grammar's database connection.
      *
-     * @param  \FluentEvents\Framework\Database\ConnectionInterface  $connection
+     * @param  \FluentEvent\Framework\Database\ConnectionInterface  $connection
      * @return $this
      */
     public function setConnection($connection)

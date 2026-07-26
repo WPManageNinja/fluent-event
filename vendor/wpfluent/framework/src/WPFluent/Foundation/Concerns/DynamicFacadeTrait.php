@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation\Concerns;
+namespace FluentEvent\Framework\Foundation\Concerns;
 
-use FluentEvents\Framework\Support\Facade;
+use FluentEvent\Framework\Support\Facade;
 use RuntimeException;
 
 trait DynamicFacadeTrait
@@ -14,7 +14,7 @@ trait DynamicFacadeTrait
      * the current namespace's Facade sub-namespace. Dynamically
      * creates facade classes on-demand.
      *
-     * @param  \FluentEvents\Framework\Foundation\Application $app
+     * @param  \FluentEvent\Framework\Foundation\Application $app
      * @return void
      */
     protected function registerFacadeResolver($app)
@@ -41,9 +41,9 @@ trait DynamicFacadeTrait
      * 
      * Special cases (e.g. 'route' to 'router') are handled here.
      *
-     * @param  string $facade Facade namespace prefix (e.g., FluentEvents\Framework\Facade)
+     * @param  string $facade Facade namespace prefix (e.g., FluentEvent\Framework\Facade)
      * @param  string $class  Fully qualified facade class name
-     * @param  \FluentEvents\Framework\Foundation\Application $app
+     * @param  \FluentEvent\Framework\Foundation\Application $app
      * @return string|null The resolved accessor name if bound in the container.
      */
     protected function resolveFacadeAccessor($facade, $class, $app)
@@ -65,7 +65,7 @@ trait DynamicFacadeTrait
      *
      * @param string $facade Facade namespace prefix
      * @param string $class  Fully qualified class name of the facade to generate
-     * @param \FluentEvents\Framework\Foundation\Application $app
+     * @param \FluentEvent\Framework\Foundation\Application $app
      * @return void
      * @throws \RuntimeException If the facade stub file is missing
      */

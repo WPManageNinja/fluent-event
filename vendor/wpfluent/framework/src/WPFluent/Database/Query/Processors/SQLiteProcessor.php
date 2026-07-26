@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query\Processors;
+namespace FluentEvent\Framework\Database\Query\Processors;
 
 class SQLiteProcessor extends Processor
 {

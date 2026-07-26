@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Request;
+namespace FluentEvent\Framework\Http\Request;
 
 use WP_User;
 use BadMethodCallException;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Str;
+use FluentEvent\Framework\Support\Str;
 
 /**
- * Class FluentEvents\Framework\Framework\Http\Request\WPUserProxy
+ * Class FluentEvent\Framework\Framework\Http\Request\WPUserProxy
  * 
  * @method void __construct() Constructs the class
  * @method void init() Initializes the object

@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 use DateTime;
 use DateTimeInterface;
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
+use FluentEvent\Framework\Foundation\App;
 
 class Cookie
 {

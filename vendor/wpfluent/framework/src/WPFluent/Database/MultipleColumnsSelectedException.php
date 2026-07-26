@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
 use RuntimeException;
 

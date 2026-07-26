@@ -12,7 +12,7 @@ Applies to REST route files and `wp_ajax_*` registrations.
 
 ## Namespace
 
-- REST namespace `fluent-events/v1` from `config/app.php` (confirm). Don't hardcode the
+- REST namespace `fluent-event/v1` from `config/app.php` (confirm). Don't hardcode the
   literal in route URLs where a framework lookup exists — keeps fork compatibility.
 
 ## Policy binding (CRITICAL)

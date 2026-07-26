@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\App\Utils\Auth;
+namespace FluentEvent\App\Utils\Auth;
 
-use FluentEvents\App\Utils\Auth\Authorizer;
+use FluentEvent\App\Utils\Auth\Authorizer;
 
 class Auth
 {

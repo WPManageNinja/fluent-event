@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 use Exception;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Util;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\UriTemplate;
+use FluentEvent\Framework\Support\Util;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\UriTemplate;
 
 class URL
 {

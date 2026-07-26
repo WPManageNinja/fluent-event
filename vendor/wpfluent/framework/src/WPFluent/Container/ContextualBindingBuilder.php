@@ -1,16 +1,16 @@
 <?php
 
-namespace FluentEvents\Framework\Container;
+namespace FluentEvent\Framework\Container;
 
-use FluentEvents\Framework\Container\Contracts\Container;
-use FluentEvents\Framework\Container\Contracts\ContextualBindingBuilder as ContextualBindingBuilderContract;
+use FluentEvent\Framework\Container\Contracts\Container;
+use FluentEvent\Framework\Container\Contracts\ContextualBindingBuilder as ContextualBindingBuilderContract;
 
 class ContextualBindingBuilder implements ContextualBindingBuilderContract
 {
     /**
      * The underlying container instance.
      *
-     * @var \FluentEvents\Framework\Container\Contracts\Container
+     * @var \FluentEvent\Framework\Container\Contracts\Container
      */
     protected $container;
 
@@ -31,7 +31,7 @@ class ContextualBindingBuilder implements ContextualBindingBuilderContract
     /**
      * Create a new contextual binding builder.
      *
-     * @param  \FluentEvents\Framework\Container\Contracts\Container  $container
+     * @param  \FluentEvent\Framework\Container\Contracts\Container  $container
      * @param  string|array  $concrete
      * @return void
      */

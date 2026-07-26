@@ -1,21 +1,21 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
 use Closure;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Database\Orm\ModelNotFoundException;
-use FluentEvents\Framework\Database\Query\Grammars\MySqlGrammar;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\AsPivot;
-use FluentEvents\Framework\Database\UniqueConstraintViolationException;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\InteractsWithPivotTable;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Database\Orm\ModelNotFoundException;
+use FluentEvent\Framework\Database\Query\Grammars\MySqlGrammar;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\AsPivot;
+use FluentEvent\Framework\Database\UniqueConstraintViolationException;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\InteractsWithPivotTable;
 
 /**
  * @template TRelatedModel of Model
@@ -71,7 +71,7 @@ class BelongsToMany extends Relation
     /**
      * The pivot table columns to retrieve.
      *
-     * @var array<string|\FluentEvents\Framework\Database\Query\Expression>
+     * @var array<string|\FluentEvent\Framework\Database\Query\Expression>
      */
     protected $pivotColumns = [];
 
@@ -142,7 +142,7 @@ class BelongsToMany extends Relation
      * Create a new belongs to many relationship instance.
      *
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>  $query
      * @param  TDeclaringModel  $parent
      * @param  string|class-string<TRelatedModel>  $table
      * @param  string  $foreignPivotKey
@@ -213,7 +213,7 @@ class BelongsToMany extends Relation
     /**
      * Set the join clause for the relation query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>|null  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>|null  $query
      * @return $this
      */
     protected function performJoin($query = null)
@@ -293,7 +293,7 @@ class BelongsToMany extends Relation
     /**
      * Build model dictionary keyed by the relation's foreign key.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>  $results
      * @return array<int|string, list<TRelatedModel>>
      */
     protected function buildDictionary(Collection $results)
@@ -351,7 +351,7 @@ class BelongsToMany extends Relation
     /**
      * Set a where clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @param  string  $boolean
@@ -367,7 +367,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "where between" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  array  $values
      * @param  string  $boolean
      * @param  bool  $not
@@ -381,7 +381,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "or where between" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  array  $values
      * @return $this
      */
@@ -393,7 +393,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "where pivot not between" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  array  $values
      * @param  string  $boolean
      * @return $this
@@ -406,7 +406,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "or where not between" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  array  $values
      * @return $this
      */
@@ -418,7 +418,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "where in" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $values
      * @param  string  $boolean
      * @param  bool  $not
@@ -434,7 +434,7 @@ class BelongsToMany extends Relation
     /**
      * Set an "or where" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @return $this
@@ -449,7 +449,7 @@ class BelongsToMany extends Relation
      *
      * In addition, new pivot records will receive this value.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression|array<string, string>  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression|array<string, string>  $column
      * @param  mixed  $value
      * @return $this
      *
@@ -489,7 +489,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "where not in" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $values
      * @param  string  $boolean
      * @return $this
@@ -514,7 +514,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "where null" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  string  $boolean
      * @param  bool  $not
      * @return $this
@@ -529,7 +529,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "where not null" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  string  $boolean
      * @return $this
      */
@@ -541,7 +541,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "or where null" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  bool  $not
      * @return $this
      */
@@ -553,7 +553,7 @@ class BelongsToMany extends Relation
     /**
      * Set a "or where not null" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @return $this
      */
     public function orWherePivotNotNull($column)
@@ -564,7 +564,7 @@ class BelongsToMany extends Relation
     /**
      * Add an "order by" clause for a pivot table column.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  string  $direction
      * @return $this
      */
@@ -578,7 +578,7 @@ class BelongsToMany extends Relation
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel
+     * @return \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel
      */
     public function findOrNew($id, $columns = ['*'])
     {
@@ -688,7 +688,7 @@ class BelongsToMany extends Relation
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel|null
+     * @return \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel|null
      */
     public function find($id, $columns = ['*'])
     {
@@ -704,9 +704,9 @@ class BelongsToMany extends Relation
     /**
      * Find multiple related models by their primary keys.
      *
-     * @param  \FluentEvents\Framework\Support\ArrayableInterface|array  $ids
+     * @param  \FluentEvent\Framework\Support\ArrayableInterface|array  $ids
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>
      */
     public function findMany($ids, $columns = ['*'])
     {
@@ -726,9 +726,9 @@ class BelongsToMany extends Relation
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel
+     * @return \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException<TRelatedModel>
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException<TRelatedModel>
      */
     public function findOrFail($id, $columns = ['*'])
     {
@@ -755,7 +755,7 @@ class BelongsToMany extends Relation
      * @param  mixed  $id
      * @param  (\Closure(): TValue)|list<string>|string  $columns
      * @param  (\Closure(): TValue)|null  $callback
-     * @return \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel|TValue
+     * @return \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel|TValue
      */
     public function findOr($id, $columns = ['*'], ?Closure $callback = null)
     {
@@ -813,7 +813,7 @@ class BelongsToMany extends Relation
      * @param  array  $columns
      * @return TRelatedModel
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException<TRelatedModel>
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException<TRelatedModel>
      */
     public function firstOrFail($columns = ['*'])
     {
@@ -921,7 +921,7 @@ class BelongsToMany extends Relation
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \FluentEvents\Framework\Pagination\LengthAwarePaginator
+     * @return \FluentEvent\Framework\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
@@ -939,7 +939,7 @@ class BelongsToMany extends Relation
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \FluentEvents\Framework\Pagination\Paginator
+     * @return \FluentEvent\Framework\Pagination\Paginator
      */
     public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
@@ -957,7 +957,7 @@ class BelongsToMany extends Relation
      * @param  array  $columns
      * @param  string  $cursorName
      * @param  string|null  $cursor
-     * @return \FluentEvents\Framework\Pagination\CursorPaginator
+     * @return \FluentEvent\Framework\Pagination\CursorPaginator
      */
     public function cursorPaginate($perPage = null, $columns = ['*'], $cursorName = 'cursor', $cursor = null)
     {
@@ -1079,7 +1079,7 @@ class BelongsToMany extends Relation
      * Query lazily, by chunks of the given size.
      *
      * @param  int  $chunkSize
-     * @return \FluentEvents\Framework\Support\LazyCollection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Support\LazyCollection<int, TRelatedModel>
      */
     public function lazy($chunkSize = 1000)
     {
@@ -1096,7 +1096,7 @@ class BelongsToMany extends Relation
      * @param  int  $chunkSize
      * @param  string|null  $column
      * @param  string|null  $alias
-     * @return \FluentEvents\Framework\Support\LazyCollection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Support\LazyCollection<int, TRelatedModel>
      */
     public function lazyById($chunkSize = 1000, $column = null, $alias = null)
     {
@@ -1119,7 +1119,7 @@ class BelongsToMany extends Relation
      * @param  int  $chunkSize
      * @param  string|null  $column
      * @param  string|null  $alias
-     * @return \FluentEvents\Framework\Support\LazyCollection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Support\LazyCollection<int, TRelatedModel>
      */
     public function lazyByIdDesc($chunkSize = 1000, $column = null, $alias = null)
     {
@@ -1139,7 +1139,7 @@ class BelongsToMany extends Relation
     /**
      * Get a lazy collection for the given query.
      *
-     * @return \FluentEvents\Framework\Support\LazyCollection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Support\LazyCollection<int, TRelatedModel>
      */
     public function cursor()
     {
@@ -1153,7 +1153,7 @@ class BelongsToMany extends Relation
     /**
      * Prepare the query builder for query execution.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>
      */
     protected function prepareQueryBuilder()
     {
@@ -1266,7 +1266,7 @@ class BelongsToMany extends Relation
     /**
      * Get all of the IDs for the related models.
      *
-     * @return \FluentEvents\Framework\Support\Collection<int, int|string>
+     * @return \FluentEvent\Framework\Support\Collection<int, int|string>
      */
     public function allRelatedIds()
     {
@@ -1308,7 +1308,7 @@ class BelongsToMany extends Relation
     /**
      * Save an array of new models and attach them to the parent model.
      *
-     * @template TContainer of \FluentEvents\Framework\Support\Collection<array-key, TRelatedModel>|array<array-key, TRelatedModel>
+     * @template TContainer of \FluentEvent\Framework\Support\Collection<array-key, TRelatedModel>|array<array-key, TRelatedModel>
      *
      * @param  TContainer  $models
      * @param  array  $pivotAttributes
@@ -1328,7 +1328,7 @@ class BelongsToMany extends Relation
     /**
      * Save an array of new models without raising any events and attach them to the parent model.
      *
-     * @template TContainer of \FluentEvents\Framework\Support\Collection<array-key, TRelatedModel>|array<array-key, TRelatedModel>
+     * @template TContainer of \FluentEvent\Framework\Support\Collection<array-key, TRelatedModel>|array<array-key, TRelatedModel>
      *
      * @param  TContainer  $models
      * @param  array  $pivotAttributes
@@ -1398,10 +1398,10 @@ class BelongsToMany extends Relation
     /**
      * Add the constraints for a relationship query on the same table.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TDeclaringModel>  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TDeclaringModel>  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>
      */
     public function getRelationExistenceQueryForSelfJoin(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
@@ -1622,8 +1622,8 @@ class BelongsToMany extends Relation
     /**
      * Qualify the given column name by the pivot table.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
-     * @return string|\FluentEvents\Framework\Database\Query\Expression
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
+     * @return string|\FluentEvent\Framework\Database\Query\Expression
      */
     public function qualifyPivotColumn($column)
     {

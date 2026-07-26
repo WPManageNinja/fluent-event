@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\App\Hooks\Handlers;
+namespace FluentEvent\App\Hooks\Handlers;
 
-use FluentEvents\App\App;
+use FluentEvent\App\App;
 
 class CPTHandler
 {

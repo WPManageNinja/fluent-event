@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 use Closure;
 use ReflectionMethod;
 use ReflectionFunction;
 use InvalidArgumentException;
-use FluentEvents\Framework\Container\Util;
-use FluentEvents\Framework\Support\Reflector;
-use FluentEvents\Framework\Support\UrlRoutable;
+use FluentEvent\Framework\Container\Util;
+use FluentEvent\Framework\Support\Reflector;
+use FluentEvent\Framework\Support\UrlRoutable;
 
 trait SubstituteParameters
 {

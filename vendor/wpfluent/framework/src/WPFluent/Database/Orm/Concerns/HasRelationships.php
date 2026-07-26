@@ -1,28 +1,28 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Concerns;
 
 use Closure;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Orm\Relations\Pivot;
-use FluentEvents\Framework\Database\Orm\Relations\HasOne;
-use FluentEvents\Framework\Database\Orm\Relations\HasMany;
-use FluentEvents\Framework\Database\Orm\Relations\MorphTo;
-use FluentEvents\Framework\Database\Orm\Relations\BelongsTo;
-use FluentEvents\Framework\Database\Orm\Relations\MorphMany;
-use FluentEvents\Framework\Database\Orm\Relations\MorphOne;
-use FluentEvents\Framework\Database\Orm\Relations\MorphToMany;
-use FluentEvents\Framework\Database\Orm\Relations\BelongsToMany;
-use FluentEvents\Framework\Database\Orm\Relations\HasManyThrough;
-use FluentEvents\Framework\Database\Orm\Relations\HasOneThrough;
-use FluentEvents\Framework\Database\Orm\Relations\Relation;
-use FluentEvents\Framework\Database\ClassMorphViolationException;
-use FluentEvents\Framework\Database\Orm\PendingHasThroughRelationship;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Relations\Pivot;
+use FluentEvent\Framework\Database\Orm\Relations\HasOne;
+use FluentEvent\Framework\Database\Orm\Relations\HasMany;
+use FluentEvent\Framework\Database\Orm\Relations\MorphTo;
+use FluentEvent\Framework\Database\Orm\Relations\BelongsTo;
+use FluentEvent\Framework\Database\Orm\Relations\MorphMany;
+use FluentEvent\Framework\Database\Orm\Relations\MorphOne;
+use FluentEvent\Framework\Database\Orm\Relations\MorphToMany;
+use FluentEvent\Framework\Database\Orm\Relations\BelongsToMany;
+use FluentEvent\Framework\Database\Orm\Relations\HasManyThrough;
+use FluentEvent\Framework\Database\Orm\Relations\HasOneThrough;
+use FluentEvent\Framework\Database\Orm\Relations\Relation;
+use FluentEvent\Framework\Database\ClassMorphViolationException;
+use FluentEvent\Framework\Database\Orm\PendingHasThroughRelationship;
 
 trait HasRelationships
 {
@@ -97,7 +97,7 @@ trait HasRelationships
      * @param  string  $related
      * @param  string|null  $foreignKey
      * @param  string|null  $localKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasOne
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasOne
      */
     public function hasOne($related, $foreignKey = null, $localKey = null)
     {
@@ -118,11 +118,11 @@ trait HasRelationships
     /**
      * Instantiate a new HasOne relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $foreignKey
      * @param  string  $localKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasOne
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasOne
      */
     protected function newHasOne(Builder $query, Model $parent, $foreignKey, $localKey)
     {
@@ -138,7 +138,7 @@ trait HasRelationships
      * @param  string|null  $secondKey
      * @param  string|null  $localKey
      * @param  string|null  $secondLocalKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasOneThrough
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasOneThrough
      */
     public function hasOneThrough(
         $related,
@@ -165,14 +165,14 @@ trait HasRelationships
     /**
      * Instantiate a new HasOneThrough relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $farParent
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $throughParent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $farParent
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $throughParent
      * @param  string  $firstKey
      * @param  string  $secondKey
      * @param  string  $localKey
      * @param  string  $secondLocalKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasOneThrough
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasOneThrough
      */
     protected function newHasOneThrough(
         Builder $query,
@@ -203,7 +203,7 @@ trait HasRelationships
      * @param  string|null  $type
      * @param  string|null  $id
      * @param  string|null  $localKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphOne
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphOne
      */
     public function morphOne($related, $name, $type = null, $id = null, $localKey = null)
     {
@@ -221,12 +221,12 @@ trait HasRelationships
     /**
      * Instantiate a new MorphOne relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $type
      * @param  string  $id
      * @param  string  $localKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphOne
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphOne
      */
     protected function newMorphOne(Builder $query, Model $parent, $type, $id, $localKey)
     {
@@ -240,7 +240,7 @@ trait HasRelationships
      * @param  string|null  $foreignKey
      * @param  string|null  $ownerKey
      * @param  string|null  $relation
-     * @return \FluentEvents\Framework\Database\Orm\Relations\BelongsTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\BelongsTo
      */
     public function belongsTo($related, $foreignKey = null, $ownerKey = null, $relation = null)
     {
@@ -273,12 +273,12 @@ trait HasRelationships
     /**
      * Instantiate a new BelongsTo relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $child
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $child
      * @param  string  $foreignKey
      * @param  string  $ownerKey
      * @param  string  $relation
-     * @return \FluentEvents\Framework\Database\Orm\Relations\BelongsTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\BelongsTo
      */
     protected function newBelongsTo(Builder $query, Model $child, $foreignKey, $ownerKey, $relation)
     {
@@ -292,7 +292,7 @@ trait HasRelationships
      * @param  string|null  $type
      * @param  string|null  $id
      * @param  string|null  $ownerKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphTo
      */
     public function morphTo($name = null, $type = null, $id = null, $ownerKey = null)
     {
@@ -320,7 +320,7 @@ trait HasRelationships
      * @param  string  $type
      * @param  string  $id
      * @param  string  $ownerKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphTo
      */
     protected function morphEagerTo($name, $type, $id, $ownerKey)
     {
@@ -337,7 +337,7 @@ trait HasRelationships
      * @param  string  $type
      * @param  string  $id
      * @param  string  $ownerKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphTo
      */
     protected function morphInstanceTo($target, $name, $type, $id, $ownerKey)
     {
@@ -355,13 +355,13 @@ trait HasRelationships
     /**
      * Instantiate a new MorphTo relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $foreignKey
      * @param  string  $ownerKey
      * @param  string  $type
      * @param  string  $relation
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphTo
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphTo
      */
     protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
     {
@@ -394,13 +394,13 @@ trait HasRelationships
     /**
      * Create a pending has-many-through or has-one-through relationship.
      *
-     * @template TIntermediateModel of \FluentEvents\Framework\Database\Orm\Model
+     * @template TIntermediateModel of \FluentEvent\Framework\Database\Orm\Model
      *
-     * @param  string|\FluentEvents\Framework\Database\Orm\Relations\HasMany<TIntermediateModel, covariant $this>|\FluentEvents\Framework\Database\Orm\Relations\HasOne<TIntermediateModel, covariant $this>  $relationship
+     * @param  string|\FluentEvent\Framework\Database\Orm\Relations\HasMany<TIntermediateModel, covariant $this>|\FluentEvent\Framework\Database\Orm\Relations\HasOne<TIntermediateModel, covariant $this>  $relationship
      * @return (
      *     $relationship is string
-     *     ? \FluentEvents\Framework\Database\Orm\PendingHasThroughRelationship<\FluentEvents\Framework\Database\Orm\Model, $this>
-     *     : \FluentEvents\Framework\Database\Orm\PendingHasThroughRelationship<TIntermediateModel, $this>
+     *     ? \FluentEvent\Framework\Database\Orm\PendingHasThroughRelationship<\FluentEvent\Framework\Database\Orm\Model, $this>
+     *     : \FluentEvent\Framework\Database\Orm\PendingHasThroughRelationship<TIntermediateModel, $this>
      * )
      */
     public function through($relationship)
@@ -418,7 +418,7 @@ trait HasRelationships
      * @param  string  $related
      * @param  string|null  $foreignKey
      * @param  string|null  $localKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasMany
      */
     public function hasMany($related, $foreignKey = null, $localKey = null)
     {
@@ -436,11 +436,11 @@ trait HasRelationships
     /**
      * Instantiate a new HasMany relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $foreignKey
      * @param  string  $localKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasMany
      */
     protected function newHasMany(Builder $query, Model $parent, $foreignKey, $localKey)
     {
@@ -456,7 +456,7 @@ trait HasRelationships
      * @param  string|null  $secondKey
      * @param  string|null  $localKey
      * @param  string|null  $secondLocalKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasManyThrough
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasManyThrough
      */
     public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null)
     {
@@ -480,14 +480,14 @@ trait HasRelationships
     /**
      * Instantiate a new HasManyThrough relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $farParent
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $throughParent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $farParent
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $throughParent
      * @param  string  $firstKey
      * @param  string  $secondKey
      * @param  string  $localKey
      * @param  string  $secondLocalKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasManyThrough
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasManyThrough
      */
     protected function newHasManyThrough(Builder $query, Model $farParent, Model $throughParent, $firstKey, $secondKey, $localKey, $secondLocalKey)
     {
@@ -502,7 +502,7 @@ trait HasRelationships
      * @param  string|null  $type
      * @param  string|null  $id
      * @param  string|null  $localKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphMany
      */
     public function morphMany($related, $name, $type = null, $id = null, $localKey = null)
     {
@@ -523,12 +523,12 @@ trait HasRelationships
     /**
      * Instantiate a new MorphMany relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $type
      * @param  string  $id
      * @param  string  $localKey
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphMany
      */
     protected function newMorphMany(Builder $query, Model $parent, $type, $id, $localKey)
     {
@@ -545,7 +545,7 @@ trait HasRelationships
      * @param  string|null  $parentKey
      * @param  string|null  $relatedKey
      * @param  string|null  $relation
-     * @return \FluentEvents\Framework\Database\Orm\Relations\BelongsToMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\BelongsToMany
      */
     public function belongsToMany($related, $table = null, $foreignPivotKey = null, $relatedPivotKey = null,
                                   $parentKey = null, $relatedKey = null, $relation = null)
@@ -583,15 +583,15 @@ trait HasRelationships
     /**
      * Instantiate a new BelongsToMany relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $table
      * @param  string  $foreignPivotKey
      * @param  string  $relatedPivotKey
      * @param  string  $parentKey
      * @param  string  $relatedKey
      * @param  string|null  $relationName
-     * @return \FluentEvents\Framework\Database\Orm\Relations\BelongsToMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\BelongsToMany
      */
     protected function newBelongsToMany(Builder $query, Model $parent, $table, $foreignPivotKey, $relatedPivotKey,
                                         $parentKey, $relatedKey, $relationName = null)
@@ -602,7 +602,7 @@ trait HasRelationships
     /**
      * Define a polymorphic many-to-many relationship.
      *
-     * @template TRelatedModel of \FluentEvents\Framework\Database\Orm\Model
+     * @template TRelatedModel of \FluentEvent\Framework\Database\Orm\Model
      *
      * @param class-string<TRelatedModel> $related
      * @param string $name
@@ -614,7 +614,7 @@ trait HasRelationships
      * @param string|null $relation
      * @param bool $inverse
      *
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphToMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphToMany
      */
     public function morphToMany(
         $related,
@@ -660,8 +660,8 @@ trait HasRelationships
     /**
      * Instantiate a new MorphToMany relationship.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $name
      * @param  string  $table
      * @param  string  $foreignPivotKey
@@ -670,7 +670,7 @@ trait HasRelationships
      * @param  string  $relatedKey
      * @param  string|null  $relationName
      * @param  bool  $inverse
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphToMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphToMany
      */
     protected function newMorphToMany(Builder $query, Model $parent, $name, $table, $foreignPivotKey,
                                       $relatedPivotKey, $parentKey, $relatedKey,
@@ -683,7 +683,7 @@ trait HasRelationships
     /**
      * Define a polymorphic, inverse many-to-many relationship.
      *
-     * @template TRelatedModel of \FluentEvents\Framework\Database\Orm\Model
+     * @template TRelatedModel of \FluentEvent\Framework\Database\Orm\Model
      *
      * @param class-string<TRelatedModel> $related
      * @param string $name
@@ -694,7 +694,7 @@ trait HasRelationships
      * @param string|null $relatedKey
      * @param string|null $relation
      *
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphToMany
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphToMany
      */
     public function morphedByMany(
         $related,
@@ -741,7 +741,7 @@ trait HasRelationships
      * Get the joining table name for a many-to-many relation.
      *
      * @param  string  $related
-     * @param  \FluentEvents\Framework\Database\Orm\Model|null  $instance
+     * @param  \FluentEvent\Framework\Database\Orm\Model|null  $instance
      * @return string
      */
     public function joiningTable($related, $instance = null)

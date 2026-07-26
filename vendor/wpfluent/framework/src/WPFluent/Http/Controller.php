@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 use WP_REST_Response;
 use ReflectionException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Validator\ValidationException;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Validator\ValidationException;
 
 /**
  * Base controller — exposes the Application, Request, and Response
@@ -14,27 +14,27 @@ use FluentEvents\Framework\Validator\ValidationException;
  * PHPStan disambiguate when a subclass declares a method with the
  * same name as one of these properties (e.g., `function app()`).
  *
- * @property \FluentEvents\Framework\Foundation\Application      $app
- * @property \FluentEvents\Framework\Http\Request\Request        $request
- * @property \FluentEvents\Framework\Http\Response\Response      $response
+ * @property \FluentEvent\Framework\Foundation\Application      $app
+ * @property \FluentEvent\Framework\Http\Request\Request        $request
+ * @property \FluentEvent\Framework\Http\Response\Response      $response
  */
 abstract class Controller
 {
     /**
      * Application Instance
-     * @var \FluentEvents\Framework\Foundation\Application
+     * @var \FluentEvent\Framework\Foundation\Application
      */
     protected $app = null;
 
     /**
      * Request Instane
-     * @var \FluentEvents\Framework\Http\Request\Request
+     * @var \FluentEvent\Framework\Http\Request\Request
      */
     protected $request = null;
 
     /**
      * Response Instane
-     * @var \FluentEvents\Framework\Http\Response\Response
+     * @var \FluentEvent\Framework\Http\Response\Response
      */
     protected $response = null;
 

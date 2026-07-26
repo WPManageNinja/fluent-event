@@ -1,16 +1,16 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query\Grammars;
+namespace FluentEvent\Framework\Database\Query\Grammars;
 
 use RuntimeException;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\BaseGrammar;
-use FluentEvents\Framework\Database\Query\Builder;
-use FluentEvents\Framework\Database\Query\Expression;
-use FluentEvents\Framework\Database\Query\JoinClause;
-use FluentEvents\Framework\Database\Query\JoinLateralClause;
-use FluentEvents\Framework\Database\Concerns\CompilesJsonPaths;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\BaseGrammar;
+use FluentEvent\Framework\Database\Query\Builder;
+use FluentEvent\Framework\Database\Query\Expression;
+use FluentEvent\Framework\Database\Query\JoinClause;
+use FluentEvent\Framework\Database\Query\JoinLateralClause;
+use FluentEvent\Framework\Database\Concerns\CompilesJsonPaths;
 
 class Grammar extends BaseGrammar
 {
@@ -53,7 +53,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a select query into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     public function compileSelect(Builder $query)
@@ -101,7 +101,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the components necessary for a select clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return array
      */
     protected function compileComponents(Builder $query)
@@ -122,7 +122,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an aggregated select clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $aggregate
      * @return string
      */
@@ -145,7 +145,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "select *" portion of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $columns
      * @return string|null
      */
@@ -170,7 +170,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "from" portion of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $table
      * @return string
      */
@@ -182,7 +182,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "join" portions of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $joins
      * @return string
      */
@@ -206,7 +206,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "lateral join" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\JoinLateralClause  $join
+     * @param  \FluentEvent\Framework\Database\Query\JoinLateralClause  $join
      * @param  string  $expression
      * @return string
      *
@@ -220,7 +220,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "where" portions of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     public function compileWheres(Builder $query)
@@ -245,7 +245,7 @@ class Grammar extends BaseGrammar
     /**
      * Get an array of all the where clauses for the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return array
      */
     protected function compileWheresToArray($query)
@@ -258,7 +258,7 @@ class Grammar extends BaseGrammar
     /**
      * Format the where clause statements into one string.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $sql
      * @return string
      */
@@ -272,7 +272,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a raw where clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -284,7 +284,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a basic where clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -300,7 +300,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a bitwise operator where clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -312,7 +312,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where like" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -333,7 +333,7 @@ class Grammar extends BaseGrammar
      * Both the column and the bound search term are encoded with the
      * database engine's native SOUNDEX() function.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @return string
      */
     public function compileSoundsLike($column)
@@ -358,7 +358,7 @@ class Grammar extends BaseGrammar
      * Requires a LEVENSHTEIN() function on the connection (a stored function
      * on MySQL, a PHP-backed UDF on SQLite).
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @return string
      */
     public function compileSimilar($column)
@@ -369,7 +369,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where in" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -385,7 +385,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where not in" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -403,7 +403,7 @@ class Grammar extends BaseGrammar
      *
      * For safety, whereIntegerInRaw ensures this method is only used with integer values.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -421,7 +421,7 @@ class Grammar extends BaseGrammar
      *
      * For safety, whereIntegerInRaw ensures this method is only used with integer values.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -437,7 +437,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where null" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -449,7 +449,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where not null" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -461,7 +461,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "between" where clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -479,7 +479,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "between" where clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -497,7 +497,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where date" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -509,7 +509,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where time" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -521,7 +521,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where day" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -533,7 +533,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where month" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -545,7 +545,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where year" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -558,7 +558,7 @@ class Grammar extends BaseGrammar
      * Compile a date based where clause.
      *
      * @param  string  $type
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -572,7 +572,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a where clause comparing two columns.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -584,7 +584,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a nested where clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -601,7 +601,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a where condition with a sub-select.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -615,7 +615,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a where exists clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -627,7 +627,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a where exists clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -639,7 +639,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a where row values condition.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -655,7 +655,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where JSON boolean" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -673,7 +673,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where JSON contains" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -704,7 +704,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where JSON overlaps" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -746,7 +746,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where JSON contains key" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -775,7 +775,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where JSON length" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -817,7 +817,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a "where fulltext" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -845,7 +845,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a clause based on an expression.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -857,7 +857,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "group by" portions of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $groups
      * @return string
      */
@@ -869,7 +869,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "having" portions of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     protected function compileHavings(Builder $query)
@@ -1010,7 +1010,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "order by" portions of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $orders
      * @return string
      */
@@ -1026,7 +1026,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the query orders to an array.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $orders
      * @return array
      */
@@ -1051,7 +1051,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "limit" portions of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  int  $limit
      * @param  int|null  $offset
      * @return string
@@ -1070,7 +1070,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a group limit clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     protected function compileGroupLimit(Builder $query)
@@ -1130,7 +1130,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "offset" portions of the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  int  $offset
      * @return string
      */
@@ -1142,7 +1142,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the "union" queries attached to the main query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     protected function compileUnions(Builder $query)
@@ -1195,7 +1195,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a union aggregate query into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     protected function compileUnionAggregate(Builder $query)
@@ -1210,7 +1210,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an exists statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     public function compileExists(Builder $query)
@@ -1223,7 +1223,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an insert statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -1257,7 +1257,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an insert ignore statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      *
@@ -1271,7 +1271,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an insert and get ID statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @param  string  $sequence
      * @return string
@@ -1284,7 +1284,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an insert statement using a subquery into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $columns
      * @param  string  $sql
      * @return string
@@ -1303,7 +1303,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an insert ignore statement using a subquery into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $columns
      * @param  string  $sql
      * @return string
@@ -1318,7 +1318,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an update statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -1340,7 +1340,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the columns for an update statement.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -1354,7 +1354,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an update statement without joins into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $table
      * @param  string  $columns
      * @param  string  $where
@@ -1368,7 +1368,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an update statement with joins into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $table
      * @param  string  $columns
      * @param  string  $where
@@ -1384,7 +1384,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile an "upsert" statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @param  array  $uniqueBy
      * @param  array  $update
@@ -1418,7 +1418,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a delete statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     public function compileDelete(Builder $query)
@@ -1437,7 +1437,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a delete statement without joins into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $table
      * @param  string  $where
      * @return string
@@ -1450,7 +1450,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a delete statement with joins into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $table
      * @param  string  $where
      * @return string
@@ -1480,7 +1480,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile a truncate table statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return array
      */
     public function compileTruncate(Builder $query)
@@ -1491,7 +1491,7 @@ class Grammar extends BaseGrammar
     /**
      * Compile the lock into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  bool|string  $value
      * @return string
      */

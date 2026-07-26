@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\ComparesRelatedModels;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\SupportsDefaultModels;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\ComparesRelatedModels;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\SupportsDefaultModels;
 
 class BelongsTo extends Relation
 {
@@ -18,7 +18,7 @@ class BelongsTo extends Relation
     /**
      * The child model instance of the relation.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Model
+     * @var \FluentEvent\Framework\Database\Orm\Model
      */
     protected $child;
 
@@ -46,8 +46,8 @@ class BelongsTo extends Relation
     /**
      * Create a new belongs to relationship instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $child
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $child
      * @param  string  $foreignKey
      * @param  string  $ownerKey
      * @param  string  $relationName
@@ -119,7 +119,7 @@ class BelongsTo extends Relation
     /**
      * Gather the keys from an array of related models.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model[]  $models  Array of related model instances.
+     * @param  \FluentEvent\Framework\Database\Orm\Model[]  $models  Array of related model instances.
      * @return array  Array of keys.
      */
     protected function getEagerModelKeys(array $models)
@@ -181,8 +181,8 @@ class BelongsTo extends Relation
     /**
      * Associate the model instance to the given parent.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model|int|string|null  $model  The related model or its key.
-     * @return \FluentEvents\Framework\Database\Orm\Model  Returns the child model instance.
+     * @param  \FluentEvent\Framework\Database\Orm\Model|int|string|null  $model  The related model or its key.
+     * @return \FluentEvent\Framework\Database\Orm\Model  Returns the child model instance.
      */
     public function associate($model)
     {
@@ -204,7 +204,7 @@ class BelongsTo extends Relation
     /**
      * Dissociate previously associated model from the given parent.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function dissociate()
     {
@@ -216,7 +216,7 @@ class BelongsTo extends Relation
     /**
      * Alias of "dissociate" method.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function disassociate()
     {
@@ -238,10 +238,10 @@ class BelongsTo extends Relation
     /**
      * Add the constraints for a relationship query on the same table.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<\FluentEvents\Framework\Database\Orm\Model>  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<\FluentEvents\Framework\Database\Orm\Model>  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<\FluentEvent\Framework\Database\Orm\Model>  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<\FluentEvent\Framework\Database\Orm\Model>  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder<\FluentEvents\Framework\Database\Orm\Model>
+     * @return \FluentEvent\Framework\Database\Orm\Builder<\FluentEvent\Framework\Database\Orm\Model>
      */
     public function getRelationExistenceQueryForSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
@@ -270,8 +270,8 @@ class BelongsTo extends Relation
     /**
      * Make a new related instance for the given model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     protected function newRelatedInstanceFor(Model $parent)
     {
@@ -281,7 +281,7 @@ class BelongsTo extends Relation
     /**
      * Get the child of the relationship.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function getChild()
     {
@@ -341,7 +341,7 @@ class BelongsTo extends Relation
     /**
      * Get the value of the model's foreign key.
      *
-     * @param \FluentEvents\Framework\Database\Orm\Model $model
+     * @param \FluentEvent\Framework\Database\Orm\Model $model
      * @return int|string
      */
     protected function getRelatedKeyFrom(Model $model)
@@ -352,7 +352,7 @@ class BelongsTo extends Relation
     /**
      * Get the value of the model's foreign key.
      *
-     * @param \FluentEvents\Framework\Database\Orm\Model $model
+     * @param \FluentEvent\Framework\Database\Orm\Model $model
      * @return mixed
      */
     protected function getForeignKeyFrom(Model $model)

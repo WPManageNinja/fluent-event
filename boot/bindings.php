@@ -3,9 +3,9 @@
 /**
  * Add only the plugin specific bindings here.
  *
- * @var $app FluentEvents\Framework\Foundation\Application
+ * @var $app FluentEvent\Framework\Foundation\Application
  */
 
 // Note: To enable async requests, uncomment the line below
 
-// (new FluentEvents\Framework\Http\Client)->registerAsyncRequestHandler();
+// (new FluentEvent\Framework\Http\Client)->registerAsyncRequestHandler();

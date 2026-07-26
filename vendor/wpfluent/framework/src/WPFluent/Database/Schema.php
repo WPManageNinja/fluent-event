@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
-use FluentEvents\Framework\Database\Concerns\MaintainsDatabase;
+use FluentEvent\Framework\Database\Concerns\MaintainsDatabase;
 
 class Schema
 {

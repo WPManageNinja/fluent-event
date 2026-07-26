@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\App\Models;
+namespace FluentEvent\App\Models;
 
-use FluentEvents\Framework\Database\Orm\Model as BaseModel;
+use FluentEvent\Framework\Database\Orm\Model as BaseModel;
 
 class Model extends BaseModel
 {   

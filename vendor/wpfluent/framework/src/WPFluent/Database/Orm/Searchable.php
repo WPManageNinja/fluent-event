@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 use Exception;
-use FluentEvents\Framework\Database\Schema;
+use FluentEvent\Framework\Database\Schema;
 
 trait Searchable
 {
@@ -21,9 +21,9 @@ trait Searchable
     /**
      * Search the model in a case-insensitive manner.
      *
-     * @param \FluentEvents\Framework\Database\Orm\Builder $query
+     * @param \FluentEvent\Framework\Database\Orm\Builder $query
      * @param string $value
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      * @throws \Exception
      */
     public function scopeSearch($query, $value)
@@ -44,9 +44,9 @@ trait Searchable
     /**
      * Search the searchable columns phonetically (SOUNDEX / "sounds like").
      *
-     * @param \FluentEvents\Framework\Database\Orm\Builder $query
+     * @param \FluentEvent\Framework\Database\Orm\Builder $query
      * @param string $value
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      * @throws \Exception
      */
     public function scopeSoundsLike($query, $value)
@@ -63,10 +63,10 @@ trait Searchable
     /**
      * Search the searchable columns by fuzzy edit-distance (Levenshtein).
      *
-     * @param \FluentEvents\Framework\Database\Orm\Builder $query
+     * @param \FluentEvent\Framework\Database\Orm\Builder $query
      * @param string $value
      * @param int $distance
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      * @throws \Exception
      */
     public function scopeSimilar($query, $value, $distance = 2)
@@ -92,10 +92,10 @@ trait Searchable
      * SQLite has no native FULLTEXT, so it degrades to a case-insensitive
      * LIKE match across the columns (unranked).
      *
-     * @param \FluentEvents\Framework\Database\Orm\Builder $query
+     * @param \FluentEvent\Framework\Database\Orm\Builder $query
      * @param string $value
      * @param bool $fuzzy
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      * @throws \Exception
      */
     public function scopeRelevanceSearch($query, $value, $fuzzy = false)

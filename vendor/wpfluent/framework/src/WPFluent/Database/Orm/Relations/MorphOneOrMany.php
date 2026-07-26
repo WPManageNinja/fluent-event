@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
 
 abstract class MorphOneOrMany extends HasOneOrMany
 {
@@ -25,8 +25,8 @@ abstract class MorphOneOrMany extends HasOneOrMany
     /**
      * Create a new morph one or many relationship instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $type
      * @param  string  $id
      * @param  string  $localKey
@@ -72,7 +72,7 @@ abstract class MorphOneOrMany extends HasOneOrMany
      * Create a new instance of the related model. Allow mass-assignment.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function forceCreate(array $attributes = [])
     {
@@ -85,7 +85,7 @@ abstract class MorphOneOrMany extends HasOneOrMany
     /**
      * Set the foreign ID and type for creating a related model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @return void
      */
     protected function setForeignAttributesForCreate(Model $model)
@@ -119,10 +119,10 @@ abstract class MorphOneOrMany extends HasOneOrMany
     /**
      * Get the relationship query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {

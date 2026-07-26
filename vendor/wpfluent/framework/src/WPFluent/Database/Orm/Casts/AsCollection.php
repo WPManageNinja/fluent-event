@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Casts;
+namespace FluentEvent\Framework\Database\Orm\Casts;
 
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Database\Orm\Castable;
-use FluentEvents\Framework\Database\Orm\CastsAttributes;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Database\Orm\Castable;
+use FluentEvent\Framework\Database\Orm\CastsAttributes;
 
 class AsCollection implements Castable
 {
@@ -13,7 +13,7 @@ class AsCollection implements Castable
      * Get the caster class to use when casting from / to this cast target.
      *
      * @param  array  $arguments
-     * @return \FluentEvents\Framework\Database\Orm\CastsAttributes
+     * @return \FluentEvent\Framework\Database\Orm\CastsAttributes
      */
     public static function castUsing(array $arguments)
     {

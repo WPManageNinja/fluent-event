@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Request;
+namespace FluentEvent\Framework\Http\Request;
 
 trait InteractsWithCleaningTrait
 {

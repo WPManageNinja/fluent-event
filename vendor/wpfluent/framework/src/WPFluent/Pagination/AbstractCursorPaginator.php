@@ -1,21 +1,21 @@
 <?php
 
-namespace FluentEvents\Framework\Pagination;
+namespace FluentEvent\Framework\Pagination;
 
 use Closure;
 use Exception;
 use ArrayAccess;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Tappable;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Support\ForwardsCalls;
-use FluentEvents\Framework\Database\Orm\Relations\Pivot;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Tappable;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Support\ForwardsCalls;
+use FluentEvent\Framework\Database\Orm\Relations\Pivot;
 
 /**
- * @mixin \FluentEvents\Framework\Support\Collection
+ * @mixin \FluentEvent\Framework\Support\Collection
  */
 abstract class AbstractCursorPaginator
 {
@@ -24,7 +24,7 @@ abstract class AbstractCursorPaginator
     /**
      * All of the items being paginated.
      *
-     * @var \FluentEvents\Framework\Support\Collection
+     * @var \FluentEvent\Framework\Support\Collection
      */
     protected $items;
 
@@ -66,7 +66,7 @@ abstract class AbstractCursorPaginator
     /**
      * The current cursor.
      *
-     * @var \FluentEvents\Framework\Pagination\Cursor|null
+     * @var \FluentEvent\Framework\Pagination\Cursor|null
      */
     protected $cursor;
 
@@ -101,7 +101,7 @@ abstract class AbstractCursorPaginator
     /**
      * Get the URL for a given cursor.
      *
-     * @param  \FluentEvents\Framework\Pagination\Cursor|null  $cursor
+     * @param  \FluentEvent\Framework\Pagination\Cursor|null  $cursor
      * @return string
      */
     public function url($cursor)
@@ -152,7 +152,7 @@ abstract class AbstractCursorPaginator
     /**
      * Get the "cursor" that points to the previous set of items.
      *
-     * @return \FluentEvents\Framework\Pagination\Cursor|null
+     * @return \FluentEvent\Framework\Pagination\Cursor|null
      */
     public function previousCursor()
     {
@@ -171,7 +171,7 @@ abstract class AbstractCursorPaginator
     /**
      * Get the "cursor" that points to the next set of items.
      *
-     * @return \FluentEvents\Framework\Pagination\Cursor|null
+     * @return \FluentEvent\Framework\Pagination\Cursor|null
      */
     public function nextCursor()
     {
@@ -192,7 +192,7 @@ abstract class AbstractCursorPaginator
      *
      * @param  \ArrayAccess|\stdClass  $item
      * @param  bool  $isNext
-     * @return \FluentEvents\Framework\Pagination\Cursor
+     * @return \FluentEvent\Framework\Pagination\Cursor
      */
     public function getCursorForItem($item, $isNext = true)
     {
@@ -234,7 +234,7 @@ abstract class AbstractCursorPaginator
     /**
      * Get the cursor parameter value from a pivot model if applicable.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $item
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $item
      * @param  string  $parameterName
      * @return string|null
      */
@@ -422,7 +422,7 @@ abstract class AbstractCursorPaginator
     /**
      * Get the current cursor being paginated.
      *
-     * @return \FluentEvents\Framework\Pagination\Cursor|null
+     * @return \FluentEvent\Framework\Pagination\Cursor|null
      */
     public function cursor()
     {
@@ -494,7 +494,7 @@ abstract class AbstractCursorPaginator
      * Resolve the current cursor or return the default value.
      *
      * @param  string  $cursorName
-     * @return \FluentEvents\Framework\Pagination\Cursor|null
+     * @return \FluentEvent\Framework\Pagination\Cursor|null
      */
     public static function resolveCurrentCursor($cursorName = 'cursor', $default = null)
     {
@@ -561,7 +561,7 @@ abstract class AbstractCursorPaginator
     /**
      * Get the paginator's underlying collection.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function getCollection()
     {
@@ -571,7 +571,7 @@ abstract class AbstractCursorPaginator
     /**
      * Set the paginator's underlying collection.
      *
-     * @param  \FluentEvents\Framework\Support\Collection  $collection
+     * @param  \FluentEvent\Framework\Support\Collection  $collection
      * @return $this
      */
     public function setCollection(Collection $collection)

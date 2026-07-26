@@ -66,7 +66,7 @@
  */
 
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use ReflectionClass;

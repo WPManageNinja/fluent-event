@@ -1,16 +1,16 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 /**
- * @template TCollection of \FluentEvents\Framework\Database\Orm\Collection
+ * @template TCollection of \FluentEvent\Framework\Database\Orm\Collection
  */
 trait HasCollection
 {
     /**
      * Create a new Orm Collection instance.
      *
-     * @param  array<array-key, \FluentEvents\Framework\Database\Orm\Model>  $models
+     * @param  array<array-key, \FluentEvent\Framework\Database\Orm\Model>  $models
      * @return TCollection
      */
     public function newCollection(array $models = [])

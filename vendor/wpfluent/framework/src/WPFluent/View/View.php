@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\View;
+namespace FluentEvent\Framework\View;
 
 use Exception;
 use LogicException;
@@ -9,7 +9,7 @@ class View
 {
 	/**
      * Application Instance
-     * @var \FluentEvents\Framework\Foundation\Application $app
+     * @var \FluentEvent\Framework\Foundation\Application $app
      */
 	protected $app;
 
@@ -34,7 +34,7 @@ class View
 
 	/**
 	 * Construct the view instamce
-	 * @param \FluentEvents\Framework\Foundation\Application $app
+	 * @param \FluentEvent\Framework\Foundation\Application $app
 	 */
 	public function __construct($app)
 	{
@@ -151,7 +151,7 @@ class View
 
 	/**
 	 * Evaluate the view file
-	 * @param  \FluentEvents\Framework\Foundation\Application $app
+	 * @param  \FluentEvent\Framework\Foundation\Application $app
 	 * @return $this
 	 */
 	protected function renderContent($app)

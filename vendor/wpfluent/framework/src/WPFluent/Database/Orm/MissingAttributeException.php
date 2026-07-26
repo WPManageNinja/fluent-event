@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 use OutOfBoundsException;
 
@@ -9,7 +9,7 @@ class MissingAttributeException extends OutOfBoundsException
     /**
      * Create a new missing attribute exception instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @param  string  $key
      * @return void
      */

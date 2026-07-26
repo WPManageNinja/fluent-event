@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Validator\Rules;
+namespace FluentEvent\Framework\Validator\Rules;
 
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Support\Conditionable;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Support\Conditionable;
 
 class Unique
 {
@@ -45,7 +45,7 @@ class Unique
     /**
      * Ignore the given model during the unique check.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @param  string|null  $idColumn
      * @return $this
      */
