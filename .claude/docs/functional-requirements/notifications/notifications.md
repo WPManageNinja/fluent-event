@@ -105,9 +105,9 @@ Dispatch is **always asynchronous** — the triggering request never resolves re
 
 **1. Enqueue (in-request, O(1)).** On a trigger the producer builds a *descriptor* — `action`, `user_id` (the actor), `object_type`, `object_id`, rendered `title` + `content`, `route`, and an **audience spec** (not a resolved list — e.g. `{ "type": "event_guests", "event_id": 9 }`). It enqueues one async job and returns. Fail-soft: the enqueue is wrapped so a queue failure never breaks the triggering action.
 
-- Tech: Action Scheduler (`as_enqueue_async_action`), group `fluent-events`. An **async** action runs on the next loopback ASAP (seconds), not on the cron interval — so even a single-recipient notification appears near-instantly.
+- Tech: Action Scheduler (`as_enqueue_async_action`), group `fluent-event`. An **async** action runs on the next loopback ASAP (seconds), not on the cron interval — so even a single-recipient notification appears near-instantly.
 
-**2. Fan-out worker (background, batched, cursor-paginated).** The job `fluent_events/notify_fanout` processes the audience in pages:
+**2. Fan-out worker (background, batched, cursor-paginated).** The job `fluent_event/notify_fanout` processes the audience in pages:
 
 - **Two audience kinds.** A **WP-user audience** (hosts/managers) is keyed by `user_id` → in-app rows **+** email. A **guest audience** (`event_guests`) is keyed by `email` only (anonymous, no account) → **email channel only, no in-app rows**.
 - Resolve the next page from the audience spec — cursor ascending (`user_id` for WP-user audiences, guest row `id` for guest audiences), page ~1000. Re-derive from the spec each chunk; never carry a 100k-id list in the payload.
@@ -121,7 +121,7 @@ Dispatch is **always asynchronous** — the triggering request never resolves re
 
 **5. Inline fast-path (optional).** Default is always-queue. A producer that targets exactly one recipient (e.g. a direct approval) and wants instant feedback may write the record + its one delivery row inline instead of enqueuing — same shape, same unique key. Not required.
 
-Producers fire `do_action('fluent_events/notify', $descriptor)` and never insert notification rows directly; the notification module owns the single subscriber that enqueues the fan-out.
+Producers fire `do_action('fluent_event/notify', $descriptor)` and never insert notification rows directly; the notification module owns the single subscriber that enqueues the fan-out.
 
 ### FR-9.2 — In-app feed
 

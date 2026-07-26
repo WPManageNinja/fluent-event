@@ -121,9 +121,9 @@
 <text x="80" y="506" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">inventory = count-based (capacity - COUNT(bookings), no stock column)</text>
 <text x="80" y="521" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">= few post+meta rows, but order/attendees/payment un-queryable (serialized)</text>
 <rect x="1230" y="448" width="10" height="10" rx="2" fill="#5c7a52"/>
-<text x="1248" y="457" font-size="11.5" font-weight="700" fill="#3f5a37">Fluent Events (custom-table design)</text>
-<text x="1250" y="476" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">1 INSERT  wp_fevents_registrations   (buyer + payment + status columns)</text>
-<text x="1250" y="491" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">N INSERT  wp_fevents_guests          (one typed row per ticket = attendee)</text>
-<text x="1250" y="506" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">1 UPDATE  wp_fevents_ticket_types SET sold = sold + N   (real counter)</text>
+<text x="1248" y="457" font-size="11.5" font-weight="700" fill="#3f5a37">Fluent Event (custom-table design)</text>
+<text x="1250" y="476" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">1 INSERT  wp_fevent_registrations   (buyer + payment + status columns)</text>
+<text x="1250" y="491" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">N INSERT  wp_fevent_guests          (one typed row per ticket = attendee)</text>
+<text x="1250" y="506" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">1 UPDATE  wp_fevent_ticket_types SET sold = sold + N   (real counter)</text>
 <text x="1250" y="521" font-size="10" fill="#4a5561" font-family="Menlo,Consolas,monospace">= typed rows across 3 indexed tables; order/attendee/payment all queryable</text>
 </svg>
