@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use RuntimeException;
 use ReflectionFunction;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Reflector;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Reflector;
 
 trait ReflectsClosures
 {

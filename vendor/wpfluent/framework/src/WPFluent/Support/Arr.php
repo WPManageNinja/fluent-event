@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use ArrayAccess;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Support\MacroableTrait;
 
 class Arr
 {
@@ -17,7 +17,7 @@ class Arr
      * Makes a collection from array
      * 
      * @param  array $array
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public static function of(array $array)
     {

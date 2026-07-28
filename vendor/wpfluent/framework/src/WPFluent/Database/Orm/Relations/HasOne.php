@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Query\JoinClause;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\CanBeOneOfMany;
-use FluentEvents\Framework\Database\Orm\SupportsPartialRelations;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\ComparesRelatedModels;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\SupportsDefaultModels;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Query\JoinClause;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\CanBeOneOfMany;
+use FluentEvent\Framework\Database\Orm\SupportsPartialRelations;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\ComparesRelatedModels;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\SupportsDefaultModels;
 
 class HasOne extends HasOneOrMany implements SupportsPartialRelations
 {
@@ -49,7 +49,7 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
      * Match the eagerly loaded results to their parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @return array
      */
@@ -63,10 +63,10 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
      *
      * Essentially, these queries compare on column names like "whereColumn".
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function getRelationExistenceQuery(
         Builder $query,
@@ -83,7 +83,7 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
     /**
      * Add constraints for inner join subselect for one of many relationships.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
      * @param  string|null  $column
      * @param  string|null  $aggregate
      * @return void
@@ -107,7 +107,7 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
     /**
      * Add join query constraints for one of many relationships.
      *
-     * @param  \FluentEvents\Framework\Database\Query\JoinClause  $join
+     * @param  \FluentEvent\Framework\Database\Query\JoinClause  $join
      * @return void
      */
     public function addOneOfManyJoinSubQueryConstraints(JoinClause $join)
@@ -122,8 +122,8 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
     /**
      * Make a new related instance for the given model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function newRelatedInstanceFor(Model $parent)
     {
@@ -135,7 +135,7 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
     /**
      * Get the value of the model's foreign key.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @return mixed
      */
     protected function getRelatedKeyFrom(Model $model)

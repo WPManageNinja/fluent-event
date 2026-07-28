@@ -2,7 +2,7 @@
 
 namespace Dev\Factories;
 
-use FluentEvents\App\Models\User;
+use FluentEvent\App\Models\User;
 use Dev\Factories\Core\Factory;
 
 class UserFactory extends Factory

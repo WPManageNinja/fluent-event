@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Encryption;
+namespace FluentEvent\Framework\Encryption;
 
 use RuntimeException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Encryption\EncryptException;
-use FluentEvents\Framework\Encryption\DecryptException;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Encryption\EncryptException;
+use FluentEvent\Framework\Encryption\DecryptException;
 
 class Encrypter
 {
@@ -116,7 +116,7 @@ class Encrypter
      * @param  bool  $serialize
      * @return string
      *
-     * @throws \FluentEvents\Framework\Encryption\EncryptException
+     * @throws \FluentEvent\Framework\Encryption\EncryptException
      */
     public function encrypt($value, $serialize = true)
     {
@@ -153,7 +153,7 @@ class Encrypter
      * @param  string  $value
      * @return string
      *
-     * @throws \FluentEvents\Framework\Encryption\EncryptException
+     * @throws \FluentEvent\Framework\Encryption\EncryptException
      */
     public function encryptString($value)
     {
@@ -167,7 +167,7 @@ class Encrypter
      * @param  bool  $unserialize
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Encryption\DecryptException
+     * @throws \FluentEvent\Framework\Encryption\DecryptException
      */
     public function decrypt($payload, $unserialize = true)
     {
@@ -218,7 +218,7 @@ class Encrypter
      * @param  string  $payload
      * @return string
      *
-     * @throws \FluentEvents\Framework\Encryption\DecryptException
+     * @throws \FluentEvent\Framework\Encryption\DecryptException
      */
     public function decryptString($payload)
     {
@@ -244,7 +244,7 @@ class Encrypter
      * @param  string  $payload
      * @return array
      *
-     * @throws \FluentEvents\Framework\Encryption\DecryptException
+     * @throws \FluentEvent\Framework\Encryption\DecryptException
      */
     protected function getJsonPayload($payload)
     {

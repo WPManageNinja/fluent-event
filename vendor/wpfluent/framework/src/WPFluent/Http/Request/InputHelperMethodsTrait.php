@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Request;
+namespace FluentEvent\Framework\Http\Request;
 
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Sanitizer;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Sanitizer;
 
 trait InputHelperMethodsTrait
 {
@@ -212,7 +212,7 @@ trait InputHelperMethodsTrait
      * @param  string $key
      * @param  string|null $format
      * @param  string|null $tz
-     * @return \FluentEvents\Framework\Support\DateTime|null
+     * @return \FluentEvent\Framework\Support\DateTime|null
      */
     public function getDate($key, $format = null, $tz = null)
     {

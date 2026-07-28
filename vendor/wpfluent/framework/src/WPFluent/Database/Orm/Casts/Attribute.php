@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Casts;
+namespace FluentEvent\Framework\Database\Orm\Casts;
 
 class Attribute
 {

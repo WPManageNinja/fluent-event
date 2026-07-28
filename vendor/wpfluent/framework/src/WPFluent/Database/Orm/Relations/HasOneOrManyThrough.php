@@ -1,18 +1,18 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
 use Closure;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\ModelNotFoundException;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
-use FluentEvents\Framework\Database\Orm\SoftDeletes;
-use FluentEvents\Framework\Database\Query\Grammars\MySqlGrammar;
-use FluentEvents\Framework\Database\UniqueConstraintViolationException;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\ModelNotFoundException;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
+use FluentEvent\Framework\Database\Orm\SoftDeletes;
+use FluentEvent\Framework\Database\Query\Grammars\MySqlGrammar;
+use FluentEvent\Framework\Database\UniqueConstraintViolationException;
 
 /**
  * @template TRelatedModel of Model
@@ -69,7 +69,7 @@ abstract class HasOneOrManyThrough extends Relation
     /**
      * Create a new has many through relationship instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>  $query
      * @param  TDeclaringModel  $farParent
      * @param  TIntermediateModel  $throughParent
      * @param  string  $firstKey
@@ -109,7 +109,7 @@ abstract class HasOneOrManyThrough extends Relation
     /**
      * Set the join clause on the query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>|null  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>|null  $query
      * @return void
      */
     protected function performJoin(?Builder $query = null)
@@ -174,7 +174,7 @@ abstract class HasOneOrManyThrough extends Relation
     /**
      * Build model dictionary keyed by the relation's foreign key.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>  $results
      * @return array<array<TRelatedModel>>
      */
     protected function buildDictionary(Collection $results)
@@ -292,7 +292,7 @@ abstract class HasOneOrManyThrough extends Relation
      * @param  array  $columns
      * @return TRelatedModel
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException<TRelatedModel>
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException<TRelatedModel>
      */
     public function firstOrFail($columns = ['*'])
     {
@@ -332,7 +332,7 @@ abstract class HasOneOrManyThrough extends Relation
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel|null
+     * @return \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>|TRelatedModel|null
      */
     public function find($id, $columns = ['*'])
     {
@@ -350,7 +350,7 @@ abstract class HasOneOrManyThrough extends Relation
      *
      * @param  array<int, mixed>|mixed  $ids
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>
      */
     public function findMany($ids, $columns = ['*'])
     {
@@ -370,9 +370,9 @@ abstract class HasOneOrManyThrough extends Relation
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Model| \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Model| \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException
      */
     public function findOrFail($id, $columns = ['*'])
     {
@@ -401,7 +401,7 @@ abstract class HasOneOrManyThrough extends Relation
      * @param  mixed  $id
      * @param  array|string|(\Closure(): TValue)  $columns
      * @param  (\Closure(): TValue)|null  $callback
-     * @return \FluentEvents\Framework\Database\Orm\Model|\FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>|TValue
+     * @return \FluentEvent\Framework\Database\Orm\Model|\FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>|TValue
      */
     public function findOr($id, $columns = ['*'], ?Closure $callback = null)
     {
@@ -452,7 +452,7 @@ abstract class HasOneOrManyThrough extends Relation
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int  $page
-     * @return \FluentEvents\Framework\Pagination\LengthAwarePaginatorInterface
+     * @return \FluentEvent\Framework\Pagination\LengthAwarePaginatorInterface
      */
     public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
@@ -468,7 +468,7 @@ abstract class HasOneOrManyThrough extends Relation
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \FluentEvents\Framework\Pagination\PaginatorInterface
+     * @return \FluentEvent\Framework\Pagination\PaginatorInterface
      */
     public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
@@ -484,7 +484,7 @@ abstract class HasOneOrManyThrough extends Relation
      * @param  array  $columns
      * @param  string  $cursorName
      * @param  string|null  $cursor
-     * @return \FluentEvents\Framework\Pagination\CursorPaginatorInterface
+     * @return \FluentEvent\Framework\Pagination\CursorPaginatorInterface
      */
     public function cursorPaginate($perPage = null, $columns = ['*'], $cursorName = 'cursor', $cursor = null)
     {
@@ -577,7 +577,7 @@ abstract class HasOneOrManyThrough extends Relation
     /**
      * Get a generator for the given query.
      *
-     * @return \FluentEvents\Framework\Support\LazyCollection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Support\LazyCollection<int, TRelatedModel>
      */
     public function cursor()
     {
@@ -606,7 +606,7 @@ abstract class HasOneOrManyThrough extends Relation
      * Query lazily, by chunks of the given size.
      *
      * @param  int  $chunkSize
-     * @return \FluentEvents\Framework\Support\LazyCollection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Support\LazyCollection<int, TRelatedModel>
      */
     public function lazy($chunkSize = 1000)
     {
@@ -619,7 +619,7 @@ abstract class HasOneOrManyThrough extends Relation
      * @param  int  $chunkSize
      * @param  string|null  $column
      * @param  string|null  $alias
-     * @return \FluentEvents\Framework\Support\LazyCollection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Support\LazyCollection<int, TRelatedModel>
      */
     public function lazyById($chunkSize = 1000, $column = null, $alias = null)
     {
@@ -636,7 +636,7 @@ abstract class HasOneOrManyThrough extends Relation
      * @param  int  $chunkSize
      * @param  string|null  $column
      * @param  string|null  $alias
-     * @return \FluentEvents\Framework\Support\LazyCollection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Support\LazyCollection<int, TRelatedModel>
      */
     public function lazyByIdDesc($chunkSize = 1000, $column = null, $alias = null)
     {
@@ -651,7 +651,7 @@ abstract class HasOneOrManyThrough extends Relation
      * Prepare the query builder for query execution.
      *
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>
      */
     protected function prepareQueryBuilder($columns = ['*'])
     {
@@ -683,10 +683,10 @@ abstract class HasOneOrManyThrough extends Relation
     /**
      * Add the constraints for a relationship query on the same table.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TDeclaringModel>  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TDeclaringModel>  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>
      */
     public function getRelationExistenceQueryForSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
@@ -708,10 +708,10 @@ abstract class HasOneOrManyThrough extends Relation
     /**
      * Add the constraints for a relationship query on the same table as the through parent.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TDeclaringModel>  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TDeclaringModel>  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>
      */
     public function getRelationExistenceQueryForThroughSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
     {

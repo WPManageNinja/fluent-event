@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Pagination;
+namespace FluentEvent\Framework\Pagination;
 
 use UnexpectedValueException;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Support\ArrayableInterface;
 
 class Cursor implements ArrayableInterface
 {

@@ -1,18 +1,18 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
-Use FluentEvents\Framework\Support\Enumerable;
+Use FluentEvent\Framework\Support\Enumerable;
 
 /**
- * @mixin \FluentEvents\Framework\Support\Enumerable
+ * @mixin \FluentEvent\Framework\Support\Enumerable
  */
 class HigherOrderCollectionProxy
 {
     /**
      * The collection being operated on.
      *
-     * @var \FluentEvents\Framework\Support\Enumerable
+     * @var \FluentEvent\Framework\Support\Enumerable
      */
     protected $collection;
 
@@ -26,7 +26,7 @@ class HigherOrderCollectionProxy
     /**
      * Create a new proxy instance.
      *
-     * @param  \FluentEvents\Framework\Support\Enumerable  $collection
+     * @param  \FluentEvent\Framework\Support\Enumerable  $collection
      * @param  string  $method
      * @return void
      */

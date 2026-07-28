@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
 
 class HasManyThrough extends HasOneOrManyThrough
 {
@@ -12,7 +12,7 @@ class HasManyThrough extends HasOneOrManyThrough
     /**
      * Convert the relationship to a "has one through" relationship.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasOneThrough
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasOneThrough
      */
     public function one()
     {

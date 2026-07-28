@@ -1,16 +1,16 @@
 <?php
 
-namespace FluentEvents\App\Hooks\Handlers;
+namespace FluentEvent\App\Hooks\Handlers;
 
-use FluentEvents\Database\DBMigrator;
-use FluentEvents\Framework\Foundation\Application;
+use FluentEvent\Database\DBMigrator;
+use FluentEvent\Framework\Foundation\Application;
 
 class ActivationHandler
 {
     /**
      * Application container injected by the framework.
      *
-     * @var \FluentEvents\Framework\Foundation\Application|null
+     * @var \FluentEvent\Framework\Foundation\Application|null
      */
     protected $app = null;
 
@@ -18,7 +18,7 @@ class ActivationHandler
      * Store the Application instance so activation routines can reach the
      * container (config, db, etc.) without globals.
      *
-     * @param  \FluentEvents\Framework\Foundation\Application  $app
+     * @param  \FluentEvent\Framework\Foundation\Application  $app
      */
     public function __construct(Application $app)
     {

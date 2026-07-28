@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Validator;
+namespace FluentEvent\Framework\Validator;
 
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Helper;
 
 class ValidationData
 {

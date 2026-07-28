@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Relations\Concerns;
 
-use FluentEvents\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Model;
 
 trait SupportsDefaultModels
 {
@@ -18,8 +18,8 @@ trait SupportsDefaultModels
     /**
      * Make a new related instance for the given model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     abstract protected function newRelatedInstanceFor(Model $parent);
 
@@ -39,8 +39,8 @@ trait SupportsDefaultModels
     /**
      * Get the default value for this relation.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
-     * @return \FluentEvents\Framework\Database\Orm\Model|null
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
+     * @return \FluentEvent\Framework\Database\Orm\Model|null
      */
     protected function getDefaultFor(Model $parent)
     {

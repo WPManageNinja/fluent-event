@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Cache;
+namespace FluentEvent\Framework\Cache;
 
 use Closure;
 use Throwable;
 use RuntimeException;
-use FluentEvents\Framework\Support\Path;
-use FluentEvents\Framework\Foundation\App;
+use FluentEvent\Framework\Support\Path;
+use FluentEvent\Framework\Foundation\App;
 
 class Cache
 {

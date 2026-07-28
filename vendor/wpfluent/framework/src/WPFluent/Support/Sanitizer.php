@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
-use FluentEvents\Framework\Support\DateTime;
+use FluentEvent\Framework\Support\DateTime;
 
 class Sanitizer
 {
@@ -410,7 +410,7 @@ class Sanitizer
      * @param  string       $key
      * @param  string|null  $format
      * @param  string|null|\DateTimeZone  $tz
-     * @return \FluentEvents\Framework\Support\DateTime|null
+     * @return \FluentEvent\Framework\Support\DateTime|null
      */
     public static function sanitizeDate($value, $format, $tz)
     {

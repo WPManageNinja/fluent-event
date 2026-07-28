@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 interface SupportsPartialRelations
 {
@@ -24,7 +24,7 @@ interface SupportsPartialRelations
     /**
      * Get the one of many inner join subselect query builder instance.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder|void
+     * @return \FluentEvent\Framework\Database\Orm\Builder|void
      */
     public function getOneOfManySubQuery();
 }

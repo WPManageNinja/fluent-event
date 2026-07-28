@@ -7,7 +7,7 @@
 <marker id="ard97706" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto-start-reverse"><path d="M1,1 L9,5 L1,9 z" fill="#d97706"/></marker>
 </defs>
 <rect x="0" y="0" width="1210" height="612" fill="#f8fafc"/>
-<text x="40" y="40" font-size="24" font-weight="700" fill="#0f172a">Fluent Events — Top-Level Architecture</text>
+<text x="40" y="40" font-size="24" font-weight="700" fill="#0f172a">Fluent Event — Top-Level Architecture</text>
 <text x="40" y="61" font-size="12" fill="#64748b">Request flows down the left spine; writes emit events that fan out async to notifications, email, and the audit log.</text>
 <path d="M245.0,154 C245.0,200 245.0,152 245.0,198" fill="none" stroke="#64748b" stroke-width="1.8" opacity="0.75" marker-start="url(#ar64748b)" marker-end="url(#ar64748b)"/>
 <path d="M245.0,256 C245.0,302 260.0,254 260.0,300" fill="none" stroke="#64748b" stroke-width="1.8" opacity="0.75" marker-end="url(#ar64748b)"/>
@@ -42,7 +42,7 @@
 <g><rect x="80" y="198" width="330" height="58" rx="9" fill="#ffffff" stroke="#4f46e5" stroke-width="1.8"/>
 <rect x="80" y="198" width="6" height="58" rx="3" fill="#4f46e5"/>
 <text x="96" y="220" font-size="13.5" font-weight="700" fill="#4f46e5">REST / AJAX API</text>
-<text x="96" y="238" font-size="9.2" fill="#64748b">fluent-events/v1 · nonce · policy</text>
+<text x="96" y="238" font-size="9.2" fill="#64748b">fluent-event/v1 · nonce · policy</text>
 </g>
 <g><rect x="80" y="300" width="360" height="96" rx="9" fill="#ffffff" stroke="#4338ca" stroke-width="1.8"/>
 <rect x="80" y="300" width="6" height="96" rx="3" fill="#4338ca"/>
@@ -57,7 +57,7 @@
 <g><rect x="530" y="318" width="250" height="58" rx="9" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
 <rect x="530" y="318" width="6" height="58" rx="3" fill="#7c3aed"/>
 <text x="546" y="340" font-size="13.5" font-weight="700" fill="#7c3aed">Event Bus</text>
-<text x="546" y="358" font-size="9.2" fill="#64748b">do_action('fluent_events/*')</text>
+<text x="546" y="358" font-size="9.2" fill="#64748b">do_action('fluent_event/*')</text>
 </g>
 <g><rect x="530" y="412" width="300" height="58" rx="9" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
 <rect x="530" y="412" width="6" height="58" rx="3" fill="#7c3aed"/>

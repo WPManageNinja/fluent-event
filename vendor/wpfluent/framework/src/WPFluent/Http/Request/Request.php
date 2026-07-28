@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Request;
+namespace FluentEvent\Framework\Http\Request;
 
 use Closure;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\MacroableTrait;
-use FluentEvents\Framework\Foundation\Application;
-use FluentEvents\Framework\Validator\ValidationException;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Foundation\Application;
+use FluentEvent\Framework\Validator\ValidationException;
 
 class Request
 {
@@ -22,14 +22,14 @@ class Request
 
     /**
      * The application instance
-     * @var \FluentEvents\Framework\Foundation\Application
+     * @var \FluentEvent\Framework\Foundation\Application
      */
     protected $app = null;
 
     /**
      * Validator instance.
      * 
-     * @var \FluentEvents\Framework\Validator\Validator
+     * @var \FluentEvent\Framework\Validator\Validator
      */
     protected $validator = null;
 
@@ -105,7 +105,7 @@ class Request
 
     /**
      * Construct the request instance
-     * @param \FluentEvents\Framework\Foundation\Application $app
+     * @param \FluentEvent\Framework\Foundation\Application $app
      * @param $_GET $get
      * @param $_POST $post
      */
@@ -687,7 +687,7 @@ class Request
      * @param  array $rules
      * @param  array $messages
      * @return mixed
-     * @throws \FluentEvents\Framework\Validator\ValidationException
+     * @throws \FluentEvent\Framework\Validator\ValidationException
      */
     public function validate(array $rules, array $messages = [])
     {
@@ -709,7 +709,7 @@ class Request
     /**
      * Get the validator instance.
      * 
-     * @return \FluentEvents\Framework\Validator\Validator
+     * @return \FluentEvent\Framework\Validator\Validator
      */
     public function getValidator()
     {
@@ -783,7 +783,7 @@ class Request
      * Throw a validation exception if status is validation exception.
      * @param  mixed $status
      * @return void
-     * @throws \FluentEvents\Framework\Validator\ValidationException
+     * @throws \FluentEvent\Framework\Validator\ValidationException
      */
     protected function maybeThrowValidationException($status)
     {
@@ -814,7 +814,7 @@ class Request
     /**
      * Retrieves the currently logged in user.
      * 
-     * @return \FluentEvents\Framework\Http\Request\WPUserProxy
+     * @return \FluentEvent\Framework\Http\Request\WPUserProxy
      */
     public function user()
     {

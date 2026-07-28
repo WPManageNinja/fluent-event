@@ -12,7 +12,7 @@ require_once __DIR__ . '/logoicon.php';
  */
 
 /**
- * @var $app FluentEvents\Framework\Foundation\Application
+ * @var $app FluentEvent\Framework\Foundation\Application
  */
 
 $app->addAction('admin_menu', 'AdminMenuHandler');

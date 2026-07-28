@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Relations\Concerns;
 
-use FluentEvents\Framework\Support\InvalidArgumentException;
+use FluentEvent\Framework\Support\InvalidArgumentException;
 
 trait InteractsWithDictionary
 {
@@ -12,7 +12,7 @@ trait InteractsWithDictionary
      * @param  mixed  $attribute
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Support\InvalidArgumentException
+     * @throws \FluentEvent\Framework\Support\InvalidArgumentException
      */
     protected function getDictionaryKey($attribute)
     {

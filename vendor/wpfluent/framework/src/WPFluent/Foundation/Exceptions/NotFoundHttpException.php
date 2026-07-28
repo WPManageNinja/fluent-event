@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation\Exceptions;
+namespace FluentEvent\Framework\Foundation\Exceptions;
 
 use Throwable;
 
 /**
  * 404 Not Found — the requested resource does not exist.
  *
- * Note: ORM lookups continue to use FluentEvents\Framework\Database\Orm\ModelNotFoundException
+ * Note: ORM lookups continue to use FluentEvent\Framework\Database\Orm\ModelNotFoundException
  * which has its own dedicated catch in Route::callback(). Use this class for
  * non-ORM 404s (custom lookups, file-not-found surfaced to the client, etc.).
  */

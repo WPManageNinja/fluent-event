@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
 use BadMethodCallException;
-use FluentEvents\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Arr;
 
 class DatabaseManager
 {

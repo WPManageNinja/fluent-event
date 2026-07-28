@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\App\Utils\Enqueuer;
+namespace FluentEvent\App\Utils\Enqueuer;
 
 use Exception;
-use FluentEvents\App\App;
-use FluentEvents\Framework\Support\Arr;
+use FluentEvent\App\App;
+use FluentEvent\Framework\Support\Arr;
 
 class Vite extends Enqueuer
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Concerns;
 
-use FluentEvents\Framework\Events\DispatcherInterface;
-use FluentEvents\Framework\Events\NullDispatcher;
-use FluentEvents\Framework\Support\Arr;
+use FluentEvent\Framework\Events\DispatcherInterface;
+use FluentEvent\Framework\Events\NullDispatcher;
+use FluentEvent\Framework\Support\Arr;
 use InvalidArgumentException;
 
 trait HasEvents
@@ -372,7 +372,7 @@ trait HasEvents
     /**
      * Get the event dispatcher instance.
      *
-     * @return \FluentEvents\Framework\Events\Dispatcher
+     * @return \FluentEvent\Framework\Events\Dispatcher
      */
     public static function getEventDispatcher()
     {
@@ -382,7 +382,7 @@ trait HasEvents
     /**
      * Set the event dispatcher instance.
      *
-     * @param  \FluentEvents\Framework\Events\Dispatcher  $dispatcher
+     * @param  \FluentEvent\Framework\Events\Dispatcher  $dispatcher
      * @return void
      */
     public static function setEventDispatcher(DispatcherInterface $dispatcher)

@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 use Exception;
 use BadMethodCallException;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Http\Request\File;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Http\Request\File;
 
 /**
  * @method mixed get(string $url, array $params = [])     Send a GET request.
@@ -355,7 +355,7 @@ class Client
 	 * 
 	 * @param  string $url
 	 * @param  array  $args
-	 * @return \FluentEvents\Framework\Http\Response
+	 * @return \FluentEvent\Framework\Http\Response
 	 */
 	protected function request($url, $args = [])
 	{
@@ -462,7 +462,7 @@ class Client
 	 * Build a response object from an anonymous class.
 	 * 
 	 * @param  array $response
-	 * @return \FluentEvents\Framework\Http\Response
+	 * @return \FluentEvent\Framework\Http\Response
 	 */
 	protected function makeResponse($response)
 	{
@@ -473,7 +473,7 @@ class Client
      * Handle the streaming response and process chunks.
      *
      * @param  array $response
-     * @return \FluentEvents\Framework\Http\Response|null
+     * @return \FluentEvent\Framework\Http\Response|null
      */
     protected function makeStreamResponse($response)
 	{
@@ -515,7 +515,7 @@ class Client
 	 * Download a remote file.
 	 * 
 	 * @param  string $url
-	 * @return \FluentEvents\Framework\Http\Request\File
+	 * @return \FluentEvent\Framework\Http\Request\File
 	 * @throws \Exception
 	 */
 	public function downloadFile($url)
@@ -554,7 +554,7 @@ class Client
 	 * @param  string $path
 	 * @param  array  $fields
 	 * @param  string $name
-	 * @return \FluentEvents\Framework\Http\Response
+	 * @return \FluentEvent\Framework\Http\Response
 	 */
 	public function uploadFile($url, $path, $fields = [], $name = 'file')
 	{

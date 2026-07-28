@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use stdClass;
 use ArrayAccess;
 use ArrayIterator;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\MacroableTrait;
-use FluentEvents\Framework\Support\EnumeratesValues;
-use FluentEvents\Framework\Support\CanBeEscapedWhenCastToString;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Support\EnumeratesValues;
+use FluentEvent\Framework\Support\CanBeEscapedWhenCastToString;
 
 class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerable
 {
@@ -78,7 +78,7 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
     /**
      * Get a lazy collection for the items in this collection.
      *
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      */
     public function lazy()
     {
@@ -354,7 +354,7 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
     /**
      * Get all items except for those with the specified keys.
      *
-     * @param  \FluentEvents\Framework\Support\Collection|mixed  $keys
+     * @param  \FluentEvent\Framework\Support\Collection|mixed  $keys
      * @return static
      */
     public function except($keys)
@@ -1234,8 +1234,8 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
      * @param  mixed  $value
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Support\ItemNotFoundException
-     * @throws \FluentEvents\Framework\Support\MultipleItemsFoundException
+     * @throws \FluentEvent\Framework\Support\ItemNotFoundException
+     * @throws \FluentEvent\Framework\Support\MultipleItemsFoundException
      */
     public function sole($key = null, $operator = null, $value = null)
     {
@@ -1264,7 +1264,7 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
      * @param  mixed  $value
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Support\ItemNotFoundException
+     * @throws \FluentEvent\Framework\Support\ItemNotFoundException
      */
     public function firstOrFail($key = null, $operator = null, $value = null)
     {
@@ -1692,7 +1692,7 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
     /**
      * Get a base Support collection instance from this collection.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function toBase()
     {

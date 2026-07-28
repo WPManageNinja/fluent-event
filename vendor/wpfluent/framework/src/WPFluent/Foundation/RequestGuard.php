@@ -1,18 +1,18 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation;
+namespace FluentEvent\Framework\Foundation;
 
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Validator\ValidationException;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Validator\ValidationException;
 
 /**
- * @property \FluentEvents\Framework\Http\Request\Request $request
+ * @property \FluentEvent\Framework\Http\Request\Request $request
  */
 abstract class RequestGuard
 {
     /**
      * The request instance.
-     * @var \FluentEvents\Framework\Http\Request\Request
+     * @var \FluentEvent\Framework\Http\Request\Request
      */
     protected $request;
 
@@ -58,7 +58,7 @@ abstract class RequestGuard
      * @param  array $rules Optional
      * @param  array $messages Optional
      * @return array Request Data
-     * @throws \FluentEvents\Framework\Validator\ValidationException
+     * @throws \FluentEvent\Framework\Validator\ValidationException
      */
     public function validate($rules = [], $messages = [])
     {
@@ -105,7 +105,7 @@ abstract class RequestGuard
     /**
      * Handles validation including before and after calls
      *
-     * @throws \FluentEvents\Framework\Validator\ValidationException
+     * @throws \FluentEvent\Framework\Validator\ValidationException
      * @return void
      */
     public static function applyValidation()
@@ -146,7 +146,7 @@ abstract class RequestGuard
     /**
      * Set the request instance.
      * 
-     * @param \FluentEvents\Framework\Http\Request\Request $request
+     * @param \FluentEvent\Framework\Http\Request\Request $request
      */
     public function setRequestInstance($request)
     {

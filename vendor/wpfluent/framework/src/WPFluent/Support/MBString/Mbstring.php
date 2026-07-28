@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support\MBString;
+namespace FluentEvent\Framework\Support\MBString;
 
 /**
  * A minimal, dependency-free fallback for the handful of ext-mbstring

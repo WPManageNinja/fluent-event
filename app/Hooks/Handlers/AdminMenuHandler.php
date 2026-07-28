@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\App\Hooks\Handlers;
+namespace FluentEvent\App\Hooks\Handlers;
 
-use FluentEvents\App\App;
-use FluentEvents\App\Utils\Enqueuer\Enqueue;
+use FluentEvent\App\App;
+use FluentEvent\App\Utils\Enqueuer\Enqueue;
 
 class AdminMenuHandler
 {
     /**
      * $app Application instance
-     * @var \FluentEvents\Framework\Foundation\Application
+     * @var \FluentEvent\Framework\Foundation\Application
      */
     protected $app;
 
@@ -27,7 +27,7 @@ class AdminMenuHandler
     
     /**
      * $app Config instance
-     * @var \FluentEvents\Framework\Foundation\Config
+     * @var \FluentEvent\Framework\Foundation\Config
      */
     protected $config;
 
@@ -59,8 +59,8 @@ class AdminMenuHandler
     public function add()
     {
         add_menu_page(
-            __('Fluent Events', 'fluent-events'),
-            __('Fluent Events', 'fluent-events'),
+            __('Fluent Event', 'fluent-event'),
+            __('Fluent Event', 'fluent-event'),
             'manage_options',
             $this->slug,
             [$this, 'render'],
@@ -220,7 +220,7 @@ class AdminMenuHandler
     /**
      * Get and map menu items for main nav.
      *
-     * @return \FluentEvents\App\Utils\Vue\Router
+     * @return \FluentEvent\App\Utils\Vue\Router
      */
     protected function getAdminRoutes()
     {
@@ -231,7 +231,7 @@ class AdminMenuHandler
      * Get and map menu items for main nav.
      *
      * @param  string $baseUrl
-     * @return \FluentEvents\App\Utils\Vue\Router
+     * @return \FluentEvent\App\Utils\Vue\Router
      */
     protected function getMenuItems($baseUrl)
     {
@@ -240,7 +240,7 @@ class AdminMenuHandler
 
     /**
      * Register frontend routes and menu items.
-     * @return \FluentEvents\App\Utils\Vue\Router
+     * @return \FluentEvent\App\Utils\Vue\Router
      */
     protected function registerRoutesAndMenu()
     {

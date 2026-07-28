@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Request;
+namespace FluentEvent\Framework\Http\Request;
 
-use FluentEvents\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Arr;
 
 trait InteractsWithHeadersTrait
 {

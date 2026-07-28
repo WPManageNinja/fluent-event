@@ -1,20 +1,20 @@
 <?php
 
-namespace FluentEvents\Framework\Container;
+namespace FluentEvent\Framework\Container;
 
 use Closure;
 use ReflectionMethod;
 use ReflectionFunction;
 use InvalidArgumentException;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Container\Contracts\BindingResolutionException;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Container\Contracts\BindingResolutionException;
 
 class BoundMethod
 {
     /**
      * Call the given Closure / class@method and inject its dependencies.
      *
-     * @param  \FluentEvents\Framework\Container\Container  $container
+     * @param  \FluentEvent\Framework\Container\Container  $container
      * @param  callable|string  $callback
      * @param  array  $parameters
      * @param  string|null  $defaultMethod
@@ -55,7 +55,7 @@ class BoundMethod
     /**
      * Call a string reference to a class using Class@method syntax.
      *
-     * @param  \FluentEvents\Framework\Container\Container  $container
+     * @param  \FluentEvent\Framework\Container\Container  $container
      * @param  string  $target
      * @param  array  $parameters
      * @param  string|null  $defaultMethod
@@ -86,7 +86,7 @@ class BoundMethod
     /**
      * Call a method that has been bound to the container.
      *
-     * @param  \FluentEvents\Framework\Container\Container  $container
+     * @param  \FluentEvent\Framework\Container\Container  $container
      * @param  callable  $callback
      * @param  mixed  $default
      * @return mixed
@@ -125,7 +125,7 @@ class BoundMethod
     /**
      * Get all dependencies for a given method.
      *
-     * @param  \FluentEvents\Framework\Container\Container  $container
+     * @param  \FluentEvent\Framework\Container\Container  $container
      * @param  callable|string  $callback
      * @param  array  $parameters
      * @return array
@@ -169,13 +169,13 @@ class BoundMethod
     /**
      * Get the dependency for the given call parameter.
      *
-     * @param  \FluentEvents\Framework\Container\Container  $container
+     * @param  \FluentEvent\Framework\Container\Container  $container
      * @param  \ReflectionParameter  $parameter
      * @param  array  $parameters
      * @param  array  $dependencies
      * @return void
      *
-     * @throws \FluentEvents\Framework\Container\Contracts\BindingResolutionException
+     * @throws \FluentEvent\Framework\Container\Contracts\BindingResolutionException
      */
     protected static function addDependencyForCallParameter(
         $container, $parameter, array &$parameters, &$dependencies

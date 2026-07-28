@@ -1,22 +1,22 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
-use FluentEvents\Framework\Support\Collection;
+use FluentEvent\Framework\Support\Collection;
 
 class DatabaseTransactionsManager
 {
     /**
      * All of the committed transactions.
      *
-     * @var \FluentEvents\Framework\Support\Collection<int, \FluentEvents\Framework\Database\DatabaseTransactionRecord>
+     * @var \FluentEvent\Framework\Support\Collection<int, \FluentEvent\Framework\Database\DatabaseTransactionRecord>
      */
     protected $committedTransactions;
 
     /**
      * All of the pending transactions.
      *
-     * @var \FluentEvents\Framework\Support\Collection<int, \FluentEvents\Framework\Database\DatabaseTransactionRecord>
+     * @var \FluentEvent\Framework\Support\Collection<int, \FluentEvent\Framework\Database\DatabaseTransactionRecord>
      */
     protected $pendingTransactions;
 
@@ -184,7 +184,7 @@ class DatabaseTransactionsManager
     /**
      * Remove all transactions that are children of the given transaction.
      *
-     * @param  \FluentEvents\Framework\Database\DatabaseTransactionRecord  $transaction
+     * @param  \FluentEvent\Framework\Database\DatabaseTransactionRecord  $transaction
      * @return void
      */
     protected function removeCommittedTransactionsThatAreChildrenOf(DatabaseTransactionRecord $transaction)
@@ -234,7 +234,7 @@ class DatabaseTransactionsManager
     /**
      * Get the transactions that are applicable to callbacks.
      *
-     * @return \FluentEvents\Framework\Support\Collection<int, \FluentEvents\Framework\Database\DatabaseTransactionRecord>
+     * @return \FluentEvent\Framework\Support\Collection<int, \FluentEvent\Framework\Database\DatabaseTransactionRecord>
      */
     public function callbackApplicableTransactions()
     {
@@ -256,7 +256,7 @@ class DatabaseTransactionsManager
     /**
      * Get all of the pending transactions.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function getPendingTransactions()
     {
@@ -266,7 +266,7 @@ class DatabaseTransactionsManager
     /**
      * Get all of the committed transactions.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function getCommittedTransactions()
     {

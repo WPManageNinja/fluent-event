@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\View\View;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\View\View;
 
 class Mail
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation\Exceptions;
+namespace FluentEvent\Framework\Foundation\Exceptions;
 
 use Throwable;
 
@@ -9,7 +9,7 @@ use Throwable;
  * semantically rejected (business-rule violation, etc.).
  *
  * For framework validation failures, the existing
- * FluentEvents\Framework\Validator\ValidationException retains its dedicated catch in
+ * FluentEvent\Framework\Validator\ValidationException retains its dedicated catch in
  * Route::callback(). Use this class for application-level semantic errors.
  */
 class UnprocessableEntityHttpException extends HttpException

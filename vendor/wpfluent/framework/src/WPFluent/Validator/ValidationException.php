@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Validator;
+namespace FluentEvent\Framework\Validator;
 
 use Exception;
 

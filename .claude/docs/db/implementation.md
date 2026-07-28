@@ -10,13 +10,13 @@
 
 | Concern | Store | Why |
 |---|---|---|
-| Event identity — title, description, slug, status, author | **`wp_posts`** (`post_type=fevents_event`) | free permalink `/events/x/`, block editor, admin, REST, search, archive |
+| Event identity — title, description, slug, status, author | **`wp_posts`** (`post_type=fevent_event`) | free permalink `/events/x/`, block editor, admin, REST, search, archive |
 | Event add-on / open-ended fields | **`wp_postmeta`** | extensible by add-ons, never range-queried. *(Core event config is the `settings` JSON **column** on `wp_fe_event_details`, not postmeta.)* |
 | Event machine data — dates, timezone, venue_type, calendar_id, parent_event_id, status | **`wp_fe_event_details`** (1:1, `post_id` FK) | typed, indexed, range-queryable; what ticketing FKs to |
 | Event config JSON — registration_type, join_policy, waitlist, cover_url, online_meeting_url, recurrence | **`wp_fe_event_details.settings`** (JSON column) | travels with the typed row; never range-queried, so it doesn't earn columns |
 | Category / type, venue, organizer, performer | **WP taxonomies** (`wp_terms` + `wp_term_taxonomy` + `wp_termmeta`) | reusable across events, filter + free `/organizer/x/` archive + auto count |
 | Ticketing — tiers, orders, attendees | **custom tables** (`ticket_types`→`guests`; an order = guest rows sharing `group_id`, `is_buyer=1` row carries payment) | high-volume, transactional, typed, `SUM`/`sold<slot` queries |
-| Performer detail | `fevents_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
+| Performer detail | `fevent_performer` term + term meta (photo, designation, social) | **thin** — a name+photo you tag events with, no bio/profile page. Migrate to a CPT only if rich profiles are ever needed. |
 
 **Key identity rule:** `wp_fe_event_details.id` is the internal PK all ticketing FKs use
 (`event_id`). `wp_fe_event_details.post_id` is the 1:1 link to the `wp_posts` row and the
@@ -27,7 +27,7 @@
 
 ```php
 // The event as a CPT — gives us the page, editor, admin, REST, archive for free.
-register_post_type('fevents_event', [
+register_post_type('fevent_event', [
     'public'       => true,
     'has_archive'  => true,                 // /events/
     'rewrite'      => ['slug' => 'events'],
@@ -37,12 +37,12 @@ register_post_type('fevents_event', [
 
 // Classification — reusable, filterable, browsable, with term meta.
 foreach ([
-    'fevents_event_type' => ['label' => 'Event Types', 'hierarchical' => true],
-    'fevents_venue'      => ['label' => 'Venues',       'hierarchical' => true],
-    'fevents_organizer'  => ['label' => 'Organizers',   'hierarchical' => true],
-    'fevents_performer'  => ['label' => 'Performers',    'hierarchical' => false], // flat, like tags
+    'fevent_event_type' => ['label' => 'Event Types', 'hierarchical' => true],
+    'fevent_venue'      => ['label' => 'Venues',       'hierarchical' => true],
+    'fevent_organizer'  => ['label' => 'Organizers',   'hierarchical' => true],
+    'fevent_performer'  => ['label' => 'Performers',    'hierarchical' => false], // flat, like tags
 ] as $tax => $args) {
-    register_taxonomy($tax, 'fevents_event', [
+    register_taxonomy($tax, 'fevent_event', [
         'public'       => true,
         'show_in_rest' => true,
     ] + $args);
@@ -53,7 +53,7 @@ foreach ([
 
 | # | Writes | Notes |
 |---|---|---|
-| 1 | `wp_posts` — 1 `fevents_event` row | title / editor body / slug / status=publish / author |
+| 1 | `wp_posts` — 1 `fevent_event` row | title / editor body / slug / status=publish / author |
 | 2 | `wp_postmeta` — add-on / open-ended blobs only | core event config is `event_details.settings` (step 4), not postmeta |
 | 3 | `wp_term_relationships` — event ↔ event_type / venue / organizer terms | `wp_set_object_terms($post_id, $termIds, $tax)` (assign, M:N) |
 | 4 | `wp_fe_event_details` — 1 row (`post_id` FK) | typed: start_at, end_at, timezone, venue_type, calendar_id, parent_event_id, status (all NOT NULL except parent_event_id) |
@@ -63,15 +63,15 @@ foreach ([
 ```php
 DB::transaction(function () use ($data) {
     $postId = wp_insert_post([
-        'post_type'   => 'fevents_event',
+        'post_type'   => 'fevent_event',
         'post_title'  => sanitize_text_field($data['title']),
         'post_content'=> wp_kses_post($data['description']),
         'post_status' => 'publish',
     ], true);
     // taxonomy assignment (reusable classifiers)
-    wp_set_object_terms($postId, (array) $data['organizer_ids'], 'fevents_organizer');
-    wp_set_object_terms($postId, (array) $data['venue_ids'],     'fevents_venue');
-    wp_set_object_terms($postId, (array) $data['type_ids'],      'fevents_event_type');
+    wp_set_object_terms($postId, (array) $data['organizer_ids'], 'fevent_organizer');
+    wp_set_object_terms($postId, (array) $data['venue_ids'],     'fevent_venue');
+    wp_set_object_terms($postId, (array) $data['type_ids'],      'fevent_event_type');
     // typed machine data + the config JSON, one row
     Event::create([
         'post_id'     => $postId,                       // NOT NULL, unique
@@ -98,29 +98,29 @@ An organizer is **not a post** — it's a **term** + term meta. Reusable across 
 | # | Writes |
 |---|---|
 | 1 | `wp_terms` — the name/slug |
-| 2 | `wp_term_taxonomy` — 1 row, `taxonomy='fevents_organizer'`, `count` auto-maintained |
+| 2 | `wp_term_taxonomy` — 1 row, `taxonomy='fevent_organizer'`, `count` auto-maintained |
 | 3 | `wp_termmeta` — the extra fields |
 
 ```php
-$term = wp_insert_term($name, 'fevents_organizer');            // wp_terms + wp_term_taxonomy
+$term = wp_insert_term($name, 'fevent_organizer');            // wp_terms + wp_term_taxonomy
 $tid  = $term['term_id'];
-update_term_meta($tid, 'fevents_email',   sanitize_email($email));
-update_term_meta($tid, 'fevents_phone',   sanitize_text_field($phone));
-update_term_meta($tid, 'fevents_website', esc_url_raw($site));
-update_term_meta($tid, 'fevents_logo_id', absint($attachmentId));   // WP media library
+update_term_meta($tid, 'fevent_email',   sanitize_email($email));
+update_term_meta($tid, 'fevent_phone',   sanitize_text_field($phone));
+update_term_meta($tid, 'fevent_website', esc_url_raw($site));
+update_term_meta($tid, 'fevent_logo_id', absint($attachmentId));   // WP media library
 ```
 Term meta keys per taxonomy:
-- `fevents_event_type` → `fevents_color`, `fevents_icon_id`
-- `fevents_venue` → `fevents_address`, `fevents_city`, `fevents_map_url`, `fevents_lat`, `fevents_lng` *(view-only; no geo query)*
-- `fevents_organizer` → `fevents_email`, `fevents_phone`, `fevents_website`, `fevents_social`, `fevents_logo_id`
-- `fevents_performer` → `fevents_photo_id`, `fevents_designation`, `fevents_social` *(thin — no bio/profile)*
+- `fevent_event_type` → `fevent_color`, `fevent_icon_id`
+- `fevent_venue` → `fevent_address`, `fevent_city`, `fevent_map_url`, `fevent_lat`, `fevent_lng` *(view-only; no geo query)*
+- `fevent_organizer` → `fevent_email`, `fevent_phone`, `fevent_website`, `fevent_social`, `fevent_logo_id`
+- `fevent_performer` → `fevent_photo_id`, `fevent_designation`, `fevent_social` *(thin — no bio/profile)*
 
 ## 5. Reads
 
 ```php
 // events by organizer (reusable classifier) — the payoff of taxonomy
-new WP_Query(['post_type'=>'fevents_event',
-  'tax_query'=>[['taxonomy'=>'fevents_organizer','terms'=>$organizerId]]]);
+new WP_Query(['post_type'=>'fevent_event',
+  'tax_query'=>[['taxonomy'=>'fevent_organizer','terms'=>$organizerId]]]);
 
 // a date-range calendar view — hits the typed custom table, not meta
 Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
@@ -135,11 +135,11 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
   `visibility` → `post_status`; `created_by` → `post_author`; `cover_image_id` →
   `event_details.settings.cover_url` (a plain URL, **not** `_thumbnail_id` — see
   [FR-7 media](../functional-requirements/media-archive/media-archive.md) for the trade-off);
-  `address` / `lat` / `lon` → `fevents_venue` term meta. **Added** `post_id` (1:1 FK, unique,
+  `address` / `lat` / `lon` → `fevent_venue` term meta. **Added** `post_id` (1:1 FK, unique,
   taxonomy anchor).
 - **Added** the 3 taxonomies + `wp_termmeta` usage (WP-native, not our tables).
 - **Dropped** `wp_fe_sponsors` — not needed now. If sponsors return, they'll be a
-  taxonomy (`fevents_sponsor`) like organizer, not a table.
+  taxonomy (`fevent_sponsor`) like organizer, not a table.
 
 ## 7. Guardrails that apply
 
@@ -148,7 +148,7 @@ Event::whereBetween('start_at', [$from, $to])->where('status','active')->get();
   field on write (`sanitize_email`/`esc_url_raw`/`absint`).
 - Event body (`post_content`) rendered through `wp_kses_post`; term/name output escaped
   at the sink ([always.md](../../rules/always.md)).
-- The event↔post is 1:1 — deleting the `fevents_event` post cascades the
+- The event↔post is 1:1 — deleting the `fevent_event` post cascades the
   `wp_fe_event_details` row (`ON DELETE CASCADE`), which cascades ticket_types / guests.
   A guest's `ticket_type_id` is `RESTRICT` (can't orphan a sold ticket).
 - **Order = a group of `guests` rows** sharing `group_id` (no separate registrations

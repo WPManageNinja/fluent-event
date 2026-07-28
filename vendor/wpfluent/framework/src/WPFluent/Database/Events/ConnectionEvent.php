@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Events;
+namespace FluentEvent\Framework\Database\Events;
 
 abstract class ConnectionEvent
 {
@@ -14,14 +14,14 @@ abstract class ConnectionEvent
     /**
      * The database connection instance.
      *
-     * @var \FluentEvents\Framework\Database\Query\WPDBConnection  $connection
+     * @var \FluentEvent\Framework\Database\Query\WPDBConnection  $connection
      */
     public $connection;
 
     /**
      * Create a new event instance.
      *
-     * @var \FluentEvents\Framework\Database\Query\WPDBConnection  $connection
+     * @var \FluentEvent\Framework\Database\Query\WPDBConnection  $connection
      * @return void
      */
     public function __construct($connection)

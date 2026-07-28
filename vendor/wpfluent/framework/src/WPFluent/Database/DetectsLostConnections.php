@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
 use Throwable;
-use FluentEvents\Framework\Support\Str;
+use FluentEvent\Framework\Support\Str;
 
 trait DetectsLostConnections
 {

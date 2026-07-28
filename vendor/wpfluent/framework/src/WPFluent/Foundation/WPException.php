@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation;
+namespace FluentEvent\Framework\Foundation;
 
 use Exception;
 use WP_Error;

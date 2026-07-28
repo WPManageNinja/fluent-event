@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Validator;
+namespace FluentEvent\Framework\Validator;
 
 use Closure;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Foundation\App;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Foundation\App;
 
 class Validator
 {
@@ -118,7 +118,7 @@ class Validator
      * @param array $rules
      * @param array $messages
      *
-     * @return \FluentEvents\Framework\Validator\Validator
+     * @return \FluentEvent\Framework\Validator\Validator
      */
     public static function make(array $data, array $rules = [], array $messages = [])
     {

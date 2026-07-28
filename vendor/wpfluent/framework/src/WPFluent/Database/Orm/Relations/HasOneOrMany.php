@@ -1,14 +1,14 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\UniqueConstraintViolationException;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\SupportsInverseRelations;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\UniqueConstraintViolationException;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\InteractsWithDictionary;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\SupportsInverseRelations;
 
 /**
  * @template TRelatedModel of Model
@@ -34,8 +34,8 @@ abstract class HasOneOrMany extends Relation
     /**
      * Create a new has one or many relationship instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  string  $foreignKey
      * @param  string  $localKey
      * @return void
@@ -52,7 +52,7 @@ abstract class HasOneOrMany extends Relation
      * Create and return an un-saved instance of the related model.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function make(array $attributes = [])
     {
@@ -68,7 +68,7 @@ abstract class HasOneOrMany extends Relation
      * Create and return an un-saved instance of the related models.
      *
      * @param  iterable  $records
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     public function makeMany($records)
     {
@@ -119,7 +119,7 @@ abstract class HasOneOrMany extends Relation
      * Match the eagerly loaded results to their single parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @return array
      */
@@ -132,7 +132,7 @@ abstract class HasOneOrMany extends Relation
      * Match the eagerly loaded results to their many parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @return array
      */
@@ -145,7 +145,7 @@ abstract class HasOneOrMany extends Relation
      * Match the eagerly loaded results to their many parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @param  string  $type
      * @return array
@@ -190,7 +190,7 @@ abstract class HasOneOrMany extends Relation
     /**
      * Build model dictionary keyed by the relation's foreign key.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @return array
      */
     protected function buildDictionary(Collection $results)
@@ -207,7 +207,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Support\Collection|\FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Support\Collection|\FluentEvent\Framework\Database\Orm\Model
      */
     public function findOrNew($id, $columns = ['*'])
     {
@@ -225,7 +225,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function firstOrNew(array $attributes = [], array $values = [])
     {
@@ -243,7 +243,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function firstOrCreate(array $attributes = [], array $values = [])
     {
@@ -278,7 +278,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function updateOrCreate(array $attributes, array $values = [])
     {
@@ -316,8 +316,8 @@ abstract class HasOneOrMany extends Relation
     /**
      * Attach a model instance to the parent model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
-     * @return \FluentEvents\Framework\Database\Orm\Model|false
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
+     * @return \FluentEvent\Framework\Database\Orm\Model|false
      */
     public function save(Model $model)
     {
@@ -372,7 +372,7 @@ abstract class HasOneOrMany extends Relation
      * Create a new instance of the related model.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function create(array $attributes = [])
     {
@@ -401,7 +401,7 @@ abstract class HasOneOrMany extends Relation
      * Create a new instance of the related model. Allow mass-assignment.
      *
      * @param  array  $attributes
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function forceCreate(array $attributes = [])
     {
@@ -426,7 +426,7 @@ abstract class HasOneOrMany extends Relation
      * Create a Collection of new instances of the related model.
      *
      * @param  iterable  $records
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     public function createMany(iterable $records)
     {
@@ -444,7 +444,7 @@ abstract class HasOneOrMany extends Relation
      * model without raising any events to the parent model.
      *
      * @param  iterable  $records
-     * @return \FluentEvents\Framework\Database\Orm\Collection<int, TRelatedModel>
+     * @return \FluentEvent\Framework\Database\Orm\Collection<int, TRelatedModel>
      */
     public function createManyQuietly(iterable $records)
     {
@@ -454,7 +454,7 @@ abstract class HasOneOrMany extends Relation
     /**
      * Set the foreign ID for creating a related model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @return void
      */
     protected function setForeignAttributesForCreate(Model $model)
@@ -465,10 +465,10 @@ abstract class HasOneOrMany extends Relation
     /**
      * Add the constraints for a relationship query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function getRelationExistenceQuery(
         Builder $query,
@@ -487,10 +487,10 @@ abstract class HasOneOrMany extends Relation
     /**
      * Add the constraints for a relationship query on the same table.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function getRelationExistenceQueryForSelfRelation(
         Builder $query,

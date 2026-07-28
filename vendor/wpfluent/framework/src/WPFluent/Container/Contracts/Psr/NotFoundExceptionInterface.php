@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Container\Contracts\Psr;
+namespace FluentEvent\Framework\Container\Contracts\Psr;
 
 /**
  * No entry was found in the container.

@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\App\Http\Controllers;
+namespace FluentEvent\App\Http\Controllers;
 
-use FluentEvents\App\App;
+use FluentEvent\App\App;
 
-use FluentEvents\Framework\Http\Controller as BaseController;
+use FluentEvent\Framework\Http\Controller as BaseController;
 
 abstract class Controller extends BaseController
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use RuntimeException;
@@ -10,7 +10,7 @@ abstract class Facade
     /**
      * The application instance being facaded.
      *
-     * @var \FluentEvents\Framework\Foundation\Application
+     * @var \FluentEvent\Framework\Foundation\Application
      */
     protected static $app;
 
@@ -109,7 +109,7 @@ abstract class Facade
     /**
      * Get the application instance behind the facade.
      *
-     * @return \FluentEvents\Framework\Foundation\Application
+     * @return \FluentEvent\Framework\Foundation\Application
      */
     public static function getFacadeApplication()
     {
@@ -119,7 +119,7 @@ abstract class Facade
     /**
      * Set the application instance.
      *
-     * @param  \FluentEvents\Framework\Foundation\Application  $app
+     * @param  \FluentEvent\Framework\Foundation\Application  $app
      * @return void
      */
     public static function setFacadeApplication($app)

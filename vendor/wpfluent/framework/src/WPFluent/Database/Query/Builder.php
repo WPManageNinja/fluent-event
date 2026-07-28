@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query;
+namespace FluentEvent\Framework\Database\Query;
 
 use Closure;
 use DatePeriod;
@@ -8,26 +8,26 @@ use LogicException;
 use RuntimeException;
 use DateTimeInterface;
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\MacroableTrait;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Pagination\Paginator;
-use FluentEvents\Framework\Support\ForwardsCalls;
-use FluentEvents\Framework\Support\LazyCollection;
-use FluentEvents\Framework\Database\Query\Expression;
-use FluentEvents\Framework\Database\Query\Grammars\Grammar;
-use FluentEvents\Framework\Database\Query\Processors\Processor;
-use FluentEvents\Framework\Database\Query\ConditionExpression;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Database\ConnectionInterface;
-use FluentEvents\Framework\Database\Concerns\BuildsQueries;
-use FluentEvents\Framework\Database\Concerns\BuildsWhereDateClauses;
-use FluentEvents\Framework\Database\Concerns\ExplainsQueries;
-use FluentEvents\Framework\Database\Orm\Relations\Relation;
-use FluentEvents\Framework\Database\Orm\Builder as OrmBuilder;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Pagination\Paginator;
+use FluentEvent\Framework\Support\ForwardsCalls;
+use FluentEvent\Framework\Support\LazyCollection;
+use FluentEvent\Framework\Database\Query\Expression;
+use FluentEvent\Framework\Database\Query\Grammars\Grammar;
+use FluentEvent\Framework\Database\Query\Processors\Processor;
+use FluentEvent\Framework\Database\Query\ConditionExpression;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Database\ConnectionInterface;
+use FluentEvent\Framework\Database\Concerns\BuildsQueries;
+use FluentEvent\Framework\Database\Concerns\BuildsWhereDateClauses;
+use FluentEvent\Framework\Database\Concerns\ExplainsQueries;
+use FluentEvent\Framework\Database\Orm\Relations\Relation;
+use FluentEvent\Framework\Database\Orm\Builder as OrmBuilder;
 
 class Builder
 {
@@ -38,21 +38,21 @@ class Builder
     /**
      * The database connection instance.
      *
-     * @var \FluentEvents\Framework\Database\ConnectionInterface
+     * @var \FluentEvent\Framework\Database\ConnectionInterface
      */
     public $connection;
 
     /**
      * The database query grammar instance.
      *
-     * @var \FluentEvents\Framework\Database\Query\Grammars\Grammar
+     * @var \FluentEvent\Framework\Database\Query\Grammars\Grammar
      */
     public $grammar;
 
     /**
      * The database query post processor instance.
      *
-     * @var \FluentEvents\Framework\Database\Query\Processors\Processor
+     * @var \FluentEvent\Framework\Database\Query\Processors\Processor
      */
     public $processor;
 
@@ -106,7 +106,7 @@ class Builder
     /**
      * The index hint for the query.
      *
-     * @var \FluentEvents\Framework\Database\Query\IndexHint
+     * @var \FluentEvent\Framework\Database\Query\IndexHint
      */
     public $indexHint;
 
@@ -255,9 +255,9 @@ class Builder
     /**
      * Create a new query builder instance.
      *
-     * @param  \FluentEvents\Framework\Database\ConnectionInterface  $connection
-     * @param  \FluentEvents\Framework\Database\Query\Grammars\Grammar|null  $grammar
-     * @param  \FluentEvents\Framework\Database\Query\Processors\Processor|null  $processor
+     * @param  \FluentEvent\Framework\Database\ConnectionInterface  $connection
+     * @param  \FluentEvent\Framework\Database\Query\Grammars\Grammar|null  $grammar
+     * @param  \FluentEvent\Framework\Database\Query\Processors\Processor|null  $processor
      * @return void
      */
     public function __construct(
@@ -297,7 +297,7 @@ class Builder
     /**
      * Add a subselect expression to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Orm\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Orm\Builder|string  $query
      * @param  string  $as
      * @return $this
      *
@@ -335,7 +335,7 @@ class Builder
     /**
      * Makes "from" fetch from a subquery.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|string  $query
      * @param  string  $as
      * @return $this
      *
@@ -369,7 +369,7 @@ class Builder
     /**
      * Creates a subquery and parse it.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|string  $query
      * @return array
      */
     protected function createSub($query)
@@ -479,7 +479,7 @@ class Builder
     /**
      * Set the table which the query is targeting.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|string  $table
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|string  $table
      * @param  string|null  $as
      * @return $this
      */
@@ -596,7 +596,7 @@ class Builder
     /**
      * Add a subquery join clause to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Orm\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Orm\Builder|string  $query
      * @param  string  $as
      * @param  \Closure|string  $first
      * @param  string|null  $operator
@@ -623,7 +623,7 @@ class Builder
     /**
      * Add a lateral join clause to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Orm\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Orm\Builder|string  $query
      * @param  string  $as
      * @param  string  $type
      * @return $this
@@ -644,7 +644,7 @@ class Builder
     /**
      * Add a lateral left join to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Orm\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Orm\Builder|string  $query
      * @param  string  $as
      * @return $this
      */
@@ -684,7 +684,7 @@ class Builder
     /**
      * Add a subquery left join to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Orm\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Orm\Builder|string  $query
      * @param  string  $as
      * @param  \Closure|string  $first
      * @param  string|null  $operator
@@ -727,7 +727,7 @@ class Builder
     /**
      * Add a subquery right join to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Orm\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Orm\Builder|string  $query
      * @param  string  $as
      * @param  \Closure|string  $first
      * @param  string|null  $operator
@@ -762,7 +762,7 @@ class Builder
     /**
      * Add a subquery cross join to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|string  $query
      * @param  string  $as
      * @return $this
      */
@@ -784,10 +784,10 @@ class Builder
     /**
      * Get a new join clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $parentQuery
      * @param  string  $type
      * @param  string  $table
-     * @return \FluentEvents\Framework\Database\Query\JoinClause
+     * @return \FluentEvent\Framework\Database\Query\JoinClause
      */
     protected function newJoinClause(self $parentQuery, $type, $table)
     {
@@ -802,10 +802,10 @@ class Builder
     /**
      * Get a new join lateral clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $parentQuery
      * @param  string  $type
      * @param  string  $table
-     * @return \FluentEvents\Framework\Database\Query\JoinLateralClause
+     * @return \FluentEvent\Framework\Database\Query\JoinLateralClause
      */
     protected function newJoinLateralClause(self $parentQuery, $type, $table)
     {
@@ -1039,7 +1039,7 @@ class Builder
     /**
      * Add a basic "where not" clause to the query.
      *
-     * @param  \Closure|string|array|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  \Closure|string|array|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @param  string  $boolean
@@ -1063,7 +1063,7 @@ class Builder
     /**
      * Add an "or where not" clause to the query.
      *
-     * @param  \Closure|string|array|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  \Closure|string|array|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  mixed  $operator
      * @param  mixed  $value
      * @return $this
@@ -1155,7 +1155,7 @@ class Builder
     /**
      * Add a "where like" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  bool  $caseSensitive
      * @param  string  $boolean
@@ -1193,7 +1193,7 @@ class Builder
     /**
      * Add an "or where like" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  bool  $caseSensitive
      * @return $this
@@ -1206,7 +1206,7 @@ class Builder
     /**
      * Add a "where not like" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  bool  $caseSensitive
      * @param  string  $boolean
@@ -1224,7 +1224,7 @@ class Builder
     /**
      * Add an "or where not like" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  bool  $caseSensitive
      * @return $this
@@ -1237,7 +1237,7 @@ class Builder
     /**
      * Add a "where like" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  bool  $caseSensitive
      * @param  string  $boolean
@@ -1259,7 +1259,7 @@ class Builder
     /**
      * Add a "where like" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  bool  $caseSensitive
      * @param  string  $boolean
@@ -1284,7 +1284,7 @@ class Builder
      * Matches values pronounced similarly, e.g. searching "heera" matches
      * "hira"/"hera", "bol" matches "ball", "cloud" matches "claude".
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  string  $boolean
      * @return $this
@@ -1301,7 +1301,7 @@ class Builder
     /**
      * Add an "or" phonetic "sounds like" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @return $this
      */
@@ -1319,7 +1319,7 @@ class Builder
      * Requires a LEVENSHTEIN() SQL function on the connection (a stored
      * function on MySQL, a PHP-backed UDF on SQLite).
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  int  $distance
      * @param  string  $boolean
@@ -1337,7 +1337,7 @@ class Builder
     /**
      * Add an "or" fuzzy "similar to" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $value
      * @param  int  $distance
      * @return $this
@@ -1435,7 +1435,7 @@ class Builder
      * Add a "where in raw" clause for integer values to the query.
      *
      * @param  string  $column
-     * @param  \FluentEvents\Framework\Support\ArrayableInterface|array  $values
+     * @param  \FluentEvent\Framework\Support\ArrayableInterface|array  $values
      * @param  string  $boolean
      * @param  bool  $not
      * @return $this
@@ -1467,7 +1467,7 @@ class Builder
      * Add an "or where in raw" clause for integer values to the query.
      *
      * @param  string  $column
-     * @param  \FluentEvents\Framework\Support\ArrayableInterface|array  $values
+     * @param  \FluentEvent\Framework\Support\ArrayableInterface|array  $values
      * @return $this
      */
     public function orWhereIntegerInRaw($column, $values)
@@ -1479,7 +1479,7 @@ class Builder
      * Add a "where not in raw" clause for integer values to the query.
      *
      * @param  string  $column
-     * @param  \FluentEvents\Framework\Support\ArrayableInterface|array  $values
+     * @param  \FluentEvent\Framework\Support\ArrayableInterface|array  $values
      * @param  string  $boolean
      * @return $this
      */
@@ -1492,7 +1492,7 @@ class Builder
      * Add an "or where not in raw" clause for integer values to the query.
      *
      * @param  string  $column
-     * @param  \FluentEvents\Framework\Support\ArrayableInterface|array  $values
+     * @param  \FluentEvent\Framework\Support\ArrayableInterface|array  $values
      * @return $this
      */
     public function orWhereIntegerNotInRaw($column, $values)
@@ -1545,7 +1545,7 @@ class Builder
     /**
      * Add a where between statement to the query.
      *
-     * @param  string|\FluentEvents\Framework\Database\Query\Expression  $column
+     * @param  string|\FluentEvent\Framework\Database\Query\Expression  $column
      * @param  array  $values
      * @param  string  $boolean
      * @param  bool  $not
@@ -1682,7 +1682,7 @@ class Builder
     /**
      * Add a "where date" statement to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string  $operator
      * @param  \DateTimeInterface|string|null  $value
      * @param  string  $boolean
@@ -1930,7 +1930,7 @@ class Builder
     /**
      * Create a new query instance for nested where condition.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function forNestedWhere()
     {
@@ -1940,7 +1940,7 @@ class Builder
     /**
      * Add another query builder as a nested where to the query builder.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $boolean
      * @return $this
      */
@@ -2050,7 +2050,7 @@ class Builder
     /**
      * Add an exists clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $boolean
      * @param  bool  $not
      * @return $this
@@ -2465,7 +2465,7 @@ class Builder
     /**
      * Add a "where" clause to the query for multiple columns with "and" conditions between them.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression[]|string[]  $columns
+     * @param  \FluentEvent\Framework\Database\Query\Expression[]|string[]  $columns
      * @param  mixed  $operator
      * @param  mixed  $value
      * @param  string  $boolean
@@ -2493,7 +2493,7 @@ class Builder
     /**
      * Add an "or where" clause to the query for multiple columns with "and" conditions between them.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression[]|string[]  $columns
+     * @param  \FluentEvent\Framework\Database\Query\Expression[]|string[]  $columns
      * @param  mixed  $operator
      * @param  mixed  $value
      * @return $this
@@ -2506,7 +2506,7 @@ class Builder
     /**
      * Add a "where" clause to the query for multiple columns with "or" conditions between them.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression[]|string[]  $columns
+     * @param  \FluentEvent\Framework\Database\Query\Expression[]|string[]  $columns
      * @param  mixed  $operator
      * @param  mixed  $value
      * @param  string  $boolean
@@ -2534,7 +2534,7 @@ class Builder
     /**
      * Add an "or where" clause to the query for multiple columns with "or" conditions between them.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression[]|string[]  $columns
+     * @param  \FluentEvent\Framework\Database\Query\Expression[]|string[]  $columns
      * @param  mixed  $operator
      * @param  mixed  $value
      * @return $this
@@ -2547,7 +2547,7 @@ class Builder
     /**
      * Add a "where not" clause to the query for multiple columns where none of the conditions should be true.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression[]|string[]  $columns
+     * @param  \FluentEvent\Framework\Database\Query\Expression[]|string[]  $columns
      * @param  mixed  $operator
      * @param  mixed  $value
      * @param  string  $boolean
@@ -2561,7 +2561,7 @@ class Builder
     /**
      * Add an "or where not" clause to the query for multiple columns where none of the conditions should be true.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Expression[]|string[]  $columns
+     * @param  \FluentEvent\Framework\Database\Query\Expression[]|string[]  $columns
      * @param  mixed  $operator
      * @param  mixed  $value
      * @return $this
@@ -2691,7 +2691,7 @@ class Builder
     /**
      * Add another query builder as a nested having to the query builder.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $boolean
      * @return $this
      */
@@ -2819,7 +2819,7 @@ class Builder
     /**
      * Add an "order by" clause to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Orm\Builder|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \Closure|\FluentEvent\Framework\Database\Orm\Builder|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Query\Expression|string  $column
      * @param  string $direction
      * @param  array  $allowedColumns
      * @return $this
@@ -2865,7 +2865,7 @@ class Builder
     /**
      * Add a descending "order by" clause to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Orm\Builder|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \Closure|\FluentEvent\Framework\Database\Orm\Builder|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Query\Expression|string  $column
      * @return $this
      */
     public function orderByDesc($column)
@@ -2876,7 +2876,7 @@ class Builder
     /**
      * Add an "order by" clause for a timestamp to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Orm\Builder|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \Closure|\FluentEvent\Framework\Database\Orm\Builder|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Query\Expression|string  $column
      * @return $this
      */
     public function latest($column = 'created_at')
@@ -2887,7 +2887,7 @@ class Builder
     /**
      * Add an "order by" clause for a timestamp to the query.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Orm\Builder|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Query\Expression|string  $column
+     * @param  \Closure|\FluentEvent\Framework\Database\Orm\Builder|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Query\Expression|string  $column
      * @return $this
      */
     public function oldest($column = 'created_at')
@@ -3051,7 +3051,7 @@ class Builder
     /**
      * Remove all existing orders and optionally add a new order.
      *
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Query\Expression|string|null  $column
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Query\Expression|string|null  $column
      * @param  string  $direction
      * @return $this
      */
@@ -3087,7 +3087,7 @@ class Builder
     /**
      * Add a union statement to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder|\Closure  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder|\Closure  $query
      * @param  bool  $all
      * @return $this
      */
@@ -3107,7 +3107,7 @@ class Builder
     /**
      * Add a union all statement to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder|\Closure  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder|\Closure  $query
      * @return $this
      */
     public function unionAll($query)
@@ -3135,7 +3135,7 @@ class Builder
     /**
      * Lock the selected rows in the table for updating.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function lockForUpdate()
     {
@@ -3145,7 +3145,7 @@ class Builder
     /**
      * Share lock the selected rows in the table.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function sharedLock()
     {
@@ -3301,8 +3301,8 @@ class Builder
      * @param  string  $column
      * @return mixed
      *
-     * @throws \FluentEvents\Framework\Database\RecordsNotFoundException
-     * @throws \FluentEvents\Framework\Database\MultipleRecordsFoundException
+     * @throws \FluentEvent\Framework\Database\RecordsNotFoundException
+     * @throws \FluentEvent\Framework\Database\MultipleRecordsFoundException
      */
     public function soleValue($column)
     {
@@ -3315,7 +3315,7 @@ class Builder
      * Execute the query as a "select" statement.
      *
      * @param  array|string  $columns
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function get($columns = ['*'])
     {
@@ -3343,8 +3343,8 @@ class Builder
     /**
      * Remove the group limit keys from the results in the collection.
      *
-     * @param  \FluentEvents\Framework\Support\Collection  $items
-     * @return \FluentEvents\Framework\Support\Collection
+     * @param  \FluentEvent\Framework\Support\Collection  $items
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function withoutGroupLimitKeys($items)
     {
@@ -3374,7 +3374,7 @@ class Builder
      * @param  string  $pageName
      * @param  int|null  $page
      * @param  int|null  $total
-     * @return \FluentEvents\Framework\Pagination\LengthAwarePaginatorInterface
+     * @return \FluentEvent\Framework\Pagination\LengthAwarePaginatorInterface
      */
     public function paginate(
         $perPage = 15,
@@ -3408,7 +3408,7 @@ class Builder
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \FluentEvents\Framework\Pagination\PaginatorInterface
+     * @return \FluentEvent\Framework\Pagination\PaginatorInterface
      */
     public function simplePaginate(
         $perPage = 15,
@@ -3437,8 +3437,8 @@ class Builder
      * @param  int|null  $perPage
      * @param  array  $columns
      * @param  string  $cursorName
-     * @param  \FluentEvents\Framework\Pagination\Cursor|string|null  $cursor
-     * @return \FluentEvents\Framework\Pagination\CursorPaginatorInterface
+     * @param  \FluentEvent\Framework\Pagination\Cursor|string|null  $cursor
+     * @return \FluentEvent\Framework\Pagination\CursorPaginatorInterface
      */
     public function cursorPaginate(
         $perPage = 15,
@@ -3456,7 +3456,7 @@ class Builder
      * Ensure the proper order by required for cursor pagination.
      *
      * @param  bool  $shouldReverse
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function ensureOrderForCursorPagination($shouldReverse = false)
     {
@@ -3566,7 +3566,7 @@ class Builder
     /**
      * Get a lazy collection for the given query.
      *
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      */
     public function cursor()
     {
@@ -3588,7 +3588,7 @@ class Builder
     /**
      * Get a lazy collection for the given query.
      *
-     * @return \FluentEvents\Framework\Support\LazyCollection
+     * @return \FluentEvent\Framework\Support\LazyCollection
      */
     public function rawCursor()
     {
@@ -3628,7 +3628,7 @@ class Builder
      *
      * @param  string  $column
      * @param  string|null  $key
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function pluck($column, $key = null)
     {
@@ -3689,7 +3689,7 @@ class Builder
      * @param  array  $queryResult
      * @param  string  $column
      * @param  string  $key
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function pluckFromObjectColumn($queryResult, $column, $key)
     {
@@ -3714,7 +3714,7 @@ class Builder
      * @param  array  $queryResult
      * @param  string  $column
      * @param  string  $key
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function pluckFromArrayColumn($queryResult, $column, $key)
     {
@@ -4055,7 +4055,7 @@ class Builder
      * Insert new records into the table using a subquery.
      *
      * @param  array  $columns
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|string  $query
      * @return int
      */
     public function insertUsing(array $columns, $query)
@@ -4074,7 +4074,7 @@ class Builder
      * Insert new records into the table using a subquery while ignoring errors.
      *
      * @param  array<string>  $columns
-     * @param  \Closure|\FluentEvents\Framework\Database\Query\Builder|\FluentEvents\Framework\Database\Orm\Builder|string  $query
+     * @param  \Closure|\FluentEvent\Framework\Database\Query\Builder|\FluentEvent\Framework\Database\Orm\Builder|string  $query
      * @return int|bool  Returns the number of affected rows or false on failure
      */
     public function insertOrIgnoreUsing(array $columns, $query)
@@ -4335,7 +4335,7 @@ class Builder
     /**
      * Get a new instance of the query builder.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function newQuery()
     {
@@ -4345,7 +4345,7 @@ class Builder
     /**
      * Create a new query instance for a sub-query.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     protected function forSubQuery()
     {
@@ -4368,7 +4368,7 @@ class Builder
      * Create a raw database expression.
      *
      * @param  mixed  $value
-     * @return \FluentEvents\Framework\Database\Query\Expression
+     * @return \FluentEvent\Framework\Database\Query\Expression
      */
     public function raw($value)
     {
@@ -4378,7 +4378,7 @@ class Builder
     /**
      * Get the query builder instances that are used in the union of the query.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     protected function getUnionBuilders()
     {
@@ -4474,7 +4474,7 @@ class Builder
     /**
      * Merge an array of bindings into our bindings.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return $this
      */
     public function mergeBindings(self $query)
@@ -4525,7 +4525,7 @@ class Builder
     /**
      * Get the database connection instance.
      *
-     * @return \FluentEvents\Framework\Database\ConnectionInterface
+     * @return \FluentEvent\Framework\Database\ConnectionInterface
      */
     public function getConnection()
     {
@@ -4535,7 +4535,7 @@ class Builder
     /**
      * Get the database query processor instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Processors\Processor
+     * @return \FluentEvent\Framework\Database\Query\Processors\Processor
      */
     public function getProcessor()
     {
@@ -4545,7 +4545,7 @@ class Builder
     /**
      * Get the query grammar instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Grammars\Grammar
+     * @return \FluentEvent\Framework\Database\Query\Grammars\Grammar
      */
     public function getGrammar()
     {

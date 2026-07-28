@@ -1,8 +1,8 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
-use FluentEvents\Framework\Foundation\Application;
-use FluentEvents\App\Hooks\Handlers\ActivationHandler;
-use FluentEvents\App\Hooks\Handlers\DeactivationHandler;
+use FluentEvent\Framework\Foundation\Application;
+use FluentEvent\App\Hooks\Handlers\ActivationHandler;
+use FluentEvent\App\Hooks\Handlers\DeactivationHandler;
 
 return function($file) {
     try {
@@ -48,7 +48,7 @@ return function($file) {
         });
 
         add_action('plugins_loaded', function() use ($app) {
-            do_action('fluentevents_loaded', $app);
+            do_action('fluentevent_loaded', $app);
         });
 
         return $app;

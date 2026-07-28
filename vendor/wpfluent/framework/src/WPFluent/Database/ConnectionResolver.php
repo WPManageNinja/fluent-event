@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Database;
+namespace FluentEvent\Framework\Database;
 
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Database\ConnectionResolverInterface;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Database\ConnectionResolverInterface;
 
 class ConnectionResolver implements ConnectionResolverInterface
 {
@@ -39,7 +39,7 @@ class ConnectionResolver implements ConnectionResolverInterface
      * Get a database connection instance.
      *
      * @param  string|null  $name
-     * @return \FluentEvents\Framework\Database\ConnectionInterface
+     * @return \FluentEvent\Framework\Database\ConnectionInterface
      */
     public function connection($name = null)
     {
@@ -62,7 +62,7 @@ class ConnectionResolver implements ConnectionResolverInterface
      * Add a connection to the resolver.
      *
      * @param  string  $name
-     * @param  \FluentEvents\Framework\Database\ConnectionInterface  $connection
+     * @param  \FluentEvent\Framework\Database\ConnectionInterface  $connection
      * @return void
      */
     public function addConnection($name, ConnectionInterface $connection)

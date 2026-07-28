@@ -9,16 +9,16 @@
  * @license GPL-2.0-or-later https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace FluentEvents\Framework\Foundation;
+namespace FluentEvent\Framework\Foundation;
 
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Env;
-use FluentEvents\Framework\Http\Client;
-use FluentEvents\Framework\Foundation\Config;
-use FluentEvents\Framework\Container\Container;
-use FluentEvents\Framework\Foundation\ComponentBinder;
-use FluentEvents\Framework\Foundation\Concerns\FoundationTrait;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Env;
+use FluentEvent\Framework\Http\Client;
+use FluentEvent\Framework\Foundation\Config;
+use FluentEvent\Framework\Container\Container;
+use FluentEvent\Framework\Foundation\ComponentBinder;
+use FluentEvent\Framework\Foundation\Concerns\FoundationTrait;
 
 /**
  * Application — service container with magic property access via __get.
@@ -28,20 +28,20 @@ use FluentEvents\Framework\Foundation\Concerns\FoundationTrait;
  * `@property` declaration teaches PHPStan about a runtime container binding so
  * `$app->view->render(...)` and similar access can be type-checked.
  *
- * @property \FluentEvents\Framework\Foundation\Config        $config
- * @property \FluentEvents\Framework\View\View                $view
- * @property \FluentEvents\Framework\Cache\Cache              $cache
- * @property \FluentEvents\Framework\Http\Router\Router       $router
- * @property \FluentEvents\Framework\Http\Request\Request     $request
- * @property \FluentEvents\Framework\Http\Response\Response   $response
- * @property \FluentEvents\Framework\Validator\Validator      $validator
- * @property \FluentEvents\Framework\Events\Dispatcher        $events
- * @property \FluentEvents\Framework\Encryption\Encrypter     $encrypter
- * @property \FluentEvents\Framework\Encryption\Encrypter     $crypt
- * @property \FluentEvents\Framework\Database\DatabaseManager $db
- * @property \FluentEvents\Framework\Http\URL                 $url
- * @property \FluentEvents\Framework\Support\Mail             $mail
- * @property \FluentEvents\Framework\Support\Pipeline         $pipeline
+ * @property \FluentEvent\Framework\Foundation\Config        $config
+ * @property \FluentEvent\Framework\View\View                $view
+ * @property \FluentEvent\Framework\Cache\Cache              $cache
+ * @property \FluentEvent\Framework\Http\Router\Router       $router
+ * @property \FluentEvent\Framework\Http\Request\Request     $request
+ * @property \FluentEvent\Framework\Http\Response\Response   $response
+ * @property \FluentEvent\Framework\Validator\Validator      $validator
+ * @property \FluentEvent\Framework\Events\Dispatcher        $events
+ * @property \FluentEvent\Framework\Encryption\Encrypter     $encrypter
+ * @property \FluentEvent\Framework\Encryption\Encrypter     $crypt
+ * @property \FluentEvent\Framework\Database\DatabaseManager $db
+ * @property \FluentEvent\Framework\Http\URL                 $url
+ * @property \FluentEvent\Framework\Support\Mail             $mail
+ * @property \FluentEvent\Framework\Support\Pipeline         $pipeline
  * @property string                             $__pluginfile__
  * @property string                             $__namespace__
  */
@@ -541,7 +541,7 @@ class Application extends Container
     /**
      * Register rest routes.
      * 
-     * @param \FluentEvents\Framework\Http\Router $router
+     * @param \FluentEvent\Framework\Http\Router $router
      * 
      * @return void
      */
@@ -556,7 +556,7 @@ class Application extends Container
     /**
      * Load (include) routes
      * 
-     * @param \FluentEvents\Framework\Http\Router $router
+     * @param \FluentEvent\Framework\Http\Router $router
      * @return null
      */
     protected function requireRouteFile($router)

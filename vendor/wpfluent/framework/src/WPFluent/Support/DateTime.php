@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use DateTimeZone;
 use DateInterval;
@@ -1153,7 +1153,7 @@ class DateTime extends PHPDateTime
     /**
      * Clone the current Object
      * 
-     * @return \FluentEvents\Framework\Support\DateTime
+     * @return \FluentEvent\Framework\Support\DateTime
      */
     public function copy()
     {
@@ -1163,7 +1163,7 @@ class DateTime extends PHPDateTime
     /**
      * Get the difference in years
      * 
-     * @param  \FluentEvents\Framework\Support\DateTime $date
+     * @param  \FluentEvent\Framework\Support\DateTime $date
      * @return int
      */
     public function diffInYears($date)
@@ -1174,7 +1174,7 @@ class DateTime extends PHPDateTime
     /**
      * Get the difference in months
      * 
-     * @param  \FluentEvents\Framework\Support\DateTime $date
+     * @param  \FluentEvent\Framework\Support\DateTime $date
      * @return int
      */
     public function diffInMonths($date)
@@ -1187,7 +1187,7 @@ class DateTime extends PHPDateTime
     /**
      * Get the difference in days
      * 
-     * @param  \FluentEvents\Framework\Support\DateTime $date
+     * @param  \FluentEvent\Framework\Support\DateTime $date
      * @return int
      */
     public function diffInDays($date)
@@ -1200,7 +1200,7 @@ class DateTime extends PHPDateTime
     /**
      * Get the difference in hours
      * 
-     * @param  \FluentEvents\Framework\Support\DateTime $date
+     * @param  \FluentEvent\Framework\Support\DateTime $date
      * @return int
      */
     public function diffInHours($date)
@@ -1215,7 +1215,7 @@ class DateTime extends PHPDateTime
     /**
      * Get the difference in minutes
      * 
-     * @param  \FluentEvents\Framework\Support\DateTime $date
+     * @param  \FluentEvent\Framework\Support\DateTime $date
      * @return int
      */
     public function diffInMinutes($date)
@@ -1232,7 +1232,7 @@ class DateTime extends PHPDateTime
     /**
      * Get the difference in seconds
      * 
-     * @param  \FluentEvents\Framework\Support\DateTime $date
+     * @param  \FluentEvent\Framework\Support\DateTime $date
      * @return int
      */
     public function diffInSeconds($date)

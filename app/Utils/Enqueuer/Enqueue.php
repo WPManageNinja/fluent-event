@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\App\Utils\Enqueuer;
+namespace FluentEvent\App\Utils\Enqueuer;
 
 class Enqueue
 {

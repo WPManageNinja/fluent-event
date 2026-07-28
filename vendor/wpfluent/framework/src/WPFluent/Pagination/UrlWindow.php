@@ -1,22 +1,22 @@
 <?php
 
-namespace FluentEvents\Framework\Pagination;
+namespace FluentEvent\Framework\Pagination;
 
-use FluentEvents\Framework\Pagination\LengthAwarePaginatorInterface;
+use FluentEvent\Framework\Pagination\LengthAwarePaginatorInterface;
 
 class UrlWindow
 {
     /**
      * The paginator implementation.
      *
-     * @var \FluentEvents\Framework\Pagination\LengthAwarePaginatorInterface
+     * @var \FluentEvent\Framework\Pagination\LengthAwarePaginatorInterface
      */
     protected $paginator;
 
     /**
      * Create a new URL window instance.
      *
-     * @param  \FluentEvents\Framework\Pagination\LengthAwarePaginatorInterface  $paginator
+     * @param  \FluentEvent\Framework\Pagination\LengthAwarePaginatorInterface  $paginator
      * @return void
      */
     public function __construct(LengthAwarePaginatorInterface $paginator)
@@ -27,7 +27,7 @@ class UrlWindow
     /**
      * Create a new URL window instance.
      *
-     * @param  \FluentEvents\Framework\Pagination\LengthAwarePaginatorInterface  $paginator
+     * @param  \FluentEvent\Framework\Pagination\LengthAwarePaginatorInterface  $paginator
      * @return array
      */
     public static function make(LengthAwarePaginatorInterface $paginator)

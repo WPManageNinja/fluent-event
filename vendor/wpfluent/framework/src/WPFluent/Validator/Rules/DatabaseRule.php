@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Validator\Rules;
+namespace FluentEvent\Framework\Validator\Rules;
 
 use Closure;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Str;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Str;
 
 trait DatabaseRule
 {

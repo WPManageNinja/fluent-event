@@ -1,12 +1,12 @@
 <?php
 
-namespace FluentEvents\Framework\Validator;
+namespace FluentEvent\Framework\Validator;
 
 use Closure;
-use FluentEvents\Framework\Framework\Support\Arr;
-use FluentEvents\Framework\Validator\Rules\Exists;
-use FluentEvents\Framework\Validator\Rules\Unique;
-use FluentEvents\Framework\Validator\Rules\ConditionalRules;
+use FluentEvent\Framework\Framework\Support\Arr;
+use FluentEvent\Framework\Validator\Rules\Exists;
+use FluentEvent\Framework\Validator\Rules\Unique;
+use FluentEvent\Framework\Validator\Rules\ConditionalRules;
 
 class ValidationRuleParser
 {
@@ -116,7 +116,7 @@ class ValidationRuleParser
     /**
      * Parse conditional rules.
      * 
-     * @param  \FluentEvents\Framework\Validator\Rules\ConditionalRules $rule
+     * @param  \FluentEvent\Framework\Validator\Rules\ConditionalRules $rule
      * @return array
      */
     protected function parseConditionalRules($rule)

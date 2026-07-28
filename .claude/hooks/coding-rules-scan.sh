@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# PostToolUse hook: safety-net scanner for Fluent Events source edits.
+# PostToolUse hook: safety-net scanner for Fluent Event source edits.
 #
 # Diff-aware: only flags hard-block patterns introduced by THIS edit
 # (added lines vs HEAD). Existing legacy callsites with `phpcs:ignore`
@@ -211,7 +211,7 @@ fi
 
 # 14. time() used as enqueue script version (cache-bust antipattern)
 LN=$(match_any 'wp_(enqueue|register)_(script|style)[[:space:]]*\([^)]*,[[:space:]]*time[[:space:]]*\(')
-[ -n "$LN" ] && add_violation "L$LN: time() used as asset version — defeats browser caching. Use FLUENT_EVENTS_PLUGIN_VERSION. Rule: .claude/rules/deps-build.md."
+[ -n "$LN" ] && add_violation "L$LN: time() used as asset version — defeats browser caching. Use FLUENT_EVENT_PLUGIN_VERSION. Rule: .claude/rules/deps-build.md."
 
 # 15. postMessage with target origin '*' (Vue) — diff-aware
 case "$FILE_PATH" in

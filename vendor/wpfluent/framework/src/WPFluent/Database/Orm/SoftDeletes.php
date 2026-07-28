@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Collection as BaseCollection;
-use FluentEvents\Framework\Database\Orm\Collection as OrmCollection;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Collection as BaseCollection;
+use FluentEvent\Framework\Database\Orm\Collection as OrmCollection;
 
 /**
- * @method static static|\FluentEvents\Framework\Database\Orm\Builder|\FluentEvents\Framework\Database\Query\Builder withTrashed(bool $withTrashed = true)
- * @method static static|\FluentEvents\Framework\Database\Orm\Builder|\FluentEvents\Framework\Database\Query\Builder onlyTrashed()
- * @method static static|\FluentEvents\Framework\Database\Orm\Builder|\FluentEvents\Framework\Database\Query\Builder withoutTrashed()
+ * @method static static|\FluentEvent\Framework\Database\Orm\Builder|\FluentEvent\Framework\Database\Query\Builder withTrashed(bool $withTrashed = true)
+ * @method static static|\FluentEvent\Framework\Database\Orm\Builder|\FluentEvent\Framework\Database\Query\Builder onlyTrashed()
+ * @method static static|\FluentEvent\Framework\Database\Orm\Builder|\FluentEvent\Framework\Database\Query\Builder withoutTrashed()
  */
 trait SoftDeletes
 {
@@ -75,7 +75,7 @@ trait SoftDeletes
     /**
      * Destroy the models for the given IDs.
      *
-     * @param  \FluentEvents\Framework\Support\Collection|array|int|string  $ids
+     * @param  \FluentEvent\Framework\Support\Collection|array|int|string  $ids
      * @return int
      */
     public static function forceDestroy($ids)

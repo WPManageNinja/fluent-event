@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Events;
+namespace FluentEvent\Framework\Events;
 
-use FluentEvents\Framework\Support\ForwardsCalls;
-use FluentEvents\Framework\Events\DispatcherInterface;
+use FluentEvent\Framework\Support\ForwardsCalls;
+use FluentEvent\Framework\Events\DispatcherInterface;
 
 class NullDispatcher implements DispatcherInterface
 {
@@ -12,14 +12,14 @@ class NullDispatcher implements DispatcherInterface
     /**
      * The underlying event dispatcher instance.
      *
-     * @var \FluentEvents\Framework\Events\DispatcherInterface
+     * @var \FluentEvent\Framework\Events\DispatcherInterface
      */
     protected $dispatcher;
 
     /**
      * Create a new event dispatcher instance that does not fire.
      *
-     * @param  \FluentEvents\Framework\Events\DispatcherInterface  $dispatcher
+     * @param  \FluentEvent\Framework\Events\DispatcherInterface  $dispatcher
      * @return void
      */
     public function __construct(DispatcherInterface $dispatcher)

@@ -11,14 +11,14 @@
  * wp-includes/compat.php, so those guards usually short-circuit; they are
  * kept here so the framework also works standalone (outside WordPress).
  *
- * Implementations live in FluentEvents\Framework\Support\MBString\Mbstring. Case helpers do
+ * Implementations live in FluentEvent\Framework\Support\MBString\Mbstring. Case helpers do
  * full Unicode simple case mapping via the bundled unidata/ tables (vendored
  * from symfony/Unicode) — see that class's docblock for scope and limits.
  *
  * This file is loaded via the Support/mbstring-loader.php autoload shim.
  */
 
-use FluentEvents\Framework\Support\MBString\Mbstring;
+use FluentEvent\Framework\Support\MBString\Mbstring;
 
 if (! defined('MB_CASE_UPPER')) {
     define('MB_CASE_UPPER', 0);

@@ -1,33 +1,33 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
 use ArrayAccess;
 use LogicException;
 use JsonSerializable;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\ForwardsCalls;
-use FluentEvents\Framework\Support\UrlRoutable;
-use FluentEvents\Framework\Support\JsonableInterface;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Support\HelperFunctionsTrait;
-use FluentEvents\Framework\Support\CanBeEscapedWhenCastToString;
-use FluentEvents\Framework\Support\Collection as BaseCollection;
-use FluentEvents\Framework\Database\Schema;
-use FluentEvents\Framework\Database\Orm\Relations\Pivot;
-use FluentEvents\Framework\Database\Orm\Relations\BelongsToMany;
-use FluentEvents\Framework\Database\Orm\Relations\HasManyThrough;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\AsPivot;
-use FluentEvents\Framework\Database\Orm\Collection as OrmCollection;
-use FluentEvents\Framework\Database\ConnectionResolverInterface as Resolver;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\ForwardsCalls;
+use FluentEvent\Framework\Support\UrlRoutable;
+use FluentEvent\Framework\Support\JsonableInterface;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Support\HelperFunctionsTrait;
+use FluentEvent\Framework\Support\CanBeEscapedWhenCastToString;
+use FluentEvent\Framework\Support\Collection as BaseCollection;
+use FluentEvent\Framework\Database\Schema;
+use FluentEvent\Framework\Database\Orm\Relations\Pivot;
+use FluentEvent\Framework\Database\Orm\Relations\BelongsToMany;
+use FluentEvent\Framework\Database\Orm\Relations\HasManyThrough;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\AsPivot;
+use FluentEvent\Framework\Database\Orm\Collection as OrmCollection;
+use FluentEvent\Framework\Database\ConnectionResolverInterface as Resolver;
 
 /**
  * Model forwards unknown instance/static calls to a new Orm Builder
  * (see __call/__callStatic), which itself proxies to the Query Builder.
  *
- * @mixin \FluentEvents\Framework\Database\Orm\Builder
+ * @mixin \FluentEvent\Framework\Database\Orm\Builder
  */
 abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhenCastToString, JsonableInterface, JsonSerializable, UrlRoutable
 {
@@ -130,14 +130,14 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * The connection resolver instance.
      *
-     * @var \FluentEvents\Framework\Database\ConnectionResolverInterface
+     * @var \FluentEvent\Framework\Database\ConnectionResolverInterface
      */
     protected static $resolver;
 
     /**
      * The event dispatcher instance.
      *
-     * @var \FluentEvents\Framework\Events\Dispatcher
+     * @var \FluentEvent\Framework\Events\Dispatcher
      */
     protected static $dispatcher;
 
@@ -435,7 +435,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      * @param  array  $attributes
      * @return $this
      *
-     * @throws \FluentEvents\Framework\Database\Orm\MassAssignmentException
+     * @throws \FluentEvent\Framework\Database\Orm\MassAssignmentException
      */
     public function fill(array $attributes)
     {
@@ -584,7 +584,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      * Begin querying the model on a given connection.
      *
      * @param  string|null  $connection
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public static function on($connection = null)
     {
@@ -602,7 +602,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Begin querying the model on the write connection.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public static function onWriteConnection()
     {
@@ -613,7 +613,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      * Get all of the models from the database.
      *
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection|static[]
+     * @return \FluentEvent\Framework\Database\Orm\Collection|static[]
      */
     public static function all($columns = ['*'])
     {
@@ -626,7 +626,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      * Begin querying a model with eager loading.
      *
      * @param  array|string  $relations
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public static function with($relations)
     {
@@ -1099,7 +1099,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Perform a model update operation.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
      * @return bool
      */
     protected function performUpdate(Builder $query)
@@ -1137,8 +1137,8 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Set the keys for a select query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function setKeysForSelectQuery($query)
     {
@@ -1160,8 +1160,8 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Set the keys for a save update query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function setKeysForSaveQuery($query)
     {
@@ -1183,7 +1183,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Perform a model insert operation.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
      * @return bool
      */
     protected function performInsert(Builder $query)
@@ -1234,7 +1234,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Insert the given attributes and set the ID on the model.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
      * @param  array  $attributes
      * @return void
      */
@@ -1248,7 +1248,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Destroy the models for the given IDs.
      *
-     * @param  \FluentEvents\Framework\Support\Collection|array|int|string  $ids
+     * @param  \FluentEvent\Framework\Support\Collection|array|int|string  $ids
      * @return int
      */
     public static function destroy($ids)
@@ -1369,7 +1369,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Begin querying the model.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public static function query()
     {
@@ -1379,7 +1379,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Get a new query builder for the model's table.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function newQuery()
     {
@@ -1389,7 +1389,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Get a new query builder that doesn't have any global scopes or eager loading.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder|static
+     * @return \FluentEvent\Framework\Database\Orm\Builder|static
      */
     public function newModelQuery()
     {
@@ -1401,7 +1401,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Get a new query builder with no relationships loaded.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function newQueryWithoutRelationships()
     {
@@ -1411,8 +1411,8 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Register the global scopes for this builder instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $builder
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function registerGlobalScopes($builder)
     {
@@ -1426,7 +1426,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Get a new query builder that doesn't have any global scopes.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder|static
+     * @return \FluentEvent\Framework\Database\Orm\Builder|static
      */
     public function newQueryWithoutScopes()
     {
@@ -1438,8 +1438,8 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Get a new query instance without a given scope.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Scope|string  $scope
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Scope|string  $scope
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function newQueryWithoutScope($scope)
     {
@@ -1450,7 +1450,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      * Get a new query to restore one or more models by their queueable IDs.
      *
      * @param  array|int  $ids
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function newQueryForRestoration($ids)
     {
@@ -1462,8 +1462,8 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Create a new Orm query builder for the model.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
-     * @return \FluentEvents\Framework\Database\Orm\Builder|static
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
+     * @return \FluentEvent\Framework\Database\Orm\Builder|static
      */
     public function newOrmBuilder($query)
     {
@@ -1473,7 +1473,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Get a new query builder instance for the connection.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     protected function newBaseQueryBuilder()
     {
@@ -1484,7 +1484,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      * Create a new Orm Collection instance.
      *
      * @param  array  $models
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     public function newCollection(array $models = [])
     {
@@ -1494,12 +1494,12 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Create a new pivot model instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @param  array  $attributes
      * @param  string  $table
      * @param  bool  $exists
      * @param  string|null  $using
-     * @return \FluentEvents\Framework\Database\Orm\Relations\Pivot
+     * @return \FluentEvent\Framework\Database\Orm\Relations\Pivot
      */
     public function newPivot(
         self $parent, array $attributes, $table, $exists, $using = null
@@ -1549,7 +1549,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      * @param  int  $options
      * @return string
      *
-     * @throws \FluentEvents\Framework\Database\Orm\JsonEncodingException
+     * @throws \FluentEvent\Framework\Database\Orm\JsonEncodingException
      */
     public function toJson($options = 0)
     {
@@ -1647,7 +1647,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Determine if two models have the same ID and belong to the same table.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model|null  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model|null  $model
      * @return bool
      */
     public function is($model)
@@ -1661,7 +1661,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Determine if two models are not the same.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model|null  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model|null  $model
      * @return bool
      */
     public function isNot($model)
@@ -1672,7 +1672,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Get the database connection for the model.
      *
-     * @return \FluentEvents\Framework\Database\Query\WPDBConnection
+     * @return \FluentEvent\Framework\Database\Query\WPDBConnection
      */
     public function getConnection()
     {
@@ -1706,7 +1706,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      * Resolve a connection instance.
      *
      * @param  string|null  $connection
-     * @return \FluentEvents\Framework\Database\Query\WPDBConnection
+     * @return \FluentEvent\Framework\Database\Query\WPDBConnection
      */
     public static function resolveConnection($connection = null)
     {
@@ -1716,7 +1716,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Get the connection resolver instance.
      *
-     * @return \FluentEvents\Framework\Database\ConnectionResolverInterface
+     * @return \FluentEvent\Framework\Database\ConnectionResolverInterface
      */
     public static function getConnectionResolver()
     {
@@ -1726,7 +1726,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Set the connection resolver instance.
      *
-     * @param  \FluentEvents\Framework\Database\ConnectionResolverInterface  $resolver
+     * @param  \FluentEvent\Framework\Database\ConnectionResolverInterface  $resolver
      * @return void
      */
     public static function setConnectionResolver(Resolver $resolver)
@@ -1883,7 +1883,7 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
      *
      * @param  mixed  $value
      * @param  string|null  $field
-     * @return \FluentEvents\Framework\Database\Orm\Model|null
+     * @return \FluentEvent\Framework\Database\Orm\Model|null
      */
     public function resolveRouteBinding($value, $field = null)
     {
@@ -1895,10 +1895,10 @@ abstract class Model implements ArrayableInterface, ArrayAccess, CanBeEscapedWhe
     /**
      * Retrieve the model for a bound value.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $query
      * @param  mixed  $value
      * @param  string|null  $field
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function resolveRouteBindingQuery($query, $value, $field = null)
     {

@@ -1,32 +1,32 @@
 <?php
 
-namespace FluentEvents\Framework\Http;
+namespace FluentEvent\Framework\Http;
 
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\DateTime;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\DateTime;
 
 class UrlGenerator
 {
     /**
      * The application instance.
      *
-     * @var \FluentEvents\Framework\Foundation\App|null
+     * @var \FluentEvent\Framework\Foundation\App|null
      */
     protected $app = null;
     
 
     /**
      * The encrypter instance.
-     * @var \FluentEvents\Framework\Encryption\Encrypter|null
+     * @var \FluentEvent\Framework\Encryption\Encrypter|null
      */
     protected $encrypter = null;
 
     /**
      * Create a new URL Generator instance.
      *
-     * @param  \FluentEvents\Framework\Foundation\App|null  $app
-     * @param  \FluentEvents\Framework\Encryption\Encrypter|null  $encrypter
+     * @param  \FluentEvent\Framework\Foundation\App|null  $app
+     * @param  \FluentEvent\Framework\Encryption\Encrypter|null  $encrypter
      */
     public function __construct($app = null, $encrypter = null)
     {
@@ -252,7 +252,7 @@ class UrlGenerator
     /**
      * Resolve the encrypter.
      * 
-     * @return \FluentEvents\Framework\Encryption\Encrypter
+     * @return \FluentEvent\Framework\Encryption\Encrypter
      */
     protected function resolveEncrypter()
     {

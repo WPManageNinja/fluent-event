@@ -1,20 +1,20 @@
 <?php
 
-namespace FluentEvents\Framework\Events;
+namespace FluentEvent\Framework\Events;
 
 use Closure;
 use Exception;
 use ReflectionClass;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Container\Container;
-use FluentEvents\Framework\Support\MacroableTrait;
-use FluentEvents\Framework\Support\ReflectsClosures;
-use FluentEvents\Framework\Events\DispatcherInterface;
-use FluentEvents\Framework\Events\ShouldDispatchAfterCommit;
-use FluentEvents\Framework\Events\ShouldHandleEventsAfterCommit;
-use FluentEvents\Framework\Container\Contracts\Container as ContainerContract;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Container\Container;
+use FluentEvent\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Support\ReflectsClosures;
+use FluentEvent\Framework\Events\DispatcherInterface;
+use FluentEvent\Framework\Events\ShouldDispatchAfterCommit;
+use FluentEvent\Framework\Events\ShouldHandleEventsAfterCommit;
+use FluentEvent\Framework\Container\Contracts\Container as ContainerContract;
 
 
 class Dispatcher implements DispatcherInterface
@@ -24,7 +24,7 @@ class Dispatcher implements DispatcherInterface
     /**
      * The IoC container instance.
      *
-     * @var \FluentEvents\Framework\Container\Contracts\Container
+     * @var \FluentEvent\Framework\Container\Contracts\Container
      */
     protected $container;
 
@@ -81,14 +81,14 @@ class Dispatcher implements DispatcherInterface
     /**
      * The transaction manager instance.
      * 
-     * @var \FluentEvents\Framework\Database\DatabaseTransactionsManager|null
+     * @var \FluentEvent\Framework\Database\DatabaseTransactionsManager|null
      */
     protected $transactionManagerResolver = null;
 
     /**
      * Create a new event dispatcher instance.
      *
-     * @param  \FluentEvents\Framework\Container\Contracts\Container|null  $container
+     * @param  \FluentEvent\Framework\Container\Contracts\Container|null  $container
      * @return void
      */
     public function __construct(?ContainerContract $container = null)
@@ -623,7 +623,7 @@ class Dispatcher implements DispatcherInterface
     /**
      * Resolve the transaction manager instance.
      * 
-     * @return \FluentEvents\Framework\Database\DatabaseTransactionsManager
+     * @return \FluentEvent\Framework\Database\DatabaseTransactionsManager
      */
     protected function resolveTransactionManager()
     {

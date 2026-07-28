@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use Exception;
 use Throwable;
 use InvalidArgumentException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\HigherOrderTapProxy;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\HigherOrderTapProxy;
 
 class Helper
 {
@@ -15,7 +15,7 @@ class Helper
      * Create a collection from the given value.
      *
      * @param  mixed $value
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public static function collect($value = null)
     {

@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Container\Contracts;
+namespace FluentEvent\Framework\Container\Contracts;
 
 use Exception;
-use FluentEvents\Framework\Container\Contracts\Psr\ContainerExceptionInterface;
+use FluentEvent\Framework\Container\Contracts\Psr\ContainerExceptionInterface;
 
 class CircularDependencyException extends Exception implements ContainerExceptionInterface
 {

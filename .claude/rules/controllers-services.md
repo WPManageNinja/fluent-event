@@ -62,7 +62,7 @@ Set ownership/status server-side — never from the payload. Same for `->update(
 
 ## Event emission
 
-- Side-effects go through `do_action('fluent_events/<noun>/<verb>', $args)`.
+- Side-effects go through `do_action('fluent_event/<noun>/<verb>', $args)`.
 - Don't emit a hook AND directly call the same effect — listeners fire twice.
 - Eloquent lifecycle hooks (`creating`/`deleting`) firing AND a manual `do_action`
   for the same conceptual event = duplicate. Pick one path.

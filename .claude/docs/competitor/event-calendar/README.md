@@ -1,7 +1,7 @@
-# The Events Calendar + Event Tickets — DB design
+# The Event Calendar + Event Tickets — DB design
 
 Competitor teardown of the two StellarWP / Modern Tribe plugins that pair up to do
-what Fluent Events does in one: **The Events Calendar** (events) + **Event Tickets**
+what Fluent Event does in one: **The Event Calendar** (events) + **Event Tickets**
 (ticketing).
 
 - [schema-combined.svg](schema-combined.svg) — **combined model** across both plugins
@@ -84,11 +84,11 @@ Also real (not drawn): seating (`tec_slr_*`), series ticket-groups
 (`tec_ticket_groups`), webhooks, gateway sync. There are 3 ticket providers — RSVP,
 legacy PayPal, Tickets Commerce — each with its own CPTs + meta namespace.
 
-## Contrast with Fluent Events (ours)
+## Contrast with Fluent Event (ours)
 
-| | TEC + Event Tickets | Fluent Events |
+| | TEC + Event Tickets | Fluent Event |
 |---|---|---|
-| Event | CPT + postmeta (+ mirror table) | custom table `wp_fevents_events` |
+| Event | CPT + postmeta (+ mirror table) | custom table `wp_fevent_events` |
 | Ticket tier | CPT `tec_tc_ticket` + meta | custom table `ticket_types` |
 | Attendee | CPT `tec_tc_attendee`, 3 meta pointers | custom table `guests`, real FKs |
 | Order | CPT `tec_tc_order`, serialized `_items` | custom table `registrations`, real FKs |

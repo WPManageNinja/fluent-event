@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query\Processors;
+namespace FluentEvent\Framework\Database\Query\Processors;
 
-use FluentEvents\Framework\Database\Query\Builder;
+use FluentEvent\Framework\Database\Query\Builder;
 
 class MySqlProcessor extends Processor
 {

@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Orm\Collection;
 
 class HasMany extends HasOneOrMany
 {
     /**
      * Convert the relationship to a "has one" relationship.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Relations\HasOne
+     * @return \FluentEvent\Framework\Database\Orm\Relations\HasOne
      */
     public function one()
     {
@@ -53,7 +53,7 @@ class HasMany extends HasOneOrMany
      * Match the eagerly loaded results to their parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @return array
      */

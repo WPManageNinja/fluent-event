@@ -1,0 +1,37 @@
+<?php 
+
+defined('ABSPATH') or die;
+
+/**
+ * Plugin Name: Fluent Event 
+ * Plugin URI: https://fluentevent.com
+ * Description: Event management plugin for WordPress. 
+ * Version: 1.0.0
+ * Requires at least: 5.2
+ * Requires PHP: 7.4
+ * Author: WPManageNinja LLC
+ * Author URI: https://fluentevent.com
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: fluent-event
+ * Domain Path: /language
+ * Update URI: false
+ */
+
+define('FLUENT_EVENT_PLUGIN_VERSION', '1.0.0');
+define('FLUENT_EVENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('FLUENT_EVENT_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('FLUENT_EVENT_DIR_FILE', __FILE__);
+define('FLUENT_EVENT_START_TIME', microtime(true));
+define('FLUENT_EVENT_BD_VERSION', '1.0.0');
+
+if(!defined('FLUENT_EVENT_UPLOAD_DIR')) {
+  define('FLUENT_EVENT_UPLOAD_DIR', 'fluent-event');
+}
+
+return (function($boot, $_autoload) {
+    return $boot(__FILE__);
+})(
+    require __DIR__.'/boot/app.php',
+    require __DIR__.'/vendor/autoload.php'
+);

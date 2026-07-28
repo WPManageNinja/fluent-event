@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Validator;
+namespace FluentEvent\Framework\Validator;
 
-use FluentEvents\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Arr;
 
 trait MessageBag
 {

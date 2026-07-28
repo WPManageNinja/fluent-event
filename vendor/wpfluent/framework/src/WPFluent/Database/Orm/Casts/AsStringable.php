@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Casts;
+namespace FluentEvent\Framework\Database\Orm\Casts;
 
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Database\Orm\Castable;
-use FluentEvents\Framework\Database\Orm\CastsAttributes;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Database\Orm\Castable;
+use FluentEvent\Framework\Database\Orm\CastsAttributes;
 
 class AsStringable implements Castable
 {

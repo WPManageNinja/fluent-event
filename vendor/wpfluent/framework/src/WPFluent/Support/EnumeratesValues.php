@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
 use Exception;
@@ -9,14 +9,14 @@ use CachingIterator;
 use JsonSerializable;
 use UnexpectedValueException;
 
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\Collection;
-use FluentEvents\Framework\Support\Enumerable;
-use FluentEvents\Framework\Support\JsonableInterface;
-use FluentEvents\Framework\Support\ArrayableInterface;
-use FluentEvents\Framework\Support\HigherOrderWhenProxy;
-use FluentEvents\Framework\Support\HigherOrderCollectionProxy;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Collection;
+use FluentEvent\Framework\Support\Enumerable;
+use FluentEvent\Framework\Support\JsonableInterface;
+use FluentEvent\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Support\HigherOrderWhenProxy;
+use FluentEvent\Framework\Support\HigherOrderCollectionProxy;
 
 /**
  * @property-read HigherOrderCollectionProxy $average
@@ -830,7 +830,7 @@ trait EnumeratesValues
     /**
      * Collect the values into a collection.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function collect()
     {

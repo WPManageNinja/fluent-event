@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
-use FluentEvents\Framework\Support\Str;
+use FluentEvent\Framework\Support\Str;
 
 /**
  * Class File

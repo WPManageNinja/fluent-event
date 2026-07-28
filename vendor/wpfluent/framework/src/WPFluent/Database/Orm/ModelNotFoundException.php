@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm;
+namespace FluentEvent\Framework\Database\Orm;
 
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Database\RecordsNotFoundException;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Database\RecordsNotFoundException;
 
 class ModelNotFoundException extends RecordsNotFoundException
 {

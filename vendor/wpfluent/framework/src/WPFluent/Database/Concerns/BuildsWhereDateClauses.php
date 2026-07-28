@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Concerns;
+namespace FluentEvent\Framework\Database\Concerns;
 
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\DateTime;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\DateTime;
 
 trait BuildsWhereDateClauses
 {

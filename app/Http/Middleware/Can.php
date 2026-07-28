@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\App\Http\Middleware;
+namespace FluentEvent\App\Http\Middleware;
 
 class Can
 {
 	/**
 	 * Handle the request
 	 * 
-	 * @param  \FluentEvents\Framework\Http\Request\Request $request
+	 * @param  \FluentEvent\Framework\Http\Request\Request $request
 	 * @param  \Closure $next
 	 * @param  array $params
 	 * @return mixed

@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Query\JoinClause;
-use FluentEvents\Framework\Database\Orm\SupportsPartialRelations;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\CanBeOneOfMany;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\ComparesRelatedModels;
-use FluentEvents\Framework\Database\Orm\Relations\Concerns\SupportsDefaultModels;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Query\JoinClause;
+use FluentEvent\Framework\Database\Orm\SupportsPartialRelations;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\CanBeOneOfMany;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\ComparesRelatedModels;
+use FluentEvent\Framework\Database\Orm\Relations\Concerns\SupportsDefaultModels;
 
 /**
  * @template TRelatedModel of Model
@@ -59,7 +59,7 @@ class MorphOne extends MorphOneOrMany implements SupportsPartialRelations
     /**
      * Add constraints for inner join subselect for one of many relationships.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder<TRelatedModel>  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder<TRelatedModel>  $query
      * @param  string|null  $column
      * @param  string|null  $aggregate
      * @return void
@@ -83,7 +83,7 @@ class MorphOne extends MorphOneOrMany implements SupportsPartialRelations
     /**
      * Add join query constraints for one of many relationships.
      *
-     * @param  \FluentEvents\Framework\Database\Query\JoinClause  $join
+     * @param  \FluentEvent\Framework\Database\Query\JoinClause  $join
      * @return void
      */
     public function addOneOfManyJoinSubQueryConstraints(JoinClause $join)

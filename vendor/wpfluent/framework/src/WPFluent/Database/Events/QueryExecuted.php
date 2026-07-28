@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Events;
+namespace FluentEvent\Framework\Database\Events;
 
 class QueryExecuted
 {
@@ -28,7 +28,7 @@ class QueryExecuted
     /**
      * The database connection instance.
      *
-     * @var \FluentEvents\Framework\Database\Query\WPDBConnection
+     * @var \FluentEvent\Framework\Database\Query\WPDBConnection
      */
     public $connection;
 
@@ -45,7 +45,7 @@ class QueryExecuted
      * @param  string  $sql
      * @param  array  $bindings
      * @param  float|null  $time
-     * @param  \FluentEvents\Framework\Database\Query\WPDBConnection  $connection
+     * @param  \FluentEvent\Framework\Database\Query\WPDBConnection  $connection
      * @return void
      */
     public function __construct($sql, $bindings, $time, $connection)

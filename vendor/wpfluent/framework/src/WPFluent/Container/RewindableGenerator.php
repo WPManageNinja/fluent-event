@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Container;
+namespace FluentEvent\Framework\Container;
 
 use Countable;
 use IteratorAggregate;

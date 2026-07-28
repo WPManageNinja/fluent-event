@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 /**
  * Expands URI templates. Userland implementation of PECL uri_template.

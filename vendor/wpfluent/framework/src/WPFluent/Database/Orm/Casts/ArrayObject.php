@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Casts;
+namespace FluentEvent\Framework\Database\Orm\Casts;
 
 use JsonSerializable;
-USE FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\ArrayableInterface;
+USE FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\ArrayableInterface;
 use ArrayObject as BaseArrayObject;
 
 class ArrayObject extends BaseArrayObject implements ArrayableInterface, JsonSerializable
@@ -12,7 +12,7 @@ class ArrayObject extends BaseArrayObject implements ArrayableInterface, JsonSer
     /**
      * Get a collection containing the underlying array.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function collect()
     {

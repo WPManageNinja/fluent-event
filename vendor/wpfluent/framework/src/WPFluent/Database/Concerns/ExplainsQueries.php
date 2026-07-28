@@ -1,15 +1,15 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Concerns;
+namespace FluentEvent\Framework\Database\Concerns;
 
-use FluentEvents\Framework\Support\Collection;
+use FluentEvent\Framework\Support\Collection;
 
 trait ExplainsQueries
 {
     /**
      * Explains the query.
      *
-     * @return \FluentEvents\Framework\Support\Collection
+     * @return \FluentEvent\Framework\Support\Collection
      */
     public function explain()
     {

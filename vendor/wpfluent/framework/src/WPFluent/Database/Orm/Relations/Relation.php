@@ -1,22 +1,22 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
 use Closure;
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Support\ForwardsCalls;
-use FluentEvents\Framework\Support\MacroableTrait;
-use FluentEvents\Framework\Support\HelperFunctionsTrait;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Database\Orm\Builder;
-use FluentEvents\Framework\Database\Orm\Collection;
-use FluentEvents\Framework\Database\Query\Expression;
-use FluentEvents\Framework\Database\Orm\ModelNotFoundException;
-use FluentEvents\Framework\Database\MultipleRecordsFoundException;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Support\ForwardsCalls;
+use FluentEvent\Framework\Support\MacroableTrait;
+use FluentEvent\Framework\Support\HelperFunctionsTrait;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Database\Orm\Builder;
+use FluentEvent\Framework\Database\Orm\Collection;
+use FluentEvent\Framework\Database\Query\Expression;
+use FluentEvent\Framework\Database\Orm\ModelNotFoundException;
+use FluentEvent\Framework\Database\MultipleRecordsFoundException;
 
 /**
- * @mixin \FluentEvents\Framework\Database\Orm\Builder
+ * @mixin \FluentEvent\Framework\Database\Orm\Builder
  */
 abstract class Relation
 {
@@ -28,21 +28,21 @@ abstract class Relation
     /**
      * The Orm query builder instance.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Builder
+     * @var \FluentEvent\Framework\Database\Orm\Builder
      */
     protected $query;
 
     /**
      * The parent model instance.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Model
+     * @var \FluentEvent\Framework\Database\Orm\Model
      */
     protected $parent;
 
     /**
      * The related model instance.
      *
-     * @var \FluentEvents\Framework\Database\Orm\Model
+     * @var \FluentEvent\Framework\Database\Orm\Model
      */
     protected $related;
 
@@ -85,8 +85,8 @@ abstract class Relation
     /**
      * Create a new relation instance.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $parent
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $parent
      * @return void
      */
     public function __construct(Builder $query, Model $parent)
@@ -148,7 +148,7 @@ abstract class Relation
      * Match the eagerly loaded results to their parents.
      *
      * @param  array  $models
-     * @param  \FluentEvents\Framework\Database\Orm\Collection  $results
+     * @param  \FluentEvent\Framework\Database\Orm\Collection  $results
      * @param  string  $relation
      * @return array
      */
@@ -164,7 +164,7 @@ abstract class Relation
     /**
      * Get the relationship for eager loading.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     public function getEager()
     {
@@ -177,10 +177,10 @@ abstract class Relation
      * Execute the query and get the first result if it's the sole matching record.
      *
      * @param  array|string  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      *
-     * @throws \FluentEvents\Framework\Database\Orm\ModelNotFoundException
-     * @throws \FluentEvents\Framework\Database\MultipleRecordsFoundException
+     * @throws \FluentEvent\Framework\Database\Orm\ModelNotFoundException
+     * @throws \FluentEvent\Framework\Database\MultipleRecordsFoundException
      */
     public function sole($columns = ['*'])
     {
@@ -203,7 +203,7 @@ abstract class Relation
      * Execute the query as a "select" statement.
      *
      * @param  array  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Collection
+     * @return \FluentEvent\Framework\Database\Orm\Collection
      */
     public function get($columns = ['*'])
     {
@@ -240,9 +240,9 @@ abstract class Relation
     /**
      * Add the constraints for a relationship count query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $parentQuery
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $parentQuery
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function getRelationExistenceCountQuery(Builder $query, Builder $parentQuery)
     {
@@ -256,10 +256,10 @@ abstract class Relation
      *
      * Essentially, these queries compare on column names like whereColumn.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $parentQuery
      * @param  array|mixed  $columns
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function getRelationExistenceQuery(
         Builder $query,
@@ -301,7 +301,7 @@ abstract class Relation
     /**
      * Get the query builder that will contain the relationship constraints.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function getRelationQuery()
     {
@@ -311,7 +311,7 @@ abstract class Relation
     /**
      * Get the underlying query for the relation.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function getQuery()
     {
@@ -321,7 +321,7 @@ abstract class Relation
     /**
      * Get the base query builder driving the Orm builder.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function getBaseQuery()
     {
@@ -331,7 +331,7 @@ abstract class Relation
     /**
      * Get a base query builder instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     public function toBase()
     {
@@ -341,7 +341,7 @@ abstract class Relation
     /**
      * Get the parent model of the relation.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function getParent()
     {
@@ -361,7 +361,7 @@ abstract class Relation
     /**
      * Get the related model of the relation.
      *
-     * @return \FluentEvents\Framework\Database\Orm\Model
+     * @return \FluentEvent\Framework\Database\Orm\Model
      */
     public function getRelated()
     {
@@ -404,7 +404,7 @@ abstract class Relation
      * @param  string  $whereIn
      * @param  string  $key
      * @param  array  $modelKeys
-     * @param  \FluentEvents\Framework\Database\Orm\Builder|null  $query
+     * @param  \FluentEvent\Framework\Database\Orm\Builder|null  $query
      * @return void
      */
     protected function whereInEager(
@@ -422,7 +422,7 @@ abstract class Relation
     /**
      * Get the name of the "where in" method for eager loading.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Model  $model
+     * @param  \FluentEvent\Framework\Database\Orm\Model  $model
      * @param  string  $key
      * @return string
      */

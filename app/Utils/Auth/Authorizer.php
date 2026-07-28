@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\App\Utils\Auth;
+namespace FluentEvent\App\Utils\Auth;
 
 use Exception;
-use FluentEvents\App\App;
-use FluentEvents\Framework\Support\Hash;
-use FluentEvents\Framework\Http\Request\Request;
+use FluentEvent\App\App;
+use FluentEvent\Framework\Support\Hash;
+use FluentEvent\Framework\Http\Request\Request;
 
 class Authorizer
 {
@@ -36,7 +36,7 @@ class Authorizer
     /**
      * Check if the request is authorized either by user capability or token.
      *
-     * @param  \FluentEvents\Framework\Http\Request\Request $request
+     * @param  \FluentEvent\Framework\Http\Request\Request $request
      * @param  string   $capability
      * @param  mixed    ...$args
      * @return bool
@@ -58,7 +58,7 @@ class Authorizer
     /**
      * Authorize the request based on user capabilities.
      *
-     * @param  \FluentEvents\Framework\Http\Request\Request $request
+     * @param  \FluentEvent\Framework\Http\Request\Request $request
      * @param  string   $capability
      * @param  mixed    ...$args
      * @return bool
@@ -71,7 +71,7 @@ class Authorizer
     /**
      * Attempt to authorize using a token provided in the request headers.
      *
-     * @param  \FluentEvents\Framework\Http\Request\Request $request
+     * @param  \FluentEvent\Framework\Http\Request\Request $request
      * @param  mixed    ...$args
      * @return bool
      */
@@ -88,7 +88,7 @@ class Authorizer
     /**
      * Retrieve the user token to compare with the request token.
      *
-     * @param  \FluentEvents\Framework\Http\Request\Request $request
+     * @param  \FluentEvent\Framework\Http\Request\Request $request
      * @return string|null
      */
     protected function getUserToken(Request $request)

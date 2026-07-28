@@ -1,4 +1,4 @@
-=== Fluent Events ===
+=== Fluent Event ===
 Contributors: authorname
 Donate link: https://wpfluent.com
 Requires at least: 5.6

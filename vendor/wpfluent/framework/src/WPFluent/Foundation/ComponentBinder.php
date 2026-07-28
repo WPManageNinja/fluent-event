@@ -1,31 +1,31 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation;
+namespace FluentEvent\Framework\Foundation;
 
-use FluentEvents\Framework\Support\Arr;
-use FluentEvents\Framework\View\View;
-use FluentEvents\Framework\Cache\Cache;
-use FluentEvents\Framework\Http\URL;
-use FluentEvents\Framework\Http\UrlGenerator;
-use FluentEvents\Framework\Support\Mail;
-use FluentEvents\Framework\Support\Pipeline;
-use FluentEvents\Framework\Http\Router;
-use FluentEvents\Framework\Http\Request\Request;
-use FluentEvents\Framework\Http\Response\Response;
-use FluentEvents\Framework\Events\Dispatcher;
-use FluentEvents\Framework\Encryption\Encrypter;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Validator\Validator;
-use FluentEvents\Framework\Foundation\RequestGuard;
-use FluentEvents\Framework\Foundation\Exceptions\ExceptionHandler;
-use FluentEvents\Framework\Database\DatabaseManager;
-use FluentEvents\Framework\Database\DatabaseTransactionsManager;
-use FluentEvents\Framework\Database\ConnectionResolver;
-use FluentEvents\Framework\Database\Query\WPDBConnection;
-use FluentEvents\Framework\Pagination\AbstractCursorPaginator;
-use FluentEvents\Framework\Pagination\AbstractPaginator;
-use FluentEvents\Framework\Pagination\CursorPaginator;
-use FluentEvents\Framework\Pagination\Cursor;
+use FluentEvent\Framework\Support\Arr;
+use FluentEvent\Framework\View\View;
+use FluentEvent\Framework\Cache\Cache;
+use FluentEvent\Framework\Http\URL;
+use FluentEvent\Framework\Http\UrlGenerator;
+use FluentEvent\Framework\Support\Mail;
+use FluentEvent\Framework\Support\Pipeline;
+use FluentEvent\Framework\Http\Router;
+use FluentEvent\Framework\Http\Request\Request;
+use FluentEvent\Framework\Http\Response\Response;
+use FluentEvent\Framework\Events\Dispatcher;
+use FluentEvent\Framework\Encryption\Encrypter;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Validator\Validator;
+use FluentEvent\Framework\Foundation\RequestGuard;
+use FluentEvent\Framework\Foundation\Exceptions\ExceptionHandler;
+use FluentEvent\Framework\Database\DatabaseManager;
+use FluentEvent\Framework\Database\DatabaseTransactionsManager;
+use FluentEvent\Framework\Database\ConnectionResolver;
+use FluentEvent\Framework\Database\Query\WPDBConnection;
+use FluentEvent\Framework\Pagination\AbstractCursorPaginator;
+use FluentEvent\Framework\Pagination\AbstractPaginator;
+use FluentEvent\Framework\Pagination\CursorPaginator;
+use FluentEvent\Framework\Pagination\Cursor;
 use WpOrg\Requests\Exception\Http\Status401;
 
 class ComponentBinder
@@ -34,7 +34,7 @@ class ComponentBinder
 
     /**
      * The application instance
-     * @var \FluentEvents\Framework\Foundation\Application
+     * @var \FluentEvent\Framework\Foundation\Application
      */
     protected $app = null;
 
@@ -61,7 +61,7 @@ class ComponentBinder
 
     /**
      * Construct the binder
-     * @param \FluentEvents\Framework\Foundation\Application $app
+     * @param \FluentEvent\Framework\Foundation\Application $app
      */
     public function __construct($app)
     {
@@ -101,7 +101,7 @@ class ComponentBinder
 
     /**
      * Register resolving event into the container.
-     * @param  \FluentEvents\Framework\Foundation\Application $app
+     * @param  \FluentEvent\Framework\Foundation\Application $app
      * @return null
      */
     protected function registerResolvingEvent($app)
@@ -371,7 +371,7 @@ class ComponentBinder
      * Load other bindings the developers might
      * have added in the application level.
      * 
-     * @param  \FluentEvents\Framework\Foundation\Application $app
+     * @param  \FluentEvent\Framework\Foundation\Application $app
      * @return null
      */
     protected function extendBindings($app)
@@ -385,7 +385,7 @@ class ComponentBinder
 
     /**
      * Load the plugin's global functions
-     * @param  \FluentEvents\Framework\Foundation\Application $app
+     * @param  \FluentEvent\Framework\Foundation\Application $app
      * @return null
      */
     protected function loadGlobalFunctions($app)

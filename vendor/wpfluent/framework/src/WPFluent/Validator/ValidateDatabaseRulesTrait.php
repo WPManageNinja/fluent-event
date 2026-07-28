@@ -1,13 +1,13 @@
 <?php
 
-namespace FluentEvents\Framework\Validator;
+namespace FluentEvent\Framework\Validator;
 
 use Closure;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Database\Orm\Model;
-use FluentEvents\Framework\Validator\Rules\Exists;
-use FluentEvents\Framework\Validator\Rules\Unique;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Database\Orm\Model;
+use FluentEvent\Framework\Validator\Rules\Exists;
+use FluentEvent\Framework\Validator\Rules\Unique;
 
 trait ValidateDatabaseRulesTrait
 {
@@ -147,9 +147,9 @@ trait ValidateDatabaseRulesTrait
     /**
      * Add the given conditions to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $conditions
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     protected function addConditions($query, $conditions)
     {
@@ -169,7 +169,7 @@ trait ValidateDatabaseRulesTrait
     /**
      * Add a "where" clause to the given query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $key
      * @param  string  $extraValue
      * @return void
@@ -191,7 +191,7 @@ trait ValidateDatabaseRulesTrait
      * Get a query builder for the given table.
      *
      * @param  string  $table
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     protected function table($table)
     {

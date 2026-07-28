@@ -1,11 +1,11 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query\Grammars;
+namespace FluentEvent\Framework\Database\Query\Grammars;
 
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
-use FluentEvents\Framework\Database\Query\Builder;
-use FluentEvents\Framework\Database\Query\JoinLateralClause;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
+use FluentEvent\Framework\Database\Query\Builder;
+use FluentEvent\Framework\Database\Query\JoinLateralClause;
 
 
 class MySqlGrammar extends Grammar
@@ -20,7 +20,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile a "where like" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -36,7 +36,7 @@ class MySqlGrammar extends Grammar
     /**
      * Add a "where null" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -56,7 +56,7 @@ class MySqlGrammar extends Grammar
     /**
      * Add a "where not null" clause to the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -76,7 +76,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile a "where fulltext" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $where
      * @return string
      */
@@ -143,8 +143,8 @@ class MySqlGrammar extends Grammar
     /**
      * Compile the index hints for the query.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
-     * @param  \FluentEvents\Framework\Database\Query\IndexHint  $indexHint
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\IndexHint  $indexHint
      * @return string
      */
     protected function compileIndexHint(Builder $query, $indexHint)
@@ -162,7 +162,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile a group limit clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     protected function compileGroupLimit(Builder $query)
@@ -175,7 +175,7 @@ class MySqlGrammar extends Grammar
     /**
      * Determine whether to use a legacy group limit clause for MySQL < 8.0.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return bool
      */
     public function useLegacyGroupLimit(Builder $query)
@@ -192,7 +192,7 @@ class MySqlGrammar extends Grammar
      *
      * Derived from https://softonsofa.com/tweaking-eloquent-relations-how-to-get-n-related-models-per-parent/.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @return string
      */
     protected function compileLegacyGroupLimit(Builder $query)
@@ -240,7 +240,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile an insert ignore statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -254,7 +254,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile an insert ignore statement using a subquery into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $columns
      * @param  string  $sql
      * @return string
@@ -351,7 +351,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile the lock into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  bool|string  $value
      * @return string
      */
@@ -367,7 +367,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile an insert statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -383,7 +383,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile the columns for an update statement.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @return string
      */
@@ -401,7 +401,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile an "upsert" statement into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  array  $values
      * @param  array  $uniqueBy
      * @param  array  $update
@@ -439,7 +439,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile a "lateral join" clause.
      *
-     * @param  \FluentEvents\Framework\Database\Query\JoinLateralClause  $join
+     * @param  \FluentEvent\Framework\Database\Query\JoinLateralClause  $join
      * @param  string  $expression
      * @return string
      */
@@ -475,7 +475,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile an update statement without joins into SQL.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $table
      * @param  string  $columns
      * @param  string  $where
@@ -519,7 +519,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile a delete query that does not use joins.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $query
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $query
      * @param  string  $table
      * @param  string  $where
      * @return string

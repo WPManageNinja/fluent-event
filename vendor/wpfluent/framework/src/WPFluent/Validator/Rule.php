@@ -1,22 +1,22 @@
 <?php
 
-namespace FluentEvents\Framework\Validator;
+namespace FluentEvent\Framework\Validator;
 
 use Closure;
 use LogicException;
 use ReflectionClass;
 use BadMethodCallException;
 use InvalidArgumentException;
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Validator\Rules\In;
-use FluentEvents\Framework\Validator\Rules\NotIn;
-use FluentEvents\Framework\Validator\Rules\Unique;
-use FluentEvents\Framework\Validator\Rules\Exists;
-use FluentEvents\Framework\Validator\Rules\RequiredIf;
-use FluentEvents\Framework\Validator\Rules\Dimensions;
-use FluentEvents\Framework\Validator\Rules\ConditionalRules;
-use FluentEvents\Framework\Support\ArrayableInterface;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Validator\Rules\In;
+use FluentEvent\Framework\Validator\Rules\NotIn;
+use FluentEvent\Framework\Validator\Rules\Unique;
+use FluentEvent\Framework\Validator\Rules\Exists;
+use FluentEvent\Framework\Validator\Rules\RequiredIf;
+use FluentEvent\Framework\Validator\Rules\Dimensions;
+use FluentEvent\Framework\Validator\Rules\ConditionalRules;
+use FluentEvent\Framework\Support\ArrayableInterface;
 
 class Rule
 {
@@ -26,7 +26,7 @@ class Rule
      * @param  callable|bool  $condition
      * @param  array|string  $rules
      * @param  array|string  $defaultRules
-     * @return \FluentEvents\Framework\Validator\Rules\ConditionalRules
+     * @return \FluentEvent\Framework\Validator\Rules\ConditionalRules
      */
     public static function when($condition, $rules, $defaultRules = [])
     {
@@ -37,7 +37,7 @@ class Rule
      * Get a dimensions constraint builder instance.
      *
      * @param  array  $constraints
-     * @return \FluentEvents\Framework\Validator\Rules\Dimensions
+     * @return \FluentEvent\Framework\Validator\Rules\Dimensions
      */
     public static function dimensions(array $constraints = [])
     {
@@ -49,7 +49,7 @@ class Rule
      *
      * @param  string  $table
      * @param  string  $column
-     * @return \FluentEvents\Framework\Validator\Rules\Exists
+     * @return \FluentEvent\Framework\Validator\Rules\Exists
      */
     public static function exists($table, $column = 'NULL')
     {
@@ -59,8 +59,8 @@ class Rule
     /**
      * Get an in constraint builder instance.
      *
-     * @param  \FluentEvents\Framework\Support\ArrayableInterface|array|string  $values
-     * @return \FluentEvents\Framework\Validator\Rules\In
+     * @param  \FluentEvent\Framework\Support\ArrayableInterface|array|string  $values
+     * @return \FluentEvent\Framework\Validator\Rules\In
      */
     public static function in($values)
     {
@@ -74,8 +74,8 @@ class Rule
     /**
      * Get a not_in constraint builder instance.
      *
-     * @param  \FluentEvents\Framework\Support\ArrayableInterface|array|string  $values
-     * @return \FluentEvents\Framework\Validator\Rules\NotIn
+     * @param  \FluentEvent\Framework\Support\ArrayableInterface|array|string  $values
+     * @return \FluentEvent\Framework\Validator\Rules\NotIn
      */
     public static function notIn($values)
     {
@@ -90,7 +90,7 @@ class Rule
      * Get a required_if constraint builder instance.
      *
      * @param  callable|bool  $callback
-     * @return \FluentEvents\Framework\Validator\Rules\RequiredIf
+     * @return \FluentEvent\Framework\Validator\Rules\RequiredIf
      */
     public static function requiredIf($callback)
     {
@@ -102,7 +102,7 @@ class Rule
      *
      * @param  string  $table
      * @param  string  $column
-     * @return \FluentEvents\Framework\Validator\Rules\Unique
+     * @return \FluentEvent\Framework\Validator\Rules\Unique
      */
     public static function unique($table, $column = 'NULL')
     {

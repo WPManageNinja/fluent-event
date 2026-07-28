@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Relations;
+namespace FluentEvent\Framework\Database\Orm\Relations;
 
-use FluentEvents\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Helper;
 
 class MorphPivot extends Pivot
 {
@@ -27,8 +27,8 @@ class MorphPivot extends Pivot
     /**
      * Set the keys for a save update query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function setKeysForSaveQuery($query)
     {
@@ -40,8 +40,8 @@ class MorphPivot extends Pivot
     /**
      * Set the keys for a select query.
      *
-     * @param  \FluentEvents\Framework\Database\Orm\Builder  $query
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @param  \FluentEvent\Framework\Database\Orm\Builder  $query
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function setKeysForSelectQuery($query)
     {
@@ -103,7 +103,7 @@ class MorphPivot extends Pivot
      * Set the morph class for the pivot.
      *
      * @param  string  $morphClass
-     * @return \FluentEvents\Framework\Database\Orm\Relations\MorphPivot
+     * @return \FluentEvent\Framework\Database\Orm\Relations\MorphPivot
      */
     public function setMorphClass($morphClass)
     {
@@ -116,7 +116,7 @@ class MorphPivot extends Pivot
      * Get a new query to restore one or more models by their queueable IDs.
      *
      * @param  array|int  $ids
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     public function newQueryForRestoration($ids)
     {
@@ -140,7 +140,7 @@ class MorphPivot extends Pivot
      * Get a new query to restore multiple models by their queueable IDs.
      *
      * @param  array  $ids
-     * @return \FluentEvents\Framework\Database\Orm\Builder
+     * @return \FluentEvent\Framework\Database\Orm\Builder
      */
     protected function newQueryForCollectionRestoration(array $ids)
     {

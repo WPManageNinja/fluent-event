@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Encryption;
+namespace FluentEvent\Framework\Encryption;
 
 use RuntimeException;
 

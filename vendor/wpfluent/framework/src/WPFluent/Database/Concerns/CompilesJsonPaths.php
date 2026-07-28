@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Concerns;
+namespace FluentEvent\Framework\Database\Concerns;
 
-use FluentEvents\Framework\Support\Str;
-use FluentEvents\Framework\Support\Helper;
+use FluentEvent\Framework\Support\Str;
+use FluentEvent\Framework\Support\Helper;
 
 trait CompilesJsonPaths
 {

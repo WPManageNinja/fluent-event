@@ -1,10 +1,10 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use RangeException;
-use FluentEvents\Framework\Foundation\App;
-use FluentEvents\Framework\Support\InvalidArgumentException;
+use FluentEvent\Framework\Foundation\App;
+use FluentEvent\Framework\Support\InvalidArgumentException;
 
 class Number
 {

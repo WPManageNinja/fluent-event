@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation;
+namespace FluentEvent\Framework\Foundation;
 
-use FluentEvents\Framework\Support\Arr;
+use FluentEvent\Framework\Support\Arr;
 
 class Config
 {

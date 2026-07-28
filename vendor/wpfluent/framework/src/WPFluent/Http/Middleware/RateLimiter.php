@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Http\Middleware;
+namespace FluentEvent\Framework\Http\Middleware;
 
-use FluentEvents\Framework\Foundation\App;
+use FluentEvent\Framework\Foundation\App;
 
 /**
  * Class RateLimiter
@@ -47,7 +47,7 @@ class RateLimiter
     /**
      * Handle incoming request.
      *
-     * @param \FluentEvents\Framework\Http\Request\Request $request
+     * @param \FluentEvent\Framework\Http\Request\Request $request
      * @param callable $next
      * @return mixed
      */
@@ -99,7 +99,7 @@ class RateLimiter
     /**
      * Determine if request should bypass rate limiting.
      *
-     * @param \FluentEvents\Framework\Http\Request\Request $request
+     * @param \FluentEvent\Framework\Http\Request\Request $request
      * @return bool
      */
     protected function shouldAllow($request)
@@ -123,7 +123,7 @@ class RateLimiter
     /**
      * Get current rate limit settings from transient.
      *
-     * @param \FluentEvents\Framework\Http\Request\Request $request
+     * @param \FluentEvent\Framework\Http\Request\Request $request
      * @param int $currentTime
      * @return array
      */
@@ -170,7 +170,7 @@ class RateLimiter
     /**
      * Update transient with proper TTL.
      *
-     * @param \FluentEvents\Framework\Http\Request\Request $request
+     * @param \FluentEvent\Framework\Http\Request\Request $request
      * @param array $settings
      * @param int $currentTime
      */
@@ -187,7 +187,7 @@ class RateLimiter
     /**
      * Generate a unique transient key per IP + endpoint.
      *
-     * @param \FluentEvents\Framework\Http\Request\Request $request
+     * @param \FluentEvent\Framework\Http\Request\Request $request
      * @return string
      */
     protected function makeTransientKey($request)

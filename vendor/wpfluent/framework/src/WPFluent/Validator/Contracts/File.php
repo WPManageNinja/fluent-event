@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Validator\Contracts;
+namespace FluentEvent\Framework\Validator\Contracts;
 
 interface File
 {

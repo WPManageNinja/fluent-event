@@ -1,8 +1,8 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Orm\Concerns;
+namespace FluentEvent\Framework\Database\Orm\Concerns;
 
-use FluentEvents\Framework\Support\Str;
+use FluentEvent\Framework\Support\Str;
 
 trait GuardsAttributes
 {

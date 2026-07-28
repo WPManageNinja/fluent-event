@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Foundation\Exceptions;
+namespace FluentEvent\Framework\Foundation\Exceptions;
 
 use Exception;
 use Throwable;

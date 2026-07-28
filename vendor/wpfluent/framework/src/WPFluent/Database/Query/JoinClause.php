@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Framework\Database\Query;
+namespace FluentEvent\Framework\Database\Query;
 
 use Closure;
 
@@ -23,21 +23,21 @@ class JoinClause extends Builder
     /**
      * The connection of the parent query builder.
      *
-     * @var \FluentEvents\Framework\Database\ConnectionInterface
+     * @var \FluentEvent\Framework\Database\ConnectionInterface
      */
     protected $parentConnection;
 
     /**
      * The grammar of the parent query builder.
      *
-     * @var \FluentEvents\Framework\Database\Query\Grammars\Grammar
+     * @var \FluentEvent\Framework\Database\Query\Grammars\Grammar
      */
     protected $parentGrammar;
 
     /**
      * The processor of the parent query builder.
      *
-     * @var \FluentEvents\Framework\Database\Query\Processors\Processor
+     * @var \FluentEvent\Framework\Database\Query\Processors\Processor
      */
     protected $parentProcessor;
 
@@ -51,7 +51,7 @@ class JoinClause extends Builder
     /**
      * Create a new join clause instance.
      *
-     * @param  \FluentEvents\Framework\Database\Query\Builder  $parentQuery
+     * @param  \FluentEvent\Framework\Database\Query\Builder  $parentQuery
      * @param  string  $type
      * @param  string  $table
      * @return void
@@ -84,7 +84,7 @@ class JoinClause extends Builder
      *
      * @param  \Closure|string  $first
      * @param  string|null  $operator
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string|null  $second
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string|null  $second
      * @param  string  $boolean
      * @return self
      *
@@ -104,8 +104,8 @@ class JoinClause extends Builder
      *
      * @param  \Closure|string  $first
      * @param  string|null  $operator
-     * @param  \FluentEvents\Framework\Database\Query\Expression|string|null  $second
-     * @return \FluentEvents\Framework\Database\Query\JoinClause
+     * @param  \FluentEvent\Framework\Database\Query\Expression|string|null  $second
+     * @return \FluentEvent\Framework\Database\Query\JoinClause
      */
     public function orOn($first, $operator = null, $second = null)
     {
@@ -115,7 +115,7 @@ class JoinClause extends Builder
     /**
      * Get a new instance of the join clause builder.
      *
-     * @return \FluentEvents\Framework\Database\Query\JoinClause
+     * @return \FluentEvent\Framework\Database\Query\JoinClause
      */
     public function newQuery()
     {
@@ -125,7 +125,7 @@ class JoinClause extends Builder
     /**
      * Create a new query instance for sub-query.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     protected function forSubQuery()
     {
@@ -135,7 +135,7 @@ class JoinClause extends Builder
     /**
      * Create a new parent query instance.
      *
-     * @return \FluentEvents\Framework\Database\Query\Builder
+     * @return \FluentEvent\Framework\Database\Query\Builder
      */
     protected function newParentQuery()
     {

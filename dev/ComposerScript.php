@@ -1,6 +1,6 @@
 <?php
 
-namespace FluentEvents\Dev;
+namespace FluentEvent\Dev;
 
 use Exception;
 use Composer\Script\Event;

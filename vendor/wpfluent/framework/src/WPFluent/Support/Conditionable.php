@@ -1,9 +1,9 @@
 <?php
 
-namespace FluentEvents\Framework\Support;
+namespace FluentEvent\Framework\Support;
 
 use Closure;
-use FluentEvents\Framework\Support\HigherOrderWhenProxy;
+use FluentEvent\Framework\Support\HigherOrderWhenProxy;
 
 trait Conditionable
 {

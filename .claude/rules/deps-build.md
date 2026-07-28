@@ -4,7 +4,7 @@ Applies to asset enqueues and build / dependency config.
 
 ## Asset version
 
-- `wp_enqueue_script` / `wp_enqueue_style` uses `FLUENT_EVENTS_PLUGIN_VERSION` as the
+- `wp_enqueue_script` / `wp_enqueue_style` uses `FLUENT_EVENT_PLUGIN_VERSION` as the
   version arg — never `time()` / `rand()` (defeats browser + CDN caching on every load).
   Bump the constant on release.
 
