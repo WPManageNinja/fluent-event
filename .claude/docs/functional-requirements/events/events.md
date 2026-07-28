@@ -25,7 +25,7 @@
 
 ## Data model
 
-Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `group_id`). Full DDL in [schema.sql](../../db/schema.sql); key columns below.
+Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `group_id`). Full DDL in [fevent_db_schema.sql](../../db/fevent_db_schema.sql); key columns below.
 
 **Event = CPT hybrid.** Identity (title, description, slug, status, author) lives
 in **`wp_posts`** (`post_type=_event`); addon config in **`wp_postmeta`**; typed

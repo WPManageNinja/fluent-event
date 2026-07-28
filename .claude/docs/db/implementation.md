@@ -3,8 +3,9 @@
 > How the schema is put together and how we build against it. Locked decisions:
 > **event = CPT hybrid** (wp_posts + wp_postmeta + `wp_fe_event_details`); **category,
 > venue, organizer, performer = WP taxonomies** (performer thin: name+photo, no profile).
-> Diagram: [schema.svg](schema.svg). DDL: [schema.sql](schema.sql). Generator:
-> [gen_schema.py](gen_schema.py) — edit the spec there, never hand-edit the 3 outputs.
+> DDL: [fevent_db_schema.sql](fevent_db_schema.sql). Design model:
+> [fevent_db_design.mwb](fevent_db_design.mwb) (MySQL Workbench) — edit the model there
+> and re-export the DDL.
 
 ## 1. Where each thing lives
 
