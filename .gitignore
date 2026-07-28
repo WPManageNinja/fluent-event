@@ -23,3 +23,35 @@ dev/phpstan/security-cache
 # result file.
 /phpstan
 /.phpunit.result.cache
+
+.vscode/
+
+# Build output (regenerable via the build script)
+assets
+builds
+
+# AI agent artifacts — per-developer, never shared
+.claude/settings.local.json
+.claude/reports/
+.agent/reports/
+.agent/audits/
+.goose/reports/
+.gstack/security-reports/
+.superpowers/
+docs/superpowers/
+.playwright-mcp
+
+# Release / QA scratch
+svn
+/plugin-check/
+/release-note/
+
+# Test artifacts
+test-results
+tests/e2e/playwright-report/
+tests/e2e/test-results.json
+tests/php/.phpunit.cache
+
+# Vite auto-generated type shims
+components.d.ts
+auto-imports.d.ts
