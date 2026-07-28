@@ -1,11 +1,11 @@
 ---
-name: git
-description: Full git workflow — stage, commit, push, and open a PR with a concise why-first description. Use when users ask to commit changes, push a branch, create a pull request, or do the full git flow in one step.
+name: commit-push-pr
+description: Full git workflow — stage, commit, push, and open a PR with a concise why-first description. Use when users ask to commit changes, push a branch, create a pull request, or do the full commit-push-PR flow in one step.
 ---
 
 # Commit → Push → PR
 
-Run the full git workflow: stage changes, commit, push the branch, and open a PR with a quality description. Read the custom argument if the user wants all three or any specific events. Default assume all.
+Run the full git workflow: stage changes, commit, push the branch, and open a PR with a quality description.
 
 ## Constraints
 
@@ -18,7 +18,7 @@ Run the full git workflow: stage changes, commit, push the branch, and open a PR
 ### Step 1 — Determine branch target
 
 - If on `master`, or `develop`, create a new branch first:
-  - `git checkout -b <type>/<short-slug-from-changes>`
+  - Base new branches on `develop`. If `develop` exists (local or `origin/develop`): `git checkout develop && git pull` (skip pull if offline). If it does not exist, fall back to the first available of `master`, `main`, `dev` (same order as Step 4) and branch from there. Then `git checkout -b <type>/<short-slug-from-changes>`.
   - **Branch prefix** is derived from the change type (align it with the commit prefix chosen in Step 2):
     - `fix/` — bug fix or regression (commit `Fixed:` / `Resolved:`).
     - `hotfix/` — urgent patch on top of a release (commit `Hotfix:`).
@@ -46,8 +46,8 @@ Run the full git workflow: stage changes, commit, push the branch, and open a PR
       - `Hotfix:` — urgent patch on top of a release.
       - `Removed:` — removal of feature, file, or dependency.
   - Fallback (when no prefix above fits): Conventional Commits — `type(scope): Subject In Title Case`.
-  - Subject ≤50 chars, Title Case, no trailing period. Subject states the _what_.
-  - Body (optional) states the _why_ if non-obvious. Wrap at ~72 chars.
+  - Subject ≤50 chars, Title Case, no trailing period. Subject states the *what*.
+  - Body (optional) states the *why* if non-obvious. Wrap at ~72 chars.
   - **Ticket reference**: if the user supplied a ticket/task link or ID earlier in the conversation, append it to the commit body as a trailer after a blank line. Use the closing keyword that fits the work:
     - Bug fix → `Fixes: <url-or-id>`
     - Feature/task → `Refs: <url-or-id>` (or `Closes:` if the user said it completes the ticket)
@@ -69,10 +69,8 @@ Run the full git workflow: stage changes, commit, push the branch, and open a PR
 
 ### Step 4 — Resolve PR base branch
 
-- Prefer upstream merge target if it maps to `development`, `master`, or `main`.
-- Otherwise evaluate candidates in order: `origin/development`, `origin/master`, `origin/main`, `origin/dev`, then local equivalents.
-- Multiple candidates: use `git merge-base HEAD <candidate>` — pick the most recent merge-base.
-- Ambiguous: ask the user which base branch to target.
+- PR base branch is **`develop`** — always target `origin/develop`.
+- Only if `develop` does not exist on the remote, fall back to: `origin/master`, `origin/main`, `origin/dev` (in that order), and ask the user if still ambiguous.
 
 ### Step 5 — Gather change evidence for PR body
 
@@ -84,37 +82,31 @@ Run the full git workflow: stage changes, commit, push the branch, and open a PR
 ### Step 6 — Fill PR template
 
 Resolve template path in order:
-
 1. `.github/pull_request_template.md`
 2. `.github/PULL_REQUEST_TEMPLATE.md`
 3. `references/pull_request_template.default.md` (fallback)
 
 #### Template section rules
 
-**What does this PR do and why?** _(required)_
-
+**What does this PR do and why?** *(required)*
 - First sentence: the underlying problem or need.
 - Second sentence: the solution approach.
 - Optional third: impact/scope boundary.
 - If the user supplied a ticket/task link or ID, include it on its own line at the end of this section using the matching closing keyword (`Fixes #123`, `Closes PROJ-456`, `Refs: <url>`). Use full URL when given; raw IDs when given. Do not fabricate.
 
-**Changes** _(conditional)_
-
+**Changes** *(conditional)*
 - Include only if it adds meaningful reviewer context.
 - 1–4 concise bullets by capability/area. No raw filenames.
 - Omit when obvious or redundant.
 
-**How to test** _(conditional)_
-
+**How to test** *(conditional)*
 - Numbered steps with expected outcomes.
 - Omit when no meaningful test flow is available.
 
-**Screenshots** _(conditional)_
-
+**Screenshots** *(conditional)*
 - Include only for visual UI changes. Omit otherwise.
 
-**Anything the reviewer should know?** _(conditional)_
-
+**Anything the reviewer should know?** *(conditional)*
 - Risks, trade-offs, migrations, rollout notes, known limits only.
 - Omit when nothing material to flag.
 
@@ -127,21 +119,22 @@ Resolve template path in order:
 
 ### Step 7 — Open PR
 
-- `gh pr create --base <base-branch> --title "<title>" --body "<filled-template>"`
+- `gh pr create --base <base-branch> --title "<title>" --body "<filled-template>" --assignee @me`
+- Always self-assign the PR (`--assignee @me`). If creation succeeded without it, run `gh pr edit <url> --add-assignee @me`.
 - Title: same subject as the commit message in Title Case, including the prefix (`Fixed:`, `Added:`, `Improved:`, etc.) when one fits. For multi-commit PRs, restate cleanly using the dominant prefix.
 - Return the PR URL.
 
 ## Quality Gate
 
 Verify before creating the PR:
-
-- Opening section clearly answers _why_ this PR is needed.
+- Opening section clearly answers *why* this PR is needed.
 - Optional sections present only when meaningful.
 - All statements are evidence-backed.
 - No fluff, no bloat, no redundant details.
 - Commit subject AND PR title in **Title Case**, with a `readme.txt`-style prefix where one fits.
 - If user supplied a ticket reference, it appears in BOTH the commit body trailer AND the PR body. Never invented.
 - No `Co-Authored-By` line anywhere in commit or PR body. No Claude/AI co-author attribution.
+- PR is self-assigned (`--assignee @me`).
 
 ## References
 

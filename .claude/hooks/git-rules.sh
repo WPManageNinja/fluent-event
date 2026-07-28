@@ -5,7 +5,8 @@
 #
 # Reads the PreToolUse JSON on stdin; emits nothing for non-git commands so the
 # tool runs untouched. For git/gh, emits hookSpecificOutput.additionalContext
-# carrying the git skill so it lands in the model's context before the command.
+# carrying the commit-push-pr skill so it lands in the model's context before the
+# command.
 set -euo pipefail
 
 input=$(cat)
@@ -19,11 +20,11 @@ if ! printf '%s' "$cmd" | grep -Eq '(^|[[:space:];&|(])(git|gh)([[:space:]]|$)';
 fi
 
 root="${CLAUDE_PROJECT_DIR:-.}"
-skill="$root/.claude/skills/git/SKILL.md"
+skill="$root/.claude/skills/commit-push-pr/SKILL.md"
 header="git/gh command detected — follow this repo's git rules before running it. Key non-negotiables: do nothing destructive without an explicit ask, one concern per commit, stage explicit paths (never \`git add -A\`), run \`npm run test\` before committing, never force-push main, ask before push/PR."
 
 if [ -f "$skill" ]; then
-  ctx="$header"$'\n\n--- .claude/skills/git/SKILL.md ---\n'"$(cat "$skill")"
+  ctx="$header"$'\n\n--- .claude/skills/commit-push-pr/SKILL.md ---\n'"$(cat "$skill")"
 else
   ctx="$header"
 fi
