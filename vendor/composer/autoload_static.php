@@ -11,7 +11,7 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
     );
 
     public static $prefixLengthsPsr4 = array (
-        'F' => 
+        'F' =>
         array (
             'FluentEvent\\Framework\\' => 22,
             'FluentEvent\\Dev\\' => 16,
@@ -20,15 +20,15 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
     );
 
     public static $prefixDirsPsr4 = array (
-        'FluentEvent\\Framework\\' => 
+        'FluentEvent\\Framework\\' =>
         array (
             0 => __DIR__ . '/..' . '/wpfluent/framework/src/WPFluent',
         ),
-        'FluentEvent\\Dev\\' => 
+        'FluentEvent\\Dev\\' =>
         array (
             0 => __DIR__ . '/../..' . '/dev',
         ),
-        'FluentEvent\\App\\' => 
+        'FluentEvent\\App\\' =>
         array (
             0 => __DIR__ . '/../..' . '/app',
         ),
