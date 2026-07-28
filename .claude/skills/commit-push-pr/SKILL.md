@@ -5,7 +5,40 @@ description: Full git workflow — stage, commit, push, and open a PR with a con
 
 # Commit → Push → PR
 
-Run the full git workflow: stage changes, commit, push the branch, and open a PR with a quality description.
+Run the git workflow: stage changes, commit, push the branch, and open a PR with a quality
+description. **How much of it runs is decided by the user's request** — see Scope below.
+
+## Scope — obey the request
+
+Read the user's wording first, then run only the steps it asks for. The workflow below is
+the full menu, not a mandate.
+
+**Nothing specified** — "commit this", "/commit-push-pr", "do the git thing" — run the whole
+flow: commit → push → PR.
+
+**A subset named** — run exactly that and stop. Do not continue into later steps.
+
+| User says | Run | Stop after |
+|---|---|---|
+| "just commit" / "only commit" | Steps 1–2 | commit — no push, no PR |
+| "commit and push" | Steps 1–3 | push — no PR |
+| "push" (already committed) | Step 3 | push |
+| "open a PR" / "raise a PR" (already pushed) | Steps 4–7 | PR |
+| "commit, push and PR" / nothing said | Steps 1–7 | PR |
+
+**Files named** — "commit the .gitignore", "only the schema docs" — stage exactly those paths
+and leave every other change unstaged. With no files named, stage all relevant changes
+(still skipping anything secret-looking).
+
+**Anything else the user pins down** — branch name, base branch, commit subject, PR title,
+skipping the branch step and committing on the current branch — takes precedence over the
+defaults in this file. The user's instruction wins; this skill only fills the gaps.
+
+Stopping early is a correct outcome, not an incomplete one. Report what ran and what you
+deliberately skipped, and never silently run a step the user excluded.
+
+Note: the repo's own git guard asks for confirmation before push/PR. When scope is
+unspecified, still confirm before Step 3 rather than pushing unprompted.
 
 ## Constraints
 
