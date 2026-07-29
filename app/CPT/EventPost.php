@@ -57,7 +57,7 @@ class EventPost
             // attachment. No custom-fields: nothing edits postmeta by hand.
             'supports'            => ['title', 'editor', 'author'],
 
-            'capability_type'     => 'fe_event',
+'capability_type'     => 'post',
             'map_meta_cap'        => true,
             'hierarchical'        => false,
         ]);
