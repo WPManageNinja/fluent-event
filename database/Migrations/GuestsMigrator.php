@@ -37,7 +37,7 @@ class GuestsMigrator
         `price` DECIMAL(10,2) NULL,
         `paid_at` DATETIME NULL,
         `source` VARCHAR(64) NULL COMMENT 'invite | community | requested',
-        `source_id` VARCHAR(255) NULL COMMENT 'id in the originating system, scoped by source',
+        `source_id` BIGINT(20) UNSIGNED NULL COMMENT 'id in the originating system, scoped by source',
         `meta` LONGTEXT NULL COMMENT 'form_response and other per-guest data',
         `created_at` TIMESTAMP NULL,
         `updated_at` TIMESTAMP NULL,
