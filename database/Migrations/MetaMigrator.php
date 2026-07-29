@@ -27,7 +27,8 @@ class MetaMigrator
         `value` LONGTEXT NULL,
         `created_at` TIMESTAMP NULL,
         `updated_at` TIMESTAMP NULL,
-         INDEX `idx_meta_lookup` (`object_type`, `object_id`, `meta_key`)
+         INDEX `idx_meta_lookup` (`object_type`, `object_id`, `meta_key`),
+         INDEX `idx_meta_object_key` (`object_id`, `meta_key`)
     ) $charsetCollate;";
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
