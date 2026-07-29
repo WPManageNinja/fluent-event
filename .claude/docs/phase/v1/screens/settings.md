@@ -112,8 +112,8 @@ Per FR-4's two-store split, honoured from the start:
   enough to need autoloading.
 - The **one row per section** rule holds as sections are added: editing one must never
   rewrite another, or two admins saving different tabs clobber each other.
-- `FEVENT_DB_VERSION` stays in `wp_options` — the migrator reads it before the tables are
-  guaranteed to exist. `fevent_general` is not needed until there is a general section.
+- `FE_DB_VERSION` stays in `wp_options` — the migrator reads it before the tables are
+  guaranteed to exist. `fe_general` is not needed until there is a general section.
 
 ## Not settings
 

@@ -24,22 +24,40 @@ No Insights tab, no invites, no export in v1.
 
 | Field | Where it lives |
 |---|---|
-| Cover image | `event_details.settings.cover_url` |
 | Title | `wp_posts.post_title` |
 | Description | `wp_posts.post_content` |
 | Start / end | `event_details.start_at` / `end_at`, rendered in `event_details.timezone` |
 | Location type | `event_details.venue_type` |
-| Online meeting URL | `event_details.settings.online_meeting_url` |
-| Address | `event_details.settings.address` (JSON) |
+| Cover image | `event_details.meta.cover_url` |
+| Online meeting URL | `event_details.meta.online_meeting_url` |
+| Venue name | `event_details.meta.venue` |
+| Address | `event_details.meta.address` |
+| Performers | `event_details.meta.performers` |
 
-### No venue taxonomy in v1
+### Everything classification-shaped lives in `meta`
 
-Location is either an online URL or an address blob in `settings`, nothing more. The
-`fevent_venue` taxonomy is still registered in Phase 1 — locked design, declared by the CPT
-— but **v1 writes nothing to it**. Same for `fevent_organizer` and `fevent_performer`.
+The four taxonomies are **not registered in v1 at all**, so venue, address and performers
+are plain values on the event's own `meta` JSON — not terms, not relationships.
 
-Reusable venue terms later means migrating these settings blobs into terms, so this is a
-deliberate trade, not an oversight.
+```json
+// wp_fe_event_details.meta
+{
+  "cover_url":          "https://…/cover.jpg",
+  "online_meeting_url": "https://meet…",
+  "venue":              "Kingsway Hall",
+  "address":            { "line1": "…", "city": "…", "country": "…" },
+  "performers":         ["Ada Lovelace", "Alan Turing"]
+}
+```
+
+**They belong to one event and are not reusable.** Two events at the same venue each carry
+their own copy of the name and address; nothing links them. That is the trade for skipping
+taxonomies, and it is fine while nobody filters or browses by venue.
+
+When the taxonomies arrive, these blobs migrate into terms — a one-time backfill that reads
+each event's `meta` and creates or matches a term. Worth knowing the shape now so the
+migration has something predictable to read: keep the keys stable, and prefer a flat string
+for a name over a nested object.
 
 ### `venue_type` uses two of its three values
 

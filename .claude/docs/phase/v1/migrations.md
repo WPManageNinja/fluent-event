@@ -2,7 +2,7 @@
 
 > Plan only. Nothing implemented yet.
 >
-> Column shape comes from [db/fevent_db_schema.sql](../../db/fevent_db_schema.sql), exported
+> Column shape comes from [db/fe_db_schema.sql](../../db/fe_db_schema.sql), exported
 > from the Workbench model. Migration style comes from
 > [patterns/database.md](../../patterns/database.md).
 

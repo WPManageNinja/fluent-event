@@ -21,7 +21,7 @@ class EventDetailsMigrator
 
         $sql = "CREATE TABLE $table (
         `id` BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        `post_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'wp_posts.ID of the fevent_event post',
+        `post_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'wp_posts.ID of the fe_event post',
         `calendar_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fe_calendars.id',
         `parent_event_id` BIGINT(20) UNSIGNED NULL COMMENT 'recurrence parent',
         `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft | archived',

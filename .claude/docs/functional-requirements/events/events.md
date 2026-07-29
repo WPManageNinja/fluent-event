@@ -25,13 +25,13 @@
 
 ## Data model
 
-Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `group_id`). Full DDL in [fevent_db_schema.sql](../../db/fevent_db_schema.sql); key columns below.
+Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `group_id`). Full DDL in [fe_db_schema.sql](../../db/fe_db_schema.sql); key columns below.
 
 **Event = CPT hybrid.** Identity (title, description, slug, status, author) lives
-in **`wp_posts`** (`post_type=_event`); addon config in **`wp_postmeta`**; typed
+in **`wp_posts`** (`post_type=fe_event`); addon config in **`wp_postmeta`**; typed
 relational data + the per-guest form in **`wp_fe_event_details`** (1:1 via `post_id`).
 Category / venue / organizer / performer are **WP taxonomies** on the post — the physical
-place (address/map) is `fevent_venue` term meta, not an event column. See
+place (address/map) is `fe_venue` term meta, not an event column. See
 [db/implementation.md](../../db/implementation.md).
 
 **`wp_fe_event_details`** — the typed extension row (what ticketing FKs to). Also carries
@@ -46,7 +46,7 @@ place (address/map) is `fevent_venue` term meta, not an event column. See
 | `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `private` \| `draft` \| `archived` |
 | `start_at` / `end_at` | DATETIME **NOT NULL** (**UTC**) | stored in UTC; the indexed date window |
 | `timezone` | VARCHAR **NULL** | IANA tz (e.g. `Asia/Dhaka`) — to display the organizer's local time; also DST, ICS, reminders |
-| `venue_type` | VARCHAR **NULL**, default `'offline'` | event **mode**: `offline` \| `online` \| `hybrid`. Place = `fevent_venue` term (address/map in term meta) |
+| `venue_type` | VARCHAR **NULL**, default `'offline'` | event **mode**: `offline` \| `online` \| `hybrid`. Place = `fe_venue` term (address/map in term meta) |
 | `form_fields` | JSON NULL | **per-guest dynamic form definition** (fields to collect from each attendee) |
 | `settings` | JSON NULL | per-event config — see below |
 | `created_at` / `updated_at` | TIMESTAMP NOT NULL | |
@@ -74,7 +74,7 @@ occurrence owns its **own** `wp_posts` row and its own complete values. There is
   "recurrence":        { "rrule": "…", "generated_until": "…", "window_days": 90 } }
 ```
 
-*(Venue place data → `fevent_venue` term meta; the online link is per-event in `settings`,
+*(Venue place data → `fe_venue` term meta; the online link is per-event in `settings`,
 never term meta.)*
 
 > **Note on `status`:** it carries visibility semantics (`public`/`private`/`draft`/`archived`)
@@ -153,8 +153,8 @@ Deliberately **not** unique on `email` — a buyer commonly uses their own addre
 
 ### Classification + roster
 
-**Organizer, venue, event type, performer = WP taxonomies** on the `fevent_event` post
-(`fevent_organizer` / `fevent_venue` / `fevent_event_type` / `fevent_performer`) —
+**Organizer, venue, event type, performer = WP taxonomies** on the `fe_event` post
+(`fe_organizer` / `fe_venue` / `fe_event_type` / `fe_performer`) —
 reusable across events, filterable, each with a free public archive + auto event count.
 Extra fields live in `wp_termmeta` (organizer: email/phone/website/logo; venue:
 address/city/map; type: color/icon; performer: photo/designation/social). Assign with
@@ -166,9 +166,9 @@ address/city/map; type: color/icon; performer: photo/designation/social). Assign
 > is enough. There is **no `people` table**.
 
 **Sponsors = deferred** — no sponsor table in this milestone. If sponsors return they'll
-be a taxonomy (`fevent_sponsor`, like organizer), not a custom table.
+be a taxonomy (`fe_sponsor`, like organizer), not a custom table.
 
-> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fevent_roles` in `wp_fe_meta`, FR-4). The organizer **taxonomy** is **display/credit only** — a term, no `user_id`, no permissions. A WP-user organizer who also manages appears as an organizer term **and** holds a capability there.
+> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fe_roles` in `wp_fe_meta`, FR-4). The organizer **taxonomy** is **display/credit only** — a term, no `user_id`, no permissions. A WP-user organizer who also manages appears as an organizer term **and** holds a capability there.
 
 ## Functional requirements
 
@@ -273,8 +273,8 @@ be a taxonomy (`fevent_sponsor`, like organizer), not a custom table.
 
 ### FR-6.17 — Classification & organizers
 
-- Assign **organizers**, **venue**, **event type**, and **performers** by picking/creating **taxonomy terms** (`_organizer` / `fevent_venue` / `fevent_event_type` / `fevent_performer`) — reusable across events, each surfaced on a filterable public archive with an auto event count; details (email/phone/address/map/logo/photo) come from term meta.
-- Performer terms are **thin** (name + photo + designation) — no bio/profile page this milestone. **Sponsors** are deferred (future taxonomy `fevent_sponsor`).
+- Assign **organizers**, **venue**, **event type**, and **performers** by picking/creating **taxonomy terms** (`_organizer` / `fe_venue` / `fe_event_type` / `fe_performer`) — reusable across events, each surfaced on a filterable public archive with an auto event count; details (email/phone/address/map/logo/photo) come from term meta.
+- Performer terms are **thin** (name + photo + designation) — no bio/profile page this milestone. **Sponsors** are deferred (future taxonomy `fe_sponsor`).
 - Any event type uses as many or few as it needs (a wedding: none; a conference: many organizers + speakers).
 
 ## Acceptance criteria

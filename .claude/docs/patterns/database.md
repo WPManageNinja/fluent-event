@@ -104,8 +104,8 @@ per table keeps the current shape readable in one place.
 - Index what you filter and sort on. The locked schema already names its indexes; keep
   those names.
 - The authority for column shape is
-  [fevent_db_schema.sql](../db/fevent_db_schema.sql), exported from the Workbench model at
-  [fevent_db_design.mwb](../db/fevent_db_design.mwb). Change the model, re-export, then
+  [fe_db_schema.sql](../db/fe_db_schema.sql), exported from the Workbench model at
+  [fe_db_design.mwb](../db/fe_db_design.mwb). Change the model, re-export, then
   write the Blueprint to match — not the other way round.
 
 ---

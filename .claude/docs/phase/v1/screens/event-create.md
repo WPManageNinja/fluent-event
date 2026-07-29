@@ -53,16 +53,18 @@ makes it plainly optional, which a path segment would not.
 | Timezone | `event_details.timezone` | defaulted | Seeded from the site timezone |
 | Location type | `event_details.venue_type` | defaulted | `online` or `offline`. `hybrid` exists in the schema but v1 does not use it |
 | Meeting URL | `meta.online_meeting_url` | conditional | Shown when location type is `online` |
+| Venue name | `meta.venue` | conditional | Shown when location type is `offline` |
 | Address | `meta.address` | conditional | Shown when location type is `offline` |
+| Performers | `meta.performers` | no | Free-text names. Not terms — see [event-detail.md](event-detail.md) |
 
 Not on this screen:
 
 - **Cover image** (`meta.cover_url`) belongs to the event's edit screen, for the same reason
   as calendars: a media picker in the create flow slows down the common case.
 - **`status`** defaults to `public`, with `post_status` kept in step.
-- **No venue, organizer or performer taxonomy fields** — v1 does not write to them. Location
-  is `venue_type` plus the URL or address in `meta`. See
-  [event-detail.md](event-detail.md).
+- **Nothing is a taxonomy term.** Venue, address and performers are plain values on
+  `event_details.meta`, belonging to this event alone. Two events at the same venue each
+  carry their own copy. See [event-detail.md](event-detail.md).
 
 ## Validation
 
