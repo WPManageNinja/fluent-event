@@ -42,7 +42,7 @@ The admin surface, before any feature lives in it.
 
 | # | Chunk | Spec | Dep | Done when | PR |
 |---|---|---|---|---|---|
-| 3 | **Menu registration** | [scaffolding.md §5](scaffolding.md) | — | Sidebar shows Dashboard · Add New Event · Calendars · Events · Settings | |
+| 3 | **Menu registration** | [scaffolding.md §5](scaffolding.md) | — | Sidebar shows Dashboard · Add New Event · Calendars · Events · Settings | [#5](https://github.com/WPManageNinja/fluent-event/pull/5) |
 | 4a | **Design tokens** | [patterns/admin-layout.md](../../patterns/admin-layout.md) | — | `variables.scss` with the nine tokens in light and dark; every later style reads a variable, never a hex | |
 | 4b | **Topbar + navigation styles** | [patterns/admin-layout.md](../../patterns/admin-layout.md) | 4a | `navigation.scss` ported; topbar renders brand + nav + Settings + theme toggle, and the three known defects are fixed | |
 | 5 | **Bootstrap payload** | [scaffolding.md §4](scaffolding.md) | — | `window.fluentFrameworkAdmin.me` carries the current user, plus the settings the SPA needs at first paint | |
@@ -128,7 +128,7 @@ question 2, where a response arrives from.
 | 20 | **Meta model + settings API** | [settings.md](screens/settings.md) | 1 | `Meta` model. Four settings read and written as one `customization` row in `wp_fe_meta` | |
 | 21 | **Settings UI** | [settings.md](screens/settings.md) | 5, 20 | The four settings render and persist; dark-mode gate hides the theme toggle when off | |
 | 22a | **Permission layer** | [permissions.md](permissions.md) | 20 | `PermissionManager` with `allPermissionSets()`, `getUserPermissions()`, `userCan()`, and the record-scoped `canReadCalendar()` / `canWriteCalendar()`; admins bypass via `manage_options` | |
-| 22b | **Apply permissions** | [permissions.md](permissions.md) | 22a | Every `manage_options` placeholder replaced: policies call `userCan()` or the record-scoped methods, menu entries register conditionally, and `me.permissions` reaches the SPA | |
+| 22b | **Apply permissions** | [permissions.md](permissions.md) | 22a | Every `manage_options` placeholder replaced: policies call `userCan()` or the record-scoped methods, each submenu registers under its own capability per the table below, and `me.permissions` reaches the SPA | |
 | 22c | **Permissions section** | [settings.md](screens/settings.md) · [permissions.md](permissions.md) | 21, 22a | Checkbox list assigns any combination of the nine permission sets; every key validated against `allPermissionSets()` | |
 | 23 | **Reports API** | [dashboard.md](screens/dashboard.md) | 6, 11, 18 | Three endpoints — tiles, series, recent — under a `reports` prefix | |
 | 24a | **Growth chart component** | [dashboard.md](screens/dashboard.md) | 23 | A chart taking an endpoint as a prop, rendering a date-ranged series | |
@@ -140,6 +140,52 @@ times on paper. Until 22b runs, everything is administrator-only.
 
 22b is the retrofit, and it is the one chunk whose cost depends on discipline earlier: if
 every gate was a single-line call, it is mechanical.
+
+### Submenu capabilities are wired in 22b
+
+Chunk 3 shipped the seam — `addSubmenu($label, $route, $capability)` already takes a
+per-entry capability, defaulting to `manage_options`. WordPress filters each submenu on its
+own capability, so entries can differ; nothing about the menu code needs to change here,
+only what gets passed.
+
+**The rule:** Settings is gated on `manage_settings` alone. Every other entry is gated on
+the data permissions that make its screen non-empty.
+
+| Submenu | Visible when the user has any of |
+|---|---|
+| Dashboard | any of the eight non-`manage_settings` keys |
+| Add New Event | `manage_own_calendars` · `manage_other_calendars` · `manage_all_events` |
+| Calendars | `create_calendars` · `manage_own_calendars` · `read_other_calendars` · `manage_other_calendars` |
+| Events | the four calendar keys · `read_all_events` · `manage_all_events` |
+| Settings | `manage_settings` |
+
+Worked examples, matching the personas in [permissions.md](permissions.md):
+
+- `manage_own_calendars` → Dashboard, Add New Event, Calendars, Events. **No Settings.**
+- `manage_own_calendars` + `manage_settings` → all five.
+- `manage_settings` alone → Settings only. The top-level entry then points at Settings,
+  because WordPress promotes the first surviving submenu to parent when the parent slug
+  itself is not accessible.
+
+**Guests have no submenu.** They are reached through an event, so `read_all_guests` /
+`manage_all_guests` grant no menu entry of their own — they only widen Dashboard. A
+front-desk user (`read_other_calendars` + `manage_all_guests`) navigates Events → an event
+→ Guests.
+
+**One mechanism decision belongs to this chunk.** `add_submenu_page()` takes a *capability
+string*, and our permission keys live in `wp_fe_meta`, not in `WP_User::$caps`. Two bridges:
+
+1. Map each key to a synthetic capability through a `user_has_cap` filter, then pass
+   `'fluent_event_manage_settings'` and let core do the rest. `current_user_can()` then
+   works identically in menus, policies and the SPA payload.
+2. FluentAffiliate's shortcut — resolve the check first, then return the user's own role
+   name when allowed and `''` when denied (`current_user_can('editor')` is true for an
+   editor, since roles are stored as caps). Shorter, but it only works for the menu, and it
+   reads `$roles[0]` so it misbehaves for multi-role users.
+
+Prefer (1). Note that `add_submenu_page()` evaluates the capability at **registration**
+time, on `admin_menu` — a denied entry never enters `$submenu`, it lands in
+`$_wp_submenu_nopriv`. `PermissionManager` must therefore be able to answer by then.
 
 Chunk 24a is the only genuinely unknown work in v1 — there is no chart component in our
 scaffold, and affiliate's `AffiliateGrowth.vue` is ~205 lines. Worth spiking earlier if you
