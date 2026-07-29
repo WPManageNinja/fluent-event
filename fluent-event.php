@@ -23,7 +23,6 @@ define('FLUENT_EVENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FLUENT_EVENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('FLUENT_EVENT_DIR_FILE', __FILE__);
 define('FLUENT_EVENT_START_TIME', microtime(true));
-define('FLUENT_EVENT_DB_VERSION', '1.0.0');
 
 if(!defined('FLUENT_EVENT_UPLOAD_DIR')) {
   define('FLUENT_EVENT_UPLOAD_DIR', 'fluent-event');

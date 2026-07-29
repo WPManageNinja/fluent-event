@@ -51,24 +51,13 @@ return function($file) {
             do_action('fluentevent_loaded', $app);
         });
 
+        // register_activation_hook does not fire on an in-place plugin update,
+        // so without this a table added in a later release would never reach an
+        // existing install. Every migrator returns early when its table already
+        // exists, so this costs a few SHOW TABLES LIKE queries on a page that is
+        // already doing far more work.
         add_action('fluent_event/admin_app_rendering', function() {
-            $currentDBVersion = get_option('fluent_event_db_version');
-
-            if ($currentDBVersion && version_compare($currentDBVersion, FLUENT_EVENT_DB_VERSION, '>=')) {
-                return;
-            }
-
-            if (get_transient('fluent_event_db_migration_lock')) {
-                return;
-            }
-
-            set_transient('fluent_event_db_migration_lock', 1, 5 * MINUTE_IN_SECONDS);
-
             \FluentEvent\Database\DBMigrator::run();
-
-            update_option('fluent_event_db_version', FLUENT_EVENT_DB_VERSION, 'no');
-
-            delete_transient('fluent_event_db_migration_lock');
         });
 
         return $app;
