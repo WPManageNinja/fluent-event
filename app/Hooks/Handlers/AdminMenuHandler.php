@@ -76,8 +76,6 @@ class AdminMenuHandler
      */
     public function render()
     {
-        do_action('fluent_event/admin_app_rendering');
-
         $this->enqueueAssets($this->slug);
 
         $this->app->view->render('admin.menu', [
