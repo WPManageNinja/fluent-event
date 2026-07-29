@@ -68,7 +68,7 @@ Do not copy the sibling approach for these:
 | REST | `fluent-event/v2` |
 | Hook prefix | `fluent_event/` |
 | Tables | `wp_fe_*` |
-| CPT / taxonomies | `fe_event`, `fevent_*` |
+| CPT / taxonomies | `fe_event`, `fe_*` |
 | Vue | Options API only |
 
 The enforced subset lives in [.claude/rules/](../../rules/) and is checked by the

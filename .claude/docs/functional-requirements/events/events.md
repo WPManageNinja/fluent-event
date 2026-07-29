@@ -25,7 +25,7 @@
 
 ## Data model
 
-Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `group_id`). Full DDL in [fevent_db_schema.sql](../../db/fevent_db_schema.sql); key columns below.
+Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `group_id`). Full DDL in [fe_db_schema.sql](../../db/fe_db_schema.sql); key columns below.
 
 **Event = CPT hybrid.** Identity (title, description, slug, status, author) lives
 in **`wp_posts`** (`post_type=fe_event`); addon config in **`wp_postmeta`**; typed
@@ -168,7 +168,7 @@ address/city/map; type: color/icon; performer: photo/designation/social). Assign
 **Sponsors = deferred** — no sponsor table in this milestone. If sponsors return they'll
 be a taxonomy (`fe_sponsor`, like organizer), not a custom table.
 
-> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fevent_roles` in `wp_fe_meta`, FR-4). The organizer **taxonomy** is **display/credit only** — a term, no `user_id`, no permissions. A WP-user organizer who also manages appears as an organizer term **and** holds a capability there.
+> **Permissions are separate.** Who can *manage* the event = WP users + capabilities (`_fe_roles` in `wp_fe_meta`, FR-4). The organizer **taxonomy** is **display/credit only** — a term, no `user_id`, no permissions. A WP-user organizer who also manages appears as an organizer term **and** holds a capability there.
 
 ## Functional requirements
 

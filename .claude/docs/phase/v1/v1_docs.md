@@ -3,7 +3,7 @@
 > Status: draft, 2026-07-28. Scope + phasing for the first shippable release.
 > Grounded in [functional-requirements.md](../../functional-requirements/functional-requirements.md),
 > [db/implementation.md](../../db/implementation.md) and
-> [db/fevent_db_schema.sql](../../db/fevent_db_schema.sql).
+> [db/fe_db_schema.sql](../../db/fe_db_schema.sql).
 >
 > **Every phase below follows [docs/patterns/](../../patterns/README.md)** — where code
 > lives, how hooks are named, when a component earns extraction, how migrations are

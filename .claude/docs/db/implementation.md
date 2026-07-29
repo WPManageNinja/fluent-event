@@ -3,8 +3,8 @@
 > How the schema is put together and how we build against it. Locked decisions:
 > **event = CPT hybrid** (wp_posts + wp_postmeta + `wp_fe_event_details`); **category,
 > venue, organizer, performer = WP taxonomies** (performer thin: name+photo, no profile).
-> DDL: [fevent_db_schema.sql](fevent_db_schema.sql). Design model:
-> [fevent_db_design.mwb](fevent_db_design.mwb) (MySQL Workbench) — edit the model there
+> DDL: [fe_db_schema.sql](fe_db_schema.sql). Design model:
+> [fe_db_design.mwb](fe_db_design.mwb) (MySQL Workbench) — edit the model there
 > and re-export the DDL.
 
 ## 1. Where each thing lives
@@ -125,16 +125,16 @@ An organizer is **not a post** — it's a **term** + term meta. Reusable across 
 ```php
 $term = wp_insert_term($name, 'fe_organizer');            // wp_terms + wp_term_taxonomy
 $tid  = $term['term_id'];
-update_term_meta($tid, 'fevent_email',   sanitize_email($email));
-update_term_meta($tid, 'fevent_phone',   sanitize_text_field($phone));
-update_term_meta($tid, 'fevent_website', esc_url_raw($site));
-update_term_meta($tid, 'fevent_logo_id', absint($attachmentId));   // WP media library
+update_term_meta($tid, 'fe_email',   sanitize_email($email));
+update_term_meta($tid, 'fe_phone',   sanitize_text_field($phone));
+update_term_meta($tid, 'fe_website', esc_url_raw($site));
+update_term_meta($tid, 'fe_logo_id', absint($attachmentId));   // WP media library
 ```
 Term meta keys per taxonomy:
-- `fe_event_type` → `fevent_color`, `fevent_icon_id`
-- `fe_venue` → `fevent_address`, `fevent_city`, `fevent_map_url`, `fevent_lat`, `fevent_lng` *(view-only; no geo query)*
-- `fe_organizer` → `fevent_email`, `fevent_phone`, `fevent_website`, `fevent_social`, `fevent_logo_id`
-- `fe_performer` → `fevent_photo_id`, `fevent_designation`, `fevent_social` *(thin — no bio/profile)*
+- `fe_event_type` → `fe_color`, `fe_icon_id`
+- `fe_venue` → `fe_address`, `fe_city`, `fe_map_url`, `fe_lat`, `fe_lng` *(view-only; no geo query)*
+- `fe_organizer` → `fe_email`, `fe_phone`, `fe_website`, `fe_social`, `fe_logo_id`
+- `fe_performer` → `fe_photo_id`, `fe_designation`, `fe_social` *(thin — no bio/profile)*
 
 ## 5. Reads
 

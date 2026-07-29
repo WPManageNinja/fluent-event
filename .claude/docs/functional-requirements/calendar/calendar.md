@@ -9,7 +9,7 @@
 ## Approach
 
 - **New table** `wp_fe_calendars`. Per-calendar extra config in the calendar's `settings` column.
-- **Space-owned.** Calendars belong to the space; only host/managers (capability `fevent_manage_calendars`) create/manage them. Members browse.
+- **Space-owned.** Calendars belong to the space; only host/managers (capability `fe_manage_calendars`) create/manage them. Members browse.
 - **Events link by `calendar_id`** (FR-6). One event → one calendar (or none = unfiled).
 - **Shareable page** keyed by `slug`; lists that calendar's published events.
 - **Logo/cover = direct image URLs in `settings` JSON** (`settings.logo_url` / `settings.cover_url`) — not columns, not WP attachments. They're view-only (never filtered or joined on), so per the queried→column / display-only→JSON rule they don't earn columns.
