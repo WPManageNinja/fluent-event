@@ -37,6 +37,13 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'FluentEvent\\Database\\DBMigrator' => __DIR__ . '/../..' . '/database/DBMigrator.php',
+        'FluentEvent\\Database\\Migrations\\CalendarsMigrator' => __DIR__ . '/../..' . '/database/Migrations/CalendarsMigrator.php',
+        'FluentEvent\\Database\\Migrations\\EventDetailsMigrator' => __DIR__ . '/../..' . '/database/Migrations/EventDetailsMigrator.php',
+        'FluentEvent\\Database\\Migrations\\GuestsMigrator' => __DIR__ . '/../..' . '/database/Migrations/GuestsMigrator.php',
+        'FluentEvent\\Database\\Migrations\\MetaMigrator' => __DIR__ . '/../..' . '/database/Migrations/MetaMigrator.php',
+        'FluentEvent\\Database\\Migrations\\NotificationUsersMigrator' => __DIR__ . '/../..' . '/database/Migrations/NotificationUsersMigrator.php',
+        'FluentEvent\\Database\\Migrations\\NotificationsMigrator' => __DIR__ . '/../..' . '/database/Migrations/NotificationsMigrator.php',
+        'FluentEvent\\Database\\Migrations\\TicketTypesMigrator' => __DIR__ . '/../..' . '/database/Migrations/TicketTypesMigrator.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

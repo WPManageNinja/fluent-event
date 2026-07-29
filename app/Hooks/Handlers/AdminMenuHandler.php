@@ -75,7 +75,7 @@ class AdminMenuHandler
      * @return null
      */
     public function render()
-    {   
+    {
         $this->enqueueAssets($this->slug);
 
         $this->app->view->render('admin.menu', [
@@ -329,6 +329,8 @@ class AdminMenuHandler
         $url = rest_url($r['namespace'] . '/' . $r['version'] . '/__endpoints');
 
         $result = wp_remote_get($url, [
+            'timeout'     => 15,
+            'redirection' => 2,
             'sslverify'   => false,
             'cookies'     => $_COOKIE,
             'user-agent'  => "wpfluent.{$this->slug}.__endpoints",
