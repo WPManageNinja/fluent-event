@@ -18,11 +18,15 @@ Nothing user-visible. Everything else waits on these.
 | # | Chunk | Spec | Dep | Done when | PR |
 |---|---|---|---|---|---|
 | 1 | **Database migrations** | [migrations.md](migrations.md) · [patterns/database.md](../../patterns/database.md) | — | Seven `wp_fe_*` tables created on activation | [#2](https://github.com/WPManageNinja/fluent-event/pull/2) |
-| 2 | **CPT + taxonomies** | [db/implementation.md](../../db/implementation.md) | 1 | `fevent_event` registered non-public via `CPTHandler` — no permalink, no REST, no admin list — plus four taxonomies attached | |
+| 2 | **Event CPT** | [db/implementation.md](../../db/implementation.md) | 1 | `fe_event` registered non-public via `CPTHandler` — no permalink, no REST, no admin list. **No taxonomies in v1** | [#4](https://github.com/WPManageNinja/fluent-event/pull/4) |
 
 Chunk 2 registers the CPT as **not public**, so an event has no URL of its own. When a
 front-end arrives it will be a page plus a query parameter we control — the way EventPrime
 does it — rather than a WordPress permalink.
+
+**The four classification taxonomies are deferred entirely.** v1 writes to none of them, and
+registering an unused taxonomy only adds rewrite and query plumbing for nothing. Location is
+`event_details.venue_type` plus a URL or address in `meta`.
 
 **Models are not a chunk.** Each one lands with the feature that first needs it — `Calendar`
 in 6, `Event` in 11, `Guest` in 18, `Meta` in 20 — because `$fillable` is a security

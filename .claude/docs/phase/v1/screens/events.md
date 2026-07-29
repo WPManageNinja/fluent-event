@@ -48,7 +48,7 @@ From inside a calendar the target is implied. From here there is none, and
 
 ## Data
 
-`wp_posts` (`post_type=fevent_event`) joined 1:1 to `wp_fe_event_details` on `post_id`,
+`wp_posts` (`post_type=fe_event`) joined 1:1 to `wp_fe_event_details` on `post_id`,
 joined to `wp_fe_calendars` on `calendar_id` for the name.
 
 Fetch the calendar name in the same query — a lookup per row is an N+1 that grows with the

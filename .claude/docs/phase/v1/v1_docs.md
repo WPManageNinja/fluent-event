@@ -40,7 +40,7 @@ an event under it, and RSVPs are recorded against that event as going / not goin
 |---|---|
 | Admin SPA | Vue 3 SPA in wp-admin under a **Fluent Event** menu with logo + sub-pages |
 | Calendars | Create, edit, list, delete. Title, slug, description, visibility, status |
-| Events | Create, edit, list, delete — **always under a calendar**. Title, description, start/end, timezone, cover image, and a location that is either an online URL or an address in `settings` — no venue taxonomy |
+| Events | Create, edit, list, delete — **always under a calendar**. Title, description, start/end, timezone, cover image, plus venue, address and performers as plain values on `event_details.meta` — no taxonomy terms |
 | RSVP | One mode only. A guest row per response, going / not going |
 
 ### Out
@@ -54,7 +54,7 @@ Everything else. Explicitly named as out by the scope decision:
 | **Recurring events** | `event_details.parent_event_id` stays NULL |
 | **Notifications — in-app and email** | `wp_fe_notifications` + `wp_fe_notification_users` created and indexed, no rows written. **No `wp_mail()` call ships in v1** |
 | **FluentCommunity integration** | Nothing in v1. Comes next; see §8 |
-| **Venue / organizer / performer taxonomies** | `fevent_venue`, `fevent_organizer`, `fevent_performer` registered but never written. Location is `venue_type` + `settings` instead |
+| **All four taxonomies** | `fe_event_type`, `fe_venue`, `fe_organizer`, `fe_performer` are **not registered at all** in v1. Location is `venue_type` + `meta` instead |
 | Check-in, waitlist, approval, custom form fields, sponsors | untouched columns |
 | Event insights, invites, guest export | no screens |
 
@@ -77,7 +77,7 @@ version bump later.
 Carried in from design; not reopened during v1.
 
 - **Event = CPT hybrid, and the CPT is not public.** Identity in `wp_posts`
-  (`post_type=fevent_event`), open-ended config in `wp_postmeta`, typed data in
+  (`post_type=fe_event`), open-ended config in `wp_postmeta`, typed data in
   `wp_fe_event_details` (1:1, `post_id` NOT NULL + UNIQUE).
   `post_status` stays `publish`; visibility is a property of the post *type*, not the row,
   which leaves `event_details.status` free to mean what it says. Registered with
@@ -87,8 +87,9 @@ Carried in from design; not reopened during v1.
 - **Calendar = custom table.** `wp_fe_calendars`, not a CPT.
 - **Every event belongs to a calendar.** `event_details.calendar_id` is NOT NULL with an
   FK — there is no orphan event, so calendars must exist before events can.
-- **Classification = 4 WP taxonomies** on the event CPT — `fevent_event_type`,
-  `fevent_venue`, `fevent_organizer`, `fevent_performer`. No `people` table.
+- **Classification = 4 WP taxonomies** on the event CPT — `fe_event_type`,
+  `fe_venue`, `fe_organizer`, `fe_performer`. No `people` table. **Deferred past v1** —
+  nothing registers them yet.
 - **No registrations table.** An RSVP is a `guests` row. In v1 every RSVP is its own order:
   `group_id` unique per row, `is_buyer = 1`, `ticket_type_id` NULL.
 - **No attendee accounts.** Guests are `name` + `email`; `user_id` is a nullable
@@ -222,10 +223,11 @@ resolves `modules/events` to the component; no `routes.js` edit, no new PHP page
 Three primary items, one secondary. Calendars sits beside Events rather than nested under
 it — they are peers in the data model, and every event needs a calendar to already exist.
 
-**No Organizers or Venues screens in v1.** The `fevent_organizer` and `fevent_venue`
-taxonomies are still registered in Phase 1 (they are locked design, and the CPT declares
-them), so WordPress supplies its own term-management screens for free under the CPT menu.
-What v1 skips is building *custom SPA screens* for them. Nothing is lost by waiting.
+**No Organizers or Venues screens in v1.** The `fe_organizer` and `fe_venue`
+taxonomies are **not registered in v1 at all**. They were going to be, on the theory that
+WordPress would supply term-management screens for free — but that only holds when the post
+type has an admin menu, and ours has `show_ui => false`. With no menu to hang them on there
+is no free UI, so registering them now would add rewrite and query plumbing for nothing.
 
 The theme toggle needs nothing built: `ThemeSwitcher.vue` exists and
 [config/theme.php](../../../../config/theme.php) already defines named light/dark palettes.
@@ -276,7 +278,7 @@ cannot reach it at all, and the SPA boots with `me.permissions` populated.
 
 ### Phase 1 — Data layer
 
-All 7 Blueprint migrations, models, CPT + taxonomy registration.
+All 7 migrations, models, and CPT registration.
 
 - 7 files in `database/Migrations/` using the **Blueprint API** from
   [DBMigrator.php](../../../../database/DBMigrator.php) — `$table` property + `create()` +
@@ -289,7 +291,7 @@ All 7 Blueprint migrations, models, CPT + taxonomy registration.
 - Taxonomy registration handler.
 
 **Done when:** `./wpf migrate:refresh` builds all 7 tables clean, `./wpf db:show` lists
-them, the CPT and 4 taxonomies appear in wp-admin, `./wpf check` passes.
+them, the `fe_event` post type is registered, `./wpf check` passes.
 
 ### Phase 2 — Calendars
 
@@ -361,7 +363,7 @@ range change without refetching tiles or list, and the skeleton shows while load
 | REST | `fluent-event/v2` (from `config/app.php`) |
 | Hook prefix | `do_action('fluent_event/<noun>/<verb>', …)` |
 | Tables | `wp_fe_*` |
-| CPT / taxonomies | `fevent_event`, `fevent_*` |
+| CPT | `fe_event` — taxonomies deferred past v1 |
 | Frontend | Vue 3 **Options API only** |
 
 Three layers, and they answer different questions:
