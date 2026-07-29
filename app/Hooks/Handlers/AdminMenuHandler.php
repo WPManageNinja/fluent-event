@@ -75,7 +75,9 @@ class AdminMenuHandler
      * @return null
      */
     public function render()
-    {   
+    {
+        do_action('fluent_event/admin_app_rendering');
+
         $this->enqueueAssets($this->slug);
 
         $this->app->view->render('admin.menu', [
@@ -328,7 +330,13 @@ class AdminMenuHandler
     {
         $url = rest_url($r['namespace'] . '/' . $r['version'] . '/__endpoints');
 
+        // Loopback request to our own REST root. The URL comes from rest_url(),
+        // never from user input, so there is no SSRF surface — but it blocks the
+        // admin page render, so it needs an explicit bound. WP's implicit
+        // default is 5s; be deliberate rather than rely on it.
         $result = wp_remote_get($url, [
+            'timeout'     => 15,
+            'redirection' => 2,
             'sslverify'   => false,
             'cookies'     => $_COOKIE,
             'user-agent'  => "wpfluent.{$this->slug}.__endpoints",

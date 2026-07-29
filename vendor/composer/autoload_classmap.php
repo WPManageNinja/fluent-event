@@ -8,4 +8,11 @@ $baseDir = dirname($vendorDir);
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'FluentEvent\\Database\\DBMigrator' => $baseDir . '/database/DBMigrator.php',
+    'FluentEvent\\Database\\Migrations\\CalendarsMigrator' => $baseDir . '/database/Migrations/CalendarsMigrator.php',
+    'FluentEvent\\Database\\Migrations\\EventDetailsMigrator' => $baseDir . '/database/Migrations/EventDetailsMigrator.php',
+    'FluentEvent\\Database\\Migrations\\GuestsMigrator' => $baseDir . '/database/Migrations/GuestsMigrator.php',
+    'FluentEvent\\Database\\Migrations\\MetaMigrator' => $baseDir . '/database/Migrations/MetaMigrator.php',
+    'FluentEvent\\Database\\Migrations\\NotificationUsersMigrator' => $baseDir . '/database/Migrations/NotificationUsersMigrator.php',
+    'FluentEvent\\Database\\Migrations\\NotificationsMigrator' => $baseDir . '/database/Migrations/NotificationsMigrator.php',
+    'FluentEvent\\Database\\Migrations\\TicketTypesMigrator' => $baseDir . '/database/Migrations/TicketTypesMigrator.php',
 );
