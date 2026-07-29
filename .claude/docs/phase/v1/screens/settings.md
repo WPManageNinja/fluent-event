@@ -27,26 +27,35 @@ mostly full of controls for absent functionality is worse than a small one.
 **Global roles only in v1** — no per-calendar or per-event managers. Model:
 [permissions.md](../permissions.md).
 
-The section lists users holding a plugin role and lets an admin promote or revoke. That is
-the whole UI: a user picker, a role select, a list, a remove action.
+The section lists users holding permissions and lets an admin assign or revoke. The UI is a
+user picker, a **checkbox list** rendered straight off `allPermissionSets()`, a list, and a
+remove action.
 
-Two roles in v1, plus WordPress administrators who bypass the system entirely:
+**There are no roles** — a user is granted permission keys directly. Nine in v1, plus
+WordPress administrators who bypass the system entirely:
 
-| Role | May |
+| Permission | Grants |
 |---|---|
-| `fevent_manager` | everything, including settings |
-| `fevent_viewer` | **view** calendars, events and guests — no creating, editing, deleting, no settings |
+| `create_calendars` | create new calendars |
+| `manage_own_calendars` | own calendars, and the events and guests under them |
+| `read_other_calendars` | read-only view of calendars owned by others |
+| `manage_other_calendars` | full control of calendars owned by others |
+| `read_all_events` / `manage_all_events` | events on any calendar |
+| `read_all_guests` / `manage_all_guests` | guests anywhere |
+| `manage_settings` | plugin settings only |
+
+No key implies another. Someone who should do everything is granted every checkbox.
 
 Points that matter when building it:
 
-- **Only `settings/manage` may open this screen.** A manager who could grant themselves
+- **Only `manage_settings` may assign permissions.** A manager who could grant themselves
   settings access defeats the split.
 - **WordPress administrators bypass the whole system** and must not appear as removable.
   Revoking one here would be a footgun with no undo.
-- **Promoting is one write** — `update_user_meta($id, '_fevent_role', 'fevent_manager')`.
-  Revoking is one `delete_user_meta`. No capability is granted; `wp_capabilities` is never
-  touched.
-- **Validate the role string against `getAllRoles()`.** This endpoint is the
+- **Assigning is one `wp_fe_meta` row** — `object_type = 'user'`,
+  `meta_key = '_access_permissions'`, value the array. Revoking deletes the row. No WP
+  capability is granted and `wp_usermeta` is never touched.
+- **Validate every key against `allPermissionSets()`.** This endpoint is the
   privilege-escalation route in the plugin — never persist whatever the request sent.
 - **Nothing runs on activation or on load.** Permissions are granted per user, on demand.
   There is no bootstrap step — see [permissions.md](../permissions.md).

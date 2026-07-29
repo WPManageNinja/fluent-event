@@ -76,9 +76,14 @@ version bump later.
 
 Carried in from design; not reopened during v1.
 
-- **Event = CPT hybrid.** Identity in `wp_posts` (`post_type=fevent_event`), open-ended
-  config in `wp_postmeta`, typed data in `wp_fe_event_details` (1:1, `post_id` NOT NULL +
-  UNIQUE). Buys permalinks, block editor, admin list, search, and REST for free.
+- **Event = CPT hybrid, and the CPT is not public.** Identity in `wp_posts`
+  (`post_type=fevent_event`), open-ended config in `wp_postmeta`, typed data in
+  `wp_fe_event_details` (1:1, `post_id` NOT NULL + UNIQUE).
+  `post_status` stays `publish`; visibility is a property of the post *type*, not the row,
+  which leaves `event_details.status` free to mean what it says. Registered with
+  `public => false`, `rewrite => false`, `query_var => false`, `show_in_rest => false`,
+  `show_ui => false` — so an event has no permalink, no REST endpoint, no admin list, and
+  appears in neither the Posts nor the Pages screen.
 - **Calendar = custom table.** `wp_fe_calendars`, not a CPT.
 - **Every event belongs to a calendar.** `event_details.calendar_id` is NOT NULL with an
   FK — there is no orphan event, so calendars must exist before events can.
@@ -265,9 +270,9 @@ The shell: menu, permissions layer, bootstrap payload, directory skeleton, and t
 of defects already sitting in the scaffold. Full checklist:
 [scaffolding.md](scaffolding.md).
 
-**Done when:** an administrator sees the menu with all four entries, a `fevent_viewer` sees
-it without Settings, a user with no role cannot reach it at all, and the SPA boots with
-`me.permissions` populated.
+**Done when:** an administrator sees the menu with all entries, a user holding only
+`read_other_calendars` sees it without Settings or Add New Event, a user with no permissions
+cannot reach it at all, and the SPA boots with `me.permissions` populated.
 
 ### Phase 1 — Data layer
 
@@ -392,29 +397,20 @@ migrations", it means [patterns/database.md](../../patterns/database.md) — and
    `wp_fe_meta`, per-event open-ended config in `wp_postmeta` — needs writing down before
    models are written, or it will drift.
 
-**Blocking Phase 1 — CPT registration:**
-
-4. **Is the event CPT `public`?** Registering `fevent_event` with `public => true` makes
-   every event reachable on the front-end immediately, rendered by the active theme's
-   template, at a rewrite slug we choose now. `public => false` keeps v1 strictly
-   admin-only. This interacts with question 2 — if events are front-end visible, that is
-   where an RSVP could arrive from. The rewrite slug is also hard to change later without
-   breaking every published URL, so it wants deciding before the CPT is written, not after.
-
 **Blocking screen work, not the API:**
 
-5. **Deleting a calendar that has events.** The FK refuses a plain delete. Block while
+4. **Deleting a calendar that has events.** The FK refuses a plain delete. Block while
    events exist, cascade, or reassign them? Surfaces behind the calendar card's settings
    icon.
-6. **Does upcoming/past apply in calendar grid view?** A period filter is meaningless once
+5. **Does upcoming/past apply in calendar grid view?** A period filter is meaningless once
    the user is navigating month by month. Hide the toggle in grid view, or define its
    behaviour.
-7. **Calendars empty state.** A fresh install has no calendars, and `calendar_id` is NOT
+6. **Calendars empty state.** A fresh install has no calendars, and `calendar_id` is NOT
    NULL, so the Events screen is dead until one exists. The empty grid is the onboarding
    entry point and needs designing as such, not left as a bare "no results".
 **Blocking release, not development:**
 
-8. **Plugin header domain.** [fluent-event.php:7](../../../../fluent-event.php) and `:13`
+7. **Plugin header domain.** [fluent-event.php:7](../../../../fluent-event.php) and `:13`
    point at `https://fluentevent.com`. PR #1 changed these from the plural form while its
    own body claimed it preserved them. Confirm which domain is owned — a dead URL in the
    header gets flagged in plugin review.

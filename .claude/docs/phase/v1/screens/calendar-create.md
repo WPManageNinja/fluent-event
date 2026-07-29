@@ -88,7 +88,7 @@ instead would make them find the calendar they just made and click into it.
 
 ## Permissions
 
-Requires `calendars/manage`. A `fevent_viewer` must not reach this screen: no Create button,
+Requires `create_calendars`. A user without it must not reach this screen: no Create button,
 no route, and the write endpoint refuses regardless — see
 [permissions.md](../permissions.md).
 

@@ -99,7 +99,7 @@ Redirect to the new event's detail screen, `#/events/:id` —
 
 ## Permissions
 
-Requires `events/manage`, and write access to the target calendar. A `fevent_viewer` sees no
+Requires `manage_all_events`, or ownership of the target calendar via `manage_own_calendars`. A user without it sees no
 Add Event button anywhere, gets no sidebar entry, and is refused by the policy if they reach
 the route directly.
 

@@ -78,9 +78,11 @@ which is also what [permissions.md](permissions.md) treats as the admin bypass.
 
 Nothing in v1 can be gated until this exists. Build it before the first controller.
 
-- `app/Services/Permission/PermissionManager.php` — `getAllPermissions()`,
-  `getAllRoles()`, `hasPermission()`. Full spec in [permissions.md](permissions.md).
-- Policies extend the base `Policy` and call `PermissionManager::hasPermission()`. Never
+- `app/Services/Permission/PermissionManager.php` — `allPermissionSets()`,
+  `getUserPermissions()`, `userCan()`, plus the record-scoped `canReadCalendar()` /
+  `canWriteCalendar()`. Full spec in [permissions.md](permissions.md).
+- Policies extend the base `Policy` and call `PermissionManager::userCan()` — or the
+  record-scoped methods when a single record is involved. Never
   `current_user_can` inline in a controller — Tier 2 appends steps to the resolution chain
   later, and it must only touch one file.
 - Menu registration becomes conditional (§5).
@@ -102,8 +104,7 @@ makes a request per check.
     'email'       => $authUser->user_email ?? null,
     'full_name'   => $authUser->display_name ?? null,
     'is_admin'    => current_user_can('manage_options'),
-    'role'        => PermissionManager::getUserRole(),        // add
-    'permissions' => PermissionManager::getUserPermissions(), // add
+        'permissions' => PermissionManager::getUserPermissions(), // add
 ],
 ```
 
@@ -126,15 +127,15 @@ Four entries, in this order:
 
 | Order | Label | Target | Shown to |
 |---|---|---|---|
-| 1 | Add New Event | `fluent-event#/events/new` | manager + admin |
+| 1 | Add New Event | `fluent-event#/events/new` | anyone who can create an event, + admin |
 | 2 | Calendars | `fluent-event#/calendars` | all with a role |
 | 3 | Events | `fluent-event#/events` | all with a role |
-| 4 | Settings | `fluent-event#/settings` | `settings/manage` only |
+| 4 | Settings | `fluent-event#/settings` | `manage_settings` only |
 
 ```php
 public function add()
 {
-    if (!PermissionManager::hasPermission('calendars/view')) {
+    if (!PermissionManager::userCan(['manage_own_calendars', 'read_other_calendars', 'manage_other_calendars'])) {
         return;                                   // no role → no menu at all
     }
 
@@ -145,7 +146,7 @@ public function add()
     add_submenu_page('fluent-event', __('Dashboard', 'fluent-event'), __('Dashboard', 'fluent-event'),
         'read', 'fluent-event', [$this, 'render']);
 
-    if (PermissionManager::hasPermission('events/manage')) {
+    if (PermissionManager::userCan(['manage_own_calendars', 'manage_all_events'])) {
         add_submenu_page('fluent-event', __('Add New Event', 'fluent-event'), __('Add New Event', 'fluent-event'),
             'read', 'fluent-event#/events/new', [$this, 'render']);
     }
@@ -153,7 +154,7 @@ public function add()
     add_submenu_page('fluent-event', __('Calendars', 'fluent-event'), ..., 'fluent-event#/calendars');
     add_submenu_page('fluent-event', __('Events', 'fluent-event'), ..., 'fluent-event#/events');
 
-    if (PermissionManager::hasPermission('settings/manage')) {
+    if (PermissionManager::userCan('manage_settings')) {
         add_submenu_page('fluent-event', __('Settings', 'fluent-event'), ..., 'fluent-event#/settings');
     }
 }
@@ -171,9 +172,8 @@ public function add()
 2. **"Add New Event" needs a route that exists** — `#/events/new`. That is a create screen or
    a modal opened by route, and it must be built in Phase 3 alongside the events module, not
    left as a dead link.
-3. **"Add New Event" is hidden from `fevent_viewer`.** A read-only user offered an Add
-   button is a bug report. Gate it on `events/manage`, the same permission the button
-   inside the SPA uses.
+3. **"Add New Event" is hidden from read-only users.** An Add button they cannot use is a
+   bug report. Gate it on the same permission the button inside the SPA uses.
 
 > The sidebar and the SPA topbar deliberately differ. The sidebar is a launcher — it gets
 > *Add New Event* because deep-linking to a create screen from anywhere in wp-admin is
@@ -230,7 +230,7 @@ tables plus usermeta rows, that gap ships real cruft.
 
 Decide and implement the policy before release:
 
-- Delete `_fevent_role` usermeta rows — cheap, unambiguous, always safe.
+- Delete the `_access_permissions` rows from `wp_fe_meta` — one `DELETE`, always safe.
 - Tables and CPT posts: **default to keeping them.** Silent data destruction on uninstall is
   worse than leftovers. Gate any dropping behind an explicit opt-in.
 
@@ -246,7 +246,7 @@ Scaffolding is finished when all of these pass:
 - `./wpf check` runs clean.
 - The **Fluent Event** menu appears for an administrator, with Dashboard, Calendars, Events,
   Settings.
-- A user with `_fevent_role = fevent_viewer` sees the menu **without** Settings.
+- A user holding only `read_other_calendars` sees the menu **without** Settings or Add New Event.
 - A user with no role sees no menu, and `admin.php?page=fluent-event` is not reachable.
 - The SPA boots, the topbar renders brand + primary nav + Settings + theme toggle, and
   `window.fluentFrameworkAdmin.me.permissions` is populated.
