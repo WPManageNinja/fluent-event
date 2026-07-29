@@ -8,8 +8,10 @@ built.
 |---|---|---|---|---|
 | Dashboard | `#/` | primary | 5 | [dashboard.md](dashboard.md) |
 | Calendars | `#/calendars` | primary | 2 | [calendars.md](calendars.md) |
+| Create calendar | `#/calendars/new` | — | 2 | [calendar-create.md](calendar-create.md) |
 | Calendar detail | `#/calendars/:id` | — | 2–3 | [calendar-detail.md](calendar-detail.md) |
 | Events (all calendars) | `#/events` | primary | 3 | [events.md](events.md) |
+| Create event | `#/events/new` | — | 3 | [event-create.md](event-create.md) |
 | Event detail | `#/events/:id` | — | 3–4 | [event-detail.md](event-detail.md) |
 | Settings | `#/settings` | secondary | 2 | [settings.md](settings.md) |
 

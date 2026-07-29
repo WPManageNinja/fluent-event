@@ -9,6 +9,9 @@
 > lives, how hooks are named, when a component earns extraction, how migrations are
 > written. Read it before writing code, not after review.
 >
+> Build order and progress: [implementation-flow.md](implementation-flow.md) — every chunk
+> is one PR, with its spec linked and a column to record the PR when it lands.
+>
 > The shell is built in [scaffolding.md](scaffolding.md) before any feature work.
 >
 > Who may do what is in [permissions.md](permissions.md) — three scopes, zero new tables.
@@ -231,8 +234,10 @@ questions.
 |---|---|---|---|---|
 | Dashboard | `#/` | primary | 5 | [screens/dashboard.md](screens/dashboard.md) |
 | Calendars | `#/calendars` | primary | 2 | [screens/calendars.md](screens/calendars.md) |
+| Create calendar | `#/calendars/new` | — | 2 | [screens/calendar-create.md](screens/calendar-create.md) |
 | Calendar detail | `#/calendars/:id` | — | 2–3 | [screens/calendar-detail.md](screens/calendar-detail.md) |
 | Events (all calendars) | `#/events` | primary | 3 | [screens/events.md](screens/events.md) |
+| Create event | `#/events/new` | — | 3 | [screens/event-create.md](screens/event-create.md) |
 | Event detail | `#/events/:id` | — | 3–4 | [screens/event-detail.md](screens/event-detail.md) |
 | Settings | `#/settings` | secondary | 2 | [screens/settings.md](screens/settings.md) |
 
