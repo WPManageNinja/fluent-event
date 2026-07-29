@@ -3,7 +3,7 @@
 namespace FluentEvent\App\CPT;
 
 /**
- * The `fevent_event` custom post type.
+ * The `fe_event` custom post type.
  *
  * An event's identity — title, description, author — lives in `wp_posts`;
  * everything typed lives in `wp_fe_event_details`, joined 1:1 on `post_id`.
@@ -57,7 +57,7 @@ class EventPost
             // attachment. No custom-fields: nothing edits postmeta by hand.
             'supports'            => ['title', 'editor', 'author'],
 
-            'capability_type'     => 'post',
+            'capability_type'     => 'fe_event',
             'map_meta_cap'        => true,
             'hierarchical'        => false,
         ]);
