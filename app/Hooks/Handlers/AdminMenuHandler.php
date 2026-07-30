@@ -100,6 +100,18 @@ class AdminMenuHandler
         );
     }
 
+    public function removeAdminNotices()
+    {
+        $screen = get_current_screen();
+        if (!$screen || $screen->id !== 'toplevel_page_' . $this->slug) {
+            return;
+        }
+        remove_all_actions('network_admin_notices');
+        remove_all_actions('user_admin_notices');
+        remove_all_actions('admin_notices');
+        remove_all_actions('all_admin_notices');
+    }
+
     /**
      * Render the menu page
      * 

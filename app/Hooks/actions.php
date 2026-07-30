@@ -16,6 +16,7 @@ require_once __DIR__ . '/logoicon.php';
  */
 
 $app->addAction('admin_menu', 'AdminMenuHandler');
+$app->addAction('in_admin_header', ['AdminMenuHandler', 'removeAdminNotices']);
 
 $app->addCustomAction('exception', 'ExceptionHandler');
 
