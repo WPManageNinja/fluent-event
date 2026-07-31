@@ -187,38 +187,51 @@ after fluent-affiliate's:
 | **Middle** | Dashboard · Calendars · Events |
 | **Right** | Settings · theme toggle |
 
-**This is already built.** [Application.vue](../../../../resources/admin/components/Application.vue)
-renders `navbar-left` (brand + `menu.get('primary')`) and `navbar-right`
-(`<ThemeSwitcher />` + `menu.get('secondary')`). Left and middle are one flex row — the
-brand block then the primary nav — which produces the layout above.
+**This is already built** — in PHP, as of
+[#9](https://github.com/WPManageNinja/fluent-event/pull/9).
+[menu.php](../../../../app/Views/admin/menu.php) renders `.fe-navbar` with `__logo`,
+`__links` (middle) and `__settings` (right), looping arrays the menu handler passes in.
+`Application.vue` is now a bare `router-view` mounted into `#fluent-event-router`, below the
+navbar.
 
-Nav items are **declared server-side**, not in the Vue app.
-[app/Http/Routes/vue.php](../../../../app/Http/Routes/vue.php) is the single source:
+The right side runs `[theme toggle][Settings]` — affiliate's order, which is the reverse of
+the table above.
+
+Nav items were **declared server-side** as a route tree in `app/Http/Routes/vue.php`, which
+made one nav item one `->add()` call. That file is deleted. Items are now a PHP array:
 
 ```php
-$router->menu('primary', function ($router) {
-    $router->add('/', 'modules/dashboard')
-        ->name('dashboard')
-        ->icon('HomeFilled')
-        ->title(__('Dashboard', 'fluent-event'))
-        ->middleware('auth');
-});
+protected function getMenuItemsList()
+{
+    return [
+        [
+            'key'       => 'dashboard',
+            'label'     => __('Dashboard', 'fluent-event'),
+            'permalink' => $this->baseUrl,
+        ],
+        // …
+    ];
+}
 ```
 
-`createAdminRouter()` pulls these over, groups them, and hands them to the `MenuApi` —
-group name `primary` renders middle, `secondary` renders right. So **one nav item = one
-`->add()` call plus one directory under `resources/admin/modules/`.** The vite glob
-resolves `modules/events` to the component; no `routes.js` edit, no new PHP page.
+with the matching route in
+[routes.js](../../../../resources/admin/router/routes.js) carrying
+`meta.active_menu: 'dashboard'`. So **one nav item = one array entry, one route entry, and
+one directory under `resources/admin/modules/`.** The `key`/`active_menu` pair is what a
+router `afterEach` uses to light the active link.
 
 ### v1 nav items
 
-| Group | Item | Module | Backing store |
+| Side | Item | Module | Backing store |
 |---|---|---|---|
-| `primary` | Dashboard | `modules/dashboard` | — (scaffolded) |
-| `primary` | Calendars | `modules/calendars` | `wp_fe_calendars` |
-| `primary` | Events | `modules/events` | CPT + `wp_fe_event_details` |
-| `secondary` | Settings | `modules/settings` | `wp_fe_meta` + `wp_options` |
-| — | Theme toggle | `ThemeSwitcher.vue` | scaffolded; palettes in `config/theme.php` |
+| middle | Dashboard | `modules/dashboard` | — (scaffolded) |
+| middle | Calendars | `modules/calendars` | `wp_fe_calendars` |
+| middle | Events | `modules/events` | CPT + `wp_fe_event_details` |
+| right | Settings | `modules/settings` | `wp_fe_meta` + `wp_options` |
+| right | Theme toggle | PHP button in `menu.php` | `localStorage.fe_color_mode` |
+
+Calendars, Events, Settings and event-create are **placeholder components** today — enough
+for the topbar to resolve, replaced by chunks 9, 14d, 21 and 12a.
 
 Three primary items, one secondary. Calendars sits beside Events rather than nested under
 it — they are peers in the data model, and every event needs a calendar to already exist.
@@ -229,8 +242,10 @@ WordPress would supply term-management screens for free — but that only holds 
 type has an admin menu, and ours has `show_ui => false`. With no menu to hang them on there
 is no free UI, so registering them now would add rewrite and query plumbing for nothing.
 
-The theme toggle needs nothing built: `ThemeSwitcher.vue` exists and
-[config/theme.php](../../../../config/theme.php) already defines named light/dark palettes.
+The theme toggle is built — a PHP button plus `toggleColorMode()`, with the palette in
+[variables.scss](../../../../resources/scss/variables.scss) as `--fe-*` tokens on `body` and
+`html.dark body`. [config/theme.php](../../../../config/theme.php) still ships a `theme` key
+through `localizeScript`, but nothing reads it; the tokens are SCSS literals.
 
 ### Screens
 
@@ -253,14 +268,15 @@ Shared conventions and the design-reference rules live in
 
 ### Topbar gaps to close
 
-Three one-liners in `Application.vue`:
+All three were in `Application.vue`; all three are fixed in
+[#9](https://github.com/WPManageNinja/fluent-event/pull/9), which moved the topbar to PHP:
 
-1. **Brand shows a hardcoded `beta` span, not the brand name.** Wants replacing with
-   "Fluent Event".
-2. **Brand links to `/`** — site root, wrong from inside wp-admin. Should point at the
-   plugin dashboard route.
-3. **Right-hand order is `[ThemeSwitcher][Settings]`**, spec says Settings then theme
-   icon. One-line swap.
+1. ~~**Brand shows a hardcoded `beta` span, not the brand name.**~~ Span removed; the logo
+   `alt` carries `app.name`.
+2. ~~**Brand links to `/`** — site root, wrong from inside wp-admin.~~ Now `$baseUrl`.
+3. ~~**Right-hand order is `[ThemeSwitcher][Settings]`**, spec says Settings then theme
+   icon.~~ Now `[theme toggle][Settings]` — affiliate's order, which is the reverse of what
+   this spec asked for. Suite parity won; the spec text above is the one that changed.
 
 ## 5. Phases
 
