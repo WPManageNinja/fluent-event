@@ -1,24 +1,7 @@
 import app from '@/bootstrap';
 import { capitalize } from 'vue';
-import { ElNotification } from 'element-plus';
 
 const globals = app.vue.config.globalProperties;
-
-window.addEventListener('offline', () => {
-	ElNotification({
-		type: 'warning',
-		position: 'bottom-right',
-		message: 'You are currently offline.'
-	});
-});
-
-window.addEventListener('online', () => {
-	ElNotification({
-		type: 'success',
-		position: 'bottom-right',
-		message: 'Your connection has been restored.'
-	});
-});
 
 jQuery(document).on('heartbeat-tick', (event, data) => {
 	const slug = globals.appVars.slug;
@@ -29,3 +12,25 @@ jQuery(document).on('heartbeat-tick', (event, data) => {
 		globals.appVars.rest.nonce = data[slug];
     }
 });
+
+window.toggleColorMode = function () {
+    const wpBodyContent = document.getElementById('wpbody-content');
+    if (!wpBodyContent) return;
+    const isDark = wpBodyContent.classList.contains('dark');
+
+    wpBodyContent.classList.toggle('dark', !isDark);
+    document.documentElement.classList.toggle('dark', !isDark);
+
+    localStorage.setItem('fe_color_mode', isDark ? 'light' : 'dark');
+};
+
+(function applyStoredColorMode() {
+    const wpBodyContent = document.getElementById('wpbody-content');
+    if (!wpBodyContent) return;
+
+    const stored = localStorage.getItem('fe_color_mode') || 'light';
+    if (!stored) return;
+
+    document.documentElement.classList.add(stored);
+    wpBodyContent?.classList.add(stored);
+})();

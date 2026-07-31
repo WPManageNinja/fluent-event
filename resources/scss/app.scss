@@ -1,0 +1,33 @@
+.fe_wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(
+        100vh
+        - var(--wp-admin--admin-bar--height, 32px)
+        - var(--fe-navbar-height, 65px)
+    );
+    overflow-x: hidden;
+}
+
+.fe_wrapper > .fe-navbar {
+    flex: 0 0 auto;
+}
+
+.fe_wrapper > .fe_body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.fe_route_wrapper {
+    flex: 1 1 auto;
+    width: 100%;
+    margin: 0 auto;
+    padding: var(--fe-space-5, 20px);
+}
+
+@media (max-width: 992px) {
+    .fe_route_wrapper {
+        padding: var(--fe-space-5, 20px);
+    }
+}

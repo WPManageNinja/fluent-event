@@ -3,11 +3,6 @@ import router from '@/router';
 import config from '@/bootstrap/config';
 import { ElLoading } from 'element-plus';
 
-import 'element-plus/theme-chalk/el-loading.css';
-import 'element-plus/theme-chalk/el-message-box.css';
-import 'element-plus/theme-chalk/el-notification.css';
-
-
 if (typeof __webpack_public_path__ !== 'undefined') {
 	if (config && config.asset_url) {
 		__webpack_public_path__ = config.asset_url;
@@ -16,8 +11,20 @@ if (typeof __webpack_public_path__ !== 'undefined') {
 
 app.vue.use(ElLoading);
 
-app.vue.use(router(app.vue, config.routes));
+const appRouter = router(app.vue, config.routes);
+app.vue.use(appRouter);
 
-app.vue.mount('#fluent-framework-app');
+appRouter.afterEach((to) => {
+    const activeKey = to.meta?.active_menu;
 
-window.fluentFrameworkAdmin = {};
+    jQuery('.fe-navbar__link').removeClass('fe-navbar__link--active');
+
+    if (activeKey) {
+        jQuery(`.fe-navbar__link-wrapper[data-key="${activeKey}"] .fe-navbar__link`)
+            .addClass('fe-navbar__link--active');
+    }
+});
+
+app.vue.mount(`#${config.slug}-router`);
+
+window.fluentEventAdmin = {};

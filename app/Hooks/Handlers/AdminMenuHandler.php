@@ -122,8 +122,56 @@ class AdminMenuHandler
         $this->enqueueAssets($this->slug);
 
         $this->app->view->render('admin.menu', [
-            'slug' => $this->slug,
+            'slug'           => $this->slug,
+            'baseUrl'        => $this->baseUrl,
+            'name'           => $this->config->get('app.name'),
+            'logo'           => Enqueue::getStaticFilePath('images/logo.png'),
+            'darkLogo'       => Enqueue::getStaticFilePath('images/logo.png'),
+            'menuItems'      => $this->getMenuItemsList(),
+            'rightMenuItems' => $this->getRightMenuItemsList(),
         ]);
+    }
+
+    /**
+     * Topbar items rendered in the middle of the navbar.
+     *
+     * @return array<int, array<string, string>>
+     */
+    protected function getMenuItemsList()
+    {
+        return [
+            [
+                'key'       => 'dashboard',
+                'label'     => __('Dashboard', 'fluent-event'),
+                'permalink' => $this->baseUrl,
+            ],
+            [
+                'key'       => 'calendars',
+                'label'     => __('Calendars', 'fluent-event'),
+                'permalink' => $this->baseUrl . 'calendars',
+            ],
+            [
+                'key'       => 'events',
+                'label'     => __('Events', 'fluent-event'),
+                'permalink' => $this->baseUrl . 'events',
+            ],
+        ];
+    }
+
+    /**
+     * Topbar items rendered on the right, before the theme toggle.
+     *
+     * @return array<int, array<string, string>>
+     */
+    protected function getRightMenuItemsList()
+    {
+        return [
+            [
+                'key'       => 'settings',
+                'label'     => __('Settings', 'fluent-event'),
+                'permalink' => $this->baseUrl . 'settings',
+            ],
+        ];
     }
 
     /**
@@ -246,7 +294,6 @@ class AdminMenuHandler
             'rest'          => $r = $this->getRestInfo(),
             'endpoints'     => $this->getRestEndpoinds($r),
             'baseUrl'       => $this->baseUrl,
-            'routes'        => $this->getAdminRoutes(),
             'name'          => $this->config->get('app.name'),
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
             'logoUrl'       => Enqueue::getStaticFilePath('images/logo.png'),
@@ -258,48 +305,6 @@ class AdminMenuHandler
             ],
             'i18n'          => $this->getTranslationLabels($context),
         ]);
-    }
-
-    /**
-     * Get and map menu items for main nav.
-     *
-     * @return \FluentEvent\App\Utils\Vue\Router
-     */
-    protected function getAdminRoutes()
-    {
-        return $this->getMenuItems($this->baseUrl);
-    }
-
-    /**
-     * Get and map menu items for main nav.
-     *
-     * @param  string $baseUrl
-     * @return \FluentEvent\App\Utils\Vue\Router
-     */
-    protected function getMenuItems($baseUrl)
-    {
-        return $this->registerRoutesAndMenu();
-    }
-
-    /**
-     * Register frontend routes and menu items.
-     * @return \FluentEvent\App\Utils\Vue\Router
-     */
-    protected function registerRoutesAndMenu()
-    {
-        $app = $this->app;
-        
-        $router = (function() {
-            $ns = $this->app->__namespace__;
-            
-            $class = "$ns\App\Utils\Vue\Router";
-
-            return new $class;
-        })();
-
-        require($this->app['path.http'] . '/Routes/vue.php');
-
-        return $router;
     }
 
     /**

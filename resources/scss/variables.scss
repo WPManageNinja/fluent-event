@@ -1,0 +1,94 @@
+body {
+    --fe-navbar-height: 65px;
+
+    // Spacing
+    --fe-space-1: 4px;
+    --fe-space-2: 8px;
+    --fe-space-3: 12px;
+    --fe-space-4: 16px;
+    --fe-space-5: 20px;
+    --fe-space-6: 24px;
+    --fe-space-8: 32px;
+    --fe-space-10: 40px;
+    --fe-space-12: 48px;
+
+    // Corner radius.
+    --fe-radius-sm: 4px;
+    --fe-radius: 8px;
+    --fe-radius-lg: 12px;
+
+    // Font size
+    --fe-text-xs: 12px;
+    --fe-text-sm: 14px;
+    --fe-text-base: 16px;
+    --fe-text-lg: 18px;
+    --fe-text-xl: 20px;
+    --fe-text-2xl: 24px;
+
+    // Colors
+    --fe-primary-text: #19283a;
+    --fe-secondary-text: #525866;
+    --fe-primary-button: #2B2E33;
+    --fe-primary-border: #d3d8de;
+    --fe-secondary-border: #9CA3AF;
+    --fe-primary-bg: #ffffff;
+    --fe-secondary-bg: #f0f2f5;
+    --fe-active-bg: #f0f3f5;
+    --fe-badge-color: #E1E4EA;
+
+    // Element Plus
+    --el-color-primary: rgba(64, 158, 255, 1);
+    --el-color-success: rgba(103, 194, 58, 1);
+    --el-color-warning: rgba(230, 162, 60, 1);
+    --el-color-danger: rgba(245, 108, 108, 1);
+
+    --el-bg-color: rgba(249, 249, 249, 1);
+    --el-bg-menu: rgba(255, 255, 255, 1);
+    --el-bg-panel: rgba(255, 255, 255, 1);
+
+    --el-text-color-primary: rgba(48, 49, 51, 1);
+    --el-text-color-secondary: rgba(96, 98, 102, 1);
+    --el-text-color-placeholder: rgba(0, 0, 0, 0.35);
+
+    --el-border-color: rgba(220, 223, 230, 1);
+    --el-menu-text-color: rgba(48, 49, 51, 1);
+    --el-menu-hover-text-color: var(--el-color-primary);
+
+    // Dialog header
+    --dialog-header-bg: rgba(245, 245, 245, 1);
+    --dialog-header-border: rgba(221, 221, 221, 1);
+}
+
+html.dark body {
+    --fe-primary-text: #F0F3F5;
+    --fe-secondary-text: #99A0AE;
+    --fe-primary-button: #FFFFFF;
+    --fe-primary-border: #253241;
+    --fe-secondary-border: #2C3C4E;
+    --fe-primary-bg: #151D26;
+    --fe-secondary-bg: #11171D;
+    --fe-active-bg: #1C2732;
+    --fe-badge-color: #2C3C4E;
+
+    // Element Plus
+    --el-color-primary: rgba(64, 158, 255, 1);
+    --el-color-success: rgba(103, 194, 58, 1);
+    --el-color-warning: rgba(230, 162, 60, 1);
+    --el-color-danger: rgba(245, 108, 108, 1);
+
+    --el-bg-color: rgba(30, 30, 47, 1);
+    --el-bg-menu: rgba(37, 37, 54, 1);
+    --el-bg-panel: rgba(42, 43, 60, 1);
+
+    --el-text-color-primary: rgba(255, 255, 255, 0.82);
+    --el-text-color-secondary: rgba(255, 255, 255, 0.45);
+    --el-text-color-placeholder: rgba(255, 255, 255, 0.35);
+
+    --el-border-color: rgba(60, 61, 90, 1);
+    --el-menu-text-color: rgba(255, 255, 255, 0.75);
+    --el-menu-hover-text-color: rgba(255, 255, 255, 0.9);
+
+    // Dialog header
+    --dialog-header-bg: rgba(42, 43, 60, 1);
+    --dialog-header-border: rgba(68, 68, 68, 1);
+}
