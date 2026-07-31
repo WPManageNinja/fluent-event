@@ -32,6 +32,18 @@ use FluentEvent\App\Services\Icon;
         </div>
 
         <div class="fe-navbar__settings">
+            <div class="fe-navbar__link-wrapper" data-key="color_mode">
+                <button type="button"
+                        class="fe-navbar__link fe_color_mode"
+                        aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
+                        onclick="toggleColorMode()">
+                    <span class="el-icon">
+                        <span class="fe_light_icon"><?php echo Icon::MOON; ?></span>
+                        <span class="fe_dark_icon"><?php echo Icon::SUN; ?></span>
+                    </span>
+                </button>
+            </div>
+
             <?php foreach ( $rightMenuItems as $fluentEventRightMenuItem ) : ?>
                 <div class="fe-navbar__link-wrapper"
                      data-key="<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>">
@@ -44,18 +56,6 @@ use FluentEvent\App\Services\Icon;
                     </a>
                 </div>
             <?php endforeach; ?>
-
-            <div class="fe-navbar__link-wrapper" data-key="color_mode">
-                <button type="button"
-                        class="fe-navbar__link fe_color_mode"
-                        aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
-                        onclick="toggleColorMode()">
-                    <span class="el-icon">
-                        <span class="fe_light_icon"><?php echo Icon::MOON; ?></span>
-                        <span class="fe_dark_icon"><?php echo Icon::SUN; ?></span>
-                    </span>
-                </button>
-            </div>
         </div>
 
     </div>

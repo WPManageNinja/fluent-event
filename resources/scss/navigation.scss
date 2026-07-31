@@ -7,7 +7,7 @@
     justify-content: space-between;
     padding: 0 var(--fe-space-5, 20px);
     background-color: var(--fe-primary-bg, #ffffff);
-    border-bottom: 1px solid var(--fe-secondary-bg, #d3d8de);
+    border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
     height: var(--fe-navbar-height, 65px);
 
     &__logo {
@@ -17,6 +17,12 @@
 
         a:focus {
             box-shadow: none;
+        }
+
+        a:focus-visible {
+            outline: 2px solid var(--fe-primary-text, #19283a);
+            outline-offset: 2px;
+            border-radius: var(--fe-radius, 8px);
         }
     }
 
@@ -72,15 +78,22 @@
             border: none;            
         }
 
+        &:focus-visible {
+            color: var(--fe-secondary-text, #525866);
+            outline: 2px solid var(--fe-primary-text, #19283a);
+            outline-offset: 2px;
+            border-radius: var(--fe-radius, 8px);
+        }
+
         &:hover {
             color: var(--fe-primary-text, #19283a);
             background-color: var(--fe-active-bg, #f0f3f5);
         }
 
-        &--active {
-            color: var(--fe-primary-text, #19283a) !important;
+        &.fe-navbar__link--active {
+            color: var(--fe-primary-text, #19283a);
             background-color: var(--fe-active-bg, #f0f3f5);
-            border-radius: var(--fe-radius, 8px) !important;
+            border-radius: var(--fe-radius, 8px);
         }
     }
 }

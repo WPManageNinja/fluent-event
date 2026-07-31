@@ -13,24 +13,17 @@ jQuery(document).on('heartbeat-tick', (event, data) => {
     }
 });
 
-window.toggleColorMode = function () {
-    const wpBodyContent = document.getElementById('wpbody-content');
-    if (!wpBodyContent) return;
-    const isDark = wpBodyContent.classList.contains('dark');
-
-    wpBodyContent.classList.toggle('dark', !isDark);
-    document.documentElement.classList.toggle('dark', !isDark);
-
-    localStorage.setItem('fe_color_mode', isDark ? 'light' : 'dark');
+const applyColorMode = (mode) => {
+    const isDark = mode === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('light', !isDark);
 };
 
-(function applyStoredColorMode() {
-    const wpBodyContent = document.getElementById('wpbody-content');
-    if (!wpBodyContent) return;
+window.toggleColorMode = function () {
+    const mode = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
 
-    const stored = localStorage.getItem('fe_color_mode') || 'light';
-    if (!stored) return;
+    applyColorMode(mode);
+    localStorage.setItem('fe_color_mode', mode);
+};
 
-    document.documentElement.classList.add(stored);
-    wpBodyContent?.classList.add(stored);
-})();
+applyColorMode(localStorage.getItem('fe_color_mode') === 'dark' ? 'dark' : 'light');
