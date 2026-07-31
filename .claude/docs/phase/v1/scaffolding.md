@@ -162,10 +162,10 @@ public function add()
 
 **Three things this menu forces:**
 
-1. **The parent slug still needs its own submenu entry.** The top-level *Fluent Event* item
+1. **The parent slug still needs its own submenu entry.** The top-level *FluentEvent* item
    is clickable and lands on `#/` — the dashboard. Without re-registering the parent slug as
    the first submenu, WordPress labels that entry with the plugin name, so the sidebar reads
-   "Fluent Event → Fluent Event, Add New Event, …". Re-registering lets us call it
+   "FluentEvent → FluentEvent, Add New Event, …". Re-registering lets us call it
    *Dashboard*. If you would rather not show it, the alternative is making the top-level item
    land on Calendars instead — but the parent is always clickable, so it always goes
    *somewhere*.
@@ -244,7 +244,7 @@ meta only.
 Scaffolding is finished when all of these pass:
 
 - `./wpf check` runs clean.
-- The **Fluent Event** menu appears for an administrator, with Dashboard, Calendars, Events,
+- The **FluentEvent** menu appears for an administrator, with Dashboard, Calendars, Events,
   Settings.
 - A user holding only `read_other_calendars` sees the menu **without** Settings or Add New Event.
 - A user with no role sees no menu, and `admin.php?page=fluent-event` is not reachable.

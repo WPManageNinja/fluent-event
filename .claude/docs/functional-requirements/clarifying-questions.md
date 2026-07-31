@@ -144,7 +144,7 @@ _(team lead)_
 
 ## Q7 — Event-space deletion (fcom integration)
 
-**Context:** FR-10 binds an fcom `event` space 1:1 to a Fluent Event calendar (auto-created with the space). When the host deletes the event-space, what happens to the bound calendar + its events?
+**Context:** FR-10 binds an fcom `event` space 1:1 to a FluentEvent calendar (auto-created with the space). When the host deletes the event-space, what happens to the bound calendar + its events?
 
 **Questions:**
 
@@ -162,13 +162,13 @@ _(team lead)_
 
 ## Q8 — Identity & audience when both plugins are active (fcom integration)
 
-**Context:** FR-10.5. Fluent Event has no profile table (attendees are anonymous email guests; hosts/managers are WP users). With FluentCommunity active, fcom's XProfile supplies community identity data, keyed off `wp_users.ID`. Need to confirm the canonical identity and how a linked calendar's notification audience is resolved.
+**Context:** FR-10.5. FluentEvent has no profile table (attendees are anonymous email guests; hosts/managers are WP users). With FluentCommunity active, fcom's XProfile supplies community identity data, keyed off `wp_users.ID`. Need to confirm the canonical identity and how a linked calendar's notification audience is resolved.
 
 **Questions:**
 
 1. Identity source when both are active — fcom canonical (reuse fcom users / XProfile / space members)? Or independent (only the WP user shared)?
 
-- Recommendation: fcom canonical — one source, no drift. Identity is always `wp_users.ID`; Fluent Event keeps no profile table of its own in either mode.
+- Recommendation: fcom canonical — one source, no drift. Identity is always `wp_users.ID`; FluentEvent keeps no profile table of its own in either mode.
 
 2. Notification audience for a linked calendar — the fcom space's members?
 
@@ -181,13 +181,13 @@ _(team lead)_
 
 ---
 
-## Q9 — Notify both Fluent Event and fcom? (fcom integration)
+## Q9 — Notify both FluentEvent and fcom? (fcom integration)
 
-**Context:** FR-10.6. When a notification fires for an event whose parent calendar is fcom-linked, we can deliver it to Fluent Event' own notifications **and** fcom's notifications. Risk: the same member is notified twice (Fluent Event bell + fcom bell).
+**Context:** FR-10.6. When a notification fires for an event whose parent calendar is fcom-linked, we can deliver it to FluentEvent's own notifications **and** fcom's notifications. Risk: the same member is notified twice (FluentEvent bell + fcom bell).
 
 **Questions:**
 
-1. For a linked calendar, deliver the in-app notification to both Fluent Event and fcom, only fcom (fcom is the canonical identity in integrated mode), or only Fluent Event?
+1. For a linked calendar, deliver the in-app notification to both FluentEvent and fcom, only fcom (fcom is the canonical identity in integrated mode), or only FluentEvent?
 
 - Recommendation: fcom only when integrated — one bell, no duplicates. Make "both" a setting only if hosts ask.
 
