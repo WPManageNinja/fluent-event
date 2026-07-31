@@ -29,5 +29,3 @@ appRouter.afterEach((to) => {
 });
 
 app.vue.mount(`#${config.slug}-router`);
-
-window.fluentEventAdmin = {};
