@@ -54,8 +54,11 @@ Do not copy the sibling approach for these:
 
 | Thing | Siblings | Ours |
 |---|---|---|
-| Nav / screen registration | PHP `add_submenu_page` per screen (all three) | server-declared in [vue.php](../../../app/Http/Routes/vue.php) via `$router->menu()` |
 | Migrations | hand-written `CREATE TABLE` strings behind `SHOW TABLES LIKE` | Blueprint API with idempotent guards — see [database.md](database.md) |
+
+Nav registration used to be on this list — a server-declared `vue.php` route tree instead of
+the siblings' PHP menu arrays. It was dropped: it cost a blank frame on every page load,
+because the topbar could not paint until the SPA mounted.
 
 ---
 

@@ -24,7 +24,7 @@ The WPFluent scaffold ships more than it looks. Verified present and working:
 | CPT registration point | [CPTHandler.php](../../../../app/Hooks/Handlers/CPTHandler.php) | stubbed, empty `$customPostTypes` |
 | Exception handling | `ExceptionHandler.php` | present |
 | Vue router, hash history, module glob | [resources/admin/router/](../../../../resources/admin/router/) | done |
-| App shell + topbar + theme switcher | `Application.vue`, `ThemeSwitcher.vue` | done |
+| App shell + topbar + theme toggle | `app/Views/admin/menu.php`, `Application.vue` | done — topbar is PHP, `Application.vue` is a bare `router-view` |
 | Base classes | `Controller.php`, `Policy.php`, `Model.php` | present |
 | Shared components | `Confirm.vue`, `Pagination.vue`, `CursorPagination.vue`, `Menu/` | present |
 | Theme palettes | [config/theme.php](../../../../config/theme.php) | light + dark defined |
@@ -49,15 +49,21 @@ Every destructive action in v1 routes through
    event title containing markup becomes an injection point, and titles are user input.
    Switch to `{{ }}`, or sanitize server-side before the string reaches the prop.
 
-### Topbar brand
+### Topbar brand — fixed in [#9](https://github.com/WPManageNinja/fluent-event/pull/9)
 
-In `Application.vue`:
+All three were in `Application.vue`, which no longer renders the topbar at all — the navbar
+moved to `app/Views/admin/menu.php`:
 
-- Brand renders a hardcoded `<span>beta</span>` instead of the plugin name.
-- Brand links to `/` — the site root, wrong from inside wp-admin. Point it at the dashboard
-  route.
-- Right side renders `[ThemeSwitcher][Settings]`; the agreed order is Settings then the
-  theme toggle.
+- ~~Brand renders a hardcoded `<span>beta</span>` instead of the plugin name.~~ Removed; the
+  logo `alt` carries the plugin name from `app.name`.
+- ~~Brand links to `/` — the site root, wrong from inside wp-admin.~~ Now `$baseUrl`, the
+  dashboard route.
+- ~~Right side renders `[ThemeSwitcher][Settings]`; the agreed order is Settings then the
+  theme toggle.~~ Now `[theme toggle][Settings]`, matching affiliate's `&__settings` order.
+
+> The order that shipped is the affiliate one — colour-mode toggle first, then the
+> right-menu items — which is the reverse of the "Settings then theme toggle" wording above.
+> Suite parity won.
 
 ### `is_admin` uses a role as a capability
 
@@ -162,10 +168,10 @@ public function add()
 
 **Three things this menu forces:**
 
-1. **The parent slug still needs its own submenu entry.** The top-level *Fluent Event* item
+1. **The parent slug still needs its own submenu entry.** The top-level *FluentEvent* item
    is clickable and lands on `#/` — the dashboard. Without re-registering the parent slug as
    the first submenu, WordPress labels that entry with the plugin name, so the sidebar reads
-   "Fluent Event → Fluent Event, Add New Event, …". Re-registering lets us call it
+   "FluentEvent → FluentEvent, Add New Event, …". Re-registering lets us call it
    *Dashboard*. If you would rather not show it, the alternative is making the top-level item
    land on Calendars instead — but the parent is always clickable, so it always goes
    *somewhere*.
@@ -180,17 +186,26 @@ public function add()
 > useful. The topbar is in-app navigation and keeps Dashboard · Calendars · Events, with
 > creation happening from a button in context.
 
-### SPA topbar — server-declared
+### SPA topbar — PHP-rendered
 
-Add the v1 entries to [app/Http/Routes/vue.php](../../../../app/Http/Routes/vue.php),
-Settings under the same permission condition:
+`Http/Routes/vue.php` is gone. The topbar is markup in
+[app/Views/admin/menu.php](../../../../app/Views/admin/menu.php), looping arrays from
+`AdminMenuHandler::getMenuItemsList()` and `getRightMenuItemsList()`; the routes live
+separately in [routes.js](../../../../resources/admin/router/routes.js). A `data-key` on
+each wrapper is matched against `meta.active_menu` for active styling.
 
-| Group | Item | Module |
-|---|---|---|
-| `primary` | Dashboard | `modules/dashboard` |
-| `primary` | Calendars | `modules/calendars` |
-| `primary` | Events | `modules/events` |
-| `secondary` | Settings | `modules/settings` |
+Adding an entry means editing both — the menu array and the route list:
+
+| Side | Item | `data-key` / `active_menu` | Route | Module |
+|---|---|---|---|---|
+| middle | Dashboard | `dashboard` | `/` | `modules/dashboard` |
+| middle | Calendars | `calendars` | `/calendars` | `modules/calendars` |
+| middle | Events | `events` | `/events` | `modules/events` |
+| right | Settings | `settings` | `/settings` | `modules/settings` |
+
+`/events/new` also routes to `modules/events/create.vue` under `active_menu: events`, so the
+*Add New Event* sidebar entry resolves without a topbar entry of its own. Settings goes
+behind the same permission condition as before, once chunk 22b lands.
 
 ---
 
@@ -244,12 +259,12 @@ meta only.
 Scaffolding is finished when all of these pass:
 
 - `./wpf check` runs clean.
-- The **Fluent Event** menu appears for an administrator, with Dashboard, Calendars, Events,
+- The **FluentEvent** menu appears for an administrator, with Dashboard, Calendars, Events,
   Settings.
 - A user holding only `read_other_calendars` sees the menu **without** Settings or Add New Event.
 - A user with no role sees no menu, and `admin.php?page=fluent-event` is not reachable.
 - The SPA boots, the topbar renders brand + primary nav + Settings + theme toggle, and
-  `window.fluentFrameworkAdmin.me.permissions` is populated.
+  `window.fluentEventAdmin.me.permissions` is populated.
 - `./wpf migrate:refresh` builds all 7 tables and `./wpf db:show` lists them.
 
 > `./wpf check:boot` reports `plugin.php: Entry point not found` — devtools hardcodes that

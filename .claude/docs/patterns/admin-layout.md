@@ -10,34 +10,43 @@ Reference: **fluent-affiliate**. Copy its shell structure, spacing, and token sy
 
 ## Page structure
 
-Affiliate renders the shell as:
+We render the shell in [menu.php](../../../app/Views/admin/menu.php), mirroring affiliate
+class-for-class with our prefix:
 
 ```html
-<div class="fframe_wrapper">
-    <div id="fa_aff_menu" class="fa-navbar"> … </div>
-    <div class="fframe_body">
-        <div id="fluent-framework-app" class="fs_route_wrapper"></div>
+<div id="fluent-event-app" class="fe_wrapper">
+    <div class="fe-navbar"> … </div>
+    <div class="fe_body">
+        <div id="fluent-event-router" class="fe_route_wrapper"></div>
     </div>
 </div>
 ```
 
 Navbar sits **outside** the Vue mount point; the SPA renders only into
-`#fluent-framework-app`.
+`#fluent-event-router`. The mount id is built from the plugin slug, so PHP and
+[start.js](../../../resources/admin/start.js) agree without a hardcoded literal on either
+side.
 
-### Where the navbar lives — the one real divergence
+### Where the navbar lives — settled: PHP
 
 **Affiliate renders its navbar in PHP** — `app/Views/admin/menu.php`, looping
-`$menuItems` / `$rightMenuItems` arrays passed from the menu handler.
+`$menuItems` / `$rightMenuItems` arrays passed from the menu handler. **We now do the same.**
 
-**Our scaffold renders it in Vue** —
-[Application.vue](../../../resources/admin/components/Application.vue) has `navbar-left` /
-`navbar-right` and pulls items from the `MenuApi`, fed by
-[vue.php](../../../app/Http/Routes/vue.php).
+The scaffold originally rendered it in Vue, fed by a server-declared route tree
+(`Http/Routes/vue.php` → `getAdminRoutes()` → a localized `routes` key). That was one
+`->add()` call per nav item, which read well — but the topbar only existed once the SPA
+bundle parsed and mounted, so every page load showed a blank frame where the chrome should
+be, and the layout matched no other plugin in the suite.
 
-**Keep ours.** Our approach is newer and already wired: server-declared routes become both
-the router and the menu, so a nav item is one `->add()` call. Affiliate maintains a PHP menu
-array *and* a route list separately. Port affiliate's **markup structure, class names and
-SCSS**; do not move rendering back into PHP.
+**PHP wins on both counts.** wp-admin paints the topbar with the page, and the markup is the
+same shape as affiliate's. The cost is the one affiliate already pays: the menu array in
+`AdminMenuHandler::getMenuItemsList()` / `getRightMenuItemsList()` and the route list in
+[routes.js](../../../resources/admin/router/routes.js) are maintained separately, joined
+only by `meta.active_menu` matching a `data-key`. Adding a nav item means touching both.
+
+Removed with the switch: `Http/Routes/vue.php`, the `getAdminRoutes` / `getMenuItems` /
+`registerRoutesAndMenu` chain, the localized `routes` key, and `ThemeSwitcher.vue`.
+`Application.vue` is now just a `router-view`.
 
 ---
 
@@ -70,9 +79,17 @@ Details worth keeping:
 - **`&:has(+ .fframe_body .fa_onboarding_wrapper) { display: none }`** — the navbar hides
   itself during onboarding. Neat trick; no JS coordination.
 
-> Our scaffold already has the `beta` span that I earlier called a stray hardcode. It is
-> copied from affiliate's `&__beta-tag` — **but affiliate gates it on a `$beta` flag.** Ours
-> renders it unconditionally. Either gate it or remove it.
+**What we shipped.** `.fe-navbar` with `__logo` / `__logo-img` / `__links` /
+`__link-wrapper` / `__link` / `__settings`, sticky at `z-index: 99`, `data-key` on every
+wrapper. Not built yet: the mobile opener (`Icon::MENU` is defined and waiting), the
+dropdown tier — no nav item has sub-items — and the onboarding `:has()` rule.
+
+The `beta` span is gone rather than gated; affiliate keys its `&__beta-tag` off a `$beta`
+flag, and we have no such flag to key off.
+
+Active-link state is applied by a router `afterEach` in
+[start.js](../../../resources/admin/start.js), which matches `to.meta.active_menu` against
+`data-key` and sets both `--active` and `aria-current="page"`.
 
 ---
 
@@ -83,24 +100,35 @@ mode:
 
 | Token | Light | Dark |
 |---|---|---|
-| `--fla-primary-text` | `#19283a` | `#F0F3F5` |
-| `--fla-secondary-text` | `#525866` | `#99A0AE` |
-| `--fla-primary-bg` | `#ffffff` | `#151D26` |
-| `--fla-secondary-bg` | `#f0f2f5` | `#11171D` |
-| `--fla-active-bg` | `#f0f3f5` | `#1C2732` |
-| `--fla-primary-border` | `#d3d8de` | `#253241` |
-| `--fla-secondary-border` | `#9CA3AF` | `#2C3C4E` |
-| `--fla-primary-button` | `#2B2E33` | `#FFFFFF` |
-| `--fla-badge-color` | `#E1E4EA` | `#2C3C4E` |
+| `--fe-primary-text` | `#19283a` | `#F0F3F5` |
+| `--fe-secondary-text` | `#525866` | `#99A0AE` |
+| `--fe-primary-bg` | `#ffffff` | `#151D26` |
+| `--fe-secondary-bg` | `#f0f2f5` | `#11171D` |
+| `--fe-active-bg` | `#f0f3f5` | `#1C2732` |
+| `--fe-primary-border` | `#d3d8de` | `#253241` |
+| `--fe-secondary-border` | `#9CA3AF` | `#2C3C4E` |
+| `--fe-primary-button` | `#2B2E33` | `#FFFFFF` |
+| `--fe-badge-color` | `#E1E4EA` | `#2C3C4E` |
 
 Nine tokens covering both modes. That is the whole palette — worth matching in scale, not
 just approach. Every component reads the variable with a fallback:
-`var(--fla-primary-bg, #ffffff)`.
+`var(--fe-primary-bg, #ffffff)`.
 
-**Ours differ in source.** We already have [config/theme.php](../../../config/theme.php)
-defining named light/dark palettes server-side, delivered through `localizeScript`. Keep
-that — it makes the palette filterable — but adopt affiliate's *token names and coverage*
-so components never reach for a hex literal.
+**Shipped as-is** in [variables.scss](../../../resources/scss/variables.scss) — the nine
+tokens above, plus spacing (`--fe-space-1…12`), radius, font-size and `--fe-navbar-height`.
+Light on `body`, dark on `html.dark body`.
+
+> `html.dark body`, not `html.dark`, is deliberate. The light block sits on `body`, and an
+> element's own declaration beats an inherited one — a plain `html.dark` would lose to it.
+> If the light tokens ever move to `:root`, the dark block can drop `body` too.
+
+Element Plus's own `--el-*` variables are redeclared in the same two blocks, so EP
+components theme with everything else.
+
+**`config/theme.php` is not the source.** It still exists and `localizeScript` still ships
+a `theme` key, but the tokens are literals in SCSS — nothing reads the server palette. Wiring
+one to the other would make the palette filterable; until something needs that, the extra
+indirection buys nothing.
 
 ---
 
@@ -119,9 +147,26 @@ resources/scss/
 └── vendor.scss        Element Plus overrides
 ```
 
-Ours currently has `admin.scss`, `globals.scss`, `vendor.scss` and
-`elements/_responsive.scss`. Add `variables`, `navigation` and `application` at minimum —
-those three carry the shell.
+**Ours now:**
+
+```
+resources/scss/
+├── admin.scss         the entry — @use's the rest, order matters, later wins
+├── variables.scss     tokens, light + dark blocks
+├── globals.scss       resets, wp-admin overrides
+├── navigation.scss    the navbar
+├── app.scss           shell / body layout
+└── vendor.scss        Element Plus overrides
+```
+
+`app.scss` is affiliate's `application.scss` under a shorter name. `elements/_responsive.scss`
+was empty and is gone; `component.scss`, `table.scss` and `settings.scss` arrive with the
+screens that need them.
+
+`vendor.scss` pulls EP's stylesheets with `@use "sass:meta"` +
+`meta.load-css(...)` rather than JS imports, so `el-notification`, `el-loading`,
+`el-message-box` and `dark/css-vars` land in `admin.css` in a known order instead of
+wherever the bundler puts them.
 
 **`rtl.scss` is worth copying early.** Retrofitting RTL after every screen exists is far
 more work than keeping a parallel file from the start.
@@ -136,13 +181,30 @@ Affiliate does it without JS state:
 - Two inline SVGs for the toggle icon (`.fa_light_icon`, `.fa_dark_icon`), same trick.
 - `toggleColorMode()` flips a class on a root element; the token block does the rest.
 
-**We already have this in Vue** —
-[ThemeSwitcher.vue](../../../resources/admin/components/ThemeSwitcher.vue) plus
-`darkModeMixin`-style persistence. Keep the Vue version; adopt the two-asset pattern for the
-logo so the brand mark inverts with the theme.
+**We copied it.** `ThemeSwitcher.vue` — an `el-dropdown` with light/dark/system and a table
+of EP colour variables — is deleted. The toggle is a PHP `<button>` in the navbar calling
+`toggleColorMode()`, with `Icon::SUN` / `Icon::MOON` swapped by CSS transform, and both logo
+`<img>`s in the DOM.
+
+Two places we diverge from affiliate, both deliberate:
+
+- **`<html>` is the only state carrier.** Affiliate also writes the class onto
+  `#wpbody-content`, but no stylesheet in either plugin reads it — every dark selector is
+  `html.dark`, EP's own `dark/css-vars.css` included. We write one element.
+- **`light` and `dark` are mutually exclusive.** Toggling only `dark` while a restore path
+  adds `light` leaves both classes on the element.
+
+Persisted as `localStorage.fe_color_mode`. `toggleColorMode` lives in
+[app.js](../../../resources/admin/app.js), which is enqueued in the footer — so, exactly as
+in affiliate, the button is inert until that bundle parses and a dark-mode user sees one
+light frame first. Fixing it means inlining the apply in the view or on `admin_head`.
+
+**Both logos currently point at the same `logo.png`** — the swap is wired, the dark asset
+is not drawn yet.
 
 Remember dark mode is gated by a setting in v1 — when it is off, the toggle should not
-render at all. See [screens/settings.md](../phase/v1/screens/settings.md).
+render at all. **Not yet done**: the toggle renders unconditionally until chunk 21 gives it
+a setting to read. See [screens/settings.md](../phase/v1/screens/settings.md).
 
 ---
 
@@ -168,7 +230,15 @@ extraction rule in [README.md](README.md). Build the equivalent of `ActionPanel`
 
 In [scaffolding.md](../phase/v1/scaffolding.md) terms:
 
-1. `variables.scss` with our nine tokens, light + dark.
-2. `navigation.scss` ported from affiliate, class names re-prefixed.
-3. Fix the three topbar defects — brand name, dashboard link, control order.
+1. ~~`variables.scss` with our nine tokens, light + dark.~~ Done.
+2. ~~`navigation.scss` ported from affiliate, class names re-prefixed.~~ Done.
+3. ~~Fix the three topbar defects — brand name, dashboard link, control order.~~ Done.
 4. `PageLoadingSkeleton`, `ActionPanel`, `FilterGroup` — needed by every screen after.
+
+Carried forward from the topbar work, none of it blocking:
+
+- Mobile menu opener — `Icon::MENU` exists, no markup uses it.
+- Dark logo asset; both `<img>`s point at `logo.png` today.
+- Gate the colour-mode toggle on the v1 dark-mode setting (chunk 21).
+- Dropdown tier in the navbar, once a nav item has sub-items.
+- `rtl.scss`, before the screens pile up.
