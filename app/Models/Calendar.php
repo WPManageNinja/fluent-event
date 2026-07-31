@@ -1,0 +1,63 @@
+<?php
+
+namespace FluentEvent\App\Models;
+
+/**
+ * Calendar model.
+ *
+ * Table: `wp_fe_calendars` — see database/Migrations/CalendarsMigrator.php.
+ */
+class Calendar extends Model
+{
+    protected $table = 'fe_calendars';
+
+    const VISIBILITIES = ['public', 'private', 'unlisted'];
+    const STATUSES = ['active', 'archived', 'draft'];
+
+    protected $fillable = [
+        'title',
+        'slug',
+        'description',
+        'visibility',
+        'status',
+        'meta',
+        'created_by',
+    ];
+
+    protected $casts = [
+        'meta'       => 'array',
+        'created_by' => 'int',
+    ];
+
+    const DEFAULT_THEME_COLOR = '#0099ff';
+
+    public function defaultMeta()
+    {
+        return [
+            'theme_color' => self::DEFAULT_THEME_COLOR,
+        ];
+    }
+
+    public function scopeSearchBy($query, $search)
+    {
+        if ($search) {
+            $term = '%' . $GLOBALS['wpdb']->esc_like($search) . '%';
+
+            $query->where(function ($q) use ($term) {
+                $q->where('title', 'LIKE', $term)
+                  ->orWhere('slug', 'LIKE', $term);
+            });
+        }
+
+        return $query;
+    }
+
+    public function scopeByStatus($query, $status)
+    {
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        return $query;
+    }
+}
