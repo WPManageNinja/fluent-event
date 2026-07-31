@@ -1,4 +1,4 @@
-# Fluent Event — Functional Requirements
+# FluentEvent — Functional Requirements
 
 > Index of functional requirements. Each feature is specified in its own file under [`functional-requirements/`](functional-requirements/). This file keeps summaries only — open the linked part for the full spec.
 
@@ -6,7 +6,7 @@
 
 ## Identity model (no custom auth)
 
-**Fluent Event has no custom authentication, profile, or member-management layer.** Event configuration happens in **wp-admin**, performed by WordPress users (hosts / managers, gated by capability). Public event pages are **open for email-only entry** — an attendee is captured as a `wp_fe_guests` row (`name` + `email`, no `user_id` link), never a plugin-owned account. No front-end login, profile area, OTP, forgot-password, or member moderation.
+**FluentEvent has no custom authentication, profile, or member-management layer.** Event configuration happens in **wp-admin**, performed by WordPress users (hosts / managers, gated by capability). Public event pages are **open for email-only entry** — an attendee is captured as a `wp_fe_guests` row (`name` + `email`, no `user_id` link), never a plugin-owned account. No front-end login, profile area, OTP, forgot-password, or member moderation.
 
 > **Removed in pivot:** former **FR-1 Authentication**, **FR-2 User Profile & Account Management**, **FR-3 Member Management**, and **FR-5 Activity Tracking (Audit Log)**. Numbering keeps the gaps so existing cross-references stay valid.
 
@@ -42,6 +42,6 @@
 
 ## FR-10: FluentCommunity Integration
 
-**Summary:** Optional bridge that deep-integrates Fluent Event into FluentCommunity. When fcom is active, registers a new `event` space type whose space is 1:1-bound to a Fluent Event calendar (auto-created, title-synced, also shown in the standalone portal). Events always live in `wp_fe_*` (fcom stores none); in integrated mode fcom is the canonical identity.
+**Summary:** Optional bridge that deep-integrates FluentEvent into FluentCommunity. When fcom is active, registers a new `event` space type whose space is 1:1-bound to a FluentEvent calendar (auto-created, title-synced, also shown in the standalone portal). Events always live in `wp_fe_*` (fcom stores none); in integrated mode fcom is the canonical identity.
 
 → Full spec: [functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md](functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md)

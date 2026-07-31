@@ -3,7 +3,7 @@
 defined('ABSPATH') or die;
 
 /**
- * Plugin Name: Fluent Event 
+ * Plugin Name: FluentEvent
  * Plugin URI: https://fluentevent.com
  * Description: Event management plugin for WordPress. 
  * Version: 1.0.0

@@ -1,4 +1,4 @@
-# Fluent Event — v1 Build Plan
+# FluentEvent — v1 Build Plan
 
 > Status: draft, 2026-07-28. Scope + phasing for the first shippable release.
 > Grounded in [functional-requirements.md](../../functional-requirements/functional-requirements.md),
@@ -27,7 +27,7 @@
 That is the whole of it. One event type — RSVP. One question asked of an attendee — going
 or not going. Nothing is priced, nothing repeats, nothing is emailed.
 
-The bar for "done": a host opens **Fluent Event** in wp-admin, creates a calendar, creates
+The bar for "done": a host opens **FluentEvent** in wp-admin, creates a calendar, creates
 an event under it, and RSVPs are recorded against that event as going / not going.
 
 ---
@@ -38,7 +38,7 @@ an event under it, and RSVPs are recorded against that event as going / not goin
 
 | Area | v1 delivers |
 |---|---|
-| Admin SPA | Vue 3 SPA in wp-admin under a **Fluent Event** menu with logo + sub-pages |
+| Admin SPA | Vue 3 SPA in wp-admin under a **FluentEvent** menu with logo + sub-pages |
 | Calendars | Create, edit, list, delete. Title, slug, description, visibility, status |
 | Events | Create, edit, list, delete — **always under a calendar**. Title, description, start/end, timezone, cover image, plus venue, address and performers as plain values on `event_details.meta` — no taxonomy terms |
 | RSVP | One mode only. A guest row per response, going / not going |
@@ -128,7 +128,7 @@ this is the *only* surface — there is no front-end page yet.
 
 ### Menu shape
 
-A top-level **Fluent Event** menu with the plugin logo, plus sub-pages beneath it.
+A top-level **FluentEvent** menu with the plugin logo, plus sub-pages beneath it.
 
 The house pattern — from `fluent-booking/app/Hooks/Handlers/AdminMenuHandler.php` — is
 **one WordPress page, many menu entries**:
@@ -271,12 +271,12 @@ Shared conventions and the design-reference rules live in
 All three were in `Application.vue`; all three are fixed in
 [#9](https://github.com/WPManageNinja/fluent-event/pull/9), which moved the topbar to PHP:
 
-1. ~~**Brand shows a hardcoded `beta` span, not the brand name.**~~ Span removed; the logo
-   `alt` carries `app.name`.
-2. ~~**Brand links to `/`** — site root, wrong from inside wp-admin.~~ Now `$baseUrl`.
-3. ~~**Right-hand order is `[ThemeSwitcher][Settings]`**, spec says Settings then theme
-   icon.~~ Now `[theme toggle][Settings]` — affiliate's order, which is the reverse of what
-   this spec asked for. Suite parity won; the spec text above is the one that changed.
+1. **Brand shows a hardcoded `beta` span, not the brand name.** Wants replacing with
+   "FluentEvent".
+2. **Brand links to `/`** — site root, wrong from inside wp-admin. Should point at the
+   plugin dashboard route.
+3. **Right-hand order is `[ThemeSwitcher][Settings]`**, spec says Settings then theme
+   icon. One-line swap.
 
 ## 5. Phases
 

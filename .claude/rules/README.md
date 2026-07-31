@@ -1,12 +1,12 @@
-# Fluent Event — Coding Rules
+# FluentEvent — Coding Rules
 
-Write-time guardrails for Fluent Event source (`wp-content/plugins/fluent-event`).
+Write-time guardrails for FluentEvent source (`wp-content/plugins/fluent-event`).
 The PostToolUse hook [`.claude/hooks/coding-rules-scan.sh`](../hooks/coding-rules-scan.sh)
 enforces a hard-block subset of these rules on every Edit/Write — diff-aware, so it
 only flags patterns introduced by the current edit. These files are the
 human-readable rule of record; the scanner is the safety net.
 
-This folder holds all coding rules for Fluent Event — universal discipline,
+This folder holds all coding rules for FluentEvent — universal discipline,
 framework-wide backend/frontend rules, and the scanner-enforced area rules. (The
 former `coding-rules` skill was removed; its enforced rulesets live here now.)
 

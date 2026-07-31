@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# PostToolUse hook: safety-net scanner for Fluent Event source edits.
+# PostToolUse hook: safety-net scanner for FluentEvent source edits.
 #
 # Diff-aware: only flags hard-block patterns introduced by THIS edit
 # (added lines vs HEAD). Existing legacy callsites with `phpcs:ignore`
