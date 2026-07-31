@@ -1,6 +1,6 @@
 .fe-navbar {
     position: sticky;
-    top: 0;
+    top: var(--wp-admin--admin-bar--height, 0px);
     z-index: 99;
     display: flex;
     align-items: center;
@@ -9,6 +9,10 @@
     background-color: var(--fe-primary-bg, #ffffff);
     border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
     height: var(--fe-navbar-height, 65px);
+    
+    @media (max-width: 600px) {
+        top: 0;
+    }
 
     &__menu-toggle {
         display: none;

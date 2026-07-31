@@ -6,7 +6,6 @@
         - var(--wp-admin--admin-bar--height, 32px)
         - var(--fe-navbar-height, 65px)
     );
-    overflow-x: hidden;
 
     > .fe-navbar {
         flex: 0 0 auto;
@@ -23,5 +22,6 @@
         width: 100%;
         margin: 0 auto;
         padding: var(--fe-space-5, 20px);
+        overflow-x: hidden;
     }
 }
