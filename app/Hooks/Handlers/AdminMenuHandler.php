@@ -235,7 +235,7 @@ class AdminMenuHandler
             $theme = $themes[$this->config->get('theme.default')] ?? null;
         }
 
-        wp_localize_script($slug . '_admin_app', 'fluentFrameworkAdmin', [
+        wp_localize_script($slug . '_admin_app', 'fluentEventAdmin', [
             'env'           => $this->app->env(),
             'slug'          => $slug,
             'theme'         => $theme,

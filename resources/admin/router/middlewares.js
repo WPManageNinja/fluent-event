@@ -5,7 +5,7 @@
 /**
  * Resolve the current authenticated user from the app's global properties.
  * The framework seeds `appVars.me` during bootstrap from
- * `fluentFrameworkAdmin.me`, so middlewares can read it synchronously
+ * `fluentEventAdmin.me`, so middlewares can read it synchronously
  * without a round-trip.
  *
  * @param  {import('vue').App} app

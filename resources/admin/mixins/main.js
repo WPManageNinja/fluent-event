@@ -4,7 +4,7 @@ import Rest from '@/utils/http/Rest.js';
 import Storage from '@/utils/Storage';
 import { ElNotification, ElMessageBox } from 'element-plus';
 
-const config = window.fluentFrameworkAdmin;
+const config = window.fluentEventAdmin;
 
 /**
  * Flatten an arbitrary value into an HTML-safe string joined by `<br />`.
