@@ -60,6 +60,38 @@
     &__logo-img {
         max-height: 32px;
         margin-right: 6px;
+
+        &.fe-navbar__logo-img--light {
+            display: block;
+            
+            html.dark & { display: none; }
+        }
+
+        &.fe-navbar__logo-img--dark {
+            display: none;
+
+            html.dark & { display: block; }
+        }
+    }
+
+    &__mode-icon {
+        display: block;
+        transition: 0.4s;
+
+        &.fe-navbar__mode-icon--dark {
+            transform: scale(0);
+
+            html.dark & { transform: scale(1); }
+        }
+
+        &.fe-navbar__mode-icon--light {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+
+            html.dark & { transform: translate(-50%, -50%) scale(0); }
+        }
     }
 
     &__links {
@@ -130,32 +162,6 @@
 }
 
 
-
-.fe_light_logo { display: block; }
-.fe_dark_logo  { display: none; }
-
-.fe_dark_icon {
-    display: block;
-    transform: scale(0);
-    transition: 0.4s;
-}
-
-.fe_light_icon {
-    display: block;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    transition: 0.4s;
-}
-
-html.dark {
-    .fe_light_logo { display: none; }
-    .fe_dark_logo  { display: block; }
-
-    .fe_dark_icon  { transform: scale(1); }
-    .fe_light_icon { transform: translate(-50%, -50%) scale(0); }
-}
 
 @media (max-width: 992px) {
     .fe-navbar {

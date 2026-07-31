@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
 use FluentEvent\App\Services\Icon;
 ?>
-<div id="<?php echo esc_attr( $slug ); ?>-app" class="fe_wrapper">
+<div id="<?php echo esc_attr( $slug ); ?>-app" class="fe-app">
 
     <div class="fe-navbar">
         <button type="button"
@@ -17,10 +17,10 @@ use FluentEvent\App\Services\Icon;
 
         <div class="fe-navbar__logo">
             <a href="<?php echo esc_url( $baseUrl ); ?>">
-                <img class="fe-navbar__logo-img fe_light_logo"
+                <img class="fe-navbar__logo-img fe-navbar__logo-img--light"
                      src="<?php echo esc_url( $logo ); ?>"
                      alt="<?php echo esc_attr( $name ); ?>" />
-                <img class="fe-navbar__logo-img fe_dark_logo"
+                <img class="fe-navbar__logo-img fe-navbar__logo-img--dark"
                      src="<?php echo esc_url( $darkLogo ); ?>"
                      alt="<?php echo esc_attr( $name ); ?>" />
             </a>
@@ -43,12 +43,12 @@ use FluentEvent\App\Services\Icon;
         <div class="fe-navbar__settings">
             <div class="fe-navbar__link-wrapper" data-key="color_mode">
                 <button type="button"
-                        class="fe-navbar__link fe_color_mode"
+                        class="fe-navbar__link fe-navbar__color-mode"
                         aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
                         onclick="toggleColorMode()">
                     <span class="el-icon">
-                        <span class="fe_light_icon"><?php echo Icon::MOON; ?></span>
-                        <span class="fe_dark_icon"><?php echo Icon::SUN; ?></span>
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--light"><?php echo Icon::MOON; ?></span>
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--dark"><?php echo Icon::SUN; ?></span>
                     </span>
                 </button>
             </div>
@@ -69,7 +69,7 @@ use FluentEvent\App\Services\Icon;
 
     </div>
 
-    <div class="fe_body">
-        <div id="<?php echo esc_attr( $slug ); ?>-router" class="fe_route_wrapper"></div>
+    <div class="fe-app__body">
+        <div id="<?php echo esc_attr( $slug ); ?>-router" class="fe-app__canvas"></div>
     </div>
 </div>
