@@ -62,9 +62,13 @@ Points that matter when building it:
 
 ## Enable dark mode is a feature gate, not a default
 
-With it off there is no dark theme to pick, so
-[ThemeSwitcher.vue](../../../../../resources/admin/components/ThemeSwitcher.vue) should not
-render at all — a toggle that does nothing is worse than an absent one.
+With it off there is no dark theme to pick, so the toggle should not render at all — one
+that does nothing is worse than an absent one.
+
+The toggle is now a PHP `<button>` in
+[menu.php](../../../../../app/Views/admin/menu.php), so the gate is a condition around that
+markup in the view, not a `v-if`. It **renders unconditionally today** — wiring the gate is
+part of this chunk.
 
 Two things to get right:
 

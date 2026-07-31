@@ -43,15 +43,30 @@ The admin surface, before any feature lives in it.
 | # | Chunk | Spec | Dep | Done when | PR |
 |---|---|---|---|---|---|
 | 3 | **Menu registration** | [scaffolding.md §5](scaffolding.md) | — | Sidebar shows Dashboard · Add New Event · Calendars · Events · Settings | [#5](https://github.com/WPManageNinja/fluent-event/pull/5) |
-| 4a | **Design tokens** | [patterns/admin-layout.md](../../patterns/admin-layout.md) | — | `variables.scss` with the nine tokens in light and dark; every later style reads a variable, never a hex | |
-| 4b | **Topbar + navigation styles** | [patterns/admin-layout.md](../../patterns/admin-layout.md) | 4a | `navigation.scss` ported; topbar renders brand + nav + Settings + theme toggle, and the three known defects are fixed | |
-| 5 | **Bootstrap payload** | [scaffolding.md §4](scaffolding.md) | — | `window.fluentFrameworkAdmin.me` carries the current user, plus the settings the SPA needs at first paint | |
+| 4a | **Design tokens** | [patterns/admin-layout.md](../../patterns/admin-layout.md) | — | `variables.scss` with the nine tokens in light and dark; every later style reads a variable, never a hex | [#9](https://github.com/WPManageNinja/fluent-event/pull/9) |
+| 4b | **Topbar + navigation styles** | [patterns/admin-layout.md](../../patterns/admin-layout.md) | 4a | `navigation.scss` ported; topbar renders brand + nav + Settings + theme toggle, and the three known defects are fixed | [#9](https://github.com/WPManageNinja/fluent-event/pull/9) |
+| 5 | **Bootstrap payload** | [scaffolding.md §4](scaffolding.md) | — | `window.fluentEventAdmin.me` carries the current user, plus the settings the SPA needs at first paint | |
 
 Chunk 4a depends on nothing and can start any time — the most parallelisable work in v1.
 
 Chunk 4b also fixes the three known topbar defects — the hardcoded `beta` span, the
 `href="/"` pointing at site root, and the Settings/theme ordering. All three are listed in
 [scaffolding.md §2](scaffolding.md).
+
+**4a and 4b shipped together, and moved the topbar into PHP.** The Vue navbar was replaced
+by markup in `app/Views/admin/menu.php` fed by the menu handler, so wp-admin paints the
+chrome with the page instead of after the bundle mounts — see
+[patterns/admin-layout.md](../../patterns/admin-layout.md). Consequences for later chunks:
+
+- **A nav item is now two edits, not one.** `AdminMenuHandler::getMenuItemsList()` for the
+  markup and [routes.js](../../../../resources/admin/router/routes.js) for the route, joined
+  by `meta.active_menu` matching the wrapper's `data-key`. The server-declared route tree
+  (`Http/Routes/vue.php`, `getAdminRoutes()`, the localized `routes` key) is gone.
+- **Four placeholder module pages exist** — `calendars/index.vue`, `events/index.vue`,
+  `events/create.vue`, `settings/index.vue` — so the topbar entries resolve. Chunks 9, 14d,
+  12a and 21 replace them; none of the four is a new route registration.
+- **The colour-mode toggle renders unconditionally.** Chunk 21 must gate it on the
+  dark-mode setting, not merely read it.
 
 > **Permissions are not built until Stage 6.** Until chunk 22b lands, every gate is
 > `current_user_can('manage_options')` — the menu registers for administrators only, every

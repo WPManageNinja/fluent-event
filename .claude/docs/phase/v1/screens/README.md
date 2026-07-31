@@ -45,10 +45,10 @@ Full rules: [vue.md](../../../../rules/vue.md),
 exceptions where affiliate has no equivalent: the calendars grid and the calendar grid view
 both take from **fluent-booking**.
 
-Copy affiliate's *look*, not its routing: it has no `vue.php` and declares screens as PHP
-submenu pages. Our nav is server-declared in
-[app/Http/Routes/vue.php](../../../../../app/Http/Routes/vue.php), which is newer than
-either sibling.
+Routing now matches affiliate too: the server-declared `vue.php` route tree was removed in
+[#9](https://github.com/WPManageNinja/fluent-event/pull/9), so the topbar is a PHP menu array
+and the routes are a static list in
+[routes.js](../../../../../resources/admin/router/routes.js).
 
 > Directory casing trap: affiliate uses `resources/admin/Modules/` (capital M). Our vite
 > glob is `resources/admin/modules/**/*.vue`, lowercase. Matching affiliate's casing breaks
@@ -56,9 +56,11 @@ either sibling.
 
 ## Adding a screen
 
-1. One `->add()` in [vue.php](../../../../../app/Http/Routes/vue.php) under the `primary`
-   or `secondary` menu group.
+1. One entry in [routes.js](../../../../../resources/admin/router/routes.js), with
+   `meta.active_menu` naming the topbar key it should light up.
 2. One directory under `resources/admin/modules/`.
+2b. One entry in `AdminMenuHandler::getMenuItemsList()` / `getRightMenuItemsList()` **only
+   if** it deserves a topbar link. Detail screens do not.
 3. One `add_submenu_page` in
    [AdminMenuHandler](../../../../../app/Hooks/Handlers/AdminMenuHandler.php) **only if** it
    deserves a WordPress sidebar entry. Detail screens do not.

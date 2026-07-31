@@ -305,9 +305,9 @@ Three layers. Only the last is security.
 1. **Menu** — `add_menu_page()` needs a capability string, so pass `read` and guard the
    registration with `userCan()`. An unregistered page is unreachable by URL too:
    `wp-admin/admin.php` dies when there is no page hook for the request.
-2. **SPA nav and buttons** — the topbar is server-declared in
-   [vue.php](../../../../app/Http/Routes/vue.php), so entries register under the same
-   condition. Action buttons are `v-if` on permission flags from the bootstrap payload.
+2. **SPA nav and buttons** — the topbar is PHP, so gate each entry as it is pushed into
+   `AdminMenuHandler::getMenuItemsList()` / `getRightMenuItemsList()`. Action buttons are
+   `v-if` on permission flags from the bootstrap payload.
 3. **Policies** — every write route checks. **Hiding a button is not enforcement**: a
    read-only user who hand-crafts a `DELETE` must be refused here.
 

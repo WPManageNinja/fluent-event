@@ -72,11 +72,35 @@ Banned. See [fix-patterns.md](fix-patterns.md).
 - Disable the submit button while a request is in-flight (prevents double-submit).
 - Every REST failure surfaces to the user (toast / inline error) — no silent failure.
 
+## Styling — SCSS files, not components
+
+**Default: a `.vue` file carries no styling.** No `<style>` block, no `style="..."`
+attribute. Markup gets a class; the class is styled in `resources/scss/`.
+
+Class *names* follow BEM — see [bem.md](bem.md). This table is about *where* the rule lives.
+
+| Concern | File |
+|---|---|
+| Design tokens (`--fe-*`), light + dark | `variables.scss` |
+| Resets, wp-admin overrides | `globals.scss` |
+| Topbar / nav | `navigation.scss` |
+| Shell + page canvas | `app.scss` |
+| Element Plus overrides | `vendor.scss` |
+
+Register each file in `admin.scss` with `@use` — order matters, later wins.
+
+**The one exception:** a component **used rarely**, needing a class **nothing else will ever
+reuse**, may carry its own `<style scoped>`. A single-use rule is easier to find beside its
+markup than buried in a shared sheet, and it cannot collide. Anything shared, reused or
+theme-related goes in SCSS. When unsure, SCSS — moving a rule out of a component later is
+cheap; hunting a style split across both places is not.
+
 ## i18n + theming
 
 - Wrap UI strings in the `$t('English text')` mixin — not raw `__()` / `vue-i18n`.
-- No hardcoded color literals in `<style>` / SCSS — use the theme CSS variables; SVG
-  icons use `fill="currentColor"` / `stroke="currentColor"`.
+- No hardcoded color literals anywhere outside `variables.scss` — read a token with a
+  fallback, `var(--fe-primary-text, #19283a)`. SVG icons use `fill="currentColor"` /
+  `stroke="currentColor"`.
 
 ## Self-audit
 
@@ -87,5 +111,7 @@ Banned. See [fix-patterns.md](fix-patterns.md).
 5. Submit button disables during request; error surfaced on failure?
 6. No prototype-pollution-prone merges; no `:href`/`:src` accepting `javascript:`?
 7. Incoming `message` listener checks `event.origin`; outgoing `postMessage` uses a specific origin?
+8. No `<style>` block or `style="..."` in the component — unless it is the rare single-use
+   case above? Element Plus overrides out-specify EP's own selector?
 
 **Enforced by** scanner rule 7 (`v-html`), rule 8 (`<script setup>`), rule 15 (`postMessage` with `'*'`).
