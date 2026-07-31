@@ -10,6 +10,37 @@
     border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
     height: var(--fe-navbar-height, 65px);
 
+    &__menu-toggle {
+        display: none;
+        align-items: center;
+        padding: 0;
+        margin-right: var(--fe-space-2, 8px);
+        border: none;
+        border-radius: var(--fe-radius, 8px);
+        background: transparent;
+        line-height: 0;
+        cursor: pointer;
+        color: var(--fe-secondary-text, #525866);
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-primary-text, #19283a);
+            outline-offset: 2px;
+        }
+
+        .el-icon {
+            font-size: 28px;
+        }
+    }
+
     &__logo {
         display: flex;
         align-items: center;
@@ -43,7 +74,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: var(--fe-space-2, 8px);
+        gap: var(--fe-space-1, 4px);
 
         .el-icon {
             height: 20px;
@@ -128,17 +159,58 @@ html.dark {
 
 @media (max-width: 992px) {
     .fe-navbar {
-        flex-wrap: wrap;
-        gap: var(--fe-space-2, 8px);
-
-        &__logo,
-        &__links,
-        &__settings {
-            flex: 0 0 auto;
+        &__menu-toggle {
+            display: flex;
         }
 
-        &__link {
+        &__links {
+            position: absolute;
+            top: 100%;
+            left: var(--fe-space-5, 20px);
+            z-index: 100;
+            flex-direction: column;
+            min-width: 180px;
+            margin-top: var(--fe-space-2, 8px);
             padding: var(--fe-space-2, 8px);
+            border: 1px solid var(--fe-primary-border, #d3d8de);
+            border-radius: var(--fe-radius, 8px);
+            background-color: var(--fe-primary-bg, #ffffff);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            max-height: 60vh;
+            overflow-y: auto;
+            transform-origin: top left;
+            visibility: hidden;
+            opacity: 0;
+            transform: scale(0);
+            transition:
+                opacity 0.16s ease,
+                transform 0.18s ease,
+                visibility 0s linear 0.18s;
+
+            &--open {
+                visibility: visible;
+                opacity: 1;
+                transform: scale(1);
+                transition:
+                    opacity 0.18s ease,
+                    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                    visibility 0s;
+            }
+        }
+
+        &__settings {
+            flex: 0 0 auto;
+
+            .fe-navbar__link-text {
+                display: none;
+            }
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .fe-navbar__links,
+        .fe-navbar__links--open {
+            transition: none;
         }
     }
 }
