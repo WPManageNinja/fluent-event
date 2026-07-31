@@ -81,17 +81,24 @@ name sits a few lines above. **Grep for the block, not the element.**
 Keep it to one level of `&__`. A second level means an element of an element, which the rule
 above already bans.
 
-## Two vocabularies, on purpose
+## One vocabulary
 
-Ported from fluent-affiliate, and worth keeping straight:
+BEM everywhere — shell wrappers and theme-swap hooks included. There is no second
+`fe_snake_case` form.
 
-| Form | Used for | Examples |
-|---|---|---|
-| `fe-block__element` | structural styling of a component | `fe-navbar__link`, `fe-navbar__logo-img` |
-| `fe_snake_case` | shell wrappers and theme/state swap hooks | `fe_wrapper`, `fe_body`, `fe_route_wrapper`, `fe_light_logo`, `fe_dark_icon`, `fe_color_mode` |
+fluent-affiliate does keep a separate snake_case set (`fa_wrapper`, `fa_light_logo`,
+`fa_color_mode`); we deliberately don't. The classes are ours, nothing external targets
+them, and two naming systems means guessing which one a given class uses.
 
-Do not invent a third. New component styling is BEM. Reach for `fe_snake_case` only when
-matching an existing suite-wide hook — the light/dark asset pair being the live example.
+The light/dark pair is the case that used to justify the exception. It reads better as a
+modifier anyway, since the two states are one thing in two modes:
+
+```
+WAS   .fe_light_logo   .fe_dark_logo
+NOW   .fe-navbar__logo-img--light   .fe-navbar__logo-img--dark
+```
+
+The shell is a block like any other — `fe-app`, `fe-app__body`, `fe-app__canvas`.
 
 ## JS and test hooks are attributes, not classes
 
@@ -119,7 +126,7 @@ jQuery(`.fe-navbar__link-wrapper[data-key="${activeKey}"] .fe-navbar__link`)
 3. No element-of-an-element (`__a__b`)?
 4. Every modifier written at the base class's specificity — no `!important` standing in for it?
 5. Nesting one `&__` deep at most?
-6. New styling is BEM; `fe_snake_case` only to match an existing suite hook?
+6. BEM throughout — no `fe_snake_case` anywhere, shell and theme hooks included?
 7. JS/test hooks are `data-*`, not classes?
 8. No `.el-*` renamed; vendor overrides scoped in `vendor.scss`?
 
