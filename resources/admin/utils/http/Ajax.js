@@ -15,7 +15,7 @@
  *                         content-type. Rejects the parsed body on non-2xx.
  */
 const ajaxRequest = function (method, action, data = {}, headers = {}) {
-    const config = FLUENTAPP.vue.config.globalProperties.appVars;
+    const config = FLUENT_EVENT_APP.vue.config.globalProperties.appVars;
     
     const url = window.ajaxurl || '/wp-admin/admin-ajax.php';
 

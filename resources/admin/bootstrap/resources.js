@@ -12,7 +12,7 @@ import config from '@/bootstrap/config';
  *
  * @param {Object} endpoints  Map of `ControllerName` → endpoint spec (as
  *                             localized by the framework into
- *                             `fluentFrameworkAdmin.endpoints`).
+ *                             `fluentEventAdmin.endpoints`).
  * @returns {(name: string) => Proxy}
  */
 const createResourceFactory = (endpoints) => {

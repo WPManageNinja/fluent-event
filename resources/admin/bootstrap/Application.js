@@ -12,8 +12,8 @@ export default class Application {
 
     createVueApp(ApplicationComponent, plugins = []) {
         const app = createApp(ApplicationComponent, {
-            baseUrl: fluentFrameworkAdmin.baseUrl || '#',
-            logoUrl: fluentFrameworkAdmin.logoUrl || '',
+            baseUrl: fluentEventAdmin.baseUrl || '#',
+            logoUrl: fluentEventAdmin.logoUrl || '',
         });
 
         this.registerMixins(app);
@@ -30,16 +30,16 @@ export default class Application {
     }
 
     registerGlobalProperties(app) {
-        app.config.globalProperties.appVars = fluentFrameworkAdmin;
-        Object.assign(config, fluentFrameworkAdmin);
+        app.config.globalProperties.appVars = fluentEventAdmin;
+        Object.assign(config, fluentEventAdmin);
 
         app.config.globalProperties.config = config;
 
-        const i18n = fluentFrameworkAdmin.i18n || {};
+        const i18n = fluentEventAdmin.i18n || {};
         app.config.globalProperties.$t = (key, fallback) => i18n[key] || fallback || key;
 
         /** BCP-47 locale derived from WordPress's `user_locale` (e.g. `en-US`) for Intl.NumberFormat. */
-        const locale = (fluentFrameworkAdmin.user_locale || 'en_US').replace('_', '-');
+        const locale = (fluentEventAdmin.user_locale || 'en_US').replace('_', '-');
         app.config.globalProperties.$n = (value, options) => {
             if (typeof value !== 'number' || !isFinite(value)) return String(value);
             try {
