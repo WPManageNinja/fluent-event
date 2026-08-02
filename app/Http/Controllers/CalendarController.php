@@ -10,13 +10,12 @@ class CalendarController extends Controller
 {
     public function index(Request $request)
     {
+        list($orderBy, $orderType) = CalendarRequest::sorting($request);
+
         $calendars = Calendar::query()
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->byStatus($request->getSafe('status', 'sanitize_text_field'))
-            ->orderBy(
-                $request->getSafe('order_by', 'sanitize_sql_orderby', 'id'),
-                $request->getSafe('order_type', 'sanitize_sql_orderby', 'DESC')
-            )
+            ->orderBy($orderBy, $orderType)
             ->paginate($request->getSafe('per_page', 'intval', 20));
 
         return $this->sendSuccess([

@@ -7,6 +7,19 @@ use FluentEvent\Framework\Support\Arr;
 
 class CalendarRequest
 {
+    const SORTABLE = ['id', 'title', 'slug', 'status', 'created_at', 'updated_at'];
+
+    public static function sorting($request)
+    {
+        $orderBy = $request->getSafe('order_by', 'sanitize_text_field', 'id');
+        $orderType = strtoupper($request->getSafe('order_type', 'sanitize_text_field', 'DESC'));
+
+        return [
+            in_array($orderBy, self::SORTABLE, true) ? $orderBy : 'id',
+            $orderType === 'ASC' ? 'ASC' : 'DESC',
+        ];
+    }
+
     public static function rules($ignoreId = null)
     {
         $unique = 'unique:fe_calendars,slug';
