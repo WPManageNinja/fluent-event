@@ -8,7 +8,7 @@ use FluentEvent\Framework\Http\Request\Request;
 
 class CalendarController extends Controller
 {
-    public function index(Request $request)
+    public function getAllCalendars(Request $request)
     {
         list($orderBy, $orderType) = CalendarRequest::sorting($request);
 

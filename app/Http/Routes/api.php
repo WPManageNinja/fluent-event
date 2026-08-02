@@ -7,7 +7,7 @@ use FluentEvent\App\Http\Controllers\CalendarController;
 $router->get('/dashboard', 'DashboardController@get');
 
 $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($router) {
-    $router->get('/', [CalendarController::class, 'index']);
+    $router->get('/', [CalendarController::class, 'getAllCalendars']);
     $router->post('/', [CalendarController::class, 'createCalendar']);
 
     $router->get('/{id}', [CalendarController::class, 'getCalendar'])->int('id');
