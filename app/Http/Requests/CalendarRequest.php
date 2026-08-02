@@ -8,15 +8,28 @@ use FluentEvent\Framework\Support\Arr;
 class CalendarRequest
 {
     const SORTABLE = ['id', 'title', 'slug', 'status', 'created_at', 'updated_at'];
+    const PER_PAGE = 20;
+    const PER_PAGE_MAX = 100;
+
+    public static function perPage($request)
+    {
+        $perPage = (int) $request->getSafe('per_page', 'intval', self::PER_PAGE);
+
+        if ($perPage < 1) {
+            $perPage = self::PER_PAGE;
+        }
+
+        return min($perPage, self::PER_PAGE_MAX);
+    }
 
     public static function sorting($request)
     {
         $orderBy = $request->getSafe('order_by', 'sanitize_text_field', 'id');
-        $orderType = strtoupper($request->getSafe('order_type', 'sanitize_text_field', 'DESC'));
+        $orderType = strtoupper($request->getSafe('order_type', 'sanitize_text_field', 'ASC'));
 
         return [
             in_array($orderBy, self::SORTABLE, true) ? $orderBy : 'id',
-            $orderType === 'ASC' ? 'ASC' : 'DESC',
+            $orderType === 'DESC' ? 'DESC' : 'ASC',
         ];
     }
 
