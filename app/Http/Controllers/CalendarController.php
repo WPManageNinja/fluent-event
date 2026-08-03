@@ -3,7 +3,7 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Calendar;
-use FluentEvent\App\Utils\Sanitizer;
+use FluentEvent\App\Utils\CustomSanitizer;
 use FluentEvent\App\Http\Requests\CalendarRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
@@ -14,8 +14,8 @@ class CalendarController extends Controller
         list($orderBy, $orderType) = CalendarRequest::sorting($request);
 
         $calendars = Calendar::query()
-            ->searchBy($request->getSafe('search', Sanitizer::SANITIZE_TEXT_FIELD))
-            ->byStatus($request->getSafe('status', Sanitizer::SANITIZE_TEXT_FIELD))
+            ->searchBy($request->getSafe('search', CustomSanitizer::SANITIZE_TEXT_FIELD))
+            ->byStatus($request->getSafe('status', CustomSanitizer::SANITIZE_TEXT_FIELD))
             ->orderBy($orderBy, $orderType)
             ->paginate(CalendarRequest::perPage($request));
 

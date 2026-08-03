@@ -3,20 +3,21 @@
 namespace FluentEvent\App\Http\Requests;
 
 use FluentEvent\App\Models\Calendar;
-use FluentEvent\App\Utils\Sanitizer;
+use FluentEvent\App\Utils\CustomSanitizer;
 use FluentEvent\Framework\Support\Arr;
 
 class CalendarRequest extends BaseRequest
 {
     const SORTABLE = ['id', 'title', 'slug', 'status', 'created_at', 'updated_at'];
     const META_KEYS = ['theme_color'];
+    const GUARDED = ['created_by'];
     const SANITIZERS = [
-        'title'       => Sanitizer::SANITIZE_TEXT_FIELD,
-        'slug'        => Sanitizer::SANITIZE_TITLE,
-        'description' => Sanitizer::WP_KSES_POST,
-        'visibility'  => Sanitizer::SANITIZE_TEXT_FIELD,
-        'status'      => Sanitizer::SANITIZE_TEXT_FIELD,
-        'theme_color' => Sanitizer::SANITIZE_HEX_COLOR,
+        'title'       => CustomSanitizer::SANITIZE_TEXT_FIELD,
+        'slug'        => CustomSanitizer::SANITIZE_TITLE,
+        'description' => CustomSanitizer::WP_KSES_POST,
+        'visibility'  => CustomSanitizer::SANITIZE_TEXT_FIELD,
+        'status'      => CustomSanitizer::SANITIZE_TEXT_FIELD,
+        'theme_color' => CustomSanitizer::SANITIZE_HEX_COLOR,
     ];
     const RULES = [
         'title'       => 'required|string|max:255',
@@ -60,19 +61,6 @@ class CalendarRequest extends BaseRequest
         ];
     }
 
-    public static function sanitize($data)
-    {
-        $sanitized = [];
-
-        foreach (self::SANITIZERS as $field => $callback) {
-            if (array_key_exists($field, $data)) {
-                $sanitized[$field] = Sanitizer::sanitize($data[$field], $callback);
-            }
-        }
-
-        return $sanitized;
-    }
-
     public static function format($data, $existingMeta = [])
     {
         $data['meta'] = array_merge(
@@ -81,6 +69,6 @@ class CalendarRequest extends BaseRequest
             array_filter(Arr::only($data, self::META_KEYS))
         );
 
-        return Arr::except($data, self::META_KEYS);
+        return Arr::except($data, array_merge(self::META_KEYS, self::GUARDED));
     }
 }

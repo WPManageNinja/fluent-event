@@ -3,8 +3,9 @@
 namespace FluentEvent\App\Utils;
 
 use BadMethodCallException;
+use FluentEvent\Framework\Support\Sanitizer;
 
-class Sanitizer
+class CustomSanitizer extends Sanitizer
 {
     const SANITIZE_EMAIL = 'sanitize_email';
     const SANITIZE_FILE_NAME = 'sanitize_file_name';
@@ -56,16 +57,5 @@ class Sanitizer
     public static function __callStatic($name, $arguments)
     {
         return (new static)->$name(...$arguments);
-    }
-
-    public static function sanitize($value, $sanitizer)
-    {
-        if (!in_array($sanitizer, static::SANITIZERS, true)) {
-            throw new BadMethodCallException(
-                sprintf('Unknown sanitizer "%s" on %s.', $sanitizer, static::class)
-            );
-        }
-
-        return call_user_func($sanitizer, $value);
     }
 }
