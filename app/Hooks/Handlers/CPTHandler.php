@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
+use FluentEvent\App\CPT\EventPost;
 
 class CPTHandler
 {
@@ -15,7 +16,7 @@ class CPTHandler
 	 * @var array<class-string>
 	 */
 	protected $customPostTypes = [
-		// ExampleCPT::class
+		EventPost::class,
 	];
 
 	/**

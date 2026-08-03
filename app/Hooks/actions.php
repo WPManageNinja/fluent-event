@@ -21,7 +21,6 @@ $app->addAction('in_admin_header', ['AdminMenuHandler', 'removeAdminNotices']);
 $app->addCustomAction('exception', 'ExceptionHandler');
 
 /**
- * Enable this line if you want to use custom post types
+ * Registers the fe_event post type. Classification taxonomies come later.
  */
-
-// $app->addAction('init', 'CPTHandler@registerPostTypes');
+$app->addAction('init', 'CPTHandler@registerPostTypes');
