@@ -195,7 +195,21 @@ class AdminMenuHandler
 
         $this->enqueueStartScript($handle);
 
+        $this->enqueueRichTextEditor();
+
         $this->localizeScript($slug, 'admin');
+    }
+
+    protected function enqueueRichTextEditor()
+    {
+        if (!function_exists('wp_enqueue_editor')) {
+            return;
+        }
+
+        add_filter('user_can_richedit', '__return_true');
+
+        wp_enqueue_editor();
+        add_thickbox();
     }
 
     /**
