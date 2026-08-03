@@ -37,8 +37,15 @@ be inserted in the right place in a list.
 
 ## What we do instead
 
-Our [DBMigrator.php](../../../database/DBMigrator.php) is a newer generation from
-`wpfluent/devtools`: a Blueprint API, auto-discovery, and idempotent guards per operation.
+> **Status:** aspirational. The shipped [DBMigrator.php](../../../database/DBMigrator.php)
+> is the plain form — an explicit ordered array of `<Name>Migrator` classes, each with a
+> `static migrate()` that hands a `CREATE TABLE` string to `dbDelta` behind a
+> `SHOW TABLES LIKE` guard. No Blueprint, no auto-discovery, no `alter()`. The rest of this
+> section describes where we intend to take it; see
+> [phase/v1/migrations.md](../phase/v1/migrations.md) for what runs today.
+
+The target is a newer generation from `wpfluent/devtools`: a Blueprint API, auto-discovery,
+and idempotent guards per operation.
 
 One file per table in `database/Migrations/`, each a class with a `$table` property and
 `create()` / `alter()` methods:
@@ -54,7 +61,7 @@ class CalendarsTable
         $table->string('title', 255);
         $table->string('slug', 255)->unique();
         $table->string('visibility', 64)->default('public');
-        $table->json('settings')->nullable();
+        $table->json('meta')->nullable();
         $table->timestamps();
     }
 
@@ -99,8 +106,11 @@ per table keeps the current shape readable in one place.
 
 - Table prefix `wp_fe_`; the migrator's `$table` omits the `wp_` (the framework adds it).
 - Every table: `id` BIGINT UNSIGNED auto-increment PK, `created_at` / `updated_at`.
-- Open-ended config goes in a `settings` JSON column, with the model's `defaultSettings()`
-  documenting the allowed keys — see [backend.md](backend.md).
+- Open-ended config goes in a JSON column, with a `default*()` method on the model
+  documenting the keys in use — see [backend.md](backend.md). **The column name is not
+  uniform**: `event_details.settings` (`defaultSettings()`) and `calendars.meta`
+  (`defaultMeta()`). Match the table you are touching rather than assuming `settings`.
+  Both are deliberately open-ended — new config lands there without a migration.
 - Index what you filter and sort on. The locked schema already names its indexes; keep
   those names.
 - The authority for column shape is

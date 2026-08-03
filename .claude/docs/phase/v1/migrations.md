@@ -13,20 +13,34 @@ What differs is only whether a v1 *feature* puts rows in it:
 
 | Migration — all written in v1 | Table — all created in v1 | Does v1 store rows? |
 |---|---|---|
-| `CalendarsTable.php` | `fe_calendars` | yes |
-| `EventDetailsTable.php` | `fe_event_details` | yes |
-| `GuestsTable.php` | `fe_guests` | yes — RSVPs |
-| `MetaTable.php` | `fe_meta` | yes — settings sections |
-| `TicketTypesTable.php` | `fe_ticket_types` | no — ticketing is post-v1 |
-| `NotificationsTable.php` | `fe_notifications` | no — notifications are post-v1 |
-| `NotificationUsersTable.php` | `fe_notification_users` | no — notifications are post-v1 |
+| `CalendarsMigrator.php` | `fe_calendars` | yes |
+| `EventDetailsMigrator.php` | `fe_event_details` | yes |
+| `GuestsMigrator.php` | `fe_guests` | yes — RSVPs |
+| `MetaMigrator.php` | `fe_meta` | yes — settings sections |
+| `TicketTypesMigrator.php` | `fe_ticket_types` | no — ticketing is post-v1 |
+| `NotificationsMigrator.php` | `fe_notifications` | no — notifications are post-v1 |
+| `NotificationUsersMigrator.php` | `fe_notification_users` | no — notifications are post-v1 |
 
 The three "no" rows are complete, correct, indexed tables sitting empty. They are not stubs
 and they are not deferred work — the migration is done, and the feature that fills them
 arrives later without touching the database.
 
-Auto-discovered by [DBMigrator](../../../../database/DBMigrator.php) from
-`database/Migrations/*.php` — no central list, no ordering to maintain.
+## How they are registered
+
+Each file is a `<Name>Migrator` class with a `static $tableName` and a `static migrate()`
+that builds the `CREATE TABLE` SQL and hands it to `dbDelta`, guarded by a
+`SHOW TABLES LIKE` check.
+
+[DBMigrator](../../../../database/DBMigrator.php) holds an **explicit ordered array** of
+those classes and calls `::migrate()` on each. Adding a table means adding the file *and*
+the entry — there is no auto-discovery and the ordering is maintained by hand, because
+`event_details` must exist before the tables that reference it.
+
+> **The Blueprint sections below describe a target, not the current code.** Nothing in
+> `database/Migrations/` uses `Blueprint`, `create()`/`alter()`, or `./wpf make:migration`.
+> Treat the mapping table as the reference for *if* we adopt it, and the paragraphs above as
+> what is actually running. Same caveat applies to the "What we do instead" section of
+> [patterns/database.md](../../patterns/database.md).
 
 ---
 

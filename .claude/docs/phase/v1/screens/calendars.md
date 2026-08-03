@@ -42,7 +42,7 @@ archive belong on the calendar's own screen.
 ## Data
 
 `wp_fe_calendars` — `id`, `title`, `slug`, `description`, `visibility`, `status`,
-`settings`, `created_by`, `created_at`.
+`meta`, `created_by`, `created_at`.
 
 Event counts must come from a grouped aggregate, not a per-card request. A count query per
 card is an N+1 that scales with the grid.

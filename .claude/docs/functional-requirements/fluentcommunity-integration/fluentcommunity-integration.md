@@ -58,7 +58,7 @@ The bridge loads only if fcom is detected (`class_exists` / version check). No f
 ## Storage
 
 - **fcom side:** no schema change. A `fcom_spaces` row with `type='event'` and `settings.calendar_id`, `settings.is_event_space`, `settings.announce_in_feed`.
-- **FluentEvent side:** the linked calendar is a normal `wp_fe_calendars` row. Save its origin (e.g. `settings.fcom_space_id`) so we can look it up and keep it in sync. Events use `calendar_id` as usual.
+- **FluentEvent side:** the linked calendar is a normal `wp_fe_calendars` row. Save its origin (e.g. `meta.fcom_space_id` — the calendar JSON column is `meta`, and being open-ended is exactly what lets an integration key land there without a migration) so we can look it up and keep it in sync. Events use `calendar_id` as usual.
 
 ## fcom hooks used (no edits to fcom core)
 

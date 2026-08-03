@@ -24,7 +24,10 @@ Three things people get wrong:
   sharing a `group_id`; the `is_buyer=1` row carries the payment fields, NULL on companions.
 - **No inheritance between events.** Recurrence occurrences own their own post and their own
   values — no `COALESCE` reads, no override flags.
-- **Images are URLs in `settings` JSON.** Never an image column, never an attachment FK.
+- **Images are URLs in the record's JSON column.** Never an image column, never an
+  attachment FK. The column is `settings` on `event_details` and `meta` on `calendars` —
+  `calendars.meta` is open-ended, holds whatever per-calendar config accrues, and is
+  documented by the model's `defaultMeta()`.
 
 Entry mode lives in `event_details.settings.registration_type` — `ticketed`, `rsvp`, or
 `open`. `guests.ticket_type_id` is nullable; ticketed mode enforces it in the service.

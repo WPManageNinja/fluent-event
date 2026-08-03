@@ -44,6 +44,25 @@ nested — copy that rather than flattening to `space_member_role_updated`.
 **Before-variants get an explicit prefix** — fcom uses `lesson/before_deleted`,
 `section/before_deleted`. Use these when a listener needs the row while it still exists.
 
+### Shipped — calendars
+
+The set `CalendarController` emits, and the shape every other resource should copy:
+
+```php
+fluent_event/calendar/created         // $calendar — after insert
+fluent_event/calendar/updated         // $calendar — after save
+fluent_event/calendar/before_deleted  // $calendar — row still exists
+fluent_event/calendar/deleted         // $calendar — row is gone, model still in memory
+```
+
+**Pass the model, never a bare id** — including on `deleted`. The row is gone by then, so a
+listener handed an id has nothing left to look up; the in-memory model is the only chance it
+gets to see what was removed. A `deleted` hook taking `$id` while its three siblings take
+`$calendar` also forces every listener to special-case one of the four.
+
+**Emit `before_deleted` and `deleted` as a pair** whenever a delete has listeners worth
+serving — the first for work needing related rows still present, the second for cleanup.
+
 **Filters — `fluent_event/<thing>`,** named for the value being filtered, not an event:
 
 ```
@@ -61,8 +80,14 @@ noun.
 
 ## Where hooks get emitted
 
-**The service emits, not the controller.** A controller that emits means the same event is
-missed by every other caller of that service — CLI, importer, another service.
+**Whoever performs the write emits.** The failure this guards against is a second caller —
+CLI, importer, another service — going through a path that never fires the hook. So where a
+service owns the write, the service emits, and a controller that duplicates it is a bug.
+
+Where the controller *is* the only writer, it emits. A single-row CRUD resource with no
+transaction and no cross-model work does not get a service just to host a `do_action` — see
+[backend.md](backend.md). `CalendarController` is the current example. The moment that write
+moves into a service, the `do_action` moves with it.
 
 **Emit once.** Don't `do_action` *and* directly call the same effect; listeners fire twice.
 Watch for the same trap with model lifecycle events — if the model already fires
