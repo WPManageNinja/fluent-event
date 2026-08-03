@@ -1,66 +1,17 @@
 <template>
     <el-config-provider :locale="elLocale">
-        <el-container class="layout">
-            <!-- Top Navigation -->
-            <el-header class="navbar">
-                <!-- Left Section (logo + menu) -->
-                <div class="navbar-left">
-                    <!-- Brand Logo -->
-                    <div class="brand-logo">
-                        <a href="/">
-                            <img :src="logoUrl" alt="Brand" class="brand-logo" />
-                            <span>beta</span>
-                        </a>
-                    </div>
-
-                    <!-- Left Menu -->
-                    <Nav
-                        class="menu"
-                        v-if="primaryMenu.length"
-                        :routes="primaryMenu"
-                    />
-                </div>
-
-                <!-- Right Menu -->
-                <div class="navbar-right">
-                    <ThemeSwitcher />
-                    <Nav
-                        v-if="secondaryMenu.length"
-                        :routes="secondaryMenu"
-                        :key="secondaryMenu[0]?.meta?.label"
-                        class="menu"
-                    />
-                </div>
-            </el-header>
-
-            <!-- Page Content -->
-            <el-main class="main">
-                <router-view v-slot="{ Component, route }">
-                    <!-- Dynamically render the routed component -->
-                    <component
-                        :is="Component"
-                        :key="route.fullPath"
-                        v-on="{ 'update:application': updateApplication }"
-                    />
-                </router-view>
-
-                <!--- Render Footer Menu -->
-                <div class="footer-menu">
-                    <Nav
-                        v-if="footerMenu.length"
-                        :routes="footerMenu"
-                    />
-                </div>
-            </el-main>
-        </el-container>
+        <router-view v-slot="{ Component, route }">
+            <component
+                :is="Component"
+                :key="route.fullPath"
+                v-on="{ 'update:application': updateApplication }"
+            />
+        </router-view>
     </el-config-provider>
 </template>
 
 <script>
 import Rest from '@/utils/http/Rest';
-import Nav from '@/components/Menu/Menu.vue';
-import menu from '@/components/Menu/menu.js';
-import ThemeSwitcher from '@/components/ThemeSwitcher';
 import en from 'element-plus/dist/locale/en.mjs';
 
 // Element Plus locale map — uncomment locales as you add language support.
@@ -132,10 +83,6 @@ const elLocaleMap = {
 
 export default {
     name: "Application",
-    components: {
-        Nav,
-        ThemeSwitcher,
-    },
     props: {
         logoUrl: {
             type: String,
@@ -148,9 +95,6 @@ export default {
     },
     data() {
         return {
-            primaryMenu: menu.get('primary') || [],
-            secondaryMenu: menu.get('secondary') || [],
-            footerMenu: menu.get('footer') || [],
             elLocale: en,
         };
     },
@@ -158,9 +102,6 @@ export default {
         return {
             // ...
         };
-    },
-    computed: {
-        // ...
     },
     methods: {
         /**

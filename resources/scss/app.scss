@@ -1,0 +1,27 @@
+.fe-app {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(
+        100vh
+        - var(--wp-admin--admin-bar--height, 32px)
+        - var(--fe-navbar-height, 65px)
+    );
+
+    > .fe-navbar {
+        flex: 0 0 auto;
+    }
+
+    &__body {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__canvas {
+        flex: 1 1 auto;
+        width: 100%;
+        margin: 0 auto;
+        padding: var(--fe-space-5, 20px);
+        overflow-x: hidden;
+    }
+}

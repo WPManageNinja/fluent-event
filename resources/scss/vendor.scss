@@ -1,189 +1,148 @@
-/* ==============================
-   ELEMENT PLUS CUSTOMIZATION
-   ============================== */
+@use "sass:meta";
 
-/* ------------------------------
-   LIGHT & DARK THEMES
-   ------------------------------ */
+@include meta.load-css("element-plus/theme-chalk/el-notification");
+@include meta.load-css("element-plus/theme-chalk/el-loading");
+@include meta.load-css("element-plus/theme-chalk/el-message-box");
+@include meta.load-css("element-plus/theme-chalk/dark/css-vars");
 
-.el-button--fluid {
-    width: 100% !important;
-}
+.toplevel_page_fluent-event {
+    .el {
+        &-select {
+            width: 100%;
 
-/* ------------------------------
-   SELECTS
-   ------------------------------ */
-html.light .el-select,
-html.dark .el-select {
-    width: 100%;
-}
+            input {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                padding: 0 !important;
+                min-height: inherit;
+            }
 
-html.light .el-select input,
-html.dark .el-select input {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    color: var(--el-text-color-primary);
-}
+            &-multiple {
+                input {
+                    height: 40px !important;
+                }
+            }
 
-.el-select.is-focus input {
-    outline: none !important;
-    box-shadow: none !important;
-    border-color: var(--el-color-primary);
-}
+            .el-input.is-focus {
+                input {
+                    &:focus {
+                        outline: none !important;
+                        box-shadow: none !important;
+                        border-color: var(--el-color-primary);
+                    }
+                }
+            }
 
-/* ------------------------------
-   DIALOGS
-   ------------------------------ */
+            &:hover,
+            &:focus {
+                .el-input {
+                    input {
+                        box-shadow: none !important;
+                    }
+                }
+            }
+        }
 
-.el-dialog .el-dialog__header {
-    display: block;
-    overflow: hidden;
-    background: var(--dialog-header-bg);
-    border: 1px solid var(--dialog-header-border);
-    padding: 15px;
-    margin: -20px -16px 20px;
-    border-radius: 5px 5px 0 0;
-}
+        &-dialog {
+            &__body {
+                padding: var(--fe-space-4, 16px) var(--fe-space-5, 20px);
+            }
+        }
 
-.el-dialog .el-dialog__body {
-    padding: 15px 20px;
-}
+        &-form-item {
+            &__label {
+                padding: initial !important;
+            }
+        }
 
-.el-dialog .el-dialog__headerbtn {
-    top: 0;
-    height: 46px;
-}
+        &-tag + &-tag {
+            margin-left: var(--fe-space-3, 12px);
+        }
 
-.el-dialog .dialog-footer {
-    padding: 10px 20px;
-    text-align: right;
-    box-sizing: border-box;
-    background: var(--dialog-header-bg);
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    margin: 0 -16px -20px;
-}
+        &-tag {
+            &--white {
+                background: var(--fe-primary-bg, #ffffff);
+                color: var(--fe-primary-text, #19283a);
+                border-color: var(--fe-primary-bg, #ffffff);
 
-/* ------------------------------
-   INPUTS / TEXTAREAS / SELECTS / EL-INPUT
-   ------------------------------ */
+                .el-tag__close {
+                    color: var(--fe-secondary-text, #525866);
 
-.el-input__wrapper {
-    padding: 0px !important;
-    border: none !important;
-    box-shadow: none !important;
-}
+                    &:hover {
+                        background-color: var(--fe-secondary-text, #525866);
+                        color: var(--fe-primary-bg, #ffffff);
+                    }
+                }
+            }
+        }
 
-input[type=checkbox]:focus,
-input[type=color]:focus,
-input[type=date]:focus,
-input[type=datetime-local]:focus,
-input[type=datetime]:focus,
-input[type=email]:focus,
-input[type=month]:focus,
-input[type=number]:focus,
-input[type=password]:focus,
-input[type=radio]:focus,
-input[type=search]:focus,
-input[type=tel]:focus,
-input[type=text]:focus,
-input[type=time]:focus,
-input[type=url]:focus,
-input[type=week]:focus,
-select:focus {
-    border-color: var(--el-color-primary);
-    box-shadow: none !important;
-    outline: 1px solid transparent
-}
+        &-popover {
+            padding: var(--fe-space-3, 12px);
+            text-align: left;
 
-input,
-textarea,
-select,
-.el-input__inner {
-    color: var(--el-text-color-primary);
-    background-color: var(--el-bg-panel);
-    border: 1px solid var(--el-border-color);
-    border-radius: 4px;
-    box-shadow: none;
-    padding: 6px 10px;
-    outline: none;
-}
+            .action-buttons {
+                margin: 0;
+                text-align: center;
+            }
+        }
 
-/* Remove inner focus shadow for el-input */
-.el-input.is-focus .el-input__inner {
-    border-color: var(--el-color-primary);
-    box-shadow: none;
-}
+        &-button {
+            &--mini {
+                padding: var(--fe-space-1, 4px);
+            }
+        }
 
-/* Placeholder color */
-input::placeholder,
-textarea::placeholder,
-select::placeholder,
-.el-input__inner::placeholder {
-    color: var(--el-text-color-placeholder);
-    opacity: 1;
-}
+        &-fluid {
+            width: 100% !important;
+        }
 
-/* ------------------------------
-   TAGS
-   ------------------------------ */
-.el-tag + .el-tag {
-    margin-left: 10px;
-}
+        &-input__inner {
+            padding: 0 !important;
+            color: var(--fe-primary-text, #19283a);
+        }
+    }
 
-.el-tag.el-tag--white {
-    background: white;
-    color: black;
-    border-color: white;
-}
+    .el-dropdown-menu {
+        padding: 0 var(--fe-space-4, 16px);
+        list-style: none;
 
-.el-tag.el-tag--white .el-tag__close {
-    color: #909399;
-}
+        li {
+            margin: var(--fe-space-3, 12px) 0;
+        }
+    }
 
-.el-tag.el-tag--white .el-tag__close:hover {
-    background-color: #909399;
-    color: #fff;
-}
+    .el-overlay {
+        @media all and (max-width: 1000px) {
+            .el-dialog {
+                min-width: 80%;
+            }
+        }
+    }
 
-/* ------------------------------
-   POPOVERS
-   ------------------------------ */
-.el-popover {
-    padding: 10px;
-    text-align: left;
-}
+    .el-breadcrumb {
+        display: flex;
+        align-items: center;
+    }
 
-.el-popover .action-buttons {
-    margin: 0;
-    text-align: center;
-}
+    .el-input {
+        input {
+            border: initial;
+            transition: 0.2s;
+            padding: inherit;
+            line-height: inherit;
+            min-height: inherit;
+            background: transparent;
 
-/* ------------------------------
-   DROPDOWN MENUS
-   ------------------------------ */
-.el-dropdown-menu {
-    padding: 0 15px;
-    list-style: none;
-}
+            &:hover,
+            &:focus {
+                outline: none;
+                box-shadow: none;
+            }
 
-.el-dropdown-menu li {
-    margin: 10px 0;
-}
-
-/* ------------------------------
-   DATE RANGE SEPARATOR
-   ------------------------------ */
-.el-date-editor .el-range-separator {
-    width: auto;
-}
-
-/* ------------------------------
-   RESPONSIVE DIALOGS
-   ------------------------------ */
-@media all and (max-width: 1000px) {
-    .el-dialog {
-        min-width: 80%;
+            &:focus {
+                border-color: var(--el-color-primary);
+            }
+        }
     }
 }

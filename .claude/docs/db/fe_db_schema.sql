@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_calendars` (
   `description` TEXT NULL DEFAULT NULL,
   `visibility` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | unlisted  ',
   `status` VARCHAR(64) NOT NULL DEFAULT 'active' COMMENT 'active | archived | draft  ',
-  `settings` JSON NULL DEFAULT NULL COMMENT 'Everything settings like logo url, cover url, Roles, preferences etc. ',
+  `meta` JSON NULL DEFAULT NULL COMMENT 'Open-ended per-calendar config. v1: theme_color. Planned: logo url, cover url, Roles, preferences etc. ',
   `created_by` BIGINT UNSIGNED NOT NULL COMMENT 'User id connected to wp.users table \n',
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

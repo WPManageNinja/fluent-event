@@ -1,24 +1,7 @@
 import app from '@/bootstrap';
 import { capitalize } from 'vue';
-import { ElNotification } from 'element-plus';
 
 const globals = app.vue.config.globalProperties;
-
-window.addEventListener('offline', () => {
-	ElNotification({
-		type: 'warning',
-		position: 'bottom-right',
-		message: 'You are currently offline.'
-	});
-});
-
-window.addEventListener('online', () => {
-	ElNotification({
-		type: 'success',
-		position: 'bottom-right',
-		message: 'Your connection has been restored.'
-	});
-});
 
 jQuery(document).on('heartbeat-tick', (event, data) => {
 	const slug = globals.appVars.slug;
@@ -28,4 +11,51 @@ jQuery(document).on('heartbeat-tick', (event, data) => {
         }
 		globals.appVars.rest.nonce = data[slug];
     }
+});
+
+// -------------------------------------
+// Toggle theme mode 
+// -------------------------------------
+const applyColorMode = (mode) => {
+    const isDark = mode === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('light', !isDark);
+};
+
+window.toggleColorMode = function () {
+    const mode = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+
+    applyColorMode(mode);
+    localStorage.setItem('fe_color_mode', mode);
+};
+
+applyColorMode(localStorage.getItem('fe_color_mode') === 'dark' ? 'dark' : 'light');
+
+// -------------------------------------
+// Toggle mobile menu
+// -------------------------------------
+const navbarLinks = document.getElementById('fe-navbar-links');
+const navbarToggle = document.querySelector('.fe-navbar__menu-toggle');
+
+const isMobileMenuOpen = () =>
+    navbarLinks?.classList.contains('fe-navbar__links--open');
+
+const setMobileMenu = (open) => {
+    navbarLinks?.classList.toggle('fe-navbar__links--open', open);
+    navbarToggle?.setAttribute('aria-expanded', String(open));
+};
+
+window.toggleMobileMenu = function () {
+    setMobileMenu(!isMobileMenuOpen());
+};
+
+document.addEventListener('click', (event) => {
+    if (!isMobileMenuOpen() || event.target.closest('.fe-navbar__menu-toggle')) return;
+    setMobileMenu(false);
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !isMobileMenuOpen()) return;
+    setMobileMenu(false);
+    navbarToggle?.focus();
 });
