@@ -31,7 +31,7 @@ class Calendar extends Model
 
     const DEFAULT_THEME_COLOR = '#0099ff';
 
-    public function defaultMeta()
+    public static function defaultMeta()
     {
         return [
             'theme_color' => self::DEFAULT_THEME_COLOR,

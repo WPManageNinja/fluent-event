@@ -23,7 +23,7 @@ class Sanitizer
     const INTVAL = 'intval';
     const FLOATVAL = 'floatval';
 
-    public $sanitizers = [
+    const SANITIZERS = [
         'email'          => self::SANITIZE_EMAIL,
         'fileName'       => self::SANITIZE_FILE_NAME,
         'hexColor'       => self::SANITIZE_HEX_COLOR,
@@ -44,13 +44,13 @@ class Sanitizer
 
     public function __call($name, $arguments)
     {
-        if (!isset($this->sanitizers[$name])) {
+        if (!isset(static::SANITIZERS[$name])) {
             throw new BadMethodCallException(
                 sprintf('Unknown sanitizer "%s" on %s.', $name, static::class)
             );
         }
 
-        return call_user_func_array($this->sanitizers[$name], $arguments);
+        return call_user_func_array(static::SANITIZERS[$name], $arguments);
     }
 
     public static function __callStatic($name, $arguments)
@@ -60,6 +60,12 @@ class Sanitizer
 
     public static function sanitize($value, $sanitizer)
     {
+        if (!in_array($sanitizer, static::SANITIZERS, true)) {
+            throw new BadMethodCallException(
+                sprintf('Unknown sanitizer "%s" on %s.', $sanitizer, static::class)
+            );
+        }
+
         return call_user_func($sanitizer, $value);
     }
 }

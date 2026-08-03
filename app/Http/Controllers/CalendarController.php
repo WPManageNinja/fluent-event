@@ -81,7 +81,7 @@ class CalendarController extends Controller
 
         $calendar->delete();
 
-        do_action('fluent_event/calendar/deleted', $id);
+        do_action('fluent_event/calendar/deleted', $calendar);
 
         return $this->sendSuccess([
             'message' => __('Calendar has been successfully deleted', 'fluent-event')

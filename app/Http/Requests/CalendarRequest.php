@@ -24,6 +24,7 @@ class CalendarRequest extends BaseRequest
         'description' => 'nullable|string',
         'visibility'  => 'required|string|in:' . Calendar::VISIBILITIES,
         'status'      => 'required|string|in:' . Calendar::STATUSES,
+        'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{3}([A-Fa-f0-9]{3})?$/',
     ];
 
     public static function createRules()
@@ -55,6 +56,7 @@ class CalendarRequest extends BaseRequest
             'status.required'     => __('Status is required.', 'fluent-event'),
             'status.string'       => __('Status must be text.', 'fluent-event'),
             'status.in'           => __('Status must be active, archived or draft.', 'fluent-event'),
+            'theme_color.regex'   => __('Theme color must be a hex value like #0099ff.', 'fluent-event'),
         ];
     }
 
@@ -74,7 +76,7 @@ class CalendarRequest extends BaseRequest
     public static function format($data, $existingMeta = [])
     {
         $data['meta'] = array_merge(
-            (new Calendar)->defaultMeta(),
+            Calendar::defaultMeta(),
             (array) $existingMeta,
             array_filter(Arr::only($data, self::META_KEYS))
         );

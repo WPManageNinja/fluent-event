@@ -9,7 +9,7 @@ $router->get('/dashboard', 'DashboardController@get');
 $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($router) {
     $router->get('/', [CalendarController::class, 'getAllCalendars']);
     $router->get('/{id}', [CalendarController::class, 'getCalendar'])->int('id');
-    
+
     $router->post('/', [CalendarController::class, 'createCalendar']);
     $router->patch('/{id}', [CalendarController::class, 'updateCalendar'])->int('id');
     $router->delete('/{id}', [CalendarController::class, 'deleteCalendar'])->int('id');
