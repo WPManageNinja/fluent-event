@@ -18,10 +18,45 @@
     }
 
     &__canvas {
-        flex: 1 1 auto;
-        width: 100%;
-        margin: 0 auto;
+        flex-grow: 1;
         padding: var(--fe-space-5, 20px);
         overflow-x: hidden;
+    }
+}
+
+.fe-page {
+    width: var(--fe-page-width, 1000px);
+    max-width: 100%;
+    margin: 0 auto;
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--fe-space-4, 16px);
+        margin-bottom: var(--fe-space-5, 20px);
+    }
+
+    &__title {
+        margin: 0;
+        padding: 0;
+        font-size: var(--fe-text-xl, 20px);
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__subtitle {
+        margin: var(--fe-space-1, 4px) 0 0;
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__actions {
+        display: flex;
+        flex-shrink: 0;
+        gap: var(--fe-space-2, 8px);
+        flex-wrap: wrap;
     }
 }
