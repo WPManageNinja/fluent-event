@@ -1,8 +1,38 @@
-const routes = [
+export default [
+    {
+        path: '/',
+        name: 'dashboard',
+        component: () => import('@/modules/dashboard/index.vue'),
+        meta: { active_menu: 'dashboard' },
+    },
+    {
+        path: '/calendars',
+        name: 'calendars',
+        component: () => import('@/modules/calendars/index.vue'),
+        meta: { active_menu: 'calendars' },
+    },
+    {
+        path: '/events',
+        name: 'events',
+        component: () => import('@/modules/events/index.vue'),
+        meta: { active_menu: 'events' },
+    },
+    {
+        path: '/events/new',
+        name: 'event_create',
+        component: () => import('@/modules/events/create.vue'),
+        meta: { active_menu: 'events' },
+    },
+    {
+        path: '/settings',
+        name: 'settings',
+        component: () => import('@/modules/settings/index.vue'),
+        meta: { active_menu: 'settings' },
+    },
     {
         path: '/unauthorized',
         name: 'unauthorized',
-        component: () => import('@/components/Unauthorized')
+        component: () => import('@/components/Unauthorized'),
     },
     {
         path: '/:pathMatch(.*)*',
@@ -10,26 +40,3 @@ const routes = [
         component: () => import('@/components/NotFound'),
     }
 ];
-
-// const isDev =
-//     (
-//         typeof import.meta !== 'undefined'
-//         && import.meta.env?.MODE === 'development'
-//     ) || (
-//         typeof process !== 'undefined'
-//         && process.env.NODE_ENV === 'development'
-//     );
-
-// if (isDev) {
-//     routes.push({
-//         path: '/dev/workbench',
-//         name: 'workbench',
-//         component: () => import('../../../dev/workbench/views/index.vue'),
-//         meta: {
-//             activeMenu: 'workbench',
-//             icon: 'SetUp',
-//         },
-//     });
-// }
-
-export default routes;

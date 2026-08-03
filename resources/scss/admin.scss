@@ -1,3 +1,5 @@
+@use "vendor";
+@use "variables";
 @use "globals";
-@use "./vendor";
-@use "elements/responsive";
+@use "navigation";
+@use "app";
