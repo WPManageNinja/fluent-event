@@ -12,6 +12,12 @@ export default [
         meta: { active_menu: 'calendars' },
     },
     {
+        path: '/calendars/new',
+        name: 'calendar_create',
+        component: () => import('@/modules/calendars/create.vue'),
+        meta: { active_menu: 'calendars' },
+    },
+    {
         path: '/events',
         name: 'events',
         component: () => import('@/modules/events/index.vue'),

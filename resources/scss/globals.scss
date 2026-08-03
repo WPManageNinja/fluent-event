@@ -4,6 +4,75 @@
     #wpbody {
         background-color: var(--fe-secondary-bg, #f0f2f5);
     }
+
+    // Base
+    a {
+        text-decoration: none;
+    }
+
+    // Utils
+    .capitalize {
+        text-transform: capitalize;
+    }
+
+    // Components
+    .fe-editor {
+        width: 100%;
+    }
+
+    .mce-tinymce {
+        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border-radius: var(--fe-radius, 8px);
+        box-shadow: none;
+        overflow: hidden;
+
+        .mce-top-part::before {
+            box-shadow: none;
+        }
+
+        .mce-panel {
+            border-color: var(--fe-primary-border, #d3d8de);
+            background-color: transparent;
+        }
+
+        .mce-toolbar-grp {
+            background-color: var(--fe-active-bg, #f0f3f5);
+            border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+        }
+
+        .mce-btn {
+            border-color: transparent;
+            box-shadow: none;
+            background: transparent;
+
+            button {
+                color: var(--fe-secondary-text, #525866);
+            }
+
+            &:hover,
+            &:focus,
+            &.mce-active,
+            &.mce-active:hover {
+                border-color: transparent;
+                box-shadow: none;
+                background: var(--fe-primary-bg, #ffffff);
+
+                button {
+                    color: var(--fe-primary-text, #19283a);
+                }
+            }
+
+            &.mce-disabled button {
+                color: var(--fe-secondary-text, #525866);
+                opacity: 0.5;
+            }
+        }
+
+        .mce-statusbar {
+            background-color: var(--fe-active-bg, #f0f3f5);
+            border-top: 1px solid var(--fe-primary-border, #d3d8de);
+        }
+    }
 }
 
 #wpcontent,
@@ -13,18 +82,4 @@
     @media screen and (max-width: 782px) {
         padding-left: 0;
     }
-}
-
-// ---------------------------
-// Base
-// ---------------------------
-a {
-    text-decoration: none;
-}
-
-// ---------------------------
-// Utils
-// ---------------------------
-.capitalize {
-    text-transform: capitalize;
 }
