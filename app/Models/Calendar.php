@@ -11,8 +11,8 @@ class Calendar extends Model
 {
     protected $table = 'fe_calendars';
 
-    const VISIBILITIES = ['public', 'private', 'unlisted'];
-    const STATUSES = ['active', 'archived', 'draft'];
+    const VISIBILITIES = 'public,private,unlisted';
+    const STATUSES = 'active,archived,draft';
 
     protected $fillable = [
         'title',

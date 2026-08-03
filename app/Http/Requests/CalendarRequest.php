@@ -3,80 +3,82 @@
 namespace FluentEvent\App\Http\Requests;
 
 use FluentEvent\App\Models\Calendar;
+use FluentEvent\App\Utils\Sanitizer;
 use FluentEvent\Framework\Support\Arr;
 
-class CalendarRequest
+class CalendarRequest extends BaseRequest
 {
     const SORTABLE = ['id', 'title', 'slug', 'status', 'created_at', 'updated_at'];
-    const PER_PAGE = 20;
-    const PER_PAGE_MAX = 100;
+    const META_KEYS = ['theme_color'];
+    const SANITIZERS = [
+        'title'       => Sanitizer::SANITIZE_TEXT_FIELD,
+        'slug'        => Sanitizer::SANITIZE_TITLE,
+        'description' => Sanitizer::WP_KSES_POST,
+        'visibility'  => Sanitizer::SANITIZE_TEXT_FIELD,
+        'status'      => Sanitizer::SANITIZE_TEXT_FIELD,
+        'theme_color' => Sanitizer::SANITIZE_HEX_COLOR,
+    ];
+    const RULES = [
+        'title'       => 'required|string|max:255',
+        'slug'        => 'required|string|max:255|unique:fe_calendars,slug',
+        'description' => 'nullable|string',
+        'visibility'  => 'required|string|in:' . Calendar::VISIBILITIES,
+        'status'      => 'required|string|in:' . Calendar::STATUSES,
+    ];
 
-    public static function perPage($request)
+    public static function createRules()
     {
-        $perPage = (int) $request->getSafe('per_page', 'intval', self::PER_PAGE);
-
-        if ($perPage < 1) {
-            $perPage = self::PER_PAGE;
-        }
-
-        return min($perPage, self::PER_PAGE_MAX);
+        return self::RULES;
     }
 
-    public static function sorting($request)
+    public static function updateRules($currentCalendarId)
     {
-        $orderBy = $request->getSafe('order_by', 'sanitize_text_field', 'id');
-        $orderType = strtoupper($request->getSafe('order_type', 'sanitize_text_field', 'ASC'));
-
-        return [
-            in_array($orderBy, self::SORTABLE, true) ? $orderBy : 'id',
-            $orderType === 'DESC' ? 'DESC' : 'ASC',
-        ];
-    }
-
-    public static function rules($ignoreId = null)
-    {
-        $unique = 'unique:fe_calendars,slug';
-
-        if ($ignoreId) {
-            $unique .= ',' . $ignoreId . ',id';
-        }
-
-        return [
-            'title'       => 'required|string|max:255',
-            'slug'        => 'required|string|max:255|' . $unique,
-            'description' => 'nullable|string',
-            'visibility'  => 'required|string|in:' . implode(',', Calendar::VISIBILITIES),
-            'status'      => 'required|string|in:' . implode(',', Calendar::STATUSES),
-        ];
+        return array_merge(self::RULES, [
+            'slug' => 'required|string|max:255|unique:fe_calendars,slug,' . $currentCalendarId . ',id',
+        ]);
     }
 
     public static function messages()
     {
         return [
-            'slug.unique' => __('This slug is already taken.', 'fluent-event')
+            'title.required'      => __('Title is required.', 'fluent-event'),
+            'title.string'        => __('Title must be text.', 'fluent-event'),
+            'title.max'           => __('Title cannot exceed 255 characters.', 'fluent-event'),
+            'slug.required'       => __('Slug is required.', 'fluent-event'),
+            'slug.string'         => __('Slug must be text.', 'fluent-event'),
+            'slug.max'            => __('Slug cannot exceed 255 characters.', 'fluent-event'),
+            'slug.unique'         => __('This slug is already taken.', 'fluent-event'),
+            'description.string'  => __('Description must be text.', 'fluent-event'),
+            'visibility.required' => __('Visibility is required.', 'fluent-event'),
+            'visibility.string'   => __('Visibility must be text.', 'fluent-event'),
+            'visibility.in'       => __('Visibility must be public, private or unlisted.', 'fluent-event'),
+            'status.required'     => __('Status is required.', 'fluent-event'),
+            'status.string'       => __('Status must be text.', 'fluent-event'),
+            'status.in'           => __('Status must be active, archived or draft.', 'fluent-event'),
         ];
     }
 
-    public static function sanitize($data, $existingMeta = [])
+    public static function sanitize($data)
     {
-        return [
-            'title'       => sanitize_text_field(Arr::get($data, 'title', '')),
-            'slug'        => sanitize_title(Arr::get($data, 'slug') ?: Arr::get($data, 'title')),
-            'description' => wp_kses_post(Arr::get($data, 'description', '')),
-            'visibility'  => sanitize_text_field(Arr::get($data, 'visibility', 'public')),
-            'status'      => sanitize_text_field(Arr::get($data, 'status', 'active')),
-            'meta'        => static::meta($data, $existingMeta),
-        ];
+        $sanitized = [];
+
+        foreach (self::SANITIZERS as $field => $callback) {
+            if (array_key_exists($field, $data)) {
+                $sanitized[$field] = Sanitizer::sanitize($data[$field], $callback);
+            }
+        }
+
+        return $sanitized;
     }
 
-    public static function meta($data, $existingMeta = [])
+    public static function format($data, $existingMeta = [])
     {
-        $themeColor = sanitize_hex_color(Arr::get($data, 'theme_color', ''));
-
-        return array_merge(
+        $data['meta'] = array_merge(
             (new Calendar)->defaultMeta(),
             (array) $existingMeta,
-            array_filter(['theme_color' => $themeColor])
+            array_filter(Arr::only($data, self::META_KEYS))
         );
+
+        return Arr::except($data, self::META_KEYS);
     }
 }

@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Calendar;
+use FluentEvent\App\Utils\Sanitizer;
 use FluentEvent\App\Http\Requests\CalendarRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
@@ -13,8 +14,8 @@ class CalendarController extends Controller
         list($orderBy, $orderType) = CalendarRequest::sorting($request);
 
         $calendars = Calendar::query()
-            ->searchBy($request->getSafe('search', 'sanitize_text_field'))
-            ->byStatus($request->getSafe('status', 'sanitize_text_field'))
+            ->searchBy($request->getSafe('search', Sanitizer::SANITIZE_TEXT_FIELD))
+            ->byStatus($request->getSafe('status', Sanitizer::SANITIZE_TEXT_FIELD))
             ->orderBy($orderBy, $orderType)
             ->paginate(CalendarRequest::perPage($request));
 
@@ -36,13 +37,13 @@ class CalendarController extends Controller
     {
         $data = CalendarRequest::sanitize($request->all());
 
-        $this->validate($data, CalendarRequest::rules(), CalendarRequest::messages());
+        $this->validate($data, CalendarRequest::createRules(), CalendarRequest::messages());
 
-        $calendar = Calendar::create(array_merge($data, [
+        $calendar = Calendar::create(array_merge(CalendarRequest::format($data), [
             'created_by' => get_current_user_id()
         ]));
 
-        do_action('fluent_event/calendar_created', $calendar);
+        do_action('fluent_event/calendar/created', $calendar);
 
         return $this->sendSuccess([
             'message'  => __('Calendar has been successfully created', 'fluent-event'),
@@ -54,13 +55,17 @@ class CalendarController extends Controller
     {
         $calendar = Calendar::query()->findOrFail($id);
 
-        $data = CalendarRequest::sanitize($request->all(), $calendar->meta);
+        $data = CalendarRequest::sanitize($request->all());
 
-        $this->validate($data, CalendarRequest::rules($calendar->id), CalendarRequest::messages());
+        $this->validate(
+            $data,
+            CalendarRequest::updateRules($calendar->id),
+            CalendarRequest::messages()
+        );
 
-        $calendar->fill($data)->save();
+        $calendar->fill(CalendarRequest::format($data, $calendar->meta))->save();
 
-        do_action('fluent_event/calendar_updated', $calendar);
+        do_action('fluent_event/calendar/updated', $calendar);
 
         return $this->sendSuccess([
             'message'  => __('Calendar has been successfully updated', 'fluent-event'),
@@ -72,11 +77,11 @@ class CalendarController extends Controller
     {
         $calendar = Calendar::query()->findOrFail($id);
 
-        do_action('fluent_event/before_delete_calendar', $calendar);
+        do_action('fluent_event/calendar/before_deleted', $calendar);
 
         $calendar->delete();
 
-        do_action('fluent_event/after_delete_calendar', $id);
+        do_action('fluent_event/calendar/deleted', $id);
 
         return $this->sendSuccess([
             'message' => __('Calendar has been successfully deleted', 'fluent-event')
