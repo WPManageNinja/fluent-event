@@ -7,14 +7,10 @@ import { ElNotification, ElMessageBox } from 'element-plus';
 const config = window.fluentEventAdmin;
 
 /**
- * Flatten an arbitrary value into an HTML-safe string joined by `<br />`.
- * Used by the error handler to render validator/server responses where the
- * payload may be a string, a nested object (field → messages), or an array.
- *
- * @param  {*} obj  Primitive, array, or plain object.
- * @returns {string}
+ * Flatten a string / array / nested object into one string.
+ * Pass a plain separator for notifications — they render text, not HTML.
  */
-const convertToText = function (obj) {
+const convertToText = function (obj, separator = '<br />') {
     const result = [];
 
     if (obj === null || obj === undefined) {
@@ -28,21 +24,30 @@ const convertToText = function (obj) {
     ) {
         result.push(String(obj));
     } else if (Array.isArray(obj)) {
-        obj.forEach(item => result.push(convertToText(item)));
+        obj.forEach(item => result.push(convertToText(item, separator)));
     } else if (typeof obj === 'object') {
-        Object.values(obj).forEach(value => result.push(convertToText(value)));
+        Object.values(obj).forEach(
+            value => result.push(convertToText(value, separator))
+        );
     }
 
-    return result.join('<br />');
+    return result.join(separator);
+};
+
+const slugify = function (text) {
+    return String(text)
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/-{2,}/g, '-')
+        .replace(/^-+|-+$/g, '');
 };
 
 /**
- * Humanize a camelCase / snake_case / kebab-case identifier into Title Case,
- * e.g. `user_profile` → `User Profile`. Used for generating page titles and
- * labels from route keys.
- *
- * @param  {string} str
- * @returns {string}
+ * `user_profile` → `User Profile`.
  */
 const titleCase = function (str) {
     return str
@@ -54,16 +59,9 @@ const titleCase = function (str) {
 };
 
 /**
- * Thin wrapper around `ElNotification` that standardizes the offset and
- * default position for the framework's `$notify*` helpers.
- *
- * @param  {('success'|'warning'|'info'|'error')} type
- * @param  {string} title
- * @param  {string} message
- * @param  {string} [position='top-right']
- * @returns {void}
+ * `ElNotification` with our offset and position defaults.
  */
-const notify = function (type, title, message, position = 'top-right') {
+const notify = function (type, title, message, position = 'bottom-right') {
     ElNotification({ type, title, message, position, offset: 20 });
 }
 
@@ -82,8 +80,12 @@ export default {
         $alert:ElMessageBox.alert,
         $confirm:ElMessageBox.confirm,
         $capitalize: capitalize,
+        $goBack() {
+            this.$router.back();
+        },
         $convertToText: convertToText,
         $titleCase: titleCase,
+        $slugify: slugify,
         $download: (route) => {
             let baseUrl = '';
 
@@ -129,48 +131,34 @@ export default {
             ).textContent = title + ' - ' + titleCase(config.slug);
         },
         $handleError(e) {
-            if (e.status === 422) {
-                return this.$root?.$validationErrors
-                    ? this.$root.$handleValidationError(e)
-                    : null;
-            }
-
-            let type = 'error';
-            
-            let errorMessage = '';
-
             if (typeof e === 'string') {
-                errorMessage = e;
-            } else if ('message' in e) {
-                errorMessage = e.message;
-            } else {
-                if (e.isAborted) {
-                    type = 'warning';
-                    errorMessage = e.message || 'Request aborted.';
-                } else if (e.status === 401) {
-                    type = 'warning';
-                    errorMessage = e.message || 'Resource not found.';
-                }
+                return notify('error', 'Error', e);
             }
 
-            notify(type, 'Error', errorMessage || 'Something went wrong');
+            if (e?.isAborted) {
+                return notify('warning', 'Error', e.message || 'Request aborted.');
+            }
+
+            const message = e?.message || convertToText(e?.errors, ' ');
+
+            notify('error', 'Error', message || 'Something went wrong');
         },
         $url(url) {
             return config.rest.url.replace(
                 /\/+$/, ''
             ) + '/' + url.replace(/^\/+/, '');
         },
-        $notify(message, type = 'info', position = 'top-right') {
+        $notify(message, type = 'info', position = 'bottom-right') {
             const title = type === 'info' ? 'Notification' : type;
             notify(type, capitalize(title), message, position);
         },
-        $notifySuccess(message, position = 'top-right') {
+        $notifySuccess(message, position = 'bottom-right') {
             notify('success', 'Success', message, position);
         },
-        $notifyError(message, position = 'top-right') {
+        $notifyError(message, position = 'bottom-right') {
             notify('error', 'Error', message, position);
         },
-        $notifyWarning(message, position = 'top-right') {
+        $notifyWarning(message, position = 'bottom-right') {
             notify('warning', 'Warning', message, position);
         },
         $getStatusColumnClassName({ row, column }) {
