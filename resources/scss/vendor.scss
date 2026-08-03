@@ -145,4 +145,91 @@
             }
         }
     }
+
+    .el-input__wrapper,
+    .el-textarea__inner,
+    .el-select__wrapper {
+        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border-radius: var(--fe-radius, 8px);
+        box-shadow: none;
+        background-color: transparent;
+    }
+
+    .el-input__wrapper, 
+    .el-select__wrapper {
+        height: 36px;
+    }
+
+    .el-input-group__prepend {
+        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border-right: none;
+        border-radius: var(--fe-radius, 8px) 0 0 var(--fe-radius, 8px);
+        box-shadow: none;
+        background-color: var(--fe-active-bg, #f0f3f5);
+
+        .el-select {
+            width: auto;
+
+            .el-select__wrapper {
+                border: none;
+                box-shadow: none;
+            }
+
+            .el-select__selection {
+                display: none;
+            }
+        }
+    }
+
+    .el-input-group--prepend {
+        .el-input__wrapper {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+    }
+
+    .el-button {
+        height: 36px;
+        border-radius: var(--fe-radius, 8px);
+        font-weight: 500;
+    }
+
+    .el-button--primary {
+        --el-button-text-color: var(--fe-primary-bg, #ffffff);
+        --el-button-bg-color: var(--fe-primary-button, #2b2e33);
+        --el-button-border-color: var(--fe-primary-button, #2b2e33);
+        --el-button-hover-text-color: var(--fe-primary-bg, #ffffff);
+        --el-button-hover-bg-color: var(--fe-primary-button, #2b2e33);
+        --el-button-hover-border-color: var(--fe-primary-button, #2b2e33);
+        --el-button-active-text-color: var(--fe-primary-bg, #ffffff);
+        --el-button-active-bg-color: var(--fe-primary-button, #2b2e33);
+        --el-button-active-border-color: var(--fe-primary-button, #2b2e33);
+
+        &:hover,
+        &:focus {
+            opacity: 0.8;
+        }
+    }
+
+    .el-radio__input.is-checked {
+        .el-radio__inner {
+            background-color: var(--fe-primary-button, #2b2e33);
+            border-color: var(--fe-primary-button, #2b2e33);
+
+            &::after {
+                width: 6px;
+                height: 6px;
+                background-color: var(--fe-primary-bg, #ffffff);
+            }
+        }
+
+        + .el-radio__label {
+            color: var(--fe-primary-text, #19283a);
+        }
+    }
+
+    .el-form-item__label {
+        font-weight: 500;
+        color: var(--fe-primary-text, #19283a);
+    }
 }
