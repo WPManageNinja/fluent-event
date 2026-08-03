@@ -13,6 +13,7 @@ class Calendar extends Model
 
     const VISIBILITIES = 'public,private,unlisted';
     const STATUSES = 'active,archived,draft';
+    const DEFAULT_THEME_COLOR = '#0099ff';
 
     protected $fillable = [
         'title',
@@ -21,7 +22,6 @@ class Calendar extends Model
         'visibility',
         'status',
         'meta',
-        'created_by',
     ];
 
     protected $casts = [
@@ -29,7 +29,12 @@ class Calendar extends Model
         'created_by' => 'int',
     ];
 
-    const DEFAULT_THEME_COLOR = '#0099ff';
+    protected static function booted()
+    {
+        static::creating(function ($calendar) {
+            $calendar->created_by = get_current_user_id();
+        });
+    }
 
     public static function defaultMeta()
     {

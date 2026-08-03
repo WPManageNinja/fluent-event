@@ -3,7 +3,6 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Calendar;
-use FluentEvent\App\Utils\CustomSanitizer;
 use FluentEvent\App\Http\Requests\CalendarRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
@@ -14,8 +13,8 @@ class CalendarController extends Controller
         list($orderBy, $orderType) = CalendarRequest::sorting($request);
 
         $calendars = Calendar::query()
-            ->searchBy($request->getSafe('search', CustomSanitizer::SANITIZE_TEXT_FIELD))
-            ->byStatus($request->getSafe('status', CustomSanitizer::SANITIZE_TEXT_FIELD))
+            ->searchBy($request->getSafe('search', 'sanitize_text_field'))
+            ->byStatus($request->getSafe('status', 'sanitize_text_field'))
             ->orderBy($orderBy, $orderType)
             ->paginate(CalendarRequest::perPage($request));
 
@@ -39,9 +38,7 @@ class CalendarController extends Controller
 
         $this->validate($data, CalendarRequest::createRules(), CalendarRequest::messages());
 
-        $calendar = Calendar::create(array_merge(CalendarRequest::format($data), [
-            'created_by' => get_current_user_id()
-        ]));
+        $calendar = Calendar::create(CalendarRequest::format($data));
 
         do_action('fluent_event/calendar/created', $calendar);
 

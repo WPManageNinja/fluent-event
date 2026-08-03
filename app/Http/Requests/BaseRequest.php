@@ -18,7 +18,7 @@ class BaseRequest
 
     public static function perPage($request)
     {
-        $perPage = (int) $request->getSafe('per_page', CustomSanitizer::INTVAL, static::PER_PAGE);
+        $perPage = (int) $request->getSafe('per_page', 'intval', static::PER_PAGE);
 
         if ($perPage < 1) {
             $perPage = static::PER_PAGE;
@@ -29,8 +29,8 @@ class BaseRequest
 
     public static function sorting($request)
     {
-        $orderBy = $request->getSafe('order_by', CustomSanitizer::SANITIZE_TEXT_FIELD, 'id');
-        $orderType = strtoupper($request->getSafe('order_type', CustomSanitizer::SANITIZE_TEXT_FIELD, 'ASC'));
+        $orderBy = $request->getSafe('order_by', 'sanitize_text_field', 'id');
+        $orderType = strtoupper($request->getSafe('order_type', 'sanitize_text_field', 'ASC'));
 
         return [
             in_array($orderBy, static::SORTABLE, true) ? $orderBy : 'id',

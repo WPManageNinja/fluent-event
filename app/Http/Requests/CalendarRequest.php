@@ -3,21 +3,19 @@
 namespace FluentEvent\App\Http\Requests;
 
 use FluentEvent\App\Models\Calendar;
-use FluentEvent\App\Utils\CustomSanitizer;
 use FluentEvent\Framework\Support\Arr;
 
 class CalendarRequest extends BaseRequest
 {
     const SORTABLE = ['id', 'title', 'slug', 'status', 'created_at', 'updated_at'];
     const META_KEYS = ['theme_color'];
-    const GUARDED = ['created_by'];
     const SANITIZERS = [
-        'title'       => CustomSanitizer::SANITIZE_TEXT_FIELD,
-        'slug'        => CustomSanitizer::SANITIZE_TITLE,
-        'description' => CustomSanitizer::WP_KSES_POST,
-        'visibility'  => CustomSanitizer::SANITIZE_TEXT_FIELD,
-        'status'      => CustomSanitizer::SANITIZE_TEXT_FIELD,
-        'theme_color' => CustomSanitizer::SANITIZE_HEX_COLOR,
+        'title'       => 'sanitize_text_field',
+        'slug'        => 'sanitize_title',
+        'description' => 'wp_kses_post',
+        'visibility'  => 'sanitize_text_field',
+        'status'      => 'sanitize_text_field',
+        'theme_color' => 'sanitize_hex_color',
     ];
     const RULES = [
         'title'       => 'required|string|max:255',
@@ -69,6 +67,6 @@ class CalendarRequest extends BaseRequest
             array_filter(Arr::only($data, self::META_KEYS))
         );
 
-        return Arr::except($data, array_merge(self::META_KEYS, self::GUARDED));
+        return Arr::except($data, self::META_KEYS);
     }
 }
