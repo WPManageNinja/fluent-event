@@ -15,6 +15,7 @@ class CalendarController extends Controller
         $calendars = Calendar::query()
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->byStatus($request->getSafe('status', 'sanitize_text_field'))
+            ->byVisibility($request->getSafe('visibility', 'sanitize_text_field'))
             ->orderBy($orderBy, $orderType)
             ->paginate(CalendarRequest::perPage($request));
 

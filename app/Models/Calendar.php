@@ -65,4 +65,13 @@ class Calendar extends Model
 
         return $query;
     }
+
+    public function scopeByVisibility($query, $visibility)
+    {
+        if ($visibility) {
+            $query->where('visibility', $visibility);
+        }
+
+        return $query;
+    }
 }
