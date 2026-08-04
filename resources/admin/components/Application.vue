@@ -155,9 +155,3 @@ export default {
     }
 };
 </script>
-
-<style>
-ul.el-pager {
-    margin-top: 6px !important;
-}
-</style>
