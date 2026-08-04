@@ -5,6 +5,14 @@
                 <h1 class="fe-page__title">{{ $t('Calendars') }}</h1>
 
                 <div class="fe-page__actions">
+                    <el-button
+                        :aria-label="$t('Refresh')"
+                        :title="$t('Refresh')"
+                        @click="refetch"
+                    >
+                        <el-icon><Refresh /></el-icon>
+                    </el-button>
+
                     <el-button type="primary" @click="goToCreate">
                         {{ $t('Create Calendar') }}
                     </el-button>
@@ -92,6 +100,8 @@
                 </el-col>
             </el-row>
 
+            <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
+
             <template v-else-if="calendars.length">
                 <el-row :gutter="20">
                     <el-col
@@ -129,22 +139,26 @@
 </template>
 
 <script type="text/javascript">
-    import { Filter } from '@element-plus/icons-vue';
+    import { Filter, Refresh } from '@element-plus/icons-vue';
     import Pagination from '@/components/Pagination.vue';
     import SearchInput from '@/components/SearchInput.vue';
+    import ErrorState from '@/components/ErrorState.vue';
     import CalendarCard from './parts/CalendarCard.vue';
 
     export default {
         name: 'Calendars',
         components: {
             Filter,
+            Refresh,
             Pagination,
             SearchInput,
+            ErrorState,
             CalendarCard,
         },
         data() {
             return {
                 loading: true,
+                error: '',
                 filterOpen: false,
                 calendars: [],
                 pagination: {
@@ -201,7 +215,7 @@
                 return !!this.query.search || !!this.activeFilters.length;
             },
             isOnboarding() {
-                return !this.loading && !this.calendars.length && !this.isFiltered;
+                return !this.loading && !this.error && !this.calendars.length && !this.isFiltered;
             },
         },
         methods: {
@@ -215,14 +229,15 @@
                     visibility: this.query.visibility,
                 })
                     .then(response => {
+                        this.error = '';
                         this.calendars = response.calendars.data;
                         this.pagination.total = response.calendars.total;
-                        // The server clamps per_page, so take its word for it —
-                        // otherwise the pager counts pages for a size that was
-                        // never served.
                         this.pagination.per_page = +response.calendars.per_page;
                     })
-                    .catch(this.$handleError)
+                    .catch(error => {
+                        this.error = error?.message || '';
+                        this.calendars = [];
+                    })
                     .finally(() => {
                         this.loading = false;
                     });
