@@ -12,13 +12,12 @@
             </div>
 
             <div v-if="!isOnboarding" class="fe-calendars__toolbar">
-                <el-input
+                <SearchInput
                     v-model="query.search"
                     class="fe-calendars__search"
                     :placeholder="$t('Search calendars')"
-                    clearable
-                    @clear="refetch"
-                    @keyup.enter="refetch"
+                    type="search_on_enter"
+                    @search="refetch"
                 />
 
                 <el-popover
@@ -132,6 +131,7 @@
 <script type="text/javascript">
     import { Filter } from '@element-plus/icons-vue';
     import Pagination from '@/components/Pagination.vue';
+    import SearchInput from '@/components/SearchInput.vue';
     import CalendarCard from './parts/CalendarCard.vue';
 
     export default {
@@ -139,6 +139,7 @@
         components: {
             Filter,
             Pagination,
+            SearchInput,
             CalendarCard,
         },
         data() {
@@ -156,7 +157,6 @@
                     status: '',
                     visibility: '',
                 },
-                appliedSearch: '',
                 pendingFilters: {
                     status: '',
                     visibility: '',
@@ -198,7 +198,7 @@
                     }));
             },
             isFiltered() {
-                return !!this.appliedSearch || !!this.activeFilters.length;
+                return !!this.query.search || !!this.activeFilters.length;
             },
             isOnboarding() {
                 return !this.loading && !this.calendars.length && !this.isFiltered;
@@ -207,7 +207,6 @@
         methods: {
             fetchCalendars() {
                 this.loading = true;
-                this.appliedSearch = this.query.search;
                 this.$get('calendars', {
                     page: this.pagination.current_page,
                     per_page: this.pagination.per_page,
