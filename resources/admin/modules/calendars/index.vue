@@ -81,7 +81,7 @@
                     closable
                     @close="removeFilter(filter.key)"
                 >
-                    {{ filter.label }}: {{ filter.value }}
+                    {{ $t('%s: %s', filter.label, filter.value) }}
                 </el-tag>
             </div>
 
@@ -148,7 +148,7 @@
                 calendars: [],
                 pagination: {
                     total: 0,
-                    per_page: 9,
+                    per_page: 12,
                     current_page: 1,
                 },
                 query: {
@@ -218,6 +218,10 @@
                     .then(response => {
                         this.calendars = response.calendars.data;
                         this.pagination.total = response.calendars.total;
+                        // The server clamps per_page, so take its word for it —
+                        // otherwise the pager counts pages for a size that was
+                        // never served.
+                        this.pagination.per_page = +response.calendars.per_page;
                     })
                     .catch(this.$handleError)
                     .finally(() => {

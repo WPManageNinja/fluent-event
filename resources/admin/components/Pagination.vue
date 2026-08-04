@@ -9,7 +9,7 @@
                 v-for="size in page_sizes"
                 :key="size"
                 :value="size"
-                :label="size + ' / ' + $t('page')"
+                :label="$t('%d / page', size)"
             />
         </el-select>
 
@@ -84,7 +84,7 @@ export default {
             return +this.pagination.total;
         },
         page_sizes() {
-            const sizes = [10, 20, 50, 80, 100, 120, 150, ...(this.extra_sizes || [])];
+            const sizes = [10, 20, 50, 80, 100, ...(this.extra_sizes || [])];
 
             if (!sizes.includes(this.per_page)) {
                 sizes.push(this.per_page);

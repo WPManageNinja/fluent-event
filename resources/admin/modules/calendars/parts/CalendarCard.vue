@@ -9,10 +9,10 @@
 
         <div class="fe-calendars__card-meta">
             <el-tag class="capitalize" type="info" size="small">
-                {{ calendar.visibility }}
+                {{ $t(calendar.visibility) }}
             </el-tag>
             <el-tag class="capitalize" :type="statusType" size="small">
-                {{ calendar.status }}
+                {{ $t(calendar.status) }}
             </el-tag>
         </div>
     </div>

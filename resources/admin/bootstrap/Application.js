@@ -36,7 +36,22 @@ export default class Application {
         app.config.globalProperties.config = config;
 
         const i18n = fluentEventAdmin.i18n || {};
-        app.config.globalProperties.$t = (key, fallback) => i18n[key] || fallback || key;
+
+        /**
+         * Translate a string, then fill its `%s` / `%d` placeholders in order —
+         * `$t('%s: %s', group, value)`. Same call shape as the rest of the suite.
+         */
+        app.config.globalProperties.$t = (key, ...args) => {
+            const text = i18n[key] || key;
+
+            if (!args.length) {
+                return text;
+            }
+
+            let index = 0;
+
+            return text.replace(/%[sd]/g, () => (index < args.length ? args[index++] : ''));
+        };
 
         /** BCP-47 locale derived from WordPress's `user_locale` (e.g. `en-US`) for Intl.NumberFormat. */
         const locale = (fluentEventAdmin.user_locale || 'en_US').replace('_', '-');
