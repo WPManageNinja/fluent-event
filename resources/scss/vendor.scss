@@ -233,10 +233,6 @@
         color: var(--fe-primary-text, #19283a);
     }
 
-    // Both teleport to <body>, which carries this page class, so the scope
-    // still reaches them. EP drives its own colours through these variables —
-    // setting them is cheaper than restating each property, and our tokens
-    // already flip with the theme.
     .el-message-box {
         --el-messagebox-title-color: var(--fe-primary-text, #19283a);
         --el-messagebox-content-color: var(--fe-secondary-text, #525866);
@@ -247,8 +243,6 @@
         background-color: var(--fe-primary-bg, #ffffff);
     }
 
-    // Type colours (success / warning / error) are left to EP — they carry
-    // meaning, and we have no `--fe-` equivalents for them.
     .el-notification {
         --el-notification-radius: var(--fe-radius, 8px);
         --el-notification-border-color: var(--fe-primary-border, #d3d8de);
