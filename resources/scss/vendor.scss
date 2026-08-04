@@ -232,4 +232,25 @@
         font-weight: 500;
         color: var(--fe-primary-text, #19283a);
     }
+
+    .el-message-box {
+        --el-messagebox-title-color: var(--fe-primary-text, #19283a);
+        --el-messagebox-content-color: var(--fe-secondary-text, #525866);
+        --el-messagebox-border-radius: var(--fe-radius, 8px);
+
+        padding: var(--fe-space-5, 20px);
+        border: 1px solid var(--fe-primary-border, #d3d8de);
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    .el-notification {
+        --el-notification-radius: var(--fe-radius, 8px);
+        --el-notification-border-color: var(--fe-primary-border, #d3d8de);
+        --el-notification-title-color: var(--fe-primary-text, #19283a);
+        --el-notification-content-color: var(--fe-secondary-text, #525866);
+        --el-notification-close-color: var(--fe-secondary-text, #525866);
+        --el-notification-close-hover-color: var(--fe-primary-text, #19283a);
+
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
 }
