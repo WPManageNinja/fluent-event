@@ -28,6 +28,8 @@ class CalendarController extends Controller
     {
         $calendar = Calendar::query()->findOrFail($id);
 
+        $calendar->description = wp_kses_post($calendar->description);
+
         return $this->sendSuccess([
             'calendar' => $calendar
         ]);
