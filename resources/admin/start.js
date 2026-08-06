@@ -33,9 +33,11 @@ appRouter.afterEach((to) => {
     jQuery('#adminmenu .wp-submenu a[aria-current]').removeAttr('aria-current');
 
     if (activeKey) {
-        const page = `page=${config.slug}`;
+        const base = (config.baseUrl || '').replace(/#\/?$/, '');
+        const page = base.includes('?')
+            ? base.slice(base.indexOf('?'))
+            : `?page=${config.slug}`;
         const group = activeKey === 'dashboard' ? page : `${page}#/${activeKey}`;
-        
         const exact = jQuery(`#adminmenu .wp-submenu a[href$="${page}${to.href}"]`);
         const match = exact.length
             ? exact
