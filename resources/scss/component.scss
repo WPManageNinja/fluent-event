@@ -24,6 +24,20 @@
     }
 }
 
+.fe-error-state {
+    height: 70vh;
+    min-height: 450px;
+
+    .fe-error-state__code {
+        margin: 0 0 var(--fe-space-2, 8px);
+        font-size: var(--fe-text-display, 64px);
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        color: var(--fe-primary-text, #19283a);
+    }
+}
+
 .fe-color-swatch {
     display: block;
     width: 18px;
