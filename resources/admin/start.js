@@ -30,6 +30,8 @@ appRouter.afterEach((to) => {
     jQuery('#adminmenu .wp-submenu li.current, #adminmenu .wp-submenu a.current')
         .removeClass('current');
 
+    jQuery('#adminmenu .wp-submenu a[aria-current]').removeAttr('aria-current');
+
     if (activeKey) {
         const page = `page=${config.slug}`;
         const group = activeKey === 'dashboard' ? page : `${page}#/${activeKey}`;
@@ -39,7 +41,10 @@ appRouter.afterEach((to) => {
             ? exact
             : jQuery(`#adminmenu .wp-submenu a[href$="${group}"]`);
 
-        match.addClass('current').parent().addClass('current');
+        match.addClass('current')
+            .attr('aria-current', 'page')
+            .parent()
+            .addClass('current');
     }
 });
 
