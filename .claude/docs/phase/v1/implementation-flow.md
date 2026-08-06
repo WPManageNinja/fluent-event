@@ -61,7 +61,9 @@ chrome with the page instead of after the bundle mounts — see
 - **A nav item is now two edits, not one.** `AdminMenuHandler::getMenuItemsList()` for the
   markup and [routes.js](../../../../resources/admin/router/routes.js) for the route, joined
   by `meta.active_menu` matching the wrapper's `data-key`. The server-declared route tree
-  (`Http/Routes/vue.php`, `getAdminRoutes()`, the localized `routes` key) is gone.
+  (`Http/Routes/vue.php`, `getAdminRoutes()`, the localized `routes` key) is gone. A screen
+  that also belongs in the wp-admin sidebar adds a third — an `addSubmenu()` call taking a
+  **bare** route, since `$this->baseUrl` already carries the `#/`.
 - **Four placeholder module pages exist** — `calendars/index.vue`, `events/index.vue`,
   `events/create.vue`, `settings/index.vue` — so the topbar entries resolve. Chunks 9, 14d,
   12a and 21 replace them; none of the four is a new route registration.
@@ -85,12 +87,14 @@ A calendar must exist before any event can, so this precedes events entirely.
 
 | # | Chunk | Spec | Dep | Done when | PR |
 |---|---|---|---|---|---|
-| 6 | **Calendar model + write API** | [patterns/backend.md](../../patterns/backend.md) · [rules/routes.md](../../../rules/routes.md) | 1 | `Calendar` model with `$fillable`; `POST`/`PUT` create and update; slug uniqueness surfaces as a field error, not a 500 | |
-| 7a | **Create calendar form** | [calendar-create.md](screens/calendar-create.md) | 5, 6 | `#/calendars/new` renders title, slug, description and visibility, and creates on submit | |
-| 7b | **Slug derivation + collision** | [calendar-create.md](screens/calendar-create.md) | 7a | Slug auto-fills from the title until edited; a duplicate returns a field error on the slug input, not a 500 | |
-| 8 | **Calendar API — read** | [calendars.md](screens/calendars.md) | 6 | List and single endpoints; event counts from one grouped aggregate, not a query per row | |
-| 9 | **Calendars grid** | [calendars.md](screens/calendars.md) | 7a, 8 | Three-column card grid; empty state routes a new user to create their first calendar | |
-| 10 | **Calendar delete** | [calendars.md](screens/calendars.md) | 8, 9 | Confirmed via `Confirm.vue`; a calendar with events handled per open question 4 — the FK will not stop it | |
+| 6 | **Calendar model + write API** | [patterns/backend.md](../../patterns/backend.md) · [rules/routes.md](../../../rules/routes.md) | 1 | `Calendar` model with `$fillable`; `POST`/`PUT` create and update; slug uniqueness surfaces as a field error, not a 500 |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) |
+| 7a | **Create calendar form** | [calendar-create.md](screens/calendar-create.md) | 5, 6 | `#/calendars/new` renders title, slug, description and visibility, and creates on submit |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) |
+| 7b | **Slug derivation + collision** | [calendar-create.md](screens/calendar-create.md) | 7a | Slug auto-fills from the title until edited; a duplicate returns a field error on the slug input, not a 500 |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) |
+| 8 | **Calendar API — read** | [calendars.md](screens/calendars.md) | 6 | List and single endpoints; event counts from one grouped aggregate, not a query per row |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) |
+| 9 | **Calendars grid** | [calendars.md](screens/calendars.md) | 7a, 8 | Three-column card grid; empty state routes a new user to create their first calendar |  [#11](https://github.com/WPManageNinja/fluent-event/pull/11) |
+| 9b | **Calendar detail** | [calendar-detail.md](screens/calendar-detail.md) | 8, 9 | `#/calendars/:id` renders the calendar with Overview and Settings tabs; description is sanitised server-side before it reaches the response | [#12](https://github.com/WPManageNinja/fluent-event/pull/12) |
+| 10 | **Calendar delete** | [calendars.md](screens/calendars.md) | 8, 9 | Confirmed via `Confirm.vue`; a calendar with events handled per open question 4 — the FK will not stop it |  [#12](https://github.com/WPManageNinja/fluent-event/pull/12) |
+| 10b | **Calendar edit** | [calendar-create.md](screens/calendar-create.md) · [calendar-detail.md](screens/calendar-detail.md) | 7a, 8 | `#/calendars/:id/edit` reuses the create form switched on the route param; reachable from the detail screen and the card action menu | [#16](https://github.com/WPManageNinja/fluent-event/pull/16) |
 
 **Create before list** — 7a before 9 — because the list has nothing to show until something
 can be created, and building it first means testing against hand-inserted rows.
