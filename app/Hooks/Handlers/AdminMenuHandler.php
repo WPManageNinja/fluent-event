@@ -197,7 +197,14 @@ class AdminMenuHandler
 
         $this->enqueueRichTextEditor();
 
+        $this->enqueueMediaLibrary();
+
         $this->localizeScript($slug, 'admin');
+    }
+
+    protected function enqueueMediaLibrary()
+    {
+        wp_enqueue_media();
     }
 
     protected function enqueueRichTextEditor()
@@ -302,6 +309,7 @@ class AdminMenuHandler
             'slug'          => $slug,
             'theme'         => $theme,
             'user_locale'   => get_locale(),
+            'timezone'      => wp_timezone_string(),
             'brand_logo'    => $this->getMenuIcon(),
             'nonce'         => wp_create_nonce($slug),
             'asset_url'     => $this->app['url.assets'],
