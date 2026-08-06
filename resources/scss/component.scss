@@ -66,6 +66,24 @@
     }
 }
 
+.fe-error-state {
+    // `.el-result` is already a centered flex column — this just gives it the
+    // canvas to center within.
+    height: 70vh;
+    min-height: 450px;
+
+    // Repeated class, not `&__code` — EP's `.el-result__title p` is 0,1,1 and
+    // would otherwise win on font-size and margin.
+    .fe-error-state__code {
+        margin: 0 0 var(--fe-space-2, 8px);
+        font-size: var(--fe-text-display, 64px);
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        color: var(--fe-primary-text, #19283a);
+    }
+}
+
 .fe-calendars {
     &__toolbar {
         display: flex;

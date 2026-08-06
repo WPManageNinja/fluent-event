@@ -1,9 +1,21 @@
 <template>
-    <el-result icon="warning" :title="heading" :sub-title="description">
+    <el-result
+        class="fe-error-state"
+        icon="warning"
+        :title="heading"
+        :sub-title="description"
+    >
+        <template v-if="code" #title>
+            <p class="fe-error-state__code">{{ code }}</p>
+            <p>{{ heading }}</p>
+        </template>
+
         <template #extra>
-            <el-button type="primary" @click="$emit('retry')">
-                {{ $t('Try Again') }}
-            </el-button>
+            <slot name="action">
+                <el-button type="primary" @click="$emit('retry')">
+                    {{ $t('Try Again') }}
+                </el-button>
+            </slot>
         </template>
     </el-result>
 </template>
@@ -20,6 +32,11 @@ export default {
         message: {
             required: false,
             type: String,
+            default: ''
+        },
+        code: {
+            required: false,
+            type: [String, Number],
             default: ''
         }
     },
