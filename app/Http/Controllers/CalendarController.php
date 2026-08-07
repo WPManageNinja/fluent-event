@@ -17,7 +17,7 @@ class CalendarController extends Controller
             ->byStatus($request->getSafe('status', 'sanitize_text_field'))
             ->byVisibility($request->getSafe('visibility', 'sanitize_text_field'))
             ->orderBy($orderBy, $orderType)
-            ->paginate(CalendarRequest::perPage($request));
+            ->get();
 
         return $this->sendSuccess([
             'calendars' => $calendars

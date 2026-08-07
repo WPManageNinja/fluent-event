@@ -410,10 +410,10 @@
             fetchCalendars() {
                 if(this.loading) return;
                 this.loading = true;
-                this.$get('calendars', { per_page: 100 })
+                this.$get('calendars')
                     .then(response => {
                         this.error = '';
-                        this.calendars = response.calendars.data;
+                        this.calendars = response.calendars;
                         this.event = this.initForm();
                         const requested = Number(this.$route.query.calendar_id);
                         const preSelected = this.calendars.find(calendar => calendar.id === requested);

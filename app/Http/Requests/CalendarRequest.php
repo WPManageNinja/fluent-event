@@ -8,6 +8,7 @@ use FluentEvent\Framework\Support\Arr;
 class CalendarRequest extends BaseRequest
 {
     const SORTABLE = ['id', 'title', 'slug', 'status', 'created_at', 'updated_at'];
+    const ORDER_TYPE = 'DESC';
     const META_KEYS = ['theme_color'];
     const SANITIZERS = [
         'title'       => 'sanitize_text_field',

@@ -10,6 +10,8 @@ class BaseRequest
     const SANITIZERS = [];
     const PER_PAGE = 20;
     const PER_PAGE_MAX = 100;
+    const ORDER_BY = 'id';
+    const ORDER_TYPE = 'ASC';
 
     public static function sanitize($data)
     {
@@ -29,12 +31,12 @@ class BaseRequest
 
     public static function sorting($request)
     {
-        $orderBy = $request->getSafe('order_by', 'sanitize_text_field', 'id');
-        $orderType = strtoupper($request->getSafe('order_type', 'sanitize_text_field', 'ASC'));
+        $orderBy = $request->getSafe('order_by', 'sanitize_text_field', static::ORDER_BY);
+        $orderType = strtoupper($request->getSafe('order_type', 'sanitize_text_field', static::ORDER_TYPE));
 
         return [
-            in_array($orderBy, static::SORTABLE, true) ? $orderBy : 'id',
-            $orderType === 'DESC' ? 'DESC' : 'ASC',
+            in_array($orderBy, static::SORTABLE, true) ? $orderBy : static::ORDER_BY,
+            in_array($orderType, ['ASC', 'DESC'], true) ? $orderType : static::ORDER_TYPE,
         ];
     }
 }
