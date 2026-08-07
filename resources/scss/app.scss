@@ -76,8 +76,13 @@
 
     &__actions {
         display: flex;
+        align-items: center;
         flex-shrink: 0;
         gap: var(--fe-space-2, 8px);
         flex-wrap: wrap;
+
+        .el-button+.el-button {
+            margin-left: 0;
+        }
     }
 }
