@@ -20,25 +20,6 @@
         width: 100%;
     }
 
-    .fe-color-swatch {
-        display: block;
-        flex-shrink: 0;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-    }
-
-    .fe-color-dropdown .el-select-dropdown__item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-
-        &::after {
-            display: none;
-        }
-    }
-
     .mce-tinymce {
         border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
