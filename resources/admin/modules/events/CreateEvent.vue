@@ -120,28 +120,26 @@
                                         :aria-label="bound.timeLabel"
                                     />
                                 </div>
-                            </div>
 
-                            <div class="fe-event-form__timezone">
-                                <span class="fe-event-form__timezone-title">
-                                    <el-icon aria-hidden="true"><Clock /></el-icon>
-                                    {{ $t('Timezone') }}
-                                </span>
+                                <div class="fe-event-form__window-row">
+                                    <span class="fe-event-form__window-label">
+                                        {{ $t('Timezone') }}
+                                    </span>
 
-                                <el-select
-                                    v-model="event.timezone"
-                                    filterable
-                                    :aria-label="$t('Timezone')"
-                                >
-                                    <el-option
-                                        v-for="zone in timezones"
-                                        :key="zone"
-                                        :label="zone"
-                                        :value="zone"
-                                    />
-                                </el-select>
-
-                                <p class="fe-event-form__timezone-offset">{{ timezoneOffset }}</p>
+                                    <el-select
+                                        v-model="event.timezone"
+                                        class="fe-event-form__timezone"
+                                        filterable
+                                        :aria-label="$t('Timezone')"
+                                    >
+                                        <el-option
+                                            v-for="zone in timezones"
+                                            :key="zone.value"
+                                            :label="zone.label"
+                                            :value="zone.value"
+                                        />
+                                    </el-select>
+                                </div>
                             </div>
                         </div>
 
@@ -300,7 +298,7 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
-    import { Clock, Document, LocationInformation, ArrowRight, Picture } from '@element-plus/icons-vue';
+    import { Document, LocationInformation, ArrowRight, Picture } from '@element-plus/icons-vue';
     import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
@@ -310,7 +308,6 @@
     export default {
         name: 'CreateEvent',
         components: {
-            Clock,
             Document,
             LocationInformation,
             ArrowRight,
@@ -368,10 +365,12 @@
             },
             timezones() {
                 const zones = Intl.supportedValuesOf?.('timeZone') || [];
-                return zones.length ? zones : [this.defaultTimezone];
-            },
-            timezoneOffset() {
-                return this.offsetOf(this.event.timezone);
+                const list = zones.length ? zones : [this.defaultTimezone];
+
+                return list.map(zone => ({
+                    value: zone,
+                    label: `${zone} (${this.offsetOf(zone)})`,
+                }));
             },
             defaultTimezone() {
                 const timezone = config?.timezone || '';

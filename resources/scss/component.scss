@@ -451,19 +451,11 @@
     }
 
     &__schedule {
-        display: flex;
-        align-items: stretch;
-        gap: var(--fe-space-3, 12px);
         padding: var(--fe-space-3, 12px);
-
-        @media screen and (max-width: 782px) {
-            flex-direction: column;
-        }
     }
 
     &__window {
         display: flex;
-        flex: 1 1 auto;
         flex-direction: column;
         gap: var(--fe-space-2, 8px);
     }
@@ -475,7 +467,7 @@
     }
 
     &__window-label {
-        width: 48px;
+        width: 72px;
         flex-shrink: 0;
         font-size: var(--fe-text-sm, 14px);
         color: var(--fe-secondary-text, #525866);
@@ -501,33 +493,16 @@
         }
     }
 
-    &__timezone {
-        display: flex;
-        flex: 0 0 180px;
-        flex-direction: column;
-        gap: var(--fe-space-1, 4px);
-        padding: var(--fe-space-2, 8px);
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-active-bg, #f0f3f5);
+    // Spans the date and time inputs above it.
+    &__timezone.el-select {
+        width: 302px;
+        max-width: 100%;
 
         @media screen and (max-width: 782px) {
-            flex: 0 0 auto;
+            width: auto;
+            flex: 1 1 0;
+            min-width: 0;
         }
-    }
-
-    &__timezone-title {
-        display: flex;
-        align-items: center;
-        gap: var(--fe-space-1, 4px);
-        font-size: var(--fe-text-xs, 12px);
-        font-weight: 500;
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    &__timezone-offset {
-        margin: 0;
-        font-size: var(--fe-text-xs, 12px);
-        color: var(--fe-secondary-text, #525866);
     }
 
     &__row {
