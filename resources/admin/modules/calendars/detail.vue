@@ -40,6 +40,26 @@
                         </div>
                     </template>
 
+                    <template #events>
+                        <div class="fe-calendar-detail__events-bar">
+                            <h2 class="fe-calendar-detail__events-title">{{ $t('Events') }}</h2>
+
+                            <div class="fe-calendar-detail__events-actions">
+                                <SegmentedSwitch
+                                    v-model="period"
+                                    :options="periods"
+                                    :label="$t('Filter events by period')"
+                                />
+
+                                <el-button type="primary" @click="goToEventCreate">
+                                    {{ $t('Add Event') }}
+                                </el-button>
+                            </div>
+                        </div>
+
+                        <EventsTimeline :period="period" :calendar-id="calendarId" />
+                    </template>
+
                     <template #settings>
                         <CalendarDangerZone :calendar="calendar" @deleted="goToList" />
                     </template>
@@ -53,6 +73,8 @@
     import { ArrowRight } from '@element-plus/icons-vue';
     import Tabs from '@/components/Tabs.vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import EventsTimeline from '@/modules/events/parts/EventsTimeline.vue';
     import CalendarDangerZone from './parts/CalendarDangerZone.vue';
 
     export default {
@@ -61,6 +83,8 @@
             ArrowRight,
             Tabs,
             ErrorState,
+            SegmentedSwitch,
+            EventsTimeline,
             CalendarDangerZone,
         },
         data() {
@@ -68,6 +92,7 @@
                 loading: true,
                 error: '',
                 tab: 'overview',
+                period: 'upcoming',
                 calendar: {},
             };
         },
@@ -75,8 +100,19 @@
             tabs() {
                 return [
                     { value: 'overview', label: this.$t('Overview') },
+                    { value: 'events', label: this.$t('Events') },
                     { value: 'settings', label: this.$t('Settings') },
                 ];
+            },
+            periods() {
+                return [
+                    { value: '', label: this.$t('All') },
+                    { value: 'upcoming', label: this.$t('Upcoming') },
+                    { value: 'past', label: this.$t('Past') },
+                ];
+            },
+            calendarId() {
+                return Number(this.$route.params.id);
             },
         },
         methods: {
@@ -100,6 +136,12 @@
                 this.$router.push({
                     name: 'calendar_edit',
                     params: { id: this.$route.params.id },
+                });
+            },
+            goToEventCreate() {
+                this.$router.push({
+                    name: 'event_create',
+                    query: { calendar_id: this.calendarId },
                 });
             },
             goToList() {
