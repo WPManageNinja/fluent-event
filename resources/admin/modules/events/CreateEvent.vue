@@ -16,28 +16,7 @@
                 </div>
             </div>
 
-            <el-skeleton v-if="loading" animated>
-                <template #template>
-                    <div class="fe-event-form__grid">
-                        <el-skeleton-item
-                            variant="image"
-                            class="fe-event-form__skeleton-cover"
-                        />
-                        <div class="fe-event-form__main">
-                            <el-skeleton-item
-                                variant="h1"
-                                class="fe-event-form__skeleton-title"
-                            />
-                            <el-skeleton-item
-                                v-for="row in 4"
-                                :key="row"
-                                variant="rect"
-                                class="fe-event-form__skeleton-card"
-                            />
-                        </div>
-                    </div>
-                </template>
-            </el-skeleton>
+            <Skeleton v-if="loading" type="event-form" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
 
@@ -302,6 +281,7 @@
     import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
+    import Skeleton from '@/components/Skeleton.vue';
 
     const config = window.fluentEventAdmin;
 
@@ -315,6 +295,7 @@
             WpEditor,
             ErrorState,
             MediaPicker,
+            Skeleton,
         },
         data() {
             return {

@@ -90,13 +90,7 @@
                 </el-tag>
             </div>
 
-            <el-row v-if="loading" :gutter="20">
-                <el-col v-for="i in 6" :key="i" :xs="24" :sm="12" :md="8">
-                    <div class="fe-calendars__card">
-                        <el-skeleton :rows="2" animated />
-                    </div>
-                </el-col>
-            </el-row>
+            <Skeleton v-if="loading" type="calendar-grid" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
 
@@ -138,6 +132,7 @@
     import { Filter, Refresh } from '@element-plus/icons-vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import Skeleton from '@/components/Skeleton.vue';
     import ActionPopover from '@/components/ActionPopover.vue';
     import CalendarCard from './parts/CalendarCard.vue';
 
@@ -148,6 +143,7 @@
             Refresh,
             SearchInput,
             ErrorState,
+            Skeleton,
             ActionPopover,
             CalendarCard,
         },

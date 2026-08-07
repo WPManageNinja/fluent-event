@@ -1,7 +1,7 @@
 <template>
     <transition name="fade" mode="out-in" appear>
         <div class="fe-page">
-            <el-skeleton v-if="loading" :rows="12" animated />
+            <Skeleton v-if="loading" type="calendar-form" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendar" />
 
@@ -122,12 +122,14 @@
 <script type="text/javascript">
     import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import Skeleton from '@/components/Skeleton.vue';
 
     export default {
         name: 'CreateOrUpdateCalendar',
         components: {
             WpEditor,
             ErrorState,
+            Skeleton,
         },
         data() {
             return {
