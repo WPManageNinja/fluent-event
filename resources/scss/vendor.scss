@@ -253,4 +253,9 @@
 
         background-color: var(--fe-primary-bg, #ffffff);
     }
+
+    .el-skeleton {
+        --el-skeleton-color: var(--fe-active-bg, #f0f3f5);
+        --el-skeleton-to-color: var(--fe-primary-border, #d3d8de);
+    }
 }
