@@ -16,7 +16,28 @@
                 </div>
             </div>
 
-            <el-skeleton v-if="loading" :rows="12" animated />
+            <el-skeleton v-if="loading" animated>
+                <template #template>
+                    <div class="fe-event-form__grid">
+                        <el-skeleton-item
+                            variant="image"
+                            class="fe-event-form__skeleton-cover"
+                        />
+                        <div class="fe-event-form__main">
+                            <el-skeleton-item
+                                variant="h1"
+                                class="fe-event-form__skeleton-title"
+                            />
+                            <el-skeleton-item
+                                v-for="row in 4"
+                                :key="row"
+                                variant="rect"
+                                class="fe-event-form__skeleton-card"
+                            />
+                        </div>
+                    </div>
+                </template>
+            </el-skeleton>
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
 
@@ -29,29 +50,32 @@
             </div>
 
             <form v-else class="fe-event-form" @submit.prevent="saveEvent">
-                <div class="fe-event-form__card fe-event-form__calendar">
-                    <label class="fe-event-form__field-label" for="fe-event-calendar">
-                        {{ $t('Calendar *') }}
-                    </label>
-
-                    <el-select
-                        id="fe-event-calendar"
-                        v-model="event.calendar_id"
-                        class="fe-event-form__calendar-select"
-                        :placeholder="$t('Choose a calendar')"
-                    >
-                        <el-option
-                            v-for="calendar in calendars"
-                            :key="calendar.id"
-                            :label="calendar.title"
-                            :value="calendar.id"
-                        />
-                    </el-select>
-                </div>
-
                 <div class="fe-event-form__grid">
                     <aside class="fe-event-form__aside">
-                        <EventCoverPicker v-model="event.cover_url" />
+                        <MediaPicker
+                            v-model="event.cover_url"
+                            class="fe-cover-picker"
+                            :frame-title="$t('Select a cover image')"
+                            :action-label="$t('Use this image')"
+                            :alt="$t('Event cover image')"
+                            :add-label="$t('Add a cover image')"
+                            :change-label="$t('Change cover image')"
+                            :remove-label="$t('Remove cover image')"
+                        >
+                            <template #placeholder>
+                                <div class="fe-cover-picker__placeholder">
+                                    <el-icon
+                                        class="fe-cover-picker__placeholder-icon"
+                                        aria-hidden="true"
+                                    >
+                                        <Picture />
+                                    </el-icon>
+                                    <span class="fe-cover-picker__placeholder-text">
+                                        {{ $t('Click to add a cover image') }}
+                                    </span>
+                                </div>
+                            </template>
+                        </MediaPicker>
                     </aside>
 
                     <div class="fe-event-form__main">
@@ -121,7 +145,27 @@
                             </div>
                         </div>
 
-                        <div class="fe-event-form__card fe-event-form__status">
+                        <div class="fe-event-form__card fe-event-form__field">
+                            <label class="fe-event-form__field-label" for="fe-event-calendar">
+                                {{ $t('Calendar *') }}
+                            </label>
+
+                            <el-select
+                                id="fe-event-calendar"
+                                v-model="event.calendar_id"
+                                class="fe-event-form__calendar-select"
+                                :placeholder="$t('Choose a calendar')"
+                            >
+                                <el-option
+                                    v-for="calendar in calendars"
+                                    :key="calendar.id"
+                                    :label="calendar.title"
+                                    :value="calendar.id"
+                                />
+                            </el-select>
+                        </div>
+
+                        <div class="fe-event-form__card fe-event-form__field">
                             <span class="fe-event-form__field-label">{{ $t('Status') }}</span>
 
                             <el-radio-group v-model="event.status">
@@ -173,7 +217,7 @@
                                     </el-radio>
                                 </el-radio-group>
 
-                                <el-form v-if="isOnline" class="fe-form" label-position="top">
+                                <el-form v-if="event.venue_type === 'online'" class="fe-form" label-position="top">
                                     <el-form-item :label="$t('Meeting link *')">
                                         <el-input
                                             v-model="event.online_meeting_url"
@@ -256,10 +300,10 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
-    import { Clock, Document, LocationInformation, ArrowRight } from '@element-plus/icons-vue';
+    import { Clock, Document, LocationInformation, ArrowRight, Picture } from '@element-plus/icons-vue';
     import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
-    import EventCoverPicker from './parts/EventCoverPicker.vue';
+    import MediaPicker from '@/components/MediaPicker.vue';
 
     const config = window.fluentEventAdmin;
 
@@ -270,13 +314,14 @@
             Document,
             LocationInformation,
             ArrowRight,
+            Picture,
             WpEditor,
             ErrorState,
-            EventCoverPicker,
+            MediaPicker,
         },
         data() {
             return {
-                loading: true,
+                loading: false,
                 error: '',
                 saving: false,
                 calendars: [],
@@ -321,33 +366,21 @@
                     },
                 ];
             },
-            // `Intl.supportedValuesOf` is unavailable on older Safari; the
-            // resolved zone is always an option so the field never empties.
             timezones() {
                 const zones = Intl.supportedValuesOf?.('timeZone') || [];
-
                 return zones.length ? zones : [this.defaultTimezone];
             },
             timezoneOffset() {
                 return this.offsetOf(this.event.timezone);
             },
-            // A site configured by UTC offset reports `+06:00` rather than a
-            // city, which reads as noise in the picker — fall back to the
-            // browser's resolved zone so the field starts on a real name.
             defaultTimezone() {
-                const configured = config?.timezone || '';
-
-                if (configured.includes('/')) {
-                    return configured;
-                }
+                const timezone = config?.timezone || '';
+                if (timezone.includes('/')) return timezone;
 
                 return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
             },
-            isOnline() {
-                return this.event.venue_type === 'online';
-            },
             venueSummary() {
-                if (this.isOnline) {
+                if (this.event.venue_type === 'online') {
                     return this.event.online_meeting_url || this.$t('Add Venue Type');
                 }
 
@@ -375,16 +408,14 @@
                     cover_url: '',
                 };
             },
-            // `calendar_id` arrives from a URL anyone can edit, so it only
-            // preselects when it names a calendar we actually fetched.
             preselectedCalendarId() {
                 const requested = Number(this.$route.query.calendar_id);
-
                 return this.calendars.some(calendar => calendar.id === requested)
                     ? requested
                     : null;
             },
             fetchCalendars() {
+                if(this.loading) return;
                 this.loading = true;
                 this.$get('calendars', { per_page: 100, status: 'active' })
                     .then(response => {
@@ -398,15 +429,9 @@
                     })
                     .finally(() => {
                         this.loading = false;
-                        // The form replaces the skeleton only once `loading`
-                        // is false, so the input does not exist to focus
-                        // until after this tick.
                         this.$nextTick(() => this.$refs.titleInput?.focus());
                     });
             },
-            // An end before the start is the one date mistake the server
-            // rejects, so the end date follows the start rather than waiting
-            // to fail validation.
             syncEndDate() {
                 if (dayjs(this.event.end_date).isBefore(this.event.start_date)) {
                     this.event.end_date = this.event.start_date;
@@ -452,8 +477,6 @@
                         this.$router.push({ name: 'events' });
                     })
                     .catch(error => {
-                        // The venue fields are behind a collapsed row, so a
-                        // rejection there would otherwise be invisible.
                         this.expanded.location = true;
                         this.$handleError(error);
                     })

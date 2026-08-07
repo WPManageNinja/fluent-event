@@ -233,4 +233,14 @@
         font-weight: 500;
         color: var(--fe-primary-text, #19283a);
     }
+
+    .media-modal .media-router {
+        .media-menu-item {
+            color: var(--fe-wp-link, #2271b1);
+        }
+
+        .media-menu-item.active {
+            color: var(--fe-wp-text, #1d2327);
+        }
+    }
 }
