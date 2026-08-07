@@ -391,7 +391,7 @@
                 const start = dayjs().add(1, 'hour').startOf('hour');
 
                 return {
-                    calendar_id: this.preselectedCalendarId(),
+                    calendar_id: null,
                     status: this.statuses[0].value,
                     title: '',
                     description: '',
@@ -407,20 +407,17 @@
                     cover_url: '',
                 };
             },
-            preselectedCalendarId() {
-                const requested = Number(this.$route.query.calendar_id);
-                return this.calendars.some(calendar => calendar.id === requested)
-                    ? requested
-                    : null;
-            },
             fetchCalendars() {
                 if(this.loading) return;
                 this.loading = true;
-                this.$get('calendars', { per_page: 100, status: 'active' })
+                this.$get('calendars', { per_page: 100 })
                     .then(response => {
                         this.error = '';
                         this.calendars = response.calendars.data;
                         this.event = this.initForm();
+                        const requested = Number(this.$route.query.calendar_id);
+                        const preSelected = this.calendars.find(calendar => calendar.id === requested);
+                        this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;
                     })
                     .catch(error => {
                         this.error = error?.message || '';
