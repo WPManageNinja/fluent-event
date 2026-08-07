@@ -269,4 +269,39 @@
         --el-skeleton-color: var(--fe-active-bg, #f0f3f5);
         --el-skeleton-to-color: var(--fe-primary-border, #d3d8de);
     }
+
+    .el-overlay {
+        z-index: 100000 !important;
+    }
+
+    .el-drawer {
+        background-color: var(--fe-primary-bg, #ffffff);
+
+        &__header {
+            margin-bottom: 0;
+            padding: var(--fe-space-5, 20px);
+            border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &__title {
+            margin: 0;
+            font-size: var(--fe-text-base, 16px);
+            font-weight: 600;
+        }
+
+        &__close-btn {
+            color: var(--fe-secondary-text, #525866);
+        }
+    }
+
+    .fe-event-drawer {
+        &.el-drawer {
+            max-width: 100%;
+        }
+
+        .el-drawer__body {
+            padding: var(--fe-space-5, 20px);
+        }
+    }
 }

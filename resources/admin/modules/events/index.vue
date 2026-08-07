@@ -1,33 +1,58 @@
 <template>
     <transition name="fade" mode="out-in" appear>
-        <div>
-            <div class="page-header">
-                <el-row>
-                    <el-col :span="12">
-                        <strong>{{ title }}</strong>
-                    </el-col>
-                </el-row>
+        <div class="fe-page fe-events">
+            <div class="fe-page__header">
+                <h1 class="fe-page__title">{{ $t('Events') }}</h1>
+
+                <div class="fe-page__actions">
+                    <SegmentedSwitch
+                        v-model="period"
+                        :options="periods"
+                        :label="$t('Filter events by period')"
+                    />
+
+                    <el-button type="primary" @click="goToCreate">
+                        {{ $t('Add Event') }}
+                    </el-button>
+                </div>
             </div>
 
-            <div class="page-content">
-                {{ $t('The combined events timeline lands in chunk 14d.') }}
-            </div>
+            <EventsTimeline :period="period" show-calendar />
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
-    /**
-     * Placeholder so the Events topbar entry has a route to resolve.
-     * Replaced by the real timeline in chunk 14d — see
-     * .claude/docs/phase/v1/screens/events.md
-     */
+    import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import EventsTimeline from './parts/EventsTimeline.vue';
+
     export default {
         name: 'Events',
+        components: {
+            SegmentedSwitch,
+            EventsTimeline,
+        },
+        data() {
+            return {
+                period: 'upcoming',
+            };
+        },
         computed: {
-            title() {
-                return this.$t('Events');
+            periods() {
+                return [
+                    { value: '', label: this.$t('All') },
+                    { value: 'upcoming', label: this.$t('Upcoming') },
+                    { value: 'past', label: this.$t('Past') },
+                ];
             },
+        },
+        methods: {
+            goToCreate() {
+                this.$router.push({ name: 'event_create' });
+            },
+        },
+        mounted() {
+            this.$changeTitle(this.$t('Events'));
         },
     };
 </script>
