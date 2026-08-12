@@ -15,6 +15,10 @@
                     {{ time }}
                 </span>
 
+                <span v-if="dayCount" class="fe-event-card__badge">
+                    {{ $t('%d days', dayCount) }}
+                </span>
+
                 <el-tag class="capitalize" :type="statusType" size="small">
                     {{ $t(event.status) }}
                 </el-tag>
@@ -54,6 +58,7 @@
 </template>
 
 <script type="text/javascript">
+    import dayjs from 'dayjs';
     import { Clock, LocationInformation, User, VideoCamera } from '@element-plus/icons-vue';
 
     export default {
@@ -89,6 +94,14 @@
             },
             time() {
                 return this.$formatDate(this.event.start_at_local, 'hh:mm A');
+            },
+            dayCount() {
+                const start = this.event.start_at_local.slice(0, 10);
+                const end = this.event.end_at_local.slice(0, 10);
+
+                if (start === end) return 0;
+
+                return dayjs(end).diff(dayjs(start), 'day') + 1;
             },
             location() {
                 if (this.isOnline) {

@@ -130,13 +130,26 @@
             day() {
                 return this.$formatDate(this.event.start_at_local, 'D');
             },
+            isMultiDay() {
+                return this.event.start_at_local.slice(0, 10)
+                    !== this.event.end_at_local.slice(0, 10);
+            },
             fullDate() {
-                return this.$formatDate(this.event.start_at_local, 'dddd, MMMM D, YYYY');
+                if (!this.isMultiDay) {
+                    return this.$formatDate(this.event.start_at_local, 'dddd, MMMM D, YYYY');
+                }
+
+                const start = this.$formatDate(this.event.start_at_local, 'MMM D');
+                const end = this.$formatDate(this.event.end_at_local, 'MMM D, YYYY');
+
+                return `${start} – ${end}`;
             },
             timeRange() {
-                const start = this.$formatDate(this.event.start_at_local, 'h:mm A');
-                const end = this.$formatDate(this.event.end_at_local, 'h:mm A');
-                return `${start} - ${end} (${this.event.timezone})`;
+                const format = this.isMultiDay ? 'MMM D, h:mm A' : 'h:mm A';
+                const start = this.$formatDate(this.event.start_at_local, format);
+                const end = this.$formatDate(this.event.end_at_local, format);
+
+                return `${start} – ${end} (${this.event.timezone})`;
             },
             meetingUrl() {
                 const url = this.event.meta?.online_meeting_url || '';
