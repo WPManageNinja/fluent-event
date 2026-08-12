@@ -452,26 +452,36 @@
         gap: var(--fe-space-5, 20px);
     }
 
-    &__field {
-        display: flex;
-        flex-direction: column;
-        gap: var(--fe-space-2, 8px);
-        padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
-    }
-
     .el-radio {
         margin-right: var(--fe-space-4, 16px);
     }
 
-    &__calendar-select.el-select {
-        width: 350px;
-        max-width: 100%;
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--fe-space-3, 12px);
     }
 
-    &__field-label {
-        font-size: var(--fe-text-sm, 14px);
-        font-weight: 500;
-        color: var(--fe-secondary-text, #525866);
+    &__header-select.el-select {
+        width: fit-content;
+        max-width: 100%;
+
+        .el-select__wrapper {
+            gap: var(--fe-space-2, 8px);
+        }
+
+        .el-select__placeholder {
+            position: static;
+            width: auto;
+            transform: none;
+        }
+    }
+
+    &__header-swatch {
+        width: 14px;
+        height: 14px;
     }
 
     &__title-label {
@@ -1195,7 +1205,7 @@
         color: var(--fe-primary-text, #19283a);
     }
 
-    &__meta {
+    &__header {
         display: flex;
         align-items: center;
         gap: var(--fe-space-2, 8px);
