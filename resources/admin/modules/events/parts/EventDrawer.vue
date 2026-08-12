@@ -80,6 +80,14 @@
                 </div>
             </div>
 
+            <el-button
+                class="fe-event-detail__action"
+                type="primary"
+                @click="goToDetail"
+            >
+                {{ $t('View Full Details') }}
+            </el-button>
+
             <div v-if="event.description" class="fe-event-detail__section">
                 <h3 class="fe-event-detail__section-title">{{ $t('Description') }}</h3>
 
@@ -158,6 +166,12 @@
             coverUrl() {
                 const url = this.event.meta?.cover_url || '';
                 return /^https?:/i.test(url) ? url : '';
+            },
+        },
+        methods: {
+            goToDetail() {
+                this.$emit('update:modelValue', false);
+                this.$router.push({ name: 'event_detail', params: { id: this.event.id } });
             },
         },
     };

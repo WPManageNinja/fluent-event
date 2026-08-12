@@ -41,6 +41,27 @@ class EventController extends Controller
         ]);
     }
 
+    public function getEvent(Request $request, $id)
+    {
+        $event = Event::query()
+            ->with([
+                'post'        => function ($query) {
+                    $query->select(['ID', 'post_title', 'post_content', 'post_author']);
+                },
+                'post.author' => function ($query) {
+                    $query->select(['ID', 'display_name']);
+                },
+                'calendar'    => function ($query) {
+                    $query->select(['id', 'title', 'visibility', 'meta']);
+                },
+            ])
+            ->findOrFail($id);
+
+        return $this->sendSuccess([
+            'event' => $event
+        ]);
+    }
+
     public function createEvent(Request $request)
     {
         $data = EventRequest::sanitize($request->all());

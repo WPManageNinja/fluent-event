@@ -42,6 +42,12 @@ export default [
         meta: { active_menu: 'events' },
     },
     {
+        path: '/events/:id(\\d+)',
+        name: 'event_detail',
+        component: () => import('@/modules/events/detail.vue'),
+        meta: { active_menu: 'events' },
+    },
+    {
         path: '/settings',
         name: 'settings',
         component: () => import('@/modules/settings/index.vue'),

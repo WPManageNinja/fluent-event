@@ -34,7 +34,7 @@
                 <Tabs v-model="tab" :tabs="tabs">
                     <template #overview>
                         <div class="fe-card">
-                            <div v-if="calendar.description" class="fe-calendar-detail__description" v-html="calendar.description"></div>
+                            <div v-if="calendar.description" class="fe-rich-text" v-html="calendar.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in CalendarController::getCalendar() -->
 
                             <el-empty v-else :description="$t('No description yet.')" />
                         </div>
