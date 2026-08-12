@@ -44,6 +44,26 @@
         </template>
     </el-skeleton>
 
+    <el-skeleton v-else-if="type === 'event-grid'" animated>
+        <template #template>
+            <div class="fe-events-grid fe-events-grid--skeleton">
+                <div class="fe-events-grid__skeleton-header">
+                    <el-skeleton-item variant="h1" class="fe-events-grid__skeleton-month" />
+                    <el-skeleton-item variant="rect" class="fe-events-grid__skeleton-nav" />
+                </div>
+
+                <div class="fe-events-grid__skeleton-cells">
+                    <el-skeleton-item
+                        v-for="cell in rowCount * 7"
+                        :key="cell"
+                        variant="rect"
+                        class="fe-events-grid__skeleton-cell"
+                    />
+                </div>
+            </div>
+        </template>
+    </el-skeleton>
+
     <el-skeleton v-else-if="type === 'event-form'" animated>
         <template #template>
             <div class="fe-event-form__grid">
@@ -154,6 +174,7 @@ export default {
         return {
             defaultRows: {
                 timeline: 6,
+                'event-grid': 6,
                 'event-form': 4,
                 'calendar-grid': 6,
                 'calendar-form': 2,

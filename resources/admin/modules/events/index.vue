@@ -17,20 +17,20 @@
                 </div>
             </div>
 
-            <EventsTimeline :period="period" show-calendar />
+            <EventsView v-model:period="period" show-calendar />
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-    import EventsTimeline from './parts/EventsTimeline.vue';
+    import EventsView from './parts/EventsView.vue';
 
     export default {
         name: 'Events',
         components: {
             SegmentedSwitch,
-            EventsTimeline,
+            EventsView,
         },
         data() {
             return {

@@ -9,9 +9,15 @@
             class="fe-switch__option"
             :class="{ 'fe-switch__option--active': option.value === modelValue }"
             :aria-pressed="option.value === modelValue"
+            :aria-label="option.icon ? option.label : null"
+            :title="option.icon ? option.label : null"
             @click="select(option.value)"
         >
-            {{ option.label }}
+            <el-icon v-if="option.icon" aria-hidden="true">
+                <component :is="option.icon" />
+            </el-icon>
+
+            <template v-else>{{ option.label }}</template>
         </button>
     </div>
 </template>

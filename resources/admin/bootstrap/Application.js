@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+import updateLocale from 'dayjs/plugin/updateLocale';
 import { createApp, reactive } from 'vue';
 import mixins from '@/mixins';
 import config from './config';
@@ -16,6 +18,7 @@ export default class Application {
             logoUrl: fluentEventAdmin.logoUrl || '',
         });
 
+        this.configureDateLocale();
         this.registerMixins(app);
         this.registerGlobalProperties(app);
         Rest.setInstance(app);
@@ -23,6 +26,14 @@ export default class Application {
         this.registerGlobalErrorHandlers(app);
 
         return this.instance(app);
+    }
+
+    // re-write the `start_of_week` according to the wordpress
+    configureDateLocale() {
+        dayjs.extend(updateLocale);
+        dayjs.updateLocale('en', {
+            weekStart: fluentEventAdmin.start_of_week || 0,
+        });
     }
 
     registerMixins(app) {

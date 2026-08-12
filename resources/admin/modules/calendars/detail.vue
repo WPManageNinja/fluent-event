@@ -57,7 +57,7 @@
                             </div>
                         </div>
 
-                        <EventsTimeline :period="period" :calendar-id="calendarId" />
+                        <EventsView v-model:period="period" :calendar-id="calendarId" />
                     </template>
 
                     <template #settings>
@@ -74,7 +74,7 @@
     import Tabs from '@/components/Tabs.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-    import EventsTimeline from '@/modules/events/parts/EventsTimeline.vue';
+    import EventsView from '@/modules/events/parts/EventsView.vue';
     import CalendarDangerZone from './parts/CalendarDangerZone.vue';
 
     export default {
@@ -84,7 +84,7 @@
             Tabs,
             ErrorState,
             SegmentedSwitch,
-            EventsTimeline,
+            EventsView,
             CalendarDangerZone,
         },
         data() {
