@@ -147,7 +147,7 @@ class Event extends Model
         };
 
         if ($isDate($from)) {
-            $query->where('start_at', '>=', $from . ' 00:00:00');
+            $query->where('end_at', '>=', $from . ' 00:00:00');
         }
 
         if ($isDate($to)) {

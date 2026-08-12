@@ -310,6 +310,7 @@ class AdminMenuHandler
             'theme'         => $theme,
             'user_locale'   => get_locale(),
             'timezone'      => wp_timezone_string(),
+            'start_of_week' => (int) get_option('start_of_week', 0),
             'brand_logo'    => $this->getMenuIcon(),
             'nonce'         => wp_create_nonce($slug),
             'asset_url'     => $this->app['url.assets'],
