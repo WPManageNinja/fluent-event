@@ -36,6 +36,25 @@ class EventService
         return $event;
     }
 
+    public static function deleteEvent($event)
+    {
+        do_action('fluent_event/event/before_deleted', $event);
+
+        DB::transaction(function () use ($event) {
+            $event->delete();
+
+            if (!wp_delete_post($event->post_id, true)) {
+                throw new HttpException(
+                    422,
+                    __('The event could not be deleted. Please try again.', 'fluent-event'),
+                    'event_post_delete_failed'
+                );
+            }
+        });
+
+        do_action('fluent_event/event/deleted', $event);
+    }
+
     protected static function createWpPost($data)
     {
         $postId = wp_insert_post([

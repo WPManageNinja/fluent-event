@@ -75,4 +75,15 @@ class EventController extends Controller
             'event'   => $event
         ]);
     }
+
+    public function deleteEvent(Request $request, $id)
+    {
+        $event = Event::query()->findOrFail($id);
+
+        EventService::deleteEvent($event);
+
+        return $this->sendSuccess([
+            'message' => __('Event has been successfully deleted', 'fluent-event')
+        ]);
+    }
 }
