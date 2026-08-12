@@ -21,5 +21,6 @@ $router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
     $router->get('/{id}', [EventController::class, 'getEvent'])->int('id');
 
     $router->post('/', [EventController::class, 'createEvent']);
+    $router->patch('/{id}', [EventController::class, 'updateEvent'])->int('id');
     $router->delete('/{id}', [EventController::class, 'deleteEvent'])->int('id');
 });

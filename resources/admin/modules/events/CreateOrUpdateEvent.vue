@@ -3,10 +3,8 @@
         <div class="fe-page fe-event-create">
             <div class="fe-page__header">
                 <div>
-                    <h1 class="fe-page__title">{{ $t('Create Event') }}</h1>
-                    <p class="fe-page__subtitle">
-                        {{ $t('Events live inside a calendar. Pick one, say when it happens, and publish.') }}
-                    </p>
+                    <h1 class="fe-page__title">{{ pageTitle }}</h1>
+                    <p class="fe-page__subtitle">{{ pageSubtitle }}</p>
                 </div>
 
                 <div class="fe-page__actions">
@@ -18,7 +16,7 @@
 
             <Skeleton v-if="loading" type="event-form" />
 
-            <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
+            <ErrorState v-else-if="error" :message="error" @retry="loadForm" />
 
             <div v-else-if="!calendars.length" class="fe-card">
                 <el-empty :description="$t('An event needs a calendar to live in, and there are none yet.')">
@@ -266,7 +264,7 @@
                             :loading="saving"
                             :disabled="saving"
                         >
-                            {{ $t('Create Event') }}
+                            {{ submitLabel }}
                         </el-button>
                     </div>
                 </div>
@@ -286,7 +284,7 @@
     const config = window.fluentEventAdmin;
 
     export default {
-        name: 'CreateEvent',
+        name: 'CreateOrUpdateEvent',
         components: {
             Document,
             LocationInformation,
@@ -311,6 +309,23 @@
             };
         },
         computed: {
+            eventId() {
+                return this.$route.params.id;
+            },
+            isEditing() {
+                return !!this.eventId;
+            },
+            pageTitle() {
+                return this.isEditing ? this.$t('Edit Event') : this.$t('Create Event');
+            },
+            pageSubtitle() {
+                return this.isEditing
+                    ? this.$t('Update the event details. Guests already registered are not affected.')
+                    : this.$t('Events live inside a calendar. Pick one, say when it happens, and publish.');
+            },
+            submitLabel() {
+                return this.isEditing ? this.$t('Update Event') : this.$t('Create Event');
+            },
             statuses() {
                 return [
                     { value: 'public', label: this.$t('Public') },
@@ -368,37 +383,55 @@
             },
         },
         methods: {
-            initForm() {
-                const start = dayjs().add(1, 'hour').startOf('hour');
+            initForm(event = null) {
+                const meta = event?.meta || {};
+                const start = event ? dayjs(event.start_at_local) : dayjs().add(1, 'hour').startOf('hour');
+                const end = event ? dayjs(event.end_at_local) : start.add(1, 'hour');
 
                 return {
-                    calendar_id: null,
-                    status: this.statuses[0].value,
-                    title: '',
-                    description: '',
+                    calendar_id: event?.calendar_id || null,
+                    status: event?.status || this.statuses[0].value,
+                    title: event?.title || '',
+                    description: event?.description || '',
                     start_date: start.format('YYYY-MM-DD'),
                     start_time: start.format('HH:mm'),
-                    end_date: start.format('YYYY-MM-DD'),
-                    end_time: start.add(1, 'hour').format('HH:mm'),
-                    timezone: this.defaultTimezone,
-                    venue_type: this.venueTypes[0].value,
-                    online_meeting_url: '',
-                    venue: '',
-                    address: '',
-                    cover_url: '',
+                    end_date: end.format('YYYY-MM-DD'),
+                    end_time: end.format('HH:mm'),
+                    timezone: event?.timezone || this.defaultTimezone,
+                    venue_type: event?.venue_type || this.venueTypes[0].value,
+                    online_meeting_url: meta.online_meeting_url || '',
+                    venue: meta.venue || '',
+                    address: meta.address || '',
+                    cover_url: meta.cover_url || '',
                 };
             },
-            fetchCalendars() {
-                if(this.loading) return;
+            loadForm() {
+                if (this.loading) return;
                 this.loading = true;
-                this.$get('calendars')
-                    .then(response => {
+
+                const requests = [this.$get('calendars')];
+
+                if (this.isEditing) {
+                    requests.push(this.$get(`events/${this.eventId}`));
+                }
+
+                Promise.all(requests)
+                    .then(([calendarResponse, eventResponse]) => {
                         this.error = '';
-                        this.calendars = response.calendars;
-                        this.event = this.initForm();
-                        const requested = Number(this.$route.query.calendar_id);
-                        const preSelected = this.calendars.find(calendar => calendar.id === requested);
-                        this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;
+                        this.calendars = calendarResponse.calendars;
+                        this.event = this.initForm(eventResponse?.event);
+
+                        if (!this.isEditing) {
+                            const requested = Number(this.$route.query.calendar_id);
+                            const preSelected = this.calendars.find(calendar => calendar.id === requested);
+                            this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;
+                            return;
+                        }
+
+                        this.expanded.location = !!(this.event.venue
+                            || this.event.address
+                            || this.event.online_meeting_url);
+                        this.expanded.description = !!this.event.description;
                     })
                     .catch(error => {
                         this.error = error?.message || '';
@@ -435,7 +468,7 @@
                 if (this.saving) return;
                 this.saving = true;
 
-                this.$post('events', {
+                const payload = {
                     calendar_id: this.event.calendar_id,
                     status: this.event.status,
                     title: this.event.title,
@@ -448,10 +481,20 @@
                     online_meeting_url: this.event.online_meeting_url,
                     venue: this.event.venue,
                     address: this.event.address,
-                })
+                };
+
+                const request = this.isEditing
+                    ? this.$patch(`events/${this.eventId}`, payload)
+                    : this.$post('events', payload);
+
+                request
                     .then(response => {
                         this.$notifySuccess(response.message);
-                        this.$router.push({ name: 'events' });
+                        this.$router.push(
+                            this.isEditing
+                                ? { name: 'event_detail', params: { id: this.eventId } }
+                                : { name: 'events' }
+                        );
                     })
                     .catch(error => {
                         this.expanded.location = true;
@@ -466,10 +509,10 @@
             },
         },
         created() {
-            this.fetchCalendars();
+            this.loadForm();
         },
         mounted() {
-            this.$changeTitle(this.$t('Create Event'));
+            this.$changeTitle(this.pageTitle);
         },
     };
 </script>
