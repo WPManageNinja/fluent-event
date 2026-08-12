@@ -1,3 +1,14 @@
+:where(.toplevel_page_fluent-event) {
+    :where(.fe-app, .el-popper, .el-overlay) {
+        &,
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+    }
+}
+
 .toplevel_page_fluent-event {
     #wpwrap,
     #wpcontent,
