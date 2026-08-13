@@ -2,7 +2,9 @@ import { createApp, reactive } from 'vue';
 import mixins from '@/mixins';
 import config from './config';
 import Rest from '@/utils/http/Rest';
-import { ElNotification } from 'element-plus';
+import { ElNotification, zIndexContextKey } from 'element-plus';
+
+const EL_Z_INDEX_BASE = 100000;
 
 export default class Application {
 
@@ -15,6 +17,8 @@ export default class Application {
             baseUrl: fluentEventAdmin.baseUrl || '#',
             logoUrl: fluentEventAdmin.logoUrl || '',
         });
+
+        app.provide(zIndexContextKey, EL_Z_INDEX_BASE);
 
         this.registerMixins(app);
         this.registerGlobalProperties(app);
