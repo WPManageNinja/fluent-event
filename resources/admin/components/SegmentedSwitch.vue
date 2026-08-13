@@ -44,6 +44,9 @@ export default {
     watch: {
         modelValue() {
             this.$nextTick(this.moveIndicator);
+        },
+        options() {
+            this.$nextTick(this.moveIndicator);
         }
     },
     methods: {
@@ -65,6 +68,12 @@ export default {
     },
     mounted() {
         this.moveIndicator();
+
+        this.resizeObserver = new ResizeObserver(this.moveIndicator);
+        this.resizeObserver.observe(this.$refs.root);
+    },
+    beforeUnmount() {
+        this.resizeObserver?.disconnect();
     }
 }
 </script>
