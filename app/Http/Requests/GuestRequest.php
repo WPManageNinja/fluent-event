@@ -25,11 +25,13 @@ class GuestRequest extends BaseRequest
         'name'   => 'sanitize_text_field',
         'email'  => 'sanitize_email',
         'status' => 'sanitize_text_field',
+        'user_id' => 'intval',
     ];
     const RULES = [
         'name'   => 'required|string|max:255',
         'email'  => 'required|email|max:192',
         'status' => 'nullable|string|in:' . Guest::STATUSES,
+        'user_id' => 'nullable|integer|exists:users,ID',
     ];
 
     public static function createRules($eventId)
@@ -56,6 +58,7 @@ class GuestRequest extends BaseRequest
             'email.email'    => __('Please provide a valid email address.', 'fluent-event'),
             'email.max'      => __('Email cannot exceed 192 characters.', 'fluent-event'),
             'email.unique'   => __('A guest with this email is already on this event.', 'fluent-event'),
+            'user_id.exists' => __('The selected WordPress user no longer exists.', 'fluent-event'),
             'status.in'      => __('Status must be going, checked in or cancelled.', 'fluent-event'),
         ];
     }

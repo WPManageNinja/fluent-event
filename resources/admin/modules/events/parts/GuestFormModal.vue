@@ -8,16 +8,16 @@
         @open="resetForm"
     >
         <el-form class="fe-form" label-position="top" @submit.prevent="save">
-            <el-form-item v-if="!isEditing">
+            <el-form-item>
                 <SegmentedSwitch
                     v-model="mode"
                     :options="modes"
-                    :label="$t('Choose how to add the guest')"
-                    @change="resetIdentity"
+                    :label="$t('Choose how to identify the guest')"
+                    @change="onModeChange"
                 />
             </el-form-item>
 
-            <el-form-item v-if="isPickingUser" :label="$t('WordPress user *')">
+            <el-form-item v-if="mode === 'wp_user'" :label="$t('WordPress user *')">
                 <el-select
                     v-model="selectedUserId"
                     filterable
@@ -37,19 +37,18 @@
                 </el-select>
             </el-form-item>
 
-            <template v-if="!isPickingUser">
-                <el-form-item :label="$t('Name *')">
-                    <el-input v-model="form.name" :placeholder="$t('e.g. Jane Cooper')" />
-                </el-form-item>
+            <el-form-item :label="$t('Name *')">
+                <el-input v-model="form.name" :placeholder="$t('e.g. Jane Cooper')" />
+            </el-form-item>
 
-                <el-form-item :label="$t('Email *')">
-                    <el-input
-                        v-model="form.email"
-                        type="email"
-                        :placeholder="$t('e.g. jane@example.com')"
-                    />
-                </el-form-item>
-            </template>
+            <el-form-item :label="$t('Email *')">
+                <el-input
+                    v-model="form.email"
+                    type="email"
+                    :disabled="mode === 'wp_user'"
+                    :placeholder="$t('e.g. jane@example.com')"
+                />
+            </el-form-item>
 
             <el-form-item :label="$t('Status')">
                 <el-select v-model="form.status" :aria-label="$t('Status')">
@@ -120,9 +119,6 @@
             isEditing() {
                 return !!this.guest;
             },
-            isPickingUser() {
-                return !this.isEditing && this.mode === 'wp_user';
-            },
             modes() {
                 return [
                     { value: 'manual', label: this.$t('Enter manually') },
@@ -138,13 +134,17 @@
         },
         methods: {
             resetForm() {
-                this.mode = 'manual';
-                this.selectedUserId = null;
+                this.selectedUserId = this.guest?.user_id || null;
+                this.mode = this.selectedUserId ? 'wp_user' : 'manual';
                 this.form = {
                     name: this.guest?.name || '',
                     email: this.guest?.email || '',
                     status: this.guest?.status || this.statuses[0].value,
                 };
+
+                this.users = this.selectedUserId
+                    ? [{ id: this.selectedUserId, name: this.form.name, email: this.form.email }]
+                    : [];
             },
             searchUsers(search) {
                 this.loadingUsers = true;
@@ -164,13 +164,10 @@
                 this.form.name = user.name;
                 this.form.email = user.email;
             },
-            // Switching modes should not carry the other mode's identity over.
-            resetIdentity() {
+            onModeChange() {
                 this.selectedUserId = null;
-                this.form.name = '';
-                this.form.email = '';
 
-                if (this.isPickingUser) {
+                if (this.mode === 'wp_user') {
                     this.searchUsers('');
                 }
             },
@@ -182,13 +179,17 @@
                 this.saving = true;
 
                 const base = `events/${this.eventId}/guests`;
+                const payload = {
+                    ...this.form,
+                    user_id: this.mode === 'wp_user' ? this.selectedUserId : null,
+                };
+
                 const request = this.isEditing
-                    ? this.$patch(`${base}/${this.guest.id}`, this.form)
-                    : this.$post(base, this.form);
+                    ? this.$patch(`${base}/${this.guest.id}`, payload)
+                    : this.$post(base, payload);
 
                 request
                     .then(response => {
-                        // Close before the toast — the overlay would dim it otherwise.
                         this.close(false);
                         this.$notifySuccess(response.message);
                         this.$emit('saved');
