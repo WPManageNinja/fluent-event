@@ -24,7 +24,7 @@
                 <el-col :md="16" :sm="24">
                     <StatGroups :stats="stats" />
                     <StatGroups :title="$t('Calendars')" :stats="calendarStats" />
-                    <StatGroups :title="$t('Events')" :stats="eventStats" :md="6" />
+                    <StatGroups :title="$t('Events')" :stats="eventStats" />
                     <StatGroups :title="$t('Guests')" :stats="guestStats" />
 
                     <GuestGrowth

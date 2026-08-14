@@ -69,11 +69,6 @@ class ReportService
                 'Completed',
                 $liveEvents()->where('end_at', '<', $now)->count()
             ),
-            'draft' => self::tile(
-                __('Drafts', 'fluent-event'),
-                'Draft',
-                Event::query()->where('status', 'draft')->count()
-            ),
         ];
 
         $guestStats = [

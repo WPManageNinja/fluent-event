@@ -199,12 +199,9 @@
                     >
                         <el-skeleton-item variant="text" class="fe-skeleton__section-title" />
 
-                        <div
-                            class="fe-skeleton__tiles"
-                            :class="{ 'fe-skeleton__tiles--four': section === 'events' }"
-                        >
+                        <div class="fe-skeleton__tiles">
                             <el-skeleton-item
-                                v-for="tile in (section === 'events' ? 4 : 3)"
+                                v-for="tile in 3"
                                 :key="`${section}-${tile}`"
                                 variant="rect"
                                 class="fe-skeleton__tile"

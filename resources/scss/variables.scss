@@ -46,6 +46,12 @@ body {
     --fe-chart-going: #0099ff;
     --fe-chart-checked-in: #1a7f37;
     --fe-chart-cancelled: #e06c75;
+    --fe-accent-blue: #0e7ff1;
+    --fe-accent-green: #1a7f37;
+    --fe-accent-rose: #e06c75;
+    --fe-accent-amber: #d97706;
+    --fe-accent-purple: #6e56cf;
+    --fe-accent-slate: #64748b;
 
     // Element Plus
     --el-color-primary: rgba(64, 158, 255, 1);
@@ -85,6 +91,12 @@ html.dark body {
     --fe-chart-going: #339cff;
     --fe-chart-checked-in: #3fb950;
     --fe-chart-cancelled: #e8919a;
+    --fe-accent-blue: #4aa3ff;
+    --fe-accent-green: #3fb950;
+    --fe-accent-rose: #e8919a;
+    --fe-accent-amber: #fbbf24;
+    --fe-accent-purple: #9d8cff;
+    --fe-accent-slate: #94a3b8;
 
     // Element Plus
     --el-color-primary: rgba(64, 158, 255, 1);

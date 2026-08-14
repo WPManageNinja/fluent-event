@@ -5,14 +5,18 @@
         <el-col
             v-for="(stat, key) in stats"
             :key="key"
-            :xs="12"
+            :xs="24"
             :sm="8"
             :md="md"
         >
             <div class="fe-dashboard__tile">
-                <div class="fe-dashboard__tile-icon">
-                    <el-icon aria-hidden="true"><component :is="tileIcon(stat)" /></el-icon>
-                </div>
+                <el-icon
+                    class="fe-dashboard__tile-watermark"
+                    :class="`fe-dashboard__tile-watermark--${stat.icon.toLowerCase()}`"
+                    aria-hidden="true"
+                >
+                    <component :is="tileIcon(stat)" />
+                </el-icon>
 
                 <div class="fe-dashboard__tile-body">
                     <p class="fe-dashboard__tile-title">{{ stat.title }}</p>
