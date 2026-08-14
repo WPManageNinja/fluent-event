@@ -180,6 +180,56 @@
         </template>
     </el-skeleton>
 
+    <el-skeleton v-else-if="type === 'dashboard'" animated>
+        <template #template>
+            <el-row :gutter="20">
+                <el-col :md="16" :sm="24">
+                    <div class="fe-skeleton__tiles">
+                        <el-skeleton-item
+                            v-for="tile in 3"
+                            :key="`total-${tile}`"
+                            variant="rect"
+                            class="fe-skeleton__tile"
+                        />
+                    </div>
+
+                    <template
+                        v-for="section in ['calendars', 'events', 'guests']"
+                        :key="section"
+                    >
+                        <el-skeleton-item variant="text" class="fe-skeleton__section-title" />
+
+                        <div
+                            class="fe-skeleton__tiles"
+                            :class="{ 'fe-skeleton__tiles--four': section === 'events' }"
+                        >
+                            <el-skeleton-item
+                                v-for="tile in (section === 'events' ? 4 : 3)"
+                                :key="`${section}-${tile}`"
+                                variant="rect"
+                                class="fe-skeleton__tile"
+                            />
+                        </div>
+                    </template>
+
+                    <el-skeleton-item variant="rect" class="fe-skeleton__chart" />
+                </el-col>
+
+                <el-col :md="8" :sm="24">
+                    <el-skeleton-item
+                        variant="rect"
+                        class="fe-skeleton__panel fe-skeleton__panel--short"
+                    />
+                    <el-skeleton-item variant="rect" class="fe-skeleton__panel" />
+                    <el-skeleton-item
+                        variant="rect"
+                        class="fe-skeleton__panel fe-skeleton__panel--tall"
+                    />
+                </el-col>
+            </el-row>
+        </template>
+    </el-skeleton>
+
     <el-skeleton v-else :rows="rowCount" animated />
 </template>
 

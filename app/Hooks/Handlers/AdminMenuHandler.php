@@ -238,7 +238,7 @@ class AdminMenuHandler
      */
     protected function enqueueAdminStyles($handle)
     {
-        Enqueue::style($handle, 'admin/admin.css');
+        Enqueue::style($handle, 'admin/admin.css', [], FLUENT_EVENT_PLUGIN_VERSION);
     }
 
     /**
@@ -262,7 +262,7 @@ class AdminMenuHandler
             $handle,
             'admin/app.js',
             [],
-            '1.0',
+            FLUENT_EVENT_PLUGIN_VERSION,
             true
         );
     }
@@ -280,7 +280,7 @@ class AdminMenuHandler
             $handle . '_start',
             'admin/start.js',
             ['wp-api-fetch', $handle],
-            '1.0',
+            FLUENT_EVENT_PLUGIN_VERSION,
             true
         );
     }
