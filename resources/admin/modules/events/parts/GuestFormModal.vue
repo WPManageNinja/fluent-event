@@ -4,7 +4,7 @@
         :title="title"
         width="460px"
         append-to-body
-        @update:model-value="close"
+        @update:model-value="$emit('update:modelValue', $event)"
         @open="resetForm"
     >
         <el-form class="fe-form" label-position="top" @submit.prevent="save">
@@ -63,7 +63,7 @@
         </el-form>
 
         <template #footer>
-            <el-button :disabled="saving" @click="close(false)">
+            <el-button :disabled="saving" @click="close">
                 {{ $t('Cancel') }}
             </el-button>
 
@@ -165,14 +165,12 @@
                 this.form.email = user.email;
             },
             onModeChange() {
-                this.selectedUserId = null;
-
-                if (this.mode === 'wp_user') {
+                if (this.mode === 'wp_user' && !this.users.length) {
                     this.searchUsers('');
                 }
             },
-            close(open = false) {
-                this.$emit('update:modelValue', open);
+            close() {
+                this.$emit('update:modelValue', false);
             },
             save() {
                 if (this.saving) return;
@@ -190,7 +188,7 @@
 
                 request
                     .then(response => {
-                        this.close(false);
+                        this.close();
                         this.$notifySuccess(response.message);
                         this.$emit('saved');
                     })
