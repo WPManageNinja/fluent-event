@@ -25,7 +25,11 @@
                     </div>
 
                     <div class="fe-page__actions">
-                        <el-button type="secondary" @click="goToEdit">
+                        <el-button
+                            v-if="$userCan('write_calendars')"
+                            type="secondary"
+                            @click="goToEdit"
+                        >
                             {{ $t('Edit Calendar') }}
                         </el-button>
                     </div>
@@ -51,7 +55,11 @@
                                     :label="$t('Filter events by period')"
                                 />
 
-                                <el-button type="primary" @click="goToEventCreate">
+                                <el-button
+                                    v-if="$userCan('write_events')"
+                                    type="primary"
+                                    @click="goToEventCreate"
+                                >
                                     {{ $t('Add Event') }}
                                 </el-button>
                             </div>
@@ -98,11 +106,19 @@
         },
         computed: {
             tabs() {
-                return [
+                const tabs = [
                     { value: 'overview', label: this.$t('Overview') },
-                    { value: 'events', label: this.$t('Events') },
-                    { value: 'settings', label: this.$t('Settings') },
                 ];
+
+                if (this.$userCan(['read_events', 'write_events'], { match_type: 'any' })) {
+                    tabs.push({ value: 'events', label: this.$t('Events') });
+                }
+
+                if (this.$userCan('write_calendars')) {
+                    tabs.push({ value: 'settings', label: this.$t('Settings') });
+                }
+
+                return tabs;
             },
             periods() {
                 return [

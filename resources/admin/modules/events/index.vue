@@ -11,7 +11,11 @@
                         :label="$t('Filter events by period')"
                     />
 
-                    <el-button type="primary" @click="goToCreate">
+                    <el-button
+                        v-if="$userCan('write_events')"
+                        type="primary"
+                        @click="goToCreate"
+                    >
                         {{ $t('Add Event') }}
                     </el-button>
                 </div>

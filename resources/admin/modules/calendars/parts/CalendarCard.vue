@@ -11,7 +11,11 @@
                 </router-link>
             </h3>
 
-            <ActionPopover :items="actions" placement="bottom-end" />
+            <ActionPopover
+                v-if="$userCan('write_calendars')"
+                :items="actions"
+                placement="bottom-end"
+            />
         </div>
 
         <p class="fe-calendars__card-slug">{{ calendar.slug }}</p>
