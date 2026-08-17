@@ -185,6 +185,18 @@ class AdminMenuHandler
                 'key'       => 'settings',
                 'label'     => __('Settings', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'settings',
+                'children'  => [
+                    [
+                        'key'       => 'settings_general',
+                        'label'     => __('General', 'fluent-event'),
+                        'permalink' => $this->baseUrl . 'settings/general',
+                    ],
+                    [
+                        'key'       => 'settings_team',
+                        'label'     => __('Team', 'fluent-event'),
+                        'permalink' => $this->baseUrl . 'settings/team',
+                    ],
+                ],
             ],
         ];
     }

@@ -1,6 +1,9 @@
 .fe-navbar {
-    position: sticky;
+    position: fixed;
+    width: 100%;
     top: var(--wp-admin--admin-bar--height, 0px);
+    right: 0;
+    left: 0;
     z-index: 99;
     display: flex;
     align-items: center;
@@ -11,6 +14,7 @@
     height: var(--fe-navbar-height, 65px);
     
     @media (max-width: 600px) {
+        position: sticky;
         top: 0;
     }
 
@@ -121,6 +125,68 @@
 
     &__link-wrapper {
         position: relative;
+    }
+
+    &__link.fe-navbar__link--toggle {
+        display: none;
+    }
+
+    @media (max-width: 782px) {
+        &__link.fe-navbar__link--direct {
+            display: none;
+        }
+
+        &__link.fe-navbar__link--toggle {
+            display: flex;
+        }
+    }
+
+    &__dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: var(--fe-space-1, 4px);
+        min-width: 180px;
+        margin-top: var(--fe-space-2, 8px);
+        padding: var(--fe-space-2, 8px);
+        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        max-height: 60vh;
+        overflow-y: auto;
+        transform-origin: top right;
+        visibility: hidden;
+        opacity: 0;
+        transform: scale(0);
+        transition:
+            opacity 0.16s ease,
+            transform 0.18s ease,
+            visibility 0s linear 0.18s;
+
+        &.fe-navbar__dropdown--open {
+            visibility: visible;
+            opacity: 1;
+            transform: scale(1);
+            transition:
+                opacity 0.18s ease,
+                transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0s;
+        }
+
+        .fe-navbar__link .fe-navbar__link-text {
+            display: block;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &__dropdown,
+        &__dropdown.fe-navbar__dropdown--open {
+            transition: none;
+        }
     }
 
     &__link {

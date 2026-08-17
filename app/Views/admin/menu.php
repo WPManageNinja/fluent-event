@@ -1,4 +1,16 @@
 <?php
+/**
+ * Admin topbar template. Variables are extracted from the array passed
+ * by AdminMenuHandler::render() via the framework view renderer.
+ *
+ * @var string $slug           Plugin slug.
+ * @var string $baseUrl        SPA base URL (admin.php?page=...#/).
+ * @var string $name           Plugin display name.
+ * @var string $logo           Light-mode logo URL.
+ * @var string $darkLogo       Dark-mode logo URL.
+ * @var array  $menuItems      Center topbar items.
+ * @var array  $rightMenuItems Right topbar items (may carry 'children').
+ */
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
 use FluentEvent\App\Services\Icon;
@@ -56,13 +68,48 @@ use FluentEvent\App\Services\Icon;
             <?php foreach ( $rightMenuItems as $fluentEventRightMenuItem ) : ?>
                 <div class="fe-navbar__link-wrapper"
                      data-key="<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>">
-                    <a class="fe-navbar__link"
-                       href="<?php echo esc_url( $fluentEventRightMenuItem['permalink'] ); ?>">
-                        <span class="el-icon"><?php echo Icon::SETTING; ?></span>
-                        <span class="fe-navbar__link-text"><?php
-                            echo esc_html( $fluentEventRightMenuItem['label'] );
-                        ?></span>
-                    </a>
+                    <?php if ( ! empty( $fluentEventRightMenuItem['children'] ) ) : ?>
+                        <a class="fe-navbar__link fe-navbar__link--direct"
+                           href="<?php echo esc_url( $fluentEventRightMenuItem['permalink'] ); ?>">
+                            <span class="el-icon"><?php echo Icon::SETTING; ?></span>
+                            <span class="fe-navbar__link-text"><?php
+                                echo esc_html( $fluentEventRightMenuItem['label'] );
+                            ?></span>
+                        </a>
+
+                        <button type="button"
+                                class="fe-navbar__link fe-navbar__link--toggle"
+                                aria-label="<?php echo esc_attr( $fluentEventRightMenuItem['label'] ); ?>"
+                                aria-expanded="false"
+                                aria-controls="fe-navbar-<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>-menu"
+                                onclick="toggleNavbarDropdown('fe-navbar-<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>-menu')">
+                            <span class="el-icon"><?php echo Icon::SETTING; ?></span>
+                            <span class="fe-navbar__link-text"><?php
+                                echo esc_html( $fluentEventRightMenuItem['label'] );
+                            ?></span>
+                        </button>
+
+                        <div class="fe-navbar__dropdown"
+                             id="fe-navbar-<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>-menu">
+                            <?php foreach ( $fluentEventRightMenuItem['children'] as $fluentEventChildItem ) : ?>
+                                <a class="fe-navbar__link"
+                                   data-key="<?php echo esc_attr( $fluentEventChildItem['key'] ); ?>"
+                                   href="<?php echo esc_url( $fluentEventChildItem['permalink'] ); ?>">
+                                    <span class="fe-navbar__link-text"><?php
+                                        echo esc_html( $fluentEventChildItem['label'] );
+                                    ?></span>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else : ?>
+                        <a class="fe-navbar__link"
+                           href="<?php echo esc_url( $fluentEventRightMenuItem['permalink'] ); ?>">
+                            <span class="el-icon"><?php echo Icon::SETTING; ?></span>
+                            <span class="fe-navbar__link-text"><?php
+                                echo esc_html( $fluentEventRightMenuItem['label'] );
+                            ?></span>
+                        </a>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
