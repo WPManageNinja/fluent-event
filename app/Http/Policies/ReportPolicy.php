@@ -9,6 +9,8 @@ class ReportPolicy extends Policy
 {
     public function verifyRequest(Request $request, ...$args)
     {
-        return PermissionManager::userCan('read_statistics');
+        // The dashboard is the landing screen — any permission holder
+        // may read it.
+        return PermissionManager::hasAnyPermission();
     }
 }

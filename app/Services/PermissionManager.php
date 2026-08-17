@@ -26,8 +26,6 @@ class PermissionManager
             'read_guests'      => __('Read access to Guests', 'fluent-event'),
             'write_guests'     => __('Write access to Guests', 'fluent-event'),
 
-            'read_statistics'  => __('Read access to Statistics and Reports', 'fluent-event'),
-
             'read_settings'    => __('Read access to Settings', 'fluent-event'),
             'write_settings'   => __('Write access to Settings', 'fluent-event'),
 
@@ -77,6 +75,32 @@ class PermissionManager
     public static function hasAnyPermission(): bool
     {
         return (bool) static::getUserPermissions();
+    }
+
+    public static function getMenuCapabilities(): array
+    {
+        $access = [
+            'dashboard' => static::hasAnyPermission(),
+            'calendars' => static::userCan(['read_calendars', 'write_calendars']),
+            'events'    => static::userCan(['read_events', 'write_events']),
+            'add_event' => static::userCan('write_events'),
+            'settings'  => static::userCan(['read_settings', 'write_settings']),
+        ];
+
+        if (current_user_can('manage_options')) {
+            return array_fill_keys(array_keys($access), 'manage_options');
+        }
+
+        $roles = array_values((array) wp_get_current_user()->roles);
+        $role = $roles[0] ?? '';
+
+        $capabilities = [];
+
+        foreach ($access as $item => $allowed) {
+            $capabilities[$item] = $allowed ? $role : '';
+        }
+
+        return $capabilities;
     }
 
     public static function attachPermissions($userId, array $permissions): array
