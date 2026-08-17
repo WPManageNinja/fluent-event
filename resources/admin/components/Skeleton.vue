@@ -72,6 +72,30 @@
         </template>
     </el-skeleton>
 
+    <el-skeleton v-else-if="type === 'team_settings'" v-for="row in rowCount" :key="`team-${row}`" animated>
+        <template #template>
+            <div class="fe-team__member">
+                <el-skeleton-item variant="circle" class="fe-team__skeleton-avatar" />
+
+                <div class="fe-team__identity">
+                    <el-skeleton-item variant="text" class="fe-team__skeleton-name" />
+                    <el-skeleton-item variant="text" class="fe-team__skeleton-email" />
+                </div>
+
+                <div class="fe-team__actions">
+                    <el-skeleton-item variant="rect" class="fe-team__skeleton-action" />
+                    <el-skeleton-item variant="rect" class="fe-team__skeleton-action" />
+                </div>
+
+                <div class="fe-team__permissions">
+                    <el-skeleton-item variant="text" class="fe-team__skeleton-tag" />
+                    <el-skeleton-item variant="text" class="fe-team__skeleton-tag" />
+                    <el-skeleton-item variant="text" class="fe-team__skeleton-tag" />
+                </div>
+            </div>
+        </template>
+    </el-skeleton>
+
     <el-skeleton v-else-if="type === 'event-grid'" animated>
         <template #template>
             <div class="fe-events-grid fe-events-grid--skeleton">
