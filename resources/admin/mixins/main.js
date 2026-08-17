@@ -166,5 +166,20 @@ export default {
                 return 'capitalize';
             }
         },
+        $userCan(permission, options = {}) {
+            const me = config.me || {};
+
+            if (me.is_admin) return true;
+
+            const granted = me.permissions || [];
+
+            if (granted.includes('manage_all_data')) return true;
+
+            const keys = Array.isArray(permission) ? permission : [permission];
+
+            return options.match_type === 'any'
+                ? keys.some(key => granted.includes(key))
+                : keys.every(key => granted.includes(key));
+        },
     }
 };
