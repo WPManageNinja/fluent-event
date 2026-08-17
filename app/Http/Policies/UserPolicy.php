@@ -2,8 +2,13 @@
 
 namespace FluentEvent\App\Http\Policies;
 
+use FluentEvent\App\Services\PermissionManager;
+use FluentEvent\Framework\Http\Request\Request;
+
 class UserPolicy extends Policy
 {
-    // for now inherited from base policy, will be extended in future after
-    // implementing user roles and permissions
+    public function verifyRequest(Request $request, ...$args)
+    {
+        return PermissionManager::hasAnyPermission();
+    }
 }
