@@ -7,11 +7,20 @@ use FluentEvent\App\Http\Controllers\GuestController;
 use FluentEvent\App\Http\Controllers\UserController;
 use FluentEvent\App\Http\Controllers\ReportController;
 use FluentEvent\App\Http\Controllers\CalendarController;
+use FluentEvent\App\Http\Controllers\SettingsController;
 
-$router->get('/dashboard', 'DashboardController@get');
+$router->withPolicy('ReportPolicy')->group(function ($router) {
+    $router->get('/dashboard', 'DashboardController@get');
+});
 
 $router->prefix('users')->withPolicy('UserPolicy')->group(function ($router) {
     $router->get('/', [UserController::class, 'getUsers']);
+});
+
+$router->prefix('settings')->withPolicy('SettingsPolicy')->group(function ($router) {
+    $router->get('/team', [SettingsController::class, 'getTeam']);
+    $router->post('/team', [SettingsController::class, 'upsertTeamMember']);
+    $router->delete('/team/{userId}', [SettingsController::class, 'removeTeamMember'])->int('userId');
 });
 
 $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($router) {
