@@ -56,6 +56,8 @@ class Event extends Model
     protected static function booted()
     {
         static::deleting(function ($event) {
+            $event->guests()->delete();
+
             if (!wp_delete_post($event->post_id, true)) {
                 throw new HttpException(
                     422,
