@@ -153,7 +153,7 @@
         emits: ['update:period'],
         data() {
             return {
-                loading: true,
+                loading: false,
                 error: '',
                 view: window.fluentEventAdmin?.general_settings?.default_events_view === 'calendar'
                     ? 'grid'
@@ -296,6 +296,7 @@
                 };
             },
             fetchEvents() {
+                if (this.loading) return;
                 this.loading = true;
                 this.$get('events', this.requestParams())
                     .then(response => {
