@@ -1767,6 +1767,12 @@
 
     &__tag {
         cursor: pointer;
+        user-select: none;
+    }
+
+    &__tag-arrow {
+        margin-left: 2px;
+        vertical-align: -1px;
     }
 
     &__skeleton-serial {
