@@ -10,6 +10,33 @@
 }
 
 .fe-form {
+    &__label-row {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+    }
+
+    &__label-info {
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--fe-secondary-text, #525866);
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+            border-radius: var(--fe-radius-sm, 4px);
+        }
+    }
+    
     &__hint {
         display: block;
         width: 100%;
