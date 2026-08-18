@@ -96,6 +96,26 @@
         </template>
     </el-skeleton>
 
+    <el-skeleton v-else-if="type === 'general_settings'" animated>
+        <template #template>
+            <div v-for="field in 3" :key="`input-${field}`" class="fe-skeleton__field-group">
+                <el-skeleton-item variant="text" class="fe-skeleton__label" />
+                <el-skeleton-item variant="rect" class="fe-skeleton__input" />
+                <el-skeleton-item variant="text" class="fe-skeleton__hint" />
+            </div>
+
+            <div v-for="toggle in 2" :key="`switch-${toggle}`" class="fe-skeleton__field-group">
+                <el-skeleton-item variant="text" class="fe-skeleton__label" />
+                <el-skeleton-item variant="rect" class="fe-skeleton__switch" />
+                <el-skeleton-item variant="text" class="fe-skeleton__hint" />
+            </div>
+
+            <div class="fe-form__actions">
+                <el-skeleton-item variant="rect" class="fe-skeleton__button" />
+            </div>
+        </template>
+    </el-skeleton>
+
     <el-skeleton v-else-if="type === 'event-grid'" animated>
         <template #template>
             <div class="fe-events-grid fe-events-grid--skeleton">

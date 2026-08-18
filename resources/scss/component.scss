@@ -855,6 +855,21 @@
         border-radius: var(--fe-radius, 8px);
     }
 
+    &__switch.el-skeleton__rect {
+        display: block;
+        width: 40px;
+        height: 20px;
+        border-radius: 10px;
+    }
+
+    &__hint.el-skeleton__text {
+        display: block;
+        width: 320px;
+        max-width: 100%;
+        height: 12px;
+        margin-top: var(--fe-space-2, 8px);
+    }
+
     &__button.el-skeleton__rect {
         width: 120px;
         height: 36px;
