@@ -18,6 +18,9 @@ $router->prefix('users')->withPolicy('UserPolicy')->group(function ($router) {
 });
 
 $router->prefix('settings')->withPolicy('SettingsPolicy')->group(function ($router) {
+    $router->get('/general', [SettingsController::class, 'getGeneral']);
+    $router->post('/general', [SettingsController::class, 'updateGeneral']);
+
     $router->get('/team', [SettingsController::class, 'getTeam']);
     $router->post('/team', [SettingsController::class, 'upsertTeamMember']);
     $router->delete('/team/{userId}', [SettingsController::class, 'removeTeamMember'])->int('userId');

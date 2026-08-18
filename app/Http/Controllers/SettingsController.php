@@ -3,11 +3,36 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Services\PermissionManager;
+use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Http\Requests\SettingsRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
 class SettingsController extends Controller
 {
+    public function getGeneral(Request $request)
+    {
+        return $this->sendSuccess([
+            'settings' => Settings::get(),
+        ]);
+    }
+
+    public function updateGeneral(Request $request)
+    {
+        $data = SettingsRequest::sanitize($request->all());
+
+        $this->validate($data, SettingsRequest::generalRules());
+
+        $settings = Settings::update(Settings::GENERAL, $data);
+
+        do_action('fluent_event/settings/general_updated', $settings);
+
+        return $this->sendSuccess([
+            'message'  => __('Settings have been saved.', 'fluent-event'),
+            'settings' => $settings,
+        ]);
+    }
+
+
     public function getTeam(Request $request)
     {
         $members = PermissionManager::getTeamMembers();
