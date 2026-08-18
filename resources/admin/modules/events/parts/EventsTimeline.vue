@@ -60,7 +60,7 @@
             rows() {
                 return this.events.map(event => ({
                     event,
-                    date: this.$formatDate(event.start_at_local, 'MMM D, YYYY'),
+                    date: this.$formatDate(event.start_at_local),
                     weekday: this.$formatDate(event.start_at_local, 'dddd'),
                 }));
             },

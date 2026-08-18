@@ -121,7 +121,7 @@
                                         v-model="event[bound.dateKey]"
                                         class="fe-event-form__date"
                                         type="date"
-                                        format="ddd, MMM D"
+                                        :format="dateFormat"
                                         value-format="YYYY-MM-DD"
                                         :clearable="false"
                                         :aria-label="bound.dateLabel"
@@ -131,7 +131,7 @@
                                     <el-time-picker
                                         v-model="event[bound.timeKey]"
                                         class="fe-event-form__time"
-                                        format="hh:mm A"
+                                        :format="timeFormat"
                                         value-format="HH:mm"
                                         :clearable="false"
                                         :aria-label="bound.timeLabel"
@@ -317,6 +317,12 @@
         computed: {
             eventId() {
                 return this.$route.params.id;
+            },
+            dateFormat() {
+                return window.fluentEventAdmin?.date_format || 'ddd, MMM D';
+            },
+            timeFormat() {
+                return window.fluentEventAdmin?.time_format || 'hh:mm A';
             },
             isEditing() {
                 return !!this.eventId;

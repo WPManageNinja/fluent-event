@@ -193,7 +193,7 @@
             },
             entryTime(entry) {
                 if (entry.dayIndex > 1) return this.$t('Day %d', entry.dayIndex);
-                return this.$formatDate(entry.event.start_at_local, 'h:mm A');
+                return this.$formatTime(entry.event.start_at_local);
             },
             entryColor(entry) {
                 return entry.event.calendar?.meta?.theme_color || null;

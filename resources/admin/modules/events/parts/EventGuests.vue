@@ -220,7 +220,7 @@
                         ...guest,
                         serial: offset + index + 1,
                         checkedInAt: checkedIn
-                            ? this.$t('at: %s', this.$formatDate(guest.checked_in_at, 'MMM D, h:mm A'))
+                            ? this.$t('at: %s', this.$formatDateTime(guest.checked_in_at))
                             : '',
                         initial: (guest.name || guest.email || '?').charAt(0).toUpperCase(),
                         statusLabel: this.statusLabels[guest.status] || guest.status,
