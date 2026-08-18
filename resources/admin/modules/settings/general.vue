@@ -157,34 +157,26 @@
                 this.dateTimeHelpOpen = true;
             },
             fetchSettings() {
-                if (this.loading) return;
-                this.loading = true;
-                this.$get('settings/general')
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: 'settings/general',
+                    onSuccess: response => {
                         this.settings = response.settings;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             save() {
-                if (this.saving) return;
-                this.saving = true;
-                this.$post('settings/general', this.settings)
-                    .then(response => {
+                this.$requestServer({
+                    method: 'post',
+                    path: 'settings/general',
+                    payload: this.settings,
+                    loadingState: 'saving',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: response => {
                         this.settings = response.settings;
-                        this.$notifySuccess(response.message);
-                    })
-                    .catch(error => {
-                        this.$handleError(error);
-                    })
-                    .finally(() => {
-                        this.saving = false;
-                    });
+                    },
+                });
             },
         },
         mounted() {

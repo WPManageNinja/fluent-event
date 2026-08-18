@@ -157,7 +157,7 @@
         },
         data() {
             return {
-                loading: true,
+                loading: false,
                 error: '',
                 calendars: [],
                 query: {
@@ -214,23 +214,20 @@
         },
         methods: {
             fetchCalendars() {
-                this.loading = true;
-                this.$get('calendars', {
-                    search: this.query.search,
-                    status: this.query.status,
-                    visibility: this.query.visibility,
-                })
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: 'calendars',
+                    payload: {
+                        search: this.query.search,
+                        status: this.query.status,
+                        visibility: this.query.visibility,
+                    },
+                    onSuccess: response => {
                         this.calendars = response.calendars;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.calendars = [];
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             syncFilters() {
                 this.pendingFilters = {

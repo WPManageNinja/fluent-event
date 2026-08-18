@@ -135,21 +135,19 @@
                 if (!this.member) this.searchUsers('');
             },
             searchUsers(search) {
-                if(this.loadingUsers) return;
-                this.loadingUsers = true;
-                this.$get('users', {
-                    search,
-                    role_in: 'administrator,editor,author,contributor',
-                })
-                    .then(response => {
+                this.$requestServer({
+                    path: 'users',
+                    payload: {
+                        search,
+                        role_in: 'administrator,editor,author,contributor',
+                    },
+                    loadingState: 'loadingUsers',
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
                         this.users = response.users;
-                    })
-                    .catch(error => {
-                        this.$handleError(error);
-                    })
-                    .finally(() => {
-                        this.loadingUsers = false;
-                    });
+                    },
+                });
             },
             save() {
                 if (!this.userId) {
@@ -162,22 +160,21 @@
                     return;
                 }
 
-                if(this.saving) return;
-                this.saving = true;
-                this.$post('settings/team', {
-                    user_id: this.userId,
-                    permissions: this.hasAllData ? [this.allDataKey] : this.permissions,
-                })
-                    .then(response => {
-                        this.$notifySuccess(response.message);
+                this.$requestServer({
+                    method: 'post',
+                    path: 'settings/team',
+                    payload: {
+                        user_id: this.userId,
+                        permissions: this.hasAllData ? [this.allDataKey] : this.permissions,
+                    },
+                    loadingState: 'saving',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: response => {
                         this.$emit('saved', response.members);
-                    })
-                    .catch(error => {
-                        this.$handleError(error);
-                    })
-                    .finally(() => {
-                        this.saving = false;
-                    });
+                    },
+                });
             },
             close() {
                 this.$emit('update:modelValue', false);

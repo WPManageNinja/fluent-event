@@ -176,6 +176,48 @@ export default {
                 return 'capitalize';
             }
         },
+        $requestServer(req) {
+            // destructure object
+            const { method = 'get', path, payload, onSuccess, onError, onFinally, successNotify = false, fallbackSuccessMessage, errorNotify = false, fallbackErrorMessage, loadingState = 'loading', errorState = 'error' } = req;
+
+            // state safety check if available
+            if ((loadingState && this[loadingState] === undefined) || 
+                (errorState && this[errorState] === undefined)) {
+                throw new Error(
+                    `$requestServer: unknown state for "${loadingState}" or "${errorState}" — declare it in data().`
+                );
+            }
+
+            // loading guard if available
+            if (loadingState) {
+                if (this[loadingState]) return;
+                this[loadingState] = true;
+            }
+
+
+            Rest[method](path, payload)
+                .then(response => {
+                    if (errorState) this[errorState] = '';
+
+                    if (successNotify && (response?.message || fallbackSuccessMessage)) {
+                        this.$notifySuccess(response?.message || fallbackSuccessMessage);
+                    }
+                    onSuccess?.(response);
+                })
+                .catch(error => {
+                    if(errorState) {
+                        this[errorState] = error?.message || this.$t('Something went wrong');
+                    }
+                    if (errorNotify && (error?.message || fallbackErrorMessage)) {
+                        this.$handleError(error?.message || fallbackErrorMessage);
+                    }
+                    onError?.(error);
+                })
+                .finally(() => {
+                    if (loadingState) this[loadingState] = false;
+                    onFinally?.();
+                });
+        },
         $userCan(permission, options = {}) {
             const me = config.me || {};
 

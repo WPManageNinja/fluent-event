@@ -111,21 +111,16 @@
         },
         methods: {
             fetchTeam() {
-                if(this.loading) return;
-                this.loading = true;
-                this.$get('settings/team')
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: 'settings/team',
+                    onSuccess: response => {
                         this.members = response.members;
                         this.permissionSets = response.permission_sets;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.members = [];
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             permissionLabel(key) {
                 return this.permissionSets[key] || key;
@@ -152,17 +147,20 @@
                         cancelButtonText: this.$t('Cancel'),
                     }
                 )
-                    .then(() => this.$del(`settings/team/${member.id}`))
-                    .then(response => {
-                        if (!response) return;
-                        this.members = response.members;
-                        this.$notifySuccess(response.message);
+                    .then(() => {
+                        this.$requestServer({
+                            method: 'delete',
+                            path: `settings/team/${member.id}`,
+                            loadingState: null,
+                            errorState: null,
+                            successNotify: true,
+                            errorNotify: true,
+                            onSuccess: response => {
+                                this.members = response.members;
+                            },
+                        });
                     })
-                    .catch(error => {
-                        if (error !== 'cancel' && error !== 'close') {
-                            this.$handleError(error);
-                        }
-                    });
+                    .catch(() => {});
             },
         },
         mounted() {

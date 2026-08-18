@@ -484,44 +484,38 @@
                 this.expanded[section] = !this.expanded[section];
             },
             saveEvent() {
-                if (this.saving) return;
-                this.saving = true;
-
-                const payload = {
-                    calendar_id: this.event.calendar_id,
-                    status: this.event.status,
-                    title: this.event.title,
-                    description: this.event.description,
-                    start_at: `${this.event.start_date} ${this.event.start_time}:00`,
-                    end_at: `${this.event.end_date} ${this.event.end_time}:00`,
-                    timezone: this.event.timezone,
-                    venue_type: this.event.venue_type,
-                    cover_url: this.event.cover_url,
-                    online_meeting_url: this.event.online_meeting_url,
-                    venue: this.event.venue,
-                    address: this.event.address,
-                };
-
-                const request = this.isEditing
-                    ? this.$patch(`events/${this.eventId}`, payload)
-                    : this.$post('events', payload);
-
-                request
-                    .then(response => {
-                        this.$notifySuccess(response.message);
+                this.$requestServer({
+                    method: this.isEditing ? 'patch' : 'post',
+                    path: this.isEditing ? `events/${this.eventId}` : 'events',
+                    payload: {
+                        calendar_id: this.event.calendar_id,
+                        status: this.event.status,
+                        title: this.event.title,
+                        description: this.event.description,
+                        start_at: `${this.event.start_date} ${this.event.start_time}:00`,
+                        end_at: `${this.event.end_date} ${this.event.end_time}:00`,
+                        timezone: this.event.timezone,
+                        venue_type: this.event.venue_type,
+                        cover_url: this.event.cover_url,
+                        online_meeting_url: this.event.online_meeting_url,
+                        venue: this.event.venue,
+                        address: this.event.address,
+                    },
+                    loadingState: 'saving',
+                    errorState: null,
+                    successNotify: true,
+                    onSuccess: () => {
                         this.$router.push(
                             this.isEditing
                                 ? { name: 'event_detail', params: { id: this.eventId } }
                                 : { name: 'events' }
                         );
-                    })
-                    .catch(error => {
+                    },
+                    onError: error => {
                         this.expanded.location = true;
                         this.$handleError(error);
-                    })
-                    .finally(() => {
-                        this.saving = false;
-                    });
+                    },
+                });
             },
             goToCalendarCreate() {
                 this.$router.push({ name: 'calendar_create' });
