@@ -1,28 +1,39 @@
 <template>
     <div class="fe-events-grid">
-        <el-calendar v-model="selectedDate">
+        <div class="fe-events-grid__toolbar">
+            <h2 class="fe-events-grid__month">{{ titleLabel }}</h2>
+
+            <SegmentedSwitch
+                v-model="mode"
+                class="fe-switch--compact"
+                :options="viewModes"
+                :label="$t('Switch between month, week and day view')"
+            />
+
+            <el-button-group>
+                <el-button
+                    :aria-label="$t('Previous')"
+                    :title="$t('Previous')"
+                    @click="moveStep(-1)"
+                >
+                    <el-icon><ArrowLeft /></el-icon>
+                </el-button>
+
+                <el-button @click="moveToday">{{ $t('Today') }}</el-button>
+
+                <el-button
+                    :aria-label="$t('Next')"
+                    :title="$t('Next')"
+                    @click="moveStep(1)"
+                >
+                    <el-icon><ArrowRight /></el-icon>
+                </el-button>
+            </el-button-group>
+        </div>
+
+        <el-calendar v-if="isMonthView" v-model="selectedDate">
             <template #header>
-                <h2 class="fe-events-grid__month">{{ monthLabel }}</h2>
-
-                <el-button-group>
-                    <el-button
-                        :aria-label="$t('Previous month')"
-                        :title="$t('Previous month')"
-                        @click="moveMonth(-1)"
-                    >
-                        <el-icon><ArrowLeft /></el-icon>
-                    </el-button>
-
-                    <el-button @click="moveToday">{{ $t('Today') }}</el-button>
-
-                    <el-button
-                        :aria-label="$t('Next month')"
-                        :title="$t('Next month')"
-                        @click="moveMonth(1)"
-                    >
-                        <el-icon><ArrowRight /></el-icon>
-                    </el-button>
-                </el-button-group>
+                <span aria-hidden="true"></span>
             </template>
 
             <template #date-cell="{ data }">
@@ -102,21 +113,89 @@
                 </div>
             </template>
         </el-calendar>
+
+        <div v-else class="fe-events-grid__week">
+            <div class="fe-events-grid__week-head" :style="{ gridTemplateColumns: weekColumns }">
+                <span class="fe-events-grid__week-gutter" aria-hidden="true"></span>
+
+                <div
+                    v-for="day in viewDays"
+                    :key="`head-${day.format('YYYY-MM-DD')}`"
+                    class="fe-events-grid__week-day"
+                    :class="{ 'fe-events-grid__week-day--today': day.isSame(today, 'day') }"
+                >
+                    <span class="fe-events-grid__week-day-name">{{ day.format('ddd') }}</span>
+                    <span class="fe-events-grid__week-day-number">{{ day.format('D') }}</span>
+                </div>
+            </div>
+
+            <div class="fe-events-grid__week-body" :style="{ gridTemplateColumns: weekColumns }">
+                <div class="fe-events-grid__week-times">
+                    <span
+                        v-for="hour in hours"
+                        :key="`hour-${hour}`"
+                        class="fe-events-grid__week-time"
+                    >
+                        <template v-if="hour">{{ hourLabel(hour) }}</template>
+                    </span>
+                </div>
+
+                <div
+                    v-for="day in viewDays"
+                    :key="`col-${day.format('YYYY-MM-DD')}`"
+                    class="fe-events-grid__week-col"
+                >
+                    <span
+                        v-for="hour in hours"
+                        :key="`cell-${hour}`"
+                        class="fe-events-grid__week-cell"
+                        aria-hidden="true"
+                    ></span>
+
+                    <el-tooltip
+                        v-for="block in dayBlocks(day)"
+                        :key="`block-${block.entry.event.id}`"
+                        :content="block.entry.event.title"
+                        placement="top"
+                        :show-after="300"
+                    >
+                        <button
+                            type="button"
+                            class="fe-events-grid__week-event"
+                            :style="blockStyle(block)"
+                            :aria-label="$t('View %s', block.entry.event.title)"
+                            @click="$emit('open', block.entry.event)"
+                        >
+                            <span class="fe-events-grid__event-time">
+                                {{ $formatTime(block.entry.event.start_at_local) }}
+                            </span>
+                            <span class="fe-events-grid__event-title">
+                                {{ block.entry.event.title }}
+                            </span>
+                        </button>
+                    </el-tooltip>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
     import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
+    import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
 
     const VISIBLE_PER_DAY = 3;
+    const HOUR_PX = 48;
+    const MINUTES_PER_DAY = 1440;
 
     export default {
         name: 'EventsGrid',
         components: {
             ArrowLeft,
             ArrowRight,
+            SegmentedSwitch,
         },
         props: {
             events: {
@@ -127,9 +206,36 @@
                 type: String,
                 required: true,
             },
+            viewMode: {
+                type: String,
+                default: 'month',
+            },
         },
-        emits: ['open', 'change-month'],
+        emits: ['open', 'change-month', 'update:viewMode'],
+        data() {
+            return {
+                today: dayjs(),
+            };
+        },
         computed: {
+            mode: {
+                get() {
+                    return this.viewMode;
+                },
+                set(value) {
+                    this.$emit('update:viewMode', value);
+                },
+            },
+            isMonthView() {
+                return this.viewMode === 'month';
+            },
+            viewModes() {
+                return [
+                    { value: 'month', label: this.$t('Month') },
+                    { value: 'week', label: this.$t('Week') },
+                    { value: 'day', label: this.$t('Day') },
+                ];
+            },
             selectedDate: {
                 get() {
                     return dayjs(this.month).toDate();
@@ -138,8 +244,38 @@
                     this.moveTo(dayjs(value));
                 },
             },
-            monthLabel() {
+            titleLabel() {
+                const anchor = dayjs(this.month);
+
+                if (this.viewMode === 'day') {
+                    return this.$formatDate(this.month);
+                }
+
+                if (this.viewMode === 'week') {
+                    const start = anchor.startOf('week');
+                    const end = anchor.endOf('week');
+
+                    return `${start.format('MMM D')} – ${end.format('MMM D, YYYY')}`;
+                }
+
                 return this.$formatDate(this.month, 'MMMM YYYY');
+            },
+            viewDays() {
+                const anchor = dayjs(this.month);
+
+                if (this.viewMode === 'day') {
+                    return [anchor];
+                }
+
+                const start = anchor.startOf('week');
+
+                return Array.from({ length: 7 }, (unused, index) => start.add(index, 'day'));
+            },
+            weekColumns() {
+                return `64px repeat(${this.viewDays.length}, 1fr)`;
+            },
+            hours() {
+                return Array.from({ length: 24 }, (unused, index) => index);
             },
             visibleFrom() {
                 return dayjs(this.month).startOf('month').startOf('week').format('YYYY-MM-DD');
@@ -198,14 +334,43 @@
             entryColor(entry) {
                 return entry.event.calendar?.meta?.theme_color || null;
             },
-            moveMonth(step) {
-                this.moveTo(dayjs(this.month).add(step, 'month'));
+            hourLabel(hour) {
+                const timeFormat = window.fluentEventAdmin?.time_format || 'h:mm a';
+                const format = timeFormat.includes('H') ? 'HH:00' : 'h A';
+
+                return dayjs(this.month).hour(hour).minute(0).format(format);
+            },
+            dayBlocks(day) {
+                const dayStart = day.startOf('day');
+                const dayEnd = dayStart.add(1, 'day');
+
+                return this.entriesFor(day.format('YYYY-MM-DD')).map(entry => {
+                    const start = dayjs(entry.event.start_at_local);
+                    const end = dayjs(entry.event.end_at_local);
+
+                    const from = start.isBefore(dayStart) ? 0 : start.diff(dayStart, 'minute');
+                    const until = end.isAfter(dayEnd)
+                        ? MINUTES_PER_DAY
+                        : Math.max(end.diff(dayStart, 'minute'), from + 30);
+
+                    return { entry, from, until };
+                });
+            },
+            blockStyle(block) {
+                return {
+                    top: `${(block.from / 60) * HOUR_PX}px`,
+                    height: `${((block.until - block.from) / 60) * HOUR_PX - 2}px`,
+                    '--fe-event-color': this.entryColor(block.entry),
+                };
+            },
+            moveStep(step) {
+                this.moveTo(dayjs(this.month).add(step, this.viewMode));
             },
             moveToday() {
                 this.moveTo(dayjs());
             },
             moveTo(date) {
-                if (date.isSame(dayjs(this.month), 'month')) return;
+                if (date.isSame(dayjs(this.month), 'day')) return;
                 this.$emit('change-month', date.format('YYYY-MM-DD'));
             },
         },
