@@ -70,17 +70,17 @@
                     .catch(() => {});
             },
             deleteEvent() {
-                if(this.deleting) return;
-                this.deleting = true;
-                return this.$del(`events/${this.event.id}`)
-                    .then(response => {
-                        this.$notifySuccess(response.message);
+                this.$requestServer({
+                    method: 'delete',
+                    path: `events/${this.event.id}`,
+                    loadingState: 'deleting',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: () => {
                         this.$emit('deleted');
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.deleting = false;
-                    });
+                    },
+                });
             },
         },
     };

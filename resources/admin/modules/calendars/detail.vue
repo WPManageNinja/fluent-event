@@ -91,7 +91,7 @@
         },
         data() {
             return {
-                loading: true,
+                loading: false,
                 error: '',
                 tab: 'overview',
                 period: 'upcoming',
@@ -119,20 +119,16 @@
         },
         methods: {
             fetchCalendar() {
-                this.loading = true;
-                this.$get(`calendars/${this.$route.params.id}`)
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: `calendars/${this.$route.params.id}`,
+                    onSuccess: response => {
                         this.calendar = response.calendar;
                         this.$changeTitle(this.calendar.title);
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.calendar = {};
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             goToEdit() {
                 this.$router.push({

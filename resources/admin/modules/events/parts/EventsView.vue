@@ -286,11 +286,10 @@
                 };
             },
             fetchEvents() {
-                this.loading = true;
-                this.$get('events', this.requestParams())
-                    .then(response => {
-                        this.error = '';
-
+                this.$requestServer({
+                    path: 'events',
+                    payload: this.requestParams(),
+                    onSuccess: response => {
                         if (this.isGrid) {
                             this.events = response.events;
                             return;
@@ -299,21 +298,22 @@
                         this.events = response.events.data;
                         this.pagination.total = response.events.total;
                         this.pagination.per_page = +response.events.per_page;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.events = [];
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             fetchCalendars() {
-                this.$get('calendars')
-                    .then(response => {
+                this.$requestServer({
+                    path: 'calendars',
+                    loadingState: null,
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
                         this.calendars = response.calendars;
-                    })
-                    .catch(error => this.$handleError(error));
+                    },
+                });
             },
             refetch() {
                 this.pagination.current_page = 1;
