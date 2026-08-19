@@ -26,6 +26,12 @@
         text-transform: capitalize;
     }
 
+    .fe-is-loading {
+        transition: opacity 0.15s ease;
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
     // Components
     .fe-editor {
         width: 100%;

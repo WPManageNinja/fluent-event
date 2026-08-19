@@ -86,27 +86,29 @@
             </el-tag>
         </div>
 
-        <Skeleton v-if="loading" :type="isGrid ? 'event-grid' : 'timeline'" />
+        <Skeleton v-if="loading && !fetched" :type="isGrid ? 'event-grid' : 'timeline'" />
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchEvents" />
 
-        <EventsGrid
-            v-else-if="isGrid"
-            v-model:view-mode="calendarViewMode"
-            :events="events"
-            :month="month"
-            @change-month="changeMonth"
-            @open="openEvent"
-        />
+        <div v-else :class="{ 'fe-is-loading': loading }">
+            <EventsGrid
+                v-if="isGrid"
+                v-model:view-mode="calendarViewMode"
+                :events="events"
+                :month="month"
+                @change-month="changeMonth"
+                @open="openEvent"
+            />
 
-        <EventsTimeline
-            v-else
-            :events="events"
-            :pagination="pagination"
-            :show-calendar="showCalendar"
-            @fetch="fetchEvents"
-            @open="openEvent"
-        />
+            <EventsTimeline
+                v-else
+                :events="events"
+                :pagination="pagination"
+                :show-calendar="showCalendar"
+                @fetch="fetchEvents"
+                @open="openEvent"
+            />
+        </div>
 
         <EventDrawer v-model="drawerOpen" :event="activeEvent" />
     </div>
@@ -154,7 +156,8 @@
         emits: ['update:period'],
         data() {
             return {
-                loading: true,
+                loading: false,
+                fetched: false,
                 error: '',
                 view: 'timeline',
                 month: dayjs().format('YYYY-MM-DD'),
@@ -292,6 +295,8 @@
                     path: 'events',
                     payload: this.requestParams(),
                     onSuccess: response => {
+                        this.fetched = true;
+
                         if (this.isGrid) {
                             this.events = response.events;
                             return;

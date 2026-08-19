@@ -506,12 +506,11 @@
                     loadingState: 'saving',
                     errorState: null,
                     successNotify: true,
-                    onSuccess: () => {
-                        this.$router.push(
-                            this.isEditing
-                                ? { name: 'event_detail', params: { id: this.eventId } }
-                                : { name: 'events' }
-                        );
+                    onSuccess: response => {
+                        this.$router.push({
+                            name: 'event_detail',
+                            params: { id: this.eventId || response.event.id },
+                        });
                     },
                     onError: error => {
                         this.expanded.location = true;
