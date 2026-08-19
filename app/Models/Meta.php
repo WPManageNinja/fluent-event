@@ -13,6 +13,7 @@ class Meta extends Model
 
     const OBJECT_TYPE_OPTION = 'option';
     const OBJECT_TYPE_USER = 'user';
+    const OBJECT_TYPE_EVENT = 'event';
 
     protected $fillable = [
         'object_type',
