@@ -10,8 +10,7 @@
                 class="fe-tabs__tab"
                 :class="{ 'fe-tabs__tab--active': tab.value === modelValue }"
                 :aria-selected="tab.value === modelValue"
-                :aria-controls="`fe-tabpanel-${tab.value}`"
-                :tabindex="tab.value === modelValue ? 0 : -1"
+                :aria-controls="isRendered(tab.value) ? `fe-tabpanel-${tab.value}` : null"
                 @click="select(tab.value)"
                 @keydown="handleKeydown($event, index)"
             >
@@ -19,14 +18,18 @@
             </button>
         </div>
 
-        <div
-            :id="`fe-tabpanel-${modelValue}`"
-            class="fe-tabs__panel"
-            role="tabpanel"
-            :aria-labelledby="`fe-tab-${modelValue}`"
-        >
-            <slot :name="modelValue" />
-        </div>
+        <template v-for="tab in tabs" :key="tab.value">
+            <div
+                v-if="isRendered(tab.value)"
+                v-show="tab.value === modelValue"
+                :id="`fe-tabpanel-${tab.value}`"
+                class="fe-tabs__panel"
+                role="tabpanel"
+                :aria-labelledby="`fe-tab-${tab.value}`"
+            >
+                <slot :name="tab.value" />
+            </div>
+        </template>
     </div>
 </template>
 
@@ -41,10 +44,32 @@ export default {
         tabs: {
             required: true,
             type: Array
+        },
+        unmountOnHide: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ['update:modelValue', 'change'],
+    data() {
+        return {
+            visited: [this.modelValue]
+        };
+    },
+    watch: {
+        modelValue(value) {
+            if (!this.visited.includes(value)) {
+                this.visited.push(value);
+            }
+        }
+    },
     methods: {
+        isRendered(value) {
+            if (this.unmountOnHide) {
+                return value === this.modelValue;
+            }
+            return this.visited.includes(value);
+        },
         select(value) {
             if (value === this.modelValue) return;
             this.$emit('update:modelValue', value);
