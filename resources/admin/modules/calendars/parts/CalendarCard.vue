@@ -10,6 +10,8 @@
                     {{ calendar.title }}
                 </router-link>
             </h3>
+
+            <ActionPopover :items="actions" placement="bottom-end" />
         </div>
 
         <p class="fe-calendars__card-slug">{{ calendar.slug }}</p>
@@ -26,8 +28,13 @@
 </template>
 
 <script type="text/javascript">
+    import ActionPopover from '@/components/ActionPopover.vue';
+
     export default {
         name: 'CalendarCard',
+        components: {
+            ActionPopover,
+        },
         props: {
             calendar: {
                 type: Object,
@@ -35,6 +42,11 @@
             },
         },
         computed: {
+            actions() {
+                return [
+                    { label: this.$t('Edit'), action: () => this.goToEdit() },
+                ];
+            },
             themeColor() {
                 return this.calendar.meta?.theme_color || 'var(--fe-secondary-border, #9ca3af)';
             },
@@ -44,6 +56,14 @@
                     draft: 'info',
                     archived: 'danger',
                 }[this.calendar.status] || 'info';
+            },
+        },
+        methods: {
+            goToEdit() {
+                this.$router.push({
+                    name: 'calendar_edit',
+                    params: { id: this.calendar.id },
+                });
             },
         },
     };

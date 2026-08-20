@@ -80,6 +80,75 @@
     }
 }
 
+.fe-action-popover {
+    &.el-popover {
+        --el-popover-bg-color: var(--fe-secondary-bg, #ffffff);
+        --el-popover-border-color: var(--fe-primary-border, #d3d8de);
+        --el-popper-bg-color-light: var(--fe-secondary-bg, #ffffff);
+        --el-border-color-light: var(--fe-primary-border, #d3d8de);
+
+        padding: var(--fe-space-2, 8px) var(--fe-space-3, 12px) 0;
+    }
+
+    &__trigger {
+        display: inline-flex;
+        width: fit-content;
+        max-width: 100%;
+        cursor: pointer;
+    }
+
+    &__trigger-button.el-button {
+        height: auto;
+        padding: var(--fe-space-2, 8px) var(--fe-space-1, 4px);
+        color: var(--fe-secondary-text, #525866);
+        border-radius: var(--fe-radius-sm, 4px);
+
+        &.is-text:not(.is-disabled):hover {
+            background-color: var(--fe-active-bg, #f0f3f5);
+        }
+
+        .el-icon {
+            transform: rotate(90deg);
+        }
+    }
+
+    &__menu {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__item {
+        display: block;
+        cursor: pointer;
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.8;
+        color: var(--fe-primary-text, #19283a);
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: var(--el-color-primary, #409eff);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--el-color-primary, #409eff);
+            outline-offset: -2px;
+        }
+
+        &.fe-action-popover__item--danger {
+            color: var(--el-color-danger, #f56c6c);
+        }
+
+        &.fe-action-popover__item--success {
+            color: var(--el-color-success, #67c23a);
+        }
+
+        &.fe-action-popover__item--warning {
+            color: var(--el-color-warning, #e6a23c);
+        }
+    }
+}
+
 .fe-calendars {
     &__toolbar {
         display: flex;
@@ -89,6 +158,10 @@
 
     &__search {
         flex: 1;
+    }
+
+    &__filters {
+        padding-bottom: var(--fe-space-2, 8px);
     }
 
     &__filter {
@@ -150,6 +223,10 @@
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
+    }
+
+    &__card-head .fe-action-popover__trigger {
+        margin-left: auto;
     }
 
     &__card-link {

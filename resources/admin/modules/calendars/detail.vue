@@ -23,6 +23,12 @@
 
                         <h1 class="fe-page__title">{{ calendar.title }}</h1>
                     </div>
+
+                    <div class="fe-page__actions">
+                        <el-button type="secondary" @click="goToEdit">
+                            {{ $t('Edit Calendar') }}
+                        </el-button>
+                    </div>
                 </div>
 
                 <Tabs v-model="tab" :tabs="tabs">
@@ -89,6 +95,12 @@
                     .finally(() => {
                         this.loading = false;
                     });
+            },
+            goToEdit() {
+                this.$router.push({
+                    name: 'calendar_edit',
+                    params: { id: this.$route.params.id },
+                });
             },
             goToList() {
                 this.$router.push({ name: 'calendars' });

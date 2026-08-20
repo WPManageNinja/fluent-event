@@ -28,55 +28,53 @@
                     @search="refetch"
                 />
 
-                <el-popover
-                    v-model:visible="filterOpen"
-                    :width="220"
-                    placement="bottom-end"
-                    trigger="click"
-                    @show="syncFilters"
-                >
-                    <template #reference>
+                <ActionPopover :width="220" placement="bottom-end" @show="syncFilters">
+                    <template #trigger>
                         <el-button :aria-label="$t('Filter')" :title="$t('Filter')">
                             <el-icon><Filter /></el-icon>
                         </el-button>
                     </template>
 
-                    <el-form label-position="top">
-                        <el-form-item :label="$t('Status')">
-                            <el-radio-group
-                                v-model="pendingFilters.status"
-                                class="fe-calendars__filter"
-                            >
-                                <el-radio
-                                    v-for="option in statuses"
-                                    :key="option.value"
-                                    :value="option.value"
-                                >
-                                    {{ option.label }}
-                                </el-radio>
-                            </el-radio-group>
-                        </el-form-item>
+                    <template #default="{ hide }">
+                        <div class="fe-calendars__filters">
+                            <el-form label-position="top">
+                                <el-form-item :label="$t('Status')">
+                                    <el-radio-group
+                                        v-model="pendingFilters.status"
+                                        class="fe-calendars__filter"
+                                    >
+                                        <el-radio
+                                            v-for="option in statuses"
+                                            :key="option.value"
+                                            :value="option.value"
+                                        >
+                                            {{ option.label }}
+                                        </el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
 
-                        <el-form-item :label="$t('Visibility')">
-                            <el-radio-group
-                                v-model="pendingFilters.visibility"
-                                class="fe-calendars__filter"
-                            >
-                                <el-radio
-                                    v-for="option in visibilities"
-                                    :key="option.value"
-                                    :value="option.value"
-                                >
-                                    {{ option.label }}
-                                </el-radio>
-                            </el-radio-group>
-                        </el-form-item>
-                    </el-form>
+                                <el-form-item :label="$t('Visibility')">
+                                    <el-radio-group
+                                        v-model="pendingFilters.visibility"
+                                        class="fe-calendars__filter"
+                                    >
+                                        <el-radio
+                                            v-for="option in visibilities"
+                                            :key="option.value"
+                                            :value="option.value"
+                                        >
+                                            {{ option.label }}
+                                        </el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                            </el-form>
 
-                    <el-button type="primary" size="small" @click="applyFilters">
-                        {{ $t('Apply') }}
-                    </el-button>
-                </el-popover>
+                            <el-button type="primary" size="small" @click="applyFilters(hide)">
+                                {{ $t('Apply') }}
+                            </el-button>
+                        </div>
+                    </template>
+                </ActionPopover>
             </div>
 
             <div v-if="activeFilters.length" class="fe-calendars__chips">
@@ -143,6 +141,7 @@
     import Pagination from '@/components/Pagination.vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import ActionPopover from '@/components/ActionPopover.vue';
     import CalendarCard from './parts/CalendarCard.vue';
 
     export default {
@@ -153,13 +152,13 @@
             Pagination,
             SearchInput,
             ErrorState,
+            ActionPopover,
             CalendarCard,
         },
         data() {
             return {
                 loading: true,
                 error: '',
-                filterOpen: false,
                 calendars: [],
                 pagination: {
                     total: 0,
@@ -252,9 +251,9 @@
                     visibility: this.query.visibility,
                 };
             },
-            applyFilters() {
+            applyFilters(hide) {
                 Object.assign(this.query, this.pendingFilters);
-                this.filterOpen = false;
+                hide();
                 this.refetch();
             },
             removeFilter(key) {

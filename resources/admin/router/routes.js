@@ -14,11 +14,17 @@ export default [
     {
         path: '/calendars/new',
         name: 'calendar_create',
-        component: () => import('@/modules/calendars/create.vue'),
+        component: () => import('@/modules/calendars/CreateOrUpdateCalendar.vue'),
         meta: { active_menu: 'calendars' },
     },
     {
-        path: '/calendars/:id',
+        path: '/calendars/:id(\\d+)/edit',
+        name: 'calendar_edit',
+        component: () => import('@/modules/calendars/CreateOrUpdateCalendar.vue'),
+        meta: { active_menu: 'calendars' },
+    },
+    {
+        path: '/calendars/:id(\\d+)',
         name: 'calendar_detail',
         component: () => import('@/modules/calendars/detail.vue'),
         meta: { active_menu: 'calendars' },
