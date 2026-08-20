@@ -38,7 +38,7 @@ export default [
     {
         path: '/events/new',
         name: 'event_create',
-        component: () => import('@/modules/events/create.vue'),
+        component: () => import('@/modules/events/CreateEvent.vue'),
         meta: { active_menu: 'events' },
     },
     {

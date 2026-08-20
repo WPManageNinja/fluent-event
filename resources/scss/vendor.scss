@@ -259,4 +259,14 @@
         --el-skeleton-color: var(--fe-active-bg, #f0f3f5);
         --el-skeleton-to-color: var(--fe-primary-border, #d3d8de);
     }
+
+    .media-modal .media-router {
+        .media-menu-item {
+            color: var(--fe-wp-link, #2271b1);
+        }
+
+        .media-menu-item.active {
+            color: var(--fe-wp-text, #1d2327);
+        }
+    }
 }
