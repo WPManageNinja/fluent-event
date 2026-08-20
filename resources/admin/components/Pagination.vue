@@ -1,16 +1,27 @@
 <template>
-    <el-pagination
-        class="fluent-pagination"
-        :background="false"
-        layout="total, sizes, prev, pager, next"
-        @current-change="changePage"
-        @size-change="changeSize"
-        :hide-on-single-page="hide_on_single"
-        :current-page.sync="current_page"
-        :page-sizes="page_sizes"
-        :page-size="per_page"
-        :total="total"
-    />
+    <div v-if="!hidden" class="fe-pagination">
+        <el-select
+            class="fe-pagination__size"
+            :model-value="per_page"
+            @change="changeSize"
+        >
+            <el-option
+                v-for="size in page_sizes"
+                :key="size"
+                :value="size"
+                :label="$t('%d / page', size)"
+            />
+        </el-select>
+
+        <el-pagination
+            :background="true"
+            layout="total, prev, pager, next"
+            :current-page="current_page"
+            :page-size="per_page"
+            :total="total"
+            @current-change="changePage"
+        />
+    </div>
 </template>
 
 <script type="text/babel">
@@ -73,10 +84,16 @@ export default {
             return +this.pagination.total;
         },
         page_sizes() {
-            const sizes = [];
-            if (this.per_page < 10) sizes.push(this.per_page);
-            const defaults = [10, 20, 50, 80, 100, 120, 150];
-            return [...sizes, ...defaults, ...(this.extra_sizes || [])];
+            const sizes = [10, 20, 50, 80, 100, ...(this.extra_sizes || [])];
+
+            if (!sizes.includes(this.per_page)) {
+                sizes.push(this.per_page);
+            }
+
+            return sizes.sort((a, b) => a - b);
+        },
+        hidden() {
+            return this.hide_on_single && this.total <= this.per_page;
         }
     },
     methods: {

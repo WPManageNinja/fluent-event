@@ -149,6 +149,7 @@
     .el-input__wrapper,
     .el-textarea__inner,
     .el-select__wrapper {
+        box-sizing: border-box;
         border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
         box-shadow: none;
