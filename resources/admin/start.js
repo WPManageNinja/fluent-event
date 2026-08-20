@@ -26,6 +26,28 @@ appRouter.afterEach((to) => {
             .addClass('fe-navbar__link--active')
             .attr('aria-current', 'page');
     }
+
+    jQuery('#adminmenu .wp-submenu li.current, #adminmenu .wp-submenu a.current')
+        .removeClass('current');
+
+    jQuery('#adminmenu .wp-submenu a[aria-current]').removeAttr('aria-current');
+
+    if (activeKey) {
+        const base = (config.baseUrl || '').replace(/#\/?$/, '');
+        const page = base.includes('?')
+            ? base.slice(base.indexOf('?'))
+            : `?page=${config.slug}`;
+        const group = activeKey === 'dashboard' ? page : `${page}#/${activeKey}`;
+        const exact = jQuery(`#adminmenu .wp-submenu a[href$="${page}${to.href}"]`);
+        const match = exact.length
+            ? exact
+            : jQuery(`#adminmenu .wp-submenu a[href$="${group}"]`);
+
+        match.addClass('current')
+            .attr('aria-current', 'page')
+            .parent()
+            .addClass('current');
+    }
 });
 
 app.vue.mount(`#${config.slug}-router`);
