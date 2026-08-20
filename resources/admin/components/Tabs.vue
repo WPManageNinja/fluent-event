@@ -1,8 +1,8 @@
 <template>
     <div class="fe-tabs">
-        <div class="fe-tabs__nav" role="tablist">
+        <div ref="nav" class="fe-tabs__nav" role="tablist">
             <button
-                v-for="tab in tabs"
+                v-for="(tab, index) in tabs"
                 :id="`fe-tab-${tab.value}`"
                 :key="tab.value"
                 type="button"
@@ -11,7 +11,9 @@
                 :class="{ 'fe-tabs__tab--active': tab.value === modelValue }"
                 :aria-selected="tab.value === modelValue"
                 :aria-controls="`fe-tabpanel-${tab.value}`"
+                :tabindex="tab.value === modelValue ? 0 : -1"
                 @click="select(tab.value)"
+                @keydown="handleKeydown($event, index)"
             >
                 {{ tab.label }}
             </button>
@@ -47,6 +49,26 @@ export default {
             if (value === this.modelValue) return;
             this.$emit('update:modelValue', value);
             this.$emit('change', value);
+        },
+        handleKeydown(event, index) {
+            const total = this.tabs.length;
+            let next = null;
+
+            if (event.key === 'ArrowLeft') {
+                next = (index - 1 + total) % total;
+            } else if (event.key === 'ArrowRight') {
+                next = (index + 1) % total;
+            } else if (event.key === 'Home') {
+                next = 0;
+            } else if (event.key === 'End') {
+                next = total - 1;
+            }
+
+            if (next === null) return;
+
+            event.preventDefault();
+            this.select(this.tabs[next].value);
+            this.$nextTick(() => this.$refs.nav.children[next].focus());
         }
     }
 }

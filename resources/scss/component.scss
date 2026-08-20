@@ -24,6 +24,20 @@
     }
 }
 
+.fe-error-state {
+    height: 70vh;
+    min-height: 450px;
+
+    .fe-error-state__code {
+        margin: 0 0 var(--fe-space-2, 8px);
+        font-size: var(--fe-text-display, 64px);
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        color: var(--fe-primary-text, #19283a);
+    }
+}
+
 .fe-pagination {
     display: flex;
     align-items: center;
@@ -268,6 +282,15 @@
 
         &:hover {
             color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+            outline-offset: 2px;
         }
 
         &.fe-tabs__tab--active {
