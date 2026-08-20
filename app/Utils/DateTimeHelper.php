@@ -27,4 +27,14 @@ class DateTimeHelper
 
         return $dateTime->format($format);
     }
+
+    public static function convertFromUtc($dateTime, $timezone, $format = self::FORMAT)
+    {
+        $timezone = self::getValidatedTimeZone($timezone);
+
+        $dateTime = new DateTime($dateTime, new DateTimeZone('UTC'));
+        $dateTime->setTimezone(new DateTimeZone($timezone));
+
+        return $dateTime->format($format);
+    }
 }
