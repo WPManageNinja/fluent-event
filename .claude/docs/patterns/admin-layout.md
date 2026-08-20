@@ -44,6 +44,14 @@ same shape as affiliate's. The cost is the one affiliate already pays: the menu 
 [routes.js](../../../resources/admin/router/routes.js) are maintained separately, joined
 only by `meta.active_menu` matching a `data-key`. Adding a nav item means touching both.
 
+A screen that also belongs in the **wp-admin sidebar** takes a third edit — an
+`addSubmenu()` call. Pass a bare route (`'calendars'`, not `'#/calendars'`): the handler
+builds the entry from `$this->baseUrl`, which already ends in `#/`, and registers it as an
+absolute URL so WordPress prints the fragment verbatim instead of percent-encoding it
+through `add_query_arg`. Only the root entry passes the plain page slug — it is the
+registered page, and matching the parent slug is what stops WordPress auto-inserting its
+own duplicate first item. Highlighting needs no per-item work; see below.
+
 Removed with the switch: `Http/Routes/vue.php`, the `getAdminRoutes` / `getMenuItems` /
 `registerRoutesAndMenu` chain, the localized `routes` key, and `ThemeSwitcher.vue`.
 `Application.vue` is now just a `router-view`.
@@ -90,6 +98,22 @@ flag, and we have no such flag to key off.
 Active-link state is applied by a router `afterEach` in
 [start.js](../../../resources/admin/start.js), which matches `to.meta.active_menu` against
 `data-key` and sets both `--active` and `aria-current="page"`.
+
+The same hook re-marks the **wp-admin sidebar**, which cannot track us on its own: WordPress
+resolves the current submenu server-side from `$_GET['page']`, the hash route never reaches
+the server, and hash navigation never reloads the page — so it would leave Dashboard lit
+forever. Three things that look incidental but are not:
+
+- **Match on the query, not the whole URL.** WordPress prints routed entries absolute but
+  the root entry relative, so only the `?page=…` tail is common to both.
+- **Derive it from `config.baseUrl`**, the same filtered value the entries were registered
+  with — rebuilding it from the slug breaks any install that filters the base.
+- **Scope by page slug and anchor at the end.** `#/calendars` alone also matches Fluent
+  Booking's submenu; `href*=` would let `#/events` match `#/events/new`.
+
+Matching is two-tier: the exact route first, so `/events/new` marks *Add New Event* rather
+than *Events*, falling back to the `active_menu` group so nested screens like
+`/calendars/5/edit` stay under *Calendars*.
 
 ---
 

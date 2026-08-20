@@ -70,18 +70,18 @@ class AdminMenuHandler
 
         $this->addSubmenu(__('Dashboard', 'fluent-event'), '');
 
-        $this->addSubmenu(__('Add New Event', 'fluent-event'), '#/events/new');
-        $this->addSubmenu(__('Calendars', 'fluent-event'), '#/calendars');
-        $this->addSubmenu(__('Events', 'fluent-event'), '#/events');
-        $this->addSubmenu(__('Settings', 'fluent-event'), '#/settings');
+        $this->addSubmenu(__('Add New Event', 'fluent-event'), 'events/new');
+        $this->addSubmenu(__('Calendars', 'fluent-event'), 'calendars');
+        $this->addSubmenu(__('Events', 'fluent-event'), 'events');
+        $this->addSubmenu(__('Settings', 'fluent-event'), 'settings');
     }
 
     /**
      * Register one submenu entry against the plugin's single admin page.
      *
      * @param  string $label       Translated menu label.
-     * @param  string $route       Hash route appended to the page slug, or ''
-     *                             for the parent page itself.
+     * @param  string $route       SPA route appended to the base URL, or '' for
+     *                             the parent page itself.
      * @param  string $capability  Capability required to see this entry.
      *                             WordPress filters each submenu on its own
      *                             capability, so entries can differ.
@@ -95,8 +95,8 @@ class AdminMenuHandler
             $label,
             $label,
             $capability,
-            $this->slug . $route,
-            [$this, 'render']
+            $route ? esc_url($this->baseUrl . $route) : $this->slug,
+            $route ? '' : [$this, 'render']
         );
     }
 
