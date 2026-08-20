@@ -8,7 +8,7 @@
                     <el-button
                         :aria-label="$t('Refresh')"
                         :title="$t('Refresh')"
-                        @click="refetch"
+                        @click="fetchCalendars"
                     >
                         <el-icon><Refresh /></el-icon>
                     </el-button>
@@ -25,7 +25,7 @@
                     class="fe-calendars__search"
                     :placeholder="$t('Search calendars')"
                     type="search_on_enter"
-                    @search="refetch"
+                    @search="fetchCalendars"
                 />
 
                 <ActionPopover :width="220" placement="bottom-end" @show="syncFilters">
@@ -112,8 +112,6 @@
                         <CalendarCard :calendar="calendar" />
                     </el-col>
                 </el-row>
-
-                <Pagination :pagination="pagination" hide_on_single @fetch="fetchCalendars" />
             </template>
 
             <el-empty
@@ -138,7 +136,6 @@
 
 <script type="text/javascript">
     import { Filter, Refresh } from '@element-plus/icons-vue';
-    import Pagination from '@/components/Pagination.vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import ActionPopover from '@/components/ActionPopover.vue';
@@ -149,7 +146,6 @@
         components: {
             Filter,
             Refresh,
-            Pagination,
             SearchInput,
             ErrorState,
             ActionPopover,
@@ -160,11 +156,6 @@
                 loading: true,
                 error: '',
                 calendars: [],
-                pagination: {
-                    total: 0,
-                    per_page: 12,
-                    current_page: 1,
-                },
                 query: {
                     search: '',
                     status: '',
@@ -221,17 +212,13 @@
             fetchCalendars() {
                 this.loading = true;
                 this.$get('calendars', {
-                    page: this.pagination.current_page,
-                    per_page: this.pagination.per_page,
                     search: this.query.search,
                     status: this.query.status,
                     visibility: this.query.visibility,
                 })
                     .then(response => {
                         this.error = '';
-                        this.calendars = response.calendars.data;
-                        this.pagination.total = response.calendars.total;
-                        this.pagination.per_page = +response.calendars.per_page;
+                        this.calendars = response.calendars;
                     })
                     .catch(error => {
                         this.error = error?.message || '';
@@ -240,10 +227,6 @@
                     .finally(() => {
                         this.loading = false;
                     });
-            },
-            refetch() {
-                this.pagination.current_page = 1;
-                this.fetchCalendars();
             },
             syncFilters() {
                 this.pendingFilters = {
@@ -254,12 +237,12 @@
             applyFilters(hide) {
                 Object.assign(this.query, this.pendingFilters);
                 hide();
-                this.refetch();
+                this.fetchCalendars();
             },
             removeFilter(key) {
                 this.query[key] = '';
                 this.pendingFilters[key] = '';
-                this.refetch();
+                this.fetchCalendars();
             },
             goToCreate() {
                 this.$router.push({ name: 'calendar_create' });
