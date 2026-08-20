@@ -2,7 +2,14 @@
     <div class="fe-calendars__card">
         <div class="fe-calendars__card-head">
             <span class="fe-color-swatch" :style="{ background: themeColor }"></span>
-            <h3 class="fe-calendars__card-title">{{ calendar.title }}</h3>
+            <h3 class="fe-calendars__card-title">
+                <router-link
+                    class="fe-calendars__card-link"
+                    :to="{ name: 'calendar_detail', params: { id: calendar.id } }"
+                >
+                    {{ calendar.title }}
+                </router-link>
+            </h3>
         </div>
 
         <p class="fe-calendars__card-slug">{{ calendar.slug }}</p>

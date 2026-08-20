@@ -1,0 +1,75 @@
+<template>
+    <div class="fe-tabs">
+        <div ref="nav" class="fe-tabs__nav" role="tablist">
+            <button
+                v-for="(tab, index) in tabs"
+                :id="`fe-tab-${tab.value}`"
+                :key="tab.value"
+                type="button"
+                role="tab"
+                class="fe-tabs__tab"
+                :class="{ 'fe-tabs__tab--active': tab.value === modelValue }"
+                :aria-selected="tab.value === modelValue"
+                :aria-controls="`fe-tabpanel-${tab.value}`"
+                :tabindex="tab.value === modelValue ? 0 : -1"
+                @click="select(tab.value)"
+                @keydown="handleKeydown($event, index)"
+            >
+                {{ tab.label }}
+            </button>
+        </div>
+
+        <div
+            :id="`fe-tabpanel-${modelValue}`"
+            class="fe-tabs__panel"
+            role="tabpanel"
+            :aria-labelledby="`fe-tab-${modelValue}`"
+        >
+            <slot :name="modelValue" />
+        </div>
+    </div>
+</template>
+
+<script type="text/babel">
+export default {
+    name: 'Tabs',
+    props: {
+        modelValue: {
+            required: true,
+            type: String
+        },
+        tabs: {
+            required: true,
+            type: Array
+        }
+    },
+    emits: ['update:modelValue', 'change'],
+    methods: {
+        select(value) {
+            if (value === this.modelValue) return;
+            this.$emit('update:modelValue', value);
+            this.$emit('change', value);
+        },
+        handleKeydown(event, index) {
+            const total = this.tabs.length;
+            let next = null;
+
+            if (event.key === 'ArrowLeft') {
+                next = (index - 1 + total) % total;
+            } else if (event.key === 'ArrowRight') {
+                next = (index + 1) % total;
+            } else if (event.key === 'Home') {
+                next = 0;
+            } else if (event.key === 'End') {
+                next = total - 1;
+            }
+
+            if (next === null) return;
+
+            event.preventDefault();
+            this.select(this.tabs[next].value);
+            this.$nextTick(() => this.$refs.nav.children[next].focus());
+        }
+    }
+}
+</script>

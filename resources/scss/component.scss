@@ -152,6 +152,15 @@
         color: var(--fe-primary-text, #19283a);
     }
 
+    &__card-link {
+        color: inherit;
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+            text-decoration: underline;
+        }
+    }
+
     &__card-slug {
         margin: var(--fe-space-1, 4px) 0 0;
         font-size: var(--fe-text-xs, 12px);
@@ -163,5 +172,137 @@
         flex-wrap: wrap;
         gap: var(--fe-space-2, 8px);
         margin-top: var(--fe-space-4, 16px);
+    }
+}
+
+.fe-tabs {
+    &__nav {
+        display: flex;
+        margin-bottom: var(--fe-space-5, 20px);
+        border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+    }
+
+    &__tab {
+        position: relative;
+        padding: 0 var(--fe-space-3, 12px) var(--fe-space-3, 12px);
+        border: 0;
+        background: none;
+        cursor: pointer;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        line-height: 1.4;
+        color: var(--fe-secondary-text, #525866);
+
+        &::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            bottom: -1px;
+            left: 0;
+            height: 2px;
+            background-color: transparent;
+        }
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+            outline-offset: 2px;
+        }
+
+        &.fe-tabs__tab--active {
+            font-weight: 600;
+            color: var(--fe-primary-text, #19283a);
+
+            &::after {
+                background-color: var(--fe-primary-text, #19283a);
+            }
+        }
+    }
+}
+
+.fe-danger-zone {
+    border: 1px solid var(--el-color-danger, #f56c6c);
+    border-radius: var(--fe-radius, 8px);
+    overflow: hidden;
+
+    &__title {
+        margin: 0;
+        padding: var(--fe-space-3, 12px) var(--fe-space-5, 20px);
+        border-bottom: 1px solid var(--el-color-danger, #f56c6c);
+        background-color: var(--fe-active-bg, #f0f3f5);
+        font-size: var(--fe-text-base, 16px);
+        font-weight: 600;
+        color: var(--el-color-danger, #f56c6c);
+    }
+
+    &__body {
+        padding: var(--fe-space-5, 20px);
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__heading {
+        margin: 0;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__text {
+        margin: var(--fe-space-1, 4px) 0 var(--fe-space-4, 16px);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__label {
+        display: block;
+        margin-bottom: var(--fe-space-2, 8px);
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__input {
+        display: block;
+        max-width: 480px;
+        margin-bottom: var(--fe-space-4, 16px);
+
+        .el-input__wrapper {
+            width: 100%;
+        }
+    }
+}
+
+.fe-calendar-detail {
+    &__description {
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.7;
+        color: var(--fe-primary-text, #19283a);
+        overflow-wrap: break-word;
+
+        > :first-child { margin-top: 0; }
+        > :last-child { margin-bottom: 0; }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        pre {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+        }
     }
 }
