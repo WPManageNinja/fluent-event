@@ -1,7 +1,7 @@
 <template>
     <transition name="fade" mode="out-in" appear>
         <div class="fe-page fe-calendar-detail">
-            <el-skeleton v-if="loading" :rows="6" animated />
+            <Skeleton v-if="loading" type="calendar_detail" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendar" />
 
@@ -72,6 +72,7 @@
 <script type="text/javascript">
     import { ArrowRight } from '@element-plus/icons-vue';
     import Tabs from '@/components/Tabs.vue';
+    import Skeleton from '@/components/Skeleton.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import EventsView from '@/modules/events/parts/EventsView.vue';
@@ -82,6 +83,7 @@
         components: {
             ArrowRight,
             Tabs,
+            Skeleton,
             ErrorState,
             SegmentedSwitch,
             EventsView,

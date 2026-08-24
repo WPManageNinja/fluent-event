@@ -1,7 +1,7 @@
 <template>
     <transition name="fade" mode="out-in" appear>
         <div class="fe-page fe-event-page">
-            <el-skeleton v-if="loading" :rows="6" animated />
+            <Skeleton v-if="loading" type="event_detail" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchEvent" />
 
@@ -146,6 +146,7 @@
     import { ArrowRight, LocationInformation, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
+    import Skeleton from '@/components/Skeleton.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import EventGuests from './parts/EventGuests.vue';
     import EventDangerZone from './parts/EventDangerZone.vue';
@@ -157,6 +158,7 @@
             LocationInformation,
             VideoCamera,
             Tabs,
+            Skeleton,
             ErrorState,
             EventGuests,
             EventDangerZone,
