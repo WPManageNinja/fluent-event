@@ -121,11 +121,9 @@
         },
         methods: {
             fetchStats() {
-                if (this.loading) return;
-                this.loading = true;
-
-                this.$get('reports')
-                    .then(response => {
+                this.$requestServer({
+                    path: 'reports',
+                    onSuccess: response => {
                         this.error = '';
                         this.stats = response.stats;
                         this.guestStats = response.guest_stats;
@@ -134,13 +132,8 @@
                         this.ongoingEvents = response.ongoing_events;
                         this.upcomingEvents = response.upcoming_events;
                         this.topEvents = response.top_events;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || this.$t('Something went wrong');
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             eventCalendarMeta(event) {
                 return event.calendar?.title

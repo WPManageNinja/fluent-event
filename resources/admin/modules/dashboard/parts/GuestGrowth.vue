@@ -29,12 +29,20 @@
     import { LineChart } from 'echarts/charts';
     import { CanvasRenderer } from 'echarts/renderers';
     import {
+        AriaComponent,
         GridComponent,
         TooltipComponent,
         LegendComponent,
     } from 'echarts/components';
 
-    echarts.use([LineChart, CanvasRenderer, GridComponent, TooltipComponent, LegendComponent]);
+    echarts.use([
+        LineChart,
+        CanvasRenderer,
+        AriaComponent,
+        GridComponent,
+        TooltipComponent,
+        LegendComponent,
+    ]);
 
     const cssVar = function (name, fallback) {
         const value = getComputedStyle(document.documentElement)
@@ -81,26 +89,24 @@
         },
         methods: {
             fetchChartData() {
-                if (!this.endPoint || this.loading) return;
-                
-                this.loading = true;
-                this.$get(this.endPoint, {
-                    start_date: this.range[0],
-                    end_date: this.range[1],
-                })
-                    .then(response => {
+                if (!this.endPoint) return;
+
+                this.$requestServer({
+                    path: this.endPoint,
+                    payload: {
+                        start_date: this.range[0],
+                        end_date: this.range[1],
+                    },
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
                         this.chartData = {
                             xAxisData: response.xAxisData || [],
                             series: response.series || [],
                         };
                         this.$nextTick(() => this.renderChart());
-                    })
-                    .catch(error => {
-                        this.$handleError(error);
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             renderChart() {
                 if (!this.hasData || !this.$refs.canvas) {
@@ -116,6 +122,12 @@
                 const lineColor = cssVar('--fe-primary-border', '#d3d8de');
 
                 this.chart.setOption({
+                    aria: {
+                        enabled: true,
+                        label: {
+                            data: { maxCount: this.chartData.xAxisData.length },
+                        },
+                    },
                     color: [
                         cssVar('--fe-chart-going', '#0099ff'),
                         cssVar('--fe-chart-checked-in', '#1a7f37'),

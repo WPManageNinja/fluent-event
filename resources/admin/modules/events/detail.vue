@@ -1,7 +1,7 @@
 <template>
     <transition name="fade" mode="out-in" appear>
         <div class="fe-page fe-event-page">
-            <el-skeleton v-if="loading" :rows="6" animated />
+            <Skeleton v-if="loading" type="event_detail" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchEvent" />
 
@@ -112,7 +112,22 @@
                                     </span>
 
                                     <div>
-                                        <p class="fe-event-overview__row-title">{{ event.calendar.title }}</p>
+                                        <router-link
+                                            class="fe-event-overview__row-link"
+                                            :to="{ name: 'calendar_detail', params: { id: event.calendar.id } }"
+                                            :title="$t('Open %s', event.calendar.title)"
+                                        >
+                                            <span class="fe-event-overview__row-title">
+                                                {{ event.calendar.title }}
+                                            </span>
+
+                                            <el-icon
+                                                class="fe-event-overview__row-link-icon"
+                                                aria-hidden="true"
+                                            >
+                                                <TopRight />
+                                            </el-icon>
+                                        </router-link>
 
                                         <p v-if="visibility" class="fe-event-overview__row-text capitalize">
                                             {{ $t('Visibility: %s', $t(visibility)) }}
@@ -147,9 +162,10 @@
 </template>
 
 <script type="text/javascript">
-    import { ArrowRight, LocationInformation, VideoCamera } from '@element-plus/icons-vue';
+    import { ArrowRight, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
+    import Skeleton from '@/components/Skeleton.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import EventGuests from './parts/EventGuests.vue';
     import EventDangerZone from './parts/EventDangerZone.vue';
@@ -159,15 +175,17 @@
         components: {
             ArrowRight,
             LocationInformation,
+            TopRight,
             VideoCamera,
             Tabs,
+            Skeleton,
             ErrorState,
             EventGuests,
             EventDangerZone,
         },
         data() {
             return {
-                loading: true,
+                loading: false,
                 error: '',
                 tab: 'overview',
                 event: {},
@@ -248,20 +266,16 @@
         },
         methods: {
             fetchEvent() {
-                this.loading = true;
-                this.$get(`events/${this.$route.params.id}`)
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: `events/${this.$route.params.id}`,
+                    onSuccess: response => {
                         this.event = response.event;
                         this.$changeTitle(this.event.title);
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.event = {};
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             goToEdit() {
                 this.$router.push({

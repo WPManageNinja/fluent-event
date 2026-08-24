@@ -23,6 +23,7 @@
                     filterable
                     remote
                     reserve-keyword
+                    :teleported="false"
                     :remote-method="searchUsers"
                     :loading="loadingUsers"
                     :placeholder="$t('Search by name or email')"
@@ -51,7 +52,7 @@
             </el-form-item>
 
             <el-form-item :label="$t('Status')">
-                <el-select v-model="form.status" :aria-label="$t('Status')">
+                <el-select v-model="form.status" :teleported="false" :aria-label="$t('Status')">
                     <el-option
                         v-for="option in statuses"
                         :key="option.value"
@@ -147,15 +148,16 @@
                     : [];
             },
             searchUsers(search) {
-                this.loadingUsers = true;
-                this.$get('users', { search })
-                    .then(response => {
+                this.$requestServer({
+                    path: 'users',
+                    payload: { search },
+                    loadingState: 'loadingUsers',
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
                         this.users = response.users;
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.loadingUsers = false;
-                    });
+                    },
+                });
             },
             applyUser(userId) {
                 const user = this.users.find(item => item.id === userId);
@@ -173,29 +175,24 @@
                 this.$emit('update:modelValue', false);
             },
             save() {
-                if (this.saving) return;
-                this.saving = true;
-
                 const base = `events/${this.eventId}/guests`;
-                const payload = {
-                    ...this.form,
-                    user_id: this.mode === 'wp_user' ? this.selectedUserId : null,
-                };
 
-                const request = this.isEditing
-                    ? this.$patch(`${base}/${this.guest.id}`, payload)
-                    : this.$post(base, payload);
-
-                request
-                    .then(response => {
+                this.$requestServer({
+                    method: this.isEditing ? 'patch' : 'post',
+                    path: this.isEditing ? `${base}/${this.guest.id}` : base,
+                    payload: {
+                        ...this.form,
+                        user_id: this.mode === 'wp_user' ? this.selectedUserId : null,
+                    },
+                    loadingState: 'saving',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: (response) => {
                         this.close();
-                        this.$notifySuccess(response.message);
-                        this.$emit('saved');
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.saving = false;
-                    });
+                        this.$emit('saved', response.guest);
+                    },
+                });
             },
         },
     };

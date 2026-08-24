@@ -96,6 +96,78 @@
         </template>
     </el-skeleton>
 
+    <el-skeleton v-else-if="type === 'calendar_detail'" animated>
+        <template #template>
+            <div class="fe-page__header">
+                <div>
+                    <el-skeleton-item variant="text" class="fe-skeleton__breadcrumb" />
+                    <el-skeleton-item variant="h1" class="fe-skeleton__title" />
+                </div>
+
+                <el-skeleton-item variant="rect" class="fe-skeleton__button" />
+            </div>
+
+            <div class="fe-skeleton__tabs">
+                <el-skeleton-item
+                    v-for="tab in 3"
+                    :key="tab"
+                    variant="rect"
+                    class="fe-skeleton__tab"
+                />
+            </div>
+
+            <div class="fe-card">
+                <el-skeleton-item
+                    v-for="line in 15"
+                    :key="line"
+                    variant="text"
+                    class="fe-skeleton__line"
+                />
+                <el-skeleton-item variant="text" class="fe-skeleton__line fe-skeleton__line--short" />
+            </div>
+        </template>
+    </el-skeleton>
+
+    <el-skeleton v-else-if="type === 'event_detail'" animated>
+        <template #template>
+            <div class="fe-page__header">
+                <div>
+                    <el-skeleton-item variant="text" class="fe-skeleton__breadcrumb" />
+                    <el-skeleton-item variant="h1" class="fe-skeleton__title" />
+                </div>
+
+                <el-skeleton-item variant="rect" class="fe-skeleton__button" />
+            </div>
+
+            <div class="fe-skeleton__tabs">
+                <el-skeleton-item
+                    v-for="tab in 4"
+                    :key="tab"
+                    variant="rect"
+                    class="fe-skeleton__tab"
+                />
+            </div>
+
+            <div class="fe-card fe-skeleton__overview">
+                <el-skeleton-item variant="image" class="fe-skeleton__overview-cover" />
+
+                <div class="fe-skeleton__overview-info">
+                    <el-skeleton-item variant="h3" class="fe-skeleton__section-title" />
+                    <el-skeleton-item variant="text" class="fe-skeleton__tag" />
+
+                    <div v-for="row in 3" :key="row" class="fe-skeleton__meta-row">
+                        <el-skeleton-item variant="circle" class="fe-skeleton__meta-icon" />
+
+                        <div class="fe-skeleton__meta-lines">
+                            <el-skeleton-item variant="text" class="fe-skeleton__line" />
+                            <el-skeleton-item variant="text" class="fe-skeleton__line fe-skeleton__line--short" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </el-skeleton>
+
     <el-skeleton v-else-if="type === 'general_settings'" animated>
         <template #template>
             <div v-for="field in 3" :key="`input-${field}`" class="fe-skeleton__field-group">

@@ -86,26 +86,29 @@
             </el-tag>
         </div>
 
-        <Skeleton v-if="loading" :type="isGrid ? 'event-grid' : 'timeline'" />
+        <Skeleton v-if="loading && !fetched" :type="isGrid ? 'event-grid' : 'timeline'" />
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchEvents" />
 
-        <EventsGrid
-            v-else-if="isGrid"
-            :events="events"
-            :month="month"
-            @change-month="changeMonth"
-            @open="openEvent"
-        />
+        <div v-else :class="{ 'fe-is-loading': loading }">
+            <EventsGrid
+                v-if="isGrid"
+                v-model:view-mode="calendarViewMode"
+                :events="events"
+                :month="month"
+                @change-month="changeMonth"
+                @open="openEvent"
+            />
 
-        <EventsTimeline
-            v-else
-            :events="events"
-            :pagination="pagination"
-            :show-calendar="showCalendar"
-            @fetch="fetchEvents"
-            @open="openEvent"
-        />
+            <EventsTimeline
+                v-else
+                :events="events"
+                :pagination="pagination"
+                :show-calendar="showCalendar"
+                @fetch="fetchEvents"
+                @open="openEvent"
+            />
+        </div>
 
         <EventDrawer v-model="drawerOpen" :event="activeEvent" />
     </div>
@@ -154,11 +157,13 @@
         data() {
             return {
                 loading: false,
+                fetched: false,
                 error: '',
                 view: window.fluentEventAdmin?.general_settings?.default_events_view === 'calendar'
                     ? 'grid'
                     : 'timeline',
                 month: dayjs().format('YYYY-MM-DD'),
+                calendarViewMode: 'month',
                 events: [],
                 calendars: [],
                 activeEvent: null,
@@ -296,11 +301,11 @@
                 };
             },
             fetchEvents() {
-                if (this.loading) return;
-                this.loading = true;
-                this.$get('events', this.requestParams())
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: 'events',
+                    payload: this.requestParams(),
+                    onSuccess: response => {
+                        this.fetched = true;
 
                         if (this.isGrid) {
                             this.events = response.events;
@@ -310,21 +315,22 @@
                         this.events = response.events.data;
                         this.pagination.total = response.events.total;
                         this.pagination.per_page = +response.events.per_page;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.events = [];
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             fetchCalendars() {
-                this.$get('calendars')
-                    .then(response => {
+                this.$requestServer({
+                    path: 'calendars',
+                    loadingState: null,
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
                         this.calendars = response.calendars;
-                    })
-                    .catch(error => this.$handleError(error));
+                    },
+                });
             },
             refetch() {
                 this.pagination.current_page = 1;

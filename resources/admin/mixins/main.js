@@ -6,6 +6,9 @@ import { ElNotification, ElMessageBox } from 'element-plus';
 
 const config = window.fluentEventAdmin;
 
+// Per-component request counters, so only the newest read writes state back.
+const requestSeq = new WeakMap();
+
 /**
  * Flatten a string / array / nested object into one string.
  * Pass a plain separator for notifications — they render text, not HTML.
@@ -191,5 +194,58 @@ export default {
                 ? keys.some(key => granted.includes(key))
                 : keys.every(key => granted.includes(key));
         },
+        $requestServer(req) {
+            // destructure object
+            const { method = 'get', path, payload, onSuccess, onError, onFinally, successNotify = false, fallbackSuccessMessage, errorNotify = false, fallbackErrorMessage, loadingState = 'loading', errorState = 'error' } = req;
+
+            // state safety check if available
+            if ((loadingState && this[loadingState] === undefined) || 
+                (errorState && this[errorState] === undefined)) {
+                throw new Error(
+                    `$requestServer: unknown state for "${loadingState}" or "${errorState}" — declare it in data().`
+                );
+            }
+
+            // Mutations keep the double-submit guard. Reads never do - a new
+            // filter or page picked mid-flight has to reach the server.
+            if (loadingState) {
+                if (method !== 'get' && this[loadingState]) return;
+                this[loadingState] = true;
+            }
+
+            // Newest request wins, so a slow earlier read cannot repaint over it.
+            // Added this counter due to repeatative review requests by @autharif
+            const key = loadingState || path;
+            let counters = requestSeq.get(this);
+            if (!counters) requestSeq.set(this, counters = {});
+            const seq = counters[key] = (counters[key] || 0) + 1;
+            const isLatest = () => counters[key] === seq;
+
+            Rest[method](path, payload)
+                .then(response => {
+                    if (!isLatest()) return;
+                    if (errorState) this[errorState] = '';
+
+                    if (successNotify && (response?.message || fallbackSuccessMessage)) {
+                        this.$notifySuccess(response?.message || fallbackSuccessMessage);
+                    }
+                    onSuccess?.(response);
+                })
+                .catch(error => {
+                    if (!isLatest()) return;
+                    if(errorState) {
+                        this[errorState] = error?.message || this.$t('Something went wrong');
+                    }
+                    if (errorNotify && (error?.message || fallbackErrorMessage)) {
+                        this.$handleError(error?.message || fallbackErrorMessage);
+                    }
+                    onError?.(error);
+                })
+                .finally(() => {
+                    if (!isLatest()) return;
+                    if (loadingState) this[loadingState] = false;
+                    onFinally?.();
+                });
+        }
     }
 };
