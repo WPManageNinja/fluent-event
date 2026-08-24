@@ -86,26 +86,24 @@
         },
         methods: {
             fetchChartData() {
-                if (!this.endPoint || this.loading) return;
-                
-                this.loading = true;
-                this.$get(this.endPoint, {
-                    start_date: this.range[0],
-                    end_date: this.range[1],
-                })
-                    .then(response => {
+                if (!this.endPoint) return;
+
+                this.$requestServer({
+                    path: this.endPoint,
+                    payload: {
+                        start_date: this.range[0],
+                        end_date: this.range[1],
+                    },
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
                         this.chartData = {
                             xAxisData: response.xAxisData || [],
                             series: response.series || [],
                         };
                         this.$nextTick(() => this.renderChart());
-                    })
-                    .catch(error => {
-                        this.$handleError(error);
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             renderChart() {
                 if (!this.hasData || !this.$refs.canvas) {

@@ -235,21 +235,16 @@
         },
         methods: {
             fetchEvent() {
-                if(this.loading) return;
-                this.loading = true;
-                this.$get(`events/${this.$route.params.id}`)
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: `events/${this.$route.params.id}`,
+                    onSuccess: response => {
                         this.event = response.event;
                         this.$changeTitle(this.event.title);
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.event = {};
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             goToEdit() {
                 this.$router.push({

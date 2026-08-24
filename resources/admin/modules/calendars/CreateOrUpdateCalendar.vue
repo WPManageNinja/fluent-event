@@ -198,10 +198,11 @@
                 };
             },
             fetchCalendar() {
-                if (!this.isEditing || this.loading) return;
-                this.loading = true;
-                this.$get(`calendars/${this.calendarId}`)
-                    .then(response => {
+                if (!this.isEditing) return;
+
+                this.$requestServer({
+                    path: `calendars/${this.calendarId}`,
+                    onSuccess: response => {
                         this.error = '';
                         this.calendar = {
                             title: response.calendar.title,
@@ -214,13 +215,8 @@
                         };
                         this.original = { ...this.calendar };
                         this.slugEdited = true;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             deriveSlug() {
                 if (!this.slugEdited) {
@@ -234,31 +230,25 @@
                 this.calendar.slug = this.$slugify(this.calendar.slug);
             },
             saveCalendar() {
-                if (this.saving) return;
-                this.saving = true;
-
-                const payload = {
-                    title: this.calendar.title,
-                    slug: this.$slugify(this.calendar.slug),
-                    description: this.calendar.description,
-                    visibility: this.calendar.visibility,
-                    status: this.calendar.status,
-                    theme_color: this.calendar.theme_color,
-                };
-
-                const request = this.isEditing
-                    ? this.$patch(`calendars/${this.calendarId}`, payload)
-                    : this.$post('calendars', payload);
-
-                request
-                    .then(response => {
-                        this.$notifySuccess(response.message);
+                this.$requestServer({
+                    method: this.isEditing ? 'patch' : 'post',
+                    path: this.isEditing ? `calendars/${this.calendarId}` : 'calendars',
+                    payload: {
+                        title: this.calendar.title,
+                        slug: this.$slugify(this.calendar.slug),
+                        description: this.calendar.description,
+                        visibility: this.calendar.visibility,
+                        status: this.calendar.status,
+                        theme_color: this.calendar.theme_color,
+                    },
+                    loadingState: 'saving',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: () => {
                         this.$router.push({ name: 'calendars' });
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.saving = false;
-                    });
+                    },
+                });
             },
             resetForm() {
                 if (this.isEditing) {

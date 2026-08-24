@@ -242,22 +242,24 @@
             },
             changeStatus(row, status, hide) {
                 hide();
-                if (this.mutating || status === row.status) return;
+                if (status === row.status) return;
 
-                this.mutating = true;
-                this.$patch(`events/${this.eventId}/guests/${row.id}`, {
-                    name: row.name,
-                    email: row.email,
-                    status,
-                })
-                    .then(response => {
-                        this.$notifySuccess(response.message);
+                this.$requestServer({
+                    method: 'patch',
+                    path: `events/${this.eventId}/guests/${row.id}`,
+                    payload: {
+                        name: row.name,
+                        email: row.email,
+                        status,
+                    },
+                    loadingState: 'mutating',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: () => {
                         this.fetchGuests();
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.mutating = false;
-                    });
+                    },
+                });
             },
             promptDelete(row) {
                 this.$confirm(
@@ -273,19 +275,18 @@
                     .catch(() => {});
             },
             deleteGuest(row) {
-                if (this.mutating) return;
-
-                this.mutating = true;
-                this.$del(`events/${this.eventId}/guests/${row.id}`)
-                    .then(response => {
-                        this.$notifySuccess(response.message);
+                this.$requestServer({
+                    method: 'delete',
+                    path: `events/${this.eventId}/guests/${row.id}`,
+                    loadingState: 'mutating',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: () => {
                         this.goToLastPageIfEmptied();
                         this.fetchGuests();
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.mutating = false;
-                    });
+                    },
+                });
             },
             goToLastPageIfEmptied() {
                 if (this.guests.length === 1 && this.pagination.current_page > 1) {
@@ -293,28 +294,24 @@
                 }
             },
             fetchGuests() {
-                if (this.loading) return;
-                this.loading = true;
-                this.$get(`events/${this.eventId}/guests`, {
-                    search: this.query.search,
-                    status: this.query.status,
-                    page: this.pagination.current_page,
-                    per_page: this.pagination.per_page,
-                })
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: `events/${this.eventId}/guests`,
+                    payload: {
+                        search: this.query.search,
+                        status: this.query.status,
+                        page: this.pagination.current_page,
+                        per_page: this.pagination.per_page,
+                    },
+                    onSuccess: response => {
                         this.guests = response.guests.data;
                         this.counts = response.counts;
                         this.pagination.total = response.guests.total;
                         this.pagination.per_page = +response.guests.per_page;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.guests = [];
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             refetch() {
                 this.pagination.current_page = 1;
