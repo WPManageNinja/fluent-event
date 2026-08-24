@@ -68,6 +68,9 @@
                                 :aria-label="$t('Change status of %s', row.name)"
                             >
                                 {{ row.statusLabel }}
+                                <el-icon class="fe-guests__tag-arrow" aria-hidden="true">
+                                    <ArrowDown />
+                                </el-icon>
                             </el-tag>
                         </template>
 
@@ -117,6 +120,7 @@
 </template>
 
 <script type="text/javascript">
+    import { ArrowDown } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import SearchInput from '@/components/SearchInput.vue';
@@ -129,6 +133,7 @@
     export default {
         name: 'EventGuests',
         components: {
+            ArrowDown,
             ErrorState,
             Skeleton,
             SearchInput,
