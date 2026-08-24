@@ -10,7 +10,11 @@
                     @search="refetch"
                 />
 
-                <el-button type="primary" @click="openCreate">
+                <el-button
+                    v-if="$userCan('write_guests')"
+                    type="primary"
+                    @click="openCreate"
+                >
                     {{ $t('Add Guest') }}
                 </el-button>
             </div>
@@ -230,11 +234,18 @@
         },
         methods: {
             actionsFor(row) {
-                return [
+                const actions = [
                     { label: this.$t('View'), action: () => this.openDetails(row) },
-                    { label: this.$t('Edit'), action: () => this.openEdit(row) },
-                    { label: this.$t('Delete'), type: 'danger', action: () => this.promptDelete(row) },
                 ];
+
+                if (this.$userCan('write_guests')) {
+                    actions.push(
+                        { label: this.$t('Edit'), action: () => this.openEdit(row) },
+                        { label: this.$t('Delete'), type: 'danger', action: () => this.promptDelete(row) },
+                    );
+                }
+
+                return actions;
             },
             openCreate() {
                 this.activeGuest = null;

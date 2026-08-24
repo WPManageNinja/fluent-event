@@ -25,7 +25,11 @@
                     </div>
 
                     <div class="fe-page__actions">
-                        <el-button type="secondary" @click="goToEdit">
+                        <el-button
+                            v-if="$userCan('write_events')"
+                            type="secondary"
+                            @click="goToEdit"
+                        >
                             {{ $t('Edit Event') }}
                         </el-button>
                     </div>
@@ -189,12 +193,20 @@
         },
         computed: {
             tabs() {
-                return [
+                const tabs = [
                     { value: 'overview', label: this.$t('Overview') },
                     { value: 'description', label: this.$t('Description') },
-                    { value: 'guests', label: this.$t('Guests') },
-                    { value: 'settings', label: this.$t('Settings') },
                 ];
+
+                if (this.$userCan(['read_guests', 'write_guests'], { match_type: 'any' })) {
+                    tabs.push({ value: 'guests', label: this.$t('Guests') });
+                }
+
+                if (this.$userCan('write_events')) {
+                    tabs.push({ value: 'settings', label: this.$t('Settings') });
+                }
+
+                return tabs;
             },
             isOnline() {
                 return this.event.venue_type === 'online';

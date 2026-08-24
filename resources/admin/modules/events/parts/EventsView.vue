@@ -41,7 +41,7 @@
                                 </el-radio-group>
                             </el-form-item>
 
-                            <el-form-item v-if="showCalendar" :label="$t('Calendar')">
+                            <el-form-item v-if="showCalendarFilter" :label="$t('Calendar')">
                                 <el-select v-model="pendingFilters.calendar_id">
                                     <el-option :label="$t('All')" :value="0" />
                                     <el-option
@@ -187,6 +187,11 @@
         computed: {
             isGrid() {
                 return this.view === 'grid';
+            },
+            showCalendarFilter() {
+                return this.showCalendar && this.$userCan(
+                    ['read_calendars', 'write_calendars'], { match_type: 'any' }
+                );
             },
             views() {
                 return [
@@ -360,7 +365,7 @@
         mounted() {
             this.fetchEvents();
 
-            if (this.showCalendar) {
+            if (this.showCalendarFilter) {
                 this.fetchCalendars();
             }
         },

@@ -20,7 +20,11 @@
 
             <div v-else-if="!calendars.length" class="fe-card">
                 <el-empty :description="$t('An event needs a calendar to live in, and there are none yet.')">
-                    <el-button type="primary" @click="goToCalendarCreate">
+                    <el-button
+                        v-if="$userCan('write_calendars')"
+                        type="primary"
+                        @click="goToCalendarCreate"
+                    >
                         {{ $t('Create a Calendar') }}
                     </el-button>
                 </el-empty>

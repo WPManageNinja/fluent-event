@@ -5,7 +5,11 @@
                 <h1 class="fe-settings-page__title">{{ $t('Team') }}</h1>
             </div>
 
-            <el-button type="primary" @click="openAdd">
+            <el-button
+                v-if="$userCan('write_settings')"
+                type="primary"
+                @click="openAdd"
+            >
                 {{ $t('Add Member') }}
             </el-button>
         </div>
@@ -42,7 +46,7 @@
                     </el-tag>
                 </div>
 
-                <div class="fe-team__actions">
+                <div v-if="$userCan('write_settings')" class="fe-team__actions">
                     <el-button
                         size="small"
                         :aria-label="$t('Edit permissions')"

@@ -13,7 +13,11 @@
                         <el-icon><Refresh /></el-icon>
                     </el-button>
 
-                    <el-button type="primary" @click="goToCreate">
+                    <el-button
+                        v-if="$userCan('write_calendars')"
+                        type="primary"
+                        @click="goToCreate"
+                    >
                         {{ $t('Create Calendar') }}
                     </el-button>
                 </div>
@@ -122,7 +126,11 @@
                 <p class="fe-calendars__onboarding-text">
                     {{ $t('A calendar holds your events. You need one before you can add an event.') }}
                 </p>
-                <el-button type="primary" @click="goToCreate">
+                <el-button
+                    v-if="$userCan('write_calendars')"
+                    type="primary"
+                    @click="goToCreate"
+                >
                     {{ $t('Create Calendar') }}
                 </el-button>
             </div>
