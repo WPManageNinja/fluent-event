@@ -346,7 +346,9 @@
             },
             timezones() {
                 const zones = Intl.supportedValuesOf?.('timeZone') || [];
-                const list = zones.length ? zones : [this.defaultTimezone];
+                const list = zones.includes(this.defaultTimezone)
+                    ? zones
+                    : [this.defaultTimezone, ...zones];
 
                 return list.map(zone => ({
                     value: zone,
@@ -355,7 +357,7 @@
             },
             defaultTimezone() {
                 const timezone = config?.timezone || '';
-                if (timezone.includes('/')) return timezone;
+                if (this.isValidTimezone(timezone)) return timezone;
 
                 return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
             },
@@ -412,6 +414,16 @@
             syncEndDate() {
                 if (dayjs(this.event.end_date).isBefore(this.event.start_date)) {
                     this.event.end_date = this.event.start_date;
+                }
+            },
+            isValidTimezone(timezone) {
+                if (!timezone) return false;
+
+                try {
+                    new Intl.DateTimeFormat('en-US', { timeZone: timezone });
+                    return true;
+                } catch {
+                    return false;
                 }
             },
             offsetOf(timezone) {
