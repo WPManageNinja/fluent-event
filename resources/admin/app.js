@@ -21,7 +21,11 @@ const applyColorMode = (mode) => {
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.classList.toggle('light', !isDark);
 };
-applyColorMode(localStorage.getItem('fe_color_mode') === 'dark' ? 'dark' : 'light');
+const isDarkModeEnabled = window.fluentEventAdmin?.general_settings?.dark_mode !== 'no';
+
+applyColorMode(
+    isDarkModeEnabled && localStorage.getItem('fe_color_mode') === 'dark' ? 'dark' : 'light'
+);
 
 
 // -------------------------------------

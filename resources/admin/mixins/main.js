@@ -125,8 +125,18 @@ export default {
         $defaultDate(format = 'DD-MM-YYYY') {
             return dayjs().format(format);
         },
-        $formatDate(date, format = 'DD-MM-YYYY') {
-            return dayjs(date).format(format);
+        $formatDate(date, format = '') {
+            return dayjs(date).format(
+                format || config.date_format || 'MMMM D, YYYY'
+            );
+        },
+        $formatTime(date, format = '') {
+            return dayjs(date).format(
+                format || config.time_format || 'h:mm a'
+            );
+        },
+        $formatDateTime(date) {
+            return `${this.$formatDate(date)} ${this.$formatTime(date)}`;
         },
         $changeTitle(title) {
             document.querySelector(

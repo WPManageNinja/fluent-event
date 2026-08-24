@@ -159,7 +159,7 @@
             },
             fullDate() {
                 if (!this.isMultiDay) {
-                    return this.$formatDate(this.event.start_at_local, 'dddd, MMMM D, YYYY');
+                    return this.$formatDate(this.event.start_at_local);
                 }
 
                 const start = this.$formatDate(this.event.start_at_local, 'MMM D');
@@ -168,9 +168,12 @@
                 return `${start} – ${end}`;
             },
             timeRange() {
-                const format = this.isMultiDay ? 'MMM D, h:mm A' : 'h:mm A';
-                const start = this.$formatDate(this.event.start_at_local, format);
-                const end = this.$formatDate(this.event.end_at_local, format);
+                const format = date => this.isMultiDay
+                    ? this.$formatDateTime(date)
+                    : this.$formatTime(date);
+
+                const start = format(this.event.start_at_local);
+                const end = format(this.event.end_at_local);
 
                 return `${start} – ${end} (${this.event.timezone})`;
             },

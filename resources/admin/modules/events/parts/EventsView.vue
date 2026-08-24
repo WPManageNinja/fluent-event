@@ -57,7 +57,7 @@
                                 <el-date-picker
                                     v-model="pendingFilters.dates"
                                     type="daterange"
-                                    format="MMM D, YYYY"
+                                    :format="dateFormat"
                                     value-format="YYYY-MM-DD"
                                     :start-placeholder="$t('From')"
                                     :end-placeholder="$t('To')"
@@ -159,7 +159,9 @@
                 loading: false,
                 fetched: false,
                 error: '',
-                view: 'timeline',
+                view: window.fluentEventAdmin?.general_settings?.default_events_view === 'calendar'
+                    ? 'grid'
+                    : 'timeline',
                 month: dayjs().format('YYYY-MM-DD'),
                 calendarViewMode: 'month',
                 events: [],
@@ -187,6 +189,9 @@
         computed: {
             isGrid() {
                 return this.view === 'grid';
+            },
+            dateFormat() {
+                return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
             },
             showCalendarFilter() {
                 return this.showCalendar && this.$userCan(
@@ -241,7 +246,7 @@
                         key: 'dates',
                         label: this.$t('Date'),
                         value: this.query.dates
-                            .map(date => this.$formatDate(date, 'MMM D, YYYY'))
+                            .map(date => this.$formatDate(date))
                             .join(' – '),
                     });
                 }
@@ -363,7 +368,11 @@
             },
         },
         mounted() {
-            this.fetchEvents();
+            if (this.isGrid && this.period) {
+                this.$emit('update:period', '');
+            } else {
+                this.fetchEvents();
+            }
 
             if (this.showCalendarFilter) {
                 this.fetchCalendars();

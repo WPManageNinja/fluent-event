@@ -42,7 +42,7 @@
                                 v-for="event in ongoingEvents"
                                 :key="`ongoing-${event.id}`"
                                 :event="event"
-                                :meta="$t('Ends %s', formatEventDate(event.end_at_local))"
+                                :meta="$t('Ends %s', $formatDateTime(event.end_at_local))"
                             />
                         </template>
                         <p v-else class="fe-dashboard__empty">
@@ -58,7 +58,7 @@
                                 v-for="event in upcomingEvents"
                                 :key="`upcoming-${event.id}`"
                                 :event="event"
-                                :meta="$t('Starts %s', formatEventDate(event.start_at_local))"
+                                :meta="$t('Starts %s', $formatDateTime(event.start_at_local))"
                             />
                         </template>
                         <p v-else class="fe-dashboard__empty">
@@ -135,13 +135,10 @@
                     },
                 });
             },
-            formatEventDate(date) {
-                return this.$formatDate(date, 'MMM D, hh:mm A');
-            },
             eventCalendarMeta(event) {
                 return event.calendar?.title
                     ? this.$t('Calendar: %s', event.calendar.title)
-                    : this.formatEventDate(event.start_at_local);
+                    : this.$formatDateTime(event.start_at_local);
             },
         },
         mounted() {

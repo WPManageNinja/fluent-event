@@ -4,6 +4,8 @@ namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
 use FluentEvent\App\Services\PermissionManager;
+use FluentEvent\App\Services\Settings;
+use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
 
 class AdminMenuHandler
@@ -130,8 +132,9 @@ class AdminMenuHandler
             'name'           => $this->config->get('app.name'),
             'logo'           => Enqueue::getStaticFilePath('images/logo.png'),
             'darkLogo'       => Enqueue::getStaticFilePath('images/logo.png'),
-            'menuItems'      => $this->getMenuItemsList(),
-            'rightMenuItems' => $this->getRightMenuItemsList(),
+            'menuItems'         => $this->getMenuItemsList(),
+            'rightMenuItems'    => $this->getRightMenuItemsList(),
+            'isDarkModeEnabled' => Settings::get()['dark_mode'] === 'yes',
         ]);
     }
 
@@ -338,6 +341,9 @@ class AdminMenuHandler
             'user_locale'   => get_locale(),
             'timezone'      => wp_timezone_string(),
             'start_of_week' => (int) get_option('start_of_week', 0),
+            'general_settings' => $generalSettings = Settings::get(),
+            'date_format'      => DateTimeHelper::convertToDayJsFormat($generalSettings['date_format']),
+            'time_format'      => DateTimeHelper::convertToDayJsFormat($generalSettings['time_format']),
             'brand_logo'    => $this->getMenuIcon(),
             'nonce'         => wp_create_nonce($slug),
             'asset_url'     => $this->app['url.assets'],

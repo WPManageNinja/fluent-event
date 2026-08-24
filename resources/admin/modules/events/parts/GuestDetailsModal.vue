@@ -44,7 +44,7 @@
                     <dt class="fe-guest-details__label">{{ $t('Responded') }}</dt>
 
                     <dd class="fe-guest-details__value">
-                        {{ $formatDate(guest.created_at, 'MMMM D, YYYY h:mm A') }}
+                        {{ $formatDateTime(guest.created_at) }}
                     </dd>
                 </div>
 
@@ -52,7 +52,7 @@
                     <dt class="fe-guest-details__label">{{ $t('Checked in') }}</dt>
 
                     <dd class="fe-guest-details__value">
-                        {{ $formatDate(guest.checked_in_at, 'MMMM D, YYYY h:mm A') }}
+                        {{ $formatDateTime(guest.checked_in_at) }}
                     </dd>
                 </div>
 
@@ -60,7 +60,7 @@
                     <dt class="fe-guest-details__label">{{ $t('Last updated') }}</dt>
 
                     <dd class="fe-guest-details__value">
-                        {{ $formatDate(guest.updated_at, 'MMMM D, YYYY h:mm A') }}
+                        {{ $formatDateTime(guest.updated_at) }}
                     </dd>
                 </div>
 

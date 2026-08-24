@@ -6,7 +6,7 @@
             <el-date-picker
                 v-model="range"
                 type="daterange"
-                format="MMM D, YYYY"
+                :format="dateFormat"
                 value-format="YYYY-MM-DD"
                 :clearable="false"
                 :start-placeholder="$t('From')"
@@ -82,6 +82,9 @@
                 return this.chartData.series.some(
                     line => line.data.some(point => point > 0)
                 );
+            },
+            dateFormat() {
+                return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
             },
         },
         methods: {

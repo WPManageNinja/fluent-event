@@ -93,7 +93,7 @@
                 }[this.event.status] || 'info';
             },
             time() {
-                return this.$formatDate(this.event.start_at_local, 'hh:mm A');
+                return this.$formatTime(this.event.start_at_local);
             },
             dayCount() {
                 const span = daySpan(this.event.start_at_local, this.event.end_at_local);
