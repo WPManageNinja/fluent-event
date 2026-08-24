@@ -1,10 +1,11 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
-/** @var $router FluentEvent\Framework\Http\Router */
+/** @var \FluentEvent\Framework\Http\Router $router */
 
 use FluentEvent\App\Http\Controllers\EventController;
 use FluentEvent\App\Http\Controllers\GuestController;
 use FluentEvent\App\Http\Controllers\UserController;
+use FluentEvent\App\Http\Controllers\ReportController;
 use FluentEvent\App\Http\Controllers\CalendarController;
 
 $router->get('/dashboard', 'DashboardController@get');
@@ -20,6 +21,11 @@ $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($rou
     $router->post('/', [CalendarController::class, 'createCalendar']);
     $router->patch('/{id}', [CalendarController::class, 'updateCalendar'])->int('id');
     $router->delete('/{id}', [CalendarController::class, 'deleteCalendar'])->int('id');
+});
+
+$router->prefix('reports')->withPolicy('ReportPolicy')->group(function ($router) {
+    $router->get('/', [ReportController::class, 'getReports']);
+    $router->get('/guest-trends', [ReportController::class, 'getGuestTrends']);
 });
 
 $router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
