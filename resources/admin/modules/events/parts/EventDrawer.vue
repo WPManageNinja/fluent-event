@@ -28,11 +28,26 @@
 
             <div v-if="event.calendar" class="fe-event-detail__row">
                 <span class="fe-event-detail__row-icon">
-                    <el-icon aria-hidden="true"><Calendar /></el-icon>
+                    <span
+                        class="fe-color-swatch fe-event-detail__swatch"
+                        :style="{ background: calendarColor }"
+                    ></span>
                 </span>
 
                 <div>
-                    <p class="fe-event-detail__row-title">{{ event.calendar.title }}</p>
+                    <router-link
+                        class="fe-event-detail__row-link-title"
+                        :to="{ name: 'calendar_detail', params: { id: event.calendar.id } }"
+                        :title="$t('Open %s', event.calendar.title)"
+                        @click="close"
+                    >
+                        <span class="fe-event-detail__row-title">{{ event.calendar.title }}</span>
+
+                        <el-icon class="fe-event-detail__row-link-icon" aria-hidden="true">
+                            <TopRight />
+                        </el-icon>
+                    </router-link>
+
                     <p class="fe-event-detail__row-text">{{ $t('Calendar') }}</p>
                 </div>
             </div>
@@ -98,7 +113,7 @@
 </template>
 
 <script type="text/javascript">
-    import { Calendar, LocationInformation, VideoCamera } from '@element-plus/icons-vue';
+    import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
 
@@ -106,8 +121,8 @@
         name: 'EventDrawer',
         components: {
             Drawer,
-            Calendar,
             LocationInformation,
+            TopRight,
             VideoCamera,
         },
         props: {
@@ -167,10 +182,17 @@
                 const url = this.event.meta?.cover_url || '';
                 return /^https?:/i.test(url) ? url : '';
             },
+            calendarColor() {
+                return this.event.calendar?.meta?.theme_color
+                    || 'var(--fe-secondary-border, #9ca3af)';
+            },
         },
         methods: {
-            goToDetail() {
+            close() {
                 this.$emit('update:modelValue', false);
+            },
+            goToDetail() {
+                this.close();
                 this.$router.push({ name: 'event_detail', params: { id: this.event.id } });
             },
         },

@@ -31,10 +31,7 @@
         <el-empty v-else-if="!rows.length" :description="$t('No guests yet.')" />
 
         <template v-else>
-            <div
-                class="fe-guests__table"
-                :class="{ 'fe-guests__table--loading': loading }"
-            >
+            <div class="fe-guests__table" :class="{ 'fe-is-loading': loading }">
                 <div class="fe-guests__row fe-guests__row--head">
                     <span class="fe-guests__serial">#</span>
                     <span class="fe-guests__avatar" aria-hidden="true"></span>

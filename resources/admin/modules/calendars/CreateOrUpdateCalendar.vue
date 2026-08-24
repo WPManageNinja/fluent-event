@@ -245,8 +245,11 @@
                     errorState: null,
                     successNotify: true,
                     errorNotify: true,
-                    onSuccess: () => {
-                        this.$router.push({ name: 'calendars' });
+                    onSuccess: response => {
+                        this.$router.push({
+                            name: 'calendar_detail',
+                            params: { id: this.calendarId || response.calendar.id },
+                        });
                     },
                 });
             },

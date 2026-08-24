@@ -8,7 +8,7 @@
                     <el-button
                         :aria-label="$t('Refresh')"
                         :title="$t('Refresh')"
-                        @click="fetchCalendars"
+                        @click="refresh"
                     >
                         <el-icon><Refresh /></el-icon>
                     </el-button>
@@ -90,23 +90,25 @@
                 </el-tag>
             </div>
 
-            <Skeleton v-if="loading" type="calendar-grid" />
+            <Skeleton v-if="loading && !fetched" type="calendar-grid" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
 
-            <template v-else-if="calendars.length">
-                <el-row :gutter="20">
-                    <el-col
-                        v-for="calendar in calendars"
-                        :key="calendar.id"
-                        :xs="24"
-                        :sm="12"
-                        :md="8"
-                    >
-                        <CalendarCard :calendar="calendar" />
-                    </el-col>
-                </el-row>
-            </template>
+            <el-row
+                v-else-if="calendars.length"
+                :class="{ 'fe-is-loading': loading }"
+                :gutter="20"
+            >
+                <el-col
+                    v-for="calendar in calendars"
+                    :key="calendar.id"
+                    :xs="24"
+                    :sm="12"
+                    :md="8"
+                >
+                    <CalendarCard :calendar="calendar" />
+                </el-col>
+            </el-row>
 
             <el-empty
                 v-else-if="isFiltered"
@@ -150,6 +152,7 @@
         data() {
             return {
                 loading: false,
+                fetched: false,
                 error: '',
                 calendars: [],
                 query: {
@@ -201,7 +204,7 @@
                 return !!this.query.search || !!this.activeFilters.length;
             },
             isOnboarding() {
-                return !this.loading && !this.error && !this.calendars.length && !this.isFiltered;
+                return this.fetched && !this.loading && !this.error && !this.calendars.length && !this.isFiltered;
             },
         },
         methods: {
@@ -214,12 +217,17 @@
                         visibility: this.query.visibility,
                     },
                     onSuccess: response => {
+                        this.fetched = true;
                         this.calendars = response.calendars;
                     },
                     onError: () => {
                         this.calendars = [];
                     },
                 });
+            },
+            refresh() {
+                this.fetched = false;
+                this.fetchCalendars();
             },
             syncFilters() {
                 this.pendingFilters = {
