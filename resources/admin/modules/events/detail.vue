@@ -120,6 +120,10 @@
                             <el-empty v-else :description="$t('No description yet.')" />
                         </div>
                     </template>
+
+                    <template #settings>
+                        <EventDangerZone :event="event" @deleted="goToList" />
+                    </template>
                 </Tabs>
             </template>
         </div>
@@ -131,6 +135,7 @@
     import { daySpan } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import EventDangerZone from './parts/EventDangerZone.vue';
 
     export default {
         name: 'EventDetail',
@@ -140,6 +145,7 @@
             VideoCamera,
             Tabs,
             ErrorState,
+            EventDangerZone,
         },
         data() {
             return {
@@ -154,6 +160,7 @@
                 return [
                     { value: 'overview', label: this.$t('Overview') },
                     { value: 'description', label: this.$t('Description') },
+                    { value: 'settings', label: this.$t('Settings') },
                 ];
             },
             isOnline() {
@@ -226,6 +233,9 @@
                     .finally(() => {
                         this.loading = false;
                     });
+            },
+            goToList() {
+                this.$router.push({ name: 'events' });
             },
         },
         mounted() {

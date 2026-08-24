@@ -36,6 +36,15 @@ class EventService
         return $event;
     }
 
+    public static function deleteEvent($event)
+    {
+        do_action('fluent_event/event/before_deleted', $event);
+
+        $event->delete();
+
+        do_action('fluent_event/event/deleted', $event);
+    }
+
     protected static function createWpPost($data)
     {
         $postId = wp_insert_post([
