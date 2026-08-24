@@ -11,6 +11,7 @@
                 :class="{ 'fe-tabs__tab--active': tab.value === modelValue }"
                 :aria-selected="tab.value === modelValue"
                 :aria-controls="isRendered(tab.value) ? `fe-tabpanel-${tab.value}` : null"
+                :tabindex="tab.value === modelValue ? 0 : -1"
                 @click="select(tab.value)"
                 @keydown="handleKeydown($event, index)"
             >
