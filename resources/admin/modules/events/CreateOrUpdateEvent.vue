@@ -56,6 +56,42 @@
                     </aside>
 
                     <div class="fe-event-form__main">
+                        <div class="fe-event-form__header">
+                            <el-select
+                                v-model="event.calendar_id"
+                                class="fe-event-form__header-select"
+                                :aria-label="$t('Calendar')"
+                                :placeholder="$t('Choose a calendar')"
+                            >
+                                <template #prefix>
+                                    <span
+                                        class="fe-color-swatch fe-event-form__header-swatch"
+                                        :style="{ background: calendarColor }"
+                                    ></span>
+                                </template>
+
+                                <el-option
+                                    v-for="calendar in calendars"
+                                    :key="calendar.id"
+                                    :label="calendar.title"
+                                    :value="calendar.id"
+                                />
+                            </el-select>
+
+                            <el-select
+                                v-model="event.status"
+                                class="fe-event-form__header-select"
+                                :aria-label="$t('Status')"
+                            >
+                                <el-option
+                                    v-for="option in statuses"
+                                    :key="option.value"
+                                    :label="option.label"
+                                    :value="option.value"
+                                />
+                            </el-select>
+                        </div>
+
                         <label class="fe-event-form__title-label" for="fe-event-title">
                             {{ $t('Event name') }}
                         </label>
@@ -118,40 +154,6 @@
                                     </el-select>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="fe-event-form__card fe-event-form__field">
-                            <label class="fe-event-form__field-label" for="fe-event-calendar">
-                                {{ $t('Calendar *') }}
-                            </label>
-
-                            <el-select
-                                id="fe-event-calendar"
-                                v-model="event.calendar_id"
-                                class="fe-event-form__calendar-select"
-                                :placeholder="$t('Choose a calendar')"
-                            >
-                                <el-option
-                                    v-for="calendar in calendars"
-                                    :key="calendar.id"
-                                    :label="calendar.title"
-                                    :value="calendar.id"
-                                />
-                            </el-select>
-                        </div>
-
-                        <div class="fe-event-form__card fe-event-form__field">
-                            <span class="fe-event-form__field-label">{{ $t('Status') }}</span>
-
-                            <el-radio-group v-model="event.status">
-                                <el-radio
-                                    v-for="option in statuses"
-                                    :key="option.value"
-                                    :value="option.value"
-                                >
-                                    {{ option.label }}
-                                </el-radio>
-                            </el-radio-group>
                         </div>
 
                         <div class="fe-event-form__card">
@@ -375,6 +377,13 @@
                 if (this.isValidTimezone(timezone)) return timezone;
 
                 return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+            },
+            calendarColor() {
+                const selected = this.calendars.find(
+                    calendar => calendar.id === this.event.calendar_id
+                );
+
+                return selected?.meta?.theme_color || 'var(--fe-secondary-border, #9ca3af)';
             },
             venueSummary() {
                 if (this.event.venue_type === 'online') {
