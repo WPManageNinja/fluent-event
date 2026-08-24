@@ -112,18 +112,18 @@ different shape and are paginated from the start in 13.
 |---|---|---|---|---|---|
 | 11 | **Event model + write API** | [event-detail.md](screens/event-detail.md) · [patterns/backend.md](../../patterns/backend.md) | 2, 6 | `Event` model plus `Calendar hasMany`. Creating an event writes the `wp_posts` row and the `event_details` row in one transaction; `post_status` and `status` agree | [#19](https://github.com/WPManageNinja/fluent-event/pull/19) |
 | 12a | **Create event form** | [event-create.md](screens/event-create.md) | 7a, 11 | `#/events/new` renders calendar, title, description, start, end, timezone and location type, and creates on submit | [#19](https://github.com/WPManageNinja/fluent-event/pull/19) |
-| 12b | **Calendar context + entry points** | [event-create.md](screens/event-create.md) | 12a | `?calendar_id` preselects the calendar; Add Event appears on the calendar detail, the Events screen and the sidebar; no calendars routes to create one | |
+| 12b | **Calendar context + entry points** | [event-create.md](screens/event-create.md) | 12a | `?calendar_id` preselects the calendar; Add Event appears on the calendar detail, the Events screen and the sidebar; no calendars routes to create one | [#19](https://github.com/WPManageNinja/fluent-event/pull/19) · [#21](https://github.com/WPManageNinja/fluent-event/pull/21) |
 | 12c | **Conditional location fields** | [event-create.md](screens/event-create.md) | 12a | Location type switches between meeting URL and address; the URL is protocol-filtered | [#19](https://github.com/WPManageNinja/fluent-event/pull/19) |
-| 13 | **Event API — read** | [calendar-detail.md](screens/calendar-detail.md) | 11 | List endpoint supporting both pagination and a date-range window, calendar name joined in | |
-| 14a | **Events control bar** | [calendar-detail.md](screens/calendar-detail.md) | 12a | Header with upcoming/past toggle, timeline·calendar view switch and Add Event. Emits filter changes; body is a placeholder | |
-| 14b | **Timeline list** | [calendar-detail.md](screens/calendar-detail.md) | 13, 14a | Paginated rows under one calendar, driven by the bar's filters | |
+| 13 | **Event API — read** | [calendar-detail.md](screens/calendar-detail.md) | 11 | List endpoint supporting both pagination and a date-range window, calendar name joined in | [#21](https://github.com/WPManageNinja/fluent-event/pull/21) |
+| 14a | **Events control bar** | [calendar-detail.md](screens/calendar-detail.md) | 12a | Header with upcoming/past toggle, timeline·calendar view switch and Add Event. Emits filter changes; body is a placeholder | [#21](https://github.com/WPManageNinja/fluent-event/pull/21) |
+| 14b | **Timeline list** | [calendar-detail.md](screens/calendar-detail.md) | 13, 14a | Paginated rows under one calendar, driven by the bar's filters | [#21](https://github.com/WPManageNinja/fluent-event/pull/21) |
 | 14c | **View-choice persistence** | [calendar-detail.md](screens/calendar-detail.md) | 14a | The timeline·calendar choice survives reload per user via `localStorage`, seeded by the site default | |
-| 14d | **Combined events screen** | [events.md](screens/events.md) | 14b | Same components unscoped; timeline rows gain a calendar-name prop; Add Event asks for a calendar | |
-| 15a | **Month grid shell** | [calendar-detail.md](screens/calendar-detail.md) | 14a | `<el-calendar>` with a custom `#header` slot for month navigation. Empty cells, correct first day from `start_of_week` | |
-| 15b | **Day-cell rendering** | [calendar-detail.md](screens/calendar-detail.md) | 13, 15a | `#date-cell` paints that day's events, with an `el-popover` per entry for detail | |
-| 15c | **Range-bound fetching** | [calendar-detail.md](screens/calendar-detail.md) | 15b | Month navigation recomputes `start_date`/`end_date` and refetches, so the grid has no holes | |
-| 16 | **Event detail — Overview** | [event-detail.md](screens/event-detail.md) | 13 | Breadcrumb, header, tab shell, Overview tab, more menu with edit and delete. Guests tab is chunk 19 | |
-| 17 | **Event delete** | [event-detail.md](screens/event-detail.md) | 11, 16 | Removes the post, the details row and any guests atomically | |
+| 14d | **Combined events screen** | [events.md](screens/events.md) | 14b | Same components unscoped; timeline rows gain a calendar-name prop; Add Event asks for a calendar | [#21](https://github.com/WPManageNinja/fluent-event/pull/21) |
+| 15a | **Month grid shell** | [calendar-detail.md](screens/calendar-detail.md) | 14a | `<el-calendar>` with a custom `#header` slot for month navigation. Empty cells, correct first day from `start_of_week` | [#22](https://github.com/WPManageNinja/fluent-event/pull/22) |
+| 15b | **Day-cell rendering** | [calendar-detail.md](screens/calendar-detail.md) | 13, 15a | `#date-cell` paints that day's events, with an `el-popover` per entry for detail | [#22](https://github.com/WPManageNinja/fluent-event/pull/22) |
+| 15c | **Range-bound fetching** | [calendar-detail.md](screens/calendar-detail.md) | 15b | Month navigation recomputes `start_date`/`end_date` and refetches, so the grid has no holes | [#22](https://github.com/WPManageNinja/fluent-event/pull/22) |
+| 16 | **Event detail — Overview** | [event-detail.md](screens/event-detail.md) | 13 | Breadcrumb, header, tab shell, Overview tab, more menu with edit and delete. Guests tab is chunk 19 | [#23](https://github.com/WPManageNinja/fluent-event/pull/23) |
+| 17 | **Event delete** | [event-detail.md](screens/event-detail.md) | 11, 16 | Removes the post, the details row and any guests atomically | [#24](https://github.com/WPManageNinja/fluent-event/pull/24) · [#27](https://github.com/WPManageNinja/fluent-event/pull/27) |
 
 **11, 12a and 12c shipped together in [#19](https://github.com/WPManageNinja/fluent-event/pull/19).**
 The write API is only demonstrable through a form, so splitting them across two PRs would have
@@ -131,12 +131,19 @@ left the first one untestable. Two carve-outs:
 
 - **`Calendar hasMany events` is deferred to 13.** Nothing reads the relation until a list
   endpoint exists, and `$fillable`-style decisions on an unused relation are guesses.
-- **12b is half done.** `?calendar_id` preselects the calendar and an empty calendar list
-  routes to create one, both in #19. The Add Event buttons on the calendar detail and the
-  Events screen are still to place, so the row stays open.
+- **12b closed across two PRs.** `?calendar_id` preselects the calendar and an empty calendar
+  list routes to create one, both in #19. The Add Event buttons landed with the screens that
+  host them in [#21](https://github.com/WPManageNinja/fluent-event/pull/21) — the calendar
+  detail's Events tab and the Events screen header.
 
 The timeline and grid are **one component pair used twice** — scoped and unscoped differ
 only by whether `calendar_id` is in the query. Two month-grid implementations will drift.
+
+**Two PRs in this stage have no row above.** Editing an event was never chunked — the table
+goes from create straight to detail and delete — so it shipped as
+[#25](https://github.com/WPManageNinja/fluent-event/pull/25), reusing the create form on an
+`:id/edit` route the way 10b does for calendars, followed by
+[#26](https://github.com/WPManageNinja/fluent-event/pull/26) restyling that form's header.
 
 14a ships with a placeholder body on purpose: the control bar is reviewable on its own, and
 it unblocks both 14b and 15a, which can then proceed in parallel.
@@ -147,11 +154,19 @@ it unblocks both 14b and 15a, which can then proceed in parallel.
 
 | # | Chunk | Spec | Dep | Done when | PR |
 |---|---|---|---|---|---|
-| 18 | **Guest model + API** | [event-detail.md](screens/event-detail.md) | 11 | `Guest` model plus `Event hasMany`. A response is recorded as a guest row; the same person answering twice updates rather than duplicates | |
-| 19 | **Guests tab** | [event-detail.md](screens/event-detail.md) | 16, 18 | Per-event list with going / not-going counts | |
+| 18 | **Guest model + API** | [event-detail.md](screens/event-detail.md) | 11 | `Guest` model plus `Event hasMany`. A response is recorded as a guest row; the same person answering twice updates rather than duplicates | [#27](https://github.com/WPManageNinja/fluent-event/pull/27) |
+| 19 | **Guests tab** | [event-detail.md](screens/event-detail.md) | 16, 18 | Per-event list with going / not-going counts | [#27](https://github.com/WPManageNinja/fluent-event/pull/27) |
 
-Blocked on open question 1 — `guests.status` has no going/not-going vocabulary — and
-question 2, where a response arrives from.
+**Open question 1 is settled: `guests.status` is `going | checked_in | cancelled`**, default
+`going`, encoded in `Guest::STATUSES`. `not_going` and `approved` from the migration's column
+comment are not used — the comment is now out of step with the model, and correcting it means
+an `ALTER` that `dbDelta` will not apply to an existing install.
+
+Question 2 — where a response arrives from — is still open. v1 has no public RSVP surface, so
+guests are created through the authenticated admin API. Two consequences that path must fix:
+uniqueness per event is a validator rule with no unique index behind it, and `user_id` is now
+an explicit field rather than being inferred from the email, so a logged-in respondent must
+pass their own id.
 
 ---
 

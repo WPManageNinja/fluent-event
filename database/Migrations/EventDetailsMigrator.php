@@ -29,7 +29,7 @@ class EventDetailsMigrator
         `end_at` DATETIME NOT NULL,
         `timezone` VARCHAR(64) NULL COMMENT 'organizer local time, for display',
         `venue_type` VARCHAR(64) NULL DEFAULT 'offline' COMMENT 'offline | online | hybrid',
-        `meta` LONGTEXT NULL COMMENT 'cover_url, online_meeting_url, address, form_fields, registration_type',
+        `meta` LONGTEXT NULL COMMENT 'cover_url, online_meeting_url, address, form_fields, entry_type',
         `created_at` TIMESTAMP NULL,
         `updated_at` TIMESTAMP NULL,
          UNIQUE KEY `uq_events_post` (`post_id`),
