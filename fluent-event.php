@@ -28,6 +28,8 @@ if(!defined('FLUENT_EVENT_UPLOAD_DIR')) {
   define('FLUENT_EVENT_UPLOAD_DIR', 'fluent-event');
 }
 
+require __DIR__.'/boot/action_scheduler_loader.php';
+
 return (function($boot, $_autoload) {
     return $boot(__FILE__);
 })(
