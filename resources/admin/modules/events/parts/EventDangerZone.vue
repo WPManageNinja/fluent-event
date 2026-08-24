@@ -70,6 +70,7 @@
                     .catch(() => {});
             },
             deleteEvent() {
+                if(this.deleting) return;
                 this.deleting = true;
                 return this.$del(`events/${this.event.id}`)
                     .then(response => {
