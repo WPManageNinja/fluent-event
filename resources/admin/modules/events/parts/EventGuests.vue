@@ -28,92 +28,94 @@
             />
         </div>
 
-        <Skeleton v-if="loading" type="guests" />
+        <Skeleton v-if="loading && !fetched" type="guests" />
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchGuests" />
 
         <el-empty v-else-if="!rows.length" :description="$t('No guests yet.')" />
 
         <template v-else>
-            <div class="fe-guests__row fe-guests__row--head">
-                <span class="fe-guests__serial">#</span>
-                <span class="fe-guests__avatar" aria-hidden="true"></span>
-                <span class="fe-guests__name">{{ $t('Name') }}</span>
-                <span class="fe-guests__email">{{ $t('Email') }}</span>
-                <span class="fe-guests__stage">{{ $t('Status') }}</span>
-                <span class="fe-guests__actions">{{ $t('More') }}</span>
-            </div>
-
-            <div v-for="row in rows" :key="row.id" class="fe-guests__row">
-                <span class="fe-guests__serial">{{ row.serial }}</span>
-
-                <img
-                    v-if="row.avatar"
-                    class="fe-guests__avatar"
-                    :src="row.avatar"
-                    :alt="row.name"
-                />
-
-                <span v-else class="fe-guests__avatar fe-guests__avatar--empty" aria-hidden="true">
-                    {{ row.initial }}
-                </span>
-
-                <p class="fe-guests__name">{{ row.name }}</p>
-
-                <p class="fe-guests__email">{{ row.email }}</p>
-
-                <div class="fe-guests__stage">
-                    <el-tag
-                        v-if="!$userCan('write_guests')"
-                        class="fe-guests__tag"
-                        :type="row.tagType"
-                        size="small"
-                    >
-                        {{ row.statusLabel }}
-                    </el-tag>
-
-                    <ActionPopover v-else :width="160" placement="bottom-end">
-                        <template #trigger>
-                            <el-tag
-                                class="fe-guests__tag"
-                                :type="row.tagType"
-                                size="small"
-                                :aria-label="$t('Change status of %s', row.name)"
-                            >
-                                {{ row.statusLabel }}
-                                <el-icon class="fe-guests__tag-arrow" aria-hidden="true">
-                                    <ArrowDown />
-                                </el-icon>
-                            </el-tag>
-                        </template>
-
-                        <template #default="{ hide }">
-                            <ul class="fe-action-popover__menu" role="menu">
-                                <li
-                                    v-for="option in statuses"
-                                    :key="option.value"
-                                    class="fe-action-popover__item"
-                                    :class="{
-                                        'fe-guests__status-option--active': option.value === row.status
-                                    }"
-                                    role="menuitem"
-                                    tabindex="0"
-                                    @click="changeStatus(row, option.value, hide)"
-                                    @keydown.enter.prevent="changeStatus(row, option.value, hide)"
-                                >
-                                    {{ option.label }}
-                                </li>
-                            </ul>
-                        </template>
-                    </ActionPopover>
-
-                    <span v-if="row.checkedInAt" class="fe-guests__time">
-                        {{ row.checkedInAt }}
-                    </span>
+            <div class="fe-guests__table" :class="{ 'fe-is-loading': loading }">
+                <div class="fe-guests__row fe-guests__row--head">
+                    <span class="fe-guests__serial">#</span>
+                    <span class="fe-guests__avatar" aria-hidden="true"></span>
+                    <span class="fe-guests__name">{{ $t('Name') }}</span>
+                    <span class="fe-guests__email">{{ $t('Email') }}</span>
+                    <span class="fe-guests__stage">{{ $t('Status') }}</span>
+                    <span class="fe-guests__actions">{{ $t('More') }}</span>
                 </div>
 
-                <div class="fe-guests__actions">
-                    <ActionPopover :items="actionsFor(row)" placement="bottom-end" />
+                <div v-for="row in rows" :key="row.id" class="fe-guests__row">
+                    <span class="fe-guests__serial">{{ row.serial }}</span>
+
+                    <img
+                        v-if="row.avatar"
+                        class="fe-guests__avatar"
+                        :src="row.avatar"
+                        :alt="row.name"
+                    />
+
+                    <span v-else class="fe-guests__avatar fe-guests__avatar--empty" aria-hidden="true">
+                        {{ row.initial }}
+                    </span>
+
+                    <p class="fe-guests__name">{{ row.name }}</p>
+
+                    <p class="fe-guests__email">{{ row.email }}</p>
+
+                    <div class="fe-guests__stage">
+                        <el-tag
+                            v-if="!$userCan('write_guests')"
+                            class="fe-guests__tag"
+                            :type="row.tagType"
+                            size="small"
+                        >
+                            {{ row.statusLabel }}
+                        </el-tag>
+
+                        <ActionPopover v-else :width="160" placement="bottom-end">
+                            <template #trigger>
+                                <el-tag
+                                    class="fe-guests__tag"
+                                    :type="row.tagType"
+                                    size="small"
+                                    :aria-label="$t('Change status of %s', row.name)"
+                                >
+                                    {{ row.statusLabel }}
+                                    <el-icon class="fe-guests__tag-arrow" aria-hidden="true">
+                                        <ArrowDown />
+                                    </el-icon>
+                                </el-tag>
+                            </template>
+
+                            <template #default="{ hide }">
+                                <ul class="fe-action-popover__menu" role="menu">
+                                    <li
+                                        v-for="option in statuses"
+                                        :key="option.value"
+                                        class="fe-action-popover__item"
+                                        :class="{
+                                            'fe-guests__status-option--active': option.value === row.status
+                                        }"
+                                        role="menuitem"
+                                        tabindex="0"
+                                        @click="changeStatus(row, option.value, hide)"
+                                        @keydown.enter.prevent="changeStatus(row, option.value, hide)"
+                                    >
+                                        {{ option.label }}
+                                    </li>
+                                </ul>
+                            </template>
+                        </ActionPopover>
+
+                        <span v-if="row.checkedInAt" class="fe-guests__time">
+                            {{ row.checkedInAt }}
+                        </span>
+                    </div>
+
+                    <div class="fe-guests__actions">
+                        <ActionPopover :items="actionsFor(row)" placement="bottom-end" />
+                    </div>
                 </div>
             </div>
 
@@ -125,7 +127,7 @@
             :event-id="eventId"
             :guest="activeGuest"
             :statuses="statuses"
-            @saved="fetchGuests"
+            @saved="onGuestSaved"
         />
 
         <GuestDetailsModal v-model="detailsOpen" :guest="activeGuest" />
@@ -165,6 +167,7 @@
         data() {
             return {
                 loading: false,
+                fetched: false,
                 error: '',
                 guests: [],
                 counts: {},
@@ -281,10 +284,19 @@
                     errorState: null,
                     successNotify: true,
                     errorNotify: true,
-                    onSuccess: () => {
-                        this.fetchGuests();
+                    onSuccess: response => {
+                        this.onGuestSaved(response.guest);
                     },
                 });
+            },
+            onGuestSaved(guest) {
+                const index = this.guests.findIndex(item => item.id === guest.id);
+
+                if (index !== -1) {
+                    this.guests.splice(index, 1, guest);
+                } else {
+                    this.guests.unshift(guest);
+                }
             },
             promptDelete(row) {
                 this.$confirm(
@@ -328,6 +340,7 @@
                         per_page: this.pagination.per_page,
                     },
                     onSuccess: response => {
+                        this.fetched = true;
                         this.guests = response.guests.data;
                         this.counts = response.counts;
                         this.pagination.total = response.guests.total;
