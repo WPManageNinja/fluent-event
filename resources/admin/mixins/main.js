@@ -6,6 +6,9 @@ import { ElNotification, ElMessageBox } from 'element-plus';
 
 const config = window.fluentEventAdmin;
 
+// Per-component request counters, so only the newest read writes state back.
+const requestSeq = new WeakMap();
+
 /**
  * Flatten a string / array / nested object into one string.
  * Pass a plain separator for notifications — they render text, not HTML.
@@ -178,15 +181,24 @@ export default {
                 );
             }
 
-            // loading guard if available
+            // Mutations keep the double-submit guard. Reads never do - a new
+            // filter or page picked mid-flight has to reach the server.
             if (loadingState) {
-                if (this[loadingState]) return;
+                if (method !== 'get' && this[loadingState]) return;
                 this[loadingState] = true;
             }
 
+            // Newest request wins, so a slow earlier read cannot repaint over it.
+            // Added this counter due to repeatative review requests by @autharif
+            const key = loadingState || path;
+            let counters = requestSeq.get(this);
+            if (!counters) requestSeq.set(this, counters = {});
+            const seq = counters[key] = (counters[key] || 0) + 1;
+            const isLatest = () => counters[key] === seq;
 
             Rest[method](path, payload)
                 .then(response => {
+                    if (!isLatest()) return;
                     if (errorState) this[errorState] = '';
 
                     if (successNotify && (response?.message || fallbackSuccessMessage)) {
@@ -195,6 +207,7 @@ export default {
                     onSuccess?.(response);
                 })
                 .catch(error => {
+                    if (!isLatest()) return;
                     if(errorState) {
                         this[errorState] = error?.message || this.$t('Something went wrong');
                     }
@@ -204,6 +217,7 @@ export default {
                     onError?.(error);
                 })
                 .finally(() => {
+                    if (!isLatest()) return;
                     if (loadingState) this[loadingState] = false;
                     onFinally?.();
                 });
