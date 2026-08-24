@@ -1788,6 +1788,15 @@
 }
 
 .fe-guests {
+    &__table {
+        transition: opacity 0.15s ease;
+
+        &.fe-guests__table--loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    }
+
     &__toolbar {
         display: flex;
         flex-direction: column;
