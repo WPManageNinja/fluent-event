@@ -10,7 +10,7 @@
     justify-content: space-between;
     padding: 0 var(--fe-space-5, 20px);
     background-color: var(--fe-primary-bg, #ffffff);
-    border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+    box-shadow: 0 0 20px #1c273214;
     height: var(--fe-navbar-height, 65px);
     
     @media (max-width: 600px) {
