@@ -149,16 +149,15 @@
     .el-input__wrapper,
     .el-textarea__inner,
     .el-select__wrapper {
-        box-sizing: border-box;
         border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
         box-shadow: none;
         background-color: transparent;
     }
 
-    .el-input__wrapper, 
+    .el-input__wrapper,
     .el-select__wrapper {
-        height: 36px;
+        height: var(--fe-control-height, 36px);
     }
 
     .el-input-group__prepend {
@@ -190,7 +189,7 @@
     }
 
     .el-button {
-        height: 36px;
+        height: var(--fe-control-height, 36px);
         border-radius: var(--fe-radius, 8px);
         font-weight: 500;
     }
@@ -295,13 +294,63 @@
         }
     }
 
-    .fe-event-drawer {
-        &.el-drawer {
-            max-width: 100%;
+    .el-calendar {
+        --el-calendar-border: 1px solid var(--fe-primary-border, #d3d8de);
+        --el-calendar-selected-bg-color: var(--fe-active-bg, #f0f3f5);
+        --el-calendar-cell-width: 120px;
+
+        overflow: hidden;
+        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border-radius: var(--fe-radius-lg, 12px);
+        background-color: var(--fe-primary-bg, #ffffff);
+
+        &__header {
+            align-items: center;
+            gap: var(--fe-space-3, 12px);
+            padding: var(--fe-space-4, 16px) var(--fe-space-5, 20px);
         }
 
-        .el-drawer__body {
-            padding: var(--fe-space-5, 20px);
+        &__body {
+            padding: 0;
+        }
+    }
+
+    .el-calendar-table {
+        thead th {
+            padding: var(--fe-space-3, 12px) var(--fe-space-2, 8px);
+            border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            font-size: var(--fe-text-xs, 12px);
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--fe-secondary-text, #525866);
+        }
+
+        tr:first-child td {
+            border-top: 0;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        tr td:first-child {
+            border-left: 0;
+        }
+
+        tr td:last-child {
+            border-right: 0;
+        }
+
+        .el-calendar-day {
+            height: auto;
+            min-height: var(--el-calendar-cell-width);
+            padding: 0;
+        }
+    }
+
+    @media screen and (max-width: 782px) {
+        .el-calendar {
+            overflow-x: auto;
         }
     }
 }

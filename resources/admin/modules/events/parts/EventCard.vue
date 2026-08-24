@@ -58,8 +58,8 @@
 </template>
 
 <script type="text/javascript">
-    import dayjs from 'dayjs';
     import { Clock, LocationInformation, User, VideoCamera } from '@element-plus/icons-vue';
+    import { daySpan } from '@/utils/date';
 
     export default {
         name: 'EventCard',
@@ -96,12 +96,9 @@
                 return this.$formatDate(this.event.start_at_local, 'hh:mm A');
             },
             dayCount() {
-                const start = this.event.start_at_local.slice(0, 10);
-                const end = this.event.end_at_local.slice(0, 10);
+                const span = daySpan(this.event.start_at_local, this.event.end_at_local);
 
-                if (start === end) return 0;
-
-                return dayjs(end).diff(dayjs(start), 'day') + 1;
+                return span > 1 ? span : 0;
             },
             location() {
                 if (this.isOnline) {

@@ -91,6 +91,7 @@
 
 <script type="text/javascript">
     import { Calendar, LocationInformation, VideoCamera } from '@element-plus/icons-vue';
+    import { daySpan } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
 
     export default {
@@ -131,8 +132,7 @@
                 return this.$formatDate(this.event.start_at_local, 'D');
             },
             isMultiDay() {
-                return this.event.start_at_local.slice(0, 10)
-                    !== this.event.end_at_local.slice(0, 10);
+                return daySpan(this.event.start_at_local, this.event.end_at_local) > 1;
             },
             fullDate() {
                 if (!this.isMultiDay) {
