@@ -22,7 +22,13 @@ appRouter.afterEach((to) => {
         .removeAttr('aria-current');
 
     if (activeKey) {
-        jQuery(`.fe-navbar__link-wrapper[data-key="${activeKey}"] .fe-navbar__link`)
+        jQuery(`.fe-navbar__link-wrapper[data-key="${activeKey}"] > .fe-navbar__link`)
+            .addClass('fe-navbar__link--active')
+            .attr('aria-current', 'page');
+    }
+    
+    if (to.name) {
+        jQuery(`.fe-navbar__dropdown .fe-navbar__link[data-key="${to.name}"]`)
             .addClass('fe-navbar__link--active')
             .attr('aria-current', 'page');
     }

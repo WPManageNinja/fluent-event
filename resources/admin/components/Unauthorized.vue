@@ -1,37 +1,36 @@
 <template>
-    <div class="unauthorized-page">
-        <el-result
-            icon="warning"
-            title="Unauthorized"
-            sub-title="You do not have permission to access this page."
-        >
-            <template #extra>
-                <el-button type="primary" @click="goHome">Back to Home</el-button>
-            </template>
-        </el-result>
-    </div>
+    <transition name="fade" mode="out-in" appear>
+        <div class="fe-page">
+            <ErrorState
+                code="403"
+                :title="$t('Unauthorized')"
+                :message="$t('You do not have permission to access this page.')"
+            >
+                <template #action>
+                    <el-button type="primary" @click="goHome">
+                        {{ $t('Back to Dashboard') }}
+                    </el-button>
+                </template>
+            </ErrorState>
+        </div>
+    </transition>
 </template>
 
-<script setup>
-import { useRouter } from 'vue-router';
+<script type="text/javascript">
+    import ErrorState from '@/components/ErrorState.vue';
 
-const router = useRouter();
-
-/**
- * Navigate back to the root route from the 403 screen.
- *
- * @returns {void}
- */
-function goHome() {
-    router.push('/');
-}
+    export default {
+        name: 'Unauthorized',
+        components: {
+            ErrorState,
+        },
+        methods: {
+            goHome() {
+                this.$router.push({ name: 'dashboard' });
+            },
+        },
+        mounted() {
+            this.$changeTitle(this.$t('Unauthorized'));
+        },
+    };
 </script>
-
-<style scoped>
-.unauthorized-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80vh;
-}
-</style>

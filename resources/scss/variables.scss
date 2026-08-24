@@ -2,6 +2,7 @@ body {
     --fe-navbar-height: 65px;
     --fe-page-width: 1000px;
     --fe-control-height: 36px;
+    --fe-admin-menu-width: 160px;
 
     // Spacing
     --fe-space-1: 4px;
@@ -74,6 +75,22 @@ body {
     // Dialog header
     --dialog-header-bg: rgba(245, 245, 245, 1);
     --dialog-header-border: rgba(221, 221, 221, 1);
+
+    @media (min-width: 783px) {
+        &.folded {
+            --fe-admin-menu-width: 36px;
+        }
+    }
+    
+    @media (min-width: 783px) and (max-width: 960px) {
+        &.auto-fold {
+            --fe-admin-menu-width: 36px;
+        }
+    }
+
+    @media (max-width: 782px) {
+        --fe-admin-menu-width: 0px;
+    }
 }
 
 html.dark body {

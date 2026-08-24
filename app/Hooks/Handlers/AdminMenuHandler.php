@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
+use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
 
 class AdminMenuHandler
@@ -58,22 +59,24 @@ class AdminMenuHandler
      */
     public function add()
     {
+        if (!PermissionManager::hasAnyPermission()) return;
+        $capabilities = PermissionManager::getMenuCapabilities();
+
         add_menu_page(
             __('FluentEvent', 'fluent-event'),
             __('FluentEvent', 'fluent-event'),
-            'manage_options',
+            $capabilities['dashboard'],
             $this->slug,
             [$this, 'render'],
             $this->getMenuIcon(),
             $this->position
         );
 
-        $this->addSubmenu(__('Dashboard', 'fluent-event'), '');
-
-        $this->addSubmenu(__('Add New Event', 'fluent-event'), 'events/new');
-        $this->addSubmenu(__('Calendars', 'fluent-event'), 'calendars');
-        $this->addSubmenu(__('Events', 'fluent-event'), 'events');
-        $this->addSubmenu(__('Settings', 'fluent-event'), 'settings');
+        $this->addSubmenu(__('Dashboard', 'fluent-event'), '', $capabilities['dashboard']);
+        $this->addSubmenu(__('Calendars', 'fluent-event'), 'calendars', $capabilities['calendars']);
+        $this->addSubmenu(__('Events', 'fluent-event'), 'events', $capabilities['events']);
+        $this->addSubmenu(__('Add New Event', 'fluent-event'), 'events/new', $capabilities['add_event']);
+        $this->addSubmenu(__('Settings', 'fluent-event'), 'settings', $capabilities['settings']);
     }
 
     /**
@@ -88,7 +91,7 @@ class AdminMenuHandler
      *
      * @return null
      */
-    protected function addSubmenu($label, $route = '', $capability = 'manage_options')
+    protected function addSubmenu($label, $route, $capability)
     {
         add_submenu_page(
             $this->slug,
@@ -139,23 +142,31 @@ class AdminMenuHandler
      */
     protected function getMenuItemsList()
     {
-        return [
+        $items = [
             [
                 'key'       => 'dashboard',
                 'label'     => __('Dashboard', 'fluent-event'),
                 'permalink' => $this->baseUrl,
             ],
-            [
+        ];
+
+        if (PermissionManager::userCan(['read_calendars', 'write_calendars'])) {
+            $items[] = [
                 'key'       => 'calendars',
                 'label'     => __('Calendars', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'calendars',
-            ],
-            [
+            ];
+        }
+
+        if (PermissionManager::userCan(['read_events', 'write_events'])) {
+            $items[] = [
                 'key'       => 'events',
                 'label'     => __('Events', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'events',
-            ],
-        ];
+            ];
+        }
+
+        return $items;
     }
 
     /**
@@ -165,11 +176,27 @@ class AdminMenuHandler
      */
     protected function getRightMenuItemsList()
     {
+        if (!PermissionManager::userCan(['read_settings', 'write_settings'])) {
+            return [];
+        }
+
         return [
             [
                 'key'       => 'settings',
                 'label'     => __('Settings', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'settings',
+                'children'  => [
+                    [
+                        'key'       => 'settings_general',
+                        'label'     => __('General', 'fluent-event'),
+                        'permalink' => $this->baseUrl . 'settings/general',
+                    ],
+                    [
+                        'key'       => 'settings_team',
+                        'label'     => __('Team', 'fluent-event'),
+                        'permalink' => $this->baseUrl . 'settings/team',
+                    ],
+                ],
             ],
         ];
     }
@@ -321,10 +348,11 @@ class AdminMenuHandler
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
             'logoUrl'       => Enqueue::getStaticFilePath('images/logo.png'),
             'me'            => [
-                'id'        => $authUser->ID ?? null,
-                'email'     => $authUser->user_email ?? null,
-                'full_name' => $authUser->display_name ?? null,
-                'is_admin'  => current_user_can('administrator'),
+                'id'          => $authUser->ID ?? null,
+                'email'       => $authUser->user_email ?? null,
+                'full_name'   => $authUser->display_name ?? null,
+                'is_admin'    => current_user_can('manage_options'),
+                'permissions' => PermissionManager::getUserPermissions(),
             ],
             'i18n'          => $this->getTranslationLabels($context),
         ]);

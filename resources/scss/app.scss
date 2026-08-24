@@ -4,11 +4,11 @@
     min-height: calc(
         100vh
         - var(--wp-admin--admin-bar--height, 32px)
-        - var(--fe-navbar-height, 65px)
     );
+    padding-top: var(--fe-navbar-height, 65px);
 
-    > .fe-navbar {
-        flex: 0 0 auto;
+    @media (max-width: 600px) {
+        padding-top: 0;
     }
 
     &__body {

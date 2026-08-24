@@ -231,6 +231,30 @@
         }
     }
 
+    .el-checkbox:hover .el-checkbox__inner {
+        border-color: var(--fe-primary-button, #2b2e33);
+    }
+
+    .el-checkbox__input.is-checked,
+    .el-checkbox__input.is-indeterminate {
+        .el-checkbox__inner {
+            background-color: var(--fe-primary-button, #2b2e33);
+            border-color: var(--fe-primary-button, #2b2e33);
+
+            &::after {
+                border-color: var(--fe-primary-bg, #ffffff);
+            }
+
+            &::before {
+                background-color: var(--fe-primary-bg, #ffffff);
+            }
+        }
+    }
+
+    .el-checkbox__input.is-checked + .el-checkbox__label {
+        color: var(--fe-primary-text, #19283a);
+    }
+
     .el-form-item__label {
         font-weight: 500;
         color: var(--fe-primary-text, #19283a);

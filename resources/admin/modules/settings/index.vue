@@ -1,33 +1,58 @@
 <template>
     <transition name="fade" mode="out-in" appear>
-        <div>
-            <div class="page-header">
-                <el-row>
-                    <el-col :span="12">
-                        <strong>{{ title }}</strong>
-                    </el-col>
-                </el-row>
-            </div>
+        <div class="fe-settings">
+            <aside class="fe-settings__sidebar">
+                <nav class="fe-settings__nav" :aria-label="$t('Settings')">
+                    <router-link
+                        v-for="item in menuItems"
+                        :key="item.name"
+                        class="fe-settings__nav-link"
+                        :class="{ 'fe-settings__nav-link--active': isActive(item.name) }"
+                        :to="{ name: item.name }"
+                    >
+                        <el-icon class="fe-settings__nav-icon">
+                            <component :is="item.icon" />
+                        </el-icon>
+                        <span class="fe-settings__nav-text">{{ item.label }}</span>
+                    </router-link>
+                </nav>
+            </aside>
 
-            <div class="page-content">
-                {{ $t('The four v1 settings land in chunk 21.') }}
+            <div class="fe-settings__body">
+                <router-view />
             </div>
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
-    /**
-     * Placeholder so the Settings topbar entry has a route to resolve.
-     * Replaced by the real form in chunk 21 — see
-     * .claude/docs/phase/v1/screens/settings.md
-     */
+    import { Setting, User } from '@element-plus/icons-vue';
+
     export default {
-        name: 'Settings',
+        name: 'SettingsLayout',
         computed: {
-            title() {
-                return this.$t('Settings');
+            menuItems() {
+                return [
+                    {
+                        name: 'settings_general',
+                        label: this.$t('General'),
+                        icon: Setting,
+                    },
+                    {
+                        name: 'settings_team',
+                        label: this.$t('Team'),
+                        icon: User,
+                    },
+                ];
             },
+        },
+        methods: {
+            isActive(name) {
+                return this.$route.name === name;
+            },
+        },
+        mounted() {
+            this.$changeTitle(this.$t('Settings'));
         },
     };
 </script>

@@ -21,15 +21,8 @@ const applyColorMode = (mode) => {
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.classList.toggle('light', !isDark);
 };
-
-window.toggleColorMode = function () {
-    const mode = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-
-    applyColorMode(mode);
-    localStorage.setItem('fe_color_mode', mode);
-};
-
 applyColorMode(localStorage.getItem('fe_color_mode') === 'dark' ? 'dark' : 'light');
+
 
 // -------------------------------------
 // Toggle mobile menu
@@ -45,17 +38,65 @@ const setMobileMenu = (open) => {
     navbarToggle?.setAttribute('aria-expanded', String(open));
 };
 
+// -------------------------------------
+// Toggle navbar dropdowns (the Settings menu)
+// -------------------------------------
+const setNavbarDropdown = (menu, open) => {
+    menu.classList.toggle('fe-navbar__dropdown--open', open);
+    menu.parentElement
+        ?.querySelector(`[aria-controls="${menu.id}"]`)
+        ?.setAttribute('aria-expanded', String(open));
+};
+
+const closeNavbarDropdowns = () => {
+    document
+        .querySelectorAll('.fe-navbar__dropdown--open')
+        .forEach((menu) => setNavbarDropdown(menu, false));
+};
+
+// -------------------------------------
+// Global window functions for mobile menu and dropdowns
+// -------------------------------------
 window.toggleMobileMenu = function () {
     setMobileMenu(!isMobileMenuOpen());
 };
 
+window.toggleColorMode = function () {
+    const mode = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+
+    applyColorMode(mode);
+    localStorage.setItem('fe_color_mode', mode);
+};
+
+window.toggleNavbarDropdown = function (id) {
+    const menu = document.getElementById(id);
+    if (!menu) return;
+
+    const open = !menu.classList.contains('fe-navbar__dropdown--open');
+    closeNavbarDropdowns();
+    setNavbarDropdown(menu, open);
+};
+
+// -------------------------------------
+// Event listeners for mobile menu and dropdowns
+// -------------------------------------
 document.addEventListener('click', (event) => {
-    if (!isMobileMenuOpen() || event.target.closest('.fe-navbar__menu-toggle')) return;
-    setMobileMenu(false);
+    if (isMobileMenuOpen() && !event.target.closest('.fe-navbar__menu-toggle')) {
+        setMobileMenu(false);
+    }
+
+    if (!event.target.closest('.fe-navbar__link--toggle')) {
+        closeNavbarDropdowns();
+    }
 });
 
 document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape' || !isMobileMenuOpen()) return;
-    setMobileMenu(false);
-    navbarToggle?.focus();
+    if (event.key !== 'Escape') return;
+
+    if (isMobileMenuOpen()) {
+        setMobileMenu(false);
+        navbarToggle?.focus();
+    }
+
+    closeNavbarDropdowns();
 });
