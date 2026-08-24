@@ -17,6 +17,11 @@ class SettingsPolicy extends Policy
         return PermissionManager::userCan('write_settings');
     }
 
+    public function updateEmail(Request $request, ...$args)
+    {
+        return PermissionManager::userCan('write_settings');
+    }
+
     public function upsertTeamMember(Request $request, ...$args)
     {
         return PermissionManager::userCan('write_settings');

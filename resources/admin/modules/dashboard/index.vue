@@ -135,6 +135,9 @@
                     },
                 });
             },
+            formatEventDate(date) {
+                return this.$formatDate(date, 'MMM D, hh:mm A');
+            },
             eventCalendarMeta(event) {
                 return event.calendar?.title
                     ? this.$t('Calendar: %s', event.calendar.title)

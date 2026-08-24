@@ -64,7 +64,16 @@
                     <p class="fe-guests__email">{{ row.email }}</p>
 
                     <div class="fe-guests__stage">
-                        <ActionPopover :width="160" placement="bottom-end">
+                        <el-tag
+                            v-if="!$userCan('write_guests')"
+                            class="fe-guests__tag"
+                            :type="row.tagType"
+                            size="small"
+                        >
+                            {{ row.statusLabel }}
+                        </el-tag>
+
+                        <ActionPopover v-else :width="160" placement="bottom-end">
                             <template #trigger>
                                 <el-tag
                                     class="fe-guests__tag"

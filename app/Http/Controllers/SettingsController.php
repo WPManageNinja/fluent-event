@@ -11,8 +11,10 @@ class SettingsController extends Controller
 {
     public function getGeneral(Request $request)
     {
+        $settings = Settings::get();
+
         return $this->sendSuccess([
-            'settings' => Settings::get(),
+            'settings' => $settings,
         ]);
     }
 
@@ -33,6 +35,31 @@ class SettingsController extends Controller
     }
 
 
+    public function getEmail(Request $request)
+    {
+        $settings = Settings::get(Settings::EMAIL);
+
+        return $this->sendSuccess([
+            'settings' => $settings,
+        ]);
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $data = SettingsRequest::sanitize($request->all());
+
+        $this->validate($data, SettingsRequest::emailRules(), SettingsRequest::messages());
+
+        $settings = Settings::update(Settings::EMAIL, $data);
+
+        do_action('fluent_event/settings/email_updated', $settings);
+
+        return $this->sendSuccess([
+            'message'  => __('Settings have been saved.', 'fluent-event'),
+            'settings' => $settings,
+        ]);
+    }
+
     public function getTeam(Request $request)
     {
         $members = PermissionManager::getTeamMembers();
@@ -48,7 +75,7 @@ class SettingsController extends Controller
     {
         $data = SettingsRequest::sanitize($request->all());
 
-        $this->validate($data, SettingsRequest::teamRules(), SettingsRequest::teamMessages());
+        $this->validate($data, SettingsRequest::teamRules(), SettingsRequest::messages());
 
         $user = get_user_by('ID', $data['user_id']);
 

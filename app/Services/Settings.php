@@ -7,6 +7,7 @@ use FluentEvent\App\Models\Meta;
 class Settings
 {
     const GENERAL = 'general';
+    const EMAIL = 'email';
     const WP_OPTION_KEY = 'fe_settings';
 
     const DEFAULTS = [
@@ -16,6 +17,14 @@ class Settings
             'time_format'              => '',
             'dark_mode'                => 'yes',
             'remove_data_on_uninstall' => 'no',
+        ],
+        self::EMAIL => [
+            'from_name'      => '',
+            'from_email'     => '',
+            'reply_to_name'  => '',
+            'reply_to_email' => '',
+            'email_footer'   => '',
+            'reminder_hours' => 24,
         ],
     ];
 
