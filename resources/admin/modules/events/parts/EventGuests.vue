@@ -24,80 +24,85 @@
             />
         </div>
 
-        <Skeleton v-if="loading" type="guests" />
+        <Skeleton v-if="loading && !fetched" type="guests" />
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchGuests" />
 
         <el-empty v-else-if="!rows.length" :description="$t('No guests yet.')" />
 
         <template v-else>
-            <div class="fe-guests__row fe-guests__row--head">
-                <span class="fe-guests__serial">#</span>
-                <span class="fe-guests__avatar" aria-hidden="true"></span>
-                <span class="fe-guests__name">{{ $t('Name') }}</span>
-                <span class="fe-guests__email">{{ $t('Email') }}</span>
-                <span class="fe-guests__stage">{{ $t('Status') }}</span>
-                <span class="fe-guests__actions">{{ $t('More') }}</span>
-            </div>
-
-            <div v-for="row in rows" :key="row.id" class="fe-guests__row">
-                <span class="fe-guests__serial">{{ row.serial }}</span>
-
-                <img
-                    v-if="row.avatar"
-                    class="fe-guests__avatar"
-                    :src="row.avatar"
-                    :alt="row.name"
-                />
-
-                <span v-else class="fe-guests__avatar fe-guests__avatar--empty" aria-hidden="true">
-                    {{ row.initial }}
-                </span>
-
-                <p class="fe-guests__name">{{ row.name }}</p>
-
-                <p class="fe-guests__email">{{ row.email }}</p>
-
-                <div class="fe-guests__stage">
-                    <ActionPopover :width="160" placement="bottom-end">
-                        <template #trigger>
-                            <el-tag
-                                class="fe-guests__tag"
-                                :type="row.tagType"
-                                size="small"
-                                :aria-label="$t('Change status of %s', row.name)"
-                            >
-                                {{ row.statusLabel }}
-                            </el-tag>
-                        </template>
-
-                        <template #default="{ hide }">
-                            <ul class="fe-action-popover__menu" role="menu">
-                                <li
-                                    v-for="option in statuses"
-                                    :key="option.value"
-                                    class="fe-action-popover__item"
-                                    :class="{
-                                        'fe-guests__status-option--active': option.value === row.status
-                                    }"
-                                    role="menuitem"
-                                    tabindex="0"
-                                    @click="changeStatus(row, option.value, hide)"
-                                    @keydown.enter.prevent="changeStatus(row, option.value, hide)"
-                                >
-                                    {{ option.label }}
-                                </li>
-                            </ul>
-                        </template>
-                    </ActionPopover>
-
-                    <span v-if="row.checkedInAt" class="fe-guests__time">
-                        {{ row.checkedInAt }}
-                    </span>
+            <div class="fe-guests__table" :class="{ 'fe-is-loading': loading }">
+                <div class="fe-guests__row fe-guests__row--head">
+                    <span class="fe-guests__serial">#</span>
+                    <span class="fe-guests__avatar" aria-hidden="true"></span>
+                    <span class="fe-guests__name">{{ $t('Name') }}</span>
+                    <span class="fe-guests__email">{{ $t('Email') }}</span>
+                    <span class="fe-guests__stage">{{ $t('Status') }}</span>
+                    <span class="fe-guests__actions">{{ $t('More') }}</span>
                 </div>
 
-                <div class="fe-guests__actions">
-                    <ActionPopover :items="actionsFor(row)" placement="bottom-end" />
+                <div v-for="row in rows" :key="row.id" class="fe-guests__row">
+                    <span class="fe-guests__serial">{{ row.serial }}</span>
+
+                    <img
+                        v-if="row.avatar"
+                        class="fe-guests__avatar"
+                        :src="row.avatar"
+                        :alt="row.name"
+                    />
+
+                    <span v-else class="fe-guests__avatar fe-guests__avatar--empty" aria-hidden="true">
+                        {{ row.initial }}
+                    </span>
+
+                    <p class="fe-guests__name">{{ row.name }}</p>
+
+                    <p class="fe-guests__email">{{ row.email }}</p>
+
+                    <div class="fe-guests__stage">
+                        <ActionPopover :width="160" placement="bottom-end">
+                            <template #trigger>
+                                <el-tag
+                                    class="fe-guests__tag"
+                                    :type="row.tagType"
+                                    size="small"
+                                    :aria-label="$t('Change status of %s', row.name)"
+                                >
+                                    {{ row.statusLabel }}
+                                    <el-icon class="fe-guests__tag-arrow" aria-hidden="true">
+                                        <ArrowDown />
+                                    </el-icon>
+                                </el-tag>
+                            </template>
+
+                            <template #default="{ hide }">
+                                <ul class="fe-action-popover__menu" role="menu">
+                                    <li
+                                        v-for="option in statuses"
+                                        :key="option.value"
+                                        class="fe-action-popover__item"
+                                        :class="{
+                                            'fe-guests__status-option--active': option.value === row.status
+                                        }"
+                                        role="menuitem"
+                                        tabindex="0"
+                                        @click="changeStatus(row, option.value, hide)"
+                                        @keydown.enter.prevent="changeStatus(row, option.value, hide)"
+                                    >
+                                        {{ option.label }}
+                                    </li>
+                                </ul>
+                            </template>
+                        </ActionPopover>
+
+                        <span v-if="row.checkedInAt" class="fe-guests__time">
+                            {{ row.checkedInAt }}
+                        </span>
+                    </div>
+
+                    <div class="fe-guests__actions">
+                        <ActionPopover :items="actionsFor(row)" placement="bottom-end" />
+                    </div>
                 </div>
             </div>
 
@@ -109,7 +114,7 @@
             :event-id="eventId"
             :guest="activeGuest"
             :statuses="statuses"
-            @saved="fetchGuests"
+            @saved="onGuestSaved"
         />
 
         <GuestDetailsModal v-model="detailsOpen" :guest="activeGuest" />
@@ -117,6 +122,7 @@
 </template>
 
 <script type="text/javascript">
+    import { ArrowDown } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import SearchInput from '@/components/SearchInput.vue';
@@ -129,6 +135,7 @@
     export default {
         name: 'EventGuests',
         components: {
+            ArrowDown,
             ErrorState,
             Skeleton,
             SearchInput,
@@ -147,6 +154,7 @@
         data() {
             return {
                 loading: false,
+                fetched: false,
                 error: '',
                 guests: [],
                 counts: {},
@@ -242,22 +250,33 @@
             },
             changeStatus(row, status, hide) {
                 hide();
-                if (this.mutating || status === row.status) return;
+                if (status === row.status) return;
 
-                this.mutating = true;
-                this.$patch(`events/${this.eventId}/guests/${row.id}`, {
-                    name: row.name,
-                    email: row.email,
-                    status,
-                })
-                    .then(response => {
-                        this.$notifySuccess(response.message);
-                        this.fetchGuests();
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.mutating = false;
-                    });
+                this.$requestServer({
+                    method: 'patch',
+                    path: `events/${this.eventId}/guests/${row.id}`,
+                    payload: {
+                        name: row.name,
+                        email: row.email,
+                        status,
+                    },
+                    loadingState: 'mutating',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: response => {
+                        this.onGuestSaved(response.guest);
+                    },
+                });
+            },
+            onGuestSaved(guest) {
+                const index = this.guests.findIndex(item => item.id === guest.id);
+
+                if (index !== -1) {
+                    this.guests.splice(index, 1, guest);
+                } else {
+                    this.guests.unshift(guest);
+                }
             },
             promptDelete(row) {
                 this.$confirm(
@@ -273,19 +292,18 @@
                     .catch(() => {});
             },
             deleteGuest(row) {
-                if (this.mutating) return;
-
-                this.mutating = true;
-                this.$del(`events/${this.eventId}/guests/${row.id}`)
-                    .then(response => {
-                        this.$notifySuccess(response.message);
+                this.$requestServer({
+                    method: 'delete',
+                    path: `events/${this.eventId}/guests/${row.id}`,
+                    loadingState: 'mutating',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: () => {
                         this.goToLastPageIfEmptied();
                         this.fetchGuests();
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.mutating = false;
-                    });
+                    },
+                });
             },
             goToLastPageIfEmptied() {
                 if (this.guests.length === 1 && this.pagination.current_page > 1) {
@@ -293,28 +311,25 @@
                 }
             },
             fetchGuests() {
-                if (this.loading) return;
-                this.loading = true;
-                this.$get(`events/${this.eventId}/guests`, {
-                    search: this.query.search,
-                    status: this.query.status,
-                    page: this.pagination.current_page,
-                    per_page: this.pagination.per_page,
-                })
-                    .then(response => {
-                        this.error = '';
+                this.$requestServer({
+                    path: `events/${this.eventId}/guests`,
+                    payload: {
+                        search: this.query.search,
+                        status: this.query.status,
+                        page: this.pagination.current_page,
+                        per_page: this.pagination.per_page,
+                    },
+                    onSuccess: response => {
+                        this.fetched = true;
                         this.guests = response.guests.data;
                         this.counts = response.counts;
                         this.pagination.total = response.guests.total;
                         this.pagination.per_page = +response.guests.per_page;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
+                    },
+                    onError: () => {
                         this.guests = [];
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    },
+                });
             },
             refetch() {
                 this.pagination.current_page = 1;
