@@ -34,12 +34,6 @@ class Calendar extends Model
         static::creating(function ($calendar) {
             $calendar->created_by = get_current_user_id();
         });
-
-        static::deleting(function ($calendar) {
-            foreach ($calendar->events()->get() as $event) {
-                $event->delete();
-            }
-        });
     }
 
     public function events()

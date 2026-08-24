@@ -3,7 +3,6 @@
 namespace FluentEvent\App\Models;
 
 use FluentEvent\App\Utils\DateTimeHelper;
-use FluentEvent\Framework\Foundation\Exceptions\HttpException;
 
 /**
  * Event model.
@@ -52,21 +51,6 @@ class Event extends Model
         'start_at_local',
         'end_at_local',
     ];
-
-    protected static function booted()
-    {
-        static::deleting(function ($event) {
-            if (!wp_delete_post($event->post_id, true)) {
-                throw new HttpException(
-                    422,
-                    __('The event could not be deleted. Please try again.', 'fluent-event'),
-                    'event_post_delete_failed'
-                );
-            }
-
-            $event->guests()->delete();
-        });
-    }
 
     public static function defaultMeta()
     {
