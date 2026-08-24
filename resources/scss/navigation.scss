@@ -114,12 +114,17 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: var(--fe-space-1, 4px);
 
         .el-icon {
             height: 20px;
             width: 20px;
             font-size: 20px;
+        }
+    }
+
+    &__color-mode {
+        .el-icon {
+            margin-top: 4px;
         }
     }
 

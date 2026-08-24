@@ -300,30 +300,32 @@
         <template #template>
             <el-row :gutter="20">
                 <el-col :md="16" :sm="24">
+                    <div class="fe-skeleton__greeting">
+                        <el-skeleton-item
+                            variant="circle"
+                            class="fe-skeleton__greeting-avatar"
+                        />
+
+                        <div>
+                            <el-skeleton-item
+                                variant="text"
+                                class="fe-skeleton__greeting-name"
+                            />
+                            <el-skeleton-item
+                                variant="text"
+                                class="fe-skeleton__greeting-note"
+                            />
+                        </div>
+                    </div>
+
                     <div class="fe-skeleton__tiles">
                         <el-skeleton-item
-                            v-for="tile in 3"
-                            :key="`total-${tile}`"
+                            v-for="tile in 8"
+                            :key="`tile-${tile}`"
                             variant="rect"
                             class="fe-skeleton__tile"
                         />
                     </div>
-
-                    <template
-                        v-for="section in ['calendars', 'events', 'guests']"
-                        :key="section"
-                    >
-                        <el-skeleton-item variant="text" class="fe-skeleton__section-title" />
-
-                        <div class="fe-skeleton__tiles">
-                            <el-skeleton-item
-                                v-for="tile in 3"
-                                :key="`${section}-${tile}`"
-                                variant="rect"
-                                class="fe-skeleton__tile"
-                            />
-                        </div>
-                    </template>
 
                     <el-skeleton-item variant="rect" class="fe-skeleton__chart" />
                 </el-col>
