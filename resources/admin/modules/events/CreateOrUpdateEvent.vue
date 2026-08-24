@@ -373,7 +373,9 @@
             },
             timezones() {
                 const zones = Intl.supportedValuesOf?.('timeZone') || [];
-                const list = zones.length ? zones : [this.defaultTimezone];
+                const list = zones.includes(this.defaultTimezone)
+                    ? zones
+                    : [this.defaultTimezone, ...zones];
 
                 return list.map(zone => ({
                     value: zone,
@@ -382,7 +384,7 @@
             },
             defaultTimezone() {
                 const timezone = config?.timezone || '';
-                if (timezone.includes('/')) return timezone;
+                if (this.isValidTimezone(timezone)) return timezone;
 
                 return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
             },
@@ -466,6 +468,16 @@
                     this.event.end_date = this.event.start_date;
                 }
             },
+            isValidTimezone(timezone) {
+                if (!timezone) return false;
+
+                try {
+                    new Intl.DateTimeFormat('en-US', { timeZone: timezone });
+                    return true;
+                } catch {
+                    return false;
+                }
+            },
             offsetOf(timezone) {
                 if (!timezone) return '';
 
@@ -504,12 +516,11 @@
                     loadingState: 'saving',
                     errorState: null,
                     successNotify: true,
-                    onSuccess: () => {
-                        this.$router.push(
-                            this.isEditing
-                                ? { name: 'event_detail', params: { id: this.eventId } }
-                                : { name: 'events' }
-                        );
+                    onSuccess: response => {
+                        this.$router.push({
+                            name: 'event_detail',
+                            params: { id: this.eventId || response.event.id },
+                        });
                     },
                     onError: error => {
                         this.expanded.location = true;

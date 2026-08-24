@@ -47,6 +47,11 @@ class Calendar extends Model
         return $this->hasMany(Event::class, 'calendar_id', 'id');
     }
 
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'calendar_id', 'id');
+    }
+
     public static function defaultMeta()
     {
         return [

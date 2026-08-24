@@ -29,12 +29,20 @@
     import { LineChart } from 'echarts/charts';
     import { CanvasRenderer } from 'echarts/renderers';
     import {
+        AriaComponent,
         GridComponent,
         TooltipComponent,
         LegendComponent,
     } from 'echarts/components';
 
-    echarts.use([LineChart, CanvasRenderer, GridComponent, TooltipComponent, LegendComponent]);
+    echarts.use([
+        LineChart,
+        CanvasRenderer,
+        AriaComponent,
+        GridComponent,
+        TooltipComponent,
+        LegendComponent,
+    ]);
 
     const cssVar = function (name, fallback) {
         const value = getComputedStyle(document.documentElement)
@@ -114,6 +122,12 @@
                 const lineColor = cssVar('--fe-primary-border', '#d3d8de');
 
                 this.chart.setOption({
+                    aria: {
+                        enabled: true,
+                        label: {
+                            data: { maxCount: this.chartData.xAxisData.length },
+                        },
+                    },
                     color: [
                         cssVar('--fe-chart-going', '#0099ff'),
                         cssVar('--fe-chart-checked-in', '#1a7f37'),

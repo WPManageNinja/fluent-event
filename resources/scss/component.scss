@@ -5,7 +5,7 @@
     background-color: var(--fe-primary-bg, #ffffff);
 
     @media screen and (max-width: 575px) {
-        padding: var(--fe-space-4, 16px);
+        padding: var(--fe-space-2, 8px);
     }
 }
 
@@ -200,6 +200,11 @@
         width: fit-content;
         max-width: 100%;
         cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--el-color-primary, #409eff);
+            outline-offset: 2px;
+        }
     }
 
     &__trigger-button.el-button {
@@ -387,6 +392,15 @@
 
         &:hover {
             color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+            outline-offset: 2px;
         }
 
         &.fe-tabs__tab--active {
@@ -902,6 +916,11 @@
         &__indicator {
             transition: none;
         }
+    }
+
+    @media screen and (max-width: 782px) {
+        max-width: 100%;
+        overflow-x: auto;
     }
 }
 
@@ -1437,6 +1456,7 @@
     }
 
     &__month {
+        min-width: 180px;
         margin: 0;
         font-size: var(--fe-text-base, 16px);
         font-weight: 600;
@@ -1909,6 +1929,30 @@
         color: var(--fe-primary-text, #19283a);
     }
 
+    &__row-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        text-decoration: none;
+        color: inherit;
+
+        &:hover .fe-event-overview__row-title,
+        &:focus-visible .fe-event-overview__row-title {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+            border-radius: var(--fe-radius-sm, 4px);
+        }
+    }
+
+    &__row-link-icon {
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
     &__row-text {
         margin: var(--fe-space-1, 4px) 0 0;
         font-size: var(--fe-text-sm, 14px);
@@ -2107,6 +2151,61 @@
         flex: 0 0 72px;
         justify-content: flex-end;
     }
+
+    @media screen and (max-width: 782px) {
+        &__row {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr) auto;
+            grid-template-areas:
+                "avatar name    actions"
+                "avatar email   actions"
+                "stage  stage   stage";
+            gap: 0 var(--fe-space-3, 12px);
+            padding: var(--fe-space-2, 8px);
+            border: 1px solid var(--fe-primary-border, #d3d8de);
+            border-radius: var(--fe-radius, 8px);
+
+            & + & {
+                margin-top: var(--fe-space-2, 8px);
+            }
+
+            &:last-of-type {
+                border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            }
+            
+            &.fe-guests__row--head {
+                display: none;
+            }
+        }
+
+        &__serial {
+            display: none;
+        }
+
+        &__avatar {
+            grid-area: avatar;
+        }
+
+        &__name {
+            grid-area: name;
+        }
+
+        &__email {
+            grid-area: email;
+        }
+
+        &__stage {
+            grid-area: stage;
+            flex-direction: row;
+            align-items: center;
+            gap: var(--fe-space-2, 8px);
+            margin-top: var(--fe-space-2, 8px);
+        }
+
+        &__actions {
+            grid-area: actions;
+        }
+    }
 }
 
 .fe-guest-details {
@@ -2226,6 +2325,36 @@
         height: 48px;
         border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
+        font-size: 28px;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__swatch.fe-color-swatch {
+        width: 24px;
+        height: 24px;
+    }
+
+    &__row-link-title {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        text-decoration: none;
+        color: inherit;
+
+        &:hover .fe-event-detail__row-title,
+        &:focus-visible .fe-event-detail__row-title {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+            border-radius: var(--fe-radius-sm, 4px);
+        }
+    }
+
+    &__row-link-icon {
+        font-size: var(--fe-text-sm, 14px);
         color: var(--fe-secondary-text, #525866);
     }
 
