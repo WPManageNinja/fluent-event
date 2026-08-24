@@ -18,6 +18,7 @@ $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($rou
 
 $router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
     $router->get('/', [EventController::class, 'getAllEvents']);
+    $router->get('/{id}', [EventController::class, 'getEvent'])->int('id');
 
     $router->post('/', [EventController::class, 'createEvent']);
 });
