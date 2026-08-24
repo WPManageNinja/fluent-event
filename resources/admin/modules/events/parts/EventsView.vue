@@ -92,6 +92,7 @@
 
         <EventsGrid
             v-else-if="isGrid"
+            v-model:view-mode="calendarViewMode"
             :events="events"
             :month="month"
             @change-month="changeMonth"
@@ -157,6 +158,7 @@
                 error: '',
                 view: 'timeline',
                 month: dayjs().format('YYYY-MM-DD'),
+                calendarViewMode: 'month',
                 events: [],
                 calendars: [],
                 activeEvent: null,
