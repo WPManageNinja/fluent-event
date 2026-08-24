@@ -16,6 +16,7 @@
                 box-shadow: none;
                 padding: 0 !important;
                 min-height: inherit;
+                color: var(--fe-primary-text, #19283a);
             }
 
             &-multiple {
@@ -41,12 +42,6 @@
                         box-shadow: none !important;
                     }
                 }
-            }
-        }
-
-        &-dialog {
-            &__body {
-                padding: var(--fe-space-4, 16px) var(--fe-space-5, 20px);
             }
         }
 
@@ -269,10 +264,6 @@
         --el-skeleton-to-color: var(--fe-primary-border, #d3d8de);
     }
 
-    .el-overlay {
-        z-index: 100000 !important;
-    }
-
     .el-drawer {
         background-color: var(--fe-primary-bg, #ffffff);
 
@@ -291,6 +282,48 @@
 
         &__close-btn {
             color: var(--fe-secondary-text, #525866);
+        }
+    }
+
+    .el-dialog {
+        --el-dialog-bg-color: var(--fe-primary-bg, #ffffff);
+        --el-dialog-border-radius: var(--fe-radius-lg, 12px);
+        --el-dialog-padding-primary: var(--fe-space-5, 20px);
+        --el-dialog-title-font-size: var(--fe-text-base, 16px);
+
+        border: 1px solid var(--fe-primary-border, #d3d8de);
+
+        &__header {
+            margin-right: 0;
+            padding-bottom: var(--fe-space-4, 16px);
+            border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+        }
+
+        &__title {
+            font-weight: 600;
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &__headerbtn {
+            top: var(--fe-space-2, 8px);
+        }
+
+        &__close {
+            color: var(--fe-secondary-text, #525866);
+        }
+
+        &__headerbtn:hover &__close {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &__body {
+            padding: var(--fe-space-4, 16px) 0;
+            color: var(--fe-secondary-text, #525866);
+        }
+
+        &__footer {
+            padding-top: var(--fe-space-5, 20px);
+            border-top: 1px solid var(--fe-primary-border, #d3d8de);
         }
     }
 

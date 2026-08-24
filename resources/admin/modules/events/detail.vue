@@ -127,6 +127,12 @@
                         </div>
                     </template>
 
+                    <template #guests>
+                        <div class="fe-card">
+                            <EventGuests :event-id="event.id" />
+                        </div>
+                    </template>
+
                     <template #settings>
                         <EventDangerZone :event="event" @deleted="goToList" />
                     </template>
@@ -141,6 +147,7 @@
     import { daySpan } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import EventGuests from './parts/EventGuests.vue';
     import EventDangerZone from './parts/EventDangerZone.vue';
 
     export default {
@@ -151,6 +158,7 @@
             VideoCamera,
             Tabs,
             ErrorState,
+            EventGuests,
             EventDangerZone,
         },
         data() {
@@ -166,6 +174,7 @@
                 return [
                     { value: 'overview', label: this.$t('Overview') },
                     { value: 'description', label: this.$t('Description') },
+                    { value: 'guests', label: this.$t('Guests') },
                     { value: 'settings', label: this.$t('Settings') },
                 ];
             },

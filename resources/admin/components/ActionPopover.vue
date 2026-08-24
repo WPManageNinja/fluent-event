@@ -11,7 +11,17 @@
         @after-enter="focusFirstItem"
     >
         <template #reference>
-            <span ref="triggerRef" class="fe-action-popover__trigger" @click="toggle">
+            <span
+                ref="triggerRef"
+                class="fe-action-popover__trigger"
+                :tabindex="hasCustomTrigger ? 0 : undefined"
+                :role="hasCustomTrigger ? 'button' : undefined"
+                :aria-expanded="hasCustomTrigger ? visible : undefined"
+                :aria-haspopup="hasCustomTrigger ? 'menu' : undefined"
+                @click="toggle"
+                @keydown.enter="onTriggerKey"
+                @keydown.space="onTriggerKey"
+            >
                 <slot name="trigger">
                     <el-button
                         text
@@ -84,6 +94,11 @@
             },
         },
         emits: ['show', 'hide'],
+        computed: {
+            hasCustomTrigger() {
+                return !!this.$slots.trigger;
+            },
+        },
         data() {
             return {
                 visible: false,
@@ -100,6 +115,12 @@
         methods: {
             toggle() {
                 this.visible = !this.visible;
+            },
+            onTriggerKey(e) {
+                if (e.target !== this.$refs.triggerRef) return;
+
+                e.preventDefault();
+                this.toggle();
             },
             hide() {
                 this.visible = false;

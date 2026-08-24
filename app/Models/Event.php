@@ -82,6 +82,11 @@ class Event extends Model
         return self::POST_STATUSES[$status] ?? 'draft';
     }
 
+    public function guests()
+    {
+        return $this->hasMany(Guest::class, 'event_id', 'id');
+    }
+
     public function calendar()
     {
         return $this->belongsTo(Calendar::class, 'calendar_id', 'id');

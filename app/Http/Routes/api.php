@@ -3,9 +3,15 @@
 /** @var $router FluentEvent\Framework\Http\Router */
 
 use FluentEvent\App\Http\Controllers\EventController;
+use FluentEvent\App\Http\Controllers\GuestController;
+use FluentEvent\App\Http\Controllers\UserController;
 use FluentEvent\App\Http\Controllers\CalendarController;
 
 $router->get('/dashboard', 'DashboardController@get');
+
+$router->prefix('users')->withPolicy('UserPolicy')->group(function ($router) {
+    $router->get('/', [UserController::class, 'getUsers']);
+});
 
 $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($router) {
     $router->get('/', [CalendarController::class, 'getAllCalendars']);
@@ -23,4 +29,11 @@ $router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
     $router->post('/', [EventController::class, 'createEvent']);
     $router->patch('/{id}', [EventController::class, 'updateEvent'])->int('id');
     $router->delete('/{id}', [EventController::class, 'deleteEvent'])->int('id');
+
+    $router->get('/{eventId}/guests', [GuestController::class, 'getGuests'])->int('eventId');
+    $router->post('/{eventId}/guests', [GuestController::class, 'createGuest'])->int('eventId');
+    $router->patch('/{eventId}/guests/{guestId}', [GuestController::class, 'updateGuest'])
+        ->int('eventId')->int('guestId');
+    $router->delete('/{eventId}/guests/{guestId}', [GuestController::class, 'deleteGuest'])
+        ->int('eventId')->int('guestId');
 });

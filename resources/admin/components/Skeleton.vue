@@ -44,6 +44,34 @@
         </template>
     </el-skeleton>
 
+    <el-skeleton v-else-if="type === 'guests'" v-for="row in rowCount" :key="`guest-${row}`" animated>
+        <template #template>
+            <div class="fe-guests__row">
+                <div class="fe-guests__serial">
+                    <el-skeleton-item variant="text" class="fe-guests__skeleton-serial" />
+                </div>
+
+                <el-skeleton-item variant="circle" class="fe-guests__skeleton-avatar" />
+
+                <div class="fe-guests__name">
+                    <el-skeleton-item variant="text" class="fe-guests__skeleton-name" />
+                </div>
+
+                <div class="fe-guests__email">
+                    <el-skeleton-item variant="text" class="fe-guests__skeleton-email" />
+                </div>
+
+                <div class="fe-guests__stage">
+                    <el-skeleton-item variant="text" class="fe-guests__skeleton-tag" />
+                </div>
+
+                <div class="fe-guests__actions">
+                    <el-skeleton-item variant="text" class="fe-guests__skeleton-more" />
+                </div>
+            </div>
+        </template>
+    </el-skeleton>
+
     <el-skeleton v-else-if="type === 'event-grid'" animated>
         <template #template>
             <div class="fe-events-grid fe-events-grid--skeleton">
@@ -174,6 +202,7 @@ export default {
         return {
             defaultRows: {
                 timeline: 6,
+                guests: 5,
                 'event-grid': 6,
                 'event-form': 4,
                 'calendar-grid': 6,

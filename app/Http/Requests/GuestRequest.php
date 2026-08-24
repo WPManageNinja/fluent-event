@@ -1,0 +1,65 @@
+<?php
+
+namespace FluentEvent\App\Http\Requests;
+
+use FluentEvent\App\Models\Guest;
+
+class GuestRequest extends BaseRequest
+{
+    const ORDER_BY = 'id';
+    const ORDER_TYPE = 'DESC';
+    const SORTABLE = ['id', 'name', 'email', 'status', 'created_at'];
+    const COLUMNS = [
+        'id',
+        'event_id',
+        'name',
+        'email',
+        'user_id',
+        'status',
+        'source',
+        'checked_in_at',
+        'created_at',
+        'updated_at',
+    ];
+    const SANITIZERS = [
+        'name'   => 'sanitize_text_field',
+        'email'  => 'sanitize_email',
+        'status' => 'sanitize_text_field',
+        'user_id' => 'intval',
+    ];
+    const RULES = [
+        'name'   => 'required|string|max:255',
+        'email'  => 'required|email|max:192',
+        'status' => 'nullable|string|in:' . Guest::STATUSES,
+        'user_id' => 'nullable|integer|exists:users,ID',
+    ];
+
+    public static function createRules($eventId)
+    {
+        return array_merge(self::RULES, [
+            'email' => 'required|email|max:192|unique:fe_guests,email,NULL,id,event_id,' . $eventId,
+        ]);
+    }
+
+    public static function updateRules($eventId, $currentGuestId)
+    {
+        return array_merge(self::RULES, [
+            'email' => 'required|email|max:192|unique:fe_guests,email,' . $currentGuestId . ',id,event_id,' . $eventId,
+        ]);
+    }
+
+    public static function messages()
+    {
+        return [
+            'name.required'  => __('Name is required.', 'fluent-event'),
+            'name.string'    => __('Name must be text.', 'fluent-event'),
+            'name.max'       => __('Name cannot exceed 255 characters.', 'fluent-event'),
+            'email.required' => __('Email is required.', 'fluent-event'),
+            'email.email'    => __('Please provide a valid email address.', 'fluent-event'),
+            'email.max'      => __('Email cannot exceed 192 characters.', 'fluent-event'),
+            'email.unique'   => __('A guest with this email is already on this event.', 'fluent-event'),
+            'user_id.exists' => __('The selected WordPress user no longer exists.', 'fluent-event'),
+            'status.in'      => __('Status must be going, checked in or cancelled.', 'fluent-event'),
+        ];
+    }
+}
