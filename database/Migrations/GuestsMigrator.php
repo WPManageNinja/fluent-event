@@ -42,6 +42,7 @@ class GuestsMigrator
         `created_at` TIMESTAMP NULL,
         `updated_at` TIMESTAMP NULL,
          UNIQUE KEY `uq_guests_hash` (`hash`),
+         UNIQUE KEY `uq_guest_event_email` (`event_id`, `email`),
          INDEX `idx_guest_event_status` (`event_id`, `status`),
          INDEX `idx_guest_calendar` (`calendar_id`, `status`),
          INDEX `idx_guest_order` (`group_id`),
