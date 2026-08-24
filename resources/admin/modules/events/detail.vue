@@ -163,7 +163,7 @@
         },
         data() {
             return {
-                loading: true,
+                loading: false,
                 error: '',
                 tab: 'overview',
                 event: {},
@@ -233,6 +233,7 @@
         },
         methods: {
             fetchEvent() {
+                if(this.loading) return;
                 this.loading = true;
                 this.$get(`events/${this.$route.params.id}`)
                     .then(response => {
