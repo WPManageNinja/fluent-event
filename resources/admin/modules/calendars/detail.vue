@@ -1,7 +1,7 @@
 <template>
     <transition name="fade" mode="out-in" appear>
         <div class="fe-page fe-calendar-detail">
-            <Skeleton v-if="!loading" type="calendar_detail" />
+            <Skeleton v-if="loading" type="calendar_detail" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendar" />
 
