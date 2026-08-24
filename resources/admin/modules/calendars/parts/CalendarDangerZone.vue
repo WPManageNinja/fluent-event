@@ -70,16 +70,17 @@
                     .catch(() => {});
             },
             deleteCalendar() {
-                this.deleting = true;
-                return this.$del(`calendars/${this.calendar.id}`)
-                    .then(response => {
-                        this.$notifySuccess(response.message);
+                this.$requestServer({
+                    method: 'delete',
+                    path: `calendars/${this.calendar.id}`,
+                    loadingState: 'deleting',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: () => {
                         this.$emit('deleted');
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => {
-                        this.deleting = false;
-                    });
+                    },
+                });
             },
         },
     };

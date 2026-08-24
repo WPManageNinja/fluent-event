@@ -36,6 +36,11 @@ class Calendar extends Model
         });
     }
 
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'calendar_id', 'id');
+    }
+
     public static function defaultMeta()
     {
         return [

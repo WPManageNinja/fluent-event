@@ -5,7 +5,7 @@
     background-color: var(--fe-primary-bg, #ffffff);
 
     @media screen and (max-width: 575px) {
-        padding: var(--fe-space-4, 16px);
+        padding: var(--fe-space-2, 8px);
     }
 }
 
@@ -117,6 +117,11 @@
         width: fit-content;
         max-width: 100%;
         cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--el-color-primary, #409eff);
+            outline-offset: 2px;
+        }
     }
 
     &__trigger-button.el-button {
@@ -304,6 +309,15 @@
 
         &:hover {
             color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+            outline-offset: 2px;
         }
 
         &.fe-tabs__tab--active {
@@ -820,6 +834,11 @@
             transition: none;
         }
     }
+
+    @media screen and (max-width: 782px) {
+        max-width: 100%;
+        overflow-x: auto;
+    }
 }
 
 .fe-skeleton {
@@ -1251,12 +1270,150 @@
 }
 
 .fe-events-grid {
+    .el-calendar__header {
+        display: none;
+    }
+
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--fe-space-3, 12px);
+        margin-bottom: var(--fe-space-4, 16px);
+    }
+
     &__month {
+        min-width: 180px;
         margin: 0;
         font-size: var(--fe-text-base, 16px);
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
+    }
+
+    &__week {
+        overflow: hidden;
+        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border-radius: var(--fe-radius-lg, 12px);
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__week-head {
+        display: grid;
+        border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+    }
+
+    &__week-day {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--fe-space-2, 8px);
+        padding: var(--fe-space-3, 12px) var(--fe-space-2, 8px);
+        border-left: 1px solid var(--fe-primary-border, #d3d8de);
+
+        @media screen and (max-width: 782px) {
+            flex-direction: column;
+            gap: 2px;
+            padding: var(--fe-space-2, 8px) var(--fe-space-1, 4px);
+        }
+    }
+
+    &__week-day-name {
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__week-day-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-size: var(--fe-text-base, 16px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+
+        @media screen and (max-width: 782px) {
+            min-width: 22px;
+            height: 22px;
+            font-size: var(--fe-text-sm, 14px);
+        }
+    }
+
+    &__week-day.fe-events-grid__week-day--today {
+        .fe-events-grid__week-day-number {
+            background-color: var(--fe-primary-button, #2b2e33);
+            color: var(--fe-primary-bg, #ffffff);
+        }
+    }
+
+    &__week-body {
+        display: grid;
+        max-height: 640px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    &__week-times {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__week-time {
+        display: block;
+        flex-shrink: 0;
+        height: 48px;
+        padding-right: var(--fe-space-2, 8px);
+        transform: translateY(-7px);
+        text-align: right;
+        font-size: var(--fe-text-xs, 12px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__week-col {
+        position: relative;
+        border-left: 1px solid var(--fe-primary-border, #d3d8de);
+    }
+
+    &__week-cell {
+        display: block;
+        height: 48px;
+        border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+    }
+
+    &__week-col .fe-events-grid__week-cell:last-of-type {
+        border-bottom: none;
+    }
+
+    &__week-event {
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        padding: var(--fe-space-1, 4px) var(--fe-space-2, 8px);
+        border: none;
+        border-left: 3px solid var(--fe-event-color, var(--fe-accent-blue, #0e7ff1));
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f3f5);
+        text-align: left;
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--fe-secondary-bg, #f0f2f5);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
     }
 
     &__cell {
@@ -1600,6 +1757,30 @@
         color: var(--fe-primary-text, #19283a);
     }
 
+    &__row-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        text-decoration: none;
+        color: inherit;
+
+        &:hover .fe-event-overview__row-title,
+        &:focus-visible .fe-event-overview__row-title {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+            border-radius: var(--fe-radius-sm, 4px);
+        }
+    }
+
+    &__row-link-icon {
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
     &__row-text {
         margin: var(--fe-space-1, 4px) 0 0;
         font-size: var(--fe-text-sm, 14px);
@@ -1748,6 +1929,12 @@
 
     &__tag {
         cursor: pointer;
+        user-select: none;
+    }
+
+    &__tag-arrow {
+        margin-left: 2px;
+        vertical-align: -1px;
     }
 
     &__skeleton-serial {
@@ -1791,6 +1978,61 @@
         display: flex;
         flex: 0 0 72px;
         justify-content: flex-end;
+    }
+
+    @media screen and (max-width: 782px) {
+        &__row {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr) auto;
+            grid-template-areas:
+                "avatar name    actions"
+                "avatar email   actions"
+                "stage  stage   stage";
+            gap: 0 var(--fe-space-3, 12px);
+            padding: var(--fe-space-2, 8px);
+            border: 1px solid var(--fe-primary-border, #d3d8de);
+            border-radius: var(--fe-radius, 8px);
+
+            & + & {
+                margin-top: var(--fe-space-2, 8px);
+            }
+
+            &:last-of-type {
+                border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            }
+            
+            &.fe-guests__row--head {
+                display: none;
+            }
+        }
+
+        &__serial {
+            display: none;
+        }
+
+        &__avatar {
+            grid-area: avatar;
+        }
+
+        &__name {
+            grid-area: name;
+        }
+
+        &__email {
+            grid-area: email;
+        }
+
+        &__stage {
+            grid-area: stage;
+            flex-direction: row;
+            align-items: center;
+            gap: var(--fe-space-2, 8px);
+            margin-top: var(--fe-space-2, 8px);
+        }
+
+        &__actions {
+            grid-area: actions;
+        }
     }
 }
 
@@ -1911,6 +2153,36 @@
         height: 48px;
         border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
+        font-size: 28px;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__swatch.fe-color-swatch {
+        width: 24px;
+        height: 24px;
+    }
+
+    &__row-link-title {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        text-decoration: none;
+        color: inherit;
+
+        &:hover .fe-event-detail__row-title,
+        &:focus-visible .fe-event-detail__row-title {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+            border-radius: var(--fe-radius-sm, 4px);
+        }
+    }
+
+    &__row-link-icon {
+        font-size: var(--fe-text-sm, 14px);
         color: var(--fe-secondary-text, #525866);
     }
 

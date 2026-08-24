@@ -24,3 +24,8 @@ $app->addCustomAction('exception', 'ExceptionHandler');
  * Registers the fe_event post type. Classification taxonomies come later.
  */
 $app->addAction('init', 'CPTHandler@registerPostTypes');
+
+/**
+ * Cascade cleanup rides the deletion actions - never model boot hooks.
+ */
+(new \FluentEvent\App\Hooks\Handlers\CleanupHandlers\CleanupHandler())->register();
