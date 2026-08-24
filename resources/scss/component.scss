@@ -5,7 +5,7 @@
     background-color: var(--fe-primary-bg, #ffffff);
 
     @media screen and (max-width: 575px) {
-        padding: var(--fe-space-4, 16px);
+        padding: var(--fe-space-2, 8px);
     }
 }
 
@@ -834,6 +834,11 @@
             transition: none;
         }
     }
+
+    @media screen and (max-width: 782px) {
+        max-width: 100%;
+        overflow-x: auto;
+    }
 }
 
 .fe-skeleton {
@@ -1562,6 +1567,61 @@
         display: flex;
         flex: 0 0 72px;
         justify-content: flex-end;
+    }
+
+    @media screen and (max-width: 782px) {
+        &__row {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr) auto;
+            grid-template-areas:
+                "avatar name    actions"
+                "avatar email   actions"
+                "stage  stage   stage";
+            gap: 0 var(--fe-space-3, 12px);
+            padding: var(--fe-space-2, 8px);
+            border: 1px solid var(--fe-primary-border, #d3d8de);
+            border-radius: var(--fe-radius, 8px);
+
+            & + & {
+                margin-top: var(--fe-space-2, 8px);
+            }
+
+            &:last-of-type {
+                border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            }
+            
+            &.fe-guests__row--head {
+                display: none;
+            }
+        }
+
+        &__serial {
+            display: none;
+        }
+
+        &__avatar {
+            grid-area: avatar;
+        }
+
+        &__name {
+            grid-area: name;
+        }
+
+        &__email {
+            grid-area: email;
+        }
+
+        &__stage {
+            grid-area: stage;
+            flex-direction: row;
+            align-items: center;
+            gap: var(--fe-space-2, 8px);
+            margin-top: var(--fe-space-2, 8px);
+        }
+
+        &__actions {
+            grid-area: actions;
+        }
     }
 }
 
