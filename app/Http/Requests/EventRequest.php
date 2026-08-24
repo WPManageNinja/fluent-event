@@ -52,7 +52,7 @@ class EventRequest extends BaseRequest
         'address'            => 'nullable|string|max:500',
     ];
 
-    public static function createRules($data)
+    public static function rules($data)
     {
         $rules = self::RULES;
 

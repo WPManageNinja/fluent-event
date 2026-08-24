@@ -65,13 +65,29 @@ class EventController extends Controller
     public function createEvent(Request $request)
     {
         $data = EventRequest::sanitize($request->all());
-        $this->validate($data, EventRequest::createRules($data), EventRequest::messages());
+        $this->validate($data, EventRequest::rules($data), EventRequest::messages());
         EventRequest::validateDateWindow($data);
 
         $event = EventService::createEvent(EventRequest::format($data));
 
         return $this->sendSuccess([
             'message' => __('Event has been successfully created', 'fluent-event'),
+            'event'   => $event
+        ]);
+    }
+
+    public function updateEvent(Request $request, $id)
+    {
+        $event = Event::query()->findOrFail($id);
+
+        $data = EventRequest::sanitize($request->all());
+        $this->validate($data, EventRequest::rules($data), EventRequest::messages());
+        EventRequest::validateDateWindow($data);
+
+        $event = EventService::updateEvent($event, EventRequest::format($data, $event->meta));
+
+        return $this->sendSuccess([
+            'message' => __('Event has been successfully updated', 'fluent-event'),
             'event'   => $event
         ]);
     }

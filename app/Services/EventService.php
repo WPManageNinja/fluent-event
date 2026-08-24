@@ -36,6 +36,29 @@ class EventService
         return $event;
     }
 
+    public static function updateEvent($event, $data)
+    {
+        $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));
+
+        DB::transaction(function () use ($event, $data, $timezone) {
+            self::updateWpPost($event->post_id, $data);
+
+            $event->fill([
+                'calendar_id' => Arr::get($data, 'calendar_id'),
+                'status'      => Arr::get($data, 'status'),
+                'start_at'    => DateTimeHelper::convertToUtc(Arr::get($data, 'start_at'), $timezone),
+                'end_at'      => DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone),
+                'timezone'    => $timezone,
+                'venue_type'  => Arr::get($data, 'venue_type'),
+                'meta'        => Arr::get($data, 'meta', []),
+            ])->save();
+        });
+
+        do_action('fluent_event/event/updated', $event);
+
+        return $event;
+    }
+
     public static function deleteEvent($event)
     {
         do_action('fluent_event/event/before_deleted', $event);
@@ -64,5 +87,23 @@ class EventService
         }
 
         return $postId;
+    }
+
+    protected static function updateWpPost($postId, $data)
+    {
+        $result = wp_update_post([
+            'ID'           => $postId,
+            'post_title'   => Arr::get($data, 'title'),
+            'post_content' => Arr::get($data, 'description', ''),
+            'post_status'  => Event::postStatusFor(Arr::get($data, 'status')),
+        ], true);
+
+        if (is_wp_error($result)) {
+            throw new HttpException(
+                422,
+                __('The event could not be saved. Please try again.', 'fluent-event'),
+                'event_post_update_failed'
+            );
+        }
     }
 }
