@@ -4,7 +4,6 @@ namespace FluentEvent\App\Services;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
-use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Utils\DateTimeHelper;
 
 class ReportService
@@ -19,82 +18,50 @@ class ReportService
         };
         $now = gmdate(DateTimeHelper::FORMAT);
 
-        $overallStats = [
-            'calendars' => self::tile(
-                __('Total Calendars', 'fluent-event'),
-                'Calendar',
-                Calendar::query()->count()
-            ),
-            'events' => self::tile(
+        $stats = [
+            'total_events' => self::tile(
                 __('Total Events', 'fluent-event'),
                 'Event',
                 $liveEvents()->count()
             ),
-            'guests' => self::tile(
+            'upcoming_events' => self::tile(
+                __('Upcoming Events', 'fluent-event'),
+                'Upcoming',
+                $liveEvents()->where('start_at', '>', $now)->count()
+            ),
+            'ongoing_events' => self::tile(
+                __('Ongoing Events', 'fluent-event'),
+                'Ongoing',
+                $liveEvents()->where('start_at', '<=', $now)->where('end_at', '>=', $now)->count()
+            ),
+            'completed_events' => self::tile(
+                __('Completed Events', 'fluent-event'),
+                'Completed',
+                $liveEvents()->where('end_at', '<', $now)->count()
+            ),
+            'total_guests' => self::tile(
                 __('Total Guests', 'fluent-event'),
                 'Guest',
                 self::guestQuery()->count()
             ),
-        ];
-        $calendarStats = [
-            'active' => self::tile(
-                __('Active', 'fluent-event'),
-                'Calendar',
-                Calendar::query()->where('status', 'active')->count()
-            ),
-            'draft' => self::tile(
-                __('Drafts', 'fluent-event'),
-                'Draft',
-                Calendar::query()->where('status', 'draft')->count()
-            ),
-            'archived' => self::tile(
-                __('Archived', 'fluent-event'),
-                'Archived',
-                Calendar::query()->where('status', 'archived')->count()
-            ),
-        ];
-        $eventStats = [
-            'upcoming' => self::tile(
-                __('Upcoming', 'fluent-event'),
-                'Upcoming',
-                $liveEvents()->where('start_at', '>', $now)->count()
-            ),
-            'ongoing' => self::tile(
-                __('Ongoing', 'fluent-event'),
-                'Ongoing',
-                $liveEvents()->where('start_at', '<=', $now)->where('end_at', '>=', $now)->count()
-            ),
-            'completed' => self::tile(
-                __('Completed', 'fluent-event'),
-                'Completed',
-                $liveEvents()->where('end_at', '<', $now)->count()
-            ),
-        ];
-
-        $guestStats = [
-            'going' => self::tile(
-                __('Going', 'fluent-event'),
+            'going_guests' => self::tile(
+                __('Going Guests', 'fluent-event'),
                 'Going',
                 self::guestQuery()->where('status', 'going')->count()
             ),
-            'checked_in' => self::tile(
-                __('Checked In', 'fluent-event'),
+            'checked_in_guests' => self::tile(
+                __('Checked In Guests', 'fluent-event'),
                 'CheckedIn',
                 self::guestQuery()->where('status', 'checked_in')->count()
             ),
-            'cancelled' => self::tile(
-                __('Cancelled', 'fluent-event'),
+            'cancelled_guests' => self::tile(
+                __('Cancelled Guests', 'fluent-event'),
                 'Cancelled',
                 self::guestQuery()->where('status', 'cancelled')->count()
             ),
         ];
 
-        return [
-            'stats' => $overallStats,
-            'calendar_stats' => $calendarStats,
-            'guest_stats' => $guestStats,
-            'event_stats' => $eventStats,
-        ];
+        return ['stats' => $stats];
     }
 
     public static function getGuestTrends($start, $end)

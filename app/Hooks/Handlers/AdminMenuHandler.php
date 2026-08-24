@@ -357,6 +357,7 @@ class AdminMenuHandler
                 'id'          => $authUser->ID ?? null,
                 'email'       => $authUser->user_email ?? null,
                 'full_name'   => $authUser->display_name ?? null,
+                'avatar'      => get_avatar_url($authUser->ID ?? 0),
                 'is_admin'    => current_user_can('manage_options'),
                 'permissions' => PermissionManager::getUserPermissions(),
             ],

@@ -1,20 +1,6 @@
 <template>
     <transition name="fade" mode="out-in" appear>
         <div class="fe-page fe-dashboard">
-            <div class="fe-page__header">
-                <h1 class="fe-page__title">{{ $t('Dashboard') }}</h1>
-
-                <div class="fe-page__actions">
-                    <el-button
-                        :loading="loading"
-                        :disabled="loading"
-                        @click="fetchStats"
-                    >
-                        {{ $t('Refresh') }}
-                    </el-button>
-                </div>
-            </div>
-
             <Skeleton v-if="loading" type="dashboard" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchStats" />
@@ -22,10 +8,23 @@
             <el-row v-else :gutter="20">
                 <!-- Left side stats and charts. -->
                 <el-col :md="16" :sm="24">
+                    <header class="fe-dashboard__greeting">
+                        <img
+                            v-if="config.me.avatar"
+                            class="fe-dashboard__greeting-avatar"
+                            :src="config.me.avatar"
+                            :alt="config.me.full_name"
+                        />
+
+                        <div class="fe-dashboard__greeting-text">
+                            <h1 class="fe-dashboard__greeting-name">{{ config.me.full_name }}</h1>
+                            <p class="fe-dashboard__greeting-note">
+                                {{ $t('Welcome to Fluent Event') }}
+                            </p>
+                        </div>
+                    </header>
+
                     <StatGroups :stats="stats" />
-                    <StatGroups :title="$t('Calendars')" :stats="calendarStats" />
-                    <StatGroups :title="$t('Events')" :stats="eventStats" />
-                    <StatGroups :title="$t('Guests')" :stats="guestStats" />
 
                     <GuestGrowth
                         :section-title="$t('Guest Trends')"
@@ -111,9 +110,6 @@
                 loading: false,
                 error: '',
                 stats: {},
-                guestStats: {},
-                calendarStats: {},
-                eventStats: {},
                 ongoingEvents: [],
                 upcomingEvents: [],
                 topEvents: [],
@@ -126,9 +122,6 @@
                     onSuccess: response => {
                         this.error = '';
                         this.stats = response.stats;
-                        this.guestStats = response.guest_stats;
-                        this.calendarStats = response.calendar_stats;
-                        this.eventStats = response.event_stats;
                         this.ongoingEvents = response.ongoing_events;
                         this.upcomingEvents = response.upcoming_events;
                         this.topEvents = response.top_events;
