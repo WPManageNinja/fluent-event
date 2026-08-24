@@ -147,6 +147,7 @@
                     : [];
             },
             searchUsers(search) {
+                if(this.loadingUsers) return;
                 this.loadingUsers = true;
                 this.$get('users', { search })
                     .then(response => {
