@@ -307,7 +307,8 @@
             return {
                 loadingCalendars: false,
                 loadingEvent: false,
-                error: '',
+                calendarError: '',
+                eventError: '',
                 saving: false,
                 calendars: [],
                 event: {},
@@ -318,6 +319,9 @@
             };
         },
         computed: {
+            error() {
+                return this.eventError || this.calendarError;
+            },
             eventId() {
                 return this.$route.params.id;
             },
@@ -444,11 +448,11 @@
                 this.$requestServer({
                     path: 'calendars',
                     loadingState: 'loadingCalendars',
+                    errorState: 'calendarError',
                     onSuccess: response => {
                         this.calendars = response.calendars;
                         this.preSelectCalendar();
                     },
-                    errorNotify: true,
                     onError: () => {
                         this.calendars = [];
                     },
@@ -459,6 +463,7 @@
                 this.$requestServer({
                     path: `events/${this.eventId}`,
                     loadingState: 'loadingEvent',
+                    errorState: 'eventError',
                     onSuccess: response => {
                         this.event = this.initForm(response.event);
 
