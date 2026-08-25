@@ -80,14 +80,30 @@ noun.
 
 ## Where hooks get emitted
 
-**Whoever performs the write emits.** The failure this guards against is a second caller —
-CLI, importer, another service — going through a path that never fires the hook. So where a
-service owns the write, the service emits, and a controller that duplicates it is a bug.
+**The controller emits.** The controller owns the request lifecycle, so one read of the
+action tells you every hook that request fires. Services stay hook-free. in general
 
-Where the controller *is* the only writer, it emits. A single-row CRUD resource with no
-transaction and no cross-model work does not get a service just to host a `do_action` — see
-[backend.md](backend.md). `CalendarController` is the current example. The moment that write
-moves into a service, the `do_action` moves with it.
+The failure this guards against is reuse. A service gets called from more than one place —
+another service, a cleanup handler, a scheduled job — and a `do_action` buried inside fires
+from paths that never intended it. The duplicate is invisible at both callsites, and the
+listener that runs twice is found in production, not in review. But that is not that tight, based on need and use case, a hook can be anywhere. 
+
+```php
+// Controller
+$guest = GuestService::createGuest($event, $data);
+do_action('fluent_event/guest/created', $guest);
+
+// A delete brackets the service call
+do_action('fluent_event/guest/before_deleted', $guest);
+GuestService::deleteGuest($guest);
+do_action('fluent_event/guest/deleted', $guest);
+```
+
+**The exception is a path with no controller.** An Action Scheduler job or a cascade cleanup
+running under a WP action has no controller on the stack, so the handler or the job emits.
+`CleanupHandler` (calendar → events → guests) and `EventReminderService::sendReminders` are
+the sanctioned cases. Don't grow that list to dodge the rule: if a controller is on the
+stack, the controller emits.
 
 **Emit once.** Don't `do_action` *and* directly call the same effect; listeners fire twice.
 Watch for the same trap with model lifecycle events — if the model already fires

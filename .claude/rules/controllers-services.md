@@ -4,10 +4,9 @@ Applies to controllers and services with DB writes/reads.
 
 ## Layering
 
-- **Controllers**: validate input, call a service, shape the response. No business
-  logic, no `$wpdb`, no transactions.
-- **Services**: business logic, transactions, cross-model writes, emit `do_action`
-  for side-effects.
+- **Controllers**: validate input, call a service, emit the `do_action` hooks if needed, shape
+  the response. No business logic, no `$wpdb`, no transactions.
+- **Services**: business logic, transactions, cross-model writes. No `do_action` unless explicitly asked.
 - **Models**: persistence, scopes, accessors, relationships.
 
 Keep direct `$wpdb` CRUD out of controllers/services — go through the ORM.
@@ -63,6 +62,27 @@ Set ownership/status server-side — never from the payload. Same for `->update(
 ## Event emission
 
 - Side-effects go through `do_action('fluent_event/<noun>/<verb>', $args)`.
+- **Emit from the CONTROLLER generally, not the service.** The controller owns the request
+  lifecycle, so one read of the action tells you every hook that request fires. A
+  service is called from more than one place (another service, a cleanup handler, a
+  scheduled job); emitting inside it means the same hook fires from paths that never
+  intended it, and the duplicate is invisible at both callsites.
+
+```php
+// GOOD — controller
+$guest = GuestService::createGuest($event, $data);
+do_action('fluent_event/guest/created', $guest);
+
+// Delete brackets the service call:
+do_action('fluent_event/guest/before_deleted', $guest);
+GuestService::deleteGuest($guest);
+do_action('fluent_event/guest/deleted', $guest);
+```
+
+- **The exception is a path with no controller** — an Action Scheduler job or a
+  cascade cleanup running under a WP action. There the handler or the job emits,
+  because no controller is on the stack. `CleanupHandler` and `EventReminderService`
+  are the sanctioned cases; don't grow the list to dodge the rule.
 - Don't emit a hook AND directly call the same effect — listeners fire twice.
 - Eloquent lifecycle hooks (`creating`/`deleting`) firing AND a manual `do_action`
   for the same conceptual event = duplicate. Pick one path.
@@ -76,12 +96,14 @@ Set ownership/status server-side — never from the payload. Same for `->update(
 ## Self-audit
 
 1. Controller does no business logic / `$wpdb` / transactions?
-2. Service opens a transaction for multi-row atomic writes?
-3. Mass-assign goes through explicit field extraction?
-4. Idempotency story for async jobs / webhooks?
-5. Response uses `sendSuccess`/`sendError`?
-6. No duplicate event emission?
-7. No copy-paste of an existing helper?
+2. `do_action` emitted from the controller, not the service (unless there is no
+   controller on the stack)?
+3. Service opens a transaction for multi-row atomic writes?
+4. Mass-assign goes through explicit field extraction?
+5. Idempotency story for async jobs / webhooks?
+6. Response uses `sendSuccess`/`sendError`?
+7. No duplicate event emission?
+8. No copy-paste of an existing helper?
 
 **Enforced by** scanner rule 2 (`->fill($request->all())`) and rule 3
 (`Model::create()` with a raw request payload).

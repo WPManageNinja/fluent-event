@@ -40,6 +40,8 @@ class GuestController extends Controller
 
         $guest = GuestService::createGuest($event, $data);
 
+        do_action('fluent_event/guest/created', $guest);
+
         return $this->sendSuccess([
             'message' => __('Guest has been successfully saved', 'fluent-event'),
             'guest'   => $guest
@@ -59,6 +61,8 @@ class GuestController extends Controller
 
         $guest = GuestService::updateGuest($guest, $data);
 
+        do_action('fluent_event/guest/updated', $guest);
+
         return $this->sendSuccess([
             'message' => __('Guest has been successfully updated', 'fluent-event'),
             'guest'   => $guest
@@ -67,7 +71,13 @@ class GuestController extends Controller
 
     public function deleteGuest(Request $request, $eventId, $guestId)
     {
-        GuestService::deleteGuest($this->findGuest($eventId, $guestId));
+        $guest = $this->findGuest($eventId, $guestId);
+
+        do_action('fluent_event/guest/before_deleted', $guest);
+
+        GuestService::deleteGuest($guest);
+
+        do_action('fluent_event/guest/deleted', $guest);
 
         return $this->sendSuccess([
             'message' => __('Guest has been successfully deleted', 'fluent-event')

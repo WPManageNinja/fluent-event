@@ -38,10 +38,11 @@ Details: [docs/db/implementation.md](.claude/docs/db/implementation.md).
 
 Each layer does one job. Crossing them is the most common review comment.
 
-- **Controllers** — validate, call a service, shape the response. No business logic, no
-  `$wpdb`, no transactions.
-- **Services** — business logic, transactions, cross-model writes, `do_action` for
-  side-effects.
+- **Controllers** — validate, call a service, emit the `do_action` in generally hooks, shape the
+  response. No business logic, no `$wpdb`, no transactions.
+- **Services** — business logic, transactions, cross-model writes. No `do_action`: the
+  controller owns the request's hooks, so a service reused elsewhere can't fire them by
+  surprise. Only a path with no controller (cleanup handler, scheduled job) emits its own.
 - **Models** — persistence, scopes, relationships.
 
 Two rules with teeth:

@@ -31,8 +31,6 @@ class EventService
             ]);
         });
 
-        do_action('fluent_event/event/created', $event);
-
         return $event;
     }
 
@@ -54,18 +52,12 @@ class EventService
             ])->save();
         });
 
-        do_action('fluent_event/event/updated', $event);
-
         return $event;
     }
 
     public static function deleteEvent($event)
     {
-        do_action('fluent_event/event/before_deleted', $event);
-
         $event->delete();
-
-        do_action('fluent_event/event/deleted', $event);
     }
 
     protected static function createWpPost($data)
