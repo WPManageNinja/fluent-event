@@ -14,11 +14,11 @@
                 </div>
             </div>
 
-            <Skeleton v-if="loading" type="event-form" />
+            <Skeleton v-if="loadingEvent" type="event-form" />
 
             <ErrorState v-else-if="error" :message="error" @retry="loadForm" />
 
-            <div v-else-if="!calendars.length" class="fe-card">
+            <div v-else-if="!loadingCalendars && !calendars.length" class="fe-card">
                 <el-empty :description="$t('An event needs a calendar to live in, and there are none yet.')">
                     <el-button
                         v-if="$userCan('write_calendars')"
@@ -66,6 +66,8 @@
                                 class="fe-event-form__header-select"
                                 :aria-label="$t('Calendar')"
                                 :placeholder="$t('Choose a calendar')"
+                                :loading="loadingCalendars"
+                                :loading-text="$t('Loading…')"
                             >
                                 <template #prefix>
                                     <span
@@ -303,7 +305,8 @@
         },
         data() {
             return {
-                loading: false,
+                loadingCalendars: false,
+                loadingEvent: false,
                 error: '',
                 saving: false,
                 calendars: [],
@@ -427,41 +430,55 @@
                 };
             },
             loadForm() {
-                if (this.loading) return;
-                this.loading = true;
-
-                const requests = [this.$get('calendars')];
+                this.event = this.initForm();
+                this.fetchCalendars();
 
                 if (this.isEditing) {
-                    requests.push(this.$get(`events/${this.eventId}`));
+                    this.fetchEvent();
+                    return;
                 }
 
-                Promise.all(requests)
-                    .then(([calendarResponse, eventResponse]) => {
-                        this.error = '';
-                        this.calendars = calendarResponse.calendars;
-                        this.event = this.initForm(eventResponse?.event);
-
-                        if (!this.isEditing) {
-                            const requested = Number(this.$route.query.calendar_id);
-                            const preSelected = this.calendars.find(calendar => calendar.id === requested);
-                            this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;
-                            return;
-                        }
+                this.focusTitle();
+            },
+            fetchCalendars() {
+                this.$requestServer({
+                    path: 'calendars',
+                    loadingState: 'loadingCalendars',
+                    onSuccess: response => {
+                        this.calendars = response.calendars;
+                        this.preSelectCalendar();
+                    },
+                    errorNotify: true,
+                    onError: () => {
+                        this.calendars = [];
+                    },
+                    
+                });
+            },
+            fetchEvent() {
+                this.$requestServer({
+                    path: `events/${this.eventId}`,
+                    loadingState: 'loadingEvent',
+                    onSuccess: response => {
+                        this.event = this.initForm(response.event);
 
                         this.expanded.location = !!(this.event.venue
                             || this.event.address
                             || this.event.online_meeting_url);
                         this.expanded.description = !!this.event.description;
-                    })
-                    .catch(error => {
-                        this.error = error?.message || '';
-                        this.calendars = [];
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                        this.$nextTick(() => this.$refs.titleInput?.focus());
-                    });
+
+                        this.focusTitle();
+                    },
+                });
+            },
+            focusTitle() {
+                this.$nextTick(() => this.$refs.titleInput?.focus());
+            },
+            preSelectCalendar() {
+                if (this.isEditing) return;
+                const requested = Number(this.$route.query.calendar_id);
+                const preSelected = this.calendars.find(calendar => calendar.id === requested);
+                this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;
             },
             syncEndDate() {
                 if (dayjs(this.event.end_date).isBefore(this.event.start_date)) {
@@ -532,11 +549,9 @@
                 this.$router.push({ name: 'calendar_create' });
             },
         },
-        created() {
-            this.loadForm();
-        },
         mounted() {
             this.$changeTitle(this.pageTitle);
+            this.loadForm();
         },
     };
 </script>
