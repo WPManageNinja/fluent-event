@@ -61,8 +61,8 @@ When registering a `_nopriv_` AJAX action OR a REST route with
 
 ## Error response
 
-- `$this->sendError(['message' => ..., 'errors' => ...], 422)` for validation;
-  `$this->sendSuccess([...])` on success.
+- `$this->sendError(['message' => ..., 'errors' => ...], 422)` for a failure that
+  needs an explicit status. On success `return` the payload array — WP wraps it at 200.
 
 ## Self-audit
 

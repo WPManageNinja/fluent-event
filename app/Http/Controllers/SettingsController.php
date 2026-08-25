@@ -13,9 +13,9 @@ class SettingsController extends Controller
     {
         $settings = Settings::get();
 
-        return $this->sendSuccess([
+        return [
             'settings' => $settings,
-        ]);
+        ];
     }
 
     public function updateGeneral(Request $request)
@@ -28,10 +28,10 @@ class SettingsController extends Controller
 
         do_action('fluent_event/settings/general_updated', $settings);
 
-        return $this->sendSuccess([
+        return [
             'message'  => __('Settings have been saved.', 'fluent-event'),
             'settings' => $settings,
-        ]);
+        ];
     }
 
 
@@ -39,9 +39,9 @@ class SettingsController extends Controller
     {
         $settings = Settings::get(Settings::EMAIL);
 
-        return $this->sendSuccess([
+        return [
             'settings' => $settings,
-        ]);
+        ];
     }
 
     public function updateEmail(Request $request)
@@ -54,10 +54,10 @@ class SettingsController extends Controller
 
         do_action('fluent_event/settings/email_updated', $settings);
 
-        return $this->sendSuccess([
+        return [
             'message'  => __('Settings have been saved.', 'fluent-event'),
             'settings' => $settings,
-        ]);
+        ];
     }
 
     public function getTeam(Request $request)
@@ -65,10 +65,10 @@ class SettingsController extends Controller
         $members = PermissionManager::getTeamMembers();
         $permissionSets = PermissionManager::allPermissionSets();
 
-        return $this->sendSuccess([
+        return [
             'members'         => $members,
             'permission_sets' => $permissionSets,
-        ]);
+        ];
     }
     
     public function upsertTeamMember(Request $request)
@@ -100,10 +100,10 @@ class SettingsController extends Controller
 
         do_action('fluent_event/team/member_updated', $user->ID, $granted);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Team member permissions have been saved.', 'fluent-event'),
             'members' => PermissionManager::getTeamMembers(),
-        ]);
+        ];
     }
 
     public function removeTeamMember(Request $request, $userId)
@@ -114,9 +114,9 @@ class SettingsController extends Controller
 
         do_action('fluent_event/team/member_removed', $userId);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Team member has been removed.', 'fluent-event'),
             'members' => PermissionManager::getTeamMembers(),
-        ]);
+        ];
     }
 }

@@ -28,7 +28,7 @@ class UserController extends Controller
 
         $users = get_users($args);
 
-        return $this->sendSuccess([
+        return [
             'users' => array_map(function ($user) {
                 return [
                     'id'     => $user->ID,
@@ -37,6 +37,6 @@ class UserController extends Controller
                     'avatar' => get_avatar_url($user->ID),
                 ];
             }, $users)
-        ]);
+        ];
     }
 }

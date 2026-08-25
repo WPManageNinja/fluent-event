@@ -4,10 +4,17 @@ Applies to controllers and services with DB writes/reads.
 
 ## Layering
 
-- **Controllers**: validate input, call a service, emit the `do_action` hooks if needed, shape
-  the response. No business logic, no `$wpdb`, no transactions.
-- **Services**: business logic, transactions, cross-model writes. No `do_action` unless explicitly asked.
+- **Controllers**: validate input, perform or delegate the write, emit the `do_action`
+  hooks if needed, return the payload. No `$wpdb`.
+- **Services**: logic with more than one caller, or a job with no controller on the
+  stack. No `do_action` unless explicitly asked.
 - **Models**: persistence, scopes, accessors, relationships.
+
+A service is earned through **reuse**, not through the kind of work it does. A write with
+one caller belongs in its controller even when it opens a transaction — `EventController`
+wraps the `wp_posts` insert and the `event_details` row in one `DB::transaction` because
+nothing else creates an event. Extract to a service when a second caller appears, or when
+the body outgrows the action around it.
 
 Keep direct `$wpdb` CRUD out of controllers/services — go through the ORM.
 
@@ -45,8 +52,9 @@ Set ownership/status server-side — never from the payload. Same for `->update(
 
 ## Transactions
 
-- Multi-row atomic writes: `DB::transaction(function () { ... })` at the service layer.
-  Don't catch inside the closure (commits half the work) — let it bubble.
+- Multi-row atomic writes open `DB::transaction(function () { ... })` — in the service
+  when one exists, otherwise in the controller action doing the write.
+- Don't catch inside the closure (commits half the work) — let it bubble.
 
 ## Idempotency
 
@@ -56,8 +64,21 @@ Set ownership/status server-side — never from the payload. Same for `->update(
 
 ## Response shape
 
-- `$this->sendSuccess([...])` / `$this->sendError([...], $status)`. Match the file's
-  existing convention.
+- **Success: `return` the payload array.** The framework hands a controller's return
+  value straight to WP, which wraps an array in a `WP_REST_Response` at 200 — exactly
+  what `sendSuccess()` built by hand. The wrapper added a call and a nesting level and
+  bought nothing.
+
+```php
+return [
+    'message' => __('Event has been successfully created', 'fluent-event'),
+    'event'   => $event,
+];
+```
+
+- **Failure still goes through `$this->sendError([...], $status)`**, because a non-200
+  status has to be set explicitly. Validation throws instead — `$this->validate()`
+  raises a `ValidationException` the router renders as a 422.
 
 ## Event emission
 
@@ -101,7 +122,7 @@ do_action('fluent_event/guest/deleted', $guest);
 3. Service opens a transaction for multi-row atomic writes?
 4. Mass-assign goes through explicit field extraction?
 5. Idempotency story for async jobs / webhooks?
-6. Response uses `sendSuccess`/`sendError`?
+6. Success returns the payload array directly; failures use `sendError`?
 7. No duplicate event emission?
 8. No copy-paste of an existing helper?
 

@@ -18,9 +18,9 @@ class CalendarController extends Controller
             ->orderBy($orderBy, $orderType)
             ->get();
 
-        return $this->sendSuccess([
+        return [
             'calendars' => $calendars
-        ]);
+        ];
     }
 
     public function getCalendar(Request $request, $id)
@@ -29,9 +29,9 @@ class CalendarController extends Controller
 
         $calendar->description = wp_kses_post($calendar->description);
 
-        return $this->sendSuccess([
+        return [
             'calendar' => $calendar
-        ]);
+        ];
     }
 
     public function createCalendar(Request $request)
@@ -44,10 +44,10 @@ class CalendarController extends Controller
 
         do_action('fluent_event/calendar/created', $calendar);
 
-        return $this->sendSuccess([
+        return [
             'message'  => __('Calendar has been successfully created', 'fluent-event'),
             'calendar' => $calendar
-        ]);
+        ];
     }
 
     public function updateCalendar(Request $request, $id)
@@ -66,10 +66,10 @@ class CalendarController extends Controller
 
         do_action('fluent_event/calendar/updated', $calendar);
 
-        return $this->sendSuccess([
+        return [
             'message'  => __('Calendar has been successfully updated', 'fluent-event'),
             'calendar' => $calendar
-        ]);
+        ];
     }
 
     public function deleteCalendar(Request $request, $id)
@@ -82,8 +82,8 @@ class CalendarController extends Controller
 
         do_action('fluent_event/calendar/deleted', $calendar);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Calendar has been successfully deleted', 'fluent-event')
-        ]);
+        ];
     }
 }
