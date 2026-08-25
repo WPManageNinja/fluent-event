@@ -109,17 +109,28 @@ class GuestController extends Controller
 
     protected function guestCounts($eventId, $search = '')
     {
-        $scoped = function () use ($eventId, $search) {
-            return Guest::query()->where('event_id', $eventId)->searchBy($search);
-        };
+        $rows = Guest::query()
+            ->where('event_id', $eventId)
+            ->searchBy($search)
+            ->selectRaw('status, COUNT(*) AS total')
+            ->groupBy('status')
+            ->get();
 
-        $counts = ['all' => $scoped()->count()];
+        // A status with no rows is absent from the GROUP BY, but its tab still
+        // has to read zero, so seed every known status first.
+        $counts = array_fill_keys(explode(',', Guest::STATUSES), 0);
+        $all = 0;
 
-        foreach (explode(',', Guest::STATUSES) as $status) {
-            $counts[$status] = $scoped()->where('status', $status)->count();
+        foreach ($rows as $row) {
+            $total = (int) $row->total;
+            $all += $total;
+
+            if (isset($counts[$row->status])) {
+                $counts[$row->status] = $total;
+            }
         }
 
-        return $counts;
+        return ['all' => $all] + $counts;
     }
 
     protected function findGuest($eventId, $guestId)
