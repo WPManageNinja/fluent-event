@@ -129,8 +129,11 @@
                                             </el-icon>
                                         </router-link>
 
-                                        <p v-if="visibility" class="fe-event-overview__row-text capitalize">
-                                            {{ $t('Visibility: %s', $t(visibility)) }}
+                                        <p
+                                            v-if="calendarStatus"
+                                            class="fe-event-overview__row-text capitalize"
+                                        >
+                                            {{ $t('Status: %s', $t(calendarStatus)) }}
                                         </p>
                                     </div>
                                 </div>
@@ -219,8 +222,8 @@
                     archived: 'danger',
                 }[this.event.status] || 'info';
             },
-            visibility() {
-                return this.event.calendar?.visibility || '';
+            calendarStatus() {
+                return this.event.calendar?.status || '';
             },
             calendarColor() {
                 return this.event.calendar?.meta?.theme_color

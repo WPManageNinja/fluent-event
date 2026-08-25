@@ -11,15 +11,13 @@ class Calendar extends Model
 {
     protected $table = 'fe_calendars';
 
-    const VISIBILITIES = 'public,private,unlisted';
-    const STATUSES = 'active,archived,draft';
+    const STATUSES = 'active,draft';
     const DEFAULT_THEME_COLOR = '#0099ff';
 
     protected $fillable = [
         'title',
         'slug',
         'description',
-        'visibility',
         'status',
         'meta',
     ];
@@ -66,15 +64,6 @@ class Calendar extends Model
     {
         if ($status) {
             $query->where('status', $status);
-        }
-
-        return $query;
-    }
-
-    public function scopeByVisibility($query, $visibility)
-    {
-        if ($visibility) {
-            $query->where('visibility', $visibility);
         }
 
         return $query;
