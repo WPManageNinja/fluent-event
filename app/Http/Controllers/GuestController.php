@@ -27,7 +27,7 @@ class GuestController extends Controller
 
         return [
             'guests' => $guests,
-            'counts' => Guest::countsFor($event->id, $search)
+            'counts' => $this->guestCounts($event->id, $search)
         ];
     }
 
@@ -105,6 +105,21 @@ class GuestController extends Controller
         return [
             'message' => __('Guest has been successfully deleted', 'fluent-event')
         ];
+    }
+
+    protected function guestCounts($eventId, $search = '')
+    {
+        $scoped = function () use ($eventId, $search) {
+            return Guest::query()->where('event_id', $eventId)->searchBy($search);
+        };
+
+        $counts = ['all' => $scoped()->count()];
+
+        foreach (explode(',', Guest::STATUSES) as $status) {
+            $counts[$status] = $scoped()->where('status', $status)->count();
+        }
+
+        return $counts;
     }
 
     protected function findGuest($eventId, $guestId)
