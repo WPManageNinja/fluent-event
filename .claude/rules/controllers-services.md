@@ -4,10 +4,17 @@ Applies to controllers and services with DB writes/reads.
 
 ## Layering
 
-- **Controllers**: validate input, call a service, emit the `do_action` hooks if needed, shape
-  the response. No business logic, no `$wpdb`, no transactions.
-- **Services**: business logic, transactions, cross-model writes. No `do_action` unless explicitly asked.
+- **Controllers**: validate input, perform or delegate the write, emit the `do_action`
+  hooks if needed, return the payload. No `$wpdb`.
+- **Services**: logic with more than one caller, or a job with no controller on the
+  stack. No `do_action` unless explicitly asked.
 - **Models**: persistence, scopes, accessors, relationships.
+
+A service is earned through **reuse**, not through the kind of work it does. A write with
+one caller belongs in its controller even when it opens a transaction — `EventController`
+wraps the `wp_posts` insert and the `event_details` row in one `DB::transaction` because
+nothing else creates an event. Extract to a service when a second caller appears, or when
+the body outgrows the action around it.
 
 Keep direct `$wpdb` CRUD out of controllers/services — go through the ORM.
 
@@ -45,8 +52,9 @@ Set ownership/status server-side — never from the payload. Same for `->update(
 
 ## Transactions
 
-- Multi-row atomic writes: `DB::transaction(function () { ... })` at the service layer.
-  Don't catch inside the closure (commits half the work) — let it bubble.
+- Multi-row atomic writes open `DB::transaction(function () { ... })` — in the service
+  when one exists, otherwise in the controller action doing the write.
+- Don't catch inside the closure (commits half the work) — let it bubble.
 
 ## Idempotency
 

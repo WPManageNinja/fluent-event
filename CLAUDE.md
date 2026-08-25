@@ -38,12 +38,18 @@ Details: [docs/db/implementation.md](.claude/docs/db/implementation.md).
 
 Each layer does one job. Crossing them is the most common review comment.
 
-- **Controllers** — validate, call a service, emit the `do_action` in generally hooks, shape the
-  response. No business logic, no `$wpdb`, no transactions.
-- **Services** — business logic, transactions, cross-model writes. No `do_action`: the
-  controller owns the request's hooks, so a service reused elsewhere can't fire them by
-  surprise. Only a path with no controller (cleanup handler, scheduled job) emits its own.
+- **Controllers** — validate, perform or delegate the write, emit the `do_action` in
+  generally hooks, return the payload array. No `$wpdb`.
+- **Services** — logic with more than one caller, or a job with no controller on the
+  stack. No `do_action`: the controller owns the request's hooks, so a service reused
+  elsewhere can't fire them by surprise. Only a path with no controller (cleanup
+  handler, scheduled job) emits its own.
 - **Models** — persistence, scopes, relationships.
+
+A service is earned through **reuse**, not by the kind of work it does. A one-caller write
+stays in its controller even when it opens a `DB::transaction` — `EventController` brackets
+the `wp_posts` insert and the `event_details` row that way. Extract when a second caller
+appears.
 
 Two rules with teeth:
 
