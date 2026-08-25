@@ -37,11 +37,11 @@ class EventController extends Controller
 
         $paginate = $request->getSafe('paginate', 'rest_sanitize_boolean', true);
 
-        return $this->sendSuccess([
+        return [
             'events' => $paginate
                 ? $events->paginate(EventRequest::perPage($request))
                 : $events->get()
-        ]);
+        ];
     }
 
     public function getEvent(Request $request, $id)
@@ -60,9 +60,9 @@ class EventController extends Controller
             ])
             ->findOrFail($id);
 
-        return $this->sendSuccess([
+        return [
             'event' => $event
-        ]);
+        ];
     }
 
     public function createEvent(Request $request)
@@ -92,10 +92,10 @@ class EventController extends Controller
 
         do_action('fluent_event/event/created', $event);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Event has been successfully created', 'fluent-event'),
             'event'   => $event
-        ]);
+        ];
     }
 
     public function updateEvent(Request $request, $id)
@@ -125,10 +125,10 @@ class EventController extends Controller
 
         do_action('fluent_event/event/updated', $event);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Event has been successfully updated', 'fluent-event'),
             'event'   => $event
-        ]);
+        ];
     }
 
     public function deleteEvent(Request $request, $id)
@@ -141,8 +141,8 @@ class EventController extends Controller
 
         do_action('fluent_event/event/deleted', $event);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Event has been successfully deleted', 'fluent-event')
-        ]);
+        ];
     }
 }

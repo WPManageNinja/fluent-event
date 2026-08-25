@@ -25,10 +25,10 @@ class GuestController extends Controller
             ->orderBy($orderBy, $orderType)
             ->paginate(GuestRequest::perPage($request), GuestRequest::COLUMNS);
 
-        return $this->sendSuccess([
+        return [
             'guests' => $guests,
             'counts' => Guest::countsFor($event->id, $search)
-        ]);
+        ];
     }
 
     public function createGuest(Request $request, $eventId)
@@ -55,10 +55,10 @@ class GuestController extends Controller
 
         do_action('fluent_event/guest/created', $guest);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Guest has been successfully saved', 'fluent-event'),
             'guest'   => $guest
-        ]);
+        ];
     }
 
     public function updateGuest(Request $request, $eventId, $guestId)
@@ -86,10 +86,10 @@ class GuestController extends Controller
 
         do_action('fluent_event/guest/updated', $guest);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Guest has been successfully updated', 'fluent-event'),
             'guest'   => $guest
-        ]);
+        ];
     }
 
     public function deleteGuest(Request $request, $eventId, $guestId)
@@ -102,9 +102,9 @@ class GuestController extends Controller
 
         do_action('fluent_event/guest/deleted', $guest);
 
-        return $this->sendSuccess([
+        return [
             'message' => __('Guest has been successfully deleted', 'fluent-event')
-        ]);
+        ];
     }
 
     protected function findGuest($eventId, $guestId)

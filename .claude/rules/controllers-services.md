@@ -56,8 +56,21 @@ Set ownership/status server-side — never from the payload. Same for `->update(
 
 ## Response shape
 
-- `$this->sendSuccess([...])` / `$this->sendError([...], $status)`. Match the file's
-  existing convention.
+- **Success: `return` the payload array.** The framework hands a controller's return
+  value straight to WP, which wraps an array in a `WP_REST_Response` at 200 — exactly
+  what `sendSuccess()` built by hand. The wrapper added a call and a nesting level and
+  bought nothing.
+
+```php
+return [
+    'message' => __('Event has been successfully created', 'fluent-event'),
+    'event'   => $event,
+];
+```
+
+- **Failure still goes through `$this->sendError([...], $status)`**, because a non-200
+  status has to be set explicitly. Validation throws instead — `$this->validate()`
+  raises a `ValidationException` the router renders as a 422.
 
 ## Event emission
 
@@ -101,7 +114,7 @@ do_action('fluent_event/guest/deleted', $guest);
 3. Service opens a transaction for multi-row atomic writes?
 4. Mass-assign goes through explicit field extraction?
 5. Idempotency story for async jobs / webhooks?
-6. Response uses `sendSuccess`/`sendError`?
+6. Success returns the payload array directly; failures use `sendError`?
 7. No duplicate event emission?
 8. No copy-paste of an existing helper?
 

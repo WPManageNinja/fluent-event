@@ -59,7 +59,7 @@ public function create(Request $request)
 
     // …delegate…
 
-    return $this->sendSuccess([...]);
+    return [...];
 }
 ```
 
@@ -69,7 +69,8 @@ fluent-booking instead. What we keep:
 - **Validation rules carry real constraints** — `unique:fe_calendars,slug`,
   `in:public,private,unlisted`. Don't settle for `required|string` when the column has a
   vocabulary.
-- **Responses go through `sendSuccess` / `sendError`**, with `__()` messages.
+- **A success response is the returned array**, with `__()` messages; `sendError` is
+  kept for failures that need an explicit status.
 
 What we do differently:
 

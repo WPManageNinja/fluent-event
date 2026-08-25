@@ -16,13 +16,13 @@ class ReportController extends Controller
         $data['upcoming_events'] = ReportService::getUpcomingEvents();
         $data['top_events'] = ReportService::getTopEvents();
 
-        return $this->sendSuccess($data);
+        return $data;
     }
 
     public function getGuestTrends(Request $request)
     {
         [$start, $end] = ReportRequest::resolveRange($request);
 
-        return $this->sendSuccess(ReportService::getGuestTrends($start, $end));
+        return ReportService::getGuestTrends($start, $end);
     }
 }
