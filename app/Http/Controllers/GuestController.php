@@ -4,8 +4,8 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
-use FluentEvent\App\Services\GuestService;
 use FluentEvent\App\Http\Requests\GuestRequest;
+use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Http\Request\Request;
 
 class GuestController extends Controller
@@ -38,7 +38,20 @@ class GuestController extends Controller
         $data = GuestRequest::sanitize($request->all());
         $this->validate($data, GuestRequest::createRules($event->id), GuestRequest::messages());
 
-        $guest = GuestService::createGuest($event, $data);
+        $status = Arr::get($data, 'status') ?: Guest::DEFAULT_STATUS;
+
+        $guest = Guest::create([
+            'event_id'      => $event->id,
+            'calendar_id'   => $event->calendar_id,
+            'name'          => Arr::get($data, 'name'),
+            'email'         => Arr::get($data, 'email'),
+            'user_id'       => Arr::get($data, 'user_id') ?: null,
+            'status'        => $status,
+            'checked_in_at' => $status === 'checked_in' ? current_time('mysql') : null,
+            'group_id'      => wp_generate_password(32, false, false),
+            'is_buyer'      => 1,
+            'source'        => Arr::get($data, 'source', 'community'),
+        ]);
 
         do_action('fluent_event/guest/created', $guest);
 
@@ -59,7 +72,17 @@ class GuestController extends Controller
             GuestRequest::messages()
         );
 
-        $guest = GuestService::updateGuest($guest, $data);
+        $status = Arr::get($data, 'status') ?: Guest::DEFAULT_STATUS;
+
+        $guest->fill([
+            'name'          => Arr::get($data, 'name'),
+            'email'         => Arr::get($data, 'email'),
+            'user_id'       => Arr::get($data, 'user_id') ?: null,
+            'status'        => $status,
+            'checked_in_at' => $status === 'checked_in'
+                ? ($guest->checked_in_at ?: current_time('mysql'))
+                : null,
+        ])->save();
 
         do_action('fluent_event/guest/updated', $guest);
 
@@ -75,7 +98,7 @@ class GuestController extends Controller
 
         do_action('fluent_event/guest/before_deleted', $guest);
 
-        GuestService::deleteGuest($guest);
+        $guest->delete();
 
         do_action('fluent_event/guest/deleted', $guest);
 
