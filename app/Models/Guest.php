@@ -48,21 +48,6 @@ class Guest extends Model
         return get_avatar_url($this->user_id ?: $this->email) ?: '';
     }
 
-    public static function countsFor($eventId, $search = '')
-    {
-        $scoped = function () use ($eventId, $search) {
-            return self::query()->where('event_id', $eventId)->searchBy($search);
-        };
-
-        $counts = ['all' => $scoped()->count()];
-
-        foreach (explode(',', self::STATUSES) as $status) {
-            $counts[$status] = $scoped()->where('status', $status)->count();
-        }
-
-        return $counts;
-    }
-
     public function scopeSearchBy($query, $search)
     {
         if ($search) {
