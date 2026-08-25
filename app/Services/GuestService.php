@@ -24,8 +24,6 @@ class GuestService
             'source'        => Arr::get($data, 'source', 'community'),
         ]);
 
-        do_action('fluent_event/guest/created', $guest);
-
         return $guest;
     }
 
@@ -43,17 +41,11 @@ class GuestService
                 : null,
         ])->save();
 
-        do_action('fluent_event/guest/updated', $guest);
-
         return $guest;
     }
 
     public static function deleteGuest($guest)
     {
-        do_action('fluent_event/guest/before_deleted', $guest);
-
         $guest->delete();
-
-        do_action('fluent_event/guest/deleted', $guest);
     }
 }

@@ -70,6 +70,8 @@ class EventController extends Controller
 
         $event = EventService::createEvent(EventRequest::format($data));
 
+        do_action('fluent_event/event/created', $event);
+
         return $this->sendSuccess([
             'message' => __('Event has been successfully created', 'fluent-event'),
             'event'   => $event
@@ -86,6 +88,8 @@ class EventController extends Controller
 
         $event = EventService::updateEvent($event, EventRequest::format($data, $event->meta));
 
+        do_action('fluent_event/event/updated', $event);
+
         return $this->sendSuccess([
             'message' => __('Event has been successfully updated', 'fluent-event'),
             'event'   => $event
@@ -96,7 +100,11 @@ class EventController extends Controller
     {
         $event = Event::query()->findOrFail($id);
 
+        do_action('fluent_event/event/before_deleted', $event);
+
         EventService::deleteEvent($event);
+
+        do_action('fluent_event/event/deleted', $event);
 
         return $this->sendSuccess([
             'message' => __('Event has been successfully deleted', 'fluent-event')

@@ -119,11 +119,7 @@ row per action with no transaction and no second writer, so a service there woul
 one-caller passthrough. Chunk 11 writes `wp_posts` and `event_details` together and is where
 the layer earns its place.
 
-**The emitter follows the writer.** The rule is that whoever performs the write emits the
-hook, so every caller of that path gets it. Where a service owns the write the service
-emits; where a controller is the only writer, as in single-row CRUD, the controller emits.
-Introducing a service later moves the `do_action` with the write — see
-[hooks-and-filters.md](hooks-and-filters.md).
+**The controller emits, never the service (In general, but can exception according to need and ask).** see [hooks-and-filters.md](hooks-and-filters.md).
 
 ---
 
