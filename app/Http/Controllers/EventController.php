@@ -3,8 +3,11 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Event;
-use FluentEvent\App\Services\EventService;
+use FluentEvent\App\Services\PostService;
+use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
+use FluentEvent\Facade\DB;
+use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Http\Request\Request;
 
 class EventController extends Controller
@@ -68,7 +71,24 @@ class EventController extends Controller
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
         EventRequest::validateDateWindow($data);
 
-        $event = EventService::createEvent(EventRequest::format($data));
+        $data     = EventRequest::format($data);
+        $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));
+
+        // The post and its details row must land together — a post without its
+        // typed row is an event the app cannot read.
+        $event = DB::transaction(function () use ($data, $timezone) {
+            return Event::create([
+                'post_id'         => PostService::createEventPost($data),
+                'calendar_id'     => Arr::get($data, 'calendar_id'),
+                'parent_event_id' => null,
+                'status'          => Arr::get($data, 'status'),
+                'start_at'        => DateTimeHelper::convertToUtc(Arr::get($data, 'start_at'), $timezone),
+                'end_at'          => DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone),
+                'timezone'        => $timezone,
+                'venue_type'      => Arr::get($data, 'venue_type'),
+                'meta'            => Arr::get($data, 'meta', []),
+            ]);
+        });
 
         do_action('fluent_event/event/created', $event);
 
@@ -86,7 +106,22 @@ class EventController extends Controller
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
         EventRequest::validateDateWindow($data);
 
-        $event = EventService::updateEvent($event, EventRequest::format($data, $event->meta));
+        $data     = EventRequest::format($data, $event->meta);
+        $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));
+
+        DB::transaction(function () use ($event, $data, $timezone) {
+            PostService::updateEventPost($event->post_id, $data);
+
+            $event->fill([
+                'calendar_id' => Arr::get($data, 'calendar_id'),
+                'status'      => Arr::get($data, 'status'),
+                'start_at'    => DateTimeHelper::convertToUtc(Arr::get($data, 'start_at'), $timezone),
+                'end_at'      => DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone),
+                'timezone'    => $timezone,
+                'venue_type'  => Arr::get($data, 'venue_type'),
+                'meta'        => Arr::get($data, 'meta', []),
+            ])->save();
+        });
 
         do_action('fluent_event/event/updated', $event);
 
@@ -102,7 +137,7 @@ class EventController extends Controller
 
         do_action('fluent_event/event/before_deleted', $event);
 
-        EventService::deleteEvent($event);
+        $event->delete();
 
         do_action('fluent_event/event/deleted', $event);
 
