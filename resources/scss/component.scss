@@ -186,13 +186,16 @@
 }
 
 .fe-action-popover {
-    &.el-popover {
-        --el-popover-bg-color: var(--fe-secondary-bg, #ffffff);
-        --el-popover-border-color: var(--fe-primary-border, #d3d8de);
-        --el-popper-bg-color-light: var(--fe-secondary-bg, #ffffff);
-        --el-border-color-light: var(--fe-primary-border, #d3d8de);
+    &.el-popover.is-light {
+        --el-popover-bg-color: var(--fe-primary-bg, #ffffff);
+        --el-popper-bg-color-light: var(--fe-primary-bg, #ffffff);
 
         padding: var(--fe-space-2, 8px) var(--fe-space-3, 12px) 0;
+        border: none;
+
+        > .el-popper__arrow::before {
+            border: none;
+        }
     }
 
     &__trigger {
@@ -213,8 +216,10 @@
         color: var(--fe-secondary-text, #525866);
         border-radius: var(--fe-radius-sm, 4px);
 
-        &.is-text:not(.is-disabled):hover {
+        &.is-text:not(.is-disabled):hover,
+        .fe-action-popover__trigger--active &.is-text:not(.is-disabled) {
             background-color: var(--fe-active-bg, #f0f3f5);
+            color: var(--fe-primary-text, #19283a);
         }
 
         .el-icon {
@@ -272,6 +277,11 @@
 
     &__filters {
         padding-bottom: var(--fe-space-2, 8px);
+
+        .el-form-item + .el-form-item {
+            padding-top: var(--fe-space-3, 12px);
+            border-top: 1px solid var(--fe-secondary-bg, #f0f2f5);
+        }
     }
 
     &__filter {
@@ -290,6 +300,12 @@
         flex-wrap: wrap;
         gap: var(--fe-space-2, 8px);
         margin-bottom: var(--fe-space-4, 16px);
+        
+        .el-tag.el-tag {
+            border-color: var(--fe-primary-border, #d3d8de);
+            background-color: var(--fe-primary-bg, #ffffff);
+            color: var(--fe-secondary-text, #525866);
+        }
     }
 
     &__onboarding {
@@ -313,12 +329,76 @@
         color: var(--fe-secondary-text, #525866);
     }
 
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--fe-space-3, 12px);
+
+        @media screen and (max-width: 991px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media screen and (max-width: 768px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media screen and (max-width: 575px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
     &__card {
-        margin-bottom: var(--fe-space-5, 20px);
-        padding: var(--fe-space-5, 20px);
-        border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-primary-bg, #ffffff);
+        overflow: hidden;
+    }
+
+    &__card-cover {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        height: 64px;
+        padding: 0 var(--fe-space-4, 16px);
+        background-color: var(--fe-active-bg, #f0f3f5);
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(150deg, currentColor 0%, transparent 118%);
+            opacity: var(--fe-cover-tint, 0.36);
+        }
+    }
+
+    &__card-status.el-tag {
+        position: absolute;
+        top: var(--fe-space-2, 8px);
+        right: var(--fe-space-2, 8px);
+        z-index: 1;
+    }
+
+    &__card-mark {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+        font-size: var(--fe-text-base, 16px);
+        font-weight: 700;
+        line-height: 1;
+        text-transform: capitalize;
+        transform: translateY(50%);
+    }
+
+    &__card-body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--fe-space-2, 8px);
+        padding: var(--fe-space-6, 24px) var(--fe-space-4, 16px) var(--fe-space-4, 16px);
     }
 
     &__card-head {
@@ -333,6 +413,8 @@
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
+        flex: 1;
+        min-width: 0;
     }
 
     &__card-head .fe-action-popover__trigger {
@@ -340,6 +422,10 @@
     }
 
     &__card-link {
+        display: block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         color: inherit;
 
         &:hover {
@@ -349,7 +435,10 @@
     }
 
     &__card-slug {
-        margin: var(--fe-space-1, 4px) 0 0;
+        margin: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         font-size: var(--fe-text-xs, 12px);
         color: var(--fe-secondary-text, #525866);
     }
@@ -358,7 +447,14 @@
         display: flex;
         flex-wrap: wrap;
         gap: var(--fe-space-2, 8px);
-        margin-top: var(--fe-space-4, 16px);
+    }
+
+    &__card-stat {
+        padding: var(--fe-space-1, 4px) var(--fe-space-2, 8px);
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f3f5);
+        font-size: var(--fe-text-xs, 12px);
+        color: var(--fe-secondary-text, #525866);
     }
 }
 
@@ -846,9 +942,9 @@
     display: inline-flex;
     gap: var(--fe-space-1, 4px);
     padding: var(--fe-space-1, 4px);
-    border: 1px solid var(--fe-primary-border, #d3d8de);
+    border: 1px solid var(--fe-badge-color, #E1E4EA);
     border-radius: var(--fe-radius, 8px);
-    background-color: var(--fe-active-bg, #f0f3f5);
+    background-color: var(--fe-switch-track, #E1E4EA);
 
     &.fe-switch--compact {
         padding: 3px;
@@ -871,7 +967,7 @@
         left: 0;
         width: var(--fe-switch-w, 0);
         border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-primary-bg, #ffffff);
+        background-color: var(--fe-switch-thumb, #ffffff);
         transform: translateX(var(--fe-switch-x, 0));
         transition: transform 0.25s ease, width 0.25s ease;
     }
@@ -1067,6 +1163,13 @@
         width: 40%;
         height: 12px;
         margin-top: var(--fe-space-3, 12px);
+    }
+
+    &__card-mark.el-skeleton__rect {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--fe-radius, 8px);
+        transform: translateY(50%);
     }
 
     &__tag {
@@ -1415,6 +1518,11 @@
 
     &__filters {
         padding-bottom: var(--fe-space-2, 8px);
+
+        .el-form-item + .el-form-item {
+            padding-top: var(--fe-space-3, 12px);
+            border-top: 1px solid var(--fe-secondary-bg, #f0f2f5);
+        }
     }
 
     &__filter {
@@ -1433,6 +1541,15 @@
         flex-wrap: wrap;
         gap: var(--fe-space-2, 8px);
         margin-bottom: var(--fe-space-4, 16px);
+
+        // These sit on the canvas, not on a card. EP's info grey is a shade off
+        // the canvas itself, so the chip reads as a smudge — put it on the card
+        // surface with a border instead.
+        .el-tag.el-tag {
+            border-color: var(--fe-primary-border, #d3d8de);
+            background-color: var(--fe-primary-bg, #ffffff);
+            color: var(--fe-secondary-text, #525866);
+        }
     }
 }
 

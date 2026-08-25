@@ -227,16 +227,16 @@
         </template>
     </el-skeleton>
 
-    <el-row v-else-if="type === 'calendar-grid'" :gutter="20">
-        <el-col v-for="card in rowCount" :key="card" :xs="24" :sm="12" :md="8">
-            <div class="fe-calendars__card">
-                <el-skeleton animated>
-                    <template #template>
-                        <div class="fe-calendars__card-head">
-                            <el-skeleton-item variant="circle" class="fe-skeleton__swatch" />
-                            <el-skeleton-item variant="text" class="fe-skeleton__card-title" />
-                        </div>
+    <div v-else-if="type === 'calendar-grid'" class="fe-calendars__grid">
+        <div v-for="card in rowCount" :key="card" class="fe-calendars__card">
+            <el-skeleton animated>
+                <template #template>
+                    <div class="fe-calendars__card-cover">
+                        <el-skeleton-item variant="rect" class="fe-skeleton__card-mark" />
+                    </div>
 
+                    <div class="fe-calendars__card-body">
+                        <el-skeleton-item variant="text" class="fe-skeleton__card-title" />
                         <el-skeleton-item variant="text" class="fe-skeleton__card-slug" />
 
                         <div class="fe-calendars__card-meta">
@@ -247,11 +247,11 @@
                                 class="fe-skeleton__tag"
                             />
                         </div>
-                    </template>
-                </el-skeleton>
-            </div>
-        </el-col>
-    </el-row>
+                    </div>
+                </template>
+            </el-skeleton>
+        </div>
+    </div>
 
     <el-skeleton v-else-if="type === 'calendar-form'" animated>
         <template #template>

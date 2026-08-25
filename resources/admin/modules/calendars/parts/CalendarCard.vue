@@ -1,29 +1,47 @@
 <template>
     <div class="fe-calendars__card">
-        <div class="fe-calendars__card-head">
-            <span class="fe-color-swatch" :style="{ background: themeColor }"></span>
-            <h3 class="fe-calendars__card-title">
-                <router-link
-                    class="fe-calendars__card-link"
-                    :to="{ name: 'calendar_detail', params: { id: calendar.id } }"
-                >
-                    {{ calendar.title }}
-                </router-link>
-            </h3>
-
-            <ActionPopover
-                v-if="$userCan('write_calendars')"
-                :items="actions"
-                placement="bottom-end"
-            />
-        </div>
-
-        <p class="fe-calendars__card-slug">{{ calendar.slug }}</p>
-
-        <div class="fe-calendars__card-meta">
-            <el-tag class="capitalize" :type="statusType" size="small">
+        <div class="fe-calendars__card-cover" :style="{ color: themeColor }">
+            <el-tag
+                v-if="calendar.status !== 'active'"
+                class="capitalize fe-calendars__card-status"
+                type="info"
+                size="small"
+            >
                 {{ $t(calendar.status) }}
             </el-tag>
+
+            <span class="fe-calendars__card-mark" aria-hidden="true">{{ initials }}</span>
+        </div>
+
+        <div class="fe-calendars__card-body">
+            <div class="fe-calendars__card-head">
+                <h3 class="fe-calendars__card-title">
+                    <router-link
+                        class="fe-calendars__card-link"
+                        :title="calendar.title"
+                        :to="{ name: 'calendar_detail', params: { id: calendar.id } }"
+                    >
+                        {{ calendar.title }}
+                    </router-link>
+                </h3>
+
+                <ActionPopover
+                    v-if="$userCan('write_calendars')"
+                    :items="actions"
+                    placement="bottom-end"
+                />
+            </div>
+
+            <p class="fe-calendars__card-slug" :title="calendar.slug">{{ calendar.slug }}</p>
+
+            <div class="fe-calendars__card-meta">
+                <span class="fe-calendars__card-stat">
+                    {{ $t('%d events', calendar.events_count) }}
+                </span>
+                <span class="fe-calendars__card-stat">
+                    {{ $t('%d guests', calendar.guests_count) }}
+                </span>
+            </div>
         </div>
     </div>
 </template>
@@ -51,11 +69,8 @@
             themeColor() {
                 return this.calendar.meta?.theme_color || 'var(--fe-secondary-border, #9ca3af)';
             },
-            statusType() {
-                return {
-                    active: 'success',
-                    draft: 'info',
-                }[this.calendar.status] || 'info';
+            initials() {
+                return (this.calendar.title || '').trim().slice(0, 2);
             },
         },
         methods: {

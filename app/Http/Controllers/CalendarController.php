@@ -12,14 +12,24 @@ class CalendarController extends Controller
     {
         list($orderBy, $orderType) = CalendarRequest::sorting($request);
 
-        $calendars = Calendar::query()
-            ->searchBy($request->getSafe('search', 'sanitize_text_field'))
+        $query = Calendar::query()
+            ->searchBy($request->getSafe('search', 'sanitize_text_field'));
+
+        $counts = array_map('intval', (clone $query)
+            ->selectRaw('status, COUNT(*) AS total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray());
+
+        $calendars = $query
+            ->withCount(['events', 'guests'])
             ->byStatus($request->getSafe('status', 'sanitize_text_field'))
             ->orderBy($orderBy, $orderType)
             ->get();
 
         return [
-            'calendars' => $calendars
+            'calendars' => $calendars,
+            'counts'    => ['all' => array_sum($counts)] + $counts,
         ];
     }
 

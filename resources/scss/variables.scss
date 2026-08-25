@@ -42,6 +42,10 @@ body {
 
     --fe-shadow-navbar: 0 0 20px rgba(28, 39, 50, 0.08);
     --fe-shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --fe-cover-tint: 0.36;
+
+    --fe-switch-track: #E1E4EA;
+    --fe-switch-thumb: #ffffff;
     --fe-badge-color: #E1E4EA;
     --fe-wp-link: #2271b1;
     --fe-wp-text: #1d2327;
@@ -107,6 +111,9 @@ html.dark body {
     --fe-active-bg: #1C2732;
     --fe-shadow-navbar: 0 0 20px rgba(0, 0, 0, 0.18);
     --fe-shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.25);
+    --fe-cover-tint: 0.2;
+    --fe-switch-track: #1C2732;
+    --fe-switch-thumb: #151D26;
     --fe-badge-color: #2C3C4E;
     --fe-success-text: #3fb950;
     --fe-danger-text: #f85149;
