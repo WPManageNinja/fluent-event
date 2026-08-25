@@ -88,7 +88,7 @@ A calendar must exist before any event can, so this precedes events entirely.
 | # | Chunk | Spec | Dep | Done when | PR |
 |---|---|---|---|---|---|
 | 6 | **Calendar model + write API** | [patterns/backend.md](../../patterns/backend.md) · [rules/routes.md](../../../rules/routes.md) | 1 | `Calendar` model with `$fillable`; `POST`/`PUT` create and update; slug uniqueness surfaces as a field error, not a 500 |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) |
-| 7a | **Create calendar form** | [calendar-create.md](screens/calendar-create.md) | 5, 6 | `#/calendars/new` renders title, slug, description and visibility, and creates on submit |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) |
+| 7a | **Create calendar form** | [calendar-create.md](screens/calendar-create.md) | 5, 6 | `#/calendars/new` renders title, slug, description and status, and creates on submit |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) |
 | 7b | **Slug derivation + collision** | [calendar-create.md](screens/calendar-create.md) | 7a | Slug auto-fills from the title until edited; a duplicate returns a field error on the slug input, not a 500 |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) |
 | 8 | **Calendar API — read** | [calendars.md](screens/calendars.md) | 6 | List and single endpoints; event counts from one grouped aggregate, not a query per row |  [#10](https://github.com/WPManageNinja/fluent-event/pull/10) · [#20](https://github.com/WPManageNinja/fluent-event/pull/20) |
 | 9 | **Calendars grid** | [calendars.md](screens/calendars.md) | 7a, 8 | Three-column card grid; empty state routes a new user to create their first calendar |  [#11](https://github.com/WPManageNinja/fluent-event/pull/11) |

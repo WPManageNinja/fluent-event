@@ -39,7 +39,7 @@ an event under it, and RSVPs are recorded against that event as going / not goin
 | Area | v1 delivers |
 |---|---|
 | Admin SPA | Vue 3 SPA in wp-admin under a **FluentEvent** menu with logo + sub-pages |
-| Calendars | Create, edit, list, delete. Title, slug, description, visibility, status |
+| Calendars | Create, edit, list, delete. Title, slug, description, status |
 | Events | Create, edit, list, delete — **always under a calendar**. Title, description, start/end, timezone, cover image, plus venue, address and performers as plain values on `event_details.meta` — no taxonomy terms |
 | RSVP | One mode only. A guest row per response, going / not going |
 

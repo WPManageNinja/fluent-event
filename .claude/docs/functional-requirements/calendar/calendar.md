@@ -30,18 +30,17 @@
 | `title`          | VARCHAR     | calendar name                                    |
 | `slug`           | VARCHAR     | unique; the shareable URL                        |
 | `description`    | TEXT NULL   |                                                  |
-| `visibility`     | VARCHAR     | `public` \| `unlisted` \| `private`              |
+| `status`         | VARCHAR     | `active` \| `draft`; default `active`             |
 | `meta`           | JSON NULL   | open-ended. v1 stores `theme_color`. Planned: `logo_url`, `cover_url`, who-can-manage (caps), notification prefs |
 | `created_by`     | BIGINT      | host/manager user id                             |
 | `created_at`     | TIMESTAMP   |                                                  |
 | `updated_at`     | TIMESTAMP   |                                                  |
 
-Indexes: **`PRIMARY(id)` + `UNIQUE(slug)` only.** No `visibility`/`status` index — this table
-holds ~10–100 rows ever (1–2 pages), so a full scan beats index descent + back-to-table
-random reads, and both columns are 2–3-value (near-zero selectivity); the optimizer would
-skip them anyway. `UNIQUE(slug)` is kept for **correctness** (no duplicate slugs) — the fast
-`/calendar/{slug}` lookup is a side effect. Revisit only if the table ever grows large, and
-then as one composite `(visibility, status)`, never two single-column indexes.
+Indexes: **`PRIMARY(id)` + `UNIQUE(slug)` only.** No `status` index — this table holds
+~10–100 rows ever (1–2 pages), so a full scan beats index descent + back-to-table random
+reads, and the column is two-valued (near-zero selectivity); the optimizer would skip it
+anyway. `UNIQUE(slug)` is kept for **correctness** (no duplicate slugs) — the fast
+`/calendar/{slug}` lookup is a side effect. Revisit only if the table ever grows large.
 
 ## Functional requirements
 
@@ -56,7 +55,7 @@ then as one composite `(visibility, status)`, never two single-column indexes.
 ### FR-8.3 — Shareable calendar page
 
 - Each calendar has a public page at its `slug` listing its published events; members browse it. (cal #4)
-- Respects `visibility` (`public` listed, `unlisted` link-only, `private` invite/manager-only).
+- Respects `status` — an `active` calendar is listed and reachable; a `draft` one is not published.
 
 ### FR-8.5 — Member event view: joined vs browse
 
@@ -68,7 +67,7 @@ then as one composite `(visibility, status)`, never two single-column indexes.
 
 ### FR-8.7 — Per-calendar settings
 
-- Theme, visibility, and who-can-manage (capability) configured per calendar, stored in `meta`. (cal #9)
+- Theme and who-can-manage (capability) configured per calendar, stored in `meta`. (cal #9)
 
 ### FR-8.8 — Calendar insights
 
@@ -76,10 +75,10 @@ then as one composite `(visibility, status)`, never two single-column indexes.
 
 ## Acceptance criteria
 
-- A manager creates a calendar; it gets a unique slug + public page per its visibility.
+- A manager creates a calendar; it gets a unique slug, and a public page once it is `active`.
 - Filing an event under a calendar makes it appear on that calendar's page.
-- A `private` calendar's page is not publicly listed/accessible.
-- Per-calendar theme/visibility changes apply only to that calendar.
+- A `draft` calendar's page is not publicly listed/accessible.
+- Per-calendar theme changes apply only to that calendar.
 
 ## Open questions
 

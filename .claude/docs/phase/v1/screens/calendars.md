@@ -32,7 +32,7 @@ three-column grid.
 | Element | Source |
 |---|---|
 | Title | `calendars.title` |
-| Meta line | event count (`COUNT` of `event_details` on `calendar_id`), `visibility`, `status` |
+| Meta line | event count (`COUNT` of `event_details` on `calendar_id`), `status` |
 | Settings icon | opens the calendar detail screen |
 
 **One icon, not an action cluster.** Booking hangs a Settings button, a primary button and
@@ -41,17 +41,16 @@ archive belong on the calendar's own screen.
 
 ## Data
 
-`wp_fe_calendars` — `id`, `title`, `slug`, `description`, `visibility`, `status`,
-`meta`, `created_by`, `created_at`.
+`wp_fe_calendars` — `id`, `title`, `slug`, `description`, `status`, `meta`,
+`created_by`, `created_at`.
 
 Event counts must come from a grouped aggregate, not a per-card request. A count query per
 card is an N+1 that scales with the grid.
 
 ## Behaviour
 
-- **Public URL is only meaningful when `visibility == 'public'`.** If a card surfaces a
-  link at all, show it for public calendars only — unlisted and private have no URL to
-  advertise. Booking gets this right; keep it.
+- **Public URL is only meaningful when `status == 'active'`.** If a card surfaces a link
+  at all, show it for active calendars only — a draft has no published page to advertise.
 - **`slug` is UNIQUE** (`uq_calendars_slug`). Collisions surface as a field error on
   create, never a 500.
 
