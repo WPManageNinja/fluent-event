@@ -60,7 +60,7 @@ class CalendarsTable
         $table->id();
         $table->string('title', 255);
         $table->string('slug', 255)->unique();
-        $table->string('visibility', 64)->default('public');
+        $table->string('status', 64)->default('active');
         $table->json('meta')->nullable();
         $table->timestamps();
     }

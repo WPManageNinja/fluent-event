@@ -37,13 +37,12 @@ Every field maps to a `wp_fe_calendars` column — nothing here is speculative:
 | Title | `title` | yes | The only field a user must think about |
 | Slug | `slug` | yes | Auto-filled from the title client-side, editable. Unique across calendars |
 | Description | `description` | no | Plain text |
-| Visibility | `visibility` | yes | `public` · `private` · `unlisted`, the form defaults to `public` |
-| Status | `status` | yes | `active` · `archived` · `draft`, the form defaults to `active` |
+| Status | `status` | yes | `active` · `draft`, the form defaults to `active` |
 
 **Every field except description is required on the wire.** The form supplies sensible
-defaults for slug, visibility and status so the user still only has to think about the
-title — but the client always sends all five. The server does not infer any of them, which
-keeps one rule set covering create and update rather than two.
+defaults for slug and status so the user still only has to think about the title — but the
+client always sends all four. The server does not infer any of them, which keeps one rule
+set covering create and update rather than two.
 
 Not on this screen:
 
@@ -82,8 +81,7 @@ const RULES = [
     'title'       => 'required|string|max:255',
     'slug'        => 'required|string|max:255|unique:fe_calendars,slug',
     'description' => 'nullable|string',
-    'visibility'  => 'required|string|in:public,private,unlisted',
-    'status'      => 'required|string|in:active,archived,draft',
+    'status'      => 'required|string|in:active,draft',
     'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{3}([A-Fa-f0-9]{3})?$/',
 ];
 ```
