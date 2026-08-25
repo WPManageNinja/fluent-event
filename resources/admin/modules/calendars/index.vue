@@ -6,24 +6,25 @@
 
                 <div class="fe-page__actions">
                     <el-button
-                        :aria-label="$t('Refresh')"
-                        :title="$t('Refresh')"
-                        @click="refresh"
-                    >
-                        <el-icon><Refresh /></el-icon>
-                    </el-button>
-
-                    <el-button
                         v-if="$userCan('write_calendars')"
                         type="primary"
                         @click="goToCreate"
                     >
-                        {{ $t('Create Calendar') }}
+                        <el-icon><Plus /></el-icon>
+                        <span>{{ $t('Create Calendar') }}</span>
                     </el-button>
                 </div>
             </div>
 
             <div v-if="!isOnboarding" class="fe-calendars__toolbar">
+                <SegmentedSwitch
+                    v-model="query.status"
+                    class="fe-switch--compact"
+                    :options="statuses"
+                    :label="$t('Filter calendars by status')"
+                    @change="fetchCalendars"
+                />
+
                 <SearchInput
                     v-model="query.search"
                     class="fe-calendars__search"
@@ -31,73 +32,23 @@
                     type="search_on_enter"
                     @search="fetchCalendars"
                 />
-
-                <ActionPopover :width="220" placement="bottom-end" @show="syncFilters">
-                    <template #trigger>
-                        <el-button :aria-label="$t('Filter')" :title="$t('Filter')">
-                            <el-icon><Filter /></el-icon>
-                        </el-button>
-                    </template>
-
-                    <template #default="{ hide }">
-                        <div class="fe-calendars__filters">
-                            <el-form label-position="top">
-                                <el-form-item :label="$t('Status')">
-                                    <el-radio-group
-                                        v-model="pendingFilters.status"
-                                        class="fe-calendars__filter"
-                                    >
-                                        <el-radio
-                                            v-for="option in statuses"
-                                            :key="option.value"
-                                            :value="option.value"
-                                        >
-                                            {{ option.label }}
-                                        </el-radio>
-                                    </el-radio-group>
-                                </el-form-item>
-                            </el-form>
-
-                            <el-button type="primary" size="small" @click="applyFilters(hide)">
-                                {{ $t('Apply') }}
-                            </el-button>
-                        </div>
-                    </template>
-                </ActionPopover>
-            </div>
-
-            <div v-if="activeFilters.length" class="fe-calendars__chips">
-                <el-tag
-                    v-for="filter in activeFilters"
-                    :key="filter.key"
-                    type="info"
-                    size="small"
-                    closable
-                    @close="removeFilter(filter.key)"
-                >
-                    {{ $t('%s: %s', filter.label, filter.value) }}
-                </el-tag>
             </div>
 
             <Skeleton v-if="loading && !fetched" type="calendar-grid" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
 
-            <el-row
+            <div
                 v-else-if="calendars.length"
+                class="fe-calendars__grid"
                 :class="{ 'fe-is-loading': loading }"
-                :gutter="20"
             >
-                <el-col
+                <CalendarCard
                     v-for="calendar in calendars"
                     :key="calendar.id"
-                    :xs="24"
-                    :sm="12"
-                    :md="8"
-                >
-                    <CalendarCard :calendar="calendar" />
-                </el-col>
-            </el-row>
+                    :calendar="calendar"
+                />
+            </div>
 
             <el-empty
                 v-else-if="isFiltered"
@@ -124,22 +75,21 @@
 </template>
 
 <script type="text/javascript">
-    import { Filter, Refresh } from '@element-plus/icons-vue';
+    import { Plus } from '@element-plus/icons-vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
-    import ActionPopover from '@/components/ActionPopover.vue';
+    import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import CalendarCard from './parts/CalendarCard.vue';
 
     export default {
         name: 'Calendars',
         components: {
-            Filter,
-            Refresh,
+            Plus,
             SearchInput,
             ErrorState,
             Skeleton,
-            ActionPopover,
+            SegmentedSwitch,
             CalendarCard,
         },
         data() {
@@ -148,11 +98,9 @@
                 fetched: false,
                 error: '',
                 calendars: [],
+                counts: {},
                 query: {
                     search: '',
-                    status: '',
-                },
-                pendingFilters: {
                     status: '',
                 },
             };
@@ -160,29 +108,16 @@
         computed: {
             statuses() {
                 return [
-                    { value: '', label: this.$t('All') },
-                    { value: 'active', label: this.$t('Active') },
-                    { value: 'draft', label: this.$t('Draft') },
-                ];
-            },
-            activeFilters() {
-                const groups = {
-                    status: { label: this.$t('Status'), options: this.statuses },
-                };
-
-                // To render the filter chips (badge)
-                return Object.keys(groups)
-                    .filter(key => this.query[key])
-                    .map(key => ({
-                        key,
-                        label: groups[key].label,
-                        value: groups[key].options.find(
-                            option => option.value === this.query[key]
-                        ).label,
-                    }));
+                    { value: '', label: this.$t('All'), count: this.counts.all },
+                    { value: 'active', label: this.$t('Active'), count: this.counts.active },
+                    { value: 'draft', label: this.$t('Draft'), count: this.counts.draft },
+                ].map(status => ({
+                    value: status.value,
+                    label: this.$t('%s (%d)', status.label, status.count || 0),
+                }));
             },
             isFiltered() {
-                return !!this.query.search || !!this.activeFilters.length;
+                return !!this.query.search || !!this.query.status;
             },
             isOnboarding() {
                 return this.fetched && !this.loading && !this.error && !this.calendars.length && !this.isFiltered;
@@ -199,30 +134,12 @@
                     onSuccess: response => {
                         this.fetched = true;
                         this.calendars = response.calendars;
+                        this.counts = response.counts;
                     },
                     onError: () => {
                         this.calendars = [];
                     },
                 });
-            },
-            refresh() {
-                this.fetched = false;
-                this.fetchCalendars();
-            },
-            syncFilters() {
-                this.pendingFilters = {
-                    status: this.query.status,
-                };
-            },
-            applyFilters(hide) {
-                Object.assign(this.query, this.pendingFilters);
-                hide();
-                this.fetchCalendars();
-            },
-            removeFilter(key) {
-                this.query[key] = '';
-                this.pendingFilters[key] = '';
-                this.fetchCalendars();
             },
             goToCreate() {
                 this.$router.push({ name: 'calendar_create' });

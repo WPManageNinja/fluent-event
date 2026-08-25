@@ -14,6 +14,7 @@
             <span
                 ref="triggerRef"
                 class="fe-action-popover__trigger"
+                :class="{ 'fe-action-popover__trigger--active': visible }"
                 :tabindex="hasCustomTrigger ? 0 : undefined"
                 :role="hasCustomTrigger ? 'button' : undefined"
                 :aria-expanded="hasCustomTrigger ? visible : undefined"
