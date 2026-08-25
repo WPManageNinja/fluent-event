@@ -10,7 +10,7 @@
     justify-content: space-between;
     padding: 0 var(--fe-space-5, 20px);
     background-color: var(--fe-primary-bg, #ffffff);
-    box-shadow: 0 0 20px #1c273214;
+    box-shadow: var(--fe-shadow-navbar, 0 0 20px rgba(28, 39, 50, 0.08));
     height: var(--fe-navbar-height, 65px);
     
     @media (max-width: 600px) {
@@ -160,7 +160,7 @@
         border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-primary-bg, #ffffff);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
         max-height: 60vh;
         overflow-y: auto;
         transform-origin: top right;
@@ -256,7 +256,7 @@
             border: 1px solid var(--fe-primary-border, #d3d8de);
             border-radius: var(--fe-radius, 8px);
             background-color: var(--fe-primary-bg, #ffffff);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
             max-height: 60vh;
             overflow-y: auto;
             transform-origin: top left;

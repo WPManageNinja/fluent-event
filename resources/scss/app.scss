@@ -1,26 +1,29 @@
 .fe-app {
-    display: flex;
-    flex-direction: column;
-    min-height: calc(
-        100vh
-        - var(--wp-admin--admin-bar--height, 32px)
+    position: fixed;
+    top: var(--wp-admin--admin-bar--height, 32px);
+    left: var(--fe-admin-menu-width, 160px);
+    right: 0;
+    width: calc(100% - var(--fe-admin-menu-width, 160px));
+    height: calc(
+        100vh - var(--wp-admin--admin-bar--height, 32px)
     );
-    padding-top: var(--fe-navbar-height, 65px);
-
-    @media (max-width: 600px) {
-        padding-top: 0;
-    }
-
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1;
+    
     &__body {
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
+        padding-top: var(--fe-navbar-height, 65px);
+        width: 100%;
+        position: relative;
+
+        @media screen and (max-width: 600px) {
+            padding-top: 0;
+        }
     }
 
     &__canvas {
-        flex-grow: 1;
         padding: var(--fe-space-5, 20px);
-        overflow-x: hidden;
+        padding-bottom: var(--fe-space-10, 40px);
     }
 }
 

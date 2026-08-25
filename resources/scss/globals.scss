@@ -12,8 +12,40 @@
 .toplevel_page_fluent-event {
     #wpwrap,
     #wpcontent,
-    #wpbody {
+    #wpbody,
+    #wpfooter {
         background-color: var(--fe-secondary-bg, #f0f2f5);
+    }
+
+    #wpfooter {
+        z-index: 1
+    }
+
+    &,
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--fe-secondary-border, #9ca3af) transparent;
+    }
+
+    &::-webkit-scrollbar,
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background-color: var(--fe-secondary-border, #9ca3af);
+
+        &:hover {
+            background-color: var(--fe-secondary-text, #525866);
+        }
     }
 
     // Base
