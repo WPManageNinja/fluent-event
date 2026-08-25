@@ -30,7 +30,7 @@
                     &:focus {
                         outline: none !important;
                         box-shadow: none !important;
-                        border-color: var(--el-color-primary);
+                        border-color: var(--fe-primary-button, #2b2e33);
                     }
                 }
             }
@@ -144,7 +144,7 @@
             }
 
             &:focus {
-                border-color: var(--el-color-primary);
+                border-color: var(--fe-primary-button, #2b2e33);
             }
         }
     }
@@ -155,7 +155,14 @@
         border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
         box-shadow: none;
-        background-color: transparent;
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    .el-input__wrapper.is-focus,
+    .el-textarea__inner:focus,
+    .el-select__wrapper.is-focused {
+        border-color: var(--fe-primary-button, #2b2e33);
+        box-shadow: none;
     }
 
     .el-input__wrapper,
@@ -195,6 +202,15 @@
         height: var(--fe-control-height, 36px);
         border-radius: var(--fe-radius, 8px);
         font-weight: 500;
+        --el-button-bg-color: var(--fe-primary-bg, #ffffff);
+        --el-button-border-color: var(--fe-primary-border, #d3d8de);
+        --el-button-text-color: var(--fe-secondary-text, #525866);
+        --el-button-hover-bg-color: var(--fe-active-bg, #f0f3f5);
+        --el-button-hover-border-color: var(--fe-primary-border, #d3d8de);
+        --el-button-hover-text-color: var(--fe-primary-text, #19283a);
+        --el-button-active-bg-color: var(--fe-active-bg, #f0f3f5);
+        --el-button-active-border-color: var(--fe-primary-border, #d3d8de);
+        --el-button-active-text-color: var(--fe-primary-text, #19283a);
     }
 
     .el-button--primary {
