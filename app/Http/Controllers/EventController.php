@@ -52,7 +52,7 @@ class EventController extends Controller
                     $query->select(['ID', 'display_name']);
                 },
                 'calendar'    => function ($query) {
-                    $query->select(['id', 'title', 'visibility', 'meta']);
+                    $query->select(['id', 'title', 'status', 'meta']);
                 },
             ])
             ->findOrFail($id);

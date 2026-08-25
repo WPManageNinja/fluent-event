@@ -14,7 +14,6 @@ class CalendarRequest extends BaseRequest
         'title'       => 'sanitize_text_field',
         'slug'        => 'sanitize_title',
         'description' => 'wp_kses_post',
-        'visibility'  => 'sanitize_text_field',
         'status'      => 'sanitize_text_field',
         'theme_color' => 'sanitize_hex_color',
     ];
@@ -22,7 +21,6 @@ class CalendarRequest extends BaseRequest
         'title'       => 'required|string|max:255',
         'slug'        => 'required|string|max:255|unique:fe_calendars,slug',
         'description' => 'nullable|string',
-        'visibility'  => 'required|string|in:' . Calendar::VISIBILITIES,
         'status'      => 'required|string|in:' . Calendar::STATUSES,
         'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{3}([A-Fa-f0-9]{3})?$/',
     ];
@@ -50,12 +48,9 @@ class CalendarRequest extends BaseRequest
             'slug.max'            => __('Slug cannot exceed 255 characters.', 'fluent-event'),
             'slug.unique'         => __('This slug is already taken.', 'fluent-event'),
             'description.string'  => __('Description must be text.', 'fluent-event'),
-            'visibility.required' => __('Visibility is required.', 'fluent-event'),
-            'visibility.string'   => __('Visibility must be text.', 'fluent-event'),
-            'visibility.in'       => __('Visibility must be public, private or unlisted.', 'fluent-event'),
             'status.required'     => __('Status is required.', 'fluent-event'),
             'status.string'       => __('Status must be text.', 'fluent-event'),
-            'status.in'           => __('Status must be active, archived or draft.', 'fluent-event'),
+            'status.in'           => __('Status must be active or draft.', 'fluent-event'),
             'theme_color.regex'   => __('Theme color must be a hex value like #0099ff.', 'fluent-event'),
         ];
     }

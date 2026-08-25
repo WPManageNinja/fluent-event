@@ -69,35 +69,17 @@
                             <WpEditor v-model="calendar.description" :height="180" />
                         </el-form-item>
 
-                        <el-row :gutter="20">
-                            <el-col :md="12" :sm="24">
-                                <el-form-item :label="$t('Visibility')">
-                                    <el-radio-group v-model="calendar.visibility">
-                                        <el-radio
-                                            v-for="option in visibilities"
-                                            :key="option.value"
-                                            :value="option.value"
-                                        >
-                                            {{ option.label }}
-                                        </el-radio>
-                                    </el-radio-group>
-                                </el-form-item>
-                            </el-col>
-
-                            <el-col :md="12" :sm="24">
-                                <el-form-item :label="$t('Status')">
-                                    <el-radio-group v-model="calendar.status">
-                                        <el-radio
-                                            v-for="option in statuses"
-                                            :key="option.value"
-                                            :value="option.value"
-                                        >
-                                            {{ option.label }}
-                                        </el-radio>
-                                    </el-radio-group>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
+                        <el-form-item :label="$t('Status')">
+                            <el-radio-group v-model="calendar.status">
+                                <el-radio
+                                    v-for="option in statuses"
+                                    :key="option.value"
+                                    :value="option.value"
+                                >
+                                    {{ option.label }}
+                                </el-radio>
+                            </el-radio-group>
+                        </el-form-item>
 
                         <div class="fe-form__actions">
                             <el-button
@@ -171,18 +153,10 @@
                     { value: '#ffa600', label: this.$t('Amber') },
                 ];
             },
-            visibilities() {
-                return [
-                    { value: 'public', label: this.$t('Public') },
-                    { value: 'private', label: this.$t('Private') },
-                    { value: 'unlisted', label: this.$t('Unlisted') },
-                ];
-            },
             statuses() {
                 return [
                     { value: 'active', label: this.$t('Active') },
                     { value: 'draft', label: this.$t('Draft') },
-                    { value: 'archived', label: this.$t('Archived') },
                 ];
             },
         },
@@ -192,7 +166,6 @@
                     title: '',
                     slug: '',
                     description: '',
-                    visibility: this.visibilities[0].value,
                     status: this.statuses[0].value,
                     theme_color: this.themeColors[0].value,
                 };
@@ -208,7 +181,6 @@
                             title: response.calendar.title,
                             slug: response.calendar.slug,
                             description: response.calendar.description,
-                            visibility: response.calendar.visibility,
                             status: response.calendar.status,
                             theme_color: response.calendar.meta?.theme_color
                                 || this.themeColors[0].value,
@@ -237,7 +209,6 @@
                         title: this.calendar.title,
                         slug: this.$slugify(this.calendar.slug),
                         description: this.calendar.description,
-                        visibility: this.calendar.visibility,
                         status: this.calendar.status,
                         theme_color: this.calendar.theme_color,
                     },

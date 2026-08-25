@@ -21,9 +21,6 @@
         <p class="fe-calendars__card-slug">{{ calendar.slug }}</p>
 
         <div class="fe-calendars__card-meta">
-            <el-tag class="capitalize" type="info" size="small">
-                {{ $t(calendar.visibility) }}
-            </el-tag>
             <el-tag class="capitalize" :type="statusType" size="small">
                 {{ $t(calendar.status) }}
             </el-tag>
@@ -58,7 +55,6 @@
                 return {
                     active: 'success',
                     draft: 'info',
-                    archived: 'danger',
                 }[this.calendar.status] || 'info';
             },
         },

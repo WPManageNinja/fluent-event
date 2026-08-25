@@ -56,21 +56,6 @@
                                         </el-radio>
                                     </el-radio-group>
                                 </el-form-item>
-
-                                <el-form-item :label="$t('Visibility')">
-                                    <el-radio-group
-                                        v-model="pendingFilters.visibility"
-                                        class="fe-calendars__filter"
-                                    >
-                                        <el-radio
-                                            v-for="option in visibilities"
-                                            :key="option.value"
-                                            :value="option.value"
-                                        >
-                                            {{ option.label }}
-                                        </el-radio>
-                                    </el-radio-group>
-                                </el-form-item>
                             </el-form>
 
                             <el-button type="primary" size="small" @click="applyFilters(hide)">
@@ -166,11 +151,9 @@
                 query: {
                     search: '',
                     status: '',
-                    visibility: '',
                 },
                 pendingFilters: {
                     status: '',
-                    visibility: '',
                 },
             };
         },
@@ -180,21 +163,11 @@
                     { value: '', label: this.$t('All') },
                     { value: 'active', label: this.$t('Active') },
                     { value: 'draft', label: this.$t('Draft') },
-                    { value: 'archived', label: this.$t('Archived') },
-                ];
-            },
-            visibilities() {
-                return [
-                    { value: '', label: this.$t('All') },
-                    { value: 'public', label: this.$t('Public') },
-                    { value: 'private', label: this.$t('Private') },
-                    { value: 'unlisted', label: this.$t('Unlisted') },
                 ];
             },
             activeFilters() {
                 const groups = {
                     status: { label: this.$t('Status'), options: this.statuses },
-                    visibility: { label: this.$t('Visibility'), options: this.visibilities },
                 };
 
                 // To render the filter chips (badge)
@@ -222,7 +195,6 @@
                     payload: {
                         search: this.query.search,
                         status: this.query.status,
-                        visibility: this.query.visibility,
                     },
                     onSuccess: response => {
                         this.fetched = true;
@@ -240,7 +212,6 @@
             syncFilters() {
                 this.pendingFilters = {
                     status: this.query.status,
-                    visibility: this.query.visibility,
                 };
             },
             applyFilters(hide) {
