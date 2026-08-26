@@ -247,6 +247,25 @@
         }
     }
 
+    .el-radio.is-bordered {
+        height: var(--fe-control-height, 36px);
+        margin-right: 0;
+        border-color: var(--fe-primary-border, #d3d8de);
+        border-radius: var(--fe-radius-sm, 4px);
+
+        &:hover {
+            border-color: var(--fe-secondary-border, #9ca3af);
+        }
+
+        &.is-checked {
+            border-color: var(--fe-primary-button, #2b2e33);
+        }
+    }
+
+    .fe-form__state {
+        gap: var(--fe-space-2, 8px);
+    }
+
     .el-checkbox:hover .el-checkbox__inner {
         border-color: var(--fe-primary-button, #2b2e33);
     }
