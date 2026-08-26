@@ -19,69 +19,118 @@
                     </div>
                 </div>
 
-                <div class="fe-card">
-                    <el-form class="fe-form" label-position="top" @submit.prevent="saveCalendar">
-                        <el-form-item :label="$t('Title *')">
-                            <el-input
-                                v-model="calendar.title"
-                                :placeholder="$t('e.g. Personal')"
-                                @input="deriveSlug"
-                            >
-                                <template #prepend>
-                                    <el-select
-                                        v-model="calendar.theme_color"
-                                        :aria-label="$t('Theme color')"
-                                        popper-class="fe-color-dropdown"
-                                    >
-                                        <template #prefix>
-                                            <span
-                                                class="fe-color-swatch"
-                                                :style="{ background: calendar.theme_color }"
-                                            ></span>
-                                        </template>
+                <div class="fe-card fe-card--flush">
+                    <el-form
+                        class="fe-form fe-form--sectioned"
+                        label-position="top"
+                        @submit.prevent="saveCalendar"
+                    >
+                        <section class="fe-form__section">
+                            <div class="fe-form__section-rail">
+                                <h2 class="fe-form__section-title">{{ $t('Identity') }}</h2>
+                                <p class="fe-form__section-desc">
+                                    {{ $t('The name and color people see wherever this calendar appears.') }}
+                                </p>
+                            </div>
 
-                                        <el-option
+                            <div class="fe-form__section-fields">
+                                <el-form-item :label="$t('Title')" required>
+                                    <el-input
+                                        v-model="calendar.title"
+                                        :placeholder="$t('e.g. Personal')"
+                                        @input="deriveSlug"
+                                    />
+                                </el-form-item>
+
+                                <el-form-item :label="$t('Slug')" required>
+                                    <el-input
+                                        v-model="calendar.slug"
+                                        :placeholder="$t('e.g. personal')"
+                                        @input="onSlugInput"
+                                        @blur="normalizeSlug"
+                                    />
+                                    <span class="fe-form__hint">
+                                        {{ $t('Identifies this calendar in links. Changing it later breaks existing ones.') }}
+                                    </span>
+                                </el-form-item>
+
+                                <el-form-item :label="$t('Color')">
+                                    <div
+                                        class="fe-form__swatches"
+                                        role="group"
+                                        :aria-label="$t('Theme color')"
+                                    >
+                                        <button
                                             v-for="color in themeColors"
                                             :key="color.value"
-                                            :label="color.label"
-                                            :value="color.value"
-                                        >
-                                            <span
-                                                class="fe-color-swatch"
-                                                :style="{ background: color.value }"
-                                            ></span>
-                                        </el-option>
-                                    </el-select>
-                                </template>
-                            </el-input>
-                        </el-form-item>
+                                            type="button"
+                                            class="fe-form__swatch"
+                                            :class="{
+                                                'fe-form__swatch--selected':
+                                                    calendar.theme_color === color.value,
+                                            }"
+                                            :style="{ backgroundColor: color.value }"
+                                            :aria-label="color.label"
+                                            :aria-pressed="calendar.theme_color === color.value"
+                                            @click="calendar.theme_color = color.value"
+                                        ></button>
+                                    </div>
+                                </el-form-item>
+                            </div>
+                        </section>
 
-                        <el-form-item :label="$t('Slug *')">
-                            <el-input
-                                v-model="calendar.slug"
-                                :placeholder="$t('e.g. personal')"
-                                @input="onSlugInput"
-                                @blur="normalizeSlug"
-                            />
-                        </el-form-item>
-
-                        <el-form-item :label="$t('Description')">
-                            <WpEditor v-model="calendar.description" :height="180" />
-                        </el-form-item>
-
-                        <el-form-item :label="$t('Status')">
-                            <el-radio-group v-model="calendar.status">
-                                <el-radio
-                                    v-for="option in statuses"
-                                    :key="option.value"
-                                    :value="option.value"
+                        <section class="fe-form__section">
+                            <div class="fe-form__section-rail">
+                                <h2
+                                    id="fe-calendar-description-label"
+                                    class="fe-form__section-title"
                                 >
-                                    {{ option.label }}
-                                </el-radio>
-                            </el-radio-group>
-                        </el-form-item>
+                                    {{ $t('Description') }}
+                                </h2>
+                                <p class="fe-form__section-desc">
+                                    {{ $t('Optional. Shown on the calendar page, above its events.') }}
+                                </p>
+                            </div>
 
-                        <div class="fe-form__actions">
+                            <div class="fe-form__section-fields">
+                                <WpEditor
+                                    v-model="calendar.description"
+                                    :height="140"
+                                    aria-labelledby="fe-calendar-description-label"
+                                />
+                            </div>
+                        </section>
+
+                        <section class="fe-form__section">
+                            <div class="fe-form__section-rail">
+                                <h2 class="fe-form__section-title">{{ $t('Visibility') }}</h2>
+                                <p class="fe-form__section-desc">
+                                    {{ $t('Draft calendars stay hidden from visitors and cannot take new events.') }}
+                                </p>
+                            </div>
+
+                            <div class="fe-form__section-fields">
+                                <el-radio-group
+                                    v-model="calendar.status"
+                                    class="fe-form__state"
+                                    :aria-label="$t('Status')"
+                                >
+                                    <el-radio
+                                        v-for="option in statuses"
+                                        :key="option.value"
+                                        :value="option.value"
+                                        border
+                                    >
+                                        {{ option.label }}
+                                    </el-radio>
+                                </el-radio-group>
+                            </div>
+                        </section>
+
+                        <div class="fe-form__actions fe-form__actions--bar">
+                            <el-button native-type="button" :disabled="saving" @click="resetForm">
+                                {{ $t('Reset Calendar') }}
+                            </el-button>
                             <el-button
                                 type="primary"
                                 native-type="submit"
@@ -89,9 +138,6 @@
                                 :disabled="saving"
                             >
                                 {{ submitLabel }}
-                            </el-button>
-                            <el-button native-type="button" :disabled="saving" @click="resetForm">
-                                {{ $t('Reset') }}
                             </el-button>
                         </div>
                     </el-form>
