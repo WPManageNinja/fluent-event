@@ -50,10 +50,10 @@ function fluent_event_uninstall_site()
 }
 
 if (is_multisite()) {
+    global $wpdb;
+
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- uninstall cleanup
-    $fluentEventBlogIds = $GLOBALS['wpdb']->get_col(
-        "SELECT blog_id FROM {$GLOBALS['wpdb']->blogs}"
-    );
+    $fluentEventBlogIds = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs}");
 
     foreach ($fluentEventBlogIds as $fluentEventBlogId) {
         switch_to_blog($fluentEventBlogId);

@@ -27,6 +27,8 @@ class Calendar extends Model
         'created_by' => 'int',
     ];
 
+    protected $searchable = ['title', 'slug'];
+
     protected static function booted()
     {
         static::creating(function ($calendar) {
@@ -54,11 +56,15 @@ class Calendar extends Model
     public function scopeSearchBy($query, $search)
     {
         if ($search) {
-            $term = '%' . $GLOBALS['wpdb']->esc_like($search) . '%';
+            $fields = $this->searchable;
+            $search = '%' . addcslashes($search, '%_\\') . '%';
 
-            $query->where(function ($q) use ($term) {
-                $q->where('title', 'LIKE', $term)
-                  ->orWhere('slug', 'LIKE', $term);
+            $query->where(function ($q) use ($fields, $search) {
+                $q->where(array_shift($fields), 'LIKE', $search);
+
+                foreach ($fields as $field) {
+                    $q->orWhere($field, 'LIKE', $search);
+                }
             });
         }
 
