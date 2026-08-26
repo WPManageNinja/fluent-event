@@ -4,6 +4,7 @@
             v-if="hasWpEditor"
             :id="editorId"
             class="fe-editor__area"
+            :aria-labelledby="ariaLabelledby || null"
         >{{ modelValue }}</textarea>
 
         <el-input
@@ -12,6 +13,7 @@
             type="textarea"
             :rows="6"
             :placeholder="placeholder"
+            :aria-labelledby="ariaLabelledby || null"
         />
     </div>
 </template>
@@ -31,6 +33,12 @@
                 default: 200,
             },
             placeholder: {
+                type: String,
+                default: '',
+            },
+            // Id of the element naming this editor. The caller owns the label,
+            // so the same string never has to be translated twice.
+            ariaLabelledby: {
                 type: String,
                 default: '',
             },
@@ -120,6 +128,17 @@
                         content_style: this.themeContentStyle(),
                         setup: (editor) => {
                             editor.on('change keyup', this.emitContent);
+
+                            // TinyMCE edits inside an iframe, and the textarea's
+                            // association does not reach it. Name the iframe too,
+                            // or the Visual tab is an unlabelled control.
+                            editor.on('init', () => {
+                                if (this.ariaLabelledby) {
+                                    editor.iframeElement?.setAttribute(
+                                        'aria-labelledby', this.ariaLabelledby
+                                    );
+                                }
+                            });
                         },
                     },
                 });

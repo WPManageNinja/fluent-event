@@ -81,14 +81,23 @@
 
                         <section class="fe-form__section">
                             <div class="fe-form__section-rail">
-                                <h2 class="fe-form__section-title">{{ $t('Description') }}</h2>
+                                <h2
+                                    id="fe-calendar-description-label"
+                                    class="fe-form__section-title"
+                                >
+                                    {{ $t('Description') }}
+                                </h2>
                                 <p class="fe-form__section-desc">
                                     {{ $t('Optional. Shown on the calendar page, above its events.') }}
                                 </p>
                             </div>
 
                             <div class="fe-form__section-fields">
-                                <WpEditor v-model="calendar.description" :height="140" />
+                                <WpEditor
+                                    v-model="calendar.description"
+                                    :height="140"
+                                    aria-labelledby="fe-calendar-description-label"
+                                />
                             </div>
                         </section>
 
