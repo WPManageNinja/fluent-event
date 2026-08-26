@@ -117,10 +117,10 @@ class Event extends Model
     public function scopeSearchBy($query, $search)
     {
         if ($search) {
-            $term = '%' . $GLOBALS['wpdb']->esc_like($search) . '%';
+            $search = '%' . addcslashes($search, '%_\\') . '%';
 
-            $query->whereHas('post', function ($query) use ($term) {
-                $query->where('post_title', 'LIKE', $term);
+            $query->whereHas('post', function ($query) use ($search) {
+                $query->where('post_title', 'LIKE', $search);
             });
         }
 

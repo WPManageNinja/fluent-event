@@ -38,6 +38,8 @@ class Guest extends Model
 
     protected $appends = ['avatar'];
 
+    protected $searchable = ['name', 'email'];
+
     public function event()
     {
         return $this->belongsTo(Event::class, 'event_id', 'id');
@@ -51,11 +53,15 @@ class Guest extends Model
     public function scopeSearchBy($query, $search)
     {
         if ($search) {
-            $term = '%' . $GLOBALS['wpdb']->esc_like($search) . '%';
+            $fields = $this->searchable;
+            $search = '%' . addcslashes($search, '%_\\') . '%';
 
-            $query->where(function ($q) use ($term) {
-                $q->where('name', 'LIKE', $term)
-                  ->orWhere('email', 'LIKE', $term);
+            $query->where(function ($q) use ($fields, $search) {
+                $q->where(array_shift($fields), 'LIKE', $search);
+
+                foreach ($fields as $field) {
+                    $q->orWhere($field, 'LIKE', $search);
+                }
             });
         }
 
