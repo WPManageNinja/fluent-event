@@ -166,8 +166,6 @@
                     { value: 'past', label: this.$t('Past') },
                 ];
             },
-            // The payload only carries tiles the user may read, so an empty
-            // set means there is nothing to show rather than nothing loaded.
             hasStats() {
                 return Object.keys(this.stats).length > 0;
             },

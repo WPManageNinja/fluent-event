@@ -37,9 +37,7 @@ class CalendarController extends Controller
 
     public function getCalendar(Request $request, $id)
     {
-        $calendar = Calendar::query()
-            ->withCount(['events', 'guests'])
-            ->findOrFail($id);
+        $calendar = Calendar::query()->findOrFail($id);
 
         $calendar->description = wp_kses_post($calendar->description);
 
