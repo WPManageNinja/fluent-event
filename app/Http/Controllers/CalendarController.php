@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Calendar;
+use FluentEvent\App\Services\ReportService;
 use FluentEvent\App\Http\Requests\CalendarRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
@@ -35,12 +36,19 @@ class CalendarController extends Controller
 
     public function getCalendar(Request $request, $id)
     {
-        $calendar = Calendar::query()->findOrFail($id);
+        $calendar = Calendar::query()
+            ->withCount(['events', 'guests'])
+            ->findOrFail($id);
 
         $calendar->description = wp_kses_post($calendar->description);
 
+        $creator = get_userdata($calendar->created_by);
+        $calendar->creator_name = $creator ? $creator->display_name : '';
+
         return [
-            'calendar' => $calendar
+            'calendar'        => $calendar,
+            'stats'           => ReportService::getCalendarStats($calendar->id),
+            'upcoming_events' => ReportService::getUpcomingEvents(3, $calendar->id),
         ];
     }
 
