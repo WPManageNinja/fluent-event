@@ -3,7 +3,7 @@
         <router-view v-slot="{ Component, route }">
             <component
                 :is="Component"
-                :key="route.fullPath"
+                :key="route.path"
                 v-on="{ 'update:application': updateApplication }"
             />
         </router-view>
