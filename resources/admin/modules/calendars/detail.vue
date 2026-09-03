@@ -57,7 +57,7 @@
                 <Tabs v-model="tab" :tabs="tabs">
                     <template #overview>
                         <CalendarTabLayout :calendar="calendar" :upcoming-events="upcomingEvents">
-                            <StatGroups :stats="stats" />
+                            <StatGroups v-if="hasStats" :stats="stats" />
 
                             <div class="fe-card">
                                 <template v-if="calendar.description">
@@ -165,6 +165,11 @@
                     { value: 'upcoming', label: this.$t('Upcoming') },
                     { value: 'past', label: this.$t('Past') },
                 ];
+            },
+            // The payload only carries tiles the user may read, so an empty
+            // set means there is nothing to show rather than nothing loaded.
+            hasStats() {
+                return Object.keys(this.stats).length > 0;
             },
             calendarId() {
                 return Number(this.$route.params.id);

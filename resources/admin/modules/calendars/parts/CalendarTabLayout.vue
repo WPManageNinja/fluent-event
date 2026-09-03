@@ -5,7 +5,10 @@
         </div>
 
         <aside class="fe-calendar-tab__aside">
-            <section class="fe-calendar-tab__panel">
+            <section
+                v-if="$userCan(['read_events', 'write_events'], { match_type: 'any' })"
+                class="fe-calendar-tab__panel"
+            >
                 <h2 class="fe-calendar-tab__panel-title">{{ $t('Coming Up') }}</h2>
 
                 <template v-if="upcomingEvents.length">

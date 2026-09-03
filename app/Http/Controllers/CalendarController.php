@@ -4,6 +4,7 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Services\ReportService;
+use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Http\Requests\CalendarRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
@@ -45,11 +46,30 @@ class CalendarController extends Controller
         $creator = get_userdata($calendar->created_by);
         $calendar->creator_name = $creator ? $creator->display_name : '';
 
-        return [
-            'calendar'        => $calendar,
-            'stats'           => ReportService::getCalendarStats($calendar->id),
-            'upcoming_events' => ReportService::getUpcomingEvents(3, $calendar->id),
-        ];
+        $canReadEvents = PermissionManager::userCan(['read_events', 'write_events']);
+        $canReadGuests = PermissionManager::userCan(['read_guests', 'write_guests']);
+
+        $response = ['calendar' => $calendar];
+
+        if ($canReadEvents || $canReadGuests) {
+            $stats = ReportService::getCalendarStats($calendar->id);
+
+            if (!$canReadEvents) {
+                unset($stats['total_events'], $stats['upcoming_events']);
+            }
+
+            if (!$canReadGuests) {
+                unset($stats['total_guests'], $stats['checked_in_guests']);
+            }
+
+            $response['stats'] = $stats;
+        }
+
+        if ($canReadEvents) {
+            $response['upcoming_events'] = ReportService::getUpcomingEvents(3, $calendar->id);
+        }
+
+        return $response;
     }
 
     public function createCalendar(Request $request)
