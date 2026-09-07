@@ -55,10 +55,6 @@ const eventStatuses = [
     { value: 'draft', label: 'Draft', type: 'info' },
 ];
 
-/**
- * Calendar statuses — same shape as eventStatuses. Keys mirror
- * Calendar::STATUSES in PHP.
- */
 const calendarStatuses = [
     { value: 'active', label: 'Active', type: 'success' },
     { value: 'draft', label: 'Draft', type: 'info' },
