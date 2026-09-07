@@ -50,6 +50,17 @@ const slugify = function (text) {
 };
 
 /**
+ * Element Plus tag type for an event status.
+ */
+const eventStatusType = function (status) {
+    return {
+        public: 'success',
+        private: 'primary',
+        draft: 'info',
+    }[status] || 'info';
+};
+
+/**
  * `user_profile` → `User Profile`.
  */
 const titleCase = function (str) {
@@ -88,6 +99,7 @@ export default {
         },
         $convertToText: convertToText,
         $titleCase: titleCase,
+        $eventStatusType: eventStatusType,
         $slugify: slugify,
         $download: (route) => {
             let baseUrl = '';

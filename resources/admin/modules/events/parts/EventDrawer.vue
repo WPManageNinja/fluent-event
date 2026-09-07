@@ -15,7 +15,7 @@
             />
 
             <div class="fe-event-detail__tags">
-                <el-tag class="capitalize" :type="statusType" size="small">
+                <el-tag class="capitalize" :type="$eventStatusType(event.status)" size="small">
                     {{ $t(event.status) }}
                 </el-tag>
             </div>
@@ -139,13 +139,6 @@
         computed: {
             isOnline() {
                 return this.event?.venue_type === 'online';
-            },
-            statusType() {
-                return {
-                    public: 'success',
-                    private: 'primary',
-                    draft: 'info',
-                }[this.event.status] || 'info';
             },
             month() {
                 return this.$formatDate(this.event.start_at_local, 'MMM');
