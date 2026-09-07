@@ -56,6 +56,15 @@ const eventStatuses = [
 ];
 
 /**
+ * Calendar statuses — same shape as eventStatuses. Keys mirror
+ * Calendar::STATUSES in PHP.
+ */
+const calendarStatuses = [
+    { value: 'active', label: 'Active', type: 'success' },
+    { value: 'draft', label: 'Draft', type: 'info' },
+];
+
+/**
  * `user_profile` → `User Profile`.
  */
 const titleCase = function (str) {
@@ -99,6 +108,15 @@ export default {
         },
         $eventStatuses() {
             return eventStatuses.map(({ value, label }) => ({
+                value,
+                label: this.$t(label),
+            }));
+        },
+        $calendarStatusType(status) {
+            return calendarStatuses.find(item => item.value === status)?.type || 'info';
+        },
+        $calendarStatuses() {
+            return calendarStatuses.map(({ value, label }) => ({
                 value,
                 label: this.$t(label),
             }));

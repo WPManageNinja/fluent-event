@@ -108,12 +108,11 @@
         computed: {
             statuses() {
                 return [
-                    { value: '', label: this.$t('All'), count: this.counts.all },
-                    { value: 'active', label: this.$t('Active'), count: this.counts.active },
-                    { value: 'draft', label: this.$t('Draft'), count: this.counts.draft },
-                ].map(status => ({
-                    value: status.value,
-                    label: this.$t('%s (%d)', status.label, status.count || 0),
+                    { value: '', label: this.$t('All') },
+                    ...this.$calendarStatuses(),
+                ].map(({ value, label }) => ({
+                    value,
+                    label: this.$t('%s (%d)', label, this.counts[value || 'all'] || 0),
                 }));
             },
             isFiltered() {

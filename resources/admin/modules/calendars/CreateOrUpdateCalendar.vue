@@ -200,10 +200,7 @@
                 ];
             },
             statuses() {
-                return [
-                    { value: 'active', label: this.$t('Active') },
-                    { value: 'draft', label: this.$t('Draft') },
-                ];
+                return this.$calendarStatuses();
             },
         },
         methods: {

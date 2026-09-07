@@ -43,7 +43,7 @@
                             <el-tag
                                 v-if="calendar.status && calendar.status !== 'active'"
                                 class="capitalize"
-                                type="info"
+                                :type="$calendarStatusType(calendar.status)"
                                 size="small"
                             >
                                 {{ $t(calendar.status) }}
