@@ -31,8 +31,6 @@
                             class="fe-events-timeline__skeleton-title"
                         />
                         <el-skeleton-item
-                            v-for="meta in 2"
-                            :key="meta"
                             variant="text"
                             class="fe-events-timeline__skeleton-meta"
                         />

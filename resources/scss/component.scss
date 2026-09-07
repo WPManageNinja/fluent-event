@@ -2228,19 +2228,19 @@
     gap: var(--fe-space-4, 16px);
     margin-bottom: var(--fe-space-4, 16px);
     padding: var(--fe-space-5, 20px);
-    border: 1px solid var(--fe-primary-border, #d3d8de);
     border-radius: var(--fe-radius-lg, 12px);
     background-color: var(--fe-primary-bg, #ffffff);
     text-align: left;
     cursor: pointer;
-    transition: border-color 0.2s ease;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
 
     @media screen and (max-width: 575px) {
         padding: var(--fe-space-3, 12px);
     }
 
     &:hover {
-        border-color: var(--fe-secondary-border, #9ca3af);
+        box-shadow: var(--fe-shadow-card-hover, 0 2px 8px rgba(28, 39, 50, 0.09));
+        background-color: var(--fe-card-hover-bg, #ffffff);
     }
 
     &:focus-visible {
@@ -2252,7 +2252,8 @@
         cursor: default;
 
         &:hover {
-            border-color: var(--fe-primary-border, #d3d8de);
+            box-shadow: none;
+            background-color: var(--fe-primary-bg, #ffffff);
         }
     }
 
@@ -2272,12 +2273,22 @@
         display: inline-flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);
-        padding: 2px var(--fe-space-2, 8px);
+        // Pinned so the swatch in the calendar badge and the clock icon in the
+        // time badge cannot give the two different heights.
+        height: 20px;
+        padding: 0 var(--fe-space-2, 8px);
         border-radius: var(--fe-radius-sm, 4px);
         font-size: var(--fe-text-xs, 12px);
         line-height: 1.6;
         color: var(--fe-secondary-text, #525866);
         background-color: var(--fe-active-bg, #f0f3f5);
+
+        // The calendar badge is the same box, tinted with the calendar's own
+        // hue. color-mix is progressive: without it the neutral badge stands.
+        &.fe-event-card__badge--calendar {
+            color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 72%, var(--fe-primary-text, #19283a));
+            background-color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 12%, transparent);
+        }
     }
 
     &__title {
@@ -2291,15 +2302,49 @@
     &__meta {
         display: flex;
         align-items: center;
-        gap: var(--fe-space-2, 8px);
+        flex-wrap: wrap;
         margin: var(--fe-space-2, 8px) 0 0;
         font-size: var(--fe-text-sm, 14px);
         color: var(--fe-secondary-text, #525866);
+
+        span:not(:last-child)::after {
+            content: '\00b7';
+            margin: 0 var(--fe-space-2, 8px);
+            // Scaled up so the separator reads at 14px body size; line-height 0
+            // keeps the taller glyph from stretching the row.
+            font-size: 1.6em;
+            line-height: 0;
+            vertical-align: middle;
+            color: var(--fe-secondary-border, #9ca3af);
+        }
+    }
+
+    &__manage {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        height: 28px;
+        margin-top: var(--fe-space-3, 12px);
+        padding: 0 var(--fe-space-3, 12px);
+        border-radius: var(--fe-radius-sm, 4px);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 500;
+        line-height: 1;
+        color: var(--fe-secondary-text, #525866);
+        background-color: var(--fe-active-bg, #f0f3f5);
+        text-decoration: none;
+        transition: color 0.2s ease, background-color 0.2s ease;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--fe-primary-text, #19283a);
+        }
     }
 
     &__swatch.fe-color-swatch {
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
+        background-color: var(--fe-calendar-hue, var(--fe-secondary-border, #9ca3af));
     }
 
     &__cover {
@@ -2309,7 +2354,7 @@
         border: 1px solid var(--fe-primary-border, #d3d8de);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-active-bg, #f0f3f5);
-        object-fit: contain;
+        object-fit: cover;
     }
 
     @media screen and (max-width: 782px) {

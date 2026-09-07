@@ -22,30 +22,33 @@
                 <el-tag class="capitalize" :type="statusType" size="small">
                     {{ $t(event.status) }}
                 </el-tag>
+
+                <span
+                    v-if="showCalendar && event.calendar"
+                    class="fe-event-card__badge fe-event-card__badge--calendar"
+                    :style="{ '--fe-calendar-hue': calendarColor }"
+                >
+                    <span class="fe-color-swatch fe-event-card__swatch"></span>
+                    {{ event.calendar.title }}
+                </span>
             </div>
 
             <h3 class="fe-event-card__title">{{ event.title }}</h3>
 
-            <p v-if="event.author" class="fe-event-card__meta">
-                <el-icon aria-hidden="true"><User /></el-icon>
-                {{ $t('by %s', event.author.name) }}
-            </p>
-
-            <p v-if="showCalendar && event.calendar" class="fe-event-card__meta">
-                <span
-                    class="fe-color-swatch fe-event-card__swatch"
-                    :style="{ background: calendarColor }"
-                ></span>
-                {{ $t('Calendar: %s', event.calendar.title) }}
-            </p>
-
             <p class="fe-event-card__meta">
-                <el-icon aria-hidden="true">
-                    <VideoCamera v-if="isOnline" />
-                    <LocationInformation v-else />
-                </el-icon>
-                {{ location }}
+                <span v-if="event.author">{{ $t('by %s', event.author.name) }}</span>
+                <span>{{ location }}</span>
             </p>
+
+            <router-link
+                class="fe-event-card__manage"
+                :to="{ name: 'event_detail', params: { id: event.id } }"
+                @click.stop
+                @keydown.stop
+            >
+                {{ $t('Manage Event') }}
+                <el-icon aria-hidden="true"><TopRight /></el-icon>
+            </router-link>
         </div>
 
         <img
@@ -58,16 +61,14 @@
 </template>
 
 <script type="text/javascript">
-    import { Clock, LocationInformation, User, VideoCamera } from '@element-plus/icons-vue';
+    import { Clock, TopRight } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
 
     export default {
         name: 'EventCard',
         components: {
             Clock,
-            LocationInformation,
-            User,
-            VideoCamera,
+            TopRight,
         },
         props: {
             event: {
