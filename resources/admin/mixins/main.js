@@ -49,16 +49,11 @@ const slugify = function (text) {
         .replace(/^-+|-+$/g, '');
 };
 
-/**
- * Element Plus tag type for an event status.
- */
-const eventStatusType = function (status) {
-    return {
-        public: 'success',
-        private: 'primary',
-        draft: 'info',
-    }[status] || 'info';
-};
+const eventStatuses = [
+    { value: 'public', label: 'Public', type: 'success' },
+    { value: 'private', label: 'Private', type: 'primary' },
+    { value: 'draft', label: 'Draft', type: 'info' },
+];
 
 /**
  * `user_profile` → `User Profile`.
@@ -99,7 +94,15 @@ export default {
         },
         $convertToText: convertToText,
         $titleCase: titleCase,
-        $eventStatusType: eventStatusType,
+        $eventStatusType(status) {
+            return eventStatuses.find(item => item.value === status)?.type || 'info';
+        },
+        $eventStatuses() {
+            return eventStatuses.map(({ value, label }) => ({
+                value,
+                label: this.$t(label),
+            }));
+        },
         $slugify: slugify,
         $download: (route) => {
             let baseUrl = '';

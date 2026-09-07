@@ -207,9 +207,7 @@
             statuses() {
                 return [
                     { value: '', label: this.$t('All') },
-                    { value: 'public', label: this.$t('Public') },
-                    { value: 'private', label: this.$t('Private') },
-                    { value: 'draft', label: this.$t('Draft') },
+                    ...this.$eventStatuses(),
                 ];
             },
             scopedCalendarId() {
