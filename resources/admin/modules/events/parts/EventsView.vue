@@ -210,7 +210,6 @@
                     { value: 'public', label: this.$t('Public') },
                     { value: 'private', label: this.$t('Private') },
                     { value: 'draft', label: this.$t('Draft') },
-                    { value: 'archived', label: this.$t('Archived') },
                 ];
             },
             scopedCalendarId() {

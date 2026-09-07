@@ -13,7 +13,7 @@ class Event extends Model
 {
     protected $table = 'fe_event_details';
 
-    const STATUSES = 'public,private,draft,archived';
+    const STATUSES = 'public,private,draft';
     const VENUE_TYPES = 'offline,online';
     const ENTRY_TYPES = 'rsvp';
     const DEFAULT_ENTRY_TYPE = 'rsvp';
@@ -21,7 +21,6 @@ class Event extends Model
         'public'   => 'publish',
         'private'  => 'private',
         'draft'    => 'draft',
-        'archived' => 'draft',
     ];
 
     protected $fillable = [

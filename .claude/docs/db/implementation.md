@@ -97,7 +97,7 @@ DB::transaction(function () use ($data) {
     Event::create([
         'post_id'     => $postId,                       // NOT NULL, unique
         'calendar_id' => absint($data['calendar_id']),  // NOT NULL
-        'status'      => 'public',                      // public|private|draft|archived
+        'status'      => 'public',                      // public|private|draft
         'start_at'    => $data['start_at'],             // UTC
         'end_at'      => $data['end_at'],               // UTC
         'timezone'    => $data['timezone'] ?: null,     // nullable

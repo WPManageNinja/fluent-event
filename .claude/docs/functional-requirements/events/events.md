@@ -43,7 +43,7 @@ place (address/map) is `fe_venue` term meta, not an event column. See
 | `post_id` | BIGINT **NOT NULL** UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **Every** details row has its own post — including each recurrence occurrence |
 | `calendar_id` | BIGINT **NOT NULL** FK | → calendar (`RESTRICT`) |
 | `parent_event_id` | BIGINT NULL FK→self | NULL = master/standalone; set = a recurrence **occurrence** of that master (`ON DELETE CASCADE`) |
-| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `private` \| `draft` \| `archived` |
+| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `private` \| `draft` |
 | `start_at` / `end_at` | DATETIME **NOT NULL** (**UTC**) | stored in UTC; the indexed date window |
 | `timezone` | VARCHAR **NULL** | IANA tz (e.g. `Asia/Dhaka`) — to display the organizer's local time; also DST, ICS, reminders |
 | `venue_type` | VARCHAR **NULL**, default `'offline'` | event **mode**: `offline` \| `online` \| `hybrid`. Place = `fe_venue` term (address/map in term meta) |
@@ -77,7 +77,7 @@ occurrence owns its **own** `wp_posts` row and its own complete values. There is
 *(Venue place data → `fe_venue` term meta; the online link is per-event in `settings`,
 never term meta.)*
 
-> **Note on `status`:** it carries visibility semantics (`public`/`private`/`draft`/`archived`)
+> **Note on `status`:** it carries visibility semantics (`public`/`private`/`draft`)
 > which overlap `wp_posts.post_status`. Pick one as authoritative in the service layer —
 > `event_details.status` is the queryable one, so keep `post_status` in step with it on write.
 

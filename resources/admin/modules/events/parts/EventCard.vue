@@ -89,7 +89,6 @@
                     public: 'success',
                     private: 'primary',
                     draft: 'info',
-                    archived: 'danger',
                 }[this.event.status] || 'info';
             },
             time() {
