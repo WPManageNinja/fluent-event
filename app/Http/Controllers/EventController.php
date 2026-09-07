@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Event;
+use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Services\PostService;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
@@ -109,11 +110,14 @@ class EventController extends Controller
         $data     = EventRequest::format($data, $event->meta);
         $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));
 
-        DB::transaction(function () use ($event, $data, $timezone) {
+        $previousCalendarId = (int) $event->calendar_id;
+        $calendarId         = (int) Arr::get($data, 'calendar_id');
+
+        DB::transaction(function () use ($event, $data, $timezone, $calendarId, $previousCalendarId) {
             PostService::updateEventPost($event->post_id, $data);
 
             $event->fill([
-                'calendar_id' => Arr::get($data, 'calendar_id'),
+                'calendar_id' => $calendarId,
                 'status'      => Arr::get($data, 'status'),
                 'start_at'    => DateTimeHelper::convertToUtc(Arr::get($data, 'start_at'), $timezone),
                 'end_at'      => DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone),
@@ -121,6 +125,12 @@ class EventController extends Controller
                 'venue_type'  => Arr::get($data, 'venue_type'),
                 'meta'        => Arr::get($data, 'meta', []),
             ])->save();
+
+            if ($calendarId !== $previousCalendarId) {
+                Guest::query()
+                    ->where('event_id', $event->id)
+                    ->update(['calendar_id' => $calendarId]);
+            }
         });
 
         do_action('fluent_event/event/updated', $event);

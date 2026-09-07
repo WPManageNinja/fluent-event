@@ -64,6 +64,45 @@ class ReportService
         return ['stats' => $stats];
     }
 
+    public static function getCalendarStats($calendarId)
+    {
+        $now = gmdate(DateTimeHelper::FORMAT);
+
+        $liveEvents = function () use ($calendarId) {
+            return Event::query()
+                ->whereIn('status', self::LIVE_EVENT_STATUSES)
+                ->where('calendar_id', $calendarId);
+        };
+
+        $totalEvents = $liveEvents()->count();
+        $upcomingEvents = $liveEvents()->where('start_at', '>', $now)->count();
+        $totalGuests = self::guestQuery($calendarId)->count();
+        $checkedInGuests = self::guestQuery($calendarId)->where('status', 'checked_in')->count();
+
+        return [
+            'total_events' => self::tile(
+                __('Total Events', 'fluent-event'),
+                'Event',
+                $totalEvents
+            ),
+            'upcoming_events' => self::tile(
+                __('Upcoming Events', 'fluent-event'),
+                'Upcoming',
+                $upcomingEvents
+            ),
+            'total_guests' => self::tile(
+                __('Total Guests', 'fluent-event'),
+                'Guest',
+                $totalGuests
+            ),
+            'checked_in_guests' => self::tile(
+                __('Checked In Guests', 'fluent-event'),
+                'CheckedIn',
+                $checkedInGuests
+            ),
+        ];
+    }
+
     public static function getGuestTrends($start, $end)
     {
         $granularity = self::spanDays($start, $end) > self::DAILY_SPAN_LIMIT ? 'month' : 'day';
@@ -131,11 +170,11 @@ class ReportService
     }
 
     // Future events, soonest to start first.
-    public static function getUpcomingEvents($limit = 3)
+    public static function getUpcomingEvents($limit = 3, $calendarId = 0)
     {
         $now = gmdate(DateTimeHelper::FORMAT);
 
-        return self::eventQuery()
+        return self::eventQuery($calendarId)
             ->where('start_at', '>', $now)
             ->orderBy('start_at', 'ASC')
             ->limit($limit)
@@ -174,16 +213,22 @@ class ReportService
         return $topEvents;
     }
 
-    private static function guestQuery()
+    private static function guestQuery($calendarId = 0)
     {
-        return Guest::query()->whereHas('event', function ($query) {
+        $query = Guest::query()->whereHas('event', function ($query) {
             $query->whereIn('status', self::LIVE_EVENT_STATUSES);
         });
+
+        if ($calendarId) {
+            $query->where('calendar_id', $calendarId);
+        }
+
+        return $query;
     }
 
-    private static function eventQuery()
+    private static function eventQuery($calendarId = 0)
     {
-        return Event::query()
+        $query = Event::query()
             ->whereIn('status', self::LIVE_EVENT_STATUSES)
             ->with([
                 'post' => function ($query) {
@@ -196,6 +241,12 @@ class ReportService
                     $query->select(['id', 'title', 'meta']);
                 },
             ]);
+
+        if ($calendarId) {
+            $query->where('calendar_id', $calendarId);
+        }
+
+        return $query;
     }
 
     private static function tile($title, $icon, $amount)
