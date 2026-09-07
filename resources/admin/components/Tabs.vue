@@ -49,6 +49,14 @@ export default {
         unmountOnHide: {
             type: Boolean,
             default: false
+        },
+        syncRoute: {
+            type: Boolean,
+            default: true
+        },
+        queryKey: {
+            type: String,
+            default: 'tab'
         }
     },
     emits: ['update:modelValue', 'change'],
@@ -57,14 +65,54 @@ export default {
             visited: [this.modelValue]
         };
     },
+    computed: {
+        syncsQuery() {
+            return this.syncRoute && !!this.queryKey && !!this.$route;
+        },
+        queryValue() {
+            return this.syncsQuery ? this.$route.query[this.queryKey] : '';
+        }
+    },
     watch: {
         modelValue(value) {
             if (!this.visited.includes(value)) {
                 this.visited.push(value);
             }
+
+            this.writeQuery(value);
+        },
+        queryValue(value) {
+            if (!value || value === this.modelValue) return;
+
+            if (this.isKnown(value)) {
+                this.$emit('update:modelValue', value);
+                return;
+            }
+
+            // Unknown tab in the URL — put the open one back.
+            this.writeQuery(this.modelValue);
+        },
+        tabs: {
+            immediate: true,
+            handler(tabs) {
+                if (!tabs.length || this.isKnown(this.modelValue)) return;
+
+                this.$emit('update:modelValue', tabs[0].value);
+            }
         }
     },
     methods: {
+        isKnown(value) {
+            return this.tabs.some(tab => tab.value === value);
+        },
+        writeQuery(value) {
+            if (!this.syncsQuery || this.$route.query[this.queryKey] === value) return;
+
+            // replace, not push — a tab click must not stack a history entry.
+            this.$router.replace({
+                query: { ...this.$route.query, [this.queryKey]: value }
+            });
+        },
         isRendered(value) {
             if (this.unmountOnHide) {
                 return value === this.modelValue;
@@ -95,6 +143,13 @@ export default {
             event.preventDefault();
             this.select(this.tabs[next].value);
             this.$nextTick(() => this.$refs.nav.children[next].focus());
+        }
+    },
+    created() {
+        const requested = this.queryValue;
+
+        if (requested && requested !== this.modelValue && this.isKnown(requested)) {
+            this.$emit('update:modelValue', requested);
         }
     }
 }
