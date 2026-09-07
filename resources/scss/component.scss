@@ -1226,7 +1226,7 @@
     padding: var(--fe-space-1, 4px);
     border: 1px solid var(--fe-badge-color, #E1E4EA);
     border-radius: var(--fe-radius, 8px);
-    background-color: var(--fe-switch-track, #E1E4EA);
+    background-color: var(--fe-switch-track, #F7F8FA);
 
     &.fe-switch--compact {
         padding: 3px;
@@ -1250,6 +1250,7 @@
         width: var(--fe-switch-w, 0);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-switch-thumb, #ffffff);
+        box-shadow: var(--fe-shadow-switch-thumb, 0 1px 2px rgba(28, 39, 50, 0.10));
         transform: translateX(var(--fe-switch-x, 0));
         transition: transform 0.25s ease, width 0.25s ease;
     }
