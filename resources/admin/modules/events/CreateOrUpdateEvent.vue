@@ -346,11 +346,7 @@
                 return this.isEditing ? this.$t('Update Event') : this.$t('Create Event');
             },
             statuses() {
-                return [
-                    { value: 'public', label: this.$t('Public') },
-                    { value: 'private', label: this.$t('Private') },
-                    { value: 'draft', label: this.$t('Draft') },
-                ];
+                return this.$eventStatuses();
             },
             venueTypes() {
                 return [

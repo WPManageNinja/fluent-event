@@ -52,7 +52,7 @@
                                     <div class="fe-event-overview__badge">
                                         <span class="fe-event-overview__badge-label">{{ $t('Status') }}</span>
 
-                                        <el-tag class="capitalize" :type="statusType" size="small">
+                                        <el-tag class="capitalize" :type="$eventStatusType(event.status)" size="small">
                                             {{ $t(event.status) }}
                                         </el-tag>
                                     </div>
@@ -213,13 +213,6 @@
             },
             isOnline() {
                 return this.event.venue_type === 'online';
-            },
-            statusType() {
-                return {
-                    public: 'success',
-                    private: 'primary',
-                    draft: 'info',
-                }[this.event.status] || 'info';
             },
             calendarStatus() {
                 return this.event.calendar?.status || '';

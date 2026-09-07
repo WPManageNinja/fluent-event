@@ -4,7 +4,7 @@
             <el-tag
                 v-if="calendar.status !== 'active'"
                 class="capitalize fe-calendars__card-status"
-                type="info"
+                :type="$calendarStatusType(calendar.status)"
                 size="small"
             >
                 {{ $t(calendar.status) }}

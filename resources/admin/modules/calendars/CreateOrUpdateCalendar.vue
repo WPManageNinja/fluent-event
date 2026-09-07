@@ -116,7 +116,7 @@
                                     :aria-label="$t('Status')"
                                 >
                                     <el-radio
-                                        v-for="option in statuses"
+                                        v-for="option in $calendarStatuses()"
                                         :key="option.value"
                                         :value="option.value"
                                         border
@@ -197,12 +197,6 @@
                     { value: '#17e885', label: this.$t('Emerald Green') },
                     { value: '#ccf000', label: this.$t('Lime Green') },
                     { value: '#ffa600', label: this.$t('Amber') },
-                ];
-            },
-            statuses() {
-                return [
-                    { value: 'active', label: this.$t('Active') },
-                    { value: 'draft', label: this.$t('Draft') },
                 ];
             },
         },

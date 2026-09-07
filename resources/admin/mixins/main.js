@@ -49,6 +49,17 @@ const slugify = function (text) {
         .replace(/^-+|-+$/g, '');
 };
 
+const eventStatuses = [
+    { value: 'public', label: 'Public', type: 'success' },
+    { value: 'private', label: 'Private', type: 'primary' },
+    { value: 'draft', label: 'Draft', type: 'info' },
+];
+
+const calendarStatuses = [
+    { value: 'active', label: 'Active', type: 'success' },
+    { value: 'draft', label: 'Draft', type: 'info' },
+];
+
 /**
  * `user_profile` → `User Profile`.
  */
@@ -88,6 +99,24 @@ export default {
         },
         $convertToText: convertToText,
         $titleCase: titleCase,
+        $eventStatusType(status) {
+            return eventStatuses.find(item => item.value === status)?.type || 'info';
+        },
+        $eventStatuses() {
+            return eventStatuses.map(({ value, label }) => ({
+                value,
+                label: this.$t(label),
+            }));
+        },
+        $calendarStatusType(status) {
+            return calendarStatuses.find(item => item.value === status)?.type || 'info';
+        },
+        $calendarStatuses() {
+            return calendarStatuses.map(({ value, label }) => ({
+                value,
+                label: this.$t(label),
+            }));
+        },
         $slugify: slugify,
         $download: (route) => {
             let baseUrl = '';
