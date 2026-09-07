@@ -136,7 +136,7 @@
             return {
                 loading: false,
                 error: '',
-                tab: this.$route.query.tab || 'overview',
+                tab: 'overview',
                 period: 'upcoming',
                 calendar: {},
                 stats: {},
@@ -206,19 +206,6 @@
                         ? 'var(--fe-on-hue-dark, #19283a)'
                         : 'var(--fe-on-hue-light, #ffffff)',
                 };
-            },
-        },
-        watch: {
-            tab(value) {
-                this.$router.replace({ query: { ...this.$route.query, tab: value } });
-            },
-            tabs: {
-                immediate: true,
-                handler(tabs) {
-                    if (!tabs.some(tab => tab.value === this.tab)) {
-                        this.tab = tabs[0].value;
-                    }
-                },
             },
         },
         methods: {
