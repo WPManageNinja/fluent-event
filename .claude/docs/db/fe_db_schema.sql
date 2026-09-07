@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_event_details` (
   `post_id` BIGINT UNSIGNED NOT NULL,
   `calendar_id` BIGINT UNSIGNED NOT NULL,
   `parent_event_id` BIGINT UNSIGNED NULL DEFAULT NULL,
-  `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft | archived  ',
+  `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft',
   `start_at` DATETIME NOT NULL,
   `end_at` DATETIME NOT NULL,
   `timezone` VARCHAR(64) NULL DEFAULT NULL COMMENT 'To display the organizer local time \n',
