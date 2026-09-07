@@ -2243,11 +2243,6 @@
         background-color: var(--fe-card-hover-bg, #ffffff);
     }
 
-    &:focus-visible {
-        outline: 2px solid var(--fe-wp-link, #2271b1);
-        outline-offset: 2px;
-    }
-
     &.fe-event-card--skeleton {
         cursor: default;
 
@@ -2297,6 +2292,23 @@
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
+    }
+
+    &__open {
+        display: block;
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-wp-link, #2271b1);
+            outline-offset: 2px;
+            border-radius: var(--fe-radius-sm, 4px);
+        }
     }
 
     &__meta {

@@ -1,13 +1,5 @@
 <template>
-    <div
-        class="fe-event-card"
-        role="button"
-        tabindex="0"
-        :aria-label="$t('View %s', event.title)"
-        @click="$emit('open', event)"
-        @keydown.enter.prevent="$emit('open', event)"
-        @keydown.space.prevent="$emit('open', event)"
-    >
+    <div class="fe-event-card" @click="$emit('open', event)">
         <div class="fe-event-card__main">
             <div class="fe-event-card__badges">
                 <span class="fe-event-card__badge">
@@ -33,7 +25,15 @@
                 </span>
             </div>
 
-            <h3 class="fe-event-card__title">{{ event.title }}</h3>
+            <h3 class="fe-event-card__title">
+                <button
+                    type="button"
+                    class="fe-event-card__open"
+                    @click.stop="$emit('open', event)"
+                >
+                    {{ event.title }}
+                </button>
+            </h3>
 
             <p class="fe-event-card__meta">
                 <span v-if="event.author">{{ $t('by %s', event.author.name) }}</span>
@@ -44,7 +44,6 @@
                 class="fe-event-card__manage"
                 :to="{ name: 'event_detail', params: { id: event.id } }"
                 @click.stop
-                @keydown.stop
             >
                 {{ $t('Manage Event') }}
                 <el-icon aria-hidden="true"><TopRight /></el-icon>
