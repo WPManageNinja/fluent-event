@@ -190,6 +190,7 @@
             statusLabels() {
                 return {
                     going: this.$t('Going'),
+                    not_going: this.$t('Not Going'),
                     checked_in: this.$t('Checked In'),
                     cancelled: this.$t('Cancelled'),
                 };
@@ -234,6 +235,7 @@
                         statusLabel: this.statusLabels[guest.status] || guest.status,
                         tagType: {
                             going: 'success',
+                            not_going: 'info',
                             checked_in: 'primary',
                             cancelled: 'danger',
                         }[guest.status] || 'info',
