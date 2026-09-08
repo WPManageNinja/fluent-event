@@ -59,7 +59,7 @@ class GuestRequest extends BaseRequest
             'email.max'      => __('Email cannot exceed 192 characters.', 'fluent-event'),
             'email.unique'   => __('A guest with this email is already on this event.', 'fluent-event'),
             'user_id.exists' => __('The selected WordPress user no longer exists.', 'fluent-event'),
-            'status.in'      => __('Status must be going, checked in or cancelled.', 'fluent-event'),
+            'status.in'      => __('Status must be going, not going, checked in or cancelled.', 'fluent-event'),
         ];
     }
 }

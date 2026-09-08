@@ -29,7 +29,7 @@ class GuestsMigrator
         `name` VARCHAR(255) NULL,
         `email` VARCHAR(192) NULL,
         `user_id` BIGINT(20) UNSIGNED NULL COMMENT 'wp_users.ID when logged in',
-        `status` VARCHAR(64) NOT NULL COMMENT 'going | not_going | approved | checked_in | cancelled',
+        `status` VARCHAR(64) NOT NULL COMMENT 'going | not_going | checked_in | cancelled',
         `hash` VARCHAR(64) NULL COMMENT 'per-ticket token, wp_generate_password',
         `checked_in_at` DATETIME NULL,
         `payment_status` VARCHAR(64) NULL COMMENT 'paid | unpaid | refunded',
