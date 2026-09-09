@@ -25,6 +25,7 @@ class Guest extends Model
         'status',
         'checked_in_at',
         'source',
+        'source_id',
         'meta',
     ];
 
