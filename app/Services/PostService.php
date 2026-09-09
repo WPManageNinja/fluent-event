@@ -16,14 +16,14 @@ use FluentEvent\Framework\Foundation\Exceptions\HttpException;
  */
 class PostService
 {
-    public static function createEventPost($data)
+    public static function createEventPost($data, $authorId = null)
     {
         $postId = wp_insert_post([
             'post_type'    => EventPost::POST_TYPE,
             'post_title'   => Arr::get($data, 'title'),
             'post_content' => Arr::get($data, 'description', ''),
             'post_status'  => Event::postStatusFor(Arr::get($data, 'status')),
-            'post_author'  => get_current_user_id(),
+            'post_author'  => $authorId ?: get_current_user_id(),
         ], true);
 
         if (is_wp_error($postId)) {
