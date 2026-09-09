@@ -35,9 +35,16 @@ class PermissionManager
         return apply_filters('fluent_event/permission/all_sets', $sets, []);
     }
 
+    /**
+     * `null` means the current user. An explicit `0` means NO user, and
+     * resolves to no permissions — a caller acting for somebody else must not
+     * silently inherit whoever happens to be logged in.
+     *
+     * @param int|null $userId
+     */
     public static function getUserPermissions($userId = null): array
     {
-        $userId = $userId ?: get_current_user_id();
+        $userId = $userId ?? get_current_user_id();
 
         if (!$userId) return [];
         if (isset(static::$cache[$userId])) return static::$cache[$userId];
@@ -55,9 +62,13 @@ class PermissionManager
         return static::$cache[$userId] = $granted;
     }
 
-    public static function userCan($permissions, array $options = []): bool
+    /**
+     * @param string|string[] $permissions
+     * @param int|null        $userId  null = the current user
+     */
+    public static function userCan($permissions, $userId = null, array $options = []): bool
     {
-        $granted = static::getUserPermissions();
+        $granted = static::getUserPermissions($userId);
 
         if (in_array(self::ALL_DATA, $granted, true)) return true;
 
