@@ -27,4 +27,14 @@ class Post extends Model
     {
         return $this->belongsTo(User::class, 'post_author', 'ID');
     }
+
+    /** @param string|string[] $status */
+    public function scopeByStatus($query, $status)
+    {
+        if ($status) {
+            $query->whereIn('post_status', (array) $status);
+        }
+
+        return $query;
+    }
 }

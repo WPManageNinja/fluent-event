@@ -135,10 +135,11 @@ class Event extends Model
         return $query;
     }
 
+    /** @param string|string[] $status */
     public function scopeByStatus($query, $status)
     {
         if ($status) {
-            $query->where('status', $status);
+            $query->whereIn('status', (array) $status);
         }
 
         return $query;
