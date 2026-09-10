@@ -160,8 +160,9 @@ export default {
     setInstance(app) {
         instance = app;
     },
-    abort(message = 'Request aborted!') {
-        const err = new Error(message);
+    abort(message = null) {
+        const $t = instance?.config?.globalProperties?.$t;
+        const err = new Error(message || ($t ? $t('Request aborted.') : 'Request aborted.'));
         err.isAborted = true;
         throw err;
     },

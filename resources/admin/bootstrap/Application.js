@@ -136,7 +136,7 @@ export default class Application {
                     app.config.globalProperties.$handleValidationError(err);
                 } else {
                     ElNotification({
-                        title: 'Error',
+                        title: app.config.globalProperties.$t('Error'),
                         message: String(err?.message || err),
                         type: 'warning',
                     });
