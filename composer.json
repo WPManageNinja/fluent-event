@@ -39,6 +39,7 @@
     "autoload": {
         "psr-4": {
             "FluentEvent\\App\\": "app/",
+            "FluentEvent\\Modules\\": "Modules/",
             "FluentEvent\\Dev\\": "dev/"
         },
         "classmap": [

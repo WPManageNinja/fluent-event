@@ -32,3 +32,9 @@ $app->addAction('init', 'CPTHandler@registerPostTypes');
  * Cascade cleanup rides the deletion actions - never model boot hooks.
  */
 (new \FluentEvent\App\Hooks\Handlers\CleanupHandlers\CleanupHandler())->register();
+
+/**
+ * FluentCommunity bridge. Priority 20 so their plugin is fully loaded; the
+ * class itself is a no-op when it is not.
+ */
+add_action('plugins_loaded', ['FluentEvent\Modules\FluentCommunity\Bootstrap', 'register'], 20);
