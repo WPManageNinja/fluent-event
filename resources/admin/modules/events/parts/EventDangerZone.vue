@@ -10,7 +10,7 @@
             </p>
 
             <label class="fe-danger-zone__label" for="fe-delete-confirm">
-                {{ confirmPrompt[0] }}<i>{{ event.title }}</i>{{ confirmPrompt[1] }}
+                {{ $t('Type') }} <i>{{ $t(event.title) }}</i> {{ $t('to confirm.') }}
             </label>
 
             <el-input
@@ -50,16 +50,6 @@
             };
         },
         computed: {
-            /**
-             * The confirm prompt as [before, after] around the title, so the
-             * sentence stays one translatable string with a %s slot instead of
-             * two English fragments glued around the <i>.
-             */
-            confirmPrompt() {
-                const [before = '', after = ''] = this.$t('Type %s to confirm.').split('%s');
-
-                return [before, after];
-            },
             canDelete() {
                 return this.typedTitle.trim() === this.event.title && !this.deleting;
             },
