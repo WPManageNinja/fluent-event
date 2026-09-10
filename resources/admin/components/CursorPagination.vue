@@ -2,11 +2,11 @@
 	<el-button
 		:disabled="!this.pagination.prev_page_url"
 		@click="changePage('prev_page_url')"
-	>Prev</el-button>
+	>{{ $t('Prev') }}</el-button>
 	<el-button
 		:disabled="!this.pagination.next_page_url"
 		@click="changePage('next_page_url')"
-	>Next</el-button>
+	>{{ $t('Next') }}</el-button>
 </template>
 
 <script type="text/javascript">
