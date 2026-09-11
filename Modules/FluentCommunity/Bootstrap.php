@@ -3,6 +3,7 @@
 namespace FluentEvent\Modules\FluentCommunity;
 
 use FluentEvent\App\Services\CalendarService;
+use FluentEvent\App\Services\PermissionManager;
 
 class Bootstrap
 {
@@ -25,11 +26,19 @@ class Bootstrap
             && \FluentCommunity\App\App::getInstance();
     }
 
-    /** So their Vue feature-detects instead of sniffing our plugin version. */
     public static function portalVars($vars)
     {
         $vars['has_fluent_event'] = true;
         $vars['fluent_event_version'] = FLUENT_EVENT_PLUGIN_VERSION;
+
+        $userId = get_current_user_id();
+
+        $vars['fluent_event_permissions'] = [
+            'write_events'    => $userId && PermissionManager::userCan('write_events', $userId),
+            'read_events'     => $userId && PermissionManager::userCan(['read_events', 'write_events'], $userId),
+            'write_calendars' => $userId && PermissionManager::userCan('write_calendars', $userId),
+            'read_calendars'  => $userId && PermissionManager::userCan(['read_calendars', 'write_calendars'], $userId),
+        ];
 
         return $vars;
     }
