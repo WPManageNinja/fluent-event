@@ -26,7 +26,7 @@ class SettingsRequest extends BaseRequest
     ];
 
     const GENERAL_RULES = [
-        'default_events_view'      => 'required|string|in:timeline,calendar',
+        'default_events_view'      => 'required|string|in:cards,timeline,calendar',
         'date_format'              => 'nullable|string',
         'time_format'              => 'nullable|string',
         'dark_mode'                => 'required|string|in:yes,no',

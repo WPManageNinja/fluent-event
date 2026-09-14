@@ -11,6 +11,7 @@
         <el-form v-else class="fe-form" label-position="top" @submit.prevent="save">
             <el-form-item :label="$t('Default events view')">
                 <el-radio-group v-model="settings.default_events_view" :disabled="!canWrite">
+                    <el-radio value="cards">{{ $t('Cards') }}</el-radio>
                     <el-radio value="timeline">{{ $t('Timeline') }}</el-radio>
                     <el-radio value="calendar">{{ $t('Calendar') }}</el-radio>
                 </el-radio-group>

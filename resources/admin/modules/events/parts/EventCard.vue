@@ -2,9 +2,9 @@
     <div class="fe-event-card" @click="$emit('open', event)">
         <div class="fe-event-card__main">
             <div class="fe-event-card__badges">
-                <span class="fe-event-card__badge">
-                    <el-icon aria-hidden="true"><Clock /></el-icon>
-                    {{ time }}
+                <span v-if="showDate" class="fe-event-card__badge">
+                    <el-icon aria-hidden="true"><Calendar /></el-icon>
+                    {{ date }}
                 </span>
 
                 <span v-if="dayCount" class="fe-event-card__badge">
@@ -35,6 +35,8 @@
                 </button>
             </h3>
 
+            <p class="fe-event-card__time">{{ timeRange }}</p>
+
             <p class="fe-event-card__meta">
                 <span v-if="event.author">{{ $t('by %s', event.author.name) }}</span>
                 <span>{{ location }}</span>
@@ -56,17 +58,21 @@
             :src="coverUrl"
             :alt="$t('Cover image of %s', event.title)"
         />
+
+        <div v-else class="fe-event-card__cover fe-event-card__cover--empty" aria-hidden="true">
+            <el-icon><Calendar /></el-icon>
+        </div>
     </div>
 </template>
 
 <script type="text/javascript">
-    import { Clock, TopRight } from '@element-plus/icons-vue';
+    import { Calendar, TopRight } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
 
     export default {
         name: 'EventCard',
         components: {
-            Clock,
+            Calendar,
             TopRight,
         },
         props: {
@@ -78,14 +84,26 @@
                 type: Boolean,
                 default: false,
             },
+            showDate: {
+                type: Boolean,
+                default: false,
+            },
         },
         emits: ['open'],
         computed: {
             isOnline() {
                 return this.event.venue_type === 'online';
             },
-            time() {
-                return this.$formatTime(this.event.start_at_local);
+            date() {
+                return this.$formatDate(this.event.start_at_local);
+            },
+            timeRange() {
+                const start = this.$formatTime(this.event.start_at_local);
+                const end = this.event.end_at_local
+                    ? this.$formatTime(this.event.end_at_local)
+                    : '';
+
+                return end && end !== start ? `${start} – ${end}` : start;
             },
             dayCount() {
                 const span = daySpan(this.event.start_at_local, this.event.end_at_local);
