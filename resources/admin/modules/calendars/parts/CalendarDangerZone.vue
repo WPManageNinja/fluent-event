@@ -10,7 +10,7 @@
             </p>
 
             <label class="fe-danger-zone__label" for="fe-delete-confirm">
-                Type <i>{{ $t(calendar.title) }}</i> to confirm.
+                {{ $t('Type %s to confirm.', calendar.title) }}
             </label>
 
             <el-input

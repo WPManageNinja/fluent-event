@@ -172,18 +172,20 @@ export default {
                 'head title'
             ).textContent = title + ' - ' + titleCase(config.slug);
         },
-        $handleError(e, fallback = 'Something went wrong') {
+        $handleError(e, fallback = null) {
+            const fallbackMessage = fallback || this.$t('Something went wrong');
+
             if (typeof e === 'string') {
-                return notify('error', 'Error', e);
+                return notify('error', this.$t('Error'), e);
             }
 
             if (e?.isAborted) {
-                return notify('warning', 'Error', e.message || 'Request aborted.');
+                return notify('warning', this.$t('Error'), e.message || this.$t('Request aborted.'));
             }
 
-            const message = e?.message || convertToText(e?.errors, ' ') || fallback;
+            const message = e?.message || convertToText(e?.errors, ' ') || fallbackMessage;
 
-            notify('error', 'Error', message || 'Something went wrong');
+            notify('error', this.$t('Error'), message || fallbackMessage);
         },
         $url(url) {
             return config.rest.url.replace(
@@ -191,17 +193,23 @@ export default {
             ) + '/' + url.replace(/^\/+/, '');
         },
         $notify(message, type = 'info', position = 'bottom-right') {
-            const title = type === 'info' ? 'Notification' : type;
-            notify(type, capitalize(title), message, position);
+            const titles = {
+                info: this.$t('Notification'),
+                success: this.$t('Success'),
+                warning: this.$t('Warning'),
+                error: this.$t('Error'),
+            };
+
+            notify(type, titles[type] || capitalize(type), message, position);
         },
         $notifySuccess(message, position = 'bottom-right') {
-            notify('success', 'Success', message, position);
+            notify('success', this.$t('Success'), message, position);
         },
         $notifyError(message, position = 'bottom-right') {
-            notify('error', 'Error', message, position);
+            notify('error', this.$t('Error'), message, position);
         },
         $notifyWarning(message, position = 'bottom-right') {
-            notify('warning', 'Warning', message, position);
+            notify('warning', this.$t('Warning'), message, position);
         },
         $getStatusColumnClassName({ row, column }) {
             if (column.label === 'Status') {

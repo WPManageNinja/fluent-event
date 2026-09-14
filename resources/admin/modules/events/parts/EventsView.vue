@@ -13,7 +13,7 @@
                 v-model="view"
                 class="fe-switch--compact"
                 :options="views"
-                :label="$t('Switch between timeline and calendar view')"
+                :label="$t('Switch between card, timeline and calendar view')"
             />
 
             <ActionPopover :width="320" placement="bottom-end" @show="syncFilters">
@@ -86,7 +86,7 @@
             </el-tag>
         </div>
 
-        <Skeleton v-if="loading && !fetched" :type="isGrid ? 'event-grid' : 'timeline'" />
+        <Skeleton v-if="loading && !fetched" :type="skeletonType" />
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchEvents" />
 
@@ -97,6 +97,15 @@
                 :events="events"
                 :month="month"
                 @change-month="changeMonth"
+                @open="openEvent"
+            />
+
+            <EventsCards
+                v-else-if="isCards"
+                :events="events"
+                :pagination="pagination"
+                :show-calendar="showCalendar"
+                @fetch="fetchEvents"
                 @open="openEvent"
             />
 
@@ -116,12 +125,13 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
-    import { Calendar, Filter, Tickets } from '@element-plus/icons-vue';
+    import { Calendar, Filter, Grid, Tickets } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ActionPopover from '@/components/ActionPopover.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
+    import EventsCards from './EventsCards.vue';
     import EventsGrid from './EventsGrid.vue';
     import EventsTimeline from './EventsTimeline.vue';
     import EventDrawer from './EventDrawer.vue';
@@ -135,6 +145,7 @@
             ActionPopover,
             SegmentedSwitch,
             Skeleton,
+            EventsCards,
             EventsGrid,
             EventsTimeline,
             EventDrawer,
@@ -155,13 +166,13 @@
         },
         emits: ['update:period'],
         data() {
+            const defaultView = window.fluentEventAdmin?.general_settings?.default_events_view;
+
             return {
                 loading: false,
                 fetched: false,
                 error: '',
-                view: window.fluentEventAdmin?.general_settings?.default_events_view === 'calendar'
-                    ? 'grid'
-                    : 'timeline',
+                view: defaultView === 'calendar' ? 'grid' : (defaultView || 'timeline'),
                 month: dayjs().format('YYYY-MM-DD'),
                 calendarViewMode: 'month',
                 events: [],
@@ -190,6 +201,16 @@
             isGrid() {
                 return this.view === 'grid';
             },
+            isCards() {
+                return this.view === 'cards';
+            },
+            skeletonType() {
+                if (this.isGrid) {
+                    return 'event-grid';
+                }
+
+                return this.isCards ? 'event-cards' : 'timeline';
+            },
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
             },
@@ -200,6 +221,7 @@
             },
             views() {
                 return [
+                    { value: 'cards', label: this.$t('Cards'), icon: Grid },
                     { value: 'timeline', label: this.$t('Timeline'), icon: Tickets },
                     { value: 'grid', label: this.$t('Calendar'), icon: Calendar },
                 ];

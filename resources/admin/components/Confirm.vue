@@ -13,14 +13,14 @@
                 link
                 size="small"
                 @click="cancel($event)">
-                cancel
+                {{ $t('Cancel') }}
             </el-button>
 
             <el-button
                 type="primary"
                 size="small"
                 @click="confirm($event)">
-                confirm
+                {{ $t('Confirm') }}
             </el-button>
         </div>
 

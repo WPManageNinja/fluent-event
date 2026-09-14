@@ -44,6 +44,8 @@ export default class Application {
         /**
          * Translate a string, then fill its `%s` / `%d` placeholders in order —
          * `$t('%s: %s', group, value)`. Same call shape as the rest of the suite.
+         * Positional forms (`%1$s`) are honoured too, so a translation can reorder
+         * arguments when the target language needs a different word order.
          */
         app.config.globalProperties.$t = (key, ...args) => {
             const text = i18n[key] || key;
@@ -54,7 +56,11 @@ export default class Application {
 
             let index = 0;
 
-            return text.replace(/%[sd]/g, () => (index < args.length ? args[index++] : ''));
+            return text.replace(/%(?:(\d+)\$)?[sd]/g, (match, position) => {
+                const arg = position ? args[position - 1] : args[index++];
+
+                return arg === undefined ? '' : arg;
+            });
         };
 
         /** BCP-47 locale derived from WordPress's `user_locale` (e.g. `en-US`) for Intl.NumberFormat. */
@@ -136,7 +142,7 @@ export default class Application {
                     app.config.globalProperties.$handleValidationError(err);
                 } else {
                     ElNotification({
-                        title: 'Error',
+                        title: app.config.globalProperties.$t('Error'),
                         message: String(err?.message || err),
                         type: 'warning',
                     });
