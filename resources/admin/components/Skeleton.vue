@@ -232,6 +232,40 @@
         </template>
     </el-skeleton>
 
+    <el-skeleton v-else-if="type === 'event-cards'" animated>
+        <template #template>
+            <div class="fe-events-cards__grid">
+                <div
+                    v-for="card in rowCount"
+                    :key="card"
+                    class="fe-event-card fe-event-card--tile fe-event-card--skeleton"
+                >
+                    <el-skeleton-item variant="image" class="fe-event-card__cover" />
+
+                    <div class="fe-event-card__main">
+                        <div class="fe-event-card__badges">
+                            <el-skeleton-item
+                                v-for="badge in 2"
+                                :key="badge"
+                                variant="text"
+                                class="fe-events-cards__skeleton-badge"
+                            />
+                        </div>
+
+                        <el-skeleton-item
+                            variant="h3"
+                            class="fe-events-cards__skeleton-title"
+                        />
+                        <el-skeleton-item
+                            variant="text"
+                            class="fe-events-cards__skeleton-meta"
+                        />
+                    </div>
+                </div>
+            </div>
+        </template>
+    </el-skeleton>
+
     <el-skeleton v-else-if="type === 'event-form'" animated>
         <template #template>
             <div class="fe-event-form__grid">
@@ -393,6 +427,7 @@ export default {
                 timeline: 6,
                 guests: 5,
                 'event-grid': 6,
+                'event-cards': 6,
                 'event-form': 4,
                 'calendar-grid': 6,
                 'calendar-form': 2,

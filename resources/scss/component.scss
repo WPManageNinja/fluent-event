@@ -1952,6 +1952,41 @@
     }
 }
 
+.fe-events-cards {
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--fe-space-4, 16px);
+        margin-bottom: var(--fe-space-4, 16px);
+
+        @media screen and (max-width: 1200px) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        @media screen and (max-width: 768px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    &__skeleton-badge {
+        width: 96px;
+        height: 22px;
+        border-radius: var(--fe-radius-sm, 4px);
+    }
+
+    &__skeleton-title {
+        width: 70%;
+        height: 22px;
+        margin-top: var(--fe-space-3, 12px);
+    }
+
+    &__skeleton-meta {
+        width: 45%;
+        height: 14px;
+        margin-top: var(--fe-space-3, 12px);
+    }
+}
+
 .fe-events-grid {
     .el-calendar__header {
         display: none;
@@ -2311,11 +2346,17 @@
         }
     }
 
+    &__time {
+        margin: var(--fe-space-2, 8px) 0 0;
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
     &__meta {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        margin: var(--fe-space-2, 8px) 0 0;
+        margin: var(--fe-space-1, 4px) 0 0;
         font-size: var(--fe-text-sm, 14px);
         color: var(--fe-secondary-text, #525866);
 
@@ -2367,6 +2408,51 @@
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-active-bg, #f0f3f5);
         object-fit: cover;
+    }
+
+    &__cover--empty {
+        display: grid;
+        place-items: center;
+        font-size: 28px;
+        color: var(--fe-secondary-border, #9ca3af);
+    }
+
+    &.fe-event-card--tile {
+        flex-direction: column-reverse;
+        height: 100%;
+        margin-bottom: 0;
+        gap: 0;
+        padding: 0;
+        overflow: hidden;
+
+        .fe-event-card__cover {
+            flex: 0 0 auto;
+            width: 100%;
+            height: 200px;
+            border: 0;
+            border-radius: 0;
+        }
+
+        .fe-event-card__main {
+            display: flex;
+            flex-direction: column;
+            padding: var(--fe-space-5, 20px);
+        }
+
+        .fe-event-card__meta {
+            margin-bottom: var(--fe-space-2, 8px);
+        }
+
+        .fe-event-card__manage {
+            align-self: flex-start;
+            margin-top: auto;
+        }
+
+        @media screen and (max-width: 575px) {
+            .fe-event-card__main {
+                padding: var(--fe-space-3, 12px);
+            }
+        }
     }
 
     @media screen and (max-width: 782px) {
