@@ -1,5 +1,5 @@
 <template>
-    <el-config-provider :locale="elLocale">
+    <el-config-provider :locale="elLocale" :z-index="elZIndex">
         <router-view v-slot="{ Component, route }">
             <component
                 :is="Component"
@@ -96,6 +96,8 @@ export default {
     data() {
         return {
             elLocale: en,
+            // Above wp-admin bar (99999). Must be set here: the config provider
+            elZIndex: 100000,
         };
     },
     provide() {
