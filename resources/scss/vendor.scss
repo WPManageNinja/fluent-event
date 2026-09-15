@@ -108,8 +108,6 @@
     }
 
     .el-overlay {
-        z-index: 999999 !important;
-
         // A dialog with a fixed width prop (e.g. 600px) must never
         // exceed the viewport — phones were clipping the footer.
         .el-dialog {

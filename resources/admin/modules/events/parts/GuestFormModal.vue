@@ -23,7 +23,6 @@
                     filterable
                     remote
                     reserve-keyword
-                    :teleported="false"
                     :remote-method="searchUsers"
                     :loading="loadingUsers"
                     :placeholder="$t('Search by name or email')"
@@ -52,7 +51,7 @@
             </el-form-item>
 
             <el-form-item :label="$t('Status')">
-                <el-select v-model="form.status" :teleported="false" :aria-label="$t('Status')">
+                <el-select v-model="form.status" :aria-label="$t('Status')">
                     <el-option
                         v-for="option in statuses"
                         :key="option.value"
