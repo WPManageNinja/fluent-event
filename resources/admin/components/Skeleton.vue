@@ -59,6 +59,10 @@
                     <el-skeleton-item variant="text" class="fe-guests__skeleton-email" />
                 </div>
 
+                <div class="fe-guests__source">
+                    <el-skeleton-item variant="text" class="fe-guests__skeleton-source" />
+                </div>
+
                 <div class="fe-guests__stage">
                     <el-skeleton-item variant="text" class="fe-guests__skeleton-tag" />
                 </div>
