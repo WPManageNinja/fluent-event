@@ -206,7 +206,7 @@
                     title: '',
                     slug: '',
                     description: '',
-                    status: this.statuses[0].value,
+                    status: this.$calendarStatuses()[0].value,
                     theme_color: this.themeColors[0].value,
                 };
             },
