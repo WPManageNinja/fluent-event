@@ -85,6 +85,12 @@ class SettingsController extends Controller
             ], 422);
         }
 
+        if (!array_intersect((array) $user->roles, ['editor', 'author', 'contributor'])) {
+            return $this->sendError([
+                'message' => __('Only editors, authors and contributors can be team members.', 'fluent-event'),
+            ], 422);
+        }
+
         $invalid = array_diff(
             $data['permissions'],
             array_keys(PermissionManager::allPermissionSets())
