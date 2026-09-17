@@ -100,7 +100,7 @@ class EventReminderService
         do {
             $guests = Guest::query()
                 ->where('event_id', $event->id)
-                ->where('status', '!=', 'cancelled')
+                ->whereNotIn('status', ['cancelled', 'not_going'])
                 ->where('id', '>', (int) ($reminderMeta->value['cursor'] ?? 0))
                 ->orderBy('id', 'ASC')
                 ->limit(self::BATCH_SIZE)
