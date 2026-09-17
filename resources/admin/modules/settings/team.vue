@@ -6,7 +6,7 @@
             </div>
 
             <el-button
-                v-if="$userCan('write_settings')"
+                v-if="$userCan('manage_all_data')"
                 type="primary"
                 @click="openAdd"
             >
@@ -46,7 +46,7 @@
                     </el-tag>
                 </div>
 
-                <div v-if="$userCan('write_settings')" class="fe-team__actions">
+                <div v-if="$userCan('manage_all_data')" class="fe-team__actions">
                     <el-button
                         size="small"
                         :aria-label="$t('Edit permissions')"

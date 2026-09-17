@@ -24,11 +24,11 @@ class SettingsPolicy extends Policy
 
     public function upsertTeamMember(Request $request, ...$args)
     {
-        return PermissionManager::userCan('write_settings');
+        return PermissionManager::userCan(PermissionManager::ALL_DATA);
     }
 
     public function removeTeamMember(Request $request, ...$args)
     {
-        return PermissionManager::userCan('write_settings');
+        return PermissionManager::userCan(PermissionManager::ALL_DATA);
     }
 }
