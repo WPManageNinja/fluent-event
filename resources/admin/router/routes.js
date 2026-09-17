@@ -129,8 +129,7 @@ export default [
                 meta: {
                     active_menu: 'settings',
                     middleware: 'permission',
-                    permissions: ['read_settings', 'write_settings'],
-                    match_type: 'any',
+                    permissions: ['manage_all_data'],
                 },
             },
         ],
