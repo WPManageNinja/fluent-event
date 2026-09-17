@@ -41,6 +41,7 @@
                     <span class="fe-guests__avatar" aria-hidden="true"></span>
                     <span class="fe-guests__name">{{ $t('Name') }}</span>
                     <span class="fe-guests__email">{{ $t('Email') }}</span>
+                    <span class="fe-guests__source">{{ $t('Source') }}</span>
                     <span class="fe-guests__stage">{{ $t('Status') }}</span>
                     <span class="fe-guests__actions">{{ $t('More') }}</span>
                 </div>
@@ -62,6 +63,8 @@
                     <p class="fe-guests__name">{{ row.name }}</p>
 
                     <p class="fe-guests__email">{{ row.email }}</p>
+
+                    <p class="fe-guests__source">{{ row.sourceLabel }}</p>
 
                     <div class="fe-guests__stage">
                         <el-tag
@@ -232,6 +235,7 @@
                             ? this.$t('at: %s', this.$formatDateTime(guest.checked_in_at))
                             : '',
                         initial: (guest.name || guest.email || '?').charAt(0).toUpperCase(),
+                        sourceLabel: guest.source ? this.$titleCase(guest.source) : '—',
                         statusLabel: this.statusLabels[guest.status] || guest.status,
                         tagType: {
                             going: 'success',

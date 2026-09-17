@@ -2685,7 +2685,8 @@
         }
 
         .fe-guests__name,
-        .fe-guests__email {
+        .fe-guests__email,
+        .fe-guests__source {
             font-size: inherit;
             font-weight: inherit;
             color: inherit;
@@ -2717,7 +2718,8 @@
     }
 
     &__name,
-    &__email {
+    &__email,
+    &__source {
         flex: 1 1 0;
         min-width: 0;
         margin: 0;
@@ -2734,6 +2736,12 @@
     }
 
     &__email {
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__source {
+        flex: 0 0 120px;
         font-size: var(--fe-text-sm, 14px);
         color: var(--fe-secondary-text, #525866);
     }
@@ -2784,6 +2792,11 @@
         height: 14px;
     }
 
+    &__skeleton-source {
+        width: 60%;
+        height: 14px;
+    }
+
     &__skeleton-tag {
         width: 68px;
         height: 20px;
@@ -2813,6 +2826,7 @@
             grid-template-areas:
                 "avatar name    actions"
                 "avatar email   actions"
+                "avatar source  actions"
                 "stage  stage   stage";
             gap: 0 var(--fe-space-3, 12px);
             padding: var(--fe-space-2, 8px);
@@ -2846,6 +2860,10 @@
 
         &__email {
             grid-area: email;
+        }
+
+        &__source {
+            grid-area: source;
         }
 
         &__stage {
