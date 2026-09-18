@@ -61,8 +61,5 @@
                 return this.$route.name === name;
             },
         },
-        mounted() {
-            this.$changeTitle(this.$t('Settings'));
-        },
     };
 </script>
