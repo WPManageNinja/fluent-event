@@ -2,6 +2,7 @@
 
 namespace FluentEvent\App\Hooks\Handlers\CleanupHandlers;
 
+use FluentEvent\App\Models\Meta;
 use FluentEvent\Framework\Foundation\Exceptions\HttpException;
 
 class CleanupHandler
@@ -40,5 +41,10 @@ class CleanupHandler
         $event->guests()->delete();
 
         do_action('fluent_event/guest/bulk_deleted', $event);
+
+        Meta::query()
+            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+            ->where('object_id', $event->id)
+            ->delete();
     }
 }
