@@ -104,18 +104,22 @@ const mainMiddleware = async (options, next) => {
     }
 };
 
+const ownRequestsOnly = (middleware) => (options, next) => {
+    return options.fluentEvent ? middleware(options, next) : next(options);
+};
+
 /**
  * Ensure main middleware is registered safely
  */
 const ensureMainMiddleware = () => {
     if (typeof wp !== 'undefined' && wp.apiFetch) {
         if (!wp.apiFetch.__fluent_main_middleware_registered) {
-            wp.apiFetch.use(mainMiddleware);
+            wp.apiFetch.use(ownRequestsOnly(mainMiddleware));
             wp.apiFetch.__fluent_main_middleware_registered = true;
         }
 
         while (middlewareStack.length) {
-            wp.apiFetch.use(middlewareStack.shift());
+            wp.apiFetch.use(ownRequestsOnly(middlewareStack.shift()));
         }
     }
 };
@@ -141,6 +145,7 @@ const request = async (method, route, data = {}, headers = {}) => {
     }
 
     const options = {
+        fluentEvent: true,
         method,
         parse: false,
         body: makeRequestData(method, data),

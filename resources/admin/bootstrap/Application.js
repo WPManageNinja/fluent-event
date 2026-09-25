@@ -2,6 +2,7 @@ import { createApp, reactive } from 'vue';
 import mixins from '@/mixins';
 import config from './config';
 import Rest from '@/utils/http/Rest';
+import ResponseProxyItr from '@/utils/http/ResponseProxyItr';
 import { ElNotification } from 'element-plus';
 
 export default class Application {
@@ -129,8 +130,11 @@ export default class Application {
         // Unhandled promise rejections
         let rejectionTimer;
         window.addEventListener('unhandledrejection', (event) => {
-            event.preventDefault();
             const err = event.reason;
+
+            if (!(err instanceof ResponseProxyItr)) return;
+
+            event.preventDefault();
 
             clearTimeout(rejectionTimer);
             rejectionTimer = setTimeout(() => {
