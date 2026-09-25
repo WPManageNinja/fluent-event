@@ -9,6 +9,6 @@ class UserPolicy extends Policy
 {
     public function verifyRequest(Request $request, ...$args)
     {
-        return PermissionManager::hasAnyPermission();
+        return PermissionManager::userCan('write_guests');
     }
 }
