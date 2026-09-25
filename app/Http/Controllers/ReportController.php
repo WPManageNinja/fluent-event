@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Services\ReportService;
+use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Http\Requests\ReportRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
@@ -12,9 +13,10 @@ class ReportController extends Controller
     {
         $data = ReportService::getStats();
 
-        $data['ongoing_events'] = ReportService::getOngoingEvents();
-        $data['upcoming_events'] = ReportService::getUpcomingEvents();
-        $data['top_events'] = ReportService::getTopEvents();
+        $canReadEvents = PermissionManager::userCan(['read_events', 'write_events']);
+        $data['ongoing_events'] = $canReadEvents ? ReportService::getOngoingEvents() : [];
+        $data['upcoming_events'] = $canReadEvents ? ReportService::getUpcomingEvents() : [];
+        $data['top_events'] = $canReadEvents ? ReportService::getTopEvents() : [];
 
         return $data;
     }
