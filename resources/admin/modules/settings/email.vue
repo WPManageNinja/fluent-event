@@ -73,6 +73,7 @@
                 <el-input-number
                     v-model="settings.reminder_hours"
                     :min="1"
+                    :max="720"
                     :disabled="!canWrite"
                     :aria-label="$t('Hours before the event')"
                 />
