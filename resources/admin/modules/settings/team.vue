@@ -61,6 +61,7 @@
                         plain
                         :aria-label="$t('Remove member')"
                         :title="$t('Remove member')"
+                        :disabled="removing"
                         @click="removeMember(member)"
                     >
                         <el-icon><Delete /></el-icon>
@@ -101,6 +102,7 @@
         data() {
             return {
                 loading: false,
+                removing: false,
                 error: '',
                 members: [],
                 permissionSets: {},
@@ -150,7 +152,7 @@
                         this.$requestServer({
                             method: 'delete',
                             path: `settings/team/${member.id}`,
-                            loadingState: null,
+                            loadingState: 'removing',
                             errorState: null,
                             successNotify: true,
                             errorNotify: true,
