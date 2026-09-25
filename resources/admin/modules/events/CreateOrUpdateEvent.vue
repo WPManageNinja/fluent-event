@@ -200,8 +200,9 @@
                                     </el-radio>
                                 </el-radio-group>
 
-                                <el-form v-if="event.venue_type === 'online'" class="fe-form" label-position="top">
-                                    <el-form-item :label="$t('Meeting link *')">
+                                <!-- A div, not <el-form>: a nested form swallows Enter and submits natively. -->
+                                <div v-if="event.venue_type === 'online'" class="fe-form">
+                                    <el-form-item :label="$t('Meeting link *')" label-position="top">
                                         <el-input
                                             v-model="event.online_meeting_url"
                                             type="url"
@@ -211,17 +212,17 @@
                                             {{ $t('Only http and https links are accepted.') }}
                                         </span>
                                     </el-form-item>
-                                </el-form>
+                                </div>
 
-                                <el-form v-else class="fe-form" label-position="top">
-                                    <el-form-item :label="$t('Venue name')">
+                                <div v-else class="fe-form">
+                                    <el-form-item :label="$t('Venue name')" label-position="top">
                                         <el-input
                                             v-model="event.venue"
                                             :placeholder="$t('e.g. Kingsway Hall')"
                                         />
                                     </el-form-item>
 
-                                    <el-form-item :label="$t('Address')">
+                                    <el-form-item :label="$t('Address')" label-position="top">
                                         <el-input
                                             v-model="event.address"
                                             type="textarea"
@@ -229,7 +230,7 @@
                                             :placeholder="$t('Street, city, country')"
                                         />
                                     </el-form-item>
-                                </el-form>
+                                </div>
                             </div>
                         </div>
 
