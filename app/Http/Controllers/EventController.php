@@ -145,9 +145,11 @@ class EventController extends Controller
     {
         $event = Event::query()->findOrFail($id);
 
-        do_action('fluent_event/event/before_deleted', $event);
+        DB::transaction(function () use ($event) {
+            do_action('fluent_event/event/before_deleted', $event);
 
-        $event->delete();
+            $event->delete();
+        });
 
         do_action('fluent_event/event/deleted', $event);
 
