@@ -27,7 +27,6 @@
                     <div class="fe-page__actions">
                         <el-button
                             v-if="$userCan('write_events')"
-                            type="secondary"
                             @click="goToEdit"
                         >
                             {{ $t('Edit Event') }}
