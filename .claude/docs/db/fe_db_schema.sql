@@ -189,6 +189,7 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_guests` (
   INDEX `idx_guest_order` (`group_id` ASC) VISIBLE,
   INDEX `idx_guest_email` (`email` ASC) VISIBLE,
   INDEX `fk_guests_ticket_type_id` (`ticket_type_id` ASC) VISIBLE,
+  INDEX `idx_guest_created` (`created_at` ASC) VISIBLE,
   CONSTRAINT `fk_guests_event_id`
     FOREIGN KEY (`event_id`)
     REFERENCES `default_schema`.`wp_fe_event_details` (`id`)

@@ -48,7 +48,8 @@ class GuestsMigrator
          INDEX `idx_guest_calendar` (`calendar_id`, `status`),
          INDEX `idx_guest_order` (`group_id`),
          INDEX `idx_guest_email` (`email`),
-         INDEX `idx_guests_ticket_type` (`ticket_type_id`)
+         INDEX `idx_guests_ticket_type` (`ticket_type_id`),
+         INDEX `idx_guest_created` (`created_at`)
     ) $charsetCollate;";
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
