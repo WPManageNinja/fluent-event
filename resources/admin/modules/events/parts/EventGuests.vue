@@ -104,7 +104,7 @@
                                     <li
                                         v-for="option in statuses"
                                         :key="option.value"
-                                        class="fe-action-popover__item"
+                                        class="fe-action-popover__item fe-guests__status-option"
                                         :class="{
                                             'fe-guests__status-option--active': option.value === row.status
                                         }"

@@ -2889,6 +2889,14 @@
         border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
     }
 
+    &__avatar {
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
     &__name {
         margin: 0;
         font-size: var(--fe-text-base, 16px);
