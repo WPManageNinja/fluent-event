@@ -44,34 +44,30 @@
                     <span class="fe-events-grid__day">{{ dayNumber(data.day) }}</span>
 
                     <div class="fe-events-grid__entries">
-                        <el-tooltip
+                        <button
                             v-for="entry in visibleEntries(data.day)"
                             :key="entry.event.id"
-                            :content="entry.event.title"
-                            placement="top"
-                            :show-after="300"
+                            type="button"
+                            class="fe-events-grid__event"
+                            :style="{ '--fe-event-color': entryColor(entry) }"
+                            :title="entry.event.title"
+                            :aria-label="$t('View %s', entry.event.title)"
+                            @click="$emit('open', entry.event)"
                         >
-                            <button
-                                type="button"
-                                class="fe-events-grid__event"
-                                :style="{ '--fe-event-color': entryColor(entry) }"
-                                :aria-label="$t('View %s', entry.event.title)"
-                                @click="$emit('open', entry.event)"
-                            >
-                                <span class="fe-events-grid__event-time">
-                                    {{ entryTime(entry) }}
-                                </span>
-                                <span class="fe-events-grid__event-title">
-                                    {{ entry.event.title }}
-                                </span>
-                            </button>
-                        </el-tooltip>
+                            <span class="fe-events-grid__event-time">
+                                {{ entryTime(entry) }}
+                            </span>
+                            <span class="fe-events-grid__event-title">
+                                {{ entry.event.title }}
+                            </span>
+                        </button>
 
                         <el-popover
                             v-if="hiddenEntries(data.day).length"
                             :width="260"
                             trigger="click"
                             placement="right"
+                            :persistent="false"
                             popper-class="fe-events-grid__popover"
                         >
                             <template #reference>
@@ -85,28 +81,23 @@
                                     {{ $formatDate(data.day, 'dddd, MMM D') }}
                                 </p>
 
-                                <el-tooltip
+                                <button
                                     v-for="entry in entriesFor(data.day)"
                                     :key="entry.event.id"
-                                    :content="entry.event.title"
-                                    placement="top"
-                                    :show-after="300"
+                                    type="button"
+                                    class="fe-events-grid__event"
+                                    :style="{ '--fe-event-color': entryColor(entry) }"
+                                    :title="entry.event.title"
+                                    :aria-label="$t('View %s', entry.event.title)"
+                                    @click="$emit('open', entry.event)"
                                 >
-                                    <button
-                                        type="button"
-                                        class="fe-events-grid__event"
-                                        :style="{ '--fe-event-color': entryColor(entry) }"
-                                        :aria-label="$t('View %s', entry.event.title)"
-                                        @click="$emit('open', entry.event)"
-                                    >
-                                        <span class="fe-events-grid__event-time">
-                                            {{ entryTime(entry) }}
-                                        </span>
-                                        <span class="fe-events-grid__event-title">
-                                            {{ entry.event.title }}
-                                        </span>
-                                    </button>
-                                </el-tooltip>
+                                    <span class="fe-events-grid__event-time">
+                                        {{ entryTime(entry) }}
+                                    </span>
+                                    <span class="fe-events-grid__event-title">
+                                        {{ entry.event.title }}
+                                    </span>
+                                </button>
                             </template>
                         </el-popover>
                     </div>
@@ -122,7 +113,7 @@
                     v-for="day in viewDays"
                     :key="`head-${day.format('YYYY-MM-DD')}`"
                     class="fe-events-grid__week-day"
-                    :class="{ 'fe-events-grid__week-day--today': day.isSame(today, 'day') }"
+                    :class="{ 'fe-events-grid__week-day--today': isToday(day) }"
                 >
                     <span class="fe-events-grid__week-day-name">{{ day.format('ddd') }}</span>
                     <span class="fe-events-grid__week-day-number">{{ day.format('D') }}</span>
@@ -152,28 +143,23 @@
                         aria-hidden="true"
                     ></span>
 
-                    <el-tooltip
+                    <button
                         v-for="block in dayBlocks(day)"
                         :key="`block-${block.entry.event.id}`"
-                        :content="block.entry.event.title"
-                        placement="top"
-                        :show-after="300"
+                        type="button"
+                        class="fe-events-grid__week-event"
+                        :style="blockStyle(block)"
+                        :title="block.entry.event.title"
+                        :aria-label="$t('View %s', block.entry.event.title)"
+                        @click="$emit('open', block.entry.event)"
                     >
-                        <button
-                            type="button"
-                            class="fe-events-grid__week-event"
-                            :style="blockStyle(block)"
-                            :aria-label="$t('View %s', block.entry.event.title)"
-                            @click="$emit('open', block.entry.event)"
-                        >
-                            <span class="fe-events-grid__event-time">
-                                {{ $formatTime(block.entry.event.start_at_local) }}
-                            </span>
-                            <span class="fe-events-grid__event-title">
-                                {{ block.entry.event.title }}
-                            </span>
-                        </button>
-                    </el-tooltip>
+                        <span class="fe-events-grid__event-time">
+                            {{ $formatTime(block.entry.event.start_at_local) }}
+                        </span>
+                        <span class="fe-events-grid__event-title">
+                            {{ block.entry.event.title }}
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -212,11 +198,6 @@
             },
         },
         emits: ['open', 'change-month', 'update:viewMode'],
-        data() {
-            return {
-                today: dayjs(),
-            };
-        },
         computed: {
             mode: {
                 get() {
@@ -317,6 +298,9 @@
         methods: {
             dayNumber(day) {
                 return this.$formatDate(day, 'D');
+            },
+            isToday(day) {
+                return day.isSame(dayjs(), 'day');
             },
             entriesFor(day) {
                 return this.entriesByDay[day] || [];
