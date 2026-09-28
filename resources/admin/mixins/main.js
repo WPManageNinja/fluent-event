@@ -117,6 +117,12 @@ export default {
                 label: this.$t(label),
             }));
         },
+        $httpUrl(url) {
+            return /^https?:/i.test(url || '') ? url : '';
+        },
+        $calendarColor(calendar) {
+            return calendar?.meta?.theme_color || 'var(--fe-secondary-border, #9ca3af)';
+        },
         $slugify: slugify,
         $download: (route) => {
             let baseUrl = '';
