@@ -17,8 +17,8 @@
             />
 
             <ActionPopover :width="320" placement="bottom-end" @show="syncFilters">
-                <template #trigger>
-                    <el-button :aria-label="$t('Filter')" :title="$t('Filter')">
+                <template #trigger="{ visible }">
+                    <el-button :aria-label="$t('Filter')" :title="$t('Filter')" :aria-expanded="visible">
                         <el-icon><Filter /></el-icon>
                     </el-button>
                 </template>

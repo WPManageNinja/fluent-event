@@ -56,6 +56,7 @@ return [
             'A calendar holds your events. You need one before you can add an event.' => __('A calendar holds your events. You need one before you can add an event.', 'fluent-event'),
             'About this calendar' => __('About this calendar', 'fluent-event'),
             'Access permissions for this user' => __('Access permissions for this user', 'fluent-event'),
+            'Actions for %s' => __('Actions for %s', 'fluent-event'),
             'Add a cover image' => __('Add a cover image', 'fluent-event'),
             'Add Description' => __('Add Description', 'fluent-event'),
             'Add Event' => __('Add Event', 'fluent-event'),

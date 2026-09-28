@@ -117,7 +117,11 @@
                     </div>
 
                     <div class="fe-guests__actions">
-                        <ActionPopover :items="actionsFor(row)" placement="bottom-end" />
+                        <ActionPopover
+                            :items="actionsFor(row)"
+                            :subject="row.name"
+                            placement="bottom-end"
+                        />
                     </div>
                 </div>
             </div>
