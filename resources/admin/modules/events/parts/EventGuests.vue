@@ -40,6 +40,7 @@
                 :class="{ 'fe-is-loading': loading }"
                 role="table"
                 :aria-label="$t('Guests')"
+                :aria-busy="loading"
             >
                 <div class="fe-guests__row fe-guests__row--head" role="row">
                     <span class="fe-guests__serial" role="columnheader">#</span>

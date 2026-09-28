@@ -1,4 +1,6 @@
 <template>
+    <span class="screen-reader-text" role="status">{{ $t('Loading…') }}</span>
+
     <el-skeleton v-if="type === 'timeline'" v-for="row in rowCount" :key="row" animated>
         <template #template>
             <div class="fe-events-timeline__row">

@@ -90,7 +90,7 @@
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchEvents" />
 
-        <div v-else :class="{ 'fe-is-loading': loading }">
+        <div v-else :class="{ 'fe-is-loading': loading }" :aria-busy="loading">
             <EventsGrid
                 v-if="isGrid"
                 v-model:view-mode="calendarViewMode"
