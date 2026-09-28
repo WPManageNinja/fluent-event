@@ -190,7 +190,7 @@
                             </button>
 
                             <div v-show="expanded.location" class="fe-event-form__row-body">
-                                <el-radio-group v-model="event.venue_type">
+                                <el-radio-group v-model="event.venue_type" :aria-label="$t('Venue type')">
                                     <el-radio
                                         v-for="option in venueTypes"
                                         :key="option.value"
@@ -246,7 +246,7 @@
                                 </el-icon>
 
                                 <span class="fe-event-form__row-text">
-                                    <span class="fe-event-form__row-title">{{ $t('Add Description') }}</span>
+                                    <span id="fe-event-description-label" class="fe-event-form__row-title">{{ $t('Add Description') }}</span>
                                     <span class="fe-event-form__row-hint">
                                         {{ $t('What should guests know before they come?') }}
                                     </span>
@@ -262,7 +262,11 @@
                             </button>
 
                             <div v-if="expanded.description" class="fe-event-form__row-body">
-                                <WpEditor v-model="event.description" :height="180" />
+                                <WpEditor
+                                    v-model="event.description"
+                                    :height="180"
+                                    aria-labelledby="fe-event-description-label"
+                                />
                             </div>
                         </div>
 

@@ -2,6 +2,7 @@
     <div v-if="!hidden" class="fe-pagination">
         <el-select
             class="fe-pagination__size"
+            :aria-label="$t('Items per page')"
             :model-value="per_page"
             @change="changeSize"
         >
