@@ -21,7 +21,6 @@
                         <el-button
                             v-if="$userCan('write_calendars')"
                             class="fe-calendar-detail__edit"
-                            type="secondary"
                             @click="goToEdit"
                         >
                             {{ $t('Edit Calendar') }}

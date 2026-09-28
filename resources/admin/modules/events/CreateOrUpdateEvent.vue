@@ -8,7 +8,7 @@
                 </div>
 
                 <div class="fe-page__actions">
-                    <el-button type="secondary" @click="$goBack">
+                    <el-button @click="$goBack">
                         {{ $t('Go Back') }}
                     </el-button>
                 </div>
