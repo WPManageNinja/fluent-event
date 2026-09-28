@@ -42,7 +42,7 @@
                             </el-form-item>
 
                             <el-form-item v-if="showCalendarFilter" :label="$t('Calendar')">
-                                <el-select v-model="pendingFilters.calendar_id">
+                                <el-select v-model="pendingFilters.calendar_id" filterable>
                                     <el-option :label="$t('All')" :value="0" />
                                     <el-option
                                         v-for="calendar in calendars"
@@ -343,6 +343,7 @@
             fetchCalendars() {
                 this.$requestServer({
                     path: 'calendars',
+                    payload: { view: 'options' },
                     loadingState: null,
                     errorState: null,
                     errorNotify: true,
@@ -360,6 +361,10 @@
                 this.fetchEvents();
             },
             syncFilters() {
+                if (this.showCalendarFilter && !this.calendars.length) {
+                    this.fetchCalendars();
+                }
+
                 this.pendingFilters = {
                     status: this.query.status,
                     calendar_id: this.query.calendar_id,
@@ -391,10 +396,6 @@
                 this.$emit('update:period', '');
             } else {
                 this.fetchEvents();
-            }
-
-            if (this.showCalendarFilter) {
-                this.fetchCalendars();
             }
         },
     };

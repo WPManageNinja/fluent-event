@@ -66,6 +66,7 @@
                                 class="fe-event-form__header-select"
                                 :aria-label="$t('Calendar')"
                                 :placeholder="$t('Choose a calendar')"
+                                filterable
                                 :loading="loadingCalendars"
                                 :loading-text="$t('Loading…')"
                             >
@@ -447,6 +448,7 @@
             fetchCalendars() {
                 this.$requestServer({
                     path: 'calendars',
+                    payload: { view: 'options' },
                     loadingState: 'loadingCalendars',
                     errorState: 'calendarError',
                     onSuccess: response => {
