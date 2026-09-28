@@ -74,6 +74,7 @@ body {
     --el-color-danger: rgba(245, 108, 108, 1);
 
     --el-bg-color: rgba(249, 249, 249, 1);
+    --el-mask-color: color-mix(in srgb, var(--el-bg-color) 30%, transparent);
     --el-bg-menu: rgba(255, 255, 255, 1);
     --el-bg-panel: rgba(255, 255, 255, 1);
 
