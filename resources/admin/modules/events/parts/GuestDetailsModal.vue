@@ -10,7 +10,7 @@
             <div class="fe-guest-details__identity">
                 <img
                     v-if="guest.avatar"
-                    class="fe-guests__avatar"
+                    class="fe-guest-details__avatar"
                     :src="guest.avatar"
                     :alt="guest.name"
                 />
