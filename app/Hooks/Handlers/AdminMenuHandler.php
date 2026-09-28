@@ -352,8 +352,7 @@ class AdminMenuHandler
             'brand_logo'    => $this->getMenuIcon(),
             'nonce'         => wp_create_nonce($slug),
             'asset_url'     => $this->app['url.assets'],
-            'rest'          => $r = $this->getRestInfo(),
-            'endpoints'     => $this->getRestEndpoinds($r),
+            'rest'          => $this->getRestInfo(),
             'baseUrl'       => $this->baseUrl,
             'name'          => $this->config->get('app.name'),
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
@@ -426,46 +425,6 @@ class AdminMenuHandler
         return esc_url_raw(
             rtrim(get_site_url(), '/') . "/?rest_route=/{$ns}/{$ver}"
         );
-    }
-
-    /**
-     * Retrieve rest endpoints for client.
-     * 
-     * @param  array $r Rest Info
-     * 
-     * @return array
-     */
-    protected function getRestEndpoinds($r)
-    {
-        $url = rest_url($r['namespace'] . '/' . $r['version'] . '/__endpoints');
-
-        $result = wp_remote_get($url, [
-            'timeout'     => 15,
-            'redirection' => 2,
-            'sslverify'   => false,
-            'cookies'     => $_COOKIE,
-            'user-agent'  => "wpfluent.{$this->slug}.__endpoints",
-            'headers'     => [
-                'X-Wp-Nonce' => $r['nonce']
-            ],
-        ]);
-
-        $code = wp_remote_retrieve_response_code($result);
-        $body = wp_remote_retrieve_body($result);
-
-        if (is_wp_error($result)) {
-            return [];
-        }
-
-        if ($code === 200) {
-            $data = json_decode($body, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return [];
-            }
-            return $data;
-        }
-
-        return [];
     }
 
     /**
