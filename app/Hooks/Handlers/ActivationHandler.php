@@ -17,5 +17,7 @@ class ActivationHandler
     public function handle($network_wide = false)
     {
         DBMigrator::run($network_wide);
+
+        (new SchedulerHandler())->ensureScheduled();
     }
 }
