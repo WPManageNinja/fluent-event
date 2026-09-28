@@ -11,7 +11,7 @@ if (typeof __webpack_public_path__ !== 'undefined') {
 
 app.vue.use(ElLoading);
 
-const appRouter = router(app.vue, config.routes);
+const appRouter = router(app.vue);
 app.vue.use(appRouter);
 
 appRouter.afterEach((to) => {
