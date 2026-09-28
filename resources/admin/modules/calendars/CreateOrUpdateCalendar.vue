@@ -13,7 +13,7 @@
                     </div>
 
                     <div class="fe-page__actions">
-                        <el-button type="secondary" @click="$goBack">
+                        <el-button @click="$goBack">
                             {{ $t('Go Back') }}
                         </el-button>
                     </div>
@@ -206,7 +206,7 @@
                     title: '',
                     slug: '',
                     description: '',
-                    status: this.statuses[0].value,
+                    status: this.$calendarStatuses()[0].value,
                     theme_color: this.themeColors[0].value,
                 };
             },

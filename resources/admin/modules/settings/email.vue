@@ -61,8 +61,12 @@
                 </el-form-item>
             </div>
 
-            <el-form-item :label="$t('Email footer for event related emails')">
-                <WpEditor v-model="settings.email_footer" />
+            <el-form-item>
+                <template #label>
+                    <span id="fe-email-footer-label">{{ $t('Email footer for event related emails') }}</span>
+                </template>
+
+                <WpEditor v-model="settings.email_footer" aria-labelledby="fe-email-footer-label" />
 
                 <span class="fe-form__hint">
                     {{ $t('Shown at the bottom of every event email. You may include your business name, address, or why the recipient got this email.') }}
@@ -73,6 +77,7 @@
                 <el-input-number
                     v-model="settings.reminder_hours"
                     :min="1"
+                    :max="720"
                     :disabled="!canWrite"
                     :aria-label="$t('Hours before the event')"
                 />

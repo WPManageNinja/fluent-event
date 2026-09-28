@@ -56,7 +56,7 @@
                         v-for="(label, key) in permissionSets"
                         :key="key"
                         :value="key"
-                        :disabled="key !== allDataKey && hasAllData"
+                        :disabled="(key !== allDataKey && hasAllData) || impliedReads.includes(key)"
                     >
                         {{ label }}
                     </el-checkbox>
@@ -113,6 +113,13 @@
             hasAllData() {
                 return this.permissions.includes(this.allDataKey);
             },
+            // write_x implies read_x
+            impliedReads() {
+                return this.permissions
+                    .filter(key => key.startsWith('write_'))
+                    .map(key => key.replace('write_', 'read_'))
+                    .filter(key => key in this.permissionSets);
+            },
         },
         watch: {
             permissions(value, previous) {
@@ -121,8 +128,24 @@
 
                 if (has && !had) {
                     this.permissions = Object.keys(this.permissionSets);
-                } else if (!has && had) {
+                    return;
+                }
+
+                if (!has && had) {
                     this.permissions = [];
+                    return;
+                }
+
+                // Unchecking a write releases its read, same as clearing full access.
+                const released = previous
+                    .filter(key => key.startsWith('write_') && !value.includes(key))
+                    .map(key => key.replace('write_', 'read_'));
+
+                const next = value.filter(key => !released.includes(key));
+                const missing = this.impliedReads.filter(key => !next.includes(key));
+
+                if (next.length !== value.length || missing.length) {
+                    this.permissions = [...next, ...missing];
                 }
             },
         },

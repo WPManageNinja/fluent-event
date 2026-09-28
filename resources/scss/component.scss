@@ -2322,11 +2322,22 @@
     }
 
     &__title {
+        max-width: 800px;
         margin: var(--fe-space-3, 12px) 0 0;
         font-size: var(--fe-text-lg, 18px);
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
+    }
+
+    // Clamped on a span, not the button: buttons ignore line-clamp in some browsers.
+    &__title-text {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+        overflow-wrap: anywhere;
     }
 
     &__open {
@@ -2685,7 +2696,8 @@
         }
 
         .fe-guests__name,
-        .fe-guests__email {
+        .fe-guests__email,
+        .fe-guests__source {
             font-size: inherit;
             font-weight: inherit;
             color: inherit;
@@ -2717,7 +2729,8 @@
     }
 
     &__name,
-    &__email {
+    &__email,
+    &__source {
         flex: 1 1 0;
         min-width: 0;
         margin: 0;
@@ -2734,6 +2747,12 @@
     }
 
     &__email {
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__source {
+        flex: 0 0 120px;
         font-size: var(--fe-text-sm, 14px);
         color: var(--fe-secondary-text, #525866);
     }
@@ -2784,6 +2803,11 @@
         height: 14px;
     }
 
+    &__skeleton-source {
+        width: 60%;
+        height: 14px;
+    }
+
     &__skeleton-tag {
         width: 68px;
         height: 20px;
@@ -2813,6 +2837,7 @@
             grid-template-areas:
                 "avatar name    actions"
                 "avatar email   actions"
+                "avatar source  actions"
                 "stage  stage   stage";
             gap: 0 var(--fe-space-3, 12px);
             padding: var(--fe-space-2, 8px);
@@ -2848,6 +2873,10 @@
             grid-area: email;
         }
 
+        &__source {
+            grid-area: source;
+        }
+
         &__stage {
             grid-area: stage;
             flex-direction: row;
@@ -2869,6 +2898,14 @@
         gap: var(--fe-space-3, 12px);
         padding-bottom: var(--fe-space-4, 16px);
         border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+    }
+
+    &__avatar {
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
     }
 
     &__name {

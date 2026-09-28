@@ -27,7 +27,6 @@
                     <div class="fe-page__actions">
                         <el-button
                             v-if="$userCan('write_events')"
-                            type="secondary"
                             @click="goToEdit"
                         >
                             {{ $t('Edit Event') }}
@@ -218,8 +217,7 @@
                 return this.event.calendar?.status || '';
             },
             calendarColor() {
-                return this.event.calendar?.meta?.theme_color
-                    || 'var(--fe-secondary-border, #9ca3af)';
+                return this.$calendarColor(this.event.calendar);
             },
             month() {
                 return this.$formatDate(this.event.start_at_local, 'MMM');
@@ -251,12 +249,10 @@
                 return `${start} – ${end} (${this.event.timezone})`;
             },
             meetingUrl() {
-                const url = this.event.meta?.online_meeting_url || '';
-                return /^https?:/i.test(url) ? url : '';
+                return this.$httpUrl(this.event.meta?.online_meeting_url);
             },
             coverUrl() {
-                const url = this.event.meta?.cover_url || '';
-                return /^https?:/i.test(url) ? url : '';
+                return this.$httpUrl(this.event.meta?.cover_url);
             },
         },
         methods: {

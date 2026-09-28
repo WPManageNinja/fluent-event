@@ -1,7 +1,6 @@
 import { capitalize } from 'vue';
 import dayjs from 'dayjs';
 import Rest from '@/utils/http/Rest.js';
-import Storage from '@/utils/Storage';
 import { ElNotification, ElMessageBox } from 'element-plus';
 
 const config = window.fluentEventAdmin;
@@ -80,11 +79,6 @@ const notify = function (type, title, message, position = 'bottom-right') {
 }
 
 export default {
-    data() {
-        return {
-            storage: Storage,
-        }
-    },
     methods: {
         $get: Rest.get,
         $post: Rest.post,
@@ -116,6 +110,12 @@ export default {
                 value,
                 label: this.$t(label),
             }));
+        },
+        $httpUrl(url) {
+            return /^https?:/i.test(url || '') ? url : '';
+        },
+        $calendarColor(calendar) {
+            return calendar?.meta?.theme_color || 'var(--fe-secondary-border, #9ca3af)';
         },
         $slugify: slugify,
         $download: (route) => {

@@ -104,7 +104,7 @@
                 });
 
                 this.frame.on('select', this.onSelect);
-                this.frame.on('open', this.paintLibrary);
+                this.frame.once('open', this.paintLibrary);
             },
             paintLibrary() {
                 const library = this.frame.state()?.get('library');
@@ -112,6 +112,10 @@
                 library.more().done(() => library.trigger('reset'));
             },
             openLibrary() {
+                if (!this.frame) {
+                    this.createFrame();
+                }
+
                 if (!this.frame) {
                     this.$notifyError(this.$t('The WordPress media library is unavailable.'));
                     return;
@@ -125,9 +129,6 @@
             removeSelection() {
                 this.$emit('update:modelValue', '');
             },
-        },
-        mounted() {
-            this.createFrame();
         },
         beforeUnmount() {
             this.frame?.off('select', this.onSelect);

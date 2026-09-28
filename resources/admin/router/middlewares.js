@@ -17,18 +17,8 @@ export const getCurrentUser = (app) => {
 
 export default {
     global: {
-        before: {
-            log(to, from, app) {
-                console.log('Global Before Middleware...', to, from);
-                return true;
-            },
-        },
-        after: {
-            log(to, from, app) {
-                console.log('Global After Middleware...', to, from);
-                return true
-            },
-        },
+        before: {},
+        after: {},
     },
     route: {
         permission: async (to, from, app) => {

@@ -28,6 +28,8 @@ export default defineConfig(({ mode }) => {
             Components({ resolvers: [ElementPlusResolver()], directives: false })
         ],
         define: { __DEV__: isDev },
+        // warn and error stay in production so real failures remain visible.
+        esbuild: isDev ? {} : { pure: ['console.log', 'console.info', 'console.debug'] },
         build: {
             manifest: true,
             outDir: 'assets',

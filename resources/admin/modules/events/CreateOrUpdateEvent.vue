@@ -8,7 +8,7 @@
                 </div>
 
                 <div class="fe-page__actions">
-                    <el-button type="secondary" @click="$goBack">
+                    <el-button @click="$goBack">
                         {{ $t('Go Back') }}
                     </el-button>
                 </div>
@@ -66,6 +66,7 @@
                                 class="fe-event-form__header-select"
                                 :aria-label="$t('Calendar')"
                                 :placeholder="$t('Choose a calendar')"
+                                filterable
                                 :loading="loadingCalendars"
                                 :loading-text="$t('Loading…')"
                             >
@@ -145,19 +146,13 @@
                                         {{ $t('Timezone') }}
                                     </span>
 
-                                    <el-select
+                                    <el-select-v2
                                         v-model="event.timezone"
                                         class="fe-event-form__timezone"
+                                        :options="timezones"
                                         filterable
                                         :aria-label="$t('Timezone')"
-                                    >
-                                        <el-option
-                                            v-for="zone in timezones"
-                                            :key="zone.value"
-                                            :label="zone.label"
-                                            :value="zone.value"
-                                        />
-                                    </el-select>
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -190,7 +185,7 @@
                             </button>
 
                             <div v-show="expanded.location" class="fe-event-form__row-body">
-                                <el-radio-group v-model="event.venue_type">
+                                <el-radio-group v-model="event.venue_type" :aria-label="$t('Venue type')">
                                     <el-radio
                                         v-for="option in venueTypes"
                                         :key="option.value"
@@ -200,8 +195,9 @@
                                     </el-radio>
                                 </el-radio-group>
 
-                                <el-form v-if="event.venue_type === 'online'" class="fe-form" label-position="top">
-                                    <el-form-item :label="$t('Meeting link *')">
+                                <!-- A div, not <el-form>: a nested form swallows Enter and submits natively. -->
+                                <div v-if="event.venue_type === 'online'" class="fe-form">
+                                    <el-form-item :label="$t('Meeting link *')" label-position="top">
                                         <el-input
                                             v-model="event.online_meeting_url"
                                             type="url"
@@ -211,17 +207,17 @@
                                             {{ $t('Only http and https links are accepted.') }}
                                         </span>
                                     </el-form-item>
-                                </el-form>
+                                </div>
 
-                                <el-form v-else class="fe-form" label-position="top">
-                                    <el-form-item :label="$t('Venue name')">
+                                <div v-else class="fe-form">
+                                    <el-form-item :label="$t('Venue name')" label-position="top">
                                         <el-input
                                             v-model="event.venue"
                                             :placeholder="$t('e.g. Kingsway Hall')"
                                         />
                                     </el-form-item>
 
-                                    <el-form-item :label="$t('Address')">
+                                    <el-form-item :label="$t('Address')" label-position="top">
                                         <el-input
                                             v-model="event.address"
                                             type="textarea"
@@ -229,7 +225,7 @@
                                             :placeholder="$t('Street, city, country')"
                                         />
                                     </el-form-item>
-                                </el-form>
+                                </div>
                             </div>
                         </div>
 
@@ -245,7 +241,7 @@
                                 </el-icon>
 
                                 <span class="fe-event-form__row-text">
-                                    <span class="fe-event-form__row-title">{{ $t('Add Description') }}</span>
+                                    <span id="fe-event-description-label" class="fe-event-form__row-title">{{ $t('Add Description') }}</span>
                                     <span class="fe-event-form__row-hint">
                                         {{ $t('What should guests know before they come?') }}
                                     </span>
@@ -261,7 +257,11 @@
                             </button>
 
                             <div v-if="expanded.description" class="fe-event-form__row-body">
-                                <WpEditor v-model="event.description" :height="180" />
+                                <WpEditor
+                                    v-model="event.description"
+                                    :height="180"
+                                    aria-labelledby="fe-event-description-label"
+                                />
                             </div>
                         </div>
 
@@ -290,6 +290,9 @@
     import Skeleton from '@/components/Skeleton.vue';
 
     const config = window.fluentEventAdmin;
+
+    // Built once per page load: ~420 zones each need their own Intl formatter.
+    let timezoneOptions = null;
 
     export default {
         name: 'CreateOrUpdateEvent',
@@ -375,12 +378,14 @@
                 ];
             },
             timezones() {
+                if (timezoneOptions) return timezoneOptions;
+
                 const zones = Intl.supportedValuesOf?.('timeZone') || [];
                 const list = zones.includes(this.defaultTimezone)
                     ? zones
                     : [this.defaultTimezone, ...zones];
 
-                return list.map(zone => ({
+                return timezoneOptions = list.map(zone => ({
                     value: zone,
                     label: `${zone} (${this.offsetOf(zone)})`,
                 }));
@@ -443,6 +448,7 @@
             fetchCalendars() {
                 this.$requestServer({
                     path: 'calendars',
+                    payload: { view: 'options' },
                     loadingState: 'loadingCalendars',
                     errorState: 'calendarError',
                     onSuccess: response => {

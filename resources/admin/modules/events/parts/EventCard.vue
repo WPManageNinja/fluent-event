@@ -31,7 +31,7 @@
                     class="fe-event-card__open"
                     @click.stop="$emit('open', event)"
                 >
-                    {{ event.title }}
+                    <span class="fe-event-card__title-text">{{ event.title }}</span>
                 </button>
             </h3>
 
@@ -120,12 +120,10 @@
                     || this.$t('No venue yet');
             },
             calendarColor() {
-                return this.event.calendar?.meta?.theme_color
-                    || 'var(--fe-secondary-border, #9ca3af)';
+                return this.$calendarColor(this.event.calendar);
             },
             coverUrl() {
-                const url = this.event.meta?.cover_url || '';
-                return /^https?:/i.test(url) ? url : '';
+                return this.$httpUrl(this.event.meta?.cover_url);
             },
         },
     };

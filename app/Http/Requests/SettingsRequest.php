@@ -39,7 +39,7 @@ class SettingsRequest extends BaseRequest
         'reply_to_name'  => 'nullable|string',
         'reply_to_email' => 'nullable|email',
         'email_footer'   => 'nullable|string',
-        'reminder_hours' => 'required|integer|min:1',
+        'reminder_hours' => 'required|integer|min:1|max:720',
     ];
 
     public static function teamRules()
@@ -72,6 +72,7 @@ class SettingsRequest extends BaseRequest
             'reminder_hours.required' => __('The reminder time is required.', 'fluent-event'),
             'reminder_hours.integer'  => __('The reminder time must be a number of hours.', 'fluent-event'),
             'reminder_hours.min'      => __('The reminder time must be at least 1 hour.', 'fluent-event'),
+            'reminder_hours.max'      => __('The reminder time cannot be more than 720 hours (30 days).', 'fluent-event'),
         ];
     }
 }

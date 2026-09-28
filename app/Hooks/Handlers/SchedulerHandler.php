@@ -2,19 +2,20 @@
 
 namespace FluentEvent\App\Hooks\Handlers;
 
+use FluentEvent\App\App;
 use FluentEvent\App\Services\EventReminderService;
 
 class SchedulerHandler
 {
     public function register()
     {
-        add_action('init', [$this, 'ensureScheduled']);
+        add_action('load-toplevel_page_' . App::config()->get('app.slug'), [$this, 'ensureScheduled']);
         add_action('fluent_event/five_minute_tasks', [$this, 'runFiveMinuteTasks']);
     }
-    
+
     public function ensureScheduled()
     {
-        if (!is_admin() || !function_exists('as_schedule_recurring_action')) {
+        if (!function_exists('as_schedule_recurring_action')) {
             return;
         }
 

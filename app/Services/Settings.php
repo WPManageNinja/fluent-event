@@ -28,19 +28,27 @@ class Settings
         ],
     ];
 
+    protected static $stored = [];
+
     protected static function getStored($key)
     {
         if ($key === self::GENERAL) {
             // only general settings are stored in wp_options
             $stored = get_option(self::WP_OPTION_KEY, []);
         } else {
-            // other settings are stored in fe_meta
-            $row = Meta::query()
-                ->where('object_type', Meta::OBJECT_TYPE_OPTION)
-                ->byKey($key)
-                ->first();
+            // other settings are stored in fe_meta, read once per request per site
+            $cacheKey = get_current_blog_id() . ':' . $key;
 
-            $stored = $row ? $row->value : [];
+            if (!array_key_exists($cacheKey, self::$stored)) {
+                $row = Meta::query()
+                    ->where('object_type', Meta::OBJECT_TYPE_OPTION)
+                    ->byKey($key)
+                    ->first();
+
+                self::$stored[$cacheKey] = $row ? $row->value : [];
+            }
+
+            $stored = self::$stored[$cacheKey];
         }
 
         return is_array($stored) ? $stored : [];
@@ -78,6 +86,8 @@ class Settings
             ], [
                 'value' => $settings,
             ]);
+
+            self::$stored[get_current_blog_id() . ':' . $key] = $settings;
         }
 
         return $settings;

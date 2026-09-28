@@ -4,6 +4,8 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Models\Meta;
+use FluentEvent\App\Services\EventReminderService;
 use FluentEvent\App\Services\PostService;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
@@ -124,7 +126,18 @@ class EventController extends Controller
                 'timezone'    => $timezone,
                 'venue_type'  => Arr::get($data, 'venue_type'),
                 'meta'        => Arr::get($data, 'meta', []),
-            ])->save();
+            ]);
+
+            // A reminder already sent or skipped for the old start time would block the one for the new time.
+            if ($event->isDirty('start_at')) {
+                Meta::query()
+                    ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+                    ->where('object_id', $event->id)
+                    ->byKey(EventReminderService::META_KEY)
+                    ->delete();
+            }
+
+            $event->save();
 
             if ($calendarId !== $previousCalendarId) {
                 Guest::query()
@@ -145,9 +158,11 @@ class EventController extends Controller
     {
         $event = Event::query()->findOrFail($id);
 
-        do_action('fluent_event/event/before_deleted', $event);
+        DB::transaction(function () use ($event) {
+            do_action('fluent_event/event/before_deleted', $event);
 
-        $event->delete();
+            $event->delete();
+        });
 
         do_action('fluent_event/event/deleted', $event);
 

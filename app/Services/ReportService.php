@@ -13,51 +13,66 @@ class ReportService
 
     public static function getStats()
     {
-        $liveEvents = function () {
-            return Event::query()->whereIn('status', self::LIVE_EVENT_STATUSES);
-        };
         $now = gmdate(DateTimeHelper::FORMAT);
+
+        $events = Event::query()
+            ->whereIn('status', self::LIVE_EVENT_STATUSES)
+            ->toBase()
+            ->selectRaw(
+                'COUNT(*) AS total,'
+                . ' SUM(start_at > ?) AS upcoming,'
+                . ' SUM(start_at <= ? AND end_at >= ?) AS ongoing,'
+                . ' SUM(end_at < ?) AS completed',
+                [$now, $now, $now, $now]
+            )
+            ->first();
+
+        $guests = self::guestQuery()
+            ->toBase()
+            ->selectRaw('status, COUNT(*) AS total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
 
         $stats = [
             'total_events' => self::tile(
                 __('Total Events', 'fluent-event'),
                 'Event',
-                $liveEvents()->count()
+                (int) $events->total
             ),
             'upcoming_events' => self::tile(
                 __('Upcoming Events', 'fluent-event'),
                 'Upcoming',
-                $liveEvents()->where('start_at', '>', $now)->count()
+                (int) $events->upcoming
             ),
             'ongoing_events' => self::tile(
                 __('Ongoing Events', 'fluent-event'),
                 'Ongoing',
-                $liveEvents()->where('start_at', '<=', $now)->where('end_at', '>=', $now)->count()
+                (int) $events->ongoing
             ),
             'completed_events' => self::tile(
                 __('Completed Events', 'fluent-event'),
                 'Completed',
-                $liveEvents()->where('end_at', '<', $now)->count()
+                (int) $events->completed
             ),
             'total_guests' => self::tile(
                 __('Total Guests', 'fluent-event'),
                 'Guest',
-                self::guestQuery()->count()
+                (int) $guests->sum()
             ),
             'going_guests' => self::tile(
                 __('Going Guests', 'fluent-event'),
                 'Going',
-                self::guestQuery()->where('status', 'going')->count()
+                (int) $guests->get('going', 0)
             ),
             'checked_in_guests' => self::tile(
                 __('Checked In Guests', 'fluent-event'),
                 'CheckedIn',
-                self::guestQuery()->where('status', 'checked_in')->count()
+                (int) $guests->get('checked_in', 0)
             ),
             'cancelled_guests' => self::tile(
                 __('Cancelled Guests', 'fluent-event'),
                 'Cancelled',
-                self::guestQuery()->where('status', 'cancelled')->count()
+                (int) $guests->get('cancelled', 0)
             ),
         ];
 
@@ -181,12 +196,12 @@ class ReportService
             ->get();
     }
 
-    // Events ranked by guest count — cancelled guests don't count toward the rank.
+    // Events ranked by guest count — cancelled and not-going guests don't count toward the rank.
     public static function getTopEvents($limit = 5)
     {
         $rows = self::guestQuery()
             ->selectRaw('event_id, COUNT(*) AS guests_count')
-            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('status', ['cancelled', 'not_going'])
             ->groupBy('event_id')
             ->orderByDesc('guests_count')
             ->limit($limit)

@@ -6,7 +6,6 @@
             </div>
 
             <el-button
-                v-if="$userCan('write_settings')"
                 type="primary"
                 @click="openAdd"
             >
@@ -46,7 +45,7 @@
                     </el-tag>
                 </div>
 
-                <div v-if="$userCan('write_settings')" class="fe-team__actions">
+                <div class="fe-team__actions">
                     <el-button
                         size="small"
                         :aria-label="$t('Edit permissions')"
@@ -62,6 +61,7 @@
                         plain
                         :aria-label="$t('Remove member')"
                         :title="$t('Remove member')"
+                        :disabled="removing"
                         @click="removeMember(member)"
                     >
                         <el-icon><Delete /></el-icon>
@@ -102,6 +102,7 @@
         data() {
             return {
                 loading: false,
+                removing: false,
                 error: '',
                 members: [],
                 permissionSets: {},
@@ -151,7 +152,7 @@
                         this.$requestServer({
                             method: 'delete',
                             path: `settings/team/${member.id}`,
-                            loadingState: null,
+                            loadingState: 'removing',
                             errorState: null,
                             successNotify: true,
                             errorNotify: true,

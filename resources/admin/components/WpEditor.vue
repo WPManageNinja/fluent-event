@@ -63,6 +63,7 @@
                 hasWpEditor: !!(window.wp?.editor?.autop || window.wp?.oldEditor),
                 plainContent: this.modelValue,
                 themeObserver: null,
+                emitTimer: null,
             };
         },
         watch: {
@@ -127,7 +128,10 @@
                         resize: true,
                         content_style: this.themeContentStyle(),
                         setup: (editor) => {
-                            editor.on('change keyup', this.emitContent);
+                            // Each emit serializes the whole document, so emit once typing pauses,
+                            // and at once on blur so a Save right after typing gets the last keys.
+                            editor.on('change keyup', this.queueEmit);
+                            editor.on('blur', this.emitContent);
 
                             // TinyMCE edits inside an iframe, and the textarea's
                             // association does not reach it. Name the iframe too,
@@ -145,7 +149,12 @@
 
                 jQuery(`#${this.editorId}`).on('change', this.emitContent);
             },
+            queueEmit() {
+                clearTimeout(this.emitTimer);
+                this.emitTimer = setTimeout(this.emitContent, 300);
+            },
             emitContent() {
+                clearTimeout(this.emitTimer);
                 this.$emit(
                     'update:modelValue',
                     this.editor.getContent(this.editorId)
@@ -171,6 +180,7 @@
             }
 
             this.themeObserver?.disconnect();
+            clearTimeout(this.emitTimer);
 
             jQuery(`#${this.editorId}`).off('change', this.emitContent);
             this.editor.remove(this.editorId);
