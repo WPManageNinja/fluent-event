@@ -31,7 +31,7 @@
                     class="fe-event-card__open"
                     @click.stop="$emit('open', event)"
                 >
-                    {{ event.title }}
+                    <span class="fe-event-card__title-text">{{ event.title }}</span>
                 </button>
             </h3>
 

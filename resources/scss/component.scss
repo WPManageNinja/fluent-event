@@ -2322,11 +2322,22 @@
     }
 
     &__title {
+        max-width: 800px;
         margin: var(--fe-space-3, 12px) 0 0;
         font-size: var(--fe-text-lg, 18px);
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
+    }
+
+    // Clamped on a span, not the button: buttons ignore line-clamp in some browsers.
+    &__title-text {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+        overflow-wrap: anywhere;
     }
 
     &__open {
