@@ -145,19 +145,13 @@
                                         {{ $t('Timezone') }}
                                     </span>
 
-                                    <el-select
+                                    <el-select-v2
                                         v-model="event.timezone"
                                         class="fe-event-form__timezone"
+                                        :options="timezones"
                                         filterable
                                         :aria-label="$t('Timezone')"
-                                    >
-                                        <el-option
-                                            v-for="zone in timezones"
-                                            :key="zone.value"
-                                            :label="zone.label"
-                                            :value="zone.value"
-                                        />
-                                    </el-select>
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -296,6 +290,9 @@
 
     const config = window.fluentEventAdmin;
 
+    // Built once per page load: ~420 zones each need their own Intl formatter.
+    let timezoneOptions = null;
+
     export default {
         name: 'CreateOrUpdateEvent',
         components: {
@@ -380,12 +377,14 @@
                 ];
             },
             timezones() {
+                if (timezoneOptions) return timezoneOptions;
+
                 const zones = Intl.supportedValuesOf?.('timeZone') || [];
                 const list = zones.includes(this.defaultTimezone)
                     ? zones
                     : [this.defaultTimezone, ...zones];
 
-                return list.map(zone => ({
+                return timezoneOptions = list.map(zone => ({
                     value: zone,
                     label: `${zone} (${this.offsetOf(zone)})`,
                 }));
