@@ -28,6 +28,7 @@
                 <ActionPopover
                     v-if="$userCan('write_calendars')"
                     :items="actions"
+                    :subject="calendar.title"
                     placement="bottom-end"
                 />
             </div>

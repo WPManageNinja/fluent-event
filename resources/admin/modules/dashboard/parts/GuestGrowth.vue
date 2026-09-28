@@ -1,5 +1,5 @@
 <template>
-    <section v-loading="loading" class="fe-dashboard__card fe-dashboard__chart">
+    <section v-loading="loading" class="fe-dashboard__card fe-dashboard__chart" :aria-busy="loading">
         <div class="fe-dashboard__chart-head">
             <h2 class="fe-dashboard__card-title">{{ sectionTitle }}</h2>
 

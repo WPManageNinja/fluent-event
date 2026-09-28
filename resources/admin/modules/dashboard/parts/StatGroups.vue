@@ -30,6 +30,7 @@
                             <CaretBottom v-else />
                         </el-icon>
                         {{ stat.change > 0 ? '+' : '' }}{{ stat.change }}%
+                        <span class="screen-reader-text">{{ $t('vs previous period') }}</span>
                     </span>
                 </div>
             </div>

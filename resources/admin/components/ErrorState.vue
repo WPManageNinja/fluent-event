@@ -1,6 +1,7 @@
 <template>
     <el-result
         class="fe-error-state"
+        role="alert"
         icon="warning"
         :title="heading"
         :sub-title="description"

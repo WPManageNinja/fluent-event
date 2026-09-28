@@ -42,6 +42,7 @@
                 v-else-if="calendars.length"
                 class="fe-calendars__grid"
                 :class="{ 'fe-is-loading': loading }"
+                :aria-busy="loading"
             >
                 <CalendarCard
                     v-for="calendar in calendars"

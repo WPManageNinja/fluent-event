@@ -17,8 +17,8 @@
             />
 
             <ActionPopover :width="320" placement="bottom-end" @show="syncFilters">
-                <template #trigger>
-                    <el-button :aria-label="$t('Filter')" :title="$t('Filter')">
+                <template #trigger="{ visible }">
+                    <el-button :aria-label="$t('Filter')" :title="$t('Filter')" :aria-expanded="visible">
                         <el-icon><Filter /></el-icon>
                     </el-button>
                 </template>
@@ -90,7 +90,7 @@
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchEvents" />
 
-        <div v-else :class="{ 'fe-is-loading': loading }">
+        <div v-else :class="{ 'fe-is-loading': loading }" :aria-busy="loading">
             <EventsGrid
                 v-if="isGrid"
                 v-model:view-mode="calendarViewMode"
