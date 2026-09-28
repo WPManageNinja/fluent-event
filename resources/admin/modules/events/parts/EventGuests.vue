@@ -126,7 +126,7 @@
 
                     <div class="fe-guests__actions" role="cell">
                         <ActionPopover
-                            :items="actionsFor(row)"
+                            :items="row.actions"
                             :subject="row.name"
                             placement="bottom-end"
                         />
@@ -240,7 +240,7 @@
                 return this.guests.map((guest, index) => {
                     const checkedIn = guest.status === 'checked_in' && guest.checked_in_at;
 
-                    return {
+                    const row = {
                         ...guest,
                         serial: offset + index + 1,
                         checkedInAt: checkedIn
@@ -256,6 +256,10 @@
                             cancelled: 'danger',
                         }[guest.status] || 'info',
                     };
+
+                    row.actions = this.actionsFor(row);
+
+                    return row;
                 });
             },
         },
