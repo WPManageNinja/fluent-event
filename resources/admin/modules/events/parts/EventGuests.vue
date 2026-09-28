@@ -35,38 +35,45 @@
         <el-empty v-else-if="!rows.length" :description="$t('No guests yet.')" />
 
         <template v-else>
-            <div class="fe-guests__table" :class="{ 'fe-is-loading': loading }">
-                <div class="fe-guests__row fe-guests__row--head">
-                    <span class="fe-guests__serial">#</span>
+            <div
+                class="fe-guests__table"
+                :class="{ 'fe-is-loading': loading }"
+                role="table"
+                :aria-label="$t('Guests')"
+            >
+                <div class="fe-guests__row fe-guests__row--head" role="row">
+                    <span class="fe-guests__serial" role="columnheader">#</span>
                     <span class="fe-guests__avatar" aria-hidden="true"></span>
-                    <span class="fe-guests__name">{{ $t('Name') }}</span>
-                    <span class="fe-guests__email">{{ $t('Email') }}</span>
-                    <span class="fe-guests__source">{{ $t('Source') }}</span>
-                    <span class="fe-guests__stage">{{ $t('Status') }}</span>
-                    <span class="fe-guests__actions">{{ $t('More') }}</span>
+                    <span class="fe-guests__name" role="columnheader">{{ $t('Name') }}</span>
+                    <span class="fe-guests__email" role="columnheader">{{ $t('Email') }}</span>
+                    <span class="fe-guests__source" role="columnheader">{{ $t('Source') }}</span>
+                    <span class="fe-guests__stage" role="columnheader">{{ $t('Status') }}</span>
+                    <span class="fe-guests__actions" role="columnheader">{{ $t('More') }}</span>
                 </div>
 
-                <div v-for="row in rows" :key="row.id" class="fe-guests__row">
-                    <span class="fe-guests__serial">{{ row.serial }}</span>
+                <div v-for="row in rows" :key="row.id" class="fe-guests__row" role="row">
+                    <span class="fe-guests__serial" role="cell">{{ row.serial }}</span>
 
+                    <!-- Hidden like its header column: a row may only own cells, and the name cell follows. -->
                     <img
                         v-if="row.avatar"
                         class="fe-guests__avatar"
                         :src="row.avatar"
                         :alt="row.name"
+                        aria-hidden="true"
                     />
 
                     <span v-else class="fe-guests__avatar fe-guests__avatar--empty" aria-hidden="true">
                         {{ row.initial }}
                     </span>
 
-                    <p class="fe-guests__name">{{ row.name }}</p>
+                    <p class="fe-guests__name" role="cell">{{ row.name }}</p>
 
-                    <p class="fe-guests__email">{{ row.email }}</p>
+                    <p class="fe-guests__email" role="cell">{{ row.email }}</p>
 
-                    <p class="fe-guests__source">{{ row.sourceLabel }}</p>
+                    <p class="fe-guests__source" role="cell">{{ row.sourceLabel }}</p>
 
-                    <div class="fe-guests__stage">
+                    <div class="fe-guests__stage" role="cell">
                         <el-tag
                             v-if="!$userCan('write_guests')"
                             class="fe-guests__tag"
@@ -116,7 +123,7 @@
                         </span>
                     </div>
 
-                    <div class="fe-guests__actions">
+                    <div class="fe-guests__actions" role="cell">
                         <ActionPopover
                             :items="actionsFor(row)"
                             :subject="row.name"
