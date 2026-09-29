@@ -14,7 +14,6 @@ class Settings
         self::GENERAL => [
             'default_events_view'      => 'timeline',
             'dark_mode'                => 'yes',
-            'remove_data_on_uninstall' => 'no',
         ],
         self::EMAIL => [
             'from_name'      => '',

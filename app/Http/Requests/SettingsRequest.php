@@ -9,7 +9,6 @@ class SettingsRequest extends BaseRequest
         'permissions.*'            => 'sanitize_text_field',
         'default_events_view'      => 'sanitize_text_field',
         'dark_mode'                => 'sanitize_text_field',
-        'remove_data_on_uninstall' => 'sanitize_text_field',
         'from_name'                => 'sanitize_text_field',
         'from_email'               => 'sanitize_email',
         'reply_to_name'            => 'sanitize_text_field',
@@ -26,7 +25,6 @@ class SettingsRequest extends BaseRequest
     const GENERAL_RULES = [
         'default_events_view'      => 'required|string|in:cards,timeline,calendar',
         'dark_mode'                => 'required|string|in:yes,no',
-        'remove_data_on_uninstall' => 'required|string|in:yes,no',
     ];
 
     const EMAIL_RULES = [
@@ -74,8 +72,6 @@ class SettingsRequest extends BaseRequest
             'default_events_view.in'            => __('The default events view must be cards, timeline or calendar.', 'fluent-event'),
             'dark_mode.required'                => __('Choose whether dark mode is on.', 'fluent-event'),
             'dark_mode.in'                      => __('Dark mode must be on or off.', 'fluent-event'),
-            'remove_data_on_uninstall.required' => __('Choose whether to remove data on uninstall.', 'fluent-event'),
-            'remove_data_on_uninstall.in'       => __('Remove data on uninstall must be on or off.', 'fluent-event'),
         ];
     }
 }
