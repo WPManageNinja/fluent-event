@@ -10,12 +10,39 @@
             <ErrorState v-else-if="generalError" :message="generalError" @retry="fetchGeneral" />
 
             <el-form v-else class="fe-form" label-position="top" @submit.prevent="saveGeneral">
-                <el-form-item :label="$t('Default events view')">
-                    <el-radio-group v-model="general.default_events_view" :disabled="!canWrite">
-                        <el-radio value="cards">{{ $t('Cards') }}</el-radio>
-                        <el-radio value="timeline">{{ $t('Timeline') }}</el-radio>
-                        <el-radio value="calendar">{{ $t('Calendar') }}</el-radio>
+                <el-form-item :label="$t('Default events list view')">
+                    <el-radio-group
+                        v-model="general.default_events_view"
+                        class="fe-view-picker"
+                        :disabled="!canWrite"
+                    >
+                        <el-radio
+                            v-for="option in viewOptions"
+                            :key="option.value"
+                            :value="option.value"
+                            class="fe-view-picker__option"
+                        >
+                            <Icon :name="option.value" class="fe-view-picker__preview" />
+                            <span class="fe-view-picker__label">{{ option.label }}</span>
+                        </el-radio>
                     </el-radio-group>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-checkbox
+                        v-model="general.disable_event_view_switch"
+                        true-value="yes"
+                        false-value="no"
+                        :disabled="!canWrite"
+                    >
+                        {{ $t('Disable view change option') }}
+                    </el-checkbox>
+
+                    <span class="fe-form__hint">
+                        {{ general.disable_event_view_switch === 'yes'
+                            ? $t('The selected view is used for everyone. They cannot switch to a different view.')
+                            : $t('Users can switch to the view they prefer.') }}
+                    </span>
                 </el-form-item>
 
                 <div v-if="canWrite" class="fe-form__actions">
@@ -141,6 +168,7 @@
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import WpEditor from '@/components/WpEditor.vue';
+    import Icon from '@/components/Icon.vue';
 
     export default {
         name: 'SettingsGeneral',
@@ -149,6 +177,7 @@
             ErrorState,
             Skeleton,
             WpEditor,
+            Icon,
         },
         data() {
             return {
@@ -157,6 +186,7 @@
                 generalError: '',
                 general: {
                     default_events_view: 'timeline',
+                    disable_event_view_switch: 'no',
                 },
                 emailLoading: false,
                 emailSaving: false,
@@ -174,6 +204,13 @@
         computed: {
             canWrite() {
                 return this.$userCan('write_settings');
+            },
+            viewOptions() {
+                return [
+                    { value: 'cards', label: this.$t('Cards') },
+                    { value: 'timeline', label: this.$t('Timeline') },
+                    { value: 'calendar', label: this.$t('Calendar') },
+                ];
             },
         },
         methods: {
@@ -198,6 +235,7 @@
                     errorNotify: true,
                     onSuccess: response => {
                         this.general = response.settings;
+                        window.fluentEventAdmin.general_settings = response.settings;
                     },
                 });
             },

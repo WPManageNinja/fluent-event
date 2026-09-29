@@ -8,6 +8,7 @@ class SettingsRequest extends BaseRequest
         'user_id'                  => 'absint',
         'permissions.*'            => 'sanitize_text_field',
         'default_events_view'      => 'sanitize_text_field',
+        'disable_event_view_switch' => 'sanitize_text_field',
         'from_name'                => 'sanitize_text_field',
         'from_email'               => 'sanitize_email',
         'reply_to_name'            => 'sanitize_text_field',
@@ -22,7 +23,8 @@ class SettingsRequest extends BaseRequest
     ];
 
     const GENERAL_RULES = [
-        'default_events_view' => 'required|string|in:cards,timeline,calendar',
+        'default_events_view'       => 'required|string|in:cards,timeline,calendar',
+        'disable_event_view_switch' => 'required|string|in:yes,no',
     ];
 
     const EMAIL_RULES = [
@@ -68,6 +70,7 @@ class SettingsRequest extends BaseRequest
 
             'default_events_view.required' => __('Choose a default events view.', 'fluent-event'),
             'default_events_view.in'       => __('The default events view must be cards, timeline or calendar.', 'fluent-event'),
+            'disable_event_view_switch.in' => __('The view switch option must be yes or no.', 'fluent-event'),
         ];
     }
 }

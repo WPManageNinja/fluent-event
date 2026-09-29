@@ -218,7 +218,7 @@
         </template>
     </el-skeleton>
 
-    <el-skeleton v-else-if="type === 'event-grid'" animated>
+    <el-skeleton v-else-if="type === 'event-calendar'" animated>
         <template #template>
             <div class="fe-events-grid fe-events-grid--skeleton">
                 <div class="fe-events-grid__skeleton-header">
@@ -432,7 +432,7 @@ export default {
             defaultRows: {
                 timeline: 6,
                 guests: 5,
-                'event-grid': 6,
+                'event-calendar': 6,
                 'event-cards': 6,
                 'event-form': 4,
                 'calendar-grid': 6,
