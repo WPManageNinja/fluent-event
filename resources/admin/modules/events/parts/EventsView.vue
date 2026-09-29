@@ -54,7 +54,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item v-if="!isGrid" :label="$t('Date range')">
+                            <el-form-item v-if="!isCalendar" :label="$t('Date range')">
                                 <el-date-picker
                                     v-model="pendingFilters.dates"
                                     type="daterange"
@@ -93,7 +93,7 @@
 
         <div v-else :class="{ 'fe-is-loading': loading }" :aria-busy="loading">
             <EventsGrid
-                v-if="isGrid"
+                v-if="isCalendar"
                 v-model:view-mode="calendarViewMode"
                 :events="events"
                 :month="month"
@@ -169,14 +169,13 @@
         emits: ['update:period'],
         data() {
             const savedView = Storage.get('events_view');
-            const defaultView = window.fluentEventAdmin?.general_settings?.default_events_view;
-            const settingsView = defaultView === 'calendar' ? 'grid' : (defaultView || 'timeline');
+            const defaultView = window.fluentEventAdmin?.general_settings?.default_events_view || 'timeline';
 
             return {
                 loading: false,
                 fetched: false,
                 error: '',
-                view: ['cards', 'timeline', 'grid'].includes(savedView) ? savedView : settingsView,
+                view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : defaultView,
                 month: dayjs().format('YYYY-MM-DD'),
                 calendarViewMode: 'month',
                 events: [],
@@ -202,18 +201,14 @@
             };
         },
         computed: {
-            isGrid() {
-                return this.view === 'grid';
+            isCalendar() {
+                return this.view === 'calendar';
             },
             isCards() {
                 return this.view === 'cards';
             },
             skeletonType() {
-                if (this.isGrid) {
-                    return 'event-grid';
-                }
-
-                return this.isCards ? 'event-cards' : 'timeline';
+                return this.isCalendar ? 'event-calendar' : this.isCards ? 'event-cards' : 'timeline';
             },
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
@@ -227,7 +222,7 @@
                 return [
                     { value: 'cards', label: this.$t('Cards'), icon: Grid },
                     { value: 'timeline', label: this.$t('Timeline'), icon: Tickets },
-                    { value: 'grid', label: this.$t('Calendar'), icon: Calendar },
+                    { value: 'calendar', label: this.$t('Calendar'), icon: Calendar },
                 ];
             },
             statuses() {
@@ -264,7 +259,7 @@
                     });
                 }
 
-                if (!this.isGrid && this.query.dates.length === 2) {
+                if (!this.isCalendar && this.query.dates.length === 2) {
                     filters.push({
                         key: 'dates',
                         label: this.$t('Date'),
@@ -279,7 +274,7 @@
         },
         watch: {
             view(value) {
-                if (value === 'grid' && this.period) {
+                if (value === 'calendar' && this.period) {
                     this.$emit('update:period', '');
                     return;
                 }
@@ -303,7 +298,7 @@
                     calendar_id: this.scopedCalendarId || '',
                 };
 
-                if (this.isGrid) {
+                if (this.isCalendar) {
                     const month = dayjs(this.month);
 
                     return {
@@ -333,7 +328,7 @@
                     onSuccess: response => {
                         this.fetched = true;
 
-                        if (this.isGrid) {
+                        if (this.isCalendar) {
                             this.events = response.events;
                             return;
                         }
@@ -399,7 +394,7 @@
             },
         },
         mounted() {
-            if (this.isGrid && this.period) {
+            if (this.isCalendar && this.period) {
                 this.$emit('update:period', '');
             } else {
                 this.fetchEvents();
