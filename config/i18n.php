@@ -43,19 +43,29 @@ return [
 
     'translations' => [
         'admin' => [
+            /* translators: %d is the number of rows shown per page */
             '%d / page' => __('%d / page', 'fluent-event'),
+            /* translators: %d is a number of days */
             '%d days' => __('%d days', 'fluent-event'),
+            /* translators: %d is a number of events */
             '%d events' => __('%d events', 'fluent-event'),
+            /* translators: %d is a number of guests */
             '%d guests' => __('%d guests', 'fluent-event'),
+            /* translators: %d is the number of hidden calendar entries on this day */
             '%d more' => __('%d more', 'fluent-event'),
-            '%s (%d)' => __('%s (%d)', 'fluent-event'),
+            /* translators: 1: tab or filter label, 2: number of items */
+            '%s (%d)' => __('%1$s (%2$d)', 'fluent-event'),
+            /* translators: %s is the guest's name */
             '%s will be removed from this event. This cannot be undone.' => __('%s will be removed from this event. This cannot be undone.', 'fluent-event'),
+            /* translators: %s is the team member's name */
             '%s will lose all access to this plugin. Continue?' => __('%s will lose all access to this plugin. Continue?', 'fluent-event'),
-            '%s: %s' => __('%s: %s', 'fluent-event'),
+            /* translators: 1: filter name, 2: selected filter value */
+            '%s: %s' => __('%1$s: %2$s', 'fluent-event'),
             'A calendar holds your events. Give it a title and you can start adding events to it.' => __('A calendar holds your events. Give it a title and you can start adding events to it.', 'fluent-event'),
             'A calendar holds your events. You need one before you can add an event.' => __('A calendar holds your events. You need one before you can add an event.', 'fluent-event'),
             'About this calendar' => __('About this calendar', 'fluent-event'),
             'Access permissions for this user' => __('Access permissions for this user', 'fluent-event'),
+            /* translators: %s is the name of the item the actions apply to */
             'Actions for %s' => __('Actions for %s', 'fluent-event'),
             'Active' => __('Active', 'fluent-event'),
             'Add a cover image' => __('Add a cover image', 'fluent-event'),
@@ -71,17 +81,21 @@ return [
             'Amber' => __('Amber', 'fluent-event'),
             'An event needs a calendar to live in, and there are none yet.' => __('An event needs a calendar to live in, and there are none yet.', 'fluent-event'),
             'Apply' => __('Apply', 'fluent-event'),
+            /* translators: %s is the formatted check-in date and time */
             'at: %s' => __('at: %s', 'fluent-event'),
             'Back to Dashboard' => __('Back to Dashboard', 'fluent-event'),
             'Breadcrumb' => __('Breadcrumb', 'fluent-event'),
+            /* translators: %s is the event author's name */
             'by %s' => __('by %s', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
+            /* translators: %s is the calendar title */
             'Calendar: %s' => __('Calendar: %s', 'fluent-event'),
             'Calendars' => __('Calendars', 'fluent-event'),
             'Cancel' => __('Cancel', 'fluent-event'),
             'Cancelled' => __('Cancelled', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
             'Change cover image' => __('Change cover image', 'fluent-event'),
+            /* translators: %s is the guest's name */
             'Change status of %s' => __('Change status of %s', 'fluent-event'),
             'Checked In' => __('Checked In', 'fluent-event'),
             'Checked in' => __('Checked in', 'fluent-event'),
@@ -92,6 +106,7 @@ return [
             'Color' => __('Color', 'fluent-event'),
             'Coming Up' => __('Coming Up', 'fluent-event'),
             'Confirm' => __('Confirm', 'fluent-event'),
+            /* translators: %s is the event title */
             'Cover image of %s' => __('Cover image of %s', 'fluent-event'),
             'Create a Calendar' => __('Create a Calendar', 'fluent-event'),
             'Create Calendar' => __('Create Calendar', 'fluent-event'),
@@ -99,6 +114,7 @@ return [
             'Create your first calendar' => __('Create your first calendar', 'fluent-event'),
             'Created' => __('Created', 'fluent-event'),
             'Created by' => __('Created by', 'fluent-event'),
+            /* translators: %s is the event author's name */
             'Created by %s' => __('Created by %s', 'fluent-event'),
             'Cyan' => __('Cyan', 'fluent-event'),
             'Danger Zone' => __('Danger Zone', 'fluent-event'),
@@ -106,6 +122,7 @@ return [
             'Date' => __('Date', 'fluent-event'),
             'Date range' => __('Date range', 'fluent-event'),
             'Day' => __('Day', 'fluent-event'),
+            /* translators: %d is the day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
             'Deep Lilac' => __('Deep Lilac', 'fluent-event'),
             'Default events view' => __('Default events view', 'fluent-event'),
@@ -141,6 +158,7 @@ return [
             'End' => __('End', 'fluent-event'),
             'End date' => __('End date', 'fluent-event'),
             'End time' => __('End time', 'fluent-event'),
+            /* translators: %s is the formatted end date and time */
             'Ends %s' => __('Ends %s', 'fluent-event'),
             'Enter manually' => __('Enter manually', 'fluent-event'),
             'Error' => __('Error', 'fluent-event'),
@@ -200,6 +218,7 @@ return [
             'Online' => __('Online', 'fluent-event'),
             'Online event' => __('Online event', 'fluent-event'),
             'Only http and https links are accepted.' => __('Only http and https links are accepted.', 'fluent-event'),
+            /* translators: %s is the calendar title */
             'Open %s' => __('Open %s', 'fluent-event'),
             'Optional. Shown on the calendar page, above its events.' => __('Optional. Shown on the calendar page, above its events.', 'fluent-event'),
             'Overview' => __('Overview', 'fluent-event'),
@@ -241,8 +260,10 @@ return [
             'Start' => __('Start', 'fluent-event'),
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
+            /* translators: %s is the formatted start date and time */
             'Starts %s' => __('Starts %s', 'fluent-event'),
             'Status' => __('Status', 'fluent-event'),
+            /* translators: %s is the translated calendar status */
             'Status: %s' => __('Status: %s', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
             'Success' => __('Success', 'fluent-event'),
@@ -263,6 +284,7 @@ return [
             'Today' => __('Today', 'fluent-event'),
             'Top Events' => __('Top Events', 'fluent-event'),
             'Try Again' => __('Try Again', 'fluent-event'),
+            /* translators: %s is the calendar or event title the user must type */
             'Type %s to confirm.' => __('Type %s to confirm.', 'fluent-event'),
             'Unauthorized' => __('Unauthorized', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
@@ -279,6 +301,7 @@ return [
             'Venue name' => __('Venue name', 'fluent-event'),
             'Venue type' => __('Venue type', 'fluent-event'),
             'View' => __('View', 'fluent-event'),
+            /* translators: %s is the event title */
             'View %s' => __('View %s', 'fluent-event'),
             'View actions' => __('View actions', 'fluent-event'),
             'View Full Details' => __('View Full Details', 'fluent-event'),

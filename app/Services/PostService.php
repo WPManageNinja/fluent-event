@@ -29,7 +29,7 @@ class PostService
         if (is_wp_error($postId)) {
             throw new HttpException(
                 422,
-                __('The event could not be saved. Please try again.', 'fluent-event'),
+                esc_html__('The event could not be saved. Please try again.', 'fluent-event'),
                 'event_post_insert_failed'
             );
         }
@@ -49,7 +49,7 @@ class PostService
         if (is_wp_error($result)) {
             throw new HttpException(
                 422,
-                __('The event could not be saved. Please try again.', 'fluent-event'),
+                esc_html__('The event could not be saved. Please try again.', 'fluent-event'),
                 'event_post_update_failed'
             );
         }

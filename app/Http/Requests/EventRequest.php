@@ -74,7 +74,7 @@ class EventRequest extends BaseRequest
 
         throw new ValidationException('Unprocessable Entity!', 422, null, [
             'end_at' => [
-                'after' => __('End must be after the start.', 'fluent-event')
+                'after' => esc_html__('End must be after the start.', 'fluent-event')
             ]
         ]);
     }

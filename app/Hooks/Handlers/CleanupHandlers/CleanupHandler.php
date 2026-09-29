@@ -31,7 +31,7 @@ class CleanupHandler
         if (!wp_delete_post($event->post_id, true)) {
             throw new HttpException(
                 422,
-                __('The event could not be deleted. Please try again.', 'fluent-event'),
+                esc_html__('The event could not be deleted. Please try again.', 'fluent-event'),
                 'event_post_delete_failed'
             );
         }
