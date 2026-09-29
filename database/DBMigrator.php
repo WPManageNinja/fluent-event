@@ -12,6 +12,8 @@ use FluentEvent\Database\Migrations\TicketTypesMigrator;
 
 class DBMigrator
 {
+    const DB_VERSION_OPTION = 'fluent_event_db_version';
+
     private static $migrations = [
         CalendarsMigrator::class,
         EventDetailsMigrator::class,
@@ -34,8 +36,12 @@ class DBMigrator
             $blogs = $wpdb->get_results("SELECT blog_id FROM $wpdb->blogs");
             foreach ($blogs as $blog) {
                 switch_to_blog($blog->blog_id);
-                self::migrate();
-                restore_current_blog();
+
+                try {
+                    self::migrate();
+                } finally {
+                    restore_current_blog();
+                }
             }
             return;
         }
@@ -48,6 +54,9 @@ class DBMigrator
         foreach (static::getMigrations() as $migration) {
             $migration::migrate();
         }
+
+        // Stamped after the run, so a failed migration is retried next load.
+        update_option(self::DB_VERSION_OPTION, FLUENT_EVENT_DB_VERSION, true);
     }
 
     public static function getMigrations()

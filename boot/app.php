@@ -3,6 +3,7 @@
 use FluentEvent\Framework\Foundation\Application;
 use FluentEvent\App\Hooks\Handlers\ActivationHandler;
 use FluentEvent\App\Hooks\Handlers\DeactivationHandler;
+use FluentEvent\Database\DBMigrator;
 
 return function($file) {
     try {
@@ -17,38 +18,35 @@ return function($file) {
             }
         });
 
-        register_deactivation_hook($file, function($networkDeactivating = false) use ($app) {
+        register_deactivation_hook($file, function() use ($app) {
             try {
-                ($app->make(DeactivationHandler::class))->handle($networkDeactivating);
+                ($app->make(DeactivationHandler::class))->handle();
             } catch (Throwable $e) {
                 do_action('fluent_exception', $e);
-            }
-        });
-
-        // Multisite new-site coverage: when a super-admin creates a new blog
-        // in the network, run activation against it for plugins activated
-        // network-wide. Without this, the new site has the plugin "active"
-        // but un-activated (no DB tables, no seeded options).
-        add_action('wp_insert_site', function($newSite) use ($app, $file) {
-            if (!is_plugin_active_for_network(plugin_basename($file))) {
-                return;
-            }
-
-            switch_to_blog((int) $newSite->blog_id);
-
-            try {
-                ($app->make(ActivationHandler::class))->handle(false);
-            } catch (Throwable $e) {
-                do_action('fluent_exception', $e);
-            } finally {
-                // Always restore — even if activation throws, we must not
-                // leave the request stuck in the new blog's context.
-                restore_current_blog();
             }
         });
 
         add_action('plugins_loaded', function() use ($app) {
             do_action('fluentevent_loaded', $app);
+
+            // Per-site version check: covers plugin updates and sites added to
+            // a network after it was activated, which have no version yet.
+            $dbVersion = get_option(DBMigrator::DB_VERSION_OPTION);
+
+            if (
+                (!$dbVersion || version_compare($dbVersion, FLUENT_EVENT_DB_VERSION, '<'))
+                && !get_transient('fluent_event_db_migration_lock')
+            ) {
+                set_transient('fluent_event_db_migration_lock', 1, 5 * MINUTE_IN_SECONDS);
+
+                try {
+                    DBMigrator::migrate();
+                } catch (Throwable $e) {
+                    do_action('fluent_exception', $e);
+                } finally {
+                    delete_transient('fluent_event_db_migration_lock');
+                }
+            }
         });
 
         return $app;
