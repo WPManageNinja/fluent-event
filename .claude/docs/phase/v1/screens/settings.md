@@ -18,7 +18,6 @@ mostly full of controls for absent functionality is worse than a small one.
 | Setting | Type | Effect |
 |---|---|---|
 | **Default events view** | `timeline` \| `calendar` | which view the events screens open on |
-| **Enable dark mode** | boolean | whether dark mode exists at all. Off ⇒ light only |
 
 ## Roles section
 
@@ -57,23 +56,6 @@ Points that matter when building it:
   privilege-escalation route in the plugin — never persist whatever the request sent.
 - **Nothing runs on activation or on load.** Permissions are granted per user, on demand.
   There is no bootstrap step — see [permissions.md](../permissions.md).
-
-## Enable dark mode is a feature gate, not a default
-
-With it off there is no dark theme to pick, so the toggle should not render at all — one
-that does nothing is worse than an absent one.
-
-The toggle is now a PHP `<button>` in
-[menu.php](../../../../../app/Views/admin/menu.php), so the gate is a condition around that
-markup in the view, not a `v-if`. It **renders unconditionally today** — wiring the gate is
-part of this chunk.
-
-Two things to get right:
-
-- A user who previously chose dark has it stored in `localStorage`. **Read the gate before
-  the stored preference**, or that user is stranded in a theme the site no longer supports.
-- Light/dark stays a **per-user** choice while the gate is on. This setting decides whether
-  the choice exists, never what it defaults to.
 
 ## Default events view interacts with localStorage
 

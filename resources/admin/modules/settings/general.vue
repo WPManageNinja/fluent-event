@@ -17,20 +17,6 @@
                 </el-radio-group>
             </el-form-item>
 
-            <el-form-item :label="$t('Enable dark mode')">
-                <el-switch
-                    v-model="settings.dark_mode"
-                    active-value="yes"
-                    inactive-value="no"
-                    :disabled="!canWrite"
-                    :aria-label="$t('Enable dark mode')"
-                />
-
-                <span class="fe-form__hint">
-                    {{ $t('Turning this off removes the dark theme toggle and keeps everyone on the light theme.') }}
-                </span>
-            </el-form-item>
-
             <div v-if="canWrite" class="fe-form__actions">
                 <el-button
                     type="primary"
@@ -62,7 +48,6 @@
                 error: '',
                 settings: {
                     default_events_view: 'timeline',
-                    dark_mode: 'yes',
                 },
             };
         },

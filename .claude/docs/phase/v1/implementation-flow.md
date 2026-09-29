@@ -67,8 +67,8 @@ chrome with the page instead of after the bundle mounts — see
 - **Four placeholder module pages exist** — `calendars/index.vue`, `events/index.vue`,
   `events/create.vue`, `settings/index.vue` — so the topbar entries resolve. Chunks 9, 14d,
   12a and 21 replace them; none of the four is a new route registration.
-- **The colour-mode toggle renders unconditionally.** Chunk 21 must gate it on the
-  dark-mode setting, not merely read it.
+- **The colour-mode toggle always renders.** Dark mode is not a setting; light/dark is a
+  per-user choice kept in `localStorage`.
 
 > **Permissions are not built until Stage 6.** Until chunk 22b lands, every gate is
 > `current_user_can('manage_options')` — the menu registers for administrators only, every
