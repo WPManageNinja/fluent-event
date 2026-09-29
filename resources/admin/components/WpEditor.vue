@@ -90,7 +90,7 @@
                 }
 
                 return 'html,body{background-color:#11171d;color:#f0f3f5;}'
-                    + '*{color:#f0f3f5;border-color:#253241;}'
+                    + '*{color:#f0f3f5;border-color:#2C3C4E;}'
                     + 'a{color:#8ab4f8;}';
             },
             applyThemeStyle() {
