@@ -49,14 +49,14 @@ const slugify = function (text) {
 };
 
 const eventStatuses = [
-    { value: 'public', label: 'Public', type: 'success' },
-    { value: 'private', label: 'Private', type: 'primary' },
-    { value: 'draft', label: 'Draft', type: 'info' },
+    { value: 'public', type: 'success' },
+    { value: 'private', type: 'primary' },
+    { value: 'draft', type: 'info' },
 ];
 
 const calendarStatuses = [
-    { value: 'active', label: 'Active', type: 'success' },
-    { value: 'draft', label: 'Draft', type: 'info' },
+    { value: 'active', type: 'success' },
+    { value: 'draft', type: 'info' },
 ];
 
 /**
@@ -97,19 +97,26 @@ export default {
             return eventStatuses.find(item => item.value === status)?.type || 'info';
         },
         $eventStatuses() {
-            return eventStatuses.map(({ value, label }) => ({
-                value,
-                label: this.$t(label),
-            }));
+            return [
+                { value: 'public', label: this.$t('Public') },
+                { value: 'private', label: this.$t('Private') },
+                { value: 'draft', label: this.$t('Draft') },
+            ];
+        },
+        $eventStatusLabel(status) {
+            return this.$eventStatuses().find(item => item.value === status)?.label || status;
         },
         $calendarStatusType(status) {
             return calendarStatuses.find(item => item.value === status)?.type || 'info';
         },
         $calendarStatuses() {
-            return calendarStatuses.map(({ value, label }) => ({
-                value,
-                label: this.$t(label),
-            }));
+            return [
+                { value: 'active', label: this.$t('Active') },
+                { value: 'draft', label: this.$t('Draft') },
+            ];
+        },
+        $calendarStatusLabel(status) {
+            return this.$calendarStatuses().find(item => item.value === status)?.label || status;
         },
         $httpUrl(url) {
             return /^https?:/i.test(url || '') ? url : '';

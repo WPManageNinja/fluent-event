@@ -62,6 +62,7 @@ class GuestRequest extends BaseRequest
             'email.email'    => __('Please provide a valid email address.', 'fluent-event'),
             'email.max'      => __('Email cannot exceed 192 characters.', 'fluent-event'),
             'email.unique'   => __('A guest with this email is already on this event.', 'fluent-event'),
+            'user_id.integer' => __('The WordPress user must be a valid id.', 'fluent-event'),
             'user_id.exists' => __('The selected WordPress user no longer exists.', 'fluent-event'),
             'user_id.unique' => __('This WordPress user is already a guest on this event.', 'fluent-event'),
             'status.in'      => __('Status must be going, not going, checked in or cancelled.', 'fluent-event'),

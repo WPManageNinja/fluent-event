@@ -52,7 +52,7 @@
                                         <span class="fe-event-overview__badge-label">{{ $t('Status') }}</span>
 
                                         <el-tag class="capitalize" :type="$eventStatusType(event.status)" size="small">
-                                            {{ $t(event.status) }}
+                                            {{ $eventStatusLabel(event.status) }}
                                         </el-tag>
                                     </div>
                                 </div>
@@ -132,7 +132,7 @@
                                             v-if="calendarStatus"
                                             class="fe-event-overview__row-text capitalize"
                                         >
-                                            {{ $t('Status: %s', $t(calendarStatus)) }}
+                                            {{ $t('Status: %s', $calendarStatusLabel(calendarStatus)) }}
                                         </p>
                                     </div>
                                 </div>
