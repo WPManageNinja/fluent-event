@@ -8,9 +8,8 @@
  * @var string $name           Plugin display name.
  * @var string $logo           Light-mode logo URL.
  * @var string $darkLogo       Dark-mode logo URL.
- * @var array  $menuItems         Center topbar items.
- * @var array  $rightMenuItems    Right topbar items (may carry 'children').
- * @var bool   $isDarkModeEnabled Dark-mode feature gate from plugin settings.
+ * @var array  $menuItems      Center topbar items.
+ * @var array  $rightMenuItems Right topbar items (may carry 'children').
  */
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
@@ -54,19 +53,17 @@ use FluentEvent\App\Services\Icon;
         </div>
 
         <div class="fe-navbar__settings">
-            <?php if ( $isDarkModeEnabled ) : ?>
-                <div class="fe-navbar__link-wrapper" data-key="color_mode">
-                    <button type="button"
-                            class="fe-navbar__link fe-navbar__color-mode"
-                            aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
-                            onclick="toggleColorMode()">
-                        <span class="el-icon">
-                            <span class="fe-navbar__mode-icon fe-navbar__mode-icon--light"><?php echo Icon::MOON; ?></span>
-                            <span class="fe-navbar__mode-icon fe-navbar__mode-icon--dark"><?php echo Icon::SUN; ?></span>
-                        </span>
-                    </button>
-                </div>
-            <?php endif; ?>
+            <div class="fe-navbar__link-wrapper" data-key="color_mode">
+                <button type="button"
+                        class="fe-navbar__link fe-navbar__color-mode"
+                        aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
+                        onclick="toggleColorMode()">
+                    <span class="el-icon">
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--light"><?php echo Icon::MOON; ?></span>
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--dark"><?php echo Icon::SUN; ?></span>
+                    </span>
+                </button>
+            </div>
 
             <?php foreach ( $rightMenuItems as $fluentEventRightMenuItem ) : ?>
                 <div class="fe-navbar__link-wrapper"

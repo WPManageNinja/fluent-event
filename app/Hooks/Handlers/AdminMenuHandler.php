@@ -132,9 +132,8 @@ class AdminMenuHandler
             'name'           => $this->config->get('app.name'),
             'logo'           => Enqueue::getStaticFilePath('images/logo.svg'),
             'darkLogo'       => Enqueue::getStaticFilePath('images/logo-dark.svg'),
-            'menuItems'         => $this->getMenuItemsList(),
-            'rightMenuItems'    => $this->getRightMenuItemsList(),
-            'isDarkModeEnabled' => Settings::get()['dark_mode'] === 'yes',
+            'menuItems'      => $this->getMenuItemsList(),
+            'rightMenuItems' => $this->getRightMenuItemsList(),
         ]);
     }
 

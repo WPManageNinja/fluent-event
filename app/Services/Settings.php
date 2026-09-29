@@ -12,8 +12,7 @@ class Settings
 
     const DEFAULTS = [
         self::GENERAL => [
-            'default_events_view'      => 'timeline',
-            'dark_mode'                => 'yes',
+            'default_events_view' => 'timeline',
         ],
         self::EMAIL => [
             'from_name'      => '',
