@@ -10,6 +10,7 @@
             />
 
             <SegmentedSwitch
+                v-if="!viewLocked"
                 v-model="view"
                 class="fe-switch--compact"
                 :options="views"
@@ -168,13 +169,16 @@
         },
         emits: ['update:period'],
         data() {
-            const savedView = Storage.get('events_view');
-            const defaultView = window.fluentEventAdmin?.general_settings?.default_events_view || 'timeline';
+            const settings = window.fluentEventAdmin?.general_settings;
+            const viewLocked = settings?.disable_event_view_switch === 'yes';
+            const savedView = viewLocked ? null : Storage.get('events_view');
+            const defaultView = settings?.default_events_view || 'timeline';
 
             return {
                 loading: false,
                 fetched: false,
                 error: '',
+                viewLocked,
                 view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : defaultView,
                 month: dayjs().format('YYYY-MM-DD'),
                 calendarViewMode: 'month',

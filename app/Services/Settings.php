@@ -12,7 +12,8 @@ class Settings
 
     const DEFAULTS = [
         self::GENERAL => [
-            'default_events_view' => 'timeline',
+            'default_events_view'       => 'timeline',
+            'disable_event_view_switch' => 'no',
         ],
         self::EMAIL => [
             'from_name'      => '',
