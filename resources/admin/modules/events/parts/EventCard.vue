@@ -12,7 +12,7 @@
                 </span>
 
                 <el-tag class="capitalize" :type="$eventStatusType(event.status)" size="small">
-                    {{ $t(event.status) }}
+                    {{ $eventStatusLabel(event.status) }}
                 </el-tag>
 
                 <span

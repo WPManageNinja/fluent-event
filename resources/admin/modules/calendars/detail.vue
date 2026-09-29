@@ -45,7 +45,7 @@
                                 :type="$calendarStatusType(calendar.status)"
                                 size="small"
                             >
-                                {{ $t(calendar.status) }}
+                                {{ $calendarStatusLabel(calendar.status) }}
                             </el-tag>
                         </div>
 

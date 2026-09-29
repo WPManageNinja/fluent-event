@@ -30,7 +30,7 @@
 
                 <dl class="fe-calendar-tab__facts">
                     <dt>{{ $t('Status') }}</dt>
-                    <dd class="capitalize">{{ $t(calendar.status) }}</dd>
+                    <dd class="capitalize">{{ $calendarStatusLabel(calendar.status) }}</dd>
 
                     <dt>{{ $t('Created') }}</dt>
                     <dd>{{ $formatDate(calendar.created_at) }}</dd>

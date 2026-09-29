@@ -22,7 +22,7 @@ class SettingsController extends Controller
     {
         $data = SettingsRequest::sanitize($request->all());
 
-        $this->validate($data, SettingsRequest::generalRules());
+        $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());
 
         $settings = Settings::update(Settings::GENERAL, $data);
 
