@@ -45,7 +45,7 @@
     ]);
 
     const cssVar = function (name, fallback) {
-        const value = getComputedStyle(document.documentElement)
+        const value = getComputedStyle(document.body)
             .getPropertyValue(name)
             .trim();
 
@@ -192,13 +192,21 @@
         },
         created() {
             this.chart = null;
+            this.themeObserver = null;
         },
         mounted() {
             this.fetchChartData();
             window.addEventListener('resize', this.resizeChart);
+
+            this.themeObserver = new MutationObserver(this.renderChart);
+            this.themeObserver.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class'],
+            });
         },
         beforeUnmount() {
             window.removeEventListener('resize', this.resizeChart);
+            this.themeObserver?.disconnect();
             this.disposeChart();
         },
     };
