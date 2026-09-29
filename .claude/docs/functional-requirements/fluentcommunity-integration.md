@@ -29,7 +29,7 @@ The bridge loads only if fcom is detected (`class_exists` / version check). No f
 - That calendar is a normal FluentEvent calendar. It also shows in the standalone events portal (which supports many calendars).
 - **Titles stay in sync.** Rename the space → the calendar renames, and the other way around.
 - The link starts from fcom. A calendar made directly in the events portal has no space (it's just a calendar).
-- **Deleting a space:** see [clarifying-questions.md](../clarifying-questions.md) (Q7).
+- **Deleting a space:** see [clarifying-questions.md](clarifying-questions.md) (Q7).
 
 ### FR-10.4 — Create and show events on both sides
 
@@ -40,20 +40,20 @@ The bridge loads only if fcom is detected (`class_exists` / version check). No f
 
 - Identity is always **WordPress users** (`wp_users`). With fcom on, fcom's XProfile / space members supply community identity data, keyed off `wp_users.ID`. FluentEvent has no profile table of its own in either mode (attendees are anonymous email guests; hosts/managers are WP users).
 - For a linked calendar, event notifications also reach the **space's members** (FR-10.6). There is no calendar follow/subscribe concept — standalone calendars have no subscriber list, so their event notifications reach the event's guests only (FR-9).
-- To confirm with the team lead: see [clarifying-questions.md](../clarifying-questions.md) (Q8).
+- To confirm with the team lead: see [clarifying-questions.md](clarifying-questions.md) (Q8).
 
 ### FR-10.6 — Notifications
 
 - Notifications follow FR-9. Recipients are the **space members**.
 - **Check the link on every fire.** When a notification fires for an event (or a calendar), look at the event's parent calendar. If it's fcom-linked (`settings.fcom_space_id` is set), also deliver the notification into fcom's notification system so it shows in fcom's bell.
 - Email is sent once either way (FR-9).
-- **Open:** deliver to both FluentEvent and fcom, or only one (so a member isn't notified twice)? See [clarifying-questions.md](../clarifying-questions.md) (Q9).
+- **Open:** deliver to both FluentEvent and fcom, or only one (so a member isn't notified twice)? See [clarifying-questions.md](clarifying-questions.md) (Q9).
 
 ### FR-10.7 — Post to the space feed (optional)
 
 - A per-space toggle: `settings.announce_in_feed` (default **off**).
 - When on, publishing an event also posts an announcement to the space feed (`fcom_posts`), so it shows in the community timeline. Off → events show only in the calendar/event view.
-- **Open:** is this control set on the space (applies to all its events) or chosen per event at creation time? See [clarifying-questions.md](../clarifying-questions.md) (Q10).
+- **Open:** is this control set on the space (applies to all its events) or chosen per event at creation time? See [clarifying-questions.md](clarifying-questions.md) (Q10).
 
 ## Storage
 
@@ -80,4 +80,4 @@ The bridge loads only if fcom is detected (`class_exists` / version check). No f
 
 ## Open questions
 
-→ What happens to the calendar when an event space is deleted — [clarifying-questions.md](../clarifying-questions.md) (Q7).
+→ What happens to the calendar when an event space is deleted — [clarifying-questions.md](clarifying-questions.md) (Q7).
