@@ -14,6 +14,7 @@
                 class="fe-switch--compact"
                 :options="views"
                 :label="$t('Switch between card, timeline and calendar view')"
+                @change="rememberView"
             />
 
             <ActionPopover :width="320" placement="bottom-end" @show="syncFilters">
@@ -131,6 +132,7 @@
     import ActionPopover from '@/components/ActionPopover.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
+    import Storage from '@/utils/Storage';
     import EventsCards from './EventsCards.vue';
     import EventsGrid from './EventsGrid.vue';
     import EventsTimeline from './EventsTimeline.vue';
@@ -166,13 +168,15 @@
         },
         emits: ['update:period'],
         data() {
+            const savedView = Storage.get('events_view');
             const defaultView = window.fluentEventAdmin?.general_settings?.default_events_view;
+            const settingsView = defaultView === 'calendar' ? 'grid' : (defaultView || 'timeline');
 
             return {
                 loading: false,
                 fetched: false,
                 error: '',
-                view: defaultView === 'calendar' ? 'grid' : (defaultView || 'timeline'),
+                view: ['cards', 'timeline', 'grid'].includes(savedView) ? savedView : settingsView,
                 month: dayjs().format('YYYY-MM-DD'),
                 calendarViewMode: 'month',
                 events: [],
@@ -289,6 +293,9 @@
             },
         },
         methods: {
+            rememberView(view) {
+                Storage.set('events_view', view);
+            },
             requestParams() {
                 const params = {
                     search: this.query.search,
