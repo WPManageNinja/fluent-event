@@ -17,62 +17,6 @@
                 </el-radio-group>
             </el-form-item>
 
-            <el-form-item>
-                <template #label>
-                    <span class="fe-form__label-row">
-                        {{ $t('Date format') }}
-
-                        <button
-                            type="button"
-                            class="fe-form__label-info"
-                            :aria-label="$t('How date formats work')"
-                            :title="$t('How date formats work')"
-                            @click="openDateTimeHelp('date')"
-                        >
-                            <el-icon><InfoFilled /></el-icon>
-                        </button>
-                    </span>
-                </template>
-
-                <el-input
-                    v-model="settings.date_format"
-                    placeholder="F j, Y"
-                    :disabled="!canWrite"
-                />
-
-                <span class="fe-form__hint">
-                    {{ $t('Leave empty to follow the WordPress date format.') }}
-                </span>
-            </el-form-item>
-
-            <el-form-item>
-                <template #label>
-                    <span class="fe-form__label-row">
-                        {{ $t('Time format') }}
-
-                        <button
-                            type="button"
-                            class="fe-form__label-info"
-                            :aria-label="$t('How time formats work')"
-                            :title="$t('How time formats work')"
-                            @click="openDateTimeHelp('time')"
-                        >
-                            <el-icon><InfoFilled /></el-icon>
-                        </button>
-                    </span>
-                </template>
-
-                <el-input
-                    v-model="settings.time_format"
-                    placeholder="g:i a"
-                    :disabled="!canWrite"
-                />
-
-                <span class="fe-form__hint">
-                    {{ $t('Leave empty to follow the WordPress time format.') }}
-                </span>
-            </el-form-item>
-
             <el-form-item :label="$t('Enable dark mode')">
                 <el-switch
                     v-model="settings.dark_mode"
@@ -112,36 +56,26 @@
                 </el-button>
             </div>
         </el-form>
-
-        <DateTimeHelperModal v-model="dateTimeHelpOpen" :type="dateTimeHelpType" />
     </div>
 </template>
 
 <script type="text/javascript">
-    import { InfoFilled } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
-    import DateTimeHelperModal from '@/components/DateTimeHelperModal.vue';
 
     export default {
         name: 'SettingsGeneral',
         components: {
-            InfoFilled,
             ErrorState,
             Skeleton,
-            DateTimeHelperModal,
         },
         data() {
             return {
                 loading: false,
                 saving: false,
-                dateTimeHelpOpen: false,
-                dateTimeHelpType: 'both',
                 error: '',
                 settings: {
                     default_events_view: 'timeline',
-                    date_format: '',
-                    time_format: '',
                     dark_mode: 'yes',
                     remove_data_on_uninstall: 'no',
                 },
@@ -153,10 +87,6 @@
             },
         },
         methods: {
-            openDateTimeHelp(type) {
-                this.dateTimeHelpType = type;
-                this.dateTimeHelpOpen = true;
-            },
             fetchSettings() {
                 this.$requestServer({
                     path: 'settings/general',
