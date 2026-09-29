@@ -240,17 +240,10 @@ that module, `__Name.vue` = a part of a part.
 
 ## 7. Uninstall
 
-**There is no `uninstall.php` and no `register_uninstall_hook` today.** With v1 creating 7
-tables plus usermeta rows, that gap ships real cruft.
-
-Decide and implement the policy before release:
-
-- Delete the `_access_permissions` rows from `wp_fe_meta` — one `DELETE`, always safe.
-- Tables and CPT posts: **default to keeping them.** Silent data destruction on uninstall is
-  worse than leftovers. Gate any dropping behind an explicit opt-in.
-
-Note this was considered as a setting and dropped for v1 — so v1's uninstall should clean up
-meta only.
+**Deleting the plugin keeps all of its data** — no `uninstall.php`, no
+`register_uninstall_hook`, no opt-in setting. This matches the Fluent suite (affiliate,
+booking, community, CRM, support, cart, forms, SMTP): none of them removes data on uninstall,
+so a delete-and-reinstall never loses calendars, events or guests.
 
 ---
 

@@ -31,20 +31,6 @@
                 </span>
             </el-form-item>
 
-            <el-form-item :label="$t('Remove data on uninstall')">
-                <el-switch
-                    v-model="settings.remove_data_on_uninstall"
-                    active-value="yes"
-                    inactive-value="no"
-                    :disabled="!canWrite"
-                    :aria-label="$t('Remove data on uninstall')"
-                />
-
-                <span class="fe-form__hint">
-                    {{ $t('When on, deleting the plugin permanently removes all of its data — calendars, events, guests and settings. This cannot be undone.') }}
-                </span>
-            </el-form-item>
-
             <div v-if="canWrite" class="fe-form__actions">
                 <el-button
                     type="primary"
@@ -77,7 +63,6 @@
                 settings: {
                     default_events_view: 'timeline',
                     dark_mode: 'yes',
-                    remove_data_on_uninstall: 'no',
                 },
             };
         },
