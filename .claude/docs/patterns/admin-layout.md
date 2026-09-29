@@ -251,8 +251,6 @@ extraction rule in [README.md](README.md). Build the equivalent of `ActionPanel`
 
 ## What to build first
 
-In [scaffolding.md](../phase/v1/scaffolding.md) terms:
-
 1. ~~`variables.scss` with our nine tokens, light + dark.~~ Done.
 2. ~~`navigation.scss` ported from affiliate, class names re-prefixed.~~ Done.
 3. ~~Fix the three topbar defects — brand name, dashboard link, control order.~~ Done.

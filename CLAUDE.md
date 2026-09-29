@@ -32,7 +32,7 @@ Three things people get wrong:
 Entry mode lives in `event_details.settings.registration_type` — `ticketed`, `rsvp`, or
 `open`. `guests.ticket_type_id` is nullable; ticketed mode enforces it in the service.
 
-Details: [docs/db/implementation.md](.claude/docs/db/implementation.md).
+Schema: [docs/db/fe_db_schema.sql](.claude/docs/db/fe_db_schema.sql).
 
 ## 2. Layering
 

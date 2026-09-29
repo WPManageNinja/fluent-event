@@ -41,13 +41,13 @@
 **Answer:**
 _(team lead)_
 
-**Affects:** [settings/settings.md](functional-requirement-parts/settings/settings.md) (FR-4 section list), [02-functional-requirements.md](02-functional-requirements.md) (index)
+**Affects:** [settings.md](settings.md) (FR-4 section list), [functional-requirements.md](functional-requirements.md) (index)
 
 ---
 
 ## Q3 — How many email templates do we need?
 
-**Context:** The catalog ([email-settings.md](functional-requirement-parts/settings/email-settings.md)) currently lists **18** emails across account/auth, events, membership, and digest. Need the final set + v1 cut.
+**Context:** The catalog ([email-settings.md](email-settings.md)) currently lists **18** emails across account/auth, events, membership, and digest. Need the final set + v1 cut.
 
 **Questions:**
 
@@ -62,7 +62,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [settings/email-settings.md](functional-requirement-parts/settings/email-settings.md) (catalog), [settings/settings.md](functional-requirement-parts/settings/settings.md) (FR-4.7)
+**Affects:** [email-settings.md](email-settings.md) (catalog), [settings.md](settings.md) (FR-4.7)
 
 ---
 
@@ -99,7 +99,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [events/events.md](functional-requirement-parts/events/events.md)
+**Affects:** [events.md](events.md)
 
 ---
 
@@ -117,7 +117,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [calendar/calendar.md](functional-requirement-parts/calendar/calendar.md), [calendar/calendar.md](functional-requirement-parts/calendar/calendar.md)
+**Affects:** [calendar.md](calendar.md)
 
 ---
 
@@ -138,7 +138,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [notification/notification.md](functional-requirements/notifications/notifications.md), [notification/notification.md](functional-requirement/notifications/notifications.md)
+**Affects:** [notifications.md](notifications.md)
 
 ---
 
@@ -156,7 +156,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [fluentcommunity-integration/fluentcommunity-integration.md](functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md)
+**Affects:** [fluentcommunity-integration.md](fluentcommunity-integration.md)
 
 ---
 
@@ -177,7 +177,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [fluentcommunity-integration/fluentcommunity-integration.md](functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md) (FR-10.5)
+**Affects:** [fluentcommunity-integration.md](fluentcommunity-integration.md) (FR-10.5)
 
 ---
 
@@ -198,7 +198,7 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [fluentcommunity-integration/fluentcommunity-integration.md](functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md) (FR-10.6)
+**Affects:** [fluentcommunity-integration.md](fluentcommunity-integration.md) (FR-10.6)
 
 ---
 
@@ -215,6 +215,6 @@ _(team lead)_
 **Answer:**
 _(team lead)_
 
-**Affects:** [fluentcommunity-integration/fluentcommunity-integration.md](functional-requirements/fluentcommunity-integration/fluentcommunity-integration.md) (FR-10.7)
+**Affects:** [fluentcommunity-integration.md](fluentcommunity-integration.md) (FR-10.7)
 
 ---

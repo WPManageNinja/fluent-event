@@ -2,7 +2,7 @@
 
 **Summary:** The main event feature. Hosts and managers (WP users, in wp-admin) create, set up, publish, and manage events of **any kind** (meetup, wedding, conference, wordcamp…). Visitors register **anonymously** (no account) — pick a **ticket tier**, choose how many **tickets**, and enter details (name/email + a dynamic form) **per ticket**. Events are online / offline / hybrid, free or paid, open or approval-gated, with per-tier capacity. Covers content, location/online, ticket types, multi-ticket registration, dynamic per-attendee forms, invites, guests, check-in, visibility, insights, embedding, cloning, deleting, and recurring events.
 
-**Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](../calendar/calendar.md)). Registration needs **no account** — guest rows (grouped by `group_id`) are keyed by email; a nullable `user_id` **optionally** links a row to a WP account when the attendee happens to be logged in.
+**Builds on FR-4** (settings + permissions), **FR-7** (media for cover/gallery), **FR-8** ([calendars](calendar.md)). Registration needs **no account** — guest rows (grouped by `group_id`) are keyed by email; a nullable `user_id` **optionally** links a row to a WP account when the attendee happens to be logged in.
 
 ## Approach
 
@@ -25,14 +25,14 @@
 
 ## Data model
 
-Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `group_id`). Full DDL in [fe_db_schema.sql](../../db/fe_db_schema.sql); key columns below.
+Chain: **event → ticket_types → guests** (a purchase = guest rows sharing `group_id`). Full DDL in [fe_db_schema.sql](../db/fe_db_schema.sql); key columns below.
 
 **Event = CPT hybrid.** Identity (title, description, slug, status, author) lives
 in **`wp_posts`** (`post_type=fe_event`); addon config in **`wp_postmeta`**; typed
 relational data + the per-guest form in **`wp_fe_event_details`** (1:1 via `post_id`).
 Category / venue / organizer / performer are **WP taxonomies** on the post — the physical
 place (address/map) is `fe_venue` term meta, not an event column. See
-[db/implementation.md](../../db/implementation.md).
+[db/fe_db_schema.sql](../db/fe_db_schema.sql).
 
 **`wp_fe_event_details`** — the typed extension row (what ticketing FKs to). Also carries
 **recurrence occurrences** (see FR-6.16):
@@ -158,8 +158,7 @@ Deliberately **not** unique on `email` — a buyer commonly uses their own addre
 reusable across events, filterable, each with a free public archive + auto event count.
 Extra fields live in `wp_termmeta` (organizer: email/phone/website/logo; venue:
 address/city/map; type: color/icon; performer: photo/designation/social). Assign with
-`wp_set_object_terms($post_id, $termIds, $tax)`; query with `tax_query`. Full flows in
-[db/implementation.md](../../db/implementation.md).
+`wp_set_object_terms($post_id, $termIds, $tax)`; query with `tax_query`.
 
 > **Performer is intentionally thin** — a name + photo you tag events with, no bio/profile
 > page. If rich speaker profiles are ever needed it'd migrate to a CPT; for now taxonomy
@@ -289,4 +288,4 @@ be a taxonomy (`fe_sponsor`, like organizer), not a custom table.
 
 ## Open questions
 
-→ Tracked in [clarifying-questions.md](../../clarifying-questions.md) (events section).
+→ Tracked in [clarifying-questions.md](clarifying-questions.md) (events section).

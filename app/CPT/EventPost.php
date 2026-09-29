@@ -16,8 +16,6 @@ namespace FluentEvent\App\CPT;
  *
  * `post_status` stays `publish`. Visibility is a property of the type, not the
  * row, which leaves `event_details.status` free to mean what it says.
- *
- * @see .claude/docs/phase/v1/v1_docs.md — locked decisions
  */
 class EventPost
 {

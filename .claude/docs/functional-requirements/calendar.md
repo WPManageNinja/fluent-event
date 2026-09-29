@@ -82,4 +82,4 @@ anyway. `UNIQUE(slug)` is kept for **correctness** (no duplicate slugs) — the 
 
 ## Open questions
 
-→ Tracked in [clarifying-questions.md](../../clarifying-questions.md).
+→ Tracked in [clarifying-questions.md](clarifying-questions.md).
