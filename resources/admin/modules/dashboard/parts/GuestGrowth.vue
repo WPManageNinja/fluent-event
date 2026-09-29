@@ -68,7 +68,7 @@
             return {
                 loading: false,
                 range: [
-                    dayjs().subtract(29, 'day').format('YYYY-MM-DD'),
+                    dayjs().subtract(6, 'day').format('YYYY-MM-DD'),
                     dayjs().format('YYYY-MM-DD'),
                 ],
                 chartData: {
