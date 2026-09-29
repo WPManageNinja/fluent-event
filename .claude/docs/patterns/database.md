@@ -42,7 +42,7 @@ be inserted in the right place in a list.
 > `static migrate()` that hands a `CREATE TABLE` string to `dbDelta` behind a
 > `SHOW TABLES LIKE` guard. No Blueprint, no auto-discovery, no `alter()`. The rest of this
 > section describes where we intend to take it; see
-> [phase/v1/migrations.md](../phase/v1/migrations.md) for what runs today.
+> [database/Migrations/](../../../database/Migrations/) for what runs today.
 
 The target is a newer generation from `wpfluent/devtools`: a Blueprint API, auto-discovery,
 and idempotent guards per operation.
@@ -126,8 +126,7 @@ per table keeps the current shape readable in one place.
 - Any raw query goes through `$wpdb->prepare()`. `LIKE` needs
   `'%' . $wpdb->esc_like($term) . '%'` first.
 - Counts for a list screen come from one grouped aggregate, not a query per row. The
-  calendars grid and the combined events timeline are both N+1 traps — see
-  [screens/calendars.md](../phase/v1/screens/calendars.md).
+  calendars grid and the combined events timeline are both N+1 traps.
 - Status transitions that must not race use a CAS update — `UPDATE … WHERE id = ? AND
   status = 'old'` — then check affected rows.
 - Multi-row writes that must be atomic open `DB::transaction()` at the service layer.

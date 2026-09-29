@@ -130,11 +130,10 @@ class AdminMenuHandler
             'slug'           => $this->slug,
             'baseUrl'        => $this->baseUrl,
             'name'           => $this->config->get('app.name'),
-            'logo'           => Enqueue::getStaticFilePath('images/logo.png'),
-            'darkLogo'       => Enqueue::getStaticFilePath('images/logo.png'),
-            'menuItems'         => $this->getMenuItemsList(),
-            'rightMenuItems'    => $this->getRightMenuItemsList(),
-            'isDarkModeEnabled' => Settings::get()['dark_mode'] === 'yes',
+            'logo'           => Enqueue::getStaticFilePath('images/logo.svg'),
+            'darkLogo'       => Enqueue::getStaticFilePath('images/logo-dark.svg'),
+            'menuItems'      => $this->getMenuItemsList(),
+            'rightMenuItems' => $this->getRightMenuItemsList(),
         ]);
     }
 
@@ -346,9 +345,9 @@ class AdminMenuHandler
             'user_locale'   => get_locale(),
             'timezone'      => wp_timezone_string(),
             'start_of_week' => (int) get_option('start_of_week', 0),
-            'general_settings' => $generalSettings = Settings::get(),
-            'date_format'      => DateTimeHelper::convertToDayJsFormat($generalSettings['date_format']),
-            'time_format'      => DateTimeHelper::convertToDayJsFormat($generalSettings['time_format']),
+            'general_settings' => Settings::get(),
+            'date_format'      => DateTimeHelper::convertToDayJsFormat(get_option('date_format')),
+            'time_format'      => DateTimeHelper::convertToDayJsFormat(get_option('time_format')),
             'brand_logo'    => $this->getMenuIcon(),
             'nonce'         => wp_create_nonce($slug),
             'asset_url'     => $this->app['url.assets'],
@@ -356,7 +355,7 @@ class AdminMenuHandler
             'baseUrl'       => $this->baseUrl,
             'name'          => $this->config->get('app.name'),
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
-            'logoUrl'       => Enqueue::getStaticFilePath('images/logo.png'),
+            'logoUrl'       => Enqueue::getStaticFilePath('images/logo.svg'),
             'me'            => [
                 'id'          => $authUser->ID ?? null,
                 'email'       => $authUser->user_email ?? null,

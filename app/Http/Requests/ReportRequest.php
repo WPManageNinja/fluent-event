@@ -14,7 +14,7 @@ class ReportRequest extends BaseRequest
         $endDate   = $request->getSafe('end_date', 'sanitize_text_field');
 
         $end   = $isDate($endDate) ? $endDate : gmdate('Y-m-d');
-        $start = $isDate($startDate) ? $startDate : gmdate('Y-m-d', strtotime($end . ' -29 days'));
+        $start = $isDate($startDate) ? $startDate : gmdate('Y-m-d', strtotime($end . ' -6 days'));
 
         if ($start > $end) {
             [$start, $end] = [$end, $start];

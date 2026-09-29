@@ -12,11 +12,7 @@ class Settings
 
     const DEFAULTS = [
         self::GENERAL => [
-            'default_events_view'      => 'timeline',
-            'date_format'              => '',
-            'time_format'              => '',
-            'dark_mode'                => 'yes',
-            'remove_data_on_uninstall' => 'no',
+            'default_events_view' => 'timeline',
         ],
         self::EMAIL => [
             'from_name'      => '',
@@ -56,17 +52,9 @@ class Settings
 
     public static function get($key = self::GENERAL)
     {
-        $settings = array_merge($defaults = self::DEFAULTS[$key] ?? [], array_intersect_key(
+        return array_merge($defaults = self::DEFAULTS[$key] ?? [], array_intersect_key(
             self::getStored($key), $defaults
         ));
-
-        if ($key === self::GENERAL) {
-            // fallback to WP's own formats
-            $settings['date_format'] = $settings['date_format'] ?: get_option('date_format', 'F j, Y');
-            $settings['time_format'] = $settings['time_format'] ?: get_option('time_format', 'g:i a');
-        }
-
-        return $settings;
     }
 
     public static function update($key, array $values)

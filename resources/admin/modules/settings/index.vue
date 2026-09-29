@@ -26,7 +26,7 @@
 </template>
 
 <script type="text/javascript">
-    import { Message, Setting, User } from '@element-plus/icons-vue';
+    import { Setting, User } from '@element-plus/icons-vue';
 
     export default {
         name: 'SettingsLayout',
@@ -37,11 +37,6 @@
                         name: 'settings_general',
                         label: this.$t('General'),
                         icon: Setting,
-                    },
-                    {
-                        name: 'settings_email',
-                        label: this.$t('Email'),
-                        icon: Message,
                     },
                 ];
 

@@ -145,10 +145,8 @@ class EventReminderService
 
     protected static function buildBody($event, $guest)
     {
-        $general = Settings::get(Settings::GENERAL);
-
         $startsAt = date_i18n(
-            $general['date_format'] . ' ' . $general['time_format'],
+            get_option('date_format') . ' ' . get_option('time_format'),
             strtotime($event->start_at_local)
         );
 

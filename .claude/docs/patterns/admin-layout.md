@@ -223,12 +223,11 @@ Persisted as `localStorage.fe_color_mode`. `toggleColorMode` lives in
 in affiliate, the button is inert until that bundle parses and a dark-mode user sees one
 light frame first. Fixing it means inlining the apply in the view or on `admin_head`.
 
-**Both logos currently point at the same `logo.png`** — the swap is wired, the dark asset
-is not drawn yet.
+The light logo is `logo.svg` (dark wordmark), the dark one `logo-dark.svg` (white
+wordmark) — the only difference is the text fill.
 
-Remember dark mode is gated by a setting in v1 — when it is off, the toggle should not
-render at all. **Not yet done**: the toggle renders unconditionally until chunk 21 gives it
-a setting to read. See [screens/settings.md](../phase/v1/screens/settings.md).
+Dark mode is not a setting — the toggle always renders and light/dark stays a per-user
+choice.
 
 ---
 
@@ -252,8 +251,6 @@ extraction rule in [README.md](README.md). Build the equivalent of `ActionPanel`
 
 ## What to build first
 
-In [scaffolding.md](../phase/v1/scaffolding.md) terms:
-
 1. ~~`variables.scss` with our nine tokens, light + dark.~~ Done.
 2. ~~`navigation.scss` ported from affiliate, class names re-prefixed.~~ Done.
 3. ~~Fix the three topbar defects — brand name, dashboard link, control order.~~ Done.
@@ -262,7 +259,5 @@ In [scaffolding.md](../phase/v1/scaffolding.md) terms:
 Carried forward from the topbar work, none of it blocking:
 
 - Mobile menu opener — `Icon::MENU` exists, no markup uses it.
-- Dark logo asset; both `<img>`s point at `logo.png` today.
-- Gate the colour-mode toggle on the v1 dark-mode setting (chunk 21).
 - Dropdown tier in the navbar, once a nav item has sub-items.
 - `rtl.scss`, before the screens pile up.

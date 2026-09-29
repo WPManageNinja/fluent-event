@@ -153,4 +153,4 @@ Typed, namespaced action registry. At least:
 
 ## Open questions
 
-→ Tracked in [clarifying-questions.md](../../clarifying-questions.md).
+→ Tracked in [clarifying-questions.md](clarifying-questions.md).

@@ -45,7 +45,7 @@
     ]);
 
     const cssVar = function (name, fallback) {
-        const value = getComputedStyle(document.documentElement)
+        const value = getComputedStyle(document.body)
             .getPropertyValue(name)
             .trim();
 
@@ -68,7 +68,7 @@
             return {
                 loading: false,
                 range: [
-                    dayjs().subtract(29, 'day').format('YYYY-MM-DD'),
+                    dayjs().subtract(6, 'day').format('YYYY-MM-DD'),
                     dayjs().format('YYYY-MM-DD'),
                 ],
                 chartData: {
@@ -119,7 +119,7 @@
                 }
 
                 const textColor = cssVar('--fe-secondary-text', '#525866');
-                const lineColor = cssVar('--fe-primary-border', '#d3d8de');
+                const lineColor = cssVar('--fe-primary-border', '#eaecf0');
 
                 this.chart.setOption({
                     aria: {
@@ -192,13 +192,21 @@
         },
         created() {
             this.chart = null;
+            this.themeObserver = null;
         },
         mounted() {
             this.fetchChartData();
             window.addEventListener('resize', this.resizeChart);
+
+            this.themeObserver = new MutationObserver(this.renderChart);
+            this.themeObserver.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class'],
+            });
         },
         beforeUnmount() {
             window.removeEventListener('resize', this.resizeChart);
+            this.themeObserver?.disconnect();
             this.disposeChart();
         },
     };

@@ -8,9 +8,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--fe-space-5, 20px);
+    padding: 0 var(--fe-gutter, 30px);
     background-color: var(--fe-primary-bg, #ffffff);
-    box-shadow: var(--fe-shadow-navbar, 0 0 20px rgba(28, 39, 50, 0.08));
+    border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
     height: var(--fe-navbar-height, 65px);
     
     @media (max-width: 600px) {
@@ -83,7 +83,7 @@
     }
 
     &__mode-icon {
-        display: block;
+        display: flex;
         transition: 0.4s;
 
         &.fe-navbar__mode-icon--dark {
@@ -122,9 +122,11 @@
         }
     }
 
-    &__color-mode {
-        .el-icon {
-            margin-top: 4px;
+    &__link.fe-navbar__color-mode {
+        padding: var(--fe-space-2-5, 10px) 6px;
+
+        &:hover {
+            background-color: transparent;
         }
     }
 
@@ -157,7 +159,7 @@
         min-width: 180px;
         margin-top: var(--fe-space-2, 8px);
         padding: var(--fe-space-2, 8px);
-        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-primary-bg, #ffffff);
         box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
@@ -198,7 +200,7 @@
         display: flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);
-        padding: var(--fe-space-2, 8px) var(--fe-space-3, 12px);
+        padding: var(--fe-space-2-5, 10px) var(--fe-space-3, 12px);
         border: none;
         border-radius: var(--fe-radius, 8px);
         background: transparent;
@@ -206,7 +208,7 @@
         font-weight: 500;
         text-decoration: none;
         cursor: pointer;
-        color: var(--fe-secondary-text, #525866);
+        color: var(--fe-text-mid, #565865);
         transition: color 0.2s, background-color 0.2s;
 
         &:hover,
@@ -217,7 +219,7 @@
         }
 
         &:focus-visible {
-            color: var(--fe-secondary-text, #525866);
+            color: var(--fe-text-mid, #565865);
             outline: 2px solid var(--fe-primary-text, #19283a);
             outline-offset: 2px;
             border-radius: var(--fe-radius, 8px);
@@ -225,12 +227,12 @@
 
         &:hover {
             color: var(--fe-primary-text, #19283a);
-            background-color: var(--fe-active-bg, #f0f3f5);
+            background-color: var(--fe-hover-bg, #f9fafb);
         }
 
         &.fe-navbar__link--active {
-            color: var(--fe-primary-text, #19283a);
-            background-color: var(--fe-active-bg, #f0f3f5);
+            color: var(--fe-accent, #253241);
+            background-color: var(--fe-active-bg, #f0f0f1);
             border-radius: var(--fe-radius, 8px);
         }
     }
@@ -247,13 +249,13 @@
         &__links {
             position: absolute;
             top: 100%;
-            left: var(--fe-space-5, 20px);
+            left: var(--fe-gutter, 30px);
             z-index: 100;
             flex-direction: column;
             min-width: 180px;
             margin-top: var(--fe-space-2, 8px);
             padding: var(--fe-space-2, 8px);
-            border: 1px solid var(--fe-primary-border, #d3d8de);
+            border: 1px solid var(--fe-primary-border, #eaecf0);
             border-radius: var(--fe-radius, 8px);
             background-color: var(--fe-primary-bg, #ffffff);
             box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));

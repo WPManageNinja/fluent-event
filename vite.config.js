@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
@@ -9,6 +10,13 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
 const pluginFolder = path.basename(__dirname);
 const devPort = process.env.PORT ? parseInt(process.env.PORT) : 8880;
+
+// The resolver injects per-component Element Plus CSS that Vite's startup scan can't see, so the
+// first page using a new component forced a re-bundle and a full page reload. Pre-bundle them all.
+const elementPlusComponents = path.resolve(__dirname, 'node_modules/element-plus/es/components');
+const elementPlusStyles = fs.readdirSync(elementPlusComponents)
+    .filter(name => fs.existsSync(`${elementPlusComponents}/${name}/style/css.mjs`))
+    .map(name => `element-plus/es/components/${name}/style/css`);
 
 export default defineConfig(({ mode }) => {
     const isDev = mode === 'development';
@@ -54,6 +62,9 @@ export default defineConfig(({ mode }) => {
                 '@': path.resolve(__dirname, 'resources/admin')
             },
             extensions: ['.js', '.vue', '.json']
+        },
+        optimizeDeps: {
+            include: elementPlusStyles
         },
         server: {
             port: devPort,

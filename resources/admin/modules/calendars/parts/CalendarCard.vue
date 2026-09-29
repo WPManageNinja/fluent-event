@@ -7,7 +7,7 @@
                 :type="$calendarStatusType(calendar.status)"
                 size="small"
             >
-                {{ $t(calendar.status) }}
+                {{ $calendarStatusLabel(calendar.status) }}
             </el-tag>
 
             <span class="fe-calendars__card-mark" aria-hidden="true">{{ initials }}</span>

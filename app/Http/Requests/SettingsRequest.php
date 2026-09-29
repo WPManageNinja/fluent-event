@@ -8,10 +8,6 @@ class SettingsRequest extends BaseRequest
         'user_id'                  => 'absint',
         'permissions.*'            => 'sanitize_text_field',
         'default_events_view'      => 'sanitize_text_field',
-        'date_format'              => 'sanitize_text_field',
-        'time_format'              => 'sanitize_text_field',
-        'dark_mode'                => 'sanitize_text_field',
-        'remove_data_on_uninstall' => 'sanitize_text_field',
         'from_name'                => 'sanitize_text_field',
         'from_email'               => 'sanitize_email',
         'reply_to_name'            => 'sanitize_text_field',
@@ -26,11 +22,7 @@ class SettingsRequest extends BaseRequest
     ];
 
     const GENERAL_RULES = [
-        'default_events_view'      => 'required|string|in:cards,timeline,calendar',
-        'date_format'              => 'nullable|string',
-        'time_format'              => 'nullable|string',
-        'dark_mode'                => 'required|string|in:yes,no',
-        'remove_data_on_uninstall' => 'required|string|in:yes,no',
+        'default_events_view' => 'required|string|in:cards,timeline,calendar',
     ];
 
     const EMAIL_RULES = [
@@ -73,6 +65,9 @@ class SettingsRequest extends BaseRequest
             'reminder_hours.integer'  => __('The reminder time must be a number of hours.', 'fluent-event'),
             'reminder_hours.min'      => __('The reminder time must be at least 1 hour.', 'fluent-event'),
             'reminder_hours.max'      => __('The reminder time cannot be more than 720 hours (30 days).', 'fluent-event'),
+
+            'default_events_view.required' => __('Choose a default events view.', 'fluent-event'),
+            'default_events_view.in'       => __('The default events view must be cards, timeline or calendar.', 'fluent-event'),
         ];
     }
 }
