@@ -87,6 +87,8 @@ class DeactivationHandler
      */
     protected function deactivatePlugin()
     {
-        // Plugin Deactivation Code...
+        if (function_exists('as_unschedule_all_actions')) {
+            as_unschedule_all_actions('', [], 'fluent-event');
+        }
     }
 }
