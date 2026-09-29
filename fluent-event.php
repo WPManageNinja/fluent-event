@@ -7,7 +7,7 @@ defined('ABSPATH') or die;
  * Plugin URI: https://fluentevent.com
  * Description: Event management plugin for WordPress. 
  * Version: 1.0.0
- * Requires at least: 5.2
+ * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: WPManageNinja LLC
  * Author URI: https://fluentevent.com
