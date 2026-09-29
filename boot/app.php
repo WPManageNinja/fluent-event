@@ -48,7 +48,7 @@ return function($file) {
         });
 
         add_action('plugins_loaded', function() use ($app) {
-            do_action('fluentevent_loaded', $app);
+            do_action('fluent_event/loaded', $app);
         });
 
         return $app;
