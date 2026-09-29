@@ -49,6 +49,7 @@ body {
     --fe-shadow-card-hover: 0 2px 8px rgba(28, 39, 50, 0.09);
     --fe-cover-tint: 0.36;
     --fe-card-hover-bg: #ffffff;
+    --fe-card-line: transparent;
 
     --fe-on-hue-light: #ffffff;
     --fe-on-hue-dark: #19283a;
@@ -128,6 +129,7 @@ html.dark body {
     --fe-shadow-card-hover: 0 2px 10px rgba(0, 0, 0, 0.4);
     --fe-cover-tint: 0.2;
     --fe-card-hover-bg: #1C2732;
+    --fe-card-line: #2C3C4E;
     --fe-switch-track: #171F28;
     --fe-switch-thumb: #1C2732;
     --fe-badge-color: #2C3C4E;

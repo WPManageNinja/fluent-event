@@ -1461,10 +1461,6 @@
         @media screen and (max-width: 768px) {
             grid-template-columns: repeat(2, 1fr);
         }
-
-        @media screen and (max-width: 575px) {
-            grid-template-columns: 1fr;
-        }
     }
 
     &__tile.el-skeleton__rect {
@@ -1570,10 +1566,6 @@
         @media screen and (max-width: 768px) {
             grid-template-columns: repeat(2, 1fr);
         }
-
-        @media screen and (max-width: 575px) {
-            grid-template-columns: 1fr;
-        }
     }
 
     &__tile {
@@ -1584,6 +1576,7 @@
         gap: var(--fe-space-3, 12px);
         padding: var(--fe-space-4, 16px);
         background: var(--fe-primary-bg, #ffffff);
+        border: 1px solid var(--fe-card-line, transparent);
         border-radius: var(--fe-radius, 8px);
     }
 
@@ -1642,6 +1635,7 @@
 
     &__tile-row {
         display: flex;
+        flex-wrap: wrap;
         align-items: baseline;
         gap: var(--fe-space-2, 8px);
     }
@@ -1673,6 +1667,7 @@
         padding: var(--fe-space-4, 16px);
         margin-bottom: var(--fe-space-5, 20px);
         background: var(--fe-primary-bg, #ffffff);
+        border: 1px solid var(--fe-card-line, transparent);
         border-radius: var(--fe-radius, 8px);
     }
 
@@ -1718,7 +1713,7 @@
         gap: var(--fe-space-3, 12px);
         padding: var(--fe-space-3, 12px) 0;
         text-decoration: none;
-        border-bottom: 1px solid var(--fe-secondary-bg, #f3f5fa);
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
 
         &:last-child {
             padding-bottom: 0;

@@ -1,7 +1,10 @@
 import { capitalize } from 'vue';
 import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 import Rest from '@/utils/http/Rest.js';
 import { ElNotification, ElMessageBox } from 'element-plus';
+
+dayjs.extend(advancedFormat);
 
 const config = window.fluentEventAdmin;
 
