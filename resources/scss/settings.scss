@@ -95,13 +95,16 @@
 }
 
 .fe-settings-page {
-    width: var(--fe-page-width, 1350px);
-    max-width: 100%;
+    max-width: 980px;
     margin: 0 auto;
     padding: var(--fe-space-6, 24px);
     background: var(--fe-primary-bg, #ffffff);
     border: 1px solid var(--fe-primary-border, #d3d8de);
     border-radius: var(--fe-radius, 8px);
+
+    & + & {
+        margin-top: var(--fe-space-5, 20px);
+    }
 
     &__header {
         display: flex;
