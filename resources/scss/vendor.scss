@@ -264,6 +264,25 @@
         gap: var(--fe-space-2, 8px);
     }
 
+    .el-checkbox {
+        --el-checkbox-input-width: 18px;
+        --el-checkbox-input-height: 18px;
+        --el-checkbox-border-radius: var(--fe-radius-sm, 4px);
+        --el-checkbox-bg-color: var(--fe-primary-bg, #ffffff);
+        --el-checkbox-input-border: 1px solid var(--fe-secondary-border, #9ca3af);
+        --el-checkbox-text-color: var(--fe-primary-text, #19283a);
+
+        .el-checkbox__inner::after {
+            width: 5px;
+            height: 10px;
+            border-width: 0 2px 2px 0;
+        }
+
+        .el-checkbox__input.is-indeterminate .el-checkbox__inner::before {
+            top: 7px;
+        }
+    }
+
     .el-checkbox:hover .el-checkbox__inner {
         border-color: var(--fe-primary-button, #2b2e33);
     }
