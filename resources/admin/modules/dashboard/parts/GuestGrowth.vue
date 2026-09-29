@@ -119,7 +119,7 @@
                 }
 
                 const textColor = cssVar('--fe-secondary-text', '#525866');
-                const lineColor = cssVar('--fe-primary-border', '#d3d8de');
+                const lineColor = cssVar('--fe-primary-border', '#eaecf0');
 
                 this.chart.setOption({
                     aria: {

@@ -14,7 +14,7 @@
     #wpcontent,
     #wpbody,
     #wpfooter {
-        background-color: var(--fe-secondary-bg, #f0f2f5);
+        background-color: var(--fe-secondary-bg, #f3f5fa);
     }
 
     #wpfooter {
@@ -51,6 +51,11 @@
     // Base
     a {
         text-decoration: none;
+
+        &:focus {
+            border-radius: var(--fe-radius, 8px);
+            color: var(--fe-primary-text, #19283a);
+        }
     }
 
     // Utils
@@ -70,7 +75,7 @@
     }
 
     .mce-tinymce {
-        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius, 8px);
         box-shadow: none;
         overflow: hidden;
@@ -80,13 +85,13 @@
         }
 
         .mce-panel {
-            border-color: var(--fe-primary-border, #d3d8de);
+            border-color: var(--fe-primary-border, #eaecf0);
             background-color: transparent;
         }
 
         .mce-toolbar-grp {
-            background-color: var(--fe-active-bg, #f0f3f5);
-            border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            background-color: var(--fe-active-bg, #f0f0f1);
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
         }
 
         .mce-btn {
@@ -118,8 +123,8 @@
         }
 
         .mce-statusbar {
-            background-color: var(--fe-active-bg, #f0f3f5);
-            border-top: 1px solid var(--fe-primary-border, #d3d8de);
+            background-color: var(--fe-active-bg, #f0f0f1);
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
         }
     }
 }

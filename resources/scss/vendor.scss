@@ -150,7 +150,7 @@
     .el-input__wrapper,
     .el-textarea__inner,
     .el-select__wrapper {
-        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius, 8px);
         box-shadow: none;
         background-color: var(--fe-primary-bg, #ffffff);
@@ -169,11 +169,11 @@
     }
 
     .el-input-group__prepend {
-        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
         border-right: none;
         border-radius: var(--fe-radius, 8px) 0 0 var(--fe-radius, 8px);
         box-shadow: none;
-        background-color: var(--fe-active-bg, #f0f3f5);
+        background-color: var(--fe-active-bg, #f0f0f1);
 
         .el-select {
             width: auto;
@@ -201,13 +201,13 @@
         border-radius: var(--fe-radius, 8px);
         font-weight: 500;
         --el-button-bg-color: var(--fe-primary-bg, #ffffff);
-        --el-button-border-color: var(--fe-primary-border, #d3d8de);
+        --el-button-border-color: var(--fe-primary-border, #eaecf0);
         --el-button-text-color: var(--fe-secondary-text, #525866);
-        --el-button-hover-bg-color: var(--fe-active-bg, #f0f3f5);
-        --el-button-hover-border-color: var(--fe-primary-border, #d3d8de);
+        --el-button-hover-bg-color: var(--fe-active-bg, #f0f0f1);
+        --el-button-hover-border-color: var(--fe-primary-border, #eaecf0);
         --el-button-hover-text-color: var(--fe-primary-text, #19283a);
-        --el-button-active-bg-color: var(--fe-active-bg, #f0f3f5);
-        --el-button-active-border-color: var(--fe-primary-border, #d3d8de);
+        --el-button-active-bg-color: var(--fe-active-bg, #f0f0f1);
+        --el-button-active-border-color: var(--fe-primary-border, #eaecf0);
         --el-button-active-text-color: var(--fe-primary-text, #19283a);
     }
 
@@ -248,7 +248,7 @@
     .el-radio.is-bordered {
         height: var(--fe-control-height, 36px);
         margin-right: 0;
-        border-color: var(--fe-primary-border, #d3d8de);
+        border-color: var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius-sm, 4px);
 
         &:hover {
@@ -309,13 +309,13 @@
         --el-messagebox-border-radius: var(--fe-radius, 8px);
 
         padding: var(--fe-space-5, 20px);
-        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
         background-color: var(--fe-primary-bg, #ffffff);
     }
 
     .el-notification {
         --el-notification-radius: var(--fe-radius, 8px);
-        --el-notification-border-color: var(--fe-primary-border, #d3d8de);
+        --el-notification-border-color: var(--fe-primary-border, #eaecf0);
         --el-notification-title-color: var(--fe-primary-text, #19283a);
         --el-notification-content-color: var(--fe-secondary-text, #525866);
         --el-notification-close-color: var(--fe-secondary-text, #525866);
@@ -325,8 +325,8 @@
     }
 
     .el-skeleton {
-        --el-skeleton-color: var(--fe-active-bg, #f0f3f5);
-        --el-skeleton-to-color: var(--fe-primary-border, #d3d8de);
+        --el-skeleton-color: var(--fe-active-bg, #f0f0f1);
+        --el-skeleton-to-color: var(--fe-primary-border, #eaecf0);
     }
 
     .el-drawer {
@@ -335,7 +335,7 @@
         &__header {
             margin-bottom: 0;
             padding: var(--fe-space-5, 20px);
-            border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
             color: var(--fe-primary-text, #19283a);
         }
 
@@ -356,12 +356,12 @@
         --el-dialog-padding-primary: var(--fe-space-5, 20px);
         --el-dialog-title-font-size: var(--fe-text-base, 16px);
 
-        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
 
         &__header {
             margin-right: 0;
             padding-bottom: var(--fe-space-4, 16px);
-            border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
         }
 
         &__title {
@@ -388,17 +388,17 @@
 
         &__footer {
             padding-top: var(--fe-space-5, 20px);
-            border-top: 1px solid var(--fe-primary-border, #d3d8de);
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
         }
     }
 
     .el-calendar {
-        --el-calendar-border: 1px solid var(--fe-primary-border, #d3d8de);
-        --el-calendar-selected-bg-color: var(--fe-active-bg, #f0f3f5);
+        --el-calendar-border: 1px solid var(--fe-primary-border, #eaecf0);
+        --el-calendar-selected-bg-color: var(--fe-active-bg, #f0f0f1);
         --el-calendar-cell-width: 120px;
 
         overflow: hidden;
-        border: 1px solid var(--fe-primary-border, #d3d8de);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius-lg, 12px);
         background-color: var(--fe-primary-bg, #ffffff);
 
@@ -416,7 +416,7 @@
     .el-calendar-table {
         thead th {
             padding: var(--fe-space-3, 12px) var(--fe-space-2, 8px);
-            border-bottom: 1px solid var(--fe-primary-border, #d3d8de);
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
             font-size: var(--fe-text-xs, 12px);
             font-weight: 600;
             text-transform: uppercase;

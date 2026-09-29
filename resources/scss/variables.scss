@@ -3,10 +3,12 @@ body {
     --fe-page-width: 1350px;
     --fe-control-height: 36px;
     --fe-admin-menu-width: 160px;
+    --fe-gutter: 30px;
 
     // Spacing
     --fe-space-1: 4px;
     --fe-space-2: 8px;
+    --fe-space-2-5: 10px;
     --fe-space-3: 12px;
     --fe-space-4: 16px;
     --fe-space-5: 20px;
@@ -33,14 +35,15 @@ body {
     // Colors
     --fe-primary-text: #19283a;
     --fe-secondary-text: #525866;
+    --fe-text-mid: #565865;
     --fe-primary-button: #2B2E33;
-    --fe-primary-border: #d3d8de;
+    --fe-primary-border: #eaecf0;
     --fe-secondary-border: #9CA3AF;
     --fe-primary-bg: #ffffff;
-    --fe-secondary-bg: #f0f2f5;
-    --fe-active-bg: #f0f3f5;
+    --fe-secondary-bg: #f3f5fa;
+    --fe-active-bg: #f0f0f1;
+    --fe-hover-bg: #f9fafb;
 
-    --fe-shadow-navbar: 0 0 20px rgba(28, 39, 50, 0.08);
     --fe-shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.12);
     --fe-shadow-switch-thumb: 0 1px 2px rgba(28, 39, 50, 0.10);
     --fe-shadow-card-hover: 0 2px 8px rgba(28, 39, 50, 0.09);
@@ -60,6 +63,7 @@ body {
     --fe-chart-going: #0099ff;
     --fe-chart-checked-in: #1a7f37;
     --fe-chart-cancelled: #e06c75;
+    --fe-accent: #253241;
     --fe-accent-blue: #0e7ff1;
     --fe-accent-green: #1a7f37;
     --fe-accent-rose: #e06c75;
@@ -104,19 +108,21 @@ body {
 
     @media (max-width: 782px) {
         --fe-admin-menu-width: 0px;
+        --fe-gutter: 16px;
     }
 }
 
 html.dark body {
     --fe-primary-text: #F0F3F5;
     --fe-secondary-text: #99A0AE;
+    --fe-text-mid: #C1C7D1;
     --fe-primary-button: #FFFFFF;
-    --fe-primary-border: #253241;
+    --fe-primary-border: #2C3C4E;
     --fe-secondary-border: #2C3C4E;
-    --fe-primary-bg: #151D26;
+    --fe-primary-bg: #1C2732;
     --fe-secondary-bg: #11171D;
-    --fe-active-bg: #1C2732;
-    --fe-shadow-navbar: 0 0 20px rgba(0, 0, 0, 0.18);
+    --fe-active-bg: #253241;
+    --fe-hover-bg: #151D26;
     --fe-shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.25);
     --fe-shadow-switch-thumb: 0 1px 2px rgba(0, 0, 0, 0.28);
     --fe-shadow-card-hover: 0 2px 10px rgba(0, 0, 0, 0.4);
@@ -130,6 +136,7 @@ html.dark body {
     --fe-chart-going: #339cff;
     --fe-chart-checked-in: #3fb950;
     --fe-chart-cancelled: #e8919a;
+    --fe-accent: #D9DADC;
     --fe-accent-blue: #4aa3ff;
     --fe-accent-green: #3fb950;
     --fe-accent-rose: #e8919a;
