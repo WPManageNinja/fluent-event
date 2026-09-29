@@ -9,7 +9,7 @@
 
 ## Purpose
 
-Four settings. [FR-4](../../../functional-requirements/settings/settings.md) specifies
+Few settings. [FR-4](../../../functional-requirements/settings/settings.md) specifies
 seven sections, but five of them configure features v1 does not have — a settings page
 mostly full of controls for absent functionality is worse than a small one.
 
@@ -18,8 +18,6 @@ mostly full of controls for absent functionality is worse than a small one.
 | Setting | Type | Effect |
 |---|---|---|
 | **Default events view** | `timeline` \| `calendar` | which view the events screens open on |
-| **Default date format** | WP format string | how the plugin renders dates on its own surfaces |
-| **Default time format** | WP format string | likewise for times |
 | **Enable dark mode** | boolean | whether dark mode exists at all. Off ⇒ light only |
 
 ## Roles section
@@ -86,19 +84,10 @@ The view switch already persists per user. Precedence must be explicit:
 
 Otherwise the setting appears to do nothing for anyone who has ever touched the toggle.
 
-## The date and time formats are ours, deliberately
-
-They are **frontend** formats — separate from `get_option('date_format')` /
-`get_option('time_format')`, which govern wp-admin.
-
-- Seed the defaults from the WP values so a fresh install matches the site rather than
-  showing something arbitrary, then let them diverge.
-- Store WP-style format strings (`F j, Y`, `g:i a`).
-- **Show a live preview** of the rendered result. A raw format string is unreadable to most
-  hosts.
-
 ## Read from WordPress, don't re-ask
 
+- **Date and time formats** — `get_option('date_format')` / `get_option('time_format')`.
+  The SPA gets them converted to Day.js tokens; the plugin stores no override.
 - **Week starts on** — `get_option('start_of_week')`. The calendar grid needs it; WP
   already knows.
 - **Site timezone** — read the site setting; v1 stores no override. Note

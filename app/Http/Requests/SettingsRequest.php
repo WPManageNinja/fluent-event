@@ -8,8 +8,6 @@ class SettingsRequest extends BaseRequest
         'user_id'                  => 'absint',
         'permissions.*'            => 'sanitize_text_field',
         'default_events_view'      => 'sanitize_text_field',
-        'date_format'              => 'sanitize_text_field',
-        'time_format'              => 'sanitize_text_field',
         'dark_mode'                => 'sanitize_text_field',
         'remove_data_on_uninstall' => 'sanitize_text_field',
         'from_name'                => 'sanitize_text_field',
@@ -27,8 +25,6 @@ class SettingsRequest extends BaseRequest
 
     const GENERAL_RULES = [
         'default_events_view'      => 'required|string|in:cards,timeline,calendar',
-        'date_format'              => 'nullable|string',
-        'time_format'              => 'nullable|string',
         'dark_mode'                => 'required|string|in:yes,no',
         'remove_data_on_uninstall' => 'required|string|in:yes,no',
     ];
