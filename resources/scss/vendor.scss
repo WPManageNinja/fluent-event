@@ -262,7 +262,7 @@
         height: var(--fe-control-height, 36px);
         margin-right: 0;
         border-color: var(--fe-primary-border, #eaecf0);
-        border-radius: var(--fe-radius-sm, 4px);
+        border-radius: var(--fe-radius, 8px);
 
         &:hover {
             border-color: var(--fe-secondary-border, #9ca3af);
