@@ -945,9 +945,25 @@
         }
     }
 
-    &__header-swatch {
+    &__calendar-select.el-select {
+        width: 240px;
+        max-width: 100%;
+
+        .el-select__wrapper {
+            gap: var(--fe-space-2, 8px);
+        }
+    }
+
+    &__calendar-swatch {
         width: 14px;
         height: 14px;
+        background-color: var(--fe-secondary-border, #9ca3af);
+    }
+
+    &__calendar-option {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
     }
 
     &__title-label {
@@ -1019,7 +1035,7 @@
     }
 
     &__date.el-date-editor {
-        width: 160px;
+        width: 220px;
 
         @media screen and (max-width: 782px) {
             width: auto;
@@ -1040,7 +1056,7 @@
 
     // Spans the date and time inputs above it.
     &__timezone.el-select {
-        width: 302px;
+        width: 362px;
         max-width: 100%;
 
         @media screen and (max-width: 782px) {
@@ -1088,6 +1104,7 @@
         display: flex;
         flex: 1 1 auto;
         flex-direction: column;
+        gap: var(--fe-space-1, 4px);
         min-width: 0;
     }
 
