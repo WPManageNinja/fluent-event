@@ -63,7 +63,7 @@
                         <div class="fe-event-form__header">
                             <el-select
                                 v-model="event.calendar_id"
-                                class="fe-event-form__header-select"
+                                class="fe-event-form__calendar-select"
                                 :aria-label="$t('Calendar')"
                                 :placeholder="$t('Choose a calendar')"
                                 filterable
@@ -72,7 +72,7 @@
                             >
                                 <template #prefix>
                                     <span
-                                        class="fe-color-swatch fe-event-form__header-swatch"
+                                        class="fe-color-swatch fe-event-form__calendar-swatch"
                                         :style="{ background: calendarColor }"
                                     ></span>
                                 </template>
@@ -82,7 +82,15 @@
                                     :key="calendar.id"
                                     :label="calendar.title"
                                     :value="calendar.id"
-                                />
+                                >
+                                    <span class="fe-event-form__calendar-option">
+                                        <span
+                                            class="fe-color-swatch fe-event-form__calendar-swatch"
+                                            :style="{ background: calendar.meta?.theme_color }"
+                                        ></span>
+                                        {{ calendar.title }}
+                                    </span>
+                                </el-option>
                             </el-select>
 
                             <el-select
@@ -401,7 +409,7 @@
                     calendar => calendar.id === this.event.calendar_id
                 );
 
-                return selected?.meta?.theme_color || 'var(--fe-secondary-border, #9ca3af)';
+                return selected?.meta?.theme_color;
             },
             venueSummary() {
                 if (this.event.venue_type === 'online') {
