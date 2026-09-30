@@ -1886,6 +1886,10 @@
         }
     }
 
+    &__rows .fe-events-timeline__row:last-child .fe-events-timeline__dot {
+        margin-bottom: var(--fe-space-4, 16px);
+    }
+
     &__gutter {
         padding-top: var(--fe-space-5, 20px);
     }

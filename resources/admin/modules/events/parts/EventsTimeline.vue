@@ -3,23 +3,25 @@
         <el-empty v-if="!rows.length" :description="$t('No events yet.')" />
 
         <template v-else>
-            <div
-                v-for="row in rows"
-                :key="row.event.id"
-                class="fe-events-timeline__row"
-            >
-                <div class="fe-events-timeline__gutter">
-                    <span class="fe-events-timeline__date">{{ row.date }}</span>
-                    <span class="fe-events-timeline__weekday">{{ row.weekday }}</span>
+            <div class="fe-events-timeline__rows">
+                <div
+                    v-for="row in rows"
+                    :key="row.event.id"
+                    class="fe-events-timeline__row"
+                >
+                    <div class="fe-events-timeline__gutter">
+                        <span class="fe-events-timeline__date">{{ row.date }}</span>
+                        <span class="fe-events-timeline__weekday">{{ row.weekday }}</span>
+                    </div>
+
+                    <span class="fe-events-timeline__dot" aria-hidden="true"></span>
+
+                    <EventCard
+                        :event="row.event"
+                        :show-calendar="showCalendar"
+                        @open="$emit('open', $event)"
+                    />
                 </div>
-
-                <span class="fe-events-timeline__dot" aria-hidden="true"></span>
-
-                <EventCard
-                    :event="row.event"
-                    :show-calendar="showCalendar"
-                    @open="$emit('open', $event)"
-                />
             </div>
 
             <Pagination
