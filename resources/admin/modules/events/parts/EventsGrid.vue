@@ -170,6 +170,7 @@
     import dayjs from 'dayjs';
     import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
 
     const VISIBLE_PER_DAY = 3;
     const HOUR_PX = 48;
@@ -257,14 +258,34 @@
             hours() {
                 return Array.from({ length: 24 }, (unused, index) => index);
             },
+            visibleFrom() {
+                return dayjs(this.month).startOf('month').startOf('week').format('YYYY-MM-DD');
+            },
+            visibleTo() {
+                return dayjs(this.month).endOf('month').endOf('week').format('YYYY-MM-DD');
+            },
             entriesByDay() {
+                const first = toUtcDay(this.visibleFrom);
+                const last = toUtcDay(this.visibleTo);
                 const days = {};
 
                 this.events.forEach(event => {
-                    const key = event.start_at_local.slice(0, 10);
+                    const start = toUtcDay(event.start_at_local);
+                    const end = toUtcDay(event.end_at_local);
 
-                    days[key] = days[key] || [];
-                    days[key].push({ event });
+                    for (
+                        let day = Math.max(start, first);
+                        day <= Math.min(end, last);
+                        day += DAY_MS
+                    ) {
+                        const key = toDayKey(day);
+
+                        days[key] = days[key] || [];
+                        days[key].push({
+                            event,
+                            dayIndex: (day - start) / DAY_MS + 1,
+                        });
+                    }
                 });
 
                 Object.values(days).forEach(entries => entries.sort(
@@ -291,6 +312,7 @@
                 return this.entriesFor(day).slice(VISIBLE_PER_DAY);
             },
             entryTime(entry) {
+                if (entry.dayIndex > 1) return this.$t('Day %d', entry.dayIndex);
                 return this.$formatTime(entry.event.start_at_local);
             },
             entryColor(entry) {
