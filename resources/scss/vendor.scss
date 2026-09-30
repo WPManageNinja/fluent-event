@@ -2,6 +2,7 @@
 
 @include meta.load-css("element-plus/theme-chalk/el-notification");
 @include meta.load-css("element-plus/theme-chalk/el-loading");
+@include meta.load-css("element-plus/theme-chalk/el-overlay");
 @include meta.load-css("element-plus/theme-chalk/el-message-box");
 @include meta.load-css("element-plus/theme-chalk/dark/css-vars");
 
@@ -206,6 +207,44 @@
         .el-input__wrapper {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
+        }
+    }
+
+    .el-input-group__append {
+        box-sizing: border-box;
+        height: var(--fe-control-height, 36px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-left: none;
+        border-radius: 0 var(--fe-radius, 8px) var(--fe-radius, 8px) 0;
+        box-shadow: none;
+        color: var(--fe-primary-text, #19283a);
+        background-color: var(--fe-primary-bg, #ffffff);
+
+        &:hover {
+            background-color: var(--fe-hover-bg, #f9fafb);
+        }
+
+        .el-button {
+            height: 100%;
+        }
+    }
+
+    .el-input-group--append {
+        .el-input__wrapper {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+
+    .el-input.is-disabled {
+        .el-input__wrapper {
+            box-shadow: none;
+            background-color: var(--fe-disabled-bg, #f3f5fa);
+        }
+
+        .el-input__inner {
+            color: var(--fe-secondary-text, #525866);
+            -webkit-text-fill-color: var(--fe-secondary-text, #525866);
         }
     }
 
