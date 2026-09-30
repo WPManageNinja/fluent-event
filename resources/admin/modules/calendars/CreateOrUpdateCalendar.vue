@@ -44,11 +44,17 @@
 
                                 <el-form-item :label="$t('Slug')" required>
                                     <el-input
+                                        ref="slug"
                                         v-model="calendar.slug"
                                         :placeholder="$t('e.g. personal')"
+                                        :disabled="slugLocked"
                                         @input="onSlugInput"
                                         @blur="normalizeSlug"
-                                    />
+                                    >
+                                        <template v-if="slugLocked" #append>
+                                            <el-button @click="unlockSlug">{{ $t('Change') }}</el-button>
+                                        </template>
+                                    </el-input>
                                     <span class="fe-form__hint">
                                         {{ $t('Identifies this calendar in links. Changing it later breaks existing ones.') }}
                                     </span>
@@ -176,6 +182,7 @@
                 error: '',
                 saving: false,
                 slugEdited: false,
+                slugLocked: false,
                 calendar: {},
                 original: {},
                 customColors: [],
@@ -255,6 +262,7 @@
                         this.selectColor(this.calendar.theme_color);
                         this.original = { ...this.calendar };
                         this.slugEdited = true;
+                        this.slugLocked = true;
                     },
                 });
             },
@@ -269,6 +277,20 @@
                 if (!this.slugEdited) {
                     this.calendar.slug = this.$slugify(this.calendar.title);
                 }
+            },
+            unlockSlug() {
+                this.$confirm(
+                    this.$t('Existing links to this calendar will be affected. Do you still want to change the slug?'),
+                    this.$t('Change slug'),
+                    {
+                        confirmButtonText: this.$t('Change slug'),
+                        cancelButtonText: this.$t('Cancel'),
+                        type: 'warning',
+                    }
+                ).then(() => {
+                    this.slugLocked = false;
+                    this.$nextTick(() => this.$refs.slug.focus());
+                }).catch(() => {});
             },
             onSlugInput(value) {
                 this.slugEdited = String(value).trim() !== '';
@@ -303,6 +325,7 @@
                 if (this.isEditing) {
                     this.calendar = { ...this.original };
                     this.slugEdited = true;
+                    this.slugLocked = true;
                     return;
                 }
 
