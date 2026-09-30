@@ -284,7 +284,7 @@ return [
             'Top Events' => __('Top Events', 'fluent-event'),
             'Try Again' => __('Try Again', 'fluent-event'),
             /* translators: %s is the calendar or event title the user must type */
-            'Type %s to confirm.' => __('Type %s to confirm.', 'fluent-event'),
+            'Type "%s" to confirm (without quotes).' => __('Type "%s" to confirm (without quotes).', 'fluent-event'),
             'Unauthorized' => __('Unauthorized', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
             'Upcoming Events' => __('Upcoming Events', 'fluent-event'),

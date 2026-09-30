@@ -42,7 +42,7 @@
                                     />
                                 </el-form-item>
 
-                                <el-form-item :label="$t('Slug')" required>
+                                <el-form-item :label="$t('Slug')">
                                     <el-input
                                         ref="slug"
                                         v-model="calendar.slug"
