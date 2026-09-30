@@ -291,6 +291,18 @@
         }
     }
 
+    .el-button--danger {
+        --el-button-text-color: var(--el-color-white);
+        --el-button-bg-color: var(--el-color-danger);
+        --el-button-border-color: var(--el-color-danger);
+        --el-button-hover-text-color: var(--el-color-white);
+        --el-button-hover-bg-color: var(--el-color-danger-light-3);
+        --el-button-hover-border-color: var(--el-color-danger-light-3);
+        --el-button-active-text-color: var(--el-color-white);
+        --el-button-active-bg-color: var(--el-color-danger-dark-2);
+        --el-button-active-border-color: var(--el-color-danger-dark-2);
+    }
+
     .el-radio__input.is-checked {
         .el-radio__inner {
             background-color: var(--fe-primary-button, #2b2e33);
