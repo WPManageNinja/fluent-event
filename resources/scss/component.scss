@@ -1804,12 +1804,19 @@
 .fe-events-view {
     &__toolbar {
         display: flex;
+        align-items: center;
+        flex-wrap: wrap;
         gap: var(--fe-space-2, 8px);
         margin-bottom: var(--fe-space-4, 16px);
     }
 
     &__search {
-        flex: 1;
+        max-width: 300px;
+        margin-right: auto;
+
+        @media screen and (max-width: 782px) {
+            max-width: none;
+        }
     }
 
     &__filters {
