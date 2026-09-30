@@ -136,6 +136,7 @@
                                         value-format="YYYY-MM-DD"
                                         :clearable="false"
                                         :aria-label="bound.dateLabel"
+                                        :disabled-date="bound.disabledDate"
                                         @change="syncEndDate"
                                     />
 
@@ -382,6 +383,7 @@
                         timeKey: 'end_time',
                         dateLabel: this.$t('End date'),
                         timeLabel: this.$t('End time'),
+                        disabledDate: date => dayjs(date).isBefore(this.event.start_date, 'day'),
                     },
                 ];
             },
