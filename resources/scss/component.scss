@@ -1035,7 +1035,7 @@
     }
 
     &__date.el-date-editor {
-        width: 160px;
+        width: 220px;
 
         @media screen and (max-width: 782px) {
             width: auto;
@@ -1056,7 +1056,7 @@
 
     // Spans the date and time inputs above it.
     &__timezone.el-select {
-        width: 302px;
+        width: 362px;
         max-width: 100%;
 
         @media screen and (max-width: 782px) {
