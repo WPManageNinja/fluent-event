@@ -1,6 +1,6 @@
 <template>
     <transition name="fade" mode="out-in" appear>
-        <div class="fe-page">
+        <div class="fe-page fe-page--narrow">
             <Skeleton v-if="loading" type="calendar-form" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendar" />
