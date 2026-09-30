@@ -1104,6 +1104,7 @@
         display: flex;
         flex: 1 1 auto;
         flex-direction: column;
+        gap: var(--fe-space-1, 4px);
         min-width: 0;
     }
 
