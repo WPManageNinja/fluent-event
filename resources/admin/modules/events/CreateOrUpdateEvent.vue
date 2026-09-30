@@ -1,6 +1,6 @@
 <template>
     <transition name="fade" mode="out-in" appear>
-        <div class="fe-page fe-event-create">
+        <div class="fe-page fe-page--narrow fe-event-create">
             <div class="fe-page__header">
                 <div>
                     <h1 class="fe-page__title">{{ pageTitle }}</h1>
