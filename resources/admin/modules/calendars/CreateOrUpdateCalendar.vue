@@ -293,7 +293,9 @@
                 }).catch(() => {});
             },
             onSlugInput(value) {
-                this.slugEdited = String(value).trim() !== '';
+                const slug = this.$slugify(value);
+                this.calendar.slug = slug && /[\s-]$/.test(value) ? `${slug}-` : slug;
+                this.slugEdited = slug !== '';
             },
             normalizeSlug() {
                 this.calendar.slug = this.$slugify(this.calendar.slug);
