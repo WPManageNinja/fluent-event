@@ -22,7 +22,7 @@
                 </div>
             </div>
 
-            <EventsView v-model:period="period" show-calendar />
+            <EventsView :period="period" show-calendar />
         </div>
     </transition>
 </template>

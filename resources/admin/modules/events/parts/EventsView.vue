@@ -167,7 +167,6 @@
                 default: false,
             },
         },
-        emits: ['update:period'],
         data() {
             const settings = window.fluentEventAdmin?.general_settings;
             const viewLocked = settings?.disable_event_view_switch === 'yes';
@@ -277,11 +276,7 @@
             },
         },
         watch: {
-            view(value) {
-                if (value === 'calendar' && this.period) {
-                    this.$emit('update:period', '');
-                    return;
-                }
+            view() {
                 this.refetch();
             },
             period() {
@@ -398,11 +393,7 @@
             },
         },
         mounted() {
-            if (this.isCalendar && this.period) {
-                this.$emit('update:period', '');
-            } else {
-                this.fetchEvents();
-            }
+            this.fetchEvents();
         },
     };
 </script>
