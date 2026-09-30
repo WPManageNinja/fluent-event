@@ -19,7 +19,9 @@
             </aside>
 
             <div class="fe-settings__body">
-                <router-view />
+                <div class="fe-settings__container">
+                    <router-view />
+                </div>
             </div>
         </div>
     </transition>
