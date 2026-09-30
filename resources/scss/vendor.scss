@@ -210,6 +210,18 @@
         }
     }
 
+    .el-input.is-disabled {
+        .el-input__wrapper {
+            box-shadow: none;
+            background-color: var(--fe-disabled-bg, #f3f5fa);
+        }
+
+        .el-input__inner {
+            color: var(--fe-secondary-text, #525866);
+            -webkit-text-fill-color: var(--fe-secondary-text, #525866);
+        }
+    }
+
     .el-button {
         height: var(--fe-control-height, 36px);
         border-radius: var(--fe-radius, 8px);
