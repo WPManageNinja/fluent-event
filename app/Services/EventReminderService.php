@@ -22,7 +22,7 @@ class EventReminderService
         $hours = (int) Settings::get(Settings::EMAIL)['reminder_hours'] ?: 24;
 
         $eventIds = Event::query()
-            ->whereIn('status', ['public', 'private'])
+            ->where('status', 'public')
             ->where('start_at', '>', gmdate(DateTimeHelper::FORMAT))
             ->where('start_at', '<=', gmdate(DateTimeHelper::FORMAT, time() + $hours * HOUR_IN_SECONDS))
             ->pluck('id')
@@ -81,7 +81,7 @@ class EventReminderService
 
         if (
             !$event
-            || !in_array($event->status, ['public', 'private'], true)
+            || $event->status !== 'public'
             || $event->start_at <= gmdate(DateTimeHelper::FORMAT)
         ) {
             self::finishReminderMeta($reminderMeta, 'skipped');
