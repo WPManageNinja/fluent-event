@@ -10,7 +10,7 @@
             </p>
 
             <label class="fe-danger-zone__label" for="fe-delete-confirm">
-                {{ $t('Type %s to confirm.', event.title) }}
+                {{ $t('Type "%s" to confirm (without quotes).', event.title) }}
             </label>
 
             <el-input
