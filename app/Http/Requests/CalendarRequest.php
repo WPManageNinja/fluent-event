@@ -55,6 +55,17 @@ class CalendarRequest extends BaseRequest
         ];
     }
 
+    public static function sanitize($data)
+    {
+        $data = parent::sanitize($data);
+
+        if (empty($data['slug'])) {
+            $data['slug'] = sanitize_title(Arr::get($data, 'title', ''));
+        }
+
+        return $data;
+    }
+
     public static function format($data, $existingMeta = [])
     {
         $data['meta'] = array_merge(
