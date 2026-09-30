@@ -95,7 +95,7 @@
 }
 
 .fe-settings-page {
-    max-width: 980px;
+    max-width: var(--fe-page-width-sm, 980px);
     margin: 0 auto;
     padding: var(--fe-space-6, 24px);
     background: var(--fe-primary-bg, #ffffff);
