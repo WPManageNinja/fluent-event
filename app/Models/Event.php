@@ -13,13 +13,12 @@ class Event extends Model
 {
     protected $table = 'fe_event_details';
 
-    const STATUSES = 'public,private,draft';
+    const STATUSES = 'public,draft';
     const VENUE_TYPES = 'offline,online';
     const ENTRY_TYPES = 'rsvp';
     const DEFAULT_ENTRY_TYPE = 'rsvp';
     const POST_STATUSES = [
         'public'   => 'publish',
-        'private'  => 'private',
         'draft'    => 'draft',
     ];
 

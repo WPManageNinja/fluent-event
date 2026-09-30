@@ -228,7 +228,6 @@ return [
             'Pick a user first.' => __('Pick a user first.', 'fluent-event'),
             'Prev' => __('Prev', 'fluent-event'),
             'Previous' => __('Previous', 'fluent-event'),
-            'Private' => __('Private', 'fluent-event'),
             'Public' => __('Public', 'fluent-event'),
             'Purple' => __('Purple', 'fluent-event'),
             'Red-Orange' => __('Red-Orange', 'fluent-event'),
