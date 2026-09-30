@@ -157,6 +157,31 @@
             border: 2px solid var(--fe-primary-text, #19283a);
             border-radius: 50%;
         }
+
+        &.fe-form__swatch--picker {
+            --el-color-primary: var(--fe-accent-blue, #0e7ff1);
+            width: 26px;
+            height: 26px;
+            box-shadow: none;
+
+            &:focus-visible {
+                outline: none;
+            }
+
+            .el-color-picker__trigger {
+                padding: 0;
+                border: 1px dashed var(--fe-border-strong, #808b9c);
+                border-radius: 50%;
+                color: var(--fe-secondary-text, #525866);
+                background:
+                    linear-gradient(currentColor, currentColor) center / 10px 2px no-repeat,
+                    linear-gradient(currentColor, currentColor) center / 2px 10px no-repeat;
+            }
+
+            .el-color-picker__color {
+                display: none;
+            }
+        }
     }
 }
 
