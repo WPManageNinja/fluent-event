@@ -2,6 +2,7 @@
 
 @include meta.load-css("element-plus/theme-chalk/el-notification");
 @include meta.load-css("element-plus/theme-chalk/el-loading");
+@include meta.load-css("element-plus/theme-chalk/el-overlay");
 @include meta.load-css("element-plus/theme-chalk/el-message-box");
 @include meta.load-css("element-plus/theme-chalk/dark/css-vars");
 
@@ -168,6 +169,30 @@
         height: var(--fe-control-height, 36px);
     }
 
+    .el-select__popper.el-popper {
+        --el-bg-color-overlay: var(--fe-primary-bg, #ffffff);
+        --el-border-color-light: var(--fe-primary-border, #eaecf0);
+        --el-fill-color-light: var(--fe-active-bg, #f0f0f1);
+
+        .el-select-dropdown__item.is-selected {
+            color: var(--el-text-color-regular);
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+    }
+
+    .el-color-picker__panel {
+        border-radius: var(--fe-radius, 8px) !important;
+        background-color: var(--fe-primary-bg, #ffffff);
+
+        .el-color-picker-panel {
+            border-radius: var(--fe-radius, 8px) !important;
+        }
+
+        &.el-popper {
+            border-color: var(--fe-primary-border, #eaecf0);
+        }
+    }
+
     .el-input-group__prepend {
         border: 1px solid var(--fe-primary-border, #eaecf0);
         border-right: none;
@@ -193,6 +218,44 @@
         .el-input__wrapper {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
+        }
+    }
+
+    .el-input-group__append {
+        box-sizing: border-box;
+        height: var(--fe-control-height, 36px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-left: none;
+        border-radius: 0 var(--fe-radius, 8px) var(--fe-radius, 8px) 0;
+        box-shadow: none;
+        color: var(--fe-primary-text, #19283a);
+        background-color: var(--fe-primary-bg, #ffffff);
+
+        &:hover {
+            background-color: var(--fe-hover-bg, #f9fafb);
+        }
+
+        .el-button {
+            height: 100%;
+        }
+    }
+
+    .el-input-group--append {
+        .el-input__wrapper {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+
+    .el-input.is-disabled {
+        .el-input__wrapper {
+            box-shadow: none;
+            background-color: var(--fe-disabled-bg, #f3f5fa);
+        }
+
+        .el-input__inner {
+            color: var(--fe-secondary-text, #525866);
+            -webkit-text-fill-color: var(--fe-secondary-text, #525866);
         }
     }
 
@@ -228,6 +291,27 @@
         }
     }
 
+    .el-button--danger {
+        --el-button-text-color: var(--el-color-white);
+        --el-button-bg-color: var(--el-color-danger);
+        --el-button-border-color: var(--el-color-danger);
+        --el-button-hover-text-color: var(--el-color-white);
+        --el-button-hover-bg-color: var(--el-color-danger-light-3);
+        --el-button-hover-border-color: var(--el-color-danger-light-3);
+        --el-button-active-text-color: var(--el-color-white);
+        --el-button-active-bg-color: var(--el-color-danger-dark-2);
+        --el-button-active-border-color: var(--el-color-danger-dark-2);
+    }
+
+    .el-switch {
+        --el-switch-on-color: var(--fe-primary-button, #2b2e33);
+        --el-switch-off-color: var(--fe-border-strong, #808b9c);
+
+        &.is-checked .el-switch__action {
+            background-color: var(--fe-primary-bg, #ffffff);
+        }
+    }
+
     .el-radio__input.is-checked {
         .el-radio__inner {
             background-color: var(--fe-primary-button, #2b2e33);
@@ -249,7 +333,7 @@
         height: var(--fe-control-height, 36px);
         margin-right: 0;
         border-color: var(--fe-primary-border, #eaecf0);
-        border-radius: var(--fe-radius-sm, 4px);
+        border-radius: var(--fe-radius, 8px);
 
         &:hover {
             border-color: var(--fe-secondary-border, #9ca3af);
@@ -262,6 +346,25 @@
 
     .fe-form__state {
         gap: var(--fe-space-2, 8px);
+    }
+
+    .el-checkbox {
+        --el-checkbox-input-width: 18px;
+        --el-checkbox-input-height: 18px;
+        --el-checkbox-border-radius: var(--fe-radius-sm, 4px);
+        --el-checkbox-bg-color: var(--fe-primary-bg, #ffffff);
+        --el-checkbox-input-border: 1px solid var(--fe-border-strong, #808b9c);
+        --el-checkbox-text-color: var(--fe-primary-text, #19283a);
+
+        .el-checkbox__inner::after {
+            width: 5px;
+            height: 10px;
+            border-width: 0 2px 2px 0;
+        }
+
+        .el-checkbox__input.is-indeterminate .el-checkbox__inner::before {
+            top: 7px;
+        }
     }
 
     .el-checkbox:hover .el-checkbox__inner {

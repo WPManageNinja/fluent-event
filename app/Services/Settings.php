@@ -3,16 +3,29 @@
 namespace FluentEvent\App\Services;
 
 use FluentEvent\App\Models\Meta;
+use FluentEvent\Framework\Support\Arr;
 
 class Settings
 {
     const GENERAL = 'general';
     const EMAIL = 'email';
+    const EMAIL_NOTIFICATIONS = 'email_notifications';
     const WP_OPTION_KEY = 'fe_settings';
+
+    const UNIT_MINUTES = 'minutes';
+    const UNIT_HOURS = 'hours';
+    const UNIT_DAYS = 'days';
+    const REMINDER_UNITS = [
+        self::UNIT_MINUTES => MINUTE_IN_SECONDS,
+        self::UNIT_HOURS   => HOUR_IN_SECONDS,
+        self::UNIT_DAYS    => DAY_IN_SECONDS,
+    ];
+    const MAX_REMINDER_TIME = 30 * DAY_IN_SECONDS;
 
     const DEFAULTS = [
         self::GENERAL => [
-            'default_events_view' => 'timeline',
+            'default_events_view'       => 'timeline',
+            'disable_event_view_switch' => 'no',
         ],
         self::EMAIL => [
             'from_name'      => '',
@@ -20,7 +33,14 @@ class Settings
             'reply_to_name'  => '',
             'reply_to_email' => '',
             'email_footer'   => '',
-            'reminder_hours' => 24,
+        ],
+        self::EMAIL_NOTIFICATIONS => [
+            'reminder_to_guest' => [
+                'enabled' => true,
+                'times'   => [
+                    ['value' => 24, 'unit' => self::UNIT_HOURS],
+                ],
+            ],
         ],
     ];
 
@@ -48,6 +68,11 @@ class Settings
         }
 
         return is_array($stored) ? $stored : [];
+    }
+
+    public static function reminderInSeconds($reminder)
+    {
+        return (int) Arr::get($reminder, 'value') * (self::REMINDER_UNITS[Arr::get($reminder, 'unit')] ?? 0);
     }
 
     public static function get($key = self::GENERAL)

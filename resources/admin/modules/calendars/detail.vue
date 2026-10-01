@@ -92,7 +92,7 @@
                                 </div>
                             </div>
 
-                            <EventsView v-model:period="period" :calendar-id="calendarId" />
+                            <EventsView :period="period" :calendar-id="calendarId" />
                         </CalendarTabLayout>
                     </template>
 

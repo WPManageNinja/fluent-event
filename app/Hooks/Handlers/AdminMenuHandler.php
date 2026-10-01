@@ -188,6 +188,11 @@ class AdminMenuHandler
                 'label'     => __('General', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'settings/general',
             ],
+            [
+                'key'       => 'settings_email_notifications',
+                'label'     => __('Email Notifications', 'fluent-event'),
+                'permalink' => $this->baseUrl . 'settings/email-notifications',
+            ],
         ];
 
         if (PermissionManager::userCan(PermissionManager::ALL_DATA)) {

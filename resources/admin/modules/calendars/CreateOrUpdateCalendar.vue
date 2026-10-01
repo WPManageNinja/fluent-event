@@ -1,6 +1,6 @@
 <template>
     <transition name="fade" mode="out-in" appear>
-        <div class="fe-page">
+        <div class="fe-page fe-page--narrow">
             <Skeleton v-if="loading" type="calendar-form" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendar" />
@@ -42,13 +42,19 @@
                                     />
                                 </el-form-item>
 
-                                <el-form-item :label="$t('Slug')" required>
+                                <el-form-item :label="$t('Slug')">
                                     <el-input
+                                        ref="slug"
                                         v-model="calendar.slug"
                                         :placeholder="$t('e.g. personal')"
+                                        :disabled="slugLocked"
                                         @input="onSlugInput"
                                         @blur="normalizeSlug"
-                                    />
+                                    >
+                                        <template v-if="slugLocked" #append>
+                                            <el-button @click="unlockSlug">{{ $t('Change') }}</el-button>
+                                        </template>
+                                    </el-input>
                                     <span class="fe-form__hint">
                                         {{ $t('Identifies this calendar in links. Changing it later breaks existing ones.') }}
                                     </span>
@@ -61,7 +67,7 @@
                                         :aria-label="$t('Theme color')"
                                     >
                                         <button
-                                            v-for="color in themeColors"
+                                            v-for="color in colorOptions"
                                             :key="color.value"
                                             type="button"
                                             class="fe-form__swatch"
@@ -74,6 +80,16 @@
                                             :aria-pressed="calendar.theme_color === color.value"
                                             @click="calendar.theme_color = color.value"
                                         ></button>
+
+                                        <el-config-provider :locale="pickerLocale">
+                                            <el-color-picker
+                                                :model-value="calendar.theme_color"
+                                                class="fe-form__swatch fe-form__swatch--picker"
+                                                :clearable="false"
+                                                :aria-label="$t('Add a custom color')"
+                                                @change="selectColor"
+                                            />
+                                        </el-config-provider>
                                     </div>
                                 </el-form-item>
                             </div>
@@ -148,6 +164,7 @@
 </template>
 
 <script type="text/javascript">
+    import en from 'element-plus/dist/locale/en.mjs';
     import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
@@ -165,8 +182,10 @@
                 error: '',
                 saving: false,
                 slugEdited: false,
+                slugLocked: false,
                 calendar: {},
                 original: {},
+                customColors: [],
             };
         },
         computed: {
@@ -199,6 +218,21 @@
                     { value: '#ffa600', label: this.$t('Amber') },
                 ];
             },
+            pickerLocale() {
+                return {
+                    ...en,
+                    el: {
+                        ...en.el,
+                        colorpicker: { ...en.el.colorpicker, confirm: this.$t('Apply') },
+                    },
+                };
+            },
+            colorOptions() {
+                return [
+                    ...this.themeColors,
+                    ...this.customColors.map(value => ({ value, label: value })),
+                ];
+            },
         },
         methods: {
             initForm() {
@@ -222,21 +256,46 @@
                             slug: response.calendar.slug,
                             description: response.calendar.description,
                             status: response.calendar.status,
-                            theme_color: response.calendar.meta?.theme_color
+                            theme_color: response.calendar.meta?.theme_color?.toLowerCase()
                                 || this.themeColors[0].value,
                         };
+                        this.selectColor(this.calendar.theme_color);
                         this.original = { ...this.calendar };
                         this.slugEdited = true;
+                        this.slugLocked = true;
                     },
                 });
+            },
+            selectColor(color) {
+                if (!this.colorOptions.some(option => option.value === color)) {
+                    this.customColors.push(color);
+                }
+
+                this.calendar.theme_color = color;
             },
             deriveSlug() {
                 if (!this.slugEdited) {
                     this.calendar.slug = this.$slugify(this.calendar.title);
                 }
             },
+            unlockSlug() {
+                this.$confirm(
+                    this.$t('Existing links to this calendar will be affected. Do you still want to change the slug?'),
+                    this.$t('Change slug'),
+                    {
+                        confirmButtonText: this.$t('Change slug'),
+                        cancelButtonText: this.$t('Cancel'),
+                        type: 'warning',
+                    }
+                ).then(() => {
+                    this.slugLocked = false;
+                    this.$nextTick(() => this.$refs.slug.focus());
+                }).catch(() => {});
+            },
             onSlugInput(value) {
-                this.slugEdited = String(value).trim() !== '';
+                const slug = this.$slugify(value);
+                this.calendar.slug = slug && /[\s-]$/.test(value) ? `${slug}-` : slug;
+                this.slugEdited = slug !== '';
             },
             normalizeSlug() {
                 this.calendar.slug = this.$slugify(this.calendar.slug);
@@ -268,6 +327,7 @@
                 if (this.isEditing) {
                     this.calendar = { ...this.original };
                     this.slugEdited = true;
+                    this.slugLocked = true;
                     return;
                 }
 

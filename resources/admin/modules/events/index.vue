@@ -9,6 +9,7 @@
                         v-model="period"
                         :options="periods"
                         :label="$t('Filter events by period')"
+                        @change="rememberPeriod"
                     />
 
                     <el-button
@@ -21,13 +22,14 @@
                 </div>
             </div>
 
-            <EventsView v-model:period="period" show-calendar />
+            <EventsView :period="period" show-calendar />
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import Storage from '@/utils/Storage';
     import EventsView from './parts/EventsView.vue';
 
     export default {
@@ -37,8 +39,10 @@
             EventsView,
         },
         data() {
+            const savedPeriod = Storage.get('events_period');
+
             return {
-                period: 'upcoming',
+                period: ['', 'upcoming', 'past'].includes(savedPeriod) ? savedPeriod : 'upcoming',
             };
         },
         computed: {
@@ -51,6 +55,9 @@
             },
         },
         methods: {
+            rememberPeriod(period) {
+                Storage.set('events_period', period);
+            },
             goToCreate() {
                 this.$router.push({ name: 'event_create' });
             },

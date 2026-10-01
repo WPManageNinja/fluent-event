@@ -53,7 +53,6 @@ const slugify = function (text) {
 
 const eventStatuses = [
     { value: 'public', type: 'success' },
-    { value: 'private', type: 'primary' },
     { value: 'draft', type: 'info' },
 ];
 
@@ -102,7 +101,6 @@ export default {
         $eventStatuses() {
             return [
                 { value: 'public', label: this.$t('Public') },
-                { value: 'private', label: this.$t('Private') },
                 { value: 'draft', label: this.$t('Draft') },
             ];
         },

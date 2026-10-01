@@ -32,6 +32,14 @@
     max-width: 100%;
     margin: 0 auto;
 
+    &.fe-page--narrow {
+        width: var(--fe-page-width-sm, 980px);
+    }
+
+    &.fe-page--wide {
+        width: var(--fe-page-width-lg, 100%);
+    }
+
     &__header {
         display: flex;
         align-items: flex-start;

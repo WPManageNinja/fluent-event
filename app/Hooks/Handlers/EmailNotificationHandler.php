@@ -8,6 +8,6 @@ class EmailNotificationHandler
 {
     public function register()
     {
-        add_action('fluent_event/send_event_reminders_to_guests', [EventReminderService::class, 'sendReminders']);
+        add_action('fluent_event/send_event_reminders_to_guests', [EventReminderService::class, 'sendReminders'], 10, 2);
     }
 }

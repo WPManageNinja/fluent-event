@@ -67,7 +67,7 @@ public function create(Request $request)
 fluent-booking instead. What we keep:
 
 - **Validation rules carry real constraints** — `unique:fe_calendars,slug`,
-  `in:public,private,unlisted`. Don't settle for `required|string` when the column has a
+  `in:public,draft`. Don't settle for `required|string` when the column has a
   vocabulary.
 - **A success response is the returned array**, with `__()` messages; `sendError` is
   kept for failures that need an explicit status.

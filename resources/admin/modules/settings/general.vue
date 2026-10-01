@@ -10,15 +10,42 @@
             <ErrorState v-else-if="generalError" :message="generalError" @retry="fetchGeneral" />
 
             <el-form v-else class="fe-form" label-position="top" @submit.prevent="saveGeneral">
-                <el-form-item :label="$t('Default events view')">
-                    <el-radio-group v-model="general.default_events_view" :disabled="!canWrite">
-                        <el-radio value="cards">{{ $t('Cards') }}</el-radio>
-                        <el-radio value="timeline">{{ $t('Timeline') }}</el-radio>
-                        <el-radio value="calendar">{{ $t('Calendar') }}</el-radio>
+                <el-form-item :label="$t('Default events list view')">
+                    <el-radio-group
+                        v-model="general.default_events_view"
+                        class="fe-view-picker"
+                        :disabled="!$userCan('write_settings')"
+                    >
+                        <el-radio
+                            v-for="option in viewOptions"
+                            :key="option.value"
+                            :value="option.value"
+                            class="fe-view-picker__option"
+                        >
+                            <Icon :name="option.value" class="fe-view-picker__preview" />
+                            <span class="fe-view-picker__label">{{ option.label }}</span>
+                        </el-radio>
                     </el-radio-group>
                 </el-form-item>
 
-                <div v-if="canWrite" class="fe-form__actions">
+                <el-form-item>
+                    <el-checkbox
+                        v-model="general.disable_event_view_switch"
+                        true-value="yes"
+                        false-value="no"
+                        :disabled="!$userCan('write_settings')"
+                    >
+                        {{ $t('Disable view change option') }}
+                    </el-checkbox>
+
+                    <span class="fe-form__hint">
+                        {{ general.disable_event_view_switch === 'yes'
+                            ? $t('The selected view is used for everyone. They cannot switch to a different view.')
+                            : $t('Users can switch to the view they prefer.') }}
+                    </span>
+                </el-form-item>
+
+                <div v-if="$userCan('write_settings')" class="fe-form__actions">
                     <el-button
                         type="primary"
                         native-type="submit"
@@ -46,7 +73,7 @@
                         <el-input
                             v-model="email.from_name"
                             :placeholder="$t('e.g. your business name')"
-                            :disabled="!canWrite"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
 
@@ -55,14 +82,14 @@
                             v-model="email.from_email"
                             type="email"
                             placeholder="events@example.com"
-                            :disabled="!canWrite"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
                 </div>
 
                 <div class="fe-form__pair">
                     <el-form-item :label="$t('Reply-to name (optional)')">
-                        <el-input v-model="email.reply_to_name" :disabled="!canWrite" />
+                        <el-input v-model="email.reply_to_name" :disabled="!$userCan('write_settings')" />
                     </el-form-item>
 
                     <el-form-item>
@@ -88,7 +115,7 @@
                         <el-input
                             v-model="email.reply_to_email"
                             type="email"
-                            :disabled="!canWrite"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
                 </div>
@@ -105,23 +132,7 @@
                     </span>
                 </el-form-item>
 
-                <el-form-item :label="$t('Send guest reminders before the event')">
-                    <el-input-number
-                        v-model="email.reminder_hours"
-                        :min="1"
-                        :max="720"
-                        :disabled="!canWrite"
-                        :aria-label="$t('Hours before the event')"
-                    />
-
-                    <span class="fe-form__suffix">{{ $t('hours') }}</span>
-
-                    <span class="fe-form__hint">
-                        {{ $t('Guests get a reminder email this many hours before an event starts.') }}
-                    </span>
-                </el-form-item>
-
-                <div v-if="canWrite" class="fe-form__actions">
+                <div v-if="$userCan('write_settings')" class="fe-form__actions">
                     <el-button
                         type="primary"
                         native-type="submit"
@@ -141,6 +152,7 @@
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import WpEditor from '@/components/WpEditor.vue';
+    import Icon from '@/components/Icon.vue';
 
     export default {
         name: 'SettingsGeneral',
@@ -149,6 +161,7 @@
             ErrorState,
             Skeleton,
             WpEditor,
+            Icon,
         },
         data() {
             return {
@@ -157,6 +170,7 @@
                 generalError: '',
                 general: {
                     default_events_view: 'timeline',
+                    disable_event_view_switch: 'no',
                 },
                 emailLoading: false,
                 emailSaving: false,
@@ -167,13 +181,16 @@
                     reply_to_name: '',
                     reply_to_email: '',
                     email_footer: '',
-                    reminder_hours: 24,
                 },
             };
         },
         computed: {
-            canWrite() {
-                return this.$userCan('write_settings');
+            viewOptions() {
+                return [
+                    { value: 'cards', label: this.$t('Cards') },
+                    { value: 'timeline', label: this.$t('Timeline') },
+                    { value: 'calendar', label: this.$t('Calendar') },
+                ];
             },
         },
         methods: {
@@ -198,6 +215,7 @@
                     errorNotify: true,
                     onSuccess: response => {
                         this.general = response.settings;
+                        window.fluentEventAdmin.general_settings = response.settings;
                     },
                 });
             },

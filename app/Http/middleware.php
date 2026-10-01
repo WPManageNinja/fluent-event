@@ -36,7 +36,7 @@ return [
 			function ($response, $next) {
 				// disable litespeed cache
         		do_action(
-        			'litespeed_control_set_nocache',
+        			'litespeed_control_set_nocache', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- LiteSpeed Cache's own hook
         			'fluent plugin api request'
         		);
         		

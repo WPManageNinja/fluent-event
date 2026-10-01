@@ -10,10 +10,12 @@
             />
 
             <SegmentedSwitch
+                v-if="!viewLocked"
                 v-model="view"
                 class="fe-switch--compact"
                 :options="views"
                 :label="$t('Switch between card, timeline and calendar view')"
+                @change="rememberView"
             />
 
             <ActionPopover :width="320" placement="bottom-end" @show="syncFilters">
@@ -53,7 +55,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item v-if="!isGrid" :label="$t('Date range')">
+                            <el-form-item v-if="!isCalendar" :label="$t('Date range')">
                                 <el-date-picker
                                     v-model="pendingFilters.dates"
                                     type="daterange"
@@ -92,7 +94,7 @@
 
         <div v-else :class="{ 'fe-is-loading': loading }" :aria-busy="loading">
             <EventsGrid
-                v-if="isGrid"
+                v-if="isCalendar"
                 v-model:view-mode="calendarViewMode"
                 :events="events"
                 :month="month"
@@ -131,6 +133,7 @@
     import ActionPopover from '@/components/ActionPopover.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
+    import Storage from '@/utils/Storage';
     import EventsCards from './EventsCards.vue';
     import EventsGrid from './EventsGrid.vue';
     import EventsTimeline from './EventsTimeline.vue';
@@ -164,15 +167,18 @@
                 default: false,
             },
         },
-        emits: ['update:period'],
         data() {
-            const defaultView = window.fluentEventAdmin?.general_settings?.default_events_view;
+            const settings = window.fluentEventAdmin?.general_settings;
+            const viewLocked = settings?.disable_event_view_switch === 'yes';
+            const savedView = viewLocked ? null : Storage.get('events_view');
+            const defaultView = settings?.default_events_view || 'timeline';
 
             return {
                 loading: false,
                 fetched: false,
                 error: '',
-                view: defaultView === 'calendar' ? 'grid' : (defaultView || 'timeline'),
+                viewLocked,
+                view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : defaultView,
                 month: dayjs().format('YYYY-MM-DD'),
                 calendarViewMode: 'month',
                 events: [],
@@ -198,18 +204,14 @@
             };
         },
         computed: {
-            isGrid() {
-                return this.view === 'grid';
+            isCalendar() {
+                return this.view === 'calendar';
             },
             isCards() {
                 return this.view === 'cards';
             },
             skeletonType() {
-                if (this.isGrid) {
-                    return 'event-grid';
-                }
-
-                return this.isCards ? 'event-cards' : 'timeline';
+                return this.isCalendar ? 'event-calendar' : this.isCards ? 'event-cards' : 'timeline';
             },
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
@@ -223,7 +225,7 @@
                 return [
                     { value: 'cards', label: this.$t('Cards'), icon: Grid },
                     { value: 'timeline', label: this.$t('Timeline'), icon: Tickets },
-                    { value: 'grid', label: this.$t('Calendar'), icon: Calendar },
+                    { value: 'calendar', label: this.$t('Calendar'), icon: Calendar },
                 ];
             },
             statuses() {
@@ -260,7 +262,7 @@
                     });
                 }
 
-                if (!this.isGrid && this.query.dates.length === 2) {
+                if (!this.isCalendar && this.query.dates.length === 2) {
                     filters.push({
                         key: 'dates',
                         label: this.$t('Date'),
@@ -274,11 +276,7 @@
             },
         },
         watch: {
-            view(value) {
-                if (value === 'grid' && this.period) {
-                    this.$emit('update:period', '');
-                    return;
-                }
+            view() {
                 this.refetch();
             },
             period() {
@@ -289,6 +287,9 @@
             },
         },
         methods: {
+            rememberView(view) {
+                Storage.set('events_view', view);
+            },
             requestParams() {
                 const params = {
                     search: this.query.search,
@@ -296,7 +297,7 @@
                     calendar_id: this.scopedCalendarId || '',
                 };
 
-                if (this.isGrid) {
+                if (this.isCalendar) {
                     const month = dayjs(this.month);
 
                     return {
@@ -326,7 +327,7 @@
                     onSuccess: response => {
                         this.fetched = true;
 
-                        if (this.isGrid) {
+                        if (this.isCalendar) {
                             this.events = response.events;
                             return;
                         }
@@ -392,11 +393,7 @@
             },
         },
         mounted() {
-            if (this.isGrid && this.period) {
-                this.$emit('update:period', '');
-            } else {
-                this.fetchEvents();
-            }
+            this.fetchEvents();
         },
     };
 </script>

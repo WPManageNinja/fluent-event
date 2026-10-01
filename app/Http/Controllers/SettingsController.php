@@ -60,6 +60,29 @@ class SettingsController extends Controller
         ];
     }
 
+    public function getEmailNotifications(Request $request)
+    {
+        return [
+            'settings' => Settings::get(Settings::EMAIL_NOTIFICATIONS),
+        ];
+    }
+
+    public function updateEmailNotifications(Request $request)
+    {
+        $data = SettingsRequest::sanitize($request->all());
+
+        $this->validate($data, SettingsRequest::emailNotificationRules(), SettingsRequest::messages());
+
+        $settings = Settings::update(Settings::EMAIL_NOTIFICATIONS, $data);
+
+        do_action('fluent_event/settings/email_notifications_updated', $settings);
+
+        return [
+            'message'  => __('Settings have been saved.', 'fluent-event'),
+            'settings' => $settings,
+        ];
+    }
+
     public function getTeam(Request $request)
     {
         $members = PermissionManager::getTeamMembers();

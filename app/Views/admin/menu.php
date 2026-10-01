@@ -24,7 +24,7 @@ use FluentEvent\App\Services\Icon;
                 aria-expanded="false"
                 aria-controls="fe-navbar-links"
                 onclick="toggleMobileMenu()">
-            <span class="el-icon"><?php echo Icon::MENU; ?></span>
+            <span class="el-icon"><?php echo Icon::MENU; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
         </button>
 
         <div class="fe-navbar__logo">
@@ -59,8 +59,8 @@ use FluentEvent\App\Services\Icon;
                         aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
                         onclick="toggleColorMode()">
                     <span class="el-icon">
-                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--light"><?php echo Icon::MOON; ?></span>
-                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--dark"><?php echo Icon::SUN; ?></span>
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--light"><?php echo Icon::MOON; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--dark"><?php echo Icon::SUN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     </span>
                 </button>
             </div>
@@ -71,7 +71,7 @@ use FluentEvent\App\Services\Icon;
                     <?php if ( ! empty( $fluentEventRightMenuItem['children'] ) ) : ?>
                         <a class="fe-navbar__link fe-navbar__link--direct"
                            href="<?php echo esc_url( $fluentEventRightMenuItem['permalink'] ); ?>">
-                            <span class="el-icon"><?php echo Icon::SETTING; ?></span>
+                            <span class="el-icon"><?php echo Icon::SETTING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                             <span class="fe-navbar__link-text"><?php
                                 echo esc_html( $fluentEventRightMenuItem['label'] );
                             ?></span>
@@ -83,7 +83,7 @@ use FluentEvent\App\Services\Icon;
                                 aria-expanded="false"
                                 aria-controls="fe-navbar-<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>-menu"
                                 onclick="toggleNavbarDropdown('fe-navbar-<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>-menu')">
-                            <span class="el-icon"><?php echo Icon::SETTING; ?></span>
+                            <span class="el-icon"><?php echo Icon::SETTING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                             <span class="fe-navbar__link-text"><?php
                                 echo esc_html( $fluentEventRightMenuItem['label'] );
                             ?></span>
@@ -104,7 +104,7 @@ use FluentEvent\App\Services\Icon;
                     <?php else : ?>
                         <a class="fe-navbar__link"
                            href="<?php echo esc_url( $fluentEventRightMenuItem['permalink'] ); ?>">
-                            <span class="el-icon"><?php echo Icon::SETTING; ?></span>
+                            <span class="el-icon"><?php echo Icon::SETTING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                             <span class="fe-navbar__link-text"><?php
                                 echo esc_html( $fluentEventRightMenuItem['label'] );
                             ?></span>

@@ -19,14 +19,16 @@
             </aside>
 
             <div class="fe-settings__body">
-                <router-view />
+                <div class="fe-settings__container">
+                    <router-view />
+                </div>
             </div>
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
-    import { Setting, User } from '@element-plus/icons-vue';
+    import { Message, Setting, User } from '@element-plus/icons-vue';
 
     export default {
         name: 'SettingsLayout',
@@ -37,6 +39,11 @@
                         name: 'settings_general',
                         label: this.$t('General'),
                         icon: Setting,
+                    },
+                    {
+                        name: 'settings_email_notifications',
+                        label: this.$t('Email Notifications'),
+                        icon: Message,
                     },
                 ];
 

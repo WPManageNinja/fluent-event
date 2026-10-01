@@ -12,7 +12,7 @@
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #d3d8de; border-radius: 8px;">
                     <tr>
                         <td style="padding: 32px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #19283a;">
-                            <?php echo $email_body; // escaped by the composer, see Mailer::send() ?>
+                            <?php echo wp_kses_post($email_body); ?>
                         </td>
                     </tr>
                     <?php if (!empty($email_footer)) : ?>
