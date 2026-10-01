@@ -27,6 +27,7 @@ class CalendarService
         }
 
         $spaceId = (int) Arr::get($data, 'space_id', 0);
+        $slug = sanitize_title((string) Arr::get($data, 'slug', ''));
 
         // One space, one calendar — the same answer `link()` gives. Callers
         // resolve the existing one with `findBySpace()`.
@@ -47,6 +48,11 @@ class CalendarService
         $rules = Arr::only(CalendarRequest::createRules(), self::WRITABLE);
         $rules['space_id'] = 'required|integer|min:1';
 
+        if ($slug) {
+            $data['slug'] = $slug;
+            $rules['slug'] = CalendarRequest::createRules()['slug'];
+        }
+
         $messages = CalendarRequest::messages();
         $messages['space_id.required'] = __('A space is required.', 'fluent-event');
         $messages['space_id.min'] = __('A space is required.', 'fluent-event');
@@ -57,7 +63,7 @@ class CalendarService
             throw new ValidationException('Unprocessable Entity!', 422, null, $validator->errors());
         }
 
-        $data['slug'] = static::uniqueSlug($data['title']);
+        $data['slug'] = $slug ?: static::uniqueSlug($data['title']);
         $data['status'] = 'active';
 
         // Same meta shaping as the portal's own create, plus our link key.
