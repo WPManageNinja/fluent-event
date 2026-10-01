@@ -49,9 +49,25 @@
         color: var(--fe-secondary-text, #525866);
     }
 
-    &__suffix {
-        margin-left: var(--fe-space-2, 8px);
-        color: var(--fe-secondary-text, #525866);
+    &__number.el-input-number {
+        width: 96px;
+    }
+
+    &__unit.el-select {
+        width: 200px;
+    }
+
+    &__times {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--fe-space-2, 8px);
+    }
+
+    &__time {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
     }
 
     &__pair {
