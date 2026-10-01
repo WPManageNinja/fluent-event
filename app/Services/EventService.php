@@ -261,9 +261,11 @@ class EventService
 
         $event = static::requireEvent($eventId, static::requireCalendar($calendarId)->id);
 
-        do_action('fluent_event/event/before_deleted', $event);
+        DB::transaction(function () use ($event) {
+            do_action('fluent_event/event/before_deleted', $event);
 
-        $event->delete();
+            $event->delete();
+        });
 
         do_action('fluent_event/event/deleted', $event);
 
