@@ -112,6 +112,17 @@ export default [
                 },
             },
             {
+                path: 'email-notifications',
+                name: 'settings_email_notifications',
+                component: () => import('@/modules/settings/email-notifications.vue'),
+                meta: {
+                    active_menu: 'settings',
+                    middleware: 'permission',
+                    permissions: ['read_settings', 'write_settings'],
+                    match_type: 'any',
+                },
+            },
+            {
                 path: 'team',
                 name: 'settings_team',
                 component: () => import('@/modules/settings/team.vue'),

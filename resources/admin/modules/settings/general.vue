@@ -132,22 +132,6 @@
                     </span>
                 </el-form-item>
 
-                <el-form-item :label="$t('Send guest reminders before the event')">
-                    <el-input-number
-                        v-model="email.reminder_hours"
-                        :min="1"
-                        :max="720"
-                        :disabled="!canWrite"
-                        :aria-label="$t('Hours before the event')"
-                    />
-
-                    <span class="fe-form__suffix">{{ $t('hours') }}</span>
-
-                    <span class="fe-form__hint">
-                        {{ $t('Guests get a reminder email this many hours before an event starts.') }}
-                    </span>
-                </el-form-item>
-
                 <div v-if="canWrite" class="fe-form__actions">
                     <el-button
                         type="primary"
@@ -197,7 +181,6 @@
                     reply_to_name: '',
                     reply_to_email: '',
                     email_footer: '',
-                    reminder_hours: 24,
                 },
             };
         },

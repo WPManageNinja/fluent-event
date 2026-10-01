@@ -303,6 +303,15 @@
         --el-button-active-border-color: var(--el-color-danger-dark-2);
     }
 
+    .el-switch {
+        --el-switch-on-color: var(--fe-primary-button, #2b2e33);
+        --el-switch-off-color: var(--fe-border-strong, #808b9c);
+
+        &.is-checked .el-switch__action {
+            background-color: var(--fe-primary-bg, #ffffff);
+        }
+    }
+
     .el-radio__input.is-checked {
         .el-radio__inner {
             background-color: var(--fe-primary-button, #2b2e33);
