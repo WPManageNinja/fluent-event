@@ -19,11 +19,24 @@ class EventReminderService
     {
         if (!function_exists('as_schedule_single_action')) return;
 
+        $now = time();
+
+        $events = Event::query()
+            ->select(['id', 'start_at'])
+            ->where('status', 'public')
+            ->where('start_at', '>', gmdate(DateTimeHelper::FORMAT, $now))
+            ->where('start_at', '<=', gmdate(DateTimeHelper::FORMAT, $now + Settings::MAX_REMINDER_TIME))
+            ->get();
+
+        if ($events->isEmpty()) return;
+
+        $eventIds = $events->pluck('id')->all();
         $globalReminder = Settings::get(Settings::EMAIL_NOTIFICATIONS)['reminder_to_guest'];
         $eventReminders = [];
 
         $overrides = Meta::query()
             ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+            ->whereIn('object_id', $eventIds)
             ->byKey(Settings::EMAIL_NOTIFICATIONS)
             ->get();
 
@@ -33,31 +46,12 @@ class EventReminderService
             }
         }
 
-        $maxLeadTime = 0;
-
-        foreach (array_merge([$globalReminder], $eventReminders) as $reminder) {
-            $maxLeadTime = max(array_merge([$maxLeadTime], self::leadTimes($reminder)));
-        }
-
-        if (!$maxLeadTime) return;
-
-        $now = time();
-
-        $events = Event::query()
-            ->select(['id', 'start_at'])
-            ->where('status', 'public')
-            ->where('start_at', '>', gmdate(DateTimeHelper::FORMAT, $now))
-            ->where('start_at', '<=', gmdate(DateTimeHelper::FORMAT, $now + $maxLeadTime))
-            ->get();
-
-        if ($events->isEmpty()) return;
-
         $reminderMetas = [];
 
         $rows = Meta::query()
             ->where('object_type', Meta::OBJECT_TYPE_EVENT)
             ->where('meta_key', 'like', self::META_KEY . ':%')
-            ->whereIn('object_id', $events->pluck('id')->all())
+            ->whereIn('object_id', $eventIds)
             ->get();
 
         foreach ($rows as $row) {

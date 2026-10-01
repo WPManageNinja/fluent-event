@@ -68,7 +68,7 @@ class SettingsRequest extends BaseRequest
             'reminder_to_guest.times.*' => [function ($attribute, $reminder) {
                 $seconds = Settings::reminderInSeconds($reminder);
 
-                if ($seconds && ($seconds < 5 * MINUTE_IN_SECONDS || $seconds > 30 * DAY_IN_SECONDS)) {
+                if ($seconds && ($seconds < 5 * MINUTE_IN_SECONDS || $seconds > Settings::MAX_REMINDER_TIME)) {
                     return __('The reminder must be between 5 minutes and 30 days before the event.', 'fluent-event');
                 }
             }],

@@ -20,6 +20,7 @@ class Settings
         self::UNIT_HOURS   => HOUR_IN_SECONDS,
         self::UNIT_DAYS    => DAY_IN_SECONDS,
     ];
+    const MAX_REMINDER_TIME = 30 * DAY_IN_SECONDS;
 
     const DEFAULTS = [
         self::GENERAL => [
