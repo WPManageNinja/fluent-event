@@ -22,6 +22,11 @@ class SettingsPolicy extends Policy
         return PermissionManager::userCan('write_settings');
     }
 
+    public function updateEmailNotifications(Request $request, ...$args)
+    {
+        return PermissionManager::userCan('write_settings');
+    }
+
     public function getTeam(Request $request, ...$args)
     {
         return PermissionManager::userCan(PermissionManager::ALL_DATA);
