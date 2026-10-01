@@ -19,6 +19,8 @@ class EventReminderService
     {
         if (!function_exists('as_schedule_single_action')) return;
 
+        if (!\ActionScheduler::lock()->set('fluent_event_reminder_scheduler')) return;
+
         $now = time();
 
         $events = Event::query()
