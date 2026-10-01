@@ -133,7 +133,7 @@ class EventController extends Controller
                 Meta::query()
                     ->where('object_type', Meta::OBJECT_TYPE_EVENT)
                     ->where('object_id', $event->id)
-                    ->byKey(EventReminderService::META_KEY)
+                    ->where('meta_key', 'like', EventReminderService::META_KEY . ':%')
                     ->delete();
             }
 
