@@ -14,7 +14,7 @@
                     <el-radio-group
                         v-model="general.default_events_view"
                         class="fe-view-picker"
-                        :disabled="!canWrite"
+                        :disabled="!$userCan('write_settings')"
                     >
                         <el-radio
                             v-for="option in viewOptions"
@@ -33,7 +33,7 @@
                         v-model="general.disable_event_view_switch"
                         true-value="yes"
                         false-value="no"
-                        :disabled="!canWrite"
+                        :disabled="!$userCan('write_settings')"
                     >
                         {{ $t('Disable view change option') }}
                     </el-checkbox>
@@ -45,7 +45,7 @@
                     </span>
                 </el-form-item>
 
-                <div v-if="canWrite" class="fe-form__actions">
+                <div v-if="$userCan('write_settings')" class="fe-form__actions">
                     <el-button
                         type="primary"
                         native-type="submit"
@@ -73,7 +73,7 @@
                         <el-input
                             v-model="email.from_name"
                             :placeholder="$t('e.g. your business name')"
-                            :disabled="!canWrite"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
 
@@ -82,14 +82,14 @@
                             v-model="email.from_email"
                             type="email"
                             placeholder="events@example.com"
-                            :disabled="!canWrite"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
                 </div>
 
                 <div class="fe-form__pair">
                     <el-form-item :label="$t('Reply-to name (optional)')">
-                        <el-input v-model="email.reply_to_name" :disabled="!canWrite" />
+                        <el-input v-model="email.reply_to_name" :disabled="!$userCan('write_settings')" />
                     </el-form-item>
 
                     <el-form-item>
@@ -115,7 +115,7 @@
                         <el-input
                             v-model="email.reply_to_email"
                             type="email"
-                            :disabled="!canWrite"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
                 </div>
@@ -132,7 +132,7 @@
                     </span>
                 </el-form-item>
 
-                <div v-if="canWrite" class="fe-form__actions">
+                <div v-if="$userCan('write_settings')" class="fe-form__actions">
                     <el-button
                         type="primary"
                         native-type="submit"
@@ -185,9 +185,6 @@
             };
         },
         computed: {
-            canWrite() {
-                return this.$userCan('write_settings');
-            },
             viewOptions() {
                 return [
                     { value: 'cards', label: this.$t('Cards') },
