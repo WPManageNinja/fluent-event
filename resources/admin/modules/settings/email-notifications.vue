@@ -1,7 +1,7 @@
 <template>
     <section class="fe-settings-page">
         <div class="fe-settings-page__header">
-            <h1 class="fe-settings-page__title">{{ $t('Guest Reminders') }}</h1>
+            <h1 class="fe-settings-page__title">{{ $t('Guest Emails') }}</h1>
         </div>
 
         <Skeleton v-if="loading" type="general_settings" />
@@ -9,6 +9,34 @@
         <ErrorState v-else-if="error" :message="error" @retry="fetchSettings" />
 
         <el-form v-else class="fe-form" label-position="top" @submit.prevent="saveSettings">
+            <el-form-item :label="$t('Registration confirmation')">
+                <el-switch
+                    v-model="confirmation.enabled"
+                    :disabled="!$userCan('write_settings')"
+                    :aria-label="$t('Send a confirmation email when a guest registers')"
+                />
+
+                <span class="fe-form__hint">
+                    {{ confirmation.enabled
+                        ? $t('Email guests a confirmation when they register for an event.')
+                        : $t('Guests get no email when they register.') }}
+                </span>
+            </el-form-item>
+
+            <el-form-item :label="$t('Registration cancellation')">
+                <el-switch
+                    v-model="cancellation.enabled"
+                    :disabled="!$userCan('write_settings')"
+                    :aria-label="$t('Send an email when a registration is cancelled')"
+                />
+
+                <span class="fe-form__hint">
+                    {{ cancellation.enabled
+                        ? $t('Email guests when they cancel or an admin cancels their registration.')
+                        : $t('Guests get no email when their registration is cancelled.') }}
+                </span>
+            </el-form-item>
+
             <el-form-item :label="$t('Enable reminders')">
                 <el-switch
                     v-model="reminder.enabled"
@@ -98,6 +126,8 @@
                 loading: false,
                 saving: false,
                 error: '',
+                confirmation: { enabled: true },
+                cancellation: { enabled: true },
                 reminder: { enabled: true },
                 times: [{ value: 24, unit: 'hours' }],
                 maxTimes: 5,
@@ -120,6 +150,8 @@
                 this.times.splice(index, 1);
             },
             setSettings(settings) {
+                this.confirmation = { enabled: settings.registration_confirmation.enabled };
+                this.cancellation = { enabled: settings.registration_cancellation.enabled };
                 this.reminder = { enabled: settings.reminder_to_guest.enabled };
                 this.times = settings.reminder_to_guest.times.map(time => ({ ...time }));
             },
@@ -138,6 +170,12 @@
                     method: 'post',
                     path: 'settings/email-notifications',
                     payload: {
+                        registration_confirmation: {
+                            enabled: this.confirmation.enabled,
+                        },
+                        registration_cancellation: {
+                            enabled: this.cancellation.enabled,
+                        },
                         reminder_to_guest: {
                             enabled: this.reminder.enabled,
                             times: this.times,
