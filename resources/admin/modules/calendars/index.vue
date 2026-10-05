@@ -4,7 +4,7 @@
             <div class="fe-page__header">
                 <h1 class="fe-page__title">{{ $t('Calendars') }}</h1>
 
-                <div class="fe-page__actions">
+                <!-- <div class="fe-page__actions">
                     <el-button
                         v-if="$userCan('write_calendars')"
                         type="primary"
@@ -13,7 +13,7 @@
                         <el-icon><Plus /></el-icon>
                         <span>{{ $t('Create Calendar') }}</span>
                     </el-button>
-                </div>
+                </div> -->
             </div>
 
             <div v-if="!isOnboarding" class="fe-calendars__toolbar">
@@ -58,25 +58,25 @@
 
             <div v-else class="fe-calendars__onboarding">
                 <h2 class="fe-calendars__onboarding-title">
-                    {{ $t('Create your first calendar') }}
+                    {{ $t('No calendars yet') }}
                 </h2>
                 <p class="fe-calendars__onboarding-text">
-                    {{ $t('A calendar holds your events. You need one before you can add an event.') }}
+                    {{ $t('A space gets its calendar when its first event is posted in FluentCommunity.') }}
                 </p>
-                <el-button
+                <!-- <el-button
                     v-if="$userCan('write_calendars')"
                     type="primary"
                     @click="goToCreate"
                 >
                     {{ $t('Create Calendar') }}
-                </el-button>
+                </el-button> -->
             </div>
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
-    import { Plus } from '@element-plus/icons-vue';
+    // import { Plus } from '@element-plus/icons-vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
@@ -86,7 +86,7 @@
     export default {
         name: 'Calendars',
         components: {
-            Plus,
+            // Plus,
             SearchInput,
             ErrorState,
             Skeleton,
@@ -141,9 +141,9 @@
                     },
                 });
             },
-            goToCreate() {
-                this.$router.push({ name: 'calendar_create' });
-            },
+            // goToCreate() {
+            //     this.$router.push({ name: 'calendar_create' });
+            // },
         },
         mounted() {
             this.$changeTitle(this.$t('Calendars'));
