@@ -15,10 +15,12 @@
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `event_details.form_fields` (JSON column); each attendee's answers save to `guests.form_response` (JSON).
 - **Mode** via `event_details.venue_type` (online / offline / hybrid); **policy** via `event_details.settings.join_policy` (open / approval / invite_only).
-- **Entry mode** via `event_details.settings.registration_type` — three ways in, one set of tables:
-  - **`ticketed`** — buy tickets. Guest rows **require** `ticket_type_id` (paid or free tier), payment on the `is_buyer=1` row. (`ticket_type_id` is now nullable at the DB level — ticketed mode enforces it in the service layer.)
-  - **`rsvp`** — free "I'm coming". Guest rows with **`ticket_type_id` = NULL** (no tier at all). Going / not-going tracked purely via `status` (`attending` / `declined`). Headcount = `COUNT(*) WHERE status='attending'`.
-  - **`open`** — no registration. **Zero guest rows, zero ticket_types.** Just a published listing (unlimited, free, show up). The event = its `wp_posts` + `wp_fe_event_details` row, no children.
+- **Entry mode** via `event_details.meta.entry_type` (built: `rsvp`, `open`, `none`; `ticketed` is future):
+  - **`rsvp`** — logged-in "I'm coming". Guest rows with **`ticket_type_id` = NULL**; going / not going via `status` (`going` / `not_going`).
+  - **`open`** — anyone who can see the event registers with name + email; a logged-in registrant's `user_id` is linked. One registration per email per event.
+  - **`none`** — announcement only. No guest rows.
+  - **Capacity** — `meta.max_guests` (`-1` = unlimited) counts `going` + `checked_in`; full means registration closes. `meta.show_guest_count` (`yes` / `no`) shows the count to viewers.
+  - **`ticketed`** (future) — buy tickets. Guest rows **require** `ticket_type_id`, payment on the `is_buyer=1` row; the service layer enforces it.
   - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.slot IS NULL`).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
 - **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per order** (one payment covers all tickets in a `group_id` group), recorded on the `is_buyer=1` row — not per guest.

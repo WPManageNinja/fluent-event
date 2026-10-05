@@ -25,12 +25,17 @@ Three things people get wrong:
 - **No inheritance between events.** Recurrence occurrences own their own post and their own
   values — no `COALESCE` reads, no override flags.
 - **Images are URLs in the record's JSON column.** Never an image column, never an
-  attachment FK. The column is `settings` on `event_details` and `meta` on `calendars` —
-  `calendars.meta` is open-ended, holds whatever per-calendar config accrues, and is
-  documented by the model's `defaultMeta()`.
+  attachment FK. The column is `meta` on both `event_details` and `calendars` — open-ended,
+  holds whatever per-record config accrues, and is documented by the model's `defaultMeta()`.
 
-Entry mode lives in `event_details.settings.registration_type` — `ticketed`, `rsvp`, or
-`open`. `guests.ticket_type_id` is nullable; ticketed mode enforces it in the service.
+Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going),
+`open` (anyone registers with name + email) or `none` (announcement only). `max_guests`
+(`-1` = unlimited) and `show_guest_count` sit beside it. `ticketed` is a documented future
+mode; `guests.ticket_type_id` stays nullable for it.
+
+Statuses: events and calendars are both `public | private | draft`. `private` means no
+public page; space calendars start `private`. FluentCommunity integration (events as posts
+in discussion spaces): [.claude/docs/functional-requirements/fluentcommunity-integration.md](.claude/docs/functional-requirements/fluentcommunity-integration.md).
 
 Schema: [docs/db/fe_db_schema.sql](.claude/docs/db/fe_db_schema.sql).
 
