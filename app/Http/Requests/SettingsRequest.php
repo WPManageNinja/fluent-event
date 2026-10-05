@@ -17,6 +17,7 @@ class SettingsRequest extends BaseRequest
         'reply_to_email'           => 'sanitize_email',
         'email_footer'             => 'wp_kses_post',
         'registration_confirmation.enabled' => 'rest_sanitize_boolean',
+        'registration_cancellation.enabled' => 'rest_sanitize_boolean',
         'reminder_to_guest.enabled'       => 'rest_sanitize_boolean',
         'reminder_to_guest.times.*.value' => 'absint',
         'reminder_to_guest.times.*.unit'  => 'sanitize_key',
@@ -42,6 +43,7 @@ class SettingsRequest extends BaseRequest
 
     const EMAIL_NOTIFICATION_RULES = [
         'registration_confirmation'       => 'nullable|array',
+        'registration_cancellation'       => 'nullable|array',
         'reminder_to_guest'               => 'required|array',
         'reminder_to_guest.enabled'       => 'required',
         'reminder_to_guest.times'         => 'required|array|max:5',

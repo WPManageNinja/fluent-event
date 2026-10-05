@@ -38,6 +38,9 @@ class Settings
             'registration_confirmation' => [
                 'enabled' => true,
             ],
+            'registration_cancellation' => [
+                'enabled' => true,
+            ],
             'reminder_to_guest' => [
                 'enabled' => true,
                 'times'   => [
