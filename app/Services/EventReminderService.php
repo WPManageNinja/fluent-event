@@ -25,7 +25,7 @@ class EventReminderService
 
         $events = Event::query()
             ->select(['id', 'start_at'])
-            ->where('status', 'public')
+            ->whereIn('status', ['public', 'private'])
             ->where('start_at', '>', gmdate(DateTimeHelper::FORMAT, $now))
             ->where('start_at', '<=', gmdate(DateTimeHelper::FORMAT, $now + Settings::MAX_REMINDER_TIME))
             ->get();
@@ -109,7 +109,7 @@ class EventReminderService
 
         if (
             !$event
-            || $event->status !== 'public'
+            || !in_array($event->status, ['public', 'private'], true)
             || $event->start_at <= gmdate(DateTimeHelper::FORMAT)
             || !in_array((int) $leadTime, self::leadTimes(self::reminderFor($eventId)), true)
         ) {

@@ -8,7 +8,7 @@ use FluentEvent\App\Utils\DateTimeHelper;
 
 class ReportService
 {
-    const LIVE_EVENT_STATUSES = ['public'];
+    const LIVE_EVENT_STATUSES = ['public', 'private'];
     const DAILY_SPAN_LIMIT = 92;
 
     public static function getStats()

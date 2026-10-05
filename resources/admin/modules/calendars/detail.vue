@@ -40,7 +40,7 @@
                             <h1 class="fe-page__title">{{ calendar.title }}</h1>
 
                             <el-tag
-                                v-if="calendar.status && calendar.status !== 'active'"
+                                v-if="calendar.status && calendar.status !== 'public'"
                                 class="capitalize"
                                 :type="$calendarStatusType(calendar.status)"
                                 size="small"

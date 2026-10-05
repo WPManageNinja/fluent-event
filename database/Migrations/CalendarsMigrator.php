@@ -24,7 +24,7 @@ class CalendarsMigrator
         `title` VARCHAR(255) NOT NULL,
         `slug` VARCHAR(255) NOT NULL,
         `description` TEXT NULL,
-        `status` VARCHAR(64) NOT NULL DEFAULT 'active' COMMENT 'active | draft',
+        `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft',
         `meta` LONGTEXT NULL COMMENT 'logo_url, cover_url, managers, preferences',
         `created_by` BIGINT(20) UNSIGNED NOT NULL COMMENT 'wp_users.ID of the creator',
         `created_at` TIMESTAMP NULL,
