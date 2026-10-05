@@ -146,6 +146,13 @@
         />
 
         <GuestDetailsModal v-model="detailsOpen" :guest="activeGuest" />
+
+        <GuestDeleteModal
+            v-model="deleteOpen"
+            :event-id="eventId"
+            :guest="activeGuest"
+            @deleted="onGuestDeleted"
+        />
     </div>
 </template>
 
@@ -159,6 +166,7 @@
     import Pagination from '@/components/Pagination.vue';
     import GuestFormModal from './GuestFormModal.vue';
     import GuestDetailsModal from './GuestDetailsModal.vue';
+    import GuestDeleteModal from './GuestDeleteModal.vue';
 
     export default {
         name: 'EventGuests',
@@ -172,6 +180,7 @@
             Pagination,
             GuestFormModal,
             GuestDetailsModal,
+            GuestDeleteModal,
         },
         props: {
             eventId: {
@@ -189,6 +198,7 @@
                 activeGuest: null,
                 formOpen: false,
                 detailsOpen: false,
+                deleteOpen: false,
                 mutating: false,
                 query: {
                     search: '',
@@ -321,31 +331,12 @@
                 }
             },
             promptDelete(row) {
-                this.$confirm(
-                    this.$t('%s will be removed from this event. This cannot be undone.', row.name),
-                    this.$t('Delete Guest'),
-                    {
-                        type: 'warning',
-                        confirmButtonText: this.$t('Delete'),
-                        cancelButtonText: this.$t('Cancel'),
-                    }
-                )
-                    .then(() => this.deleteGuest(row))
-                    .catch(() => {});
+                this.activeGuest = row;
+                this.deleteOpen = true;
             },
-            deleteGuest(row) {
-                this.$requestServer({
-                    method: 'delete',
-                    path: `events/${this.eventId}/guests/${row.id}`,
-                    loadingState: 'mutating',
-                    errorState: null,
-                    successNotify: true,
-                    errorNotify: true,
-                    onSuccess: () => {
-                        this.goToLastPageIfEmptied();
-                        this.fetchGuests();
-                    },
-                });
+            onGuestDeleted() {
+                this.goToLastPageIfEmptied();
+                this.fetchGuests();
             },
             goToLastPageIfEmptied() {
                 if (this.guests.length === 1 && this.pagination.current_page > 1) {
