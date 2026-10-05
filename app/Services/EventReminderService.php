@@ -123,6 +123,9 @@ class EventReminderService
             $event->title
         );
 
+        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+        $intro = __('This is a friendly reminder that %1$s starts on %2$s (%3$s).', 'fluent-event');
+
         $sent = 0;
         $tick = microtime(true);
 
@@ -140,7 +143,7 @@ class EventReminderService
                 $reminderMeta->save();
 
                 if (is_email($guest->email)) {
-                    Mailer::send($guest->email, $subject, self::buildBody($event, $guest));
+                    Mailer::send($guest->email, $subject, self::buildBody($event, $guest, $intro));
                     $sent++;
                 }
 
@@ -164,6 +167,59 @@ class EventReminderService
         self::finishReminderMeta($reminderMeta, 'completed');
 
         do_action('fluent_event/guest_reminders_sent', $event, $sent);
+    }
+
+    public static function sendConfirmation($guestId)
+    {
+        $guest = Guest::query()->find((int) $guestId);
+
+        if (!$guest || $guest->status !== 'going' || !is_email($guest->email)) return;
+
+        $event = Event::query()->find($guest->event_id);
+
+        if (!$event || $event->status === 'draft') return;
+
+        $subject = sprintf(
+            /* translators: %s is the event title */
+            __('You are registered for %s', 'fluent-event'),
+            $event->title
+        );
+
+        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+        $intro = __('You are registered for %1$s on %2$s (%3$s).', 'fluent-event');
+
+        Mailer::send($guest->email, $subject, self::buildBody($event, $guest, $intro));
+
+        do_action('fluent_event/guest/confirmation_sent', $guest, $event);
+    }
+
+    // The queued job passes an id; deleting a guest passes the row itself, since it is already gone.
+    public static function sendCancellation($guest)
+    {
+        if (!is_object($guest)) {
+            $guest = Guest::query()->find((int) $guest);
+
+            if (!$guest || !in_array($guest->status, ['not_going', 'cancelled'], true)) return;
+        }
+
+        if (!is_email($guest->email)) return;
+
+        $event = Event::query()->find($guest->event_id);
+
+        if (!$event || $event->status === 'draft') return;
+
+        $subject = sprintf(
+            /* translators: %s is the event title */
+            __('Your registration for %s is cancelled', 'fluent-event'),
+            $event->title
+        );
+
+        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+        $intro = __('Your registration for %1$s on %2$s (%3$s) has been cancelled.', 'fluent-event');
+
+        Mailer::send($guest->email, $subject, self::buildGreeting($event, $guest, $intro));
+
+        do_action('fluent_event/guest/cancellation_sent', $guest, $event);
     }
 
     // Sorted closest first; empty when the reminder is turned off.
@@ -199,27 +255,9 @@ class EventReminderService
         $reminderMeta->save();
     }
 
-    protected static function buildBody($event, $guest)
+    protected static function buildBody($event, $guest, $intro)
     {
-        $startsAt = date_i18n(
-            get_option('date_format') . ' ' . get_option('time_format'),
-            strtotime($event->start_at_local)
-        );
-
-        $body = '<p>' . sprintf(
-            /* translators: %s is the guest's name */
-            esc_html__('Hi %s,', 'fluent-event'),
-            esc_html($guest->name ?: __('there', 'fluent-event'))
-        ) . '</p>';
-
-        $body .= '<p>' . sprintf(
-            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
-            esc_html__('This is a friendly reminder that %1$s starts on %2$s (%3$s).', 'fluent-event'),
-            '<strong>' . esc_html($event->title) . '</strong>',
-            esc_html($startsAt),
-            esc_html($event->timezone)
-        ) . '</p>';
-
+        $body = self::buildGreeting($event, $guest, $intro);
         $meta = $event->meta ?: [];
 
         if ($event->venue_type === 'online' && !empty($meta['online_meeting_url'])) {
@@ -236,6 +274,30 @@ class EventReminderService
         }
 
         $body .= '<p>' . esc_html__('See you there!', 'fluent-event') . '</p>';
+
+        return $body;
+    }
+
+    // Just the greeting and intro line; cancellations stop here so the meeting link never reaches them.
+    protected static function buildGreeting($event, $guest, $intro)
+    {
+        $startsAt = date_i18n(
+            get_option('date_format') . ' ' . get_option('time_format'),
+            strtotime($event->start_at_local)
+        );
+
+        $body = '<p>' . sprintf(
+            /* translators: %s is the guest's name */
+            esc_html__('Hi %s,', 'fluent-event'),
+            esc_html($guest->name ?: __('there', 'fluent-event'))
+        ) . '</p>';
+
+        $body .= '<p>' . sprintf(
+            esc_html($intro),
+            '<strong>' . esc_html($event->title) . '</strong>',
+            esc_html($startsAt),
+            esc_html($event->timezone)
+        ) . '</p>';
 
         return $body;
     }

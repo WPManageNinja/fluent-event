@@ -60,6 +60,10 @@
                     />
                 </el-select>
             </el-form-item>
+
+            <el-form-item v-if="emailLabel">
+                <el-checkbox v-model="form.send_email">{{ emailLabel }}</el-checkbox>
+            </el-form-item>
         </el-form>
 
         <template #footer>
@@ -112,6 +116,7 @@
                     name: '',
                     email: '',
                     status: '',
+                    send_email: false,
                 },
             };
         },
@@ -131,6 +136,25 @@
             submitLabel() {
                 return this.isEditing ? this.$t('Update Guest') : this.$t('Add Guest');
             },
+            emailLabel() {
+                if (!this.isEditing) {
+                    return this.form.status === 'going' ? this.$t('Send confirmation email') : '';
+                }
+
+                if (this.form.status === this.guest.status) {
+                    return '';
+                }
+
+                if (this.form.status === 'going') {
+                    return this.$t('Send confirmation email');
+                }
+
+                if (['not_going', 'cancelled'].includes(this.form.status)) {
+                    return this.$t('Send cancellation email');
+                }
+
+                return '';
+            },
         },
         methods: {
             resetForm() {
@@ -140,6 +164,7 @@
                     name: this.guest?.name || '',
                     email: this.guest?.email || '',
                     status: this.guest?.status || this.statuses[0].value,
+                    send_email: false,
                 };
 
                 this.users = this.selectedUserId
@@ -181,6 +206,7 @@
                     path: this.isEditing ? `${base}/${this.guest.id}` : base,
                     payload: {
                         ...this.form,
+                        send_email: !!this.emailLabel && this.form.send_email,
                         user_id: this.mode === 'wp_user' ? this.selectedUserId : null,
                     },
                     loadingState: 'saving',
