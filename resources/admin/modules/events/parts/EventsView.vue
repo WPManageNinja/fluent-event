@@ -92,6 +92,12 @@
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchEvents" />
 
+        <EmptyState
+            v-else-if="!isCalendar && !events.length"
+            :title="emptyState.title"
+            :message="emptyState.message"
+        />
+
         <div v-else :class="{ 'fe-is-loading': loading }" :aria-busy="loading">
             <EventsGrid
                 v-if="isCalendar"
@@ -129,6 +135,7 @@
     import dayjs from 'dayjs';
     import { Calendar, Filter, Grid, Tickets } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import EmptyState from '@/components/EmptyState.vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ActionPopover from '@/components/ActionPopover.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
@@ -144,6 +151,7 @@
         components: {
             Filter,
             ErrorState,
+            EmptyState,
             SearchInput,
             ActionPopover,
             SegmentedSwitch,
@@ -273,6 +281,26 @@
                 }
 
                 return filters;
+            },
+            emptyState() {
+                if (this.query.search || this.activeFilters.length) {
+                    return {
+                        title: this.$t('No events found'),
+                        message: this.$t('No events match your search or filters.'),
+                    };
+                }
+
+                if (this.period === 'past') {
+                    return {
+                        title: this.$t('No past events'),
+                        message: this.$t('Events show up here once they end.'),
+                    };
+                }
+
+                return {
+                    title: this.period === 'upcoming' ? this.$t('No upcoming events') : this.$t('No events yet'),
+                    message: this.$t('New events will show up here.'),
+                };
             },
         },
         watch: {

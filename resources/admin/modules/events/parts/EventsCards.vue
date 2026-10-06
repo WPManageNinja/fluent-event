@@ -1,26 +1,22 @@
 <template>
     <div class="fe-events-cards">
-        <el-empty v-if="!events.length" :description="$t('No events yet.')" />
-
-        <template v-else>
-            <div class="fe-events-cards__grid">
-                <EventCard
-                    v-for="event in events"
-                    :key="event.id"
-                    class="fe-event-card--tile"
-                    :event="event"
-                    :show-calendar="showCalendar"
-                    show-date
-                    @open="$emit('open', $event)"
-                />
-            </div>
-
-            <Pagination
-                :pagination="pagination"
-                hide_on_single
-                @fetch="$emit('fetch')"
+        <div class="fe-events-cards__grid">
+            <EventCard
+                v-for="event in events"
+                :key="event.id"
+                class="fe-event-card--tile"
+                :event="event"
+                :show-calendar="showCalendar"
+                show-date
+                @open="$emit('open', $event)"
             />
-        </template>
+        </div>
+
+        <Pagination
+            :pagination="pagination"
+            hide_on_single
+            @fetch="$emit('fetch')"
+        />
     </div>
 </template>
 

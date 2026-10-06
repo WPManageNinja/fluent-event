@@ -51,26 +51,27 @@
                 />
             </div>
 
-            <el-empty
+            <EmptyState
                 v-else-if="isFiltered"
-                :description="$t('No calendars match your search.')"
+                :title="$t('No calendars found')"
+                :message="$t('No calendars match your search.')"
             />
 
-            <div v-else class="fe-calendars__onboarding">
-                <h2 class="fe-calendars__onboarding-title">
-                    {{ $t('No calendars yet') }}
-                </h2>
-                <p class="fe-calendars__onboarding-text">
-                    {{ $t('A space gets its calendar when its first event is posted in FluentCommunity.') }}
-                </p>
-                <!-- <el-button
-                    v-if="$userCan('write_calendars')"
-                    type="primary"
-                    @click="goToCreate"
-                >
-                    {{ $t('Create Calendar') }}
-                </el-button> -->
-            </div>
+            <EmptyState
+                v-else
+                :title="$t('No calendars yet')"
+                :message="$t('A space gets its calendar when its first event is posted in FluentCommunity.')"
+            >
+                <!-- <template #action>
+                    <el-button
+                        v-if="$userCan('write_calendars')"
+                        type="primary"
+                        @click="goToCreate"
+                    >
+                        {{ $t('Create Calendar') }}
+                    </el-button>
+                </template> -->
+            </EmptyState>
         </div>
     </transition>
 </template>
@@ -79,6 +80,7 @@
     // import { Plus } from '@element-plus/icons-vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import EmptyState from '@/components/EmptyState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import CalendarCard from './parts/CalendarCard.vue';
@@ -89,6 +91,7 @@
             // Plus,
             SearchInput,
             ErrorState,
+            EmptyState,
             Skeleton,
             SegmentedSwitch,
             CalendarCard,
