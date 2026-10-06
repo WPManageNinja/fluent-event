@@ -178,7 +178,7 @@
                                 </el-icon>
 
                                 <span class="fe-event-form__row-text">
-                                    <span class="fe-event-form__row-title">{{ venueSummary }}</span>
+                                    <span class="fe-event-form__row-title">{{ $t('Add Venue Type') }}</span>
                                     <span class="fe-event-form__row-hint">
                                         {{ $t('Offline location or virtual link') }}
                                     </span>
@@ -242,6 +242,86 @@
                             <button
                                 type="button"
                                 class="fe-event-form__row"
+                                :aria-expanded="expanded.registration"
+                                @click="toggle('registration')"
+                            >
+                                <el-icon class="fe-event-form__row-icon" aria-hidden="true">
+                                    <User />
+                                </el-icon>
+
+                                <span class="fe-event-form__row-text">
+                                    <span class="fe-event-form__row-title">{{ $t('Registration Type') }}</span>
+                                    <span class="fe-event-form__row-hint">
+                                        {{ $t('How guests join, and how many can') }}
+                                    </span>
+                                </span>
+
+                                <el-icon
+                                    class="fe-event-form__row-chevron"
+                                    :class="{ 'fe-event-form__row-chevron--open': expanded.registration }"
+                                    aria-hidden="true"
+                                >
+                                    <ArrowRight />
+                                </el-icon>
+                            </button>
+
+                            <div v-show="expanded.registration" class="fe-event-form__row-body">
+                                <div class="fe-form">
+                                    <el-form-item :label="$t('Entry type *')" label-position="top">
+                                        <el-radio-group
+                                            v-model="event.entry_type"
+                                            class="fe-form__choices"
+                                            :aria-label="$t('Registration Type')"
+                                        >
+                                            <el-radio
+                                                v-for="option in entryTypes"
+                                                :key="option.value"
+                                                :value="option.value"
+                                            >
+                                                <span class="fe-form__choice-title">{{ option.label }}</span>
+                                                <span class="fe-form__hint">{{ option.hint }}</span>
+                                            </el-radio>
+                                        </el-radio-group>
+                                    </el-form-item>
+
+                                    <el-form-item
+                                        v-if="event.entry_type !== 'none'"
+                                        :label="$t('Seats')"
+                                        label-position="top"
+                                    >
+                                        <div class="fe-form__switch-group">
+                                            <div class="fe-form__switch-row">
+                                                <el-switch v-model="event.limit_seats" :aria-label="$t('Limit seats')" />
+                                                <span class="fe-form__switch-text">{{ $t('Limit seats') }}</span>
+                                                <el-input-number
+                                                    v-if="event.limit_seats"
+                                                    v-model="event.max_guests"
+                                                    class="fe-form__number"
+                                                    :min="0"
+                                                    :controls="false"
+                                                    :aria-label="$t('Max guests')"
+                                                />
+                                            </div>
+
+                                            <div class="fe-form__switch-row">
+                                                <el-switch
+                                                    v-model="event.show_guest_count"
+                                                    active-value="yes"
+                                                    inactive-value="no"
+                                                    :aria-label="$t('Show how many guests are going')"
+                                                />
+                                                <span class="fe-form__switch-text">{{ $t('Show how many guests are going') }}</span>
+                                            </div>
+                                        </div>
+                                    </el-form-item>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="fe-event-form__card">
+                            <button
+                                type="button"
+                                class="fe-event-form__row"
                                 :aria-expanded="expanded.description"
                                 @click="toggle('description')"
                             >
@@ -292,7 +372,7 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
-    import { Document, LocationInformation, ArrowRight, Picture } from '@element-plus/icons-vue';
+    import { Document, LocationInformation, ArrowRight, Picture, User } from '@element-plus/icons-vue';
     import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
@@ -310,6 +390,7 @@
             LocationInformation,
             ArrowRight,
             Picture,
+            User,
             WpEditor,
             ErrorState,
             MediaPicker,
@@ -326,6 +407,7 @@
                 event: {},
                 expanded: {
                     location: false,
+                    registration: false,
                     description: false,
                 },
             };
@@ -413,12 +495,24 @@
 
                 return selected?.meta?.theme_color;
             },
-            venueSummary() {
-                if (this.event.venue_type === 'online') {
-                    return this.event.online_meeting_url || this.$t('Add Venue Type');
-                }
-
-                return this.event.venue || this.$t('Add Venue Type');
+            entryTypes() {
+                return [
+                    {
+                        value: 'rsvp',
+                        label: this.$t('RSVP'),
+                        hint: this.$t('Logged-in members say whether they are going.'),
+                    },
+                    {
+                        value: 'open',
+                        label: this.$t('Open registration'),
+                        hint: this.$t('Anyone who can see the event registers with a name and email.'),
+                    },
+                    {
+                        value: 'none',
+                        label: this.$t('No registration'),
+                        hint: this.$t('An announcement only. Nobody registers.'),
+                    },
+                ];
             },
         },
         methods: {
@@ -442,6 +536,10 @@
                     venue: meta.venue || '',
                     address: meta.address || '',
                     cover_url: meta.cover_url || '',
+                    entry_type: meta.entry_type || '',
+                    limit_seats: (meta.max_guests ?? -1) >= 0,
+                    max_guests: (meta.max_guests ?? -1) >= 0 ? meta.max_guests : 50,
+                    show_guest_count: meta.show_guest_count || 'yes',
                 };
             },
             loadForm() {
@@ -482,6 +580,7 @@
                         this.expanded.location = !!(this.event.venue
                             || this.event.address
                             || this.event.online_meeting_url);
+                        this.expanded.registration = !!this.event.entry_type;
                         this.expanded.description = !!this.event.description;
 
                         this.focusTitle();
@@ -546,6 +645,9 @@
                         online_meeting_url: this.event.online_meeting_url,
                         venue: this.event.venue,
                         address: this.event.address,
+                        entry_type: this.event.entry_type,
+                        max_guests: this.event.limit_seats ? this.event.max_guests : -1,
+                        show_guest_count: this.event.show_guest_count,
                     },
                     loadingState: 'saving',
                     errorState: null,

@@ -15,8 +15,8 @@ class Event extends Model
 
     const STATUSES = 'public,private,draft';
     const VENUE_TYPES = 'offline,online';
-    const ENTRY_TYPES = 'rsvp';
-    const DEFAULT_ENTRY_TYPE = 'rsvp';
+    const ENTRY_TYPES = 'rsvp,open,none';
+    const SEAT_STATUSES = ['going', 'checked_in'];
     const POST_STATUSES = [
         'public'   => 'publish',
         'private'  => 'private',
@@ -58,7 +58,9 @@ class Event extends Model
             'online_meeting_url' => '',
             'venue'              => '',
             'address'            => '',
-            'entry_type'         => self::DEFAULT_ENTRY_TYPE,
+            'entry_type'         => '',
+            'max_guests'         => -1,
+            'show_guest_count'   => 'yes',
         ];
     }
 
