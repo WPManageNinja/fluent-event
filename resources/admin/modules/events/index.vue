@@ -12,13 +12,13 @@
                         @change="rememberPeriod"
                     />
 
-                    <el-button
+                    <!-- <el-button
                         v-if="$userCan('write_events')"
                         type="primary"
                         @click="goToCreate"
                     >
                         {{ $t('Add Event') }}
-                    </el-button>
+                    </el-button> -->
                 </div>
             </div>
 
@@ -58,9 +58,9 @@
             rememberPeriod(period) {
                 Storage.set('events_period', period);
             },
-            goToCreate() {
-                this.$router.push({ name: 'event_create' });
-            },
+            // goToCreate() {
+            //     this.$router.push({ name: 'event_create' });
+            // },
         },
         mounted() {
             this.$changeTitle(this.$t('Events'));
