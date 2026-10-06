@@ -587,6 +587,7 @@
                         this.expanded.location = !!(this.event.venue
                             || this.event.address
                             || this.event.online_meeting_url);
+                        this.expanded.registration = !!this.event.entry_type;
                         this.expanded.description = !!this.event.description;
 
                         this.focusTitle();
