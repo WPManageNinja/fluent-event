@@ -30,7 +30,7 @@
 | `title`          | VARCHAR     | calendar name                                    |
 | `slug`           | VARCHAR     | unique; the shareable URL                        |
 | `description`    | TEXT NULL   |                                                  |
-| `status`         | VARCHAR     | `active` \| `draft`; default `active`             |
+| `status`         | VARCHAR     | `public` \| `private` \| `draft`; default `public` |
 | `meta`           | JSON NULL   | open-ended. v1 stores `theme_color`. Planned: `logo_url`, `cover_url`, who-can-manage (caps), notification prefs |
 | `created_by`     | BIGINT      | host/manager user id                             |
 | `created_at`     | TIMESTAMP   |                                                  |
@@ -38,7 +38,7 @@
 
 Indexes: **`PRIMARY(id)` + `UNIQUE(slug)` only.** No `status` index — this table holds
 ~10–100 rows ever (1–2 pages), so a full scan beats index descent + back-to-table random
-reads, and the column is two-valued (near-zero selectivity); the optimizer would skip it
+reads, and the column is three-valued (near-zero selectivity); the optimizer would skip it
 anyway. `UNIQUE(slug)` is kept for **correctness** (no duplicate slugs) — the fast
 `/calendar/{slug}` lookup is a side effect. Revisit only if the table ever grows large.
 
@@ -55,7 +55,7 @@ anyway. `UNIQUE(slug)` is kept for **correctness** (no duplicate slugs) — the 
 ### FR-8.3 — Shareable calendar page
 
 - Each calendar has a public page at its `slug` listing its published events; members browse it. (cal #4)
-- Respects `status` — an `active` calendar is listed and reachable; a `draft` one is not published.
+- Respects `status` — a `public` calendar is listed and reachable; a `private` one has no public page (space calendars start here); a `draft` one is not published.
 
 ### FR-8.5 — Member event view: joined vs browse
 
@@ -75,11 +75,7 @@ anyway. `UNIQUE(slug)` is kept for **correctness** (no duplicate slugs) — the 
 
 ## Acceptance criteria
 
-- A manager creates a calendar; it gets a unique slug, and a public page once it is `active`.
+- A manager creates a calendar; it gets a unique slug, and a public page once it is `public`.
 - Filing an event under a calendar makes it appear on that calendar's page.
-- A `draft` calendar's page is not publicly listed/accessible.
+- A `private` or `draft` calendar's page is not publicly listed/accessible.
 - Per-calendar theme changes apply only to that calendar.
-
-## Open questions
-
-→ Tracked in [clarifying-questions.md](clarifying-questions.md).

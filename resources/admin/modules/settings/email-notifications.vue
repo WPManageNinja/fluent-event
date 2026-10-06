@@ -37,7 +37,7 @@
                 </span>
             </el-form-item>
 
-            <el-form-item :label="$t('Enable reminders')">
+            <el-form-item :label="$t('Before Event Start Reminders')">
                 <el-switch
                     v-model="reminder.enabled"
                     :disabled="!$userCan('write_settings')"
@@ -187,6 +187,7 @@
                     errorNotify: true,
                     onSuccess: response => {
                         this.setSettings(response.settings);
+                        window.fluentEventAdmin.email_notifications = response.settings;
                     },
                 });
             },

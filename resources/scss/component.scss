@@ -249,6 +249,31 @@
     }
 }
 
+.fe-empty-state {
+    padding: var(--fe-space-12, 48px) var(--fe-space-6, 24px);
+    border: 1px dashed var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius, 8px);
+    background-color: var(--fe-primary-bg, #ffffff);
+    text-align: center;
+
+    &__title {
+        margin: 0;
+        font-size: var(--fe-text-lg, 18px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__message {
+        margin: var(--fe-space-2, 8px) 0 0;
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__action {
+        margin-top: var(--fe-space-5, 20px);
+    }
+}
+
 .fe-error-state {
     height: 70vh;
     min-height: 450px;
@@ -440,27 +465,6 @@
             background-color: var(--fe-primary-bg, #ffffff);
             color: var(--fe-secondary-text, #525866);
         }
-    }
-
-    &__onboarding {
-        padding: var(--fe-space-12, 48px) var(--fe-space-6, 24px);
-        border: 1px dashed var(--fe-primary-border, #eaecf0);
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-primary-bg, #ffffff);
-        text-align: center;
-    }
-
-    &__onboarding-title {
-        margin: 0;
-        font-size: var(--fe-text-lg, 18px);
-        font-weight: 600;
-        color: var(--fe-primary-text, #19283a);
-    }
-
-    &__onboarding-text {
-        margin: var(--fe-space-2, 8px) 0 var(--fe-space-5, 20px);
-        font-size: var(--fe-text-sm, 14px);
-        color: var(--fe-secondary-text, #525866);
     }
 
     &__grid {
@@ -982,6 +986,16 @@
         gap: var(--fe-space-5, 20px);
     }
 
+    // The navbar is fixed over the scroll area, so stick below it.
+    &__aside {
+        position: sticky;
+        top: calc(var(--fe-navbar-height, 65px) + var(--fe-space-5, 20px));
+
+        @media screen and (max-width: 782px) {
+            position: static;
+        }
+    }
+
     .el-radio {
         margin-right: var(--fe-space-4, 16px);
     }
@@ -1294,6 +1308,8 @@
 .fe-switch {
     position: relative;
     display: inline-flex;
+    box-sizing: border-box;
+    height: var(--fe-control-height, 36px);
     gap: var(--fe-space-1, 4px);
     padding: var(--fe-space-1, 4px);
     border: 1px solid var(--fe-badge-color, #E1E4EA);
@@ -1310,7 +1326,7 @@
         }
 
         .fe-switch__option {
-            padding: var(--fe-space-1, 4px) var(--fe-space-3, 12px);
+            padding: 0 var(--fe-space-3, 12px);
         }
     }
 
@@ -1331,7 +1347,7 @@
         z-index: 1;
         display: inline-flex;
         align-items: center;
-        padding: var(--fe-space-1, 4px) var(--fe-space-4, 16px);
+        padding: 0 var(--fe-space-4, 16px);
         border: 0;
         border-radius: var(--fe-radius-sm, 4px);
         background: none;

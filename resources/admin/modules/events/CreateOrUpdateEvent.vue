@@ -20,13 +20,13 @@
 
             <div v-else-if="!loadingCalendars && !calendars.length" class="fe-card">
                 <el-empty :description="$t('An event needs a calendar to live in, and there are none yet.')">
-                    <el-button
+                    <!-- <el-button
                         v-if="$userCan('write_calendars')"
                         type="primary"
                         @click="goToCalendarCreate"
                     >
                         {{ $t('Create a Calendar') }}
-                    </el-button>
+                    </el-button> -->
                 </el-empty>
             </div>
 
@@ -178,7 +178,7 @@
                                 </el-icon>
 
                                 <span class="fe-event-form__row-text">
-                                    <span class="fe-event-form__row-title">{{ venueSummary }}</span>
+                                    <span class="fe-event-form__row-title">{{ $t('Add Venue Type') }}</span>
                                     <span class="fe-event-form__row-hint">
                                         {{ $t('Offline location or virtual link') }}
                                     </span>
@@ -514,13 +514,6 @@
                     },
                 ];
             },
-            venueSummary() {
-                if (this.event.venue_type === 'online') {
-                    return this.event.online_meeting_url || this.$t('Add Venue Type');
-                }
-
-                return this.event.venue || this.$t('Add Venue Type');
-            },
         },
         methods: {
             initForm(event = null) {
@@ -671,9 +664,9 @@
                     },
                 });
             },
-            goToCalendarCreate() {
-                this.$router.push({ name: 'calendar_create' });
-            },
+            // goToCalendarCreate() {
+            //     this.$router.push({ name: 'calendar_create' });
+            // },
         },
         mounted() {
             this.$changeTitle(this.pageTitle);

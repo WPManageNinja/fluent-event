@@ -150,7 +150,3 @@ Typed, namespaced action registry. At least:
 - Clicking a notification lands on the right page via `route`.
 - Turning off a notification type stops both its in-app and email delivery (per channel toggle).
 - Old read notifications are pruned on schedule.
-
-## Open questions
-
-→ Tracked in [clarifying-questions.md](clarifying-questions.md).

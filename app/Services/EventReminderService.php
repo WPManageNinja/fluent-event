@@ -171,6 +171,8 @@ class EventReminderService
 
     public static function sendConfirmation($guestId)
     {
+        if (empty(Settings::get(Settings::EMAIL_NOTIFICATIONS)['registration_confirmation']['enabled'])) return;
+
         $guest = Guest::query()->find((int) $guestId);
 
         if (!$guest || $guest->status !== 'going' || !is_email($guest->email)) return;
@@ -196,6 +198,8 @@ class EventReminderService
     // The queued job passes an id; deleting a guest passes the row itself, since it is already gone.
     public static function sendCancellation($guest)
     {
+        if (empty(Settings::get(Settings::EMAIL_NOTIFICATIONS)['registration_cancellation']['enabled'])) return;
+
         if (!is_object($guest)) {
             $guest = Guest::query()->find((int) $guest);
 

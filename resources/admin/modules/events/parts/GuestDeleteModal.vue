@@ -9,7 +9,7 @@
     >
         <p>{{ $t('%s will be removed from this event. This cannot be undone.', guest?.name) }}</p>
 
-        <el-checkbox v-if="guest?.status === 'going'" v-model="sendEmail">
+        <el-checkbox v-if="canSendEmail" v-model="sendEmail">
             {{ $t('Send cancellation email') }}
         </el-checkbox>
 
@@ -49,6 +49,12 @@
                 sendEmail: false,
             };
         },
+        computed: {
+            canSendEmail() {
+                return this.guest?.status === 'going'
+                    && !!window.fluentEventAdmin?.email_notifications?.registration_cancellation?.enabled;
+            },
+        },
         methods: {
             close() {
                 this.$emit('update:modelValue', false);
@@ -58,7 +64,7 @@
                     method: 'delete',
                     path: `events/${this.eventId}/guests/${this.guest.id}`,
                     payload: {
-                        send_email: this.guest.status === 'going' && this.sendEmail,
+                        send_email: this.canSendEmail && this.sendEmail,
                     },
                     loadingState: 'deleting',
                     errorState: null,

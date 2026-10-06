@@ -58,7 +58,7 @@ class CalendarService
         }
 
         $data['slug'] = static::uniqueSlug($data['title']);
-        $data['status'] = 'active';
+        $data['status'] = 'private';
 
         // Same meta shaping as the portal's own create, plus our link key.
         $data = CalendarRequest::format(Arr::except($data, ['space_id']));
@@ -153,7 +153,7 @@ class CalendarService
             return ['calendars' => [], 'total' => 0];
         }
 
-        $args = array_merge(['search' => '', 'status' => 'active'], $args);
+        $args = array_merge(['search' => '', 'status' => 'public'], $args);
 
         $calendars = Calendar::query()
             ->searchBy(sanitize_text_field($args['search']))

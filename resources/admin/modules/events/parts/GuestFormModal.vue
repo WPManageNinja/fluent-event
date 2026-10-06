@@ -137,8 +137,12 @@
                 return this.isEditing ? this.$t('Update Guest') : this.$t('Add Guest');
             },
             emailLabel() {
+                const notifications = window.fluentEventAdmin?.email_notifications || {};
+                const confirmation = notifications.registration_confirmation?.enabled ? this.$t('Send confirmation email') : '';
+                const cancellation = notifications.registration_cancellation?.enabled ? this.$t('Send cancellation email') : '';
+
                 if (!this.isEditing) {
-                    return this.form.status === 'going' ? this.$t('Send confirmation email') : '';
+                    return this.form.status === 'going' ? confirmation : '';
                 }
 
                 if (this.form.status === this.guest.status) {
@@ -146,11 +150,11 @@
                 }
 
                 if (this.form.status === 'going') {
-                    return this.$t('Send confirmation email');
+                    return confirmation;
                 }
 
                 if (['not_going', 'cancelled'].includes(this.form.status)) {
-                    return this.$t('Send cancellation email');
+                    return cancellation;
                 }
 
                 return '';

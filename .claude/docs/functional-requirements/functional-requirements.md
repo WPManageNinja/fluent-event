@@ -42,6 +42,6 @@
 
 ## FR-10: FluentCommunity Integration
 
-**Summary:** Optional bridge that deep-integrates FluentEvent into FluentCommunity. When fcom is active, registers a new `event` space type whose space is 1:1-bound to a FluentEvent calendar (auto-created, title-synced, also shown in the standalone portal). Events always live in `wp_fe_*` (fcom stores none); in integrated mode fcom is the canonical identity.
+**Summary:** Optional bridge into FluentCommunity. With fcom active, an event is a post (`content_type = 'event'`, `meta.event_id`) in a discussion space, and each space links to one `private` FluentEvent calendar. Event data always lives in `wp_fe_*`; fcom stores only the post. Without fcom, FluentEvent runs standalone.
 
 → Full spec: [fluentcommunity-integration.md](fluentcommunity-integration.md)
