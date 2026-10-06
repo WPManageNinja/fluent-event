@@ -70,6 +70,54 @@
         gap: var(--fe-space-2, 8px);
     }
 
+    &__choices.el-radio-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--fe-space-3, 12px);
+
+        // EP pins a radio to one 32px line; let the hint wrap under the title.
+        .el-radio {
+            align-items: flex-start;
+            height: auto;
+            margin-right: 0;
+            white-space: normal;
+        }
+
+        .el-radio__input {
+            margin-top: var(--fe-space-1, 4px);
+        }
+
+        .fe-form__hint {
+            margin-top: 0;
+        }
+    }
+
+    &__choice-title {
+        display: block;
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.5;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__switch-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--fe-space-1, 4px);
+    }
+
+    &__switch-row {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-3, 12px);
+        min-height: var(--fe-control-height, 36px);
+    }
+
+    &__switch-text {
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-primary-text, #19283a);
+    }
+
     &__pair {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
