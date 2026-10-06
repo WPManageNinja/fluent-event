@@ -36,7 +36,7 @@ $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($rou
     $router->get('/', [CalendarController::class, 'getAllCalendars']);
     $router->get('/{id}', [CalendarController::class, 'getCalendar'])->int('id');
 
-    $router->post('/', [CalendarController::class, 'createCalendar']);
+    // $router->post('/', [CalendarController::class, 'createCalendar']);
     $router->patch('/{id}', [CalendarController::class, 'updateCalendar'])->int('id');
     $router->delete('/{id}', [CalendarController::class, 'deleteCalendar'])->int('id');
 });
@@ -50,7 +50,7 @@ $router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
     $router->get('/', [EventController::class, 'getAllEvents']);
     $router->get('/{id}', [EventController::class, 'getEvent'])->int('id');
 
-    $router->post('/', [EventController::class, 'createEvent']);
+    // $router->post('/', [EventController::class, 'createEvent']);
     $router->patch('/{id}', [EventController::class, 'updateEvent'])->int('id');
     $router->delete('/{id}', [EventController::class, 'deleteEvent'])->int('id');
 
