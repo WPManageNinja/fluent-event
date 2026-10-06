@@ -1250,6 +1250,8 @@
 .fe-switch {
     position: relative;
     display: inline-flex;
+    box-sizing: border-box;
+    height: var(--fe-control-height, 36px);
     gap: var(--fe-space-1, 4px);
     padding: var(--fe-space-1, 4px);
     border: 1px solid var(--fe-badge-color, #E1E4EA);
@@ -1266,7 +1268,7 @@
         }
 
         .fe-switch__option {
-            padding: var(--fe-space-1, 4px) var(--fe-space-3, 12px);
+            padding: 0 var(--fe-space-3, 12px);
         }
     }
 
@@ -1287,7 +1289,7 @@
         z-index: 1;
         display: inline-flex;
         align-items: center;
-        padding: var(--fe-space-1, 4px) var(--fe-space-4, 16px);
+        padding: 0 var(--fe-space-4, 16px);
         border: 0;
         border-radius: var(--fe-radius-sm, 4px);
         background: none;
