@@ -15,10 +15,12 @@
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `event_details.form_fields` (JSON column); each attendee's answers save to `guests.form_response` (JSON).
 - **Mode** via `event_details.venue_type` (online / offline / hybrid); **policy** via `event_details.settings.join_policy` (open / approval / invite_only).
-- **Entry mode** via `event_details.settings.registration_type` — three ways in, one set of tables:
-  - **`ticketed`** — buy tickets. Guest rows **require** `ticket_type_id` (paid or free tier), payment on the `is_buyer=1` row. (`ticket_type_id` is now nullable at the DB level — ticketed mode enforces it in the service layer.)
-  - **`rsvp`** — free "I'm coming". Guest rows with **`ticket_type_id` = NULL** (no tier at all). Going / not-going tracked purely via `status` (`attending` / `declined`). Headcount = `COUNT(*) WHERE status='attending'`.
-  - **`open`** — no registration. **Zero guest rows, zero ticket_types.** Just a published listing (unlimited, free, show up). The event = its `wp_posts` + `wp_fe_event_details` row, no children.
+- **Entry mode** via `event_details.meta.entry_type` (built: `rsvp`, `open`, `none`; `ticketed` is future):
+  - **`rsvp`** — logged-in "I'm coming". Guest rows with **`ticket_type_id` = NULL**; going / not going via `status` (`going` / `not_going`).
+  - **`open`** — anyone who can see the event registers with name + email; a logged-in registrant's `user_id` is linked. One registration per email per event.
+  - **`none`** — announcement only. No guest rows.
+  - **Capacity** — `meta.max_guests` (`-1` = unlimited) counts `going` + `checked_in`; full means registration closes. `meta.show_guest_count` (`yes` / `no`) shows the count to viewers.
+  - **`ticketed`** (future) — buy tickets. Guest rows **require** `ticket_type_id`, payment on the `is_buyer=1` row; the service layer enforces it.
   - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.slot IS NULL`).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
 - **Payments** — **Paymattic** (Stripe/PayPal). Payment is **per order** (one payment covers all tickets in a `group_id` group), recorded on the `is_buyer=1` row — not per guest.
@@ -43,7 +45,7 @@ place (address/map) is `fe_venue` term meta, not an event column. See
 | `post_id` | BIGINT **NOT NULL** UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **Every** details row has its own post — including each recurrence occurrence |
 | `calendar_id` | BIGINT **NOT NULL** FK | → calendar (`RESTRICT`) |
 | `parent_event_id` | BIGINT NULL FK→self | NULL = master/standalone; set = a recurrence **occurrence** of that master (`ON DELETE CASCADE`) |
-| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `draft` |
+| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `private` \| `draft` |
 | `start_at` / `end_at` | DATETIME **NOT NULL** (**UTC**) | stored in UTC; the indexed date window |
 | `timezone` | VARCHAR **NULL** | IANA tz (e.g. `Asia/Dhaka`) — to display the organizer's local time; also DST, ICS, reminders |
 | `venue_type` | VARCHAR **NULL**, default `'offline'` | event **mode**: `offline` \| `online` \| `hybrid`. Place = `fe_venue` term (address/map in term meta) |
@@ -77,7 +79,7 @@ occurrence owns its **own** `wp_posts` row and its own complete values. There is
 *(Venue place data → `fe_venue` term meta; the online link is per-event in `settings`,
 never term meta.)*
 
-> **Note on `status`:** it carries visibility semantics (`public`/`draft`)
+> **Note on `status`:** it carries visibility semantics (`public`/`private`/`draft`; `private` = no public page)
 > which overlap `wp_posts.post_status`. Pick one as authoritative in the service layer —
 > `event_details.status` is the queryable one, so keep `post_status` in step with it on write.
 
@@ -286,7 +288,3 @@ be a taxonomy (`fe_sponsor`, like organizer), not a custom table.
 - Invite by email, invite link, and import each create the right guest rows (email + optional name), no account flow.
 - Cloning makes a separate draft; deleting removes the event and notifies confirmed guests.
 - Event times show in each viewer's own timezone.
-
-## Open questions
-
-→ Tracked in [clarifying-questions.md](clarifying-questions.md) (events section).
