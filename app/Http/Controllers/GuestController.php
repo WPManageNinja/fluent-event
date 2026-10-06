@@ -4,6 +4,7 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Services\EventReminderService;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Http\Request\Request;
@@ -55,6 +56,10 @@ class GuestController extends Controller
 
         do_action('fluent_event/guest/created', $guest);
 
+        if ($status === 'going' && $request->getSafe('send_email', 'rest_sanitize_boolean')) {
+            as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
+        }
+
         return [
             'message' => __('Guest has been successfully saved', 'fluent-event'),
             'guest'   => $guest
@@ -73,6 +78,7 @@ class GuestController extends Controller
         );
 
         $status = Arr::get($data, 'status') ?: Guest::DEFAULT_STATUS;
+        $previousStatus = $guest->status;
 
         $guest->fill([
             'name'          => Arr::get($data, 'name'),
@@ -84,7 +90,15 @@ class GuestController extends Controller
                 : null,
         ])->save();
 
-        do_action('fluent_event/guest/updated', $guest);
+        do_action('fluent_event/guest/updated', $guest, $previousStatus);
+
+        if ($status !== $previousStatus && $request->getSafe('send_email', 'rest_sanitize_boolean')) {
+            if ($status === 'going') {
+                as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
+            } elseif (in_array($status, ['not_going', 'cancelled'], true)) {
+                as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
+            }
+        }
 
         return [
             'message' => __('Guest has been successfully updated', 'fluent-event'),
@@ -101,6 +115,14 @@ class GuestController extends Controller
         $guest->delete();
 
         do_action('fluent_event/guest/deleted', $guest);
+
+        // Sent now, not queued: the row is gone, so a background job couldn't load it.
+        if (
+            $request->getSafe('send_email', 'rest_sanitize_boolean')
+            && $guest->status === 'going'
+        ) {
+            EventReminderService::sendCancellation($guest);
+        }
 
         return [
             'message' => __('Guest has been successfully deleted', 'fluent-event')

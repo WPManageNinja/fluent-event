@@ -35,6 +35,12 @@ class Settings
             'email_footer'   => '',
         ],
         self::EMAIL_NOTIFICATIONS => [
+            'registration_confirmation' => [
+                'enabled' => true,
+            ],
+            'registration_cancellation' => [
+                'enabled' => true,
+            ],
             'reminder_to_guest' => [
                 'enabled' => true,
                 'times'   => [
