@@ -6,6 +6,7 @@ use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\EventReminderService;
+use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\PostService;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
@@ -74,24 +75,7 @@ class EventController extends Controller
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
         EventRequest::validateDateWindow($data);
 
-        $data     = EventRequest::format($data);
-        $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));
-
-        // The post and its details row must land together — a post without its
-        // typed row is an event the app cannot read.
-        $event = DB::transaction(function () use ($data, $timezone) {
-            return Event::create([
-                'post_id'         => PostService::createEventPost($data),
-                'calendar_id'     => Arr::get($data, 'calendar_id'),
-                'parent_event_id' => null,
-                'status'          => Arr::get($data, 'status'),
-                'start_at'        => DateTimeHelper::convertToUtc(Arr::get($data, 'start_at'), $timezone),
-                'end_at'          => DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone),
-                'timezone'        => $timezone,
-                'venue_type'      => Arr::get($data, 'venue_type'),
-                'meta'            => Arr::get($data, 'meta', []),
-            ]);
-        });
+        $event = EventService::createEvent(EventRequest::format($data));
 
         do_action('fluent_event/event/created', $event);
 
