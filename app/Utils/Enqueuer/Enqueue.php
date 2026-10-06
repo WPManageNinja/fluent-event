@@ -103,6 +103,23 @@ class Enqueue
     }
 
     /**
+     * Resolve a built source file to its URL, for callers that print their
+     * own tags. Empty instead of throwing when the build is missing, so it
+     * can't take down a page we don't own.
+     *
+     * @param  string  $src  Path relative to the resource root.
+     * @return string
+     */
+    public static function url($src)
+    {
+        try {
+            return static::$enqueuer::getUrl($src);
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+
+    /**
      * Resolve a static asset to an absolute URL (plugin_dir_url + path)
      * without touching the build manifest. Used for images, fonts, or any
      * asset that isn't part of the Vite build graph.

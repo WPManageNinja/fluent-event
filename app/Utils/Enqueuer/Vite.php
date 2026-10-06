@@ -12,6 +12,8 @@ class Vite extends Enqueuer
      * @method static enqueueScript($handle, $src, $dependency = [], $version = null, $inFooter = false)
      * 
      * @method static enqueueStyle($handle, $src, $dependency = [], $version = null)
+     *
+     * @method static getUrl($src)
      */
 
     /** @var array<string> */
@@ -121,6 +123,19 @@ class Vite extends Enqueuer
         }
 
         wp_enqueue_style($handle, $srcPath, $dependency, $version);
+    }
+
+    /**
+     * @param string $src
+     * @return string
+     */
+    private function getUrl(string $src): string
+    {
+        if (static::isOnDevMode()) {
+            return static::getVitePath() . ltrim($src, '/');
+        }
+
+        return static::getProductionFilePath($this->getFileFromManifest($src));
     }
 
     /**
