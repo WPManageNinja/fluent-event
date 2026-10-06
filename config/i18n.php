@@ -67,7 +67,6 @@ return [
             'Access permissions for this user' => __('Access permissions for this user', 'fluent-event'),
             /* translators: %s is the name of the item the actions apply to */
             'Actions for %s' => __('Actions for %s', 'fluent-event'),
-            'Active' => __('Active', 'fluent-event'),
             'Add a cover image' => __('Add a cover image', 'fluent-event'),
             'Add Another Reminder' => __('Add Another Reminder', 'fluent-event'),
             'Add Description' => __('Add Description', 'fluent-event'),
@@ -252,6 +251,7 @@ return [
             'Pick a user first.' => __('Pick a user first.', 'fluent-event'),
             'Prev' => __('Prev', 'fluent-event'),
             'Previous' => __('Previous', 'fluent-event'),
+            'Private' => __('Private', 'fluent-event'),
             'Public' => __('Public', 'fluent-event'),
             'No calendars yet' => __('No calendars yet', 'fluent-event'),
             'A space gets its calendar when its first event is posted in FluentCommunity.' => __('A space gets its calendar when its first event is posted in FluentCommunity.', 'fluent-event'),

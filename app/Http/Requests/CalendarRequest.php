@@ -50,7 +50,7 @@ class CalendarRequest extends BaseRequest
             'description.string'  => __('Description must be text.', 'fluent-event'),
             'status.required'     => __('Status is required.', 'fluent-event'),
             'status.string'       => __('Status must be text.', 'fluent-event'),
-            'status.in'           => __('Status must be active or draft.', 'fluent-event'),
+            'status.in'           => __('Status must be public, private or draft.', 'fluent-event'),
             'theme_color.regex'   => __('Theme color must be a hex value like #0099ff.', 'fluent-event'),
         ];
     }
