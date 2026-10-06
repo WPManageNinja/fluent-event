@@ -34,7 +34,11 @@ $app->addAction('init', 'CPTHandler@registerPostTypes');
 (new \FluentEvent\App\Hooks\Handlers\CleanupHandlers\CleanupHandler())->register();
 
 /**
- * FluentCommunity bridge. Priority 20 so their plugin is fully loaded; the
- * class itself is a no-op when it is not.
+ * FluentCommunity bridge — only registers while FluentCommunity is active. fcom
+ * fires portal_loaded at plugins_loaded@10, so subscribe at include time.
  */
-add_action('plugins_loaded', ['FluentEvent\Modules\FluentCommunity\Bootstrap', 'register'], 20);
+if (did_action('fluent_community/portal_loaded')) {
+    \FluentEvent\Modules\FluentCommunity\Bootstrap::register();
+} else {
+    add_action('fluent_community/portal_loaded', ['FluentEvent\Modules\FluentCommunity\Bootstrap', 'register']);
+}
