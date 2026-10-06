@@ -2,7 +2,7 @@
     <div class="fe-calendars__card">
         <div class="fe-calendars__card-cover" :style="{ color: themeColor }">
             <el-tag
-                v-if="calendar.status !== 'active'"
+                v-if="calendar.status !== 'public'"
                 class="capitalize fe-calendars__card-status"
                 :type="$calendarStatusType(calendar.status)"
                 size="small"
