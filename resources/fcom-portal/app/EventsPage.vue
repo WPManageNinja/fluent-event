@@ -138,14 +138,19 @@
                     </div>
 
                     <event-actions
-                        v-if="event.is_past || event.entry_type !== 'none'"
+                        v-if="hasActions(event)"
                         class="fe-event-item__actions"
                         :event="event"
                         @done="applyResponse(event, $event)"
                         @error="errors[event.id] = $event"
                     ></event-actions>
 
-                    <event-menu v-if="event.edit_url" class="fe-event-item__menu" :edit-url="event.edit_url"></event-menu>
+                    <event-menu
+                        class="fe-event-item__menu"
+                        :event="event"
+                        @done="applyResponse(event, $event)"
+                        @error="errors[event.id] = $event"
+                    ></event-menu>
                 </div>
             </div>
 
@@ -160,7 +165,7 @@
 import { ArrowLeft, ArrowRight, Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventDateRange, eventMonth, eventDay, guestCountLabel, portalVars } from '../utils';
+import { eventsApi, errorMessage, eventDateRange, eventMonth, eventDay, guestCountLabel, portalVars, isSeated, hasEventActions } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 
@@ -251,9 +256,8 @@ export default {
         weekday(event) {
             return dayjs(event.start_at_local).format('dddd');
         },
-        isSeated(event) {
-            return ['going', 'checked_in'].includes(event.my_status);
-        },
+        isSeated,
+        hasActions: hasEventActions,
         reload() {
             this.fetchEvents(1);
         },

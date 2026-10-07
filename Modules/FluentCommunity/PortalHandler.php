@@ -72,11 +72,14 @@ class PortalHandler
 
         $links[] = [
             'slug'  => 'fluent_events',
+            'Are you sure you want to cancel your registration?' => __('Are you sure you want to cancel your registration?', 'fluent-event'),
+            'Keep registration' => __('Keep registration', 'fluent-event'),
             'Next month' => __('Next month', 'fluent-event'),
             'Previous month' => __('Previous month', 'fluent-event'),
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
+            'Warning' => __('Warning', 'fluent-event'),
             'title' => __('Events', 'fluent-event'),
             'route' => ['name' => 'fe_space_events', 'params' => ['space' => $space->slug]],
         ];

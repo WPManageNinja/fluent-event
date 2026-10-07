@@ -1,8 +1,9 @@
-import { t, portalVars, eventsApi, errorMessage } from './utils';
+import { t, portalVars, eventsApi, errorMessage, isSeated } from './utils';
 
 /*
- * Register / RSVP / cancel controls. The feed card runs on fcom's Vue and the Events
- * list on ours, so this is a string template both can compile.
+ * Register / RSVP controls; an open registration is cancelled from the ⋮ menu.
+ * The feed card runs on fcom's Vue and the Events list on ours, so this is a
+ * string template both can compile.
  */
 export default {
     name: 'FluentEventActions',
@@ -20,7 +21,7 @@ export default {
             return !!portalVars().is_logged_in;
         },
         isSeated() {
-            return ['going', 'checked_in'].includes(this.event.my_status);
+            return isSeated(this.event);
         },
         loginUrl() {
             return (window.fluentComAdmin && window.fluentComAdmin.auth_url) || '';
@@ -54,9 +55,6 @@ export default {
                 this.$emit('done', response);
             }
         },
-        cancel() {
-            this.send('cancel', {});
-        },
     },
     template: `
         <div class="fe-event-actions">
@@ -70,12 +68,7 @@ export default {
                 </div>
             </template>
 
-            <template v-else-if="event.entry_type === 'open'">
-                <template v-if="isSeated">
-                    <button v-if="isLoggedIn" type="button" class="el-button fcom_secondary_button" :disabled="busy" @click="cancel">{{ t('Cancel registration') }}</button>
-                </template>
-                <button v-else type="button" class="el-button fcom_primary_button" :disabled="busy || event.is_full" @click="register">{{ t('Register') }}</button>
-            </template>
+            <button v-else-if="event.entry_type === 'open' && !isSeated" type="button" class="el-button fcom_primary_button" :disabled="busy || event.is_full" @click="register">{{ t('Register') }}</button>
 
             <span v-if="event.is_full && !isSeated && !event.is_past" class="fe-event-actions__badge">{{ t('Event is full') }}</span>
         </div>

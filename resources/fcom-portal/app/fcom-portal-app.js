@@ -1,4 +1,6 @@
 import { createApp } from 'vue';
+import { ElMessageBox } from 'element-plus';
+import 'element-plus/es/components/message-box/style/css';
 import EventsPage from './EventsPage.vue';
 import CreateEventPage from './CreateEventPage.vue';
 import RegisterDialog from './RegisterDialog.vue';
@@ -17,6 +19,17 @@ export function mountPage(el, props) {
     app.mount(el);
 
     return () => app.unmount();
+}
+
+// The same warning box and button classes fcom confirms its own deletes with. Resolves true on confirm.
+export function confirmAction(message, confirmText, cancelText) {
+    return ElMessageBox.confirm(message, t('Warning'), {
+        confirmButtonText: confirmText,
+        cancelButtonText: cancelText,
+        confirmButtonClass: 'fcom_primary_button',
+        cancelButtonClass: 'fcom_secondary_button',
+        type: 'warning',
+    }).then(() => true, () => false);
 }
 
 // Resolves with the register response, or null when the dialog is dismissed.
