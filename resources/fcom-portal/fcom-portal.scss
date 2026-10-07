@@ -1,0 +1,882 @@
+// Loaded on FluentCommunity portal pages. Colours come from fcom's own tokens so the
+// event UI follows the community theme and its dark mode.
+
+.fe-event-card {
+    margin: 12px 0 4px;
+    border: 1px solid var(--fcom-primary-border, #e3e8ee);
+    border-radius: 8px;
+    background: var(--fcom-primary-bg, #ffffff);
+    color: var(--fcom-primary-text, #19283a);
+    overflow: hidden;
+
+    &__unavailable {
+        margin: 0;
+        padding: 14px 16px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__cover {
+        display: block;
+        width: 100%;
+        max-height: 260px;
+        object-fit: cover;
+    }
+
+    &__body {
+        display: flex;
+        gap: 14px;
+        padding: 14px 16px 6px;
+    }
+
+    &__date {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 52px;
+        height: 56px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        background: var(--fcom-secondary-bg, #f7f8fa);
+    }
+
+    &__month {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--fcom-primary-button, #2b2e33);
+    }
+
+    &__day {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    &__info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    // Title, its status badge, then the "⋮" menu pushed right.
+    &__head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    &__title {
+        min-width: 0;
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.35;
+        color: var(--fcom-primary-text, #19283a);
+
+        &.fe-event-card__title--truncated {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+
+    &__menu {
+        margin-left: auto;
+    }
+
+    &__meta {
+        margin: 0 0 2px;
+        font-size: 14px;
+        color: var(--fcom-primary-text, #19283a);
+
+        a {
+            color: var(--fcom-text-link, #2271b1);
+        }
+
+        &.fe-event-card__meta--muted {
+            color: var(--fcom-secondary-text, #525866);
+        }
+    }
+
+    &__description {
+        padding: 0 16px 6px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    // Same clamp fcom uses for long comments.
+    &__description-box.fe-event-card__description-box--clamped {
+        display: -webkit-box;
+        -webkit-line-clamp: 6;
+        line-clamp: 6;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    // fcom's .fcom_see_more_btn values; that class is scoped to comments.
+    &__more {
+        margin-top: 4px;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--fcom-text-off, #65676b);
+
+        &:hover,
+        &:focus-visible {
+            color: var(--fcom-primary, #007cba);
+            text-decoration: underline;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px 14px;
+    }
+
+    &__title-link {
+        color: inherit;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            text-decoration: underline;
+        }
+    }
+
+    &__error {
+        margin: 0;
+        padding: 0 16px 12px;
+        font-size: 13px;
+        color: var(--fcom-danger, #d63638);
+    }
+
+    // Sits under the buttons, so it reads as their result rather than a separate line.
+    .fe-event-card__actions + &__error {
+        margin-top: -8px;
+    }
+
+    &.fe-event-card--child {
+        margin-bottom: 0;
+    }
+}
+
+// Register / RSVP / cancel controls, shared by the feed card and the Events list.
+.fe-event-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+
+    .el-button + .el-button {
+        margin-left: 0;
+    }
+
+    .el-button.el-button {
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+    }
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        background: var(--fcom-active-bg, #f0f3f5);
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    // Going / Not going as one joined control, like fcom's el-button-group.
+    &__rsvp {
+        display: inline-flex;
+
+        .el-button.el-button {
+            margin: 0;
+        }
+
+        .el-button.el-button:first-child {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .el-button.el-button:last-child {
+            margin-left: -1px;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .el-button:hover,
+        .el-button:focus-visible {
+            position: relative;
+            z-index: 1;
+        }
+    }
+}
+
+// Registered / Cancelled next to an open event's title. fcom ships EP's success and danger colours for both modes.
+.fe-event-status {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    background: var(--el-color-success-light-9, #f0f9eb);
+    color: var(--el-color-success, #67c23a);
+
+    &.fe-event-status--danger {
+        background: var(--el-color-danger-light-9, #fef0f0);
+        color: var(--el-color-danger, #f56c6c);
+    }
+}
+
+.fe-event-menu {
+    position: relative;
+    flex-shrink: 0;
+
+    &__trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--fcom-secondary-text, #525866);
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--fcom-active-bg, #f0f3f5);
+            color: var(--fcom-primary-text, #19283a);
+        }
+    }
+
+    &__list {
+        position: absolute;
+        top: calc(100% + 4px);
+        right: 0;
+        z-index: 20;
+        min-width: 150px;
+        margin: 0;
+        padding: 4px;
+        list-style: none;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        background: var(--fcom-primary-bg, #ffffff);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    &__item {
+        display: block;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        color: var(--fcom-primary-text, #19283a);
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--fcom-active-bg, #f0f3f5);
+        }
+    }
+}
+
+.fe-fcom-portal-page {
+    // Our Element Plus reads its primary colour from here, so tabs and controls follow the community theme.
+    --el-color-primary: var(--fcom-primary-button, #2B2E33);
+    padding: 20px 0;
+
+    // Same frame as fcom's wide pages (the .fcom_max_layout body), so it matches the space Events tab.
+    &.fe-fcom-portal-page--events {
+        box-sizing: border-box;
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+}
+
+// fcom uncaps its 680px .fcom_feed_box for wide space tabs (Members, Media, Documents) by route class.
+.fcom_route_fe_space_events .fcom_feed_box,
+.fcom_route_fe_space_create_event .fcom_feed_box {
+    width: 100%;
+    max-width: 100%;
+}
+
+.fe-events-page {
+    color: var(--fcom-primary-text, #19283a);
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    // EP sizes the active bar to the tab's content box, so equal unpadded tabs give one bar width.
+    &__tabs .el-tabs__item.el-tabs__item {
+        justify-content: center;
+        min-width: 96px;
+        padding: 0;
+    }
+
+    &__error {
+        color: var(--fcom-danger, #d63638);
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 120px;
+    }
+
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        margin-top: 16px;
+        padding: 56px 24px;
+        border: 1px dashed var(--fcom-primary-border, #e3e8ee);
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    &__empty-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--fcom-secondary-bg, #f0f2f5);
+        color: var(--fcom-primary-button, #2B2E33);
+    }
+
+    &__empty-title {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__empty-text {
+        max-width: 360px;
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__more {
+        display: flex;
+        justify-content: center;
+        padding: 8px 0;
+    }
+
+    &__day {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    &__day-number {
+        font-size: 13px;
+    }
+
+    &__day-event {
+        overflow: hidden;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        text-decoration: none;
+        background: var(--fcom-active-bg, #f0f3f5);
+        color: var(--fcom-primary-text, #19283a);
+    }
+}
+
+.fe-event-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--fcom-primary-border, #e3e8ee);
+    border-radius: 8px;
+    background: var(--fcom-primary-bg, #ffffff);
+    color: var(--fcom-primary-text, #19283a);
+    text-decoration: none;
+    cursor: pointer;
+
+    // Title and date stay put; only the secondary lines dim.
+    &:hover .fe-event-item__meta {
+        opacity: 0.8;
+    }
+
+    // Same date box as the feed card, pinned to the top like the post view.
+    &__date {
+        align-self: flex-start;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 52px;
+        height: 56px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        background: var(--fcom-secondary-bg, #f7f8fa);
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__month {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--fcom-primary-button, #2b2e33);
+    }
+
+    &__day {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__head {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 2px;
+    }
+
+    // Own colour, so a site-wide a:hover rule can't repaint it; clamped like the FE timeline title.
+    &__title {
+        min-width: 0;
+        max-width: 800px;
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+        text-decoration: none;
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2B2E33);
+            outline-offset: 2px;
+        }
+    }
+
+    &__title-text {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+    }
+
+    &__meta {
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
+        transition: opacity 0.15s ease;
+    }
+
+    &__actions {
+        flex-shrink: 0;
+        justify-content: flex-end;
+    }
+
+    &__error {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--fcom-danger, #d63638);
+    }
+
+    @media (max-width: 640px) {
+        flex-wrap: wrap;
+
+        &__actions {
+            order: 3;
+            width: 100%;
+            justify-content: flex-start;
+            padding-left: 66px;
+        }
+    }
+}
+
+.fe-create-event {
+    color: var(--fcom-primary-text, #19283a);
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    &__back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        font-size: 20px;
+        color: var(--fcom-primary-text, #19283a);
+        cursor: pointer;
+
+        &:hover {
+            background: var(--fcom-active-bg, #f0f3f5);
+        }
+    }
+
+    &__heading {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: 340px minmax(0, 1fr);
+        gap: 32px;
+        align-items: start;
+
+        @media (max-width: 900px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    &__cover {
+        position: relative;
+    }
+
+    &__cover-box {
+        display: block;
+        aspect-ratio: 1;
+        overflow: hidden;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 12px;
+        background: var(--fcom-secondary-bg, #f5f7fa);
+        cursor: pointer;
+
+        &:hover {
+            border-color: var(--fcom-secondary-border, #9ca3af);
+        }
+
+        &:focus-within {
+            outline: 2px solid var(--el-color-primary);
+            outline-offset: 2px;
+        }
+    }
+
+    &__cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &__cover-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 100%;
+        font-size: 14px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__cover-icon {
+        font-size: 32px;
+    }
+
+    // Visually hidden but still focusable, so the cover opens from the keyboard too.
+    &__file {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    &__cover-remove.el-button {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: var(--fcom-danger, #d63638);
+    }
+
+    &__main {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    &__title-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    &__title[type="text"] {
+        width: 100%;
+        margin: 0;
+        padding: 0 0 4px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        font-size: 32px;
+        font-weight: 600;
+        line-height: 1.25;
+        color: var(--fcom-primary-text, #19283a);
+
+        &::placeholder {
+            color: var(--fcom-secondary-text, #525866);
+        }
+
+        &:focus,
+        &:focus-visible {
+            outline: none;
+            box-shadow: none;
+            border-bottom-color: var(--el-color-primary);
+        }
+    }
+
+    &__card {
+        overflow: hidden;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        background: var(--fcom-primary-bg, #ffffff);
+    }
+
+    &__schedule {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    &__window-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    &__window-label {
+        width: 72px;
+        flex-shrink: 0;
+        font-size: 14px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__date.el-date-editor {
+        width: 220px;
+    }
+
+    &__time.el-date-editor {
+        width: 130px;
+    }
+
+    // Spans the date and time inputs above it.
+    &__timezone.el-select {
+        width: 362px;
+        max-width: 100%;
+    }
+
+    @media (max-width: 900px) {
+        &__date.el-date-editor,
+        &__time.el-date-editor,
+        &__timezone.el-select {
+            flex: 1 1 0;
+            width: auto;
+            min-width: 0;
+        }
+    }
+
+    &__row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        width: 100%;
+        padding: 12px 16px;
+        border: 0;
+        background: transparent;
+        text-align: left;
+        color: inherit;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--fcom-active-bg, #f0f3f5);
+        }
+    }
+
+    &__row-icon {
+        flex-shrink: 0;
+        margin-top: 2px;
+        font-size: 24px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__row-text {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    &__row-title {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+        color: var(--fcom-primary-text, #19283a);
+        overflow-wrap: anywhere;
+    }
+
+    &__row-hint {
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__row-chevron {
+        flex-shrink: 0;
+        align-self: center;
+        color: var(--fcom-secondary-text, #525866);
+        transition: transform 0.2s ease;
+
+        &.fe-create-event__row-chevron--open {
+            transform: rotate(90deg);
+        }
+    }
+
+    &__row-body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px 16px;
+
+        .el-form-item {
+            margin-bottom: 0;
+        }
+    }
+
+    &__choices.el-radio-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        // EP pins a radio to one 32px line; let the hint wrap under the title.
+        .el-radio {
+            align-items: flex-start;
+            height: auto;
+            margin-right: 0;
+            white-space: normal;
+        }
+
+        .el-radio__input {
+            margin-top: 4px;
+        }
+    }
+
+    &__choice-title {
+        display: block;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__choice-hint {
+        display: block;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__switch-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    // Fixed to the input's height, so switching "Limit seats" on doesn't grow the row.
+    &__switch-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 40px;
+    }
+
+    &__switch-text {
+        font-size: 14px;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__number.el-input-number {
+        width: 100px;
+    }
+
+    &__error {
+        margin: 0;
+        color: var(--fcom-danger, #d63638);
+    }
+
+    &__submit.el-button {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+// Mounted on <body>, outside .fe-fcom-portal-page, so it sets the theme colour itself.
+.fe-register-dialog {
+    --el-color-primary: var(--fcom-primary-button, #2B2E33);
+
+    &__form .el-form-item:last-of-type {
+        margin-bottom: 0;
+    }
+
+    &__error {
+        margin: 12px 0 0;
+        font-size: 13px;
+        color: var(--fcom-danger, #d63638);
+    }
+}
