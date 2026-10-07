@@ -8,6 +8,7 @@ use FluentEvent\App\Http\Controllers\UserController;
 use FluentEvent\App\Http\Controllers\ReportController;
 use FluentEvent\App\Http\Controllers\CalendarController;
 use FluentEvent\App\Http\Controllers\SettingsController;
+use FluentEvent\App\Http\Controllers\CommunityEventController;
 
 $router->withPolicy('ReportPolicy')->group(function ($router) {
     $router->get('/dashboard', 'DashboardController@get');
@@ -60,4 +61,13 @@ $router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
         ->int('eventId')->int('guestId');
     $router->delete('/{eventId}/guests/{guestId}', [GuestController::class, 'deleteGuest'])
         ->int('eventId')->int('guestId');
+});
+
+$router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($router) {
+    $router->get('/events', [CommunityEventController::class, 'getEvents']);
+    $router->get('/events/{id}', [CommunityEventController::class, 'getEvent'])->int('id');
+    $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])
+        ->int('id')->rateLimitPerMinute(10);
+    $router->post('/events/{id}/cancel', [CommunityEventController::class, 'cancel'])->int('id');
+    $router->post('/media', [CommunityEventController::class, 'uploadCover']);
 });
