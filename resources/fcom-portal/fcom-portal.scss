@@ -423,33 +423,6 @@
         }
     }
 
-    // EP's CSS loads after ours, so this repeats its class to win; colours follow fcom's theme.
-    &__calendar.el-calendar {
-        --el-calendar-border: 1px solid var(--fcom-primary-border, #e3e8ee);
-        --el-calendar-selected-bg-color: var(--fcom-active-bg, #f0f3f5);
-        --el-text-color-regular: var(--fcom-secondary-text, #525866);
-        --el-text-color-placeholder: var(--fcom-text-off, #959595);
-        border: 1px solid var(--fcom-primary-border, #e3e8ee);
-        border-radius: 8px;
-        overflow: hidden;
-        background-color: var(--fcom-primary-bg, #ffffff);
-    }
-
-    &__calendar-title {
-        align-self: center;
-        font-weight: 600;
-        color: var(--fcom-primary-text, #19283a);
-    }
-
-    &__calendar-nav {
-        display: flex;
-        gap: 6px;
-
-        .el-button + .el-button {
-            margin-left: 0;
-        }
-    }
-
     &__empty {
         grid-column: 1 / -1;
         display: flex;
@@ -496,35 +469,299 @@
         justify-content: center;
         padding: 8px 0;
     }
+}
 
-    &__day {
+
+// Month / week / day calendar, after the admin events grid, on fcom's tokens.
+.fe-events-calendar {
+    color: var(--fcom-primary-text, #19283a);
+
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    &__title {
+        min-width: 180px;
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__nav {
+        display: flex;
+        gap: 6px;
+
+        .el-button + .el-button {
+            margin-left: 0;
+        }
+    }
+
+    // EP's CSS loads after ours, so these sit one class deeper than EP's own selectors.
+    .el-calendar {
+        --el-calendar-border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        --el-calendar-selected-bg-color: var(--fcom-active-bg, #f0f3f5);
+        --el-calendar-cell-width: 120px;
+        overflow: hidden;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        background-color: var(--fcom-primary-bg, #ffffff);
+    }
+
+    // The toolbar above replaces it, with translated labels.
+    .el-calendar__header {
+        display: none;
+    }
+
+    .el-calendar__body {
+        padding: 0;
+    }
+
+    .el-calendar-table {
+        thead th {
+            padding: 12px 8px;
+            border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--fcom-secondary-text, #525866);
+        }
+
+        tr:first-child td {
+            border-top: 0;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        tr td:first-child {
+            border-left: 0;
+        }
+
+        tr td:last-child {
+            border-right: 0;
+        }
+
+        .el-calendar-day {
+            height: auto;
+            min-height: var(--el-calendar-cell-width);
+            padding: 0;
+        }
+    }
+
+    &__cell {
         display: flex;
         flex-direction: column;
-        gap: 2px;
-        height: 100%;
-        overflow: hidden;
+        gap: 8px;
+        padding: 8px;
     }
 
-    &__day-number {
-        font-size: 13px;
+    &__cell--outside {
+        opacity: 0.5;
     }
 
-    &__day-event {
+    &__day {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    &__entries {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    // Primary tint, not active-bg: a hovered day cell turns active-bg and would swallow a grey entry.
+    &__event,
+    &__week-event {
         overflow: hidden;
-        padding: 1px 6px;
+        border: 0;
+        border-left: 3px solid var(--fcom-primary-button, #2b2e33);
         border-radius: 4px;
+        background-color: var(--fcom-active-bg, #f0f3f5);
+        background-color: color-mix(in srgb, var(--fcom-primary-button, #2b2e33) 16%, transparent);
         font-size: 12px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        text-decoration: none;
-        // Primary tint, not active-bg: a hovered day cell turns active-bg and would swallow the pill.
-        background: var(--fcom-active-bg, #f0f3f5);
-        background: color-mix(in srgb, var(--fcom-primary-button, #2b2e33) 18%, transparent);
+        line-height: 1.5;
+        text-align: left;
         color: var(--fcom-primary-text, #19283a);
+        cursor: pointer;
 
         &:hover {
-            color: var(--fcom-primary-button, #2b2e33);
+            background-color: color-mix(in srgb, var(--fcom-primary-button, #2b2e33) 28%, transparent);
         }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 1px;
+        }
+    }
+
+    &__event {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        width: 100%;
+        padding: 3px 8px;
+    }
+
+    &__event-time {
+        flex-shrink: 0;
+        font-weight: 600;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__event-title {
+        overflow: hidden;
+        min-width: 0;
+        max-width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__more {
+        padding: 0 8px;
+        border: 0;
+        background: none;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: left;
+        color: var(--fcom-secondary-text, #525866);
+        cursor: pointer;
+
+        &:hover {
+            color: var(--fcom-primary-text, #19283a);
+        }
+    }
+
+    // Teleported to the body, so it sets EP's popover tokens itself to follow fcom's theme.
+    &__popover.el-popover {
+        --el-popover-bg-color: var(--fcom-primary-bg, #ffffff);
+        --el-popover-border-color: var(--fcom-primary-border, #e3e8ee);
+
+        .fe-events-calendar__event + .fe-events-calendar__event {
+            margin-top: 4px;
+        }
+    }
+
+    &__popover-title {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__week {
+        overflow: hidden;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        background-color: var(--fcom-primary-bg, #ffffff);
+    }
+
+    &__week-head {
+        display: grid;
+        border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+    }
+
+    &__week-day {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 8px;
+        border-left: 1px solid var(--fcom-primary-border, #e3e8ee);
+
+        @media (max-width: 782px) {
+            flex-direction: column;
+            gap: 2px;
+            padding: 8px 4px;
+        }
+    }
+
+    &__week-day-name {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__week-day-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-size: 16px;
+        font-weight: 600;
+
+        @media (max-width: 782px) {
+            min-width: 22px;
+            height: 22px;
+            font-size: 14px;
+        }
+    }
+
+    &__week-day.fe-events-calendar__week-day--today .fe-events-calendar__week-day-number {
+        background-color: var(--fcom-primary-button, #2b2e33);
+        color: var(--fcom-primary-button-text, #ffffff);
+    }
+
+    &__week-body {
+        display: grid;
+        max-height: 640px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    &__week-times {
+        display: flex;
+        flex-direction: column;
+    }
+
+    // Nudged up so each label sits on its hour line.
+    &__week-time {
+        display: block;
+        flex-shrink: 0;
+        height: 48px;
+        padding-right: 8px;
+        transform: translateY(-7px);
+        text-align: right;
+        font-size: 12px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__week-col {
+        position: relative;
+        border-left: 1px solid var(--fcom-primary-border, #e3e8ee);
+    }
+
+    &__week-cell {
+        display: block;
+        height: 48px;
+        border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+    }
+
+    &__week-col .fe-events-calendar__week-cell:last-of-type {
+        border-bottom: 0;
+    }
+
+    &__week-event {
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        padding: 4px 8px;
     }
 }
 

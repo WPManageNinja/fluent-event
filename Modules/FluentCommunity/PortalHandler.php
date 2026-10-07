@@ -72,14 +72,24 @@ class PortalHandler
 
         $links[] = [
             'slug'  => 'fluent_events',
+            /* translators: %d: number of further events on that day */
+            '%d more' => __('%d more', 'fluent-event'),
             'Are you sure you want to cancel your registration?' => __('Are you sure you want to cancel your registration?', 'fluent-event'),
+            'Day' => __('Day', 'fluent-event'),
+            /* translators: %d: day number within a multi-day event */
+            'Day %d' => __('Day %d', 'fluent-event'),
             'Keep registration' => __('Keep registration', 'fluent-event'),
-            'Next month' => __('Next month', 'fluent-event'),
-            'Previous month' => __('Previous month', 'fluent-event'),
+            'Month' => __('Month', 'fluent-event'),
+            'Next' => __('Next', 'fluent-event'),
+            'Previous' => __('Previous', 'fluent-event'),
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
+            'Switch between month, week and day view' => __('Switch between month, week and day view', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
+            /* translators: %s: event title */
+            'View %s' => __('View %s', 'fluent-event'),
             'Warning' => __('Warning', 'fluent-event'),
+            'Week' => __('Week', 'fluent-event'),
             'title' => __('Events', 'fluent-event'),
             'route' => ['name' => 'fe_space_events', 'params' => ['space' => $space->slug]],
         ];

@@ -41,34 +41,15 @@
 
         <p v-if="error" class="fe-events-page__error" role="alert">{{ error }}</p>
 
-        <el-calendar v-if="view === 'calendar'" ref="calendar" v-model="calendarMonth" v-loading="loading" class="fe-events-page__calendar">
-            <!-- Our own header: EP's built-in one carries untranslated English labels. -->
-            <template #header>
-                <span class="fe-events-page__calendar-title">{{ calendarTitle }}</span>
-                <div class="fe-events-page__calendar-nav">
-                    <el-button class="fcom_secondary_button" size="small" :aria-label="$t('Previous month')" @click="$refs.calendar.selectDate('prev-month')">
-                        <el-icon><ArrowLeft/></el-icon>
-                    </el-button>
-                    <el-button class="fcom_secondary_button" size="small" @click="$refs.calendar.selectDate('today')">{{ $t('Today') }}</el-button>
-                    <el-button class="fcom_secondary_button" size="small" :aria-label="$t('Next month')" @click="$refs.calendar.selectDate('next-month')">
-                        <el-icon><ArrowRight/></el-icon>
-                    </el-button>
-                </div>
-            </template>
-
-            <template #date-cell="{ data }">
-                <div class="fe-events-page__day">
-                    <span class="fe-events-page__day-number">{{ data.day.split('-')[2] }}</span>
-                    <a
-                        v-for="event in eventsOn(data.day)"
-                        :key="event.id"
-                        href="#"
-                        class="fe-events-page__day-event"
-                        @click.prevent.stop="openPost(event)"
-                    >{{ event.title }}</a>
-                </div>
-            </template>
-        </el-calendar>
+        <events-calendar
+            v-if="view === 'calendar'"
+            v-model:mode="calendarMode"
+            v-loading="loading"
+            :events="events"
+            :date="calendarDate"
+            @change-date="calendarDate = $event"
+            @open="openPost"
+        />
 
         <div
             v-else
@@ -154,18 +135,19 @@
 </template>
 
 <script>
-import { ArrowLeft, ArrowRight, Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
+import { Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
 import { eventsApi, errorMessage, eventDateRange, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
+import EventsCalendar from './EventsCalendar.vue';
 
 const dayjs = (value) => window.dayjs(value);
 
 export default {
     name: 'EventsPage',
-    components: { ArrowLeft, ArrowRight, Calendar, Search, EventActions, EventMenu, SegmentedSwitch },
+    components: { Calendar, Search, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
     props: {
         spaceSlug: { type: String, default: '' },
         router: { type: Object, required: true },
@@ -173,12 +155,14 @@ export default {
     data() {
         const savedTab = Storage.get('portal_events_tab');
         const savedView = Storage.get('portal_events_view');
+        const savedMode = Storage.get('portal_events_calendar_mode');
 
         return {
             tab: ['all', 'upcoming', 'past'].includes(savedTab) ? savedTab : 'upcoming',
             view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : 'timeline',
             search: '',
-            calendarMonth: new Date(),
+            calendarDate: dayjs().format('YYYY-MM-DD'),
+            calendarMode: ['month', 'week', 'day'].includes(savedMode) ? savedMode : 'month',
             events: [],
             errors: {},
             currentPage: 1,
@@ -198,9 +182,6 @@ export default {
                 { value: 'timeline', label: this.$t('Timeline'), icon: Tickets },
                 { value: 'calendar', label: this.$t('Calendar'), icon: Calendar },
             ];
-        },
-        calendarTitle() {
-            return dayjs(this.calendarMonth).format('MMMM YYYY');
         },
         emptyState() {
             if (this.search) {
@@ -227,11 +208,14 @@ export default {
                 this.reload();
             }
         },
-        // Picking a day also moves the model, so only a new month refetches.
-        calendarMonth(month, previous) {
-            if (dayjs(month).format('YYYY-MM') !== dayjs(previous).format('YYYY-MM')) {
+        // The calendar always loads its whole month grid, so only a new month refetches.
+        calendarDate(date, previous) {
+            if (date.slice(0, 7) !== previous.slice(0, 7)) {
                 this.reload();
             }
+        },
+        calendarMode(mode) {
+            Storage.set('portal_events_calendar_mode', mode);
         },
     },
     mounted() {
@@ -268,7 +252,7 @@ export default {
 
             // The whole visible grid, padded a day each side so events crossing a timezone edge still land.
             if (this.view === 'calendar') {
-                const month = dayjs(this.calendarMonth);
+                const month = dayjs(this.calendarDate);
 
                 params.from = month.startOf('month').startOf('week').subtract(1, 'day').format('YYYY-MM-DD');
                 params.to = month.endOf('month').endOf('week').add(1, 'day').format('YYYY-MM-DD');
@@ -301,13 +285,6 @@ export default {
                     this.loading = false;
                 }
             }
-        },
-        eventsOn(day) {
-            return this.events.filter((event) => {
-                const start = event.start_at_local.slice(0, 10);
-                const end = event.end_at_local.slice(0, 10);
-                return day >= start && day <= end;
-            });
         },
         createEvent() {
             this.router.push({ name: 'fe_space_create_event', params: { space: this.spaceSlug } });
