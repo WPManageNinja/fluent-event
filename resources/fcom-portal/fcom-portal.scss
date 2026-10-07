@@ -338,8 +338,16 @@
 
         &.fe-events-page__list--cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 14px;
+
+            @media (max-width: 960px) {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            @media (max-width: 600px) {
+                grid-template-columns: minmax(0, 1fr);
+            }
         }
 
         // Rows touch, so the dashed line runs unbroken; the item carries the spacing.
@@ -623,6 +631,8 @@
         height: 140px;
         margin: 0 -14px;
         border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+        // Rounds itself: a clipping card would also clip the ⋮ menu's popover.
+        border-radius: 7px 7px 0 0;
         object-fit: cover;
     }
 
@@ -647,7 +657,6 @@
         align-items: start;
         gap: 12px 14px;
         padding: 0 14px 14px;
-        overflow: hidden;
 
         .fe-event-item__cover {
             grid-area: cover;
