@@ -139,7 +139,6 @@ class PortalHandler
             'Calendar' => __('Calendar', 'fluent-event'),
             'Cancel' => __('Cancel', 'fluent-event'),
             'Cancel registration' => __('Cancel registration', 'fluent-event'),
-            'Cancelled' => __('Cancelled', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
             'Choose a date and time in the future when you want your post to be published' => __('Choose a date and time in the future when you want your post to be published', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),

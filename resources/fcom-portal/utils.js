@@ -114,7 +114,7 @@ export function canCancelRegistration(event) {
 }
 
 export function hasEventActions(event) {
-    return event.is_past || event.entry_type === 'rsvp' || (event.entry_type === 'open' && !isSeated(event));
+    return event.is_past || event.entry_type !== 'none';
 }
 
 export function guestCountLabel(event) {

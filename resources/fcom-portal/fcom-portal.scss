@@ -58,7 +58,7 @@
         min-width: 0;
     }
 
-    // Title, its status badge, then the "⋮" menu pushed right.
+    // Title, then the "⋮" menu pushed right.
     &__head {
         display: flex;
         align-items: center;
@@ -234,11 +234,6 @@
     line-height: 1.5;
     background: var(--el-color-success-light-9, #f0f9eb);
     color: var(--el-color-success, #67c23a);
-
-    &.fe-event-status--danger {
-        background: var(--el-color-danger-light-9, #fef0f0);
-        color: var(--el-color-danger, #f56c6c);
-    }
 }
 
 // The look comes from fcom's own popover classes on the markup; this only places it.
@@ -383,8 +378,9 @@
             @media (max-width: 640px) {
                 grid-template-columns: 80px 16px minmax(0, 1fr);
 
-                .fe-event-item__actions {
-                    padding-left: 0;
+                // Too narrow for a 120px cover beside the details.
+                .fe-event-item__cover {
+                    display: none;
                 }
             }
         }
@@ -526,22 +522,20 @@
     }
 }
 
+// Actions sit under the details; the Ended badge and the cover keep the right edge.
 .fe-event-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+        "info side cover"
+        "actions side cover";
     align-items: center;
-    gap: 14px;
+    column-gap: 14px;
     padding: 12px 14px;
     border: 1px solid var(--fcom-primary-border, #e3e8ee);
     border-radius: 8px;
     background: var(--fcom-primary-bg, #ffffff);
     color: var(--fcom-primary-text, #19283a);
-    text-decoration: none;
-    cursor: pointer;
-
-    // Title and date stay put; only the secondary lines dim.
-    &:hover .fe-event-item__meta {
-        opacity: 0.8;
-    }
 
     // Same date box as the feed card, pinned to the top like the post view.
     &__date {
@@ -572,9 +566,9 @@
     }
 
     &__info {
+        grid-area: info;
         display: flex;
         flex-direction: column;
-        flex: 1;
         min-width: 0;
     }
 
@@ -611,12 +605,17 @@
     &__meta {
         font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
-        transition: opacity 0.15s ease;
     }
 
+    // Margin, not row-gap, so a row without actions keeps no empty gap.
     &__actions {
-        flex-shrink: 0;
-        justify-content: flex-end;
+        grid-area: actions;
+        margin-top: 10px;
+    }
+
+    &.fe-event-item--past .fe-event-item__actions {
+        grid-area: side;
+        margin-top: 0;
     }
 
     &__error {
@@ -625,25 +624,15 @@
         color: var(--fcom-danger, #d63638);
     }
 
-    @media (max-width: 640px) {
-        flex-wrap: wrap;
-
-        &__actions {
-            order: 3;
-            width: 100%;
-            justify-content: flex-start;
-            padding-left: 66px;
-        }
-    }
-
+    // Same size as the admin event card's cover.
     &__cover {
+        grid-area: cover;
         display: block;
-        width: calc(100% + 28px);
-        height: 140px;
-        margin: 0 -14px;
-        border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
-        // Rounds itself: a clipping card would also clip the ⋮ menu's popover.
-        border-radius: 7px 7px 0 0;
+        width: 120px;
+        height: 120px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        background: var(--fcom-secondary-bg, #f7f8fa);
         object-fit: cover;
     }
 
@@ -651,26 +640,35 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--fcom-secondary-bg, #f7f8fa);
-        font-size: 32px;
+        font-size: 28px;
         color: var(--fcom-secondary-text, #525866);
     }
 
     // The tile spans the grid row height, so the info row absorbs the slack and actions sit at the bottom.
     &.fe-event-item--card {
         display: grid;
-        grid-template-columns: 52px minmax(0, 1fr) auto;
+        grid-template-columns: 52px minmax(0, 1fr);
         grid-template-rows: auto 1fr auto;
         grid-template-areas:
-            "cover cover cover"
-            "date info info"
-            "actions actions menu";
+            "cover cover"
+            "date info"
+            "actions actions";
         align-items: start;
         gap: 12px 14px;
         padding: 0 14px 14px;
 
         .fe-event-item__cover {
-            grid-area: cover;
+            width: calc(100% + 28px);
+            height: 140px;
+            margin: 0 -14px;
+            border: 0;
+            border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+            // Rounds itself: a clipping card would also clip the ⋮ menu's popover.
+            border-radius: 7px 7px 0 0;
+        }
+
+        .fe-event-item__cover--empty {
+            font-size: 32px;
         }
 
         .fe-event-item__date {
@@ -684,14 +682,7 @@
         .fe-event-item__actions {
             grid-area: actions;
             align-self: end;
-            justify-content: flex-start;
-            width: auto;
-            padding-left: 0;
-        }
-
-        .fe-event-item__menu {
-            grid-area: menu;
-            align-self: end;
+            margin-top: 0;
         }
     }
 }

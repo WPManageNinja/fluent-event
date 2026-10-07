@@ -103,30 +103,29 @@
 
                 <div
                     class="fe-event-item"
-                    :class="{ 'fe-event-item--card': view === 'cards' }"
-                    @click="onItemClick($event, event)"
+                    :class="{ 'fe-event-item--card': view === 'cards', 'fe-event-item--past': event.is_past }"
                 >
-                    <template v-if="view === 'cards'">
-                        <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt=""/>
-                        <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true">
-                            <el-icon><Calendar/></el-icon>
-                        </span>
+                    <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt=""/>
+                    <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true">
+                        <el-icon><Calendar/></el-icon>
+                    </span>
 
-                        <span class="fe-event-item__date" aria-hidden="true">
-                            <span class="fe-event-item__month">{{ month(event) }}</span>
-                            <span class="fe-event-item__day">{{ day(event) }}</span>
-                        </span>
-                    </template>
+                    <span v-if="view === 'cards'" class="fe-event-item__date" aria-hidden="true">
+                        <span class="fe-event-item__month">{{ month(event) }}</span>
+                        <span class="fe-event-item__day">{{ day(event) }}</span>
+                    </span>
 
                     <div class="fe-event-item__info">
                         <div class="fe-event-item__head">
                             <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openPost(event)">
                                 <span class="fe-event-item__title-text">{{ event.title }}</span>
                             </a>
-                            <template v-if="event.entry_type === 'open'">
-                                <span v-if="isSeated(event)" class="fe-event-status">{{ $t('Registered') }}</span>
-                                <span v-else-if="['cancelled', 'not_going'].includes(event.my_status)" class="fe-event-status fe-event-status--danger">{{ $t('Cancelled') }}</span>
-                            </template>
+                            <event-menu
+                                class="fe-event-item__menu"
+                                :event="event"
+                                @done="applyResponse(event, $event)"
+                                @error="errors[event.id] = $event"
+                            ></event-menu>
                         </div>
                         <span class="fe-event-item__meta">{{ dateRange(event) }}</span>
                         <span class="fe-event-item__meta">
@@ -144,13 +143,6 @@
                         @done="applyResponse(event, $event)"
                         @error="errors[event.id] = $event"
                     ></event-actions>
-
-                    <event-menu
-                        class="fe-event-item__menu"
-                        :event="event"
-                        @done="applyResponse(event, $event)"
-                        @error="errors[event.id] = $event"
-                    ></event-menu>
                 </div>
             </div>
 
@@ -165,7 +157,7 @@
 import { ArrowLeft, ArrowRight, Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventDateRange, eventMonth, eventDay, guestCountLabel, portalVars, isSeated, hasEventActions } from '../utils';
+import { eventsApi, errorMessage, eventDateRange, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 
@@ -256,7 +248,6 @@ export default {
         weekday(event) {
             return dayjs(event.start_at_local).format('dddd');
         },
-        isSeated,
         hasActions: hasEventActions,
         reload() {
             this.fetchEvents(1);
@@ -320,12 +311,6 @@ export default {
         },
         createEvent() {
             this.router.push({ name: 'fe_space_create_event', params: { space: this.spaceSlug } });
-        },
-        // The row opens the post, except for clicks on its own links, buttons and menu.
-        onItemClick(clickEvent, event) {
-            if (!clickEvent.target.closest('a, button, [role="menu"]')) {
-                this.openPost(event);
-            }
         },
         // The register response carries the event payload only; keep the post the list already has.
         applyResponse(event, response) {

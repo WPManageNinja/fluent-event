@@ -69,6 +69,7 @@ export default {
             </template>
 
             <button v-else-if="event.entry_type === 'open' && !isSeated" type="button" class="el-button fcom_primary_button" :disabled="busy || event.is_full" @click="register">{{ t('Register') }}</button>
+            <span v-else-if="event.entry_type === 'open'" class="fe-event-status">{{ t('Registered') }}</span>
 
             <span v-if="event.is_full && !isSeated && !event.is_past" class="fe-event-actions__badge">{{ t('Event is full') }}</span>
         </div>

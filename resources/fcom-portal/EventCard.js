@@ -1,4 +1,4 @@
-import { t, eventDateRange, eventMonth, eventDay, guestCountLabel, isSeated, hasEventActions } from './utils';
+import { t, eventDateRange, eventMonth, eventDay, guestCountLabel, hasEventActions } from './utils';
 import EventActions from './EventActions';
 import EventMenu from './EventMenu';
 
@@ -41,9 +41,6 @@ export default {
         }
     },
     computed: {
-        isSeated() {
-            return isSeated(this.event);
-        },
         dateRange() {
             return eventDateRange(this.event);
         },
@@ -119,10 +116,6 @@ export default {
                                 >{{ event.title }}</router-link>
                                 <template v-else>{{ event.title }}</template>
                             </h3>
-                            <template v-if="event.entry_type === 'open'">
-                                <span v-if="isSeated" class="fe-event-status">{{ t('Registered') }}</span>
-                                <span v-else-if="['cancelled', 'not_going'].includes(event.my_status)" class="fe-event-status fe-event-status--danger">{{ t('Cancelled') }}</span>
-                            </template>
                             <event-menu v-if="!is_child" class="fe-event-card__menu" :event="event" @done="apply" @error="error = $event"></event-menu>
                         </div>
                         <p class="fe-event-card__meta">{{ dateRange }} <span v-if="event.timezone">({{ event.timezone }})</span></p>
