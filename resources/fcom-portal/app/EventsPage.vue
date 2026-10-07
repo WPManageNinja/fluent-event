@@ -15,7 +15,6 @@
             <el-tab-pane :label="$t('All')" name="all"/>
             <el-tab-pane :label="$t('Upcoming')" name="upcoming"/>
             <el-tab-pane :label="$t('Past')" name="past"/>
-            <!-- <el-tab-pane :label="$t('Calendar')" name="calendar"/> -->
         </el-tabs>
 
         <div class="fe-events-page__toolbar">
@@ -36,14 +35,27 @@
             <segmented-switch
                 v-model="view"
                 :options="views"
-                :label="$t('Switch between list and card view')"
-                @change="changeView"
+                :label="$t('Switch between card, timeline and calendar view')"
             />
         </div>
 
         <p v-if="error" class="fe-events-page__error" role="alert">{{ error }}</p>
 
-        <!-- <el-calendar v-if="tab === 'calendar'" v-model="calendarMonth" v-loading="loading" class="fe-events-page__calendar">
+        <el-calendar v-if="view === 'calendar'" ref="calendar" v-model="calendarMonth" v-loading="loading" class="fe-events-page__calendar">
+            <!-- Our own header: EP's built-in one carries untranslated English labels. -->
+            <template #header>
+                <span class="fe-events-page__calendar-title">{{ calendarTitle }}</span>
+                <div class="fe-events-page__calendar-nav">
+                    <el-button class="fcom_secondary_button" size="small" :aria-label="$t('Previous month')" @click="$refs.calendar.selectDate('prev-month')">
+                        <el-icon><ArrowLeft/></el-icon>
+                    </el-button>
+                    <el-button class="fcom_secondary_button" size="small" @click="$refs.calendar.selectDate('today')">{{ $t('Today') }}</el-button>
+                    <el-button class="fcom_secondary_button" size="small" :aria-label="$t('Next month')" @click="$refs.calendar.selectDate('next-month')">
+                        <el-icon><ArrowRight/></el-icon>
+                    </el-button>
+                </div>
+            </template>
+
             <template #date-cell="{ data }">
                 <div class="fe-events-page__day">
                     <span class="fe-events-page__day-number">{{ data.day.split('-')[2] }}</span>
@@ -56,9 +68,14 @@
                     >{{ event.title }}</a>
                 </div>
             </template>
-        </el-calendar> -->
+        </el-calendar>
 
-        <div v-loading="loading" class="fe-events-page__list" :class="{ 'fe-events-page__list--cards': view === 'cards' }">
+        <div
+            v-else
+            v-loading="loading"
+            class="fe-events-page__list"
+            :class="{ 'fe-events-page__list--cards': view === 'cards', 'fe-events-page__list--timeline': view === 'timeline' }"
+        >
             <div v-if="!loading && !events.length" class="fe-events-page__empty">
                 <span class="fe-events-page__empty-icon" aria-hidden="true">
                     <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
@@ -73,50 +90,63 @@
             <div
                 v-for="event in events"
                 :key="event.id"
-                class="fe-event-item"
-                :class="{ 'fe-event-item--card': view === 'cards' }"
-                @click="onItemClick($event, event)"
+                class="fe-events-page__row"
+                :class="{ 'fe-events-page__row--timeline': view === 'timeline' }"
             >
-                <template v-if="view === 'cards'">
-                    <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt=""/>
-                    <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true">
-                        <el-icon><Calendar/></el-icon>
-                    </span>
+                <template v-if="view === 'timeline'">
+                    <div class="fe-events-page__gutter">
+                        <span class="fe-events-page__date">{{ timelineDate(event) }}</span>
+                        <span class="fe-events-page__weekday">{{ weekday(event) }}</span>
+                    </div>
+                    <span class="fe-events-page__dot" aria-hidden="true"></span>
                 </template>
 
-                <span class="fe-event-item__date" aria-hidden="true">
-                    <span class="fe-event-item__month">{{ month(event) }}</span>
-                    <span class="fe-event-item__day">{{ day(event) }}</span>
-                </span>
+                <div
+                    class="fe-event-item"
+                    :class="{ 'fe-event-item--card': view === 'cards' }"
+                    @click="onItemClick($event, event)"
+                >
+                    <template v-if="view === 'cards'">
+                        <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt=""/>
+                        <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true">
+                            <el-icon><Calendar/></el-icon>
+                        </span>
 
-                <div class="fe-event-item__info">
-                    <div class="fe-event-item__head">
-                        <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openPost(event)">
-                            <span class="fe-event-item__title-text">{{ event.title }}</span>
-                        </a>
-                        <template v-if="event.entry_type === 'open'">
-                            <span v-if="isSeated(event)" class="fe-event-status">{{ $t('Registered') }}</span>
-                            <span v-else-if="['cancelled', 'not_going'].includes(event.my_status)" class="fe-event-status fe-event-status--danger">{{ $t('Cancelled') }}</span>
-                        </template>
+                        <span class="fe-event-item__date" aria-hidden="true">
+                            <span class="fe-event-item__month">{{ month(event) }}</span>
+                            <span class="fe-event-item__day">{{ day(event) }}</span>
+                        </span>
+                    </template>
+
+                    <div class="fe-event-item__info">
+                        <div class="fe-event-item__head">
+                            <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openPost(event)">
+                                <span class="fe-event-item__title-text">{{ event.title }}</span>
+                            </a>
+                            <template v-if="event.entry_type === 'open'">
+                                <span v-if="isSeated(event)" class="fe-event-status">{{ $t('Registered') }}</span>
+                                <span v-else-if="['cancelled', 'not_going'].includes(event.my_status)" class="fe-event-status fe-event-status--danger">{{ $t('Cancelled') }}</span>
+                            </template>
+                        </div>
+                        <span class="fe-event-item__meta">{{ dateRange(event) }}</span>
+                        <span class="fe-event-item__meta">
+                            {{ event.venue_type === 'online' ? $t('Online event') : (event.venue || event.address) }}
+                            <template v-if="!spaceSlug && event.post.space"> · {{ event.post.space.title }}</template>
+                        </span>
+                        <span v-if="countLabel(event)" class="fe-event-item__meta">{{ countLabel(event) }}</span>
+                        <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
                     </div>
-                    <span class="fe-event-item__meta">{{ dateRange(event) }}</span>
-                    <span class="fe-event-item__meta">
-                        {{ event.venue_type === 'online' ? $t('Online event') : (event.venue || event.address) }}
-                        <template v-if="!spaceSlug && event.post.space"> · {{ event.post.space.title }}</template>
-                    </span>
-                    <span v-if="countLabel(event)" class="fe-event-item__meta">{{ countLabel(event) }}</span>
-                    <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
+
+                    <event-actions
+                        v-if="event.is_past || event.entry_type !== 'none'"
+                        class="fe-event-item__actions"
+                        :event="event"
+                        @done="applyResponse(event, $event)"
+                        @error="errors[event.id] = $event"
+                    ></event-actions>
+
+                    <event-menu v-if="event.edit_url" class="fe-event-item__menu" :edit-url="event.edit_url"></event-menu>
                 </div>
-
-                <event-actions
-                    v-if="event.is_past || event.entry_type !== 'none'"
-                    class="fe-event-item__actions"
-                    :event="event"
-                    @done="applyResponse(event, $event)"
-                    @error="errors[event.id] = $event"
-                ></event-actions>
-
-                <event-menu v-if="event.edit_url" class="fe-event-item__menu" :edit-url="event.edit_url"></event-menu>
             </div>
 
             <div v-if="currentPage < lastPage" class="fe-events-page__more">
@@ -127,16 +157,18 @@
 </template>
 
 <script>
-import { Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
+import { ArrowLeft, ArrowRight, Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
 import { eventsApi, errorMessage, eventDateRange, eventMonth, eventDay, guestCountLabel, portalVars } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 
+const dayjs = (value) => window.dayjs(value);
+
 export default {
     name: 'EventsPage',
-    components: { Calendar, Search, EventActions, EventMenu, SegmentedSwitch },
+    components: { ArrowLeft, ArrowRight, Calendar, Search, EventActions, EventMenu, SegmentedSwitch },
     props: {
         spaceSlug: { type: String, default: '' },
         router: { type: Object, required: true },
@@ -147,16 +179,16 @@ export default {
 
         return {
             tab: ['all', 'upcoming', 'past'].includes(savedTab) ? savedTab : 'upcoming',
-            view: ['list', 'cards'].includes(savedView) ? savedView : 'list',
+            view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : 'timeline',
             search: '',
-            // calendarMonth: new Date(),
+            calendarMonth: new Date(),
             events: [],
             errors: {},
-            // calendarEvents: [],
             currentPage: 1,
             lastPage: 1,
             loading: false,
             error: '',
+            requestId: 0,
         };
     },
     computed: {
@@ -165,9 +197,13 @@ export default {
         },
         views() {
             return [
-                { value: 'list', label: this.$t('List'), icon: Tickets },
                 { value: 'cards', label: this.$t('Cards'), icon: Grid },
+                { value: 'timeline', label: this.$t('Timeline'), icon: Tickets },
+                { value: 'calendar', label: this.$t('Calendar'), icon: Calendar },
             ];
+        },
+        calendarTitle() {
+            return dayjs(this.calendarMonth).format('MMMM YYYY');
         },
         emptyState() {
             if (this.search) {
@@ -185,13 +221,22 @@ export default {
             }[this.tab];
         },
     },
-    // watch: {
-    //     calendarMonth() {
-    //         if (this.tab === 'calendar') {
-    //             this.fetchCalendar();
-    //         }
-    //     },
-    // },
+    watch: {
+        // Cards and timeline share one paged list; the calendar loads its own month.
+        view(view, previous) {
+            Storage.set('portal_events_view', view);
+
+            if (view === 'calendar' || previous === 'calendar') {
+                this.reload();
+            }
+        },
+        // Picking a day also moves the model, so only a new month refetches.
+        calendarMonth(month, previous) {
+            if (dayjs(month).format('YYYY-MM') !== dayjs(previous).format('YYYY-MM')) {
+                this.reload();
+            }
+        },
+    },
     mounted() {
         this.reload();
     },
@@ -200,36 +245,51 @@ export default {
         month: eventMonth,
         day: eventDay,
         countLabel: guestCountLabel,
+        timelineDate(event) {
+            return dayjs(event.start_at_local).format('MMM D, YYYY');
+        },
+        weekday(event) {
+            return dayjs(event.start_at_local).format('dddd');
+        },
         isSeated(event) {
             return ['going', 'checked_in'].includes(event.my_status);
         },
         reload() {
-            // if (this.tab === 'calendar') {
-            //     this.fetchCalendar();
-            //     return;
-            // }
-
             this.fetchEvents(1);
         },
         changeTab() {
             Storage.set('portal_events_tab', this.tab);
             this.reload();
         },
-        changeView() {
-            Storage.set('portal_events_view', this.view);
-        },
         async fetchEvents(page) {
+            const requestId = ++this.requestId;
+            const params = {
+                scope: this.tab,
+                space: this.spaceSlug,
+                search: this.search,
+                page,
+                per_page: 20,
+            };
+
+            // The whole visible grid, padded a day each side so events crossing a timezone edge still land.
+            if (this.view === 'calendar') {
+                const month = dayjs(this.calendarMonth);
+
+                params.from = month.startOf('month').startOf('week').subtract(1, 'day').format('YYYY-MM-DD');
+                params.to = month.endOf('month').endOf('week').add(1, 'day').format('YYYY-MM-DD');
+                params.per_page = 100;
+            }
+
             this.loading = true;
             this.error = '';
 
             try {
-                const response = await eventsApi.get('community/events', {
-                    scope: this.tab,
-                    space: this.spaceSlug,
-                    search: this.search,
-                    page,
-                    per_page: 20,
-                });
+                const response = await eventsApi.get('community/events', params);
+
+                // A newer request (tab, view or month change) owns the list now.
+                if (requestId !== this.requestId) {
+                    return;
+                }
 
                 this.events = page === 1 ? response.events : this.events.concat(response.events);
                 if (page === 1) {
@@ -238,42 +298,22 @@ export default {
                 this.currentPage = response.current_page;
                 this.lastPage = response.last_page;
             } catch (error) {
-                this.error = errorMessage(error);
+                if (requestId === this.requestId) {
+                    this.error = errorMessage(error);
+                }
             } finally {
-                this.loading = false;
+                if (requestId === this.requestId) {
+                    this.loading = false;
+                }
             }
         },
-        // async fetchCalendar() {
-        //     const first = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth(), 1);
-        //     const last = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + 1, 0);
-        //     const format = (date) => window.dayjs(date).format('YYYY-MM-DD');
-        //
-        //     this.loading = true;
-        //     this.error = '';
-        //
-        //     try {
-        //         const response = await eventsApi.get('community/events', {
-        //             scope: 'all',
-        //             space: this.spaceSlug,
-        //             from: format(first),
-        //             to: format(last),
-        //             per_page: 100,
-        //         });
-        //
-        //         this.calendarEvents = response.events;
-        //     } catch (error) {
-        //         this.error = errorMessage(error);
-        //     } finally {
-        //         this.loading = false;
-        //     }
-        // },
-        // eventsOn(day) {
-        //     return this.calendarEvents.filter((event) => {
-        //         const start = event.start_at_local.slice(0, 10);
-        //         const end = event.end_at_local.slice(0, 10);
-        //         return day >= start && day <= end;
-        //     });
-        // },
+        eventsOn(day) {
+            return this.events.filter((event) => {
+                const start = event.start_at_local.slice(0, 10);
+                const end = event.end_at_local.slice(0, 10);
+                return day >= start && day <= end;
+            });
+        },
         createEvent() {
             this.router.push({ name: 'fe_space_create_event', params: { space: this.spaceSlug } });
         },

@@ -72,6 +72,11 @@ class PortalHandler
 
         $links[] = [
             'slug'  => 'fluent_events',
+            'Next month' => __('Next month', 'fluent-event'),
+            'Previous month' => __('Previous month', 'fluent-event'),
+            'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
+            'Timeline' => __('Timeline', 'fluent-event'),
+            'Today' => __('Today', 'fluent-event'),
             'title' => __('Events', 'fluent-event'),
             'route' => ['name' => 'fe_space_events', 'params' => ['space' => $space->slug]],
         ];
@@ -159,7 +164,6 @@ class PortalHandler
             'In person' => __('In person', 'fluent-event'),
             'Join the meeting' => __('Join the meeting', 'fluent-event'),
             'Limit seats' => __('Limit seats', 'fluent-event'),
-            'List' => __('List', 'fluent-event'),
             'Load more' => __('Load more', 'fluent-event'),
             'Log in to RSVP' => __('Log in to RSVP', 'fluent-event'),
             'Logged-in members say whether they are going.' => __('Logged-in members say whether they are going.', 'fluent-event'),
@@ -208,7 +212,6 @@ class PortalHandler
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
-            'Switch between list and card view' => __('Switch between list and card view', 'fluent-event'),
             'The date and time is based on your site\'s Timezone' => __('The date and time is based on your site\'s Timezone', 'fluent-event'),
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Time' => __('Time', 'fluent-event'),

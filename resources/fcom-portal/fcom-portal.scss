@@ -341,6 +341,98 @@
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 14px;
         }
+
+        // Rows touch, so the dashed line runs unbroken; the item carries the spacing.
+        &.fe-events-page__list--timeline {
+            gap: 0;
+        }
+    }
+
+    // Only the timeline lays the row out; elsewhere the item sits straight in the list.
+    &__row {
+        display: contents;
+
+        &.fe-events-page__row--timeline {
+            display: grid;
+            grid-template-columns: 100px 16px minmax(0, 1fr);
+            column-gap: 16px;
+
+            .fe-event-item {
+                margin-bottom: 10px;
+            }
+
+            @media (max-width: 640px) {
+                grid-template-columns: 80px 16px minmax(0, 1fr);
+
+                .fe-event-item__actions {
+                    padding-left: 0;
+                }
+            }
+        }
+    }
+
+    &__gutter {
+        padding-top: 14px;
+    }
+
+    &__date {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__weekday {
+        display: block;
+        font-size: 12px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__dot {
+        position: relative;
+        align-self: stretch;
+        justify-self: center;
+        width: 0;
+        border-left: 1px dashed var(--fcom-primary-border, #e3e8ee);
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -4px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--fcom-secondary-text, #525866);
+        }
+    }
+
+    // EP's CSS loads after ours, so this repeats its class to win; colours follow fcom's theme.
+    &__calendar.el-calendar {
+        --el-calendar-border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        --el-calendar-selected-bg-color: var(--fcom-active-bg, #f0f3f5);
+        --el-text-color-regular: var(--fcom-secondary-text, #525866);
+        --el-text-color-placeholder: var(--fcom-text-off, #959595);
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: var(--fcom-primary-bg, #ffffff);
+    }
+
+    &__calendar-title {
+        align-self: center;
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__calendar-nav {
+        display: flex;
+        gap: 6px;
+
+        .el-button + .el-button {
+            margin-left: 0;
+        }
     }
 
     &__empty {
