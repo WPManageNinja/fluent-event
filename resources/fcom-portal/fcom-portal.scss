@@ -344,14 +344,33 @@
         color: var(--fcom-danger, #d63638);
     }
 
+    &__toolbar {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    &__search {
+        max-width: 300px;
+    }
+
     &__list {
         display: flex;
         flex-direction: column;
         gap: 10px;
         min-height: 120px;
+
+        &.fe-events-page__list--cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+        }
     }
 
     &__empty {
+        grid-column: 1 / -1;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -391,6 +410,7 @@
     }
 
     &__more {
+        grid-column: 1 / -1;
         display: flex;
         justify-content: center;
         padding: 8px 0;
@@ -528,6 +548,124 @@
             width: 100%;
             justify-content: flex-start;
             padding-left: 66px;
+        }
+    }
+
+    &__cover {
+        display: block;
+        width: calc(100% + 28px);
+        height: 140px;
+        margin: 0 -14px;
+        border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+        object-fit: cover;
+    }
+
+    &__cover--empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--fcom-secondary-bg, #f7f8fa);
+        font-size: 32px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    // The tile spans the grid row height, so the info row absorbs the slack and actions sit at the bottom.
+    &.fe-event-item--card {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr) auto;
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+            "cover cover cover"
+            "date info info"
+            "actions actions menu";
+        align-items: start;
+        gap: 12px 14px;
+        padding: 0 14px 14px;
+        overflow: hidden;
+
+        .fe-event-item__cover {
+            grid-area: cover;
+        }
+
+        .fe-event-item__date {
+            grid-area: date;
+        }
+
+        .fe-event-item__info {
+            grid-area: info;
+        }
+
+        .fe-event-item__actions {
+            grid-area: actions;
+            align-self: end;
+            justify-content: flex-start;
+            width: auto;
+            padding-left: 0;
+        }
+
+        .fe-event-item__menu {
+            grid-area: menu;
+            align-self: end;
+        }
+    }
+}
+
+// Same component as the admin view switch, on fcom's tokens.
+.fe-switch {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    min-height: 32px;
+    gap: 4px;
+    padding: 3px;
+    border: 1px solid var(--fcom-primary-border, #e3e8ee);
+    border-radius: 8px;
+    background-color: var(--fcom-primary-bg, #ffffff);
+
+    &__indicator {
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        left: 0;
+        width: var(--fe-switch-w, 0);
+        border-radius: 6px;
+        background-color: var(--fcom-active-bg, #f0f3f5);
+        transform: translateX(var(--fe-switch-x, 0));
+        transition: transform 0.25s ease, width 0.25s ease;
+    }
+
+    &__option {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 6px;
+        background: none;
+        font-size: 16px;
+        color: var(--fcom-secondary-text, #525866);
+        cursor: pointer;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: -2px;
+        }
+
+        &.fe-switch__option--active {
+            color: var(--fcom-primary-text, #19283a);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &__indicator {
+            transition: none;
         }
     }
 }

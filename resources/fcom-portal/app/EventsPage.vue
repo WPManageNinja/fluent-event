@@ -11,12 +11,35 @@
             </el-button>
         </div>
 
-        <el-tabs v-model="tab" class="fe-events-page__tabs" @tab-change="reload">
+        <el-tabs v-model="tab" class="fe-events-page__tabs" @tab-change="changeTab">
             <el-tab-pane :label="$t('All')" name="all"/>
             <el-tab-pane :label="$t('Upcoming')" name="upcoming"/>
             <el-tab-pane :label="$t('Past')" name="past"/>
             <!-- <el-tab-pane :label="$t('Calendar')" name="calendar"/> -->
         </el-tabs>
+
+        <div class="fe-events-page__toolbar">
+            <el-input
+                v-model="search"
+                class="fe-events-page__search"
+                clearable
+                :placeholder="$t('Search events')"
+                :aria-label="$t('Search events')"
+                @keydown.enter="reload"
+                @clear="reload"
+            >
+                <template #prefix>
+                    <el-icon><Search/></el-icon>
+                </template>
+            </el-input>
+
+            <segmented-switch
+                v-model="view"
+                :options="views"
+                :label="$t('Switch between list and card view')"
+                @change="changeView"
+            />
+        </div>
 
         <p v-if="error" class="fe-events-page__error" role="alert">{{ error }}</p>
 
@@ -35,7 +58,7 @@
             </template>
         </el-calendar> -->
 
-        <div v-loading="loading" class="fe-events-page__list">
+        <div v-loading="loading" class="fe-events-page__list" :class="{ 'fe-events-page__list--cards': view === 'cards' }">
             <div v-if="!loading && !events.length" class="fe-events-page__empty">
                 <span class="fe-events-page__empty-icon" aria-hidden="true">
                     <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
@@ -51,8 +74,16 @@
                 v-for="event in events"
                 :key="event.id"
                 class="fe-event-item"
+                :class="{ 'fe-event-item--card': view === 'cards' }"
                 @click="onItemClick($event, event)"
             >
+                <template v-if="view === 'cards'">
+                    <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt=""/>
+                    <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true">
+                        <el-icon><Calendar/></el-icon>
+                    </span>
+                </template>
+
                 <span class="fe-event-item__date" aria-hidden="true">
                     <span class="fe-event-item__month">{{ month(event) }}</span>
                     <span class="fe-event-item__day">{{ day(event) }}</span>
@@ -96,20 +127,28 @@
 </template>
 
 <script>
+import { Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
+import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+import Storage from '@/utils/Storage';
 import { eventsApi, errorMessage, eventDateRange, eventMonth, eventDay, guestCountLabel, portalVars } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 
 export default {
     name: 'EventsPage',
-    components: { EventActions, EventMenu },
+    components: { Calendar, Search, EventActions, EventMenu, SegmentedSwitch },
     props: {
         spaceSlug: { type: String, default: '' },
         router: { type: Object, required: true },
     },
     data() {
+        const savedTab = Storage.get('portal_events_tab');
+        const savedView = Storage.get('portal_events_view');
+
         return {
-            tab: 'upcoming',
+            tab: ['all', 'upcoming', 'past'].includes(savedTab) ? savedTab : 'upcoming',
+            view: ['list', 'cards'].includes(savedView) ? savedView : 'list',
+            search: '',
             // calendarMonth: new Date(),
             events: [],
             errors: {},
@@ -124,7 +163,17 @@ export default {
         canCreate() {
             return !!this.spaceSlug && !!portalVars().can_create_events;
         },
+        views() {
+            return [
+                { value: 'list', label: this.$t('List'), icon: Tickets },
+                { value: 'cards', label: this.$t('Cards'), icon: Grid },
+            ];
+        },
         emptyState() {
+            if (this.search) {
+                return { title: this.$t('No events found'), text: this.$t('Try a different search term.') };
+            }
+
             const comingText = this.spaceSlug
                 ? this.$t('Events posted in this space will show up here.')
                 : this.$t('Events from across the community will show up here.');
@@ -162,6 +211,13 @@ export default {
 
             this.fetchEvents(1);
         },
+        changeTab() {
+            Storage.set('portal_events_tab', this.tab);
+            this.reload();
+        },
+        changeView() {
+            Storage.set('portal_events_view', this.view);
+        },
         async fetchEvents(page) {
             this.loading = true;
             this.error = '';
@@ -170,6 +226,7 @@ export default {
                 const response = await eventsApi.get('community/events', {
                     scope: this.tab,
                     space: this.spaceSlug,
+                    search: this.search,
                     page,
                     per_page: 20,
                 });

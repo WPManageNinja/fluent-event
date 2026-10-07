@@ -57,6 +57,7 @@ class CommunityEventController extends Controller
             ->with(['post'])
             ->whereIn('id', array_keys($feedsByEvent))
             ->byStatus(['public', 'private'])
+            ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->inDateRange(
                 $request->getSafe('from', 'sanitize_text_field'),
                 $request->getSafe('to', 'sanitize_text_field')
