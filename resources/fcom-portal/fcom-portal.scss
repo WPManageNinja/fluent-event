@@ -517,8 +517,14 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         text-decoration: none;
+        // Primary tint, not active-bg: a hovered day cell turns active-bg and would swallow the pill.
         background: var(--fcom-active-bg, #f0f3f5);
+        background: color-mix(in srgb, var(--fcom-primary-button, #2b2e33) 18%, transparent);
         color: var(--fcom-primary-text, #19283a);
+
+        &:hover {
+            color: var(--fcom-primary-button, #2b2e33);
+        }
     }
 }
 
@@ -579,13 +585,17 @@
         margin-bottom: 2px;
     }
 
-    // Own colour, so a site-wide a:hover rule can't repaint it; clamped like the FE timeline title.
+    // Own colours at rest and on hover, so a site-wide a:hover rule can't dim it; clamped like the FE timeline title.
     &__title {
         min-width: 0;
         max-width: 800px;
         font-weight: 600;
         color: var(--fcom-primary-text, #19283a);
         text-decoration: none;
+
+        &:hover {
+            color: var(--fcom-primary-button, #2b2e33);
+        }
 
         &:focus-visible {
             outline: 2px solid var(--fcom-primary-button, #2B2E33);
