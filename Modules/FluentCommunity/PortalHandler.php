@@ -72,24 +72,6 @@ class PortalHandler
 
         $links[] = [
             'slug'  => 'fluent_events',
-            /* translators: %d: number of further events on that day */
-            '%d more' => __('%d more', 'fluent-event'),
-            'Are you sure you want to cancel your registration?' => __('Are you sure you want to cancel your registration?', 'fluent-event'),
-            'Day' => __('Day', 'fluent-event'),
-            /* translators: %d: day number within a multi-day event */
-            'Day %d' => __('Day %d', 'fluent-event'),
-            'Keep registration' => __('Keep registration', 'fluent-event'),
-            'Month' => __('Month', 'fluent-event'),
-            'Next' => __('Next', 'fluent-event'),
-            'Previous' => __('Previous', 'fluent-event'),
-            'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
-            'Switch between month, week and day view' => __('Switch between month, week and day view', 'fluent-event'),
-            'Timeline' => __('Timeline', 'fluent-event'),
-            'Today' => __('Today', 'fluent-event'),
-            /* translators: %s: event title */
-            'View %s' => __('View %s', 'fluent-event'),
-            'Warning' => __('Warning', 'fluent-event'),
-            'Week' => __('Week', 'fluent-event'),
             'title' => __('Events', 'fluent-event'),
             'route' => ['name' => 'fe_space_events', 'params' => ['space' => $space->slug]],
         ];
@@ -135,6 +117,8 @@ class PortalHandler
     protected function strings()
     {
         return [
+            /* translators: %d: number of further events on that day */
+            '%d more' => __('%d more', 'fluent-event'),
             /* translators: %s: number of guests going */
             '%s going' => __('%s going', 'fluent-event'),
             'Add Description' => __('Add Description', 'fluent-event'),
@@ -145,6 +129,7 @@ class PortalHandler
             'All Events' => __('All Events', 'fluent-event'),
             'An announcement only. Nobody registers.' => __('An announcement only. Nobody registers.', 'fluent-event'),
             'Anyone who can see the event registers with a name and email.' => __('Anyone who can see the event registers with a name and email.', 'fluent-event'),
+            'Are you sure you want to cancel your registration?' => __('Are you sure you want to cancel your registration?', 'fluent-event'),
             'Back' => __('Back', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
             'Cancel' => __('Cancel', 'fluent-event'),
@@ -155,6 +140,9 @@ class PortalHandler
             'Create Event' => __('Create Event', 'fluent-event'),
             'Create new event' => __('Create new event', 'fluent-event'),
             'Date' => __('Date', 'fluent-event'),
+            'Day' => __('Day', 'fluent-event'),
+            /* translators: %d: day number within a multi-day event */
+            'Day %d' => __('Day %d', 'fluent-event'),
             'Edit event' => __('Edit event', 'fluent-event'),
             'Email' => __('Email', 'fluent-event'),
             'End' => __('End', 'fluent-event'),
@@ -175,14 +163,17 @@ class PortalHandler
             'How guests join, and how many can' => __('How guests join, and how many can', 'fluent-event'),
             'In person' => __('In person', 'fluent-event'),
             'Join the meeting' => __('Join the meeting', 'fluent-event'),
+            'Keep registration' => __('Keep registration', 'fluent-event'),
             'Limit seats' => __('Limit seats', 'fluent-event'),
             'Load more' => __('Load more', 'fluent-event'),
             'Log in to RSVP' => __('Log in to RSVP', 'fluent-event'),
             'Logged-in members say whether they are going.' => __('Logged-in members say whether they are going.', 'fluent-event'),
             'Max guests' => __('Max guests', 'fluent-event'),
             'Meeting link *' => __('Meeting link *', 'fluent-event'),
+            'Month' => __('Month', 'fluent-event'),
             'More actions' => __('More actions', 'fluent-event'),
             'Name' => __('Name', 'fluent-event'),
+            'Next' => __('Next', 'fluent-event'),
             'No events found' => __('No events found', 'fluent-event'),
             'No events yet' => __('No events yet', 'fluent-event'),
             'No past events' => __('No past events', 'fluent-event'),
@@ -198,6 +189,7 @@ class PortalHandler
             'Post message *' => __('Post message *', 'fluent-event'),
             'Post title' => __('Post title', 'fluent-event'),
             'Post title *' => __('Post title *', 'fluent-event'),
+            'Previous' => __('Previous', 'fluent-event'),
             'RSVP' => __('RSVP', 'fluent-event'),
             'Register' => __('Register', 'fluent-event'),
             /* translators: %s: event title */
@@ -224,14 +216,22 @@ class PortalHandler
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
+            'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
+            'Switch between month, week and day view' => __('Switch between month, week and day view', 'fluent-event'),
             'The date and time is based on your site\'s Timezone' => __('The date and time is based on your site\'s Timezone', 'fluent-event'),
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Time' => __('Time', 'fluent-event'),
+            'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
+            'Today' => __('Today', 'fluent-event'),
             'Try a different search term.' => __('Try a different search term.', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
             'Venue name' => __('Venue name', 'fluent-event'),
             'Venue type' => __('Venue type', 'fluent-event'),
+            /* translators: %s: event title */
+            'View %s' => __('View %s', 'fluent-event'),
+            'Warning' => __('Warning', 'fluent-event'),
+            'Week' => __('Week', 'fluent-event'),
             'What members see in the space feed, above the event.' => __('What members see in the space feed, above the event.', 'fluent-event'),
             'What should guests know before they come?' => __('What should guests know before they come?', 'fluent-event'),
             'e.g. Kingsway Hall' => __('e.g. Kingsway Hall', 'fluent-event'),
