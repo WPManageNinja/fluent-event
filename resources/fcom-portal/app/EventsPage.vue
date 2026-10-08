@@ -111,7 +111,7 @@
                         <span class="fe-event-item__meta">{{ dateRange(event) }}</span>
                         <span class="fe-event-item__meta">
                             {{ event.venue_type === 'online' ? $t('Online event') : (event.venue || event.address) }}
-                            <template v-if="!spaceSlug && event.post.space"> · {{ event.post.space.title }}</template>
+                            <template v-if="!spaceSlug && event.space_title"> · {{ event.space_title }}</template>
                         </span>
                         <span v-if="countLabel(event)" class="fe-event-item__meta">{{ countLabel(event) }}</span>
                         <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
@@ -289,7 +289,7 @@ export default {
         createEvent() {
             this.router.push({ name: 'fe_space_create_event', params: { space: this.spaceSlug } });
         },
-        // The register response carries the event payload only; keep the post the list already has.
+        // The register response carries the event payload only; keep the post link the list already has.
         applyResponse(event, response) {
             const index = this.events.indexOf(event);
 
@@ -298,7 +298,7 @@ export default {
             }
         },
         openPost(event) {
-            this.router.push({ name: 'single_feed', params: { feed_slug: event.post.slug } });
+            this.router.push({ name: 'single_feed', params: { feed_slug: event.post_slug } });
         },
     },
 };

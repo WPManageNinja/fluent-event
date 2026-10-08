@@ -22,40 +22,32 @@ class CommunityEventController extends Controller
 {
     public function getEvents(Request $request)
     {
-        $spaceIds = array_map('intval', CommunityEvents::visibleSpaceIds());
+        $spaceIds = CommunityEvents::visibleSpaceIds();
 
         if ($spaceSlug = $request->getSafe('space', 'sanitize_title')) {
-            $space = FcomSpace::query()->where('slug', $spaceSlug)->first();
-            $spaceIds = $space && in_array((int) $space->id, $spaceIds, true) ? [(int) $space->id] : [];
+            $spaceIds = FcomSpace::query()->whereIn('id', $spaceIds)->where('slug', $spaceSlug)->pluck('id')->toArray();
         }
 
-        $feedsByEvent = [];
+        // Event id => the published post it lives in.
+        $posts = [];
 
-        if ($spaceIds) {
-            $feeds = FcomFeed::query()
-                ->select(['id', 'slug', 'title', 'space_id', 'meta'])
-                ->with(['space' => function ($query) {
-                    $query->select(['id', 'title', 'slug']);
-                }])
-                ->where('content_type', CommunityEvents::CONTENT_TYPE)
-                ->where('status', 'published')
-                ->whereIn('space_id', $spaceIds)
-                ->get();
+        $feeds = FcomFeed::query()
+            ->select(['id', 'slug', 'space_id', 'meta'])
+            ->with(['space' => function ($query) {
+                $query->select(['id', 'title']);
+            }])
+            ->where('content_type', CommunityEvents::CONTENT_TYPE)
+            ->where('status', 'published')
+            ->whereIn('space_id', $spaceIds)
+            ->get();
 
-            foreach ($feeds as $feed) {
-                if ($eventId = CommunityEvents::eventIdOf($feed)) {
-                    $feedsByEvent[$eventId] = $feed;
-                }
-            }
-        }
-
-        if (!$feedsByEvent) {
-            return ['events' => [], 'total' => 0, 'current_page' => 1, 'last_page' => 1];
+        foreach ($feeds as $feed) {
+            $posts[CommunityEvents::eventIdOf($feed)] = $feed;
         }
 
         $events = Event::query()
             ->with(['post'])
-            ->whereIn('id', array_keys($feedsByEvent))
+            ->whereIn('id', array_keys($posts))
             ->byStatus(['public', 'private'])
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->inDateRange(
@@ -69,15 +61,11 @@ class CommunityEventController extends Controller
         $items = [];
 
         foreach ($events->items() as $event) {
-            $feed = $feedsByEvent[(int) $event->id];
+            $post = $posts[$event->id];
 
-            $items[] = array_merge($formatted[(int) $event->id], [
-                'post' => [
-                    'id'    => (int) $feed->id,
-                    'slug'  => $feed->slug,
-                    'title' => $feed->title,
-                    'space' => $feed->space ? ['title' => $feed->space->title, 'slug' => $feed->space->slug] : null,
-                ],
+            $items[] = array_merge($formatted[$event->id], [
+                'post_slug'   => $post->slug,
+                'space_title' => $post->space ? $post->space->title : '',
             ]);
         }
 
