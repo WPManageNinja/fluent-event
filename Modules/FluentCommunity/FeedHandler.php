@@ -3,6 +3,7 @@
 namespace FluentEvent\Modules\FluentCommunity;
 
 use FluentCommunity\App\Models\BaseSpace;
+use FluentCommunity\App\Models\Feed as FcomFeed;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Models\Event;
@@ -34,6 +35,7 @@ class FeedHandler
         add_filter('fluent_community/feed/update_data', [$this, 'keepEventLink'], 10, 2);
         add_action('fluent_community/feed/updated', [$this, 'followSpaceMove'], 10, 2);
         add_action('fluent_community/feed/before_deleted', [$this, 'deleteEvent']);
+        add_action('fluent_event/event/deleted', [$this, 'unlinkPost']);
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);
     }
@@ -182,6 +184,20 @@ class FeedHandler
         });
 
         do_action('fluent_event/event/deleted', $event);
+    }
+
+    // An event deleted from the admin or with its calendar leaves the post as a plain one.
+    public function unlinkPost($event)
+    {
+        $feed = FcomFeed::query()->find(CommunityEvents::feedIdOf($event));
+
+        if (!$feed || CommunityEvents::eventIdOf($feed) !== (int) $event->id) {
+            return;
+        }
+
+        $feed->content_type = 'text';
+        $feed->meta = Arr::except((array) $feed->meta, ['event_id']);
+        $feed->save();
     }
 
     public function preloadEvents($config, $feeds)
