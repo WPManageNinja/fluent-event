@@ -108,17 +108,13 @@ export function isSeated(event) {
     return ['going', 'checked_in'].includes(event.my_status);
 }
 
-// A member's own open registration is cancelled from the ⋮ menu, not from the action row.
-export function canCancelRegistration(event) {
-    return !event.is_past && event.entry_type === 'open' && isSeated(event) && !!portalVars().is_logged_in;
-}
-
+// Only RSVP takes part; an open event is view-only.
 export function hasEventActions(event) {
-    return event.is_past || event.entry_type !== 'none';
+    return event.is_past || event.entry_type === 'rsvp';
 }
 
 export function guestCountLabel(event) {
-    if (event.entry_type === 'none' || event.guest_count === null || event.guest_count === undefined) {
+    if (event.entry_type !== 'rsvp' || event.guest_count === null || event.guest_count === undefined) {
         return '';
     }
 

@@ -18,7 +18,6 @@ export default {
         return {
             event: this.feed.fluent_event || null,
             error: '',
-            meetingUrl: '',
             descriptionExpanded: false,
             descriptionOverflows: false,
         };
@@ -60,7 +59,7 @@ export default {
             return [this.event.venue, this.event.address].filter(Boolean).join(', ');
         },
         meetingLink() {
-            const url = this.event.online_meeting_url || this.meetingUrl;
+            const url = this.event.online_meeting_url;
             return /^https?:\/\//i.test(url) ? url : '';
         },
         hasActions() {
@@ -93,7 +92,6 @@ export default {
         },
         apply(response) {
             this.event = response.event;
-            this.meetingUrl = response.meeting_url || this.meetingUrl;
         },
     },
     template: `
@@ -116,7 +114,7 @@ export default {
                                 >{{ event.title }}</router-link>
                                 <template v-else>{{ event.title }}</template>
                             </h3>
-                            <event-menu v-if="!is_child" class="fe-event-card__menu" :event="event" @done="apply" @error="error = $event"></event-menu>
+                            <event-menu v-if="!is_child" class="fe-event-card__menu" :event="event"></event-menu>
                         </div>
                         <p class="fe-event-card__meta">{{ dateRange }} <span v-if="event.timezone">({{ event.timezone }})</span></p>
                         <p v-if="place" class="fe-event-card__meta">
@@ -124,7 +122,7 @@ export default {
                             <template v-else>{{ place }}</template>
                         </p>
                         <p v-if="event.has_meeting_url && !meetingLink" class="fe-event-card__meta fe-event-card__meta--muted">
-                            {{ t('Register to get the meeting link.') }}
+                            {{ t('Please register for the event to see the meeting link.') }}
                         </p>
                         <p v-if="countLabel" class="fe-event-card__meta fe-event-card__meta--muted">{{ countLabel }}</p>
                     </div>

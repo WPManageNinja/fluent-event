@@ -101,12 +101,7 @@
                             <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openPost(event)">
                                 <span class="fe-event-item__title-text">{{ event.title }}</span>
                             </a>
-                            <event-menu
-                                class="fe-event-item__menu"
-                                :event="event"
-                                @done="applyResponse(event, $event)"
-                                @error="errors[event.id] = $event"
-                            ></event-menu>
+                            <event-menu class="fe-event-item__menu" :event="event"></event-menu>
                         </div>
                         <span class="fe-event-item__meta">{{ dateRange(event) }}</span>
                         <span class="fe-event-item__meta">

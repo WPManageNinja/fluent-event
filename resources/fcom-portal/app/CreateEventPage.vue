@@ -192,21 +192,8 @@
                             </el-radio-group>
                         </el-form-item>
 
-                        <el-form-item v-if="event.entry_type !== 'none'" :label="$t('Seats')" label-position="top">
+                        <el-form-item v-if="event.entry_type === 'rsvp'" :label="$t('Guests')" label-position="top">
                             <div class="fe-create-event__switch-group">
-                                <div class="fe-create-event__switch-row">
-                                    <el-switch v-model="event.limit_seats" :aria-label="$t('Limit seats')"/>
-                                    <span class="fe-create-event__switch-text">{{ $t('Limit seats') }}</span>
-                                    <el-input-number
-                                        v-if="event.limit_seats"
-                                        v-model="event.max_guests"
-                                        class="fe-create-event__number"
-                                        :min="1"
-                                        :controls="false"
-                                        :aria-label="$t('Max guests')"
-                                    />
-                                </div>
-
                                 <div class="fe-create-event__switch-row">
                                     <el-switch
                                         v-model="event.show_guest_count"
@@ -420,8 +407,6 @@ export default {
                 online_meeting_url: '',
                 cover_url: '',
                 entry_type: '',
-                limit_seats: false,
-                max_guests: 50,
                 show_guest_count: 'yes',
             },
             // The feed post is required, so it starts open.
@@ -501,8 +486,7 @@ export default {
         entryTypes() {
             return [
                 { value: 'rsvp', label: this.$t('RSVP'), hint: this.$t('Logged-in members say whether they are going.') },
-                { value: 'open', label: this.$t('Open registration'), hint: this.$t('Anyone who can see the event registers with a name and email.') },
-                { value: 'none', label: this.$t('No registration'), hint: this.$t('An announcement only. Nobody registers.') },
+                { value: 'open', label: this.$t('Open'), hint: this.$t('Nobody registers. Anyone who can see the event sees all of it, meeting link included.') },
             ];
         },
     },
@@ -604,7 +588,6 @@ export default {
                         online_meeting_url: event.online_meeting_url,
                         cover_url: event.cover_url,
                         entry_type: event.entry_type,
-                        max_guests: event.limit_seats ? event.max_guests : -1,
                         show_guest_count: event.show_guest_count,
                     },
                 });

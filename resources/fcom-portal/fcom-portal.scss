@@ -222,20 +222,6 @@
     }
 }
 
-// Registered / Cancelled next to an open event's title. fcom ships EP's success and danger colours for both modes.
-.fe-event-status {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.5;
-    background: var(--el-color-success-light-9, #f0f9eb);
-    color: var(--el-color-success, #67c23a);
-}
-
 // The look comes from fcom's own popover classes on the markup; this only places it.
 .fe-event-menu {
     position: relative;
@@ -1324,10 +1310,6 @@
         color: var(--fcom-primary-text, #19283a);
     }
 
-    &__number.el-input-number {
-        width: 100px;
-    }
-
     &__error {
         margin: 0;
         color: var(--fcom-danger, #d63638);
@@ -1376,20 +1358,5 @@
         margin: 4px 0 0;
         font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
-    }
-}
-
-// Mounted on <body>, outside .fe-fcom-portal-page, so it sets the theme colour itself.
-.fe-register-dialog {
-    --el-color-primary: var(--fcom-primary-button, #2B2E33);
-
-    &__form .el-form-item:last-of-type {
-        margin-bottom: 0;
-    }
-
-    &__error {
-        margin: 12px 0 0;
-        font-size: 13px;
-        color: var(--fcom-danger, #d63638);
     }
 }
