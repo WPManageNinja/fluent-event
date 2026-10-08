@@ -55,6 +55,14 @@
                                             {{ $eventStatusLabel(event.status) }}
                                         </el-tag>
                                     </div>
+
+                                    <div v-if="event.meta?.entry_type" class="fe-event-overview__badge">
+                                        <span class="fe-event-overview__badge-label">{{ $t('Registration Type') }}</span>
+
+                                        <span class="fe-event-overview__badge-value">
+                                            {{ $entryTypeLabel(event.meta.entry_type) }}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div class="fe-event-overview__row">

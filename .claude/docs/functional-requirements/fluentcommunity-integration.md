@@ -68,13 +68,11 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   `private` (no public page). Admins may change the status later.
 - **Statuses:** events and calendars are `public | private | draft`. fcom-created events start
   `public`. fcom renders `public` and `private` events; `draft` events are not returned.
-- **Entry types:** `rsvp` (logged-in, going / not going), `open` (anyone who can see the post;
-  name + email, user linked when logged in, one registration per email), `none`.
-- **Capacity:** `max_guests` (`-1` = unlimited) counts `going` + `checked_in`; the event row is
-  locked while a seat is taken, so the last seat can't be taken twice. Full closes registration.
-- **Show guest count:** count only, default on. Staff always see it.
-- **Meeting link:** only for registered guests and staff; anonymous registrants get it in the
-  response and the confirmation email.
+- **Entry types:** `rsvp` (logged-in, going / not going; no seat limit) and `open` (view-only:
+  nobody registers, no guests).
+- **Show guest count:** `rsvp` only; count only, default on. Staff always see it.
+- **Meeting link:** `rsvp` shows it to registered guests and staff; `open` shows it to everyone
+  who can see the post.
 - **Visibility:** lists and registration follow the post — published posts in discussion spaces the
   viewer can see (joined + public; public only for logged-out visitors on a public portal).
 - **Email:** registration confirmation (toggle in Email Notifications, default on) plus the

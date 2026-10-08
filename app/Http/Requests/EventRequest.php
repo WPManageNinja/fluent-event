@@ -23,7 +23,6 @@ class EventRequest extends BaseRequest
         'venue',
         'address',
         'entry_type',
-        'max_guests',
         'show_guest_count',
     ];
     const SANITIZERS = [
@@ -40,7 +39,6 @@ class EventRequest extends BaseRequest
         'venue'              => 'sanitize_text_field',
         'address'            => 'sanitize_textarea_field',
         'entry_type'         => 'sanitize_text_field',
-        'max_guests'         => 'intval',
         'show_guest_count'   => 'sanitize_text_field',
     ];
     const RULES = [
@@ -57,7 +55,6 @@ class EventRequest extends BaseRequest
         'venue'              => 'nullable|string|max:255',
         'address'            => 'nullable|string|max:500',
         'entry_type'         => 'required|string|in:' . Event::ENTRY_TYPES,
-        'max_guests'         => 'nullable|integer|min:-1',
         'show_guest_count'   => 'nullable|string|in:yes,no',
     ];
 
@@ -112,9 +109,7 @@ class EventRequest extends BaseRequest
             'venue.max'                   => __('Venue name cannot exceed 255 characters.', 'fluent-event'),
             'address.max'                 => __('Address cannot exceed 500 characters.', 'fluent-event'),
             'entry_type.required'         => __('Registration type is required.', 'fluent-event'),
-            'entry_type.in'               => __('Registration must be RSVP, open or none.', 'fluent-event'),
-            'max_guests.integer'          => __('Max guests must be a whole number.', 'fluent-event'),
-            'max_guests.min'              => __('Max guests must be -1 (unlimited) or more.', 'fluent-event'),
+            'entry_type.in'               => __('Registration must be RSVP or open.', 'fluent-event'),
             'show_guest_count.in'         => __('Show guest count must be yes or no.', 'fluent-event'),
         ];
     }
