@@ -911,6 +911,16 @@
         &.fe-event-item__meta--date {
             font-size: 12px;
         }
+
+        &.fe-event-item__meta--venue {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            .el-icon {
+                font-size: 16px;
+            }
+        }
     }
 
     // Bleeds to the card's edges so the divider runs full width; a row without actions has no footer at all.

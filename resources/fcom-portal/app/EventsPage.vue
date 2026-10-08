@@ -104,7 +104,13 @@
                             <event-menu class="fe-event-item__menu" :event="event"></event-menu>
                         </div>
                         <span class="fe-event-item__meta fe-event-item__meta--date">{{ startDate(event) }}</span>
-                        <span class="fe-event-item__meta">{{ event.venue_type === 'online' ? $t('Online') : $t('In person') }}</span>
+                        <span class="fe-event-item__meta fe-event-item__meta--venue">
+                            <el-icon aria-hidden="true">
+                                <VideoCamera v-if="event.venue_type === 'online'"/>
+                                <MapLocation v-else/>
+                            </el-icon>
+                            {{ event.venue_type === 'online' ? $t('Online') : $t('In person') }}
+                        </span>
                         <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
                     </div>
 
@@ -127,7 +133,7 @@
 </template>
 
 <script>
-import { Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
+import { Calendar, Grid, MapLocation, Search, Tickets, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
 import { eventsApi, errorMessage, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions } from '../utils';
@@ -139,7 +145,7 @@ const dayjs = (value) => window.dayjs(value);
 
 export default {
     name: 'EventsPage',
-    components: { Calendar, Search, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
+    components: { Calendar, MapLocation, Search, VideoCamera, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
     props: {
         spaceSlug: { type: String, default: '' },
         router: { type: Object, required: true },
