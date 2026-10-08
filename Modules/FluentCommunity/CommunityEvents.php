@@ -2,7 +2,7 @@
 
 namespace FluentEvent\Modules\FluentCommunity;
 
-use FluentCommunity\App\Models\Space;
+use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
@@ -45,7 +45,7 @@ class CommunityEvents
                 return [];
             }
 
-            return Space::query()->where('privacy', 'public')->pluck('id')->toArray();
+            return FcomSpace::query()->where('privacy', 'public')->pluck('id')->toArray();
         }
 
         $spaceIds = array_filter((array) $user->getSpaceIds());
@@ -54,7 +54,7 @@ class CommunityEvents
             return [];
         }
 
-        return Space::query()->whereIn('id', $spaceIds)->pluck('id')->toArray();
+        return FcomSpace::query()->whereIn('id', $spaceIds)->pluck('id')->toArray();
     }
 
     public static function canViewFeed($feed)
