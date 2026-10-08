@@ -2619,6 +2619,15 @@
         color: var(--fe-secondary-text, #525866);
     }
 
+    // Same chip as the dashboard's Top Events guest count.
+    &__badge-value {
+        padding: 2px var(--fe-space-2, 8px);
+        font-size: var(--fe-text-xs, 12px);
+        color: var(--fe-primary-text, #19283a);
+        background: var(--fe-badge-color, #e1e4ea);
+        border-radius: var(--fe-radius-sm, 4px);
+    }
+
     &__row {
         display: flex;
         align-items: center;

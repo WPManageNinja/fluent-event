@@ -110,6 +110,23 @@ export default {
         $eventStatusLabel(status) {
             return this.$eventStatuses().find(item => item.value === status)?.label || status;
         },
+        $entryTypes() {
+            return [
+                {
+                    value: 'rsvp',
+                    label: this.$t('RSVP'),
+                    hint: this.$t('Logged-in members say whether they are going.'),
+                },
+                {
+                    value: 'open',
+                    label: this.$t('Open'),
+                    hint: this.$t('Nobody registers. Anyone who can see the event sees all of it, meeting link included.'),
+                },
+            ];
+        },
+        $entryTypeLabel(type) {
+            return this.$entryTypes().find(item => item.value === type)?.label || type;
+        },
         $calendarStatusType(status) {
             return calendarStatuses.find(item => item.value === status)?.type || 'info';
         },

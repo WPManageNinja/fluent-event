@@ -15,7 +15,7 @@ class Event extends Model
 
     const STATUSES = 'public,private,draft';
     const VENUE_TYPES = 'offline,online';
-    const ENTRY_TYPES = 'rsvp,open,none';
+    const ENTRY_TYPES = 'rsvp,open';
     const SEAT_STATUSES = ['going', 'checked_in'];
     const POST_STATUSES = [
         'public'   => 'publish',
@@ -59,7 +59,6 @@ class Event extends Model
             'venue'              => '',
             'address'            => '',
             'entry_type'         => '',
-            'max_guests'         => -1,
             'show_guest_count'   => 'yes',
         ];
     }
