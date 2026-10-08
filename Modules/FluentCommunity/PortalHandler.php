@@ -2,11 +2,13 @@
 
 namespace FluentEvent\Modules\FluentCommunity;
 
+use FluentCommunity\App\Services\CustomSanitizer;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Services\Icon;
 use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
+use FluentEvent\Framework\Support\Arr;
 
 /**
  * Everything FluentEvent adds to the community portal UI: the Events nav, the
@@ -15,38 +17,68 @@ use FluentEvent\App\Utils\Enqueuer\Enqueue;
  */
 class PortalHandler
 {
+    const MENU_SLUG = 'fluent_events';
+
     public function register()
     {
         add_action('fluent_community/before_js_loaded', [$this, 'printAssets']);
-        add_filter('fluent_community/main_menu_items', [$this, 'addMenuItem']);
+        add_filter('fluent_community/menu_settings_api_response', [$this, 'addMenuSetting']);
+        add_filter('fluent_community/main_menu_items', [$this, 'refreshMenuItem']);
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
         add_filter('fluent_community/app_route_paths', [$this, 'addRoutePath']);
         add_filter('fluent_community/space_header_links', [$this, 'addSpaceTab'], 10, 2);
     }
 
-    public function addMenuItem($items)
+    // Listed in fcom's Menu Settings, off until an admin turns it on; fcom then stores it with its own items.
+    public function addMenuSetting($data)
     {
-        $items['fluent_events'] = [
-            'slug'         => 'fluent_events',
-            'title'        => __('Events', 'fluent-event'),
-            'enabled'      => 'yes',
-            'permalink'    => FcomHelper::baseUrl('events'),
-            'link_classes' => 'fcom_fe_events route_url',
-            'shape_svg'    => Icon::CALENDAR,
-        ];
+        $items = (array) Arr::get($data, 'menuSettings.mainMenuItems', []);
+
+        if (!in_array(self::MENU_SLUG, array_column($items, 'slug'), true)) {
+            $items[] = [
+                'slug'         => self::MENU_SLUG,
+                'title'        => __('Events', 'fluent-event'),
+                'is_system'    => 'yes',
+                'is_locked'    => 'no',
+                'enabled'      => 'no',
+                'permalink'    => FcomHelper::baseUrl('events'),
+                'link_classes' => 'fcom_fe_events route_url',
+                'shape_svg'    => Icon::CALENDAR,
+            ];
+
+            $data['menuSettings']['mainMenuItems'] = $items;
+        }
+
+        return $data;
+    }
+
+    // The stored row keeps the admin's label, icon and order; the link itself stays ours, as fcom does for its built-ins.
+    public function refreshMenuItem($items)
+    {
+        if (isset($items[self::MENU_SLUG])) {
+            $items[self::MENU_SLUG]['permalink'] = FcomHelper::baseUrl('events');
+            $items[self::MENU_SLUG]['link_classes'] = 'fcom_fe_events route_url';
+        }
 
         return $items;
     }
 
     public function addMobileMenuItem($items)
     {
+        $menuItem = Arr::get(FcomHelper::getMenuItemsGroup('view'), 'mainMenuItems.' . self::MENU_SLUG);
+
+        if (!$menuItem) {
+            return $items;
+        }
+
         // The last item is Profile (or Login); Events goes just before it, like Chat.
         $lastItem = array_pop($items);
+        $iconSvg = Arr::get($menuItem, 'shape_svg');
 
         $items[] = [
             'route'    => ['name' => 'fe_events'],
-            'title'    => __('Events', 'fluent-event'),
-            'icon_svg' => Icon::CALENDAR,
+            'title'    => Arr::get($menuItem, 'title', __('Events', 'fluent-event')),
+            'icon_svg' => $iconSvg ? CustomSanitizer::sanitizeSvg($iconSvg) : Icon::CALENDAR,
         ];
 
         if ($lastItem) {
@@ -70,10 +102,12 @@ class PortalHandler
             return $links;
         }
 
+        // Off until a space admin turns it on; a saved space menu then decides.
         $links[] = [
-            'slug'  => 'fluent_events',
-            'title' => __('Events', 'fluent-event'),
-            'route' => ['name' => 'fe_space_events', 'params' => ['space' => $space->slug]],
+            'slug'    => self::MENU_SLUG,
+            'title'   => __('Events', 'fluent-event'),
+            'route'   => ['name' => 'fe_space_events', 'params' => ['space' => $space->slug]],
+            'enabled' => 'no',
         ];
 
         return $links;
