@@ -1,4 +1,5 @@
 import { t } from './utils';
+import { DOTS } from './icons';
 
 // The "⋮" menu on an event. fcom exposes no popover to add-ons, so this one is ours.
 export default {
@@ -62,9 +63,7 @@ export default {
             >
                 <span>
                     <i class="el-icon" aria-hidden="true">
-                        <svg viewBox="0 0 1024 1024">
-                            <path fill="currentColor" d="M176 416a112 112 0 1 1 0 224 112 112 0 0 1 0-224m336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224m336 0a112 112 0 1 1 0 224 112 112 0 0 1 0-224"/>
-                        </svg>
+                        ${DOTS}
                     </i>
                 </span>
             </button>

@@ -187,6 +187,7 @@ class PortalHandler
             'Guests' => __('Guests', 'fluent-event'),
             'How guests join, and how many can' => __('How guests join, and how many can', 'fluent-event'),
             'In person' => __('In person', 'fluent-event'),
+            'Interested?' => __('Interested?', 'fluent-event'),
             'Join the meeting' => __('Join the meeting', 'fluent-event'),
             'Load more' => __('Load more', 'fluent-event'),
             'Log in to RSVP' => __('Log in to RSVP', 'fluent-event'),

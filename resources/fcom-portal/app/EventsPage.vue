@@ -84,7 +84,7 @@
 
                 <div
                     class="fe-event-item"
-                    :class="{ 'fe-event-item--card': view === 'cards', 'fe-event-item--past': event.is_past }"
+                    :class="{ 'fe-event-item--card': view === 'cards' }"
                 >
                     <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt=""/>
                     <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true">
