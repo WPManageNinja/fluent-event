@@ -384,7 +384,7 @@
 <script>
 import dayjs from 'dayjs';
 import { ArrowLeft, ArrowRight, Calendar, ChatLineSquare, Clock, Delete, Document, EditPen, LocationInformation, Picture, User } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, errorMessage, t, timezoneOffset } from '../utils';
+import { communityApi, errorMessage, t, timezoneOffset } from '../utils';
 
 export default {
     name: 'CreateEventPage',
@@ -550,7 +550,7 @@ export default {
             this.error = '';
 
             try {
-                this.event.cover_url = (await eventsApi.post('community/media', data)).url;
+                this.event.cover_url = (await communityApi.post('feeds/media-upload', data)).media.url;
             } catch (error) {
                 this.error = errorMessage(error);
             } finally {

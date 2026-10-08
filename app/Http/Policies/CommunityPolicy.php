@@ -2,7 +2,6 @@
 
 namespace FluentEvent\App\Http\Policies;
 
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\Framework\Http\Request\Request;
 
 /**
@@ -33,10 +32,5 @@ class CommunityPolicy extends Policy
     public function cancel(Request $request, ...$args)
     {
         return defined('FLUENT_COMMUNITY_PLUGIN_VERSION') && get_current_user_id() > 0;
-    }
-
-    public function uploadCover(Request $request, ...$args)
-    {
-        return defined('FLUENT_COMMUNITY_PLUGIN_VERSION') && PermissionManager::userCan('write_events');
     }
 }

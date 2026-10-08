@@ -68,5 +68,4 @@ $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($ro
     $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])
         ->int('id')->rateLimitPerMinute(10);
     $router->post('/events/{id}/cancel', [CommunityEventController::class, 'cancel'])->int('id');
-    $router->post('/media', [CommunityEventController::class, 'uploadCover']);
 });

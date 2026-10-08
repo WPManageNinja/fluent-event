@@ -289,42 +289,4 @@ class CommunityEventController extends Controller
             'event'   => CommunityEvents::formatEvents([$event])[(int) $event->id],
         ];
     }
-
-    public function uploadCover(Request $request)
-    {
-        // The REST cookie nonce was checked before the policy let this request in.
-        // phpcs:disable WordPress.Security.NonceVerification.Missing
-        if (empty($_FILES['file']['tmp_name'])) {
-            return $this->sendError(['message' => __('Please choose an image to upload.', 'fluent-event')], 422);
-        }
-
-        if ((int) $_FILES['file']['size'] > 5 * MB_IN_BYTES) {
-            return $this->sendError(['message' => __('The image must be 5 MB or smaller.', 'fluent-event')], 422);
-        }
-
-        $fileType = wp_check_filetype_and_ext(
-            $_FILES['file']['tmp_name'],
-            sanitize_file_name(wp_unslash($_FILES['file']['name']))
-        );
-        // phpcs:enable
-
-        if (!in_array($fileType['type'], ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], true)) {
-            return $this->sendError(['message' => __('Please upload a JPG, PNG, GIF or WebP image.', 'fluent-event')], 422);
-        }
-
-        require_once ABSPATH . 'wp-admin/includes/file.php';
-        require_once ABSPATH . 'wp-admin/includes/image.php';
-        require_once ABSPATH . 'wp-admin/includes/media.php';
-
-        // Saved to the media library, so the cover outlives fcom's cleanup of unused uploads.
-        $attachmentId = media_handle_upload('file', 0);
-
-        if (is_wp_error($attachmentId)) {
-            return $this->sendError(['message' => $attachmentId->get_error_message()], 422);
-        }
-
-        return [
-            'url' => wp_get_attachment_url($attachmentId),
-        ];
-    }
 }

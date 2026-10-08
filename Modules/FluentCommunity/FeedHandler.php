@@ -3,6 +3,7 @@
 namespace FluentEvent\Modules\FluentCommunity;
 
 use FluentCommunity\App\Models\BaseSpace;
+use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
@@ -67,6 +68,21 @@ class FeedHandler
     {
         $input = $this->eventInput($requestData);
         $input['calendar_id'] = $this->spaceCalendar($feed->space_id)->id;
+
+        // fcom's cron deletes an unclaimed upload after two hours; tying it to the post also
+        // retires it with the post. An active upload already belongs to something else.
+        if ($media = FcomHelper::getMediaFromUrl(Arr::get($input, 'cover_url'))) {
+            $input['cover_url'] = $media->public_url;
+
+            if (!$media->is_active) {
+                $media->update([
+                    'is_active'     => true,
+                    'user_id'       => $feed->user_id,
+                    'feed_id'       => $feed->id,
+                    'object_source' => 'event_cover',
+                ]);
+            }
+        }
 
         $data = EventRequest::format($input);
         $data['meta'][CommunityEvents::FEED_META_KEY] = (int) $feed->id;
