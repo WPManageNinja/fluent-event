@@ -65,7 +65,6 @@ $router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
 
 $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($router) {
     $router->get('/events', [CommunityEventController::class, 'getEvents']);
-    $router->get('/events/{id}', [CommunityEventController::class, 'getEvent'])->int('id');
     $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])
         ->int('id')->rateLimitPerMinute(10);
     $router->post('/events/{id}/cancel', [CommunityEventController::class, 'cancel'])->int('id');

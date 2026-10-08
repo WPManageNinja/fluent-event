@@ -77,19 +77,6 @@ class CommunityEventController extends Controller
         ];
     }
 
-    public function getEvent(Request $request, $id)
-    {
-        [$event] = CommunityEvents::visibleEvent($id);
-
-        if (!$event) {
-            return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
-        }
-
-        return [
-            'event' => CommunityEvents::formatEvents([$event])[(int) $event->id],
-        ];
-    }
-
     public function register(Request $request, $id)
     {
         [$event, $feed] = CommunityEvents::visibleEvent($id);
