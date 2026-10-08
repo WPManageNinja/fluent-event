@@ -141,15 +141,6 @@
         margin-top: 8px;
         padding: 12px 16px;
         border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
-
-        .fe-event-actions {
-            justify-content: flex-end;
-        }
-
-        .fe-rsvp__pop {
-            left: auto;
-            right: 0;
-        }
     }
 
     &__title-link {
@@ -184,12 +175,9 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
     width: 100%;
-
-    &.fe-event-actions--ended {
-        justify-content: flex-end;
-    }
 
     .el-button.el-button {
         height: 28px;
@@ -275,7 +263,7 @@
 
     &__pop {
         top: calc(100% + 4px);
-        left: 0;
+        right: 0;
         width: 180px;
 
         li + li {
@@ -446,7 +434,7 @@
             @media (max-width: 640px) {
                 grid-template-columns: 80px 16px minmax(0, 1fr);
 
-                // Too narrow for a 120px cover beside the details.
+                // Too narrow for a 96px cover beside the details.
                 .fe-event-item__cover {
                     display: none;
                 }
@@ -840,7 +828,7 @@
     grid-template-areas:
         "info cover"
         "actions actions";
-    align-items: center;
+    align-items: start;
     column-gap: 14px;
     padding: 12px 14px;
     border: 1px solid var(--fcom-primary-border, #e3e8ee);
@@ -848,9 +836,8 @@
     background: var(--fcom-primary-bg, #ffffff);
     color: var(--fcom-primary-text, #19283a);
 
-    // Same date box as the feed card, pinned to the top like the post view.
+    // Same date box as the feed card.
     &__date {
-        align-self: flex-start;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -920,14 +907,27 @@
     &__meta {
         font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
+
+        &.fe-event-item__meta--date {
+            font-size: 12px;
+        }
     }
 
     // Bleeds to the card's edges so the divider runs full width; a row without actions has no footer at all.
     &__actions {
         grid-area: actions;
+        display: flex;
+        align-items: center;
+        gap: 8px;
         margin: 12px -14px -12px;
         padding: 10px 14px;
         border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
+    }
+
+    &__count {
+        flex-shrink: 0;
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
     }
 
     &__error {
@@ -940,8 +940,8 @@
     &__cover {
         grid-area: cover;
         display: block;
-        width: 120px;
-        height: 120px;
+        width: 96px;
+        height: 96px;
         border: 1px solid var(--fcom-primary-border, #e3e8ee);
         border-radius: 8px;
         background: var(--fcom-secondary-bg, #f7f8fa);
@@ -965,7 +965,6 @@
             "cover cover"
             "date info"
             "actions actions";
-        align-items: start;
         gap: 12px 14px;
         padding: 0 14px 14px;
 

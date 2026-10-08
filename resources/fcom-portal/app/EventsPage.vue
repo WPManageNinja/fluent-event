@@ -103,22 +103,19 @@
                             </a>
                             <event-menu class="fe-event-item__menu" :event="event"></event-menu>
                         </div>
-                        <span class="fe-event-item__meta">{{ dateRange(event) }}</span>
-                        <span class="fe-event-item__meta">
-                            {{ event.venue_type === 'online' ? $t('Online event') : (event.venue || event.address) }}
-                            <template v-if="!spaceSlug && event.space_title"> · {{ event.space_title }}</template>
-                        </span>
-                        <span v-if="countLabel(event)" class="fe-event-item__meta">{{ countLabel(event) }}</span>
+                        <span class="fe-event-item__meta fe-event-item__meta--date">{{ startDate(event) }}</span>
+                        <span class="fe-event-item__meta">{{ event.venue_type === 'online' ? $t('Online') : $t('In person') }}</span>
                         <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
                     </div>
 
-                    <event-actions
-                        v-if="hasActions(event)"
-                        class="fe-event-item__actions"
-                        :event="event"
-                        @done="applyResponse(event, $event)"
-                        @error="errors[event.id] = $event"
-                    ></event-actions>
+                    <div v-if="hasActions(event)" class="fe-event-item__actions">
+                        <span v-if="countLabel(event)" class="fe-event-item__count">{{ countLabel(event) }}</span>
+                        <event-actions
+                            :event="event"
+                            @done="applyResponse(event, $event)"
+                            @error="errors[event.id] = $event"
+                        ></event-actions>
+                    </div>
                 </div>
             </div>
 
@@ -133,7 +130,7 @@
 import { Calendar, Grid, Search, Tickets } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventDateRange, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions } from '../utils';
+import { eventsApi, errorMessage, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 import EventsCalendar from './EventsCalendar.vue';
@@ -217,10 +214,12 @@ export default {
         this.reload();
     },
     methods: {
-        dateRange: eventDateRange,
         month: eventMonth,
         day: eventDay,
         countLabel: guestCountLabel,
+        startDate(event) {
+            return dayjs(event.start_at_local).format('ddd, MMM D, YYYY · h:mm A');
+        },
         timelineDate(event) {
             return dayjs(event.start_at_local).format('MMM D, YYYY');
         },

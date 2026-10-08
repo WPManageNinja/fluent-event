@@ -31,10 +31,7 @@ class CommunityEventController extends Controller
         $posts = [];
 
         $feeds = FcomFeed::query()
-            ->select(['id', 'slug', 'space_id', 'meta'])
-            ->with(['space' => function ($query) {
-                $query->select(['id', 'title']);
-            }])
+            ->select(['id', 'slug', 'meta'])
             ->where('content_type', CommunityEvents::CONTENT_TYPE)
             ->where('status', 'published')
             ->whereIn('space_id', $spaceIds)
@@ -60,11 +57,8 @@ class CommunityEventController extends Controller
         $items = [];
 
         foreach ($events->items() as $event) {
-            $post = $posts[$event->id];
-
             $items[] = array_merge($formatted[$event->id], [
-                'post_slug'   => $post->slug,
-                'space_title' => $post->space ? $post->space->title : '',
+                'post_slug' => $posts[$event->id]->slug,
             ]);
         }
 

@@ -83,7 +83,7 @@ export default {
         },
     },
     template: `
-        <div class="fe-event-actions" :class="{ 'fe-event-actions--ended': event.is_past }">
+        <div class="fe-event-actions">
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
 
             <a v-else-if="!isLoggedIn" class="el-button fcom_primary_button" :href="loginUrl">{{ t('Log in to RSVP') }}</a>
