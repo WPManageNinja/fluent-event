@@ -182,10 +182,9 @@ class CommunityEvents
     public static function formatEvent($event, $seats, $myStatus, $isStaff, $canEdit)
     {
         $meta = array_merge(Event::defaultMeta(), (array) $event->meta);
-        $maxGuests = (int) $meta['max_guests'];
+        $isRsvp = $meta['entry_type'] === 'rsvp';
         $isRegistered = in_array($myStatus, Event::SEAT_STATUSES, true);
         $isPast = $event->end_at < gmdate(DateTimeHelper::FORMAT);
-        $isFull = $maxGuests >= 0 && $seats >= $maxGuests;
         $hasMeetingUrl = $event->venue_type === 'online' && !empty($meta['online_meeting_url']);
 
         return [
@@ -203,15 +202,13 @@ class CommunityEvents
             'address'            => $meta['address'],
             'cover_url'          => $meta['cover_url'],
             'has_meeting_url'    => $hasMeetingUrl,
-            // The link is what people register for, so only guests and staff get it; with no registration, every viewer does.
-            'online_meeting_url' => $hasMeetingUrl && ($isRegistered || $isStaff || $meta['entry_type'] === 'none') ? $meta['online_meeting_url'] : '',
+            // An RSVP's link is for its guests and staff; an open event shows it to every viewer.
+            'online_meeting_url' => $hasMeetingUrl && (!$isRsvp || $isRegistered || $isStaff) ? $meta['online_meeting_url'] : '',
             'entry_type'         => $meta['entry_type'],
-            'max_guests'         => $maxGuests,
-            'guest_count'        => $meta['show_guest_count'] === 'yes' ? $seats : null,
-            'is_full'            => $isFull,
+            'guest_count'        => $isRsvp && $meta['show_guest_count'] === 'yes' ? $seats : null,
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
-            'registration_open'  => $meta['entry_type'] !== 'none' && !$isPast && !$isFull,
+            'registration_open'  => $isRsvp && !$isPast,
             'edit_url'           => $canEdit ? self::editUrl($event->id) : '',
         ];
     }

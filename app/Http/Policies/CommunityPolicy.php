@@ -15,21 +15,8 @@ class CommunityPolicy extends Policy
         return defined('FLUENT_COMMUNITY_PLUGIN_VERSION');
     }
 
+    // RSVP is for logged-in members only; their REST cookie nonce is already checked.
     public function register(Request $request, ...$args)
-    {
-        if (!defined('FLUENT_COMMUNITY_PLUGIN_VERSION')) {
-            return false;
-        }
-
-        // A logged-in request already passed WordPress's REST cookie nonce.
-        if (get_current_user_id()) {
-            return true;
-        }
-
-        return (bool) wp_verify_nonce((string) $request->get('_nonce'), 'fluent_event_register');
-    }
-
-    public function cancel(Request $request, ...$args)
     {
         return defined('FLUENT_COMMUNITY_PLUGIN_VERSION') && get_current_user_id() > 0;
     }
