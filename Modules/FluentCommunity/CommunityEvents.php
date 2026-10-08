@@ -2,6 +2,7 @@
 
 namespace FluentEvent\Modules\FluentCommunity;
 
+use FluentCommunity\App\Models\Feed as FcomFeed;
 use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Models\Event;
@@ -76,6 +77,24 @@ class CommunityEvents
         }
 
         return (bool) $space->verifyUserPermisson($user ?: null, 'can_view_posts', false);
+    }
+
+    // The event and its post, when the current viewer may see both.
+    public static function visibleEvent($id)
+    {
+        $event = Event::query()->with(['post'])->find((int) $id);
+
+        if (!$event || $event->status === 'draft') {
+            return [null, null];
+        }
+
+        $feed = FcomFeed::query()->find(self::feedIdOf($event));
+
+        if (!$feed || self::eventIdOf($feed) !== (int) $event->id || !self::canViewFeed($feed)) {
+            return [null, null];
+        }
+
+        return [$event, $feed];
     }
 
     public static function editUrl($eventId)

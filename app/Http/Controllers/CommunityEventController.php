@@ -79,7 +79,7 @@ class CommunityEventController extends Controller
 
     public function getEvent(Request $request, $id)
     {
-        [$event] = $this->visibleEvent($id);
+        [$event] = CommunityEvents::visibleEvent($id);
 
         if (!$event) {
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
@@ -92,7 +92,7 @@ class CommunityEventController extends Controller
 
     public function register(Request $request, $id)
     {
-        [$event, $feed] = $this->visibleEvent($id);
+        [$event, $feed] = CommunityEvents::visibleEvent($id);
 
         if (!$event) {
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
@@ -267,7 +267,7 @@ class CommunityEventController extends Controller
 
     public function cancel(Request $request, $id)
     {
-        [$event] = $this->visibleEvent($id);
+        [$event] = CommunityEvents::visibleEvent($id);
 
         if (!$event) {
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
@@ -339,23 +339,5 @@ class CommunityEventController extends Controller
         return [
             'url' => wp_get_attachment_url($attachmentId),
         ];
-    }
-
-    // The event and its post, when the current viewer may see both.
-    protected function visibleEvent($id)
-    {
-        $event = Event::query()->with(['post'])->find((int) $id);
-
-        if (!$event || $event->status === 'draft') {
-            return [null, null];
-        }
-
-        $feed = FcomFeed::query()->find(CommunityEvents::feedIdOf($event));
-
-        if (!$feed || CommunityEvents::eventIdOf($feed) !== (int) $event->id || !CommunityEvents::canViewFeed($feed)) {
-            return [null, null];
-        }
-
-        return [$event, $feed];
     }
 }
