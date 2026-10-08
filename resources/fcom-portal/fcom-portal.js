@@ -6,6 +6,13 @@ import { t, portalVars } from './utils';
  * Printed before fcom's own modules, so it waits for FluentCommunityUtil.
  */
 
+// Lazy, so our own Vue, Element Plus and the pages download only when an events page opens, not on every portal view.
+const pages = {
+    events: () => import('./app/EventsPage.vue'),
+    space_events: () => import('./app/EventsPage.vue'),
+    create_event: () => import('./app/CreateEventPage.vue'),
+};
+
 // A route shell on fcom's Vue; the page itself is a separate app loaded on first visit.
 function pageShell(page) {
     return {
@@ -28,19 +35,24 @@ function pageShell(page) {
         },
         methods: {
             async remount() {
-                const { mountPage } = await import('./app/fcom-portal-app.js');
+                const [{ createApp }, { default: Page }] = await Promise.all([import('vue'), pages[page]()]);
 
                 if (this.gone) {
                     return;
                 }
 
                 this.unmount && this.unmount();
-                this.unmount = mountPage(this.$refs.mount, {
-                    page,
+
+                // Its own Vue app: fcom exposes neither its Vue nor Element Plus to add-ons.
+                const app = createApp(Page, {
                     spaceSlug: this.$route.params.space || '',
                     spaceTitle: (this.space_profile && this.space_profile.title) || '',
                     router: this.$router,
                 });
+                app.config.globalProperties.$t = t;
+                app.mount(this.$refs.mount);
+
+                this.unmount = () => app.unmount();
             },
         },
         template: `<div class="fe-fcom-portal-page fe-fcom-portal-page--${page}"><div ref="mount"></div></div>`,
