@@ -94,7 +94,7 @@
             <div class="fe-events-calendar__week-body" :style="{ gridTemplateColumns: weekColumns }">
                 <div class="fe-events-calendar__week-times">
                     <span v-for="hour in hours" :key="`hour-${hour}`" class="fe-events-calendar__week-time">
-                        <template v-if="hour">{{ dayjs(date).hour(hour).minute(0).format('h A') }}</template>
+                        <template v-if="hour">{{ dayjs(date).hour(hour).minute(0).format(hourFormat) }}</template>
                     </span>
                 </div>
 
@@ -115,7 +115,7 @@
                         :aria-label="$t('View %s', block.entry.event.title)"
                         @click="$emit('open', block.entry.event)"
                     >
-                        <span class="fe-events-calendar__event-time">{{ dayjs(block.entry.event.start_at_local).format('h:mm A') }}</span>
+                        <span class="fe-events-calendar__event-time">{{ dayjs(block.entry.event.start_at_local).format(timeFormat) }}</span>
                         <span class="fe-events-calendar__event-title">{{ block.entry.event.title }}</span>
                     </button>
                 </div>
@@ -128,6 +128,7 @@
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
+import { timeFormat } from '../utils';
 
 // Month / week / day grid, after the admin EventsGrid; dates come from fcom's own dayjs.
 export default {
@@ -142,6 +143,7 @@ export default {
     data() {
         return {
             visiblePerDay: 3,
+            timeFormat: timeFormat(),
         };
     },
     computed: {
@@ -198,6 +200,9 @@ export default {
         hours() {
             return Array.from({ length: 24 }, (unused, index) => index);
         },
+        hourFormat() {
+            return this.timeFormat.includes('H') ? 'HH:00' : 'h A';
+        },
         // Each day of the visible month grid, with the events on it; a multi-day event lands on every day it spans.
         entriesByDay() {
             const month = this.dayjs(this.date);
@@ -236,7 +241,7 @@ export default {
                 return this.$t('Day %d', entry.dayIndex);
             }
 
-            return this.dayjs(entry.event.start_at_local).format('h:mm A');
+            return this.dayjs(entry.event.start_at_local).format(this.timeFormat);
         },
         dayBlocks(day) {
             const dayStart = day.startOf('day');

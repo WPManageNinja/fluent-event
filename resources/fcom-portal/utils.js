@@ -75,10 +75,15 @@ export function errorMessage(error) {
 
 const dayjs = (value) => window.dayjs(value);
 
+// fcom's time format: the site's WordPress setting as a dayjs pattern, so 24-hour sites read 18:00.
+export function timeFormat() {
+    return (window.fluentComAdmin && window.fluentComAdmin.time_formatter) || 'h:mm A';
+}
+
 export function eventDateRange(event) {
     const start = dayjs(event.start_at_local);
     const end = dayjs(event.end_at_local);
-    const time = 'h:mm A';
+    const time = timeFormat();
 
     if (start.isSame(end, 'day')) {
         return `${start.format('ddd, MMM D, YYYY')} · ${start.format(time)} – ${end.format(time)}`;

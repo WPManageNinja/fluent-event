@@ -136,7 +136,7 @@
 import { Calendar, Grid, MapLocation, Search, Tickets, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions } from '../utils';
+import { eventsApi, errorMessage, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions, timeFormat } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 import EventsCalendar from './EventsCalendar.vue';
@@ -224,7 +224,9 @@ export default {
         day: eventDay,
         countLabel: guestCountLabel,
         startDate(event) {
-            return dayjs(event.start_at_local).format('ddd, MMM D, YYYY · h:mm A');
+            const start = dayjs(event.start_at_local);
+
+            return `${start.format('ddd, MMM D, YYYY')} · ${start.format(timeFormat())}`;
         },
         timelineDate(event) {
             return dayjs(event.start_at_local).format('MMM D, YYYY');

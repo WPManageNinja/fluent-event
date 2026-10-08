@@ -84,7 +84,7 @@
                         <el-time-picker
                             v-model="event[bound.timeKey]"
                             class="fe-create-event__time"
-                            format="h:mm A"
+                            :format="timeFormat"
                             value-format="HH:mm"
                             :clearable="false"
                             :aria-label="bound.timeLabel"
@@ -371,7 +371,7 @@
 <script>
 import dayjs from 'dayjs';
 import { ArrowLeft, ArrowRight, Calendar, ChatLineSquare, Clock, Delete, Document, EditPen, LocationInformation, Picture, User } from '@element-plus/icons-vue';
-import { communityApi, errorMessage, t, timezoneOffset } from '../utils';
+import { communityApi, errorMessage, t, timeFormat, timezoneOffset } from '../utils';
 
 export default {
     name: 'CreateEventPage',
@@ -387,6 +387,7 @@ export default {
         const zones = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [];
 
         return {
+            timeFormat: timeFormat(),
             // Built timezone options once per visit
             timezones: Object.freeze((zones.includes(timezone) ? zones : [timezone, ...zones]).map((zone) => ({
                 value: zone,
@@ -448,7 +449,7 @@ export default {
             const times = [];
 
             while (slot.isSame(day, 'day')) {
-                times.push({ value: slot.format('HH:mm'), label: slot.format('h:mm A') });
+                times.push({ value: slot.format('HH:mm'), label: slot.format(this.timeFormat) });
                 slot = slot.add(10, 'minute');
             }
 
@@ -457,7 +458,7 @@ export default {
         scheduleLabel() {
             const at = dayjs(this.post.scheduled_at);
 
-            return t('Scheduled for %1$s at %2$s', at.format('MMM D, YYYY'), at.format('h:mm A'));
+            return t('Scheduled for %1$s at %2$s', at.format('MMM D, YYYY'), at.format(this.timeFormat));
         },
         // fcom's own post title setting: '' (off), 'optional' or 'required'.
         postTitlePref() {
