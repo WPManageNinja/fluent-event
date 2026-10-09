@@ -1,4 +1,5 @@
-import { t, eventDateRange, eventMonth, eventDay, guestCountLabel, hasEventActions } from './utils';
+import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions } from './utils';
+import { MAP_LOCATION, VIDEO_CAMERA } from './icons';
 import EventActions from './EventActions';
 import EventMenu from './EventMenu';
 
@@ -18,30 +19,16 @@ export default {
         return {
             event: this.feed.fluent_event || null,
             error: '',
-            descriptionExpanded: false,
-            descriptionOverflows: false,
         };
     },
     watch: {
         'feed.fluent_event'(value) {
             this.event = value || null;
         },
-        'event.description'() {
-            this.descriptionExpanded = false;
-            this.$nextTick(this.observeDescription);
-        },
-    },
-    mounted() {
-        this.observeDescription();
-    },
-    beforeUnmount() {
-        if (this.descriptionObserver) {
-            this.descriptionObserver.disconnect();
-        }
     },
     computed: {
-        dateRange() {
-            return eventDateRange(this.event);
+        startDate() {
+            return eventStart(this.event);
         },
         month() {
             return eventMonth(this.event);
@@ -52,15 +39,8 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        place() {
-            if (this.event.venue_type === 'online') {
-                return t('Online event');
-            }
-            return [this.event.venue, this.event.address].filter(Boolean).join(', ');
-        },
-        meetingLink() {
-            const url = this.event.online_meeting_url;
-            return /^https?:\/\//i.test(url) ? url : '';
+        isOnline() {
+            return this.event.venue_type === 'online';
         },
         hasActions() {
             return !this.is_child && hasEventActions(this.event);
@@ -68,28 +48,6 @@ export default {
     },
     methods: {
         t,
-        // Re-measures when the text grows after layout, e.g. once an image in it loads.
-        observeDescription() {
-            if (this.descriptionObserver) {
-                this.descriptionObserver.disconnect();
-            }
-
-            const body = this.$refs.descriptionBody;
-
-            if (body && typeof ResizeObserver !== 'undefined') {
-                this.descriptionObserver = new ResizeObserver(() => this.measureDescription());
-                this.descriptionObserver.observe(body);
-            } else {
-                this.measureDescription();
-            }
-        },
-        measureDescription() {
-            const box = this.$refs.descriptionBox;
-
-            if (box && !this.descriptionExpanded) {
-                this.descriptionOverflows = box.scrollHeight > box.clientHeight + 1;
-            }
-        },
         apply(response) {
             this.event = response.event;
         },
@@ -116,37 +74,17 @@ export default {
                             </h3>
                             <event-menu v-if="!is_child" class="fe-event-card__menu" :event="event"></event-menu>
                         </div>
-                        <p class="fe-event-card__meta">{{ dateRange }} <span v-if="event.timezone">({{ event.timezone }})</span></p>
-                        <p v-if="place" class="fe-event-card__meta">
-                            <a v-if="meetingLink" :href="meetingLink" target="_blank" rel="noopener noreferrer" :title="t('Join the meeting')">{{ place }}</a>
-                            <template v-else>{{ place }}</template>
+                        <p class="fe-event-card__meta">{{ startDate }}</p>
+                        <p class="fe-event-card__meta fe-event-card__meta--venue">
+                            <span v-if="isOnline" class="fe-event-card__venue-icon" aria-hidden="true">${VIDEO_CAMERA}</span>
+                            <span v-else class="fe-event-card__venue-icon" aria-hidden="true">${MAP_LOCATION}</span>
+                            {{ isOnline ? t('Online') : t('In person') }}
                         </p>
-                        <p v-if="event.has_meeting_url && !meetingLink" class="fe-event-card__meta fe-event-card__meta--muted">
-                            {{ t('Please register for the event to see the meeting link.') }}
-                        </p>
-                        <p v-if="countLabel" class="fe-event-card__meta fe-event-card__meta--muted">{{ countLabel }}</p>
                     </div>
-                </div>
-
-                <!-- Description is wp_kses_post-filtered by FluentEvent before it reaches the payload. -->
-                <div v-if="is_single && event.description" class="fe-event-card__description">
-                    <div
-                        ref="descriptionBox"
-                        class="fe-event-card__description-box"
-                        :class="{ 'fe-event-card__description-box--clamped': !descriptionExpanded }"
-                    >
-                        <div ref="descriptionBody" v-html="event.description"></div>
-                    </div>
-                    <button
-                        v-if="descriptionOverflows"
-                        type="button"
-                        class="fe-event-card__more"
-                        :aria-expanded="descriptionExpanded ? 'true' : 'false'"
-                        @click="descriptionExpanded = !descriptionExpanded"
-                    >{{ descriptionExpanded ? t('See less') : t('See more') }}</button>
                 </div>
 
                 <div v-if="hasActions" class="fe-event-card__actions">
+                    <span v-if="countLabel" class="fe-event-card__count">{{ countLabel }}</span>
                     <event-actions :event="event" @done="apply" @error="error = $event"></event-actions>
                 </div>
 

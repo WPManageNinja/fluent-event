@@ -91,56 +91,33 @@
         font-size: 14px;
         color: var(--fcom-primary-text, #19283a);
 
-        a {
-            color: var(--fcom-text-link, #2271b1);
-        }
-
-        &.fe-event-card__meta--muted {
+        &.fe-event-card__meta--venue {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             color: var(--fcom-secondary-text, #525866);
         }
     }
 
-    &__description {
-        padding: 0 16px 6px;
-        font-size: 14px;
-        line-height: 1.6;
-        color: var(--fcom-primary-text, #19283a);
+    &__venue-icon {
+        display: inline-flex;
+        font-size: 16px;
     }
 
-    // Same clamp fcom uses for long comments.
-    &__description-box.fe-event-card__description-box--clamped {
-        display: -webkit-box;
-        -webkit-line-clamp: 6;
-        line-clamp: 6;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    // fcom's .fcom_see_more_btn values; that class is scoped to comments.
-    &__more {
-        margin-top: 4px;
-        padding: 0;
-        border: 0;
-        background: none;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--fcom-text-off, #65676b);
-
-        &:hover,
-        &:focus-visible {
-            color: var(--fcom-primary, #007cba);
-            text-decoration: underline;
-        }
-    }
-
-    // Footer under a divider, holding the RSVP control.
+    // Footer under a divider: the going count, then the RSVP control.
     &__actions {
         display: flex;
         align-items: center;
+        gap: 8px;
         margin-top: 8px;
         padding: 12px 16px;
         border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
+    }
+
+    &__count {
+        flex-shrink: 0;
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
     }
 
     &__title-link {
@@ -1425,6 +1402,29 @@
         &:focus-visible {
             outline: 2px solid var(--fcom-primary-button, #2B2E33);
             outline-offset: 2px;
+        }
+    }
+
+    &__submit.el-button {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+// The dialog's look comes from fcom's own fcom_common_dialog classes; this only fills the gaps.
+.fe-schedule-dialog {
+    --el-color-primary: var(--fcom-primary-button, #2B2E33);
+
+    .fcom_schedule_form .el-select {
+        width: 210px;
+    }
+
+    &__help {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+}
 
 // The event on its own page, after FluentCommunity's event-spaces view: details beside an RSVP panel.
 .fe-event-view {
@@ -1603,28 +1603,5 @@
         margin: 8px 0 0;
         font-size: 13px;
         color: var(--fcom-danger, #d63638);
-    }
-}
-        }
-    }
-
-    &__submit.el-button {
-        width: 100%;
-        margin: 0;
-    }
-}
-
-// The dialog's look comes from fcom's own fcom_common_dialog classes; this only fills the gaps.
-.fe-schedule-dialog {
-    --el-color-primary: var(--fcom-primary-button, #2B2E33);
-
-    .fcom_schedule_form .el-select {
-        width: 210px;
-    }
-
-    &__help {
-        margin: 4px 0 0;
-        font-size: 13px;
-        color: var(--fcom-secondary-text, #525866);
     }
 }

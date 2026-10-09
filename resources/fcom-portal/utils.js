@@ -81,16 +81,10 @@ export function timeFormat() {
     return (window.fluentComAdmin && window.fluentComAdmin.time_formatter) || 'h:mm A';
 }
 
-export function eventDateRange(event) {
+export function eventStart(event) {
     const start = dayjs(event.start_at_local);
-    const end = dayjs(event.end_at_local);
-    const time = timeFormat();
 
-    if (start.isSame(end, 'day')) {
-        return `${start.format('ddd, MMM D, YYYY')} · ${start.format(time)} – ${end.format(time)}`;
-    }
-
-    return `${start.format('MMM D, YYYY ' + time)} – ${end.format('MMM D, YYYY ' + time)}`;
+    return `${start.format('ddd, MMM D, YYYY')} · ${start.format(timeFormat())}`;
 }
 
 export function eventMonth(event) {

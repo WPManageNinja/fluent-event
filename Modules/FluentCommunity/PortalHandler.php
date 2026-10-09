@@ -226,8 +226,6 @@ class PortalHandler
             /* translators: 1: scheduled date, 2: scheduled time */
             'Scheduled for %1$s at %2$s' => __('Scheduled for %1$s at %2$s', 'fluent-event'),
             'Search events' => __('Search events', 'fluent-event'),
-            'See less' => __('See less', 'fluent-event'),
-            'See more' => __('See more', 'fluent-event'),
             'Select Date' => __('Select Date', 'fluent-event'),
             'Select Schedule' => __('Select Schedule', 'fluent-event'),
             'Select Time' => __('Select Time', 'fluent-event'),
