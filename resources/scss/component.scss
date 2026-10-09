@@ -70,6 +70,61 @@
         gap: var(--fe-space-2, 8px);
     }
 
+    &__toggle {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--fe-space-6, 24px);
+
+        // EP centers the switch in a 32px box; pin it to the title's first line.
+        .el-switch {
+            flex: none;
+            height: auto;
+        }
+    }
+
+    &__toggle-text {
+        min-width: 0;
+    }
+
+    &__toggle-title {
+        display: block;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        line-height: 1.5;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__panel {
+        display: grid;
+        gap: var(--fe-space-3, 12px);
+        padding: var(--fe-space-4, 16px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background: var(--fe-hover-bg, #f9fafb);
+    }
+
+    &__panel-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--fe-space-3, 12px);
+    }
+
+    &__panel-title {
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__count {
+        font-size: var(--fe-text-xs, 12px);
+        font-variant-numeric: tabular-nums;
+        color: var(--fe-secondary-text, #525866);
+    }
+
     &__choices.el-radio-group {
         display: flex;
         flex-direction: column;

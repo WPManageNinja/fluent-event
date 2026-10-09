@@ -9,90 +9,122 @@
         <ErrorState v-else-if="error" :message="error" @retry="fetchSettings" />
 
         <el-form v-else class="fe-form" label-position="top" @submit.prevent="saveSettings">
-            <el-form-item :label="$t('Registration confirmation')">
-                <el-switch
-                    v-model="confirmation.enabled"
-                    :disabled="!$userCan('write_settings')"
-                    :aria-label="$t('Send a confirmation email when a guest registers')"
-                />
+            <section class="fe-form__section">
+                <div class="fe-form__section-rail">
+                    <h2 class="fe-form__section-title">{{ $t('Registration') }}</h2>
+                    <p class="fe-form__section-desc">{{ $t('Sent right after a guest registers or cancels.') }}</p>
+                </div>
 
-                <span class="fe-form__hint">
-                    {{ confirmation.enabled
-                        ? $t('Email guests a confirmation when they register for an event.')
-                        : $t('Guests get no email when they register.') }}
-                </span>
-            </el-form-item>
+                <div class="fe-form__section-fields">
+                    <div class="fe-form__toggle">
+                        <div class="fe-form__toggle-text">
+                            <span class="fe-form__toggle-title">{{ $t('Confirmation email') }}</span>
+                            <span class="fe-form__hint">
+                                {{ confirmation.enabled
+                                    ? $t('Email guests a confirmation when they register for an event.')
+                                    : $t('Guests get no email when they register.') }}
+                            </span>
+                        </div>
 
-            <el-form-item :label="$t('Registration cancellation')">
-                <el-switch
-                    v-model="cancellation.enabled"
-                    :disabled="!$userCan('write_settings')"
-                    :aria-label="$t('Send an email when a registration is cancelled')"
-                />
-
-                <span class="fe-form__hint">
-                    {{ cancellation.enabled
-                        ? $t('Email guests when they cancel or an admin cancels their registration.')
-                        : $t('Guests get no email when their registration is cancelled.') }}
-                </span>
-            </el-form-item>
-
-            <el-form-item :label="$t('Before Event Start Reminders')">
-                <el-switch
-                    v-model="reminder.enabled"
-                    :disabled="!$userCan('write_settings')"
-                    :aria-label="$t('Send reminder emails to guests')"
-                />
-
-                <span class="fe-form__hint">
-                    {{ reminder.enabled
-                        ? $t('Email guests a reminder before an event starts.')
-                        : $t('No guest will get a reminder before an event starts.') }}
-                </span>
-            </el-form-item>
-
-            <el-form-item v-if="reminder.enabled" :label="$t('Send guest reminders before the event')">
-                <div class="fe-form__times">
-                    <div v-for="(time, index) in times" :key="index" class="fe-form__time">
-                        <el-input-number
-                            v-model="time.value"
-                            class="fe-form__number"
-                            :controls="false"
+                        <el-switch
+                            v-model="confirmation.enabled"
                             :disabled="!$userCan('write_settings')"
-                            :aria-label="$t('Reminder time')"
+                            :aria-label="$t('Send a confirmation email when a guest registers')"
                         />
-
-                        <el-select
-                            v-model="time.unit"
-                            class="fe-form__unit"
-                            :disabled="!$userCan('write_settings')"
-                            :aria-label="$t('Reminder unit')"
-                        >
-                            <el-option
-                                v-for="unit in timeUnits"
-                                :key="unit.value"
-                                :label="unit.label"
-                                :value="unit.value"
-                            />
-                        </el-select>
-
-                        <el-button
-                            v-if="$userCan('write_settings') && times.length > 1"
-                            link
-                            :aria-label="$t('Remove reminder')"
-                            :title="$t('Remove reminder')"
-                            @click="removeTime(index)"
-                        >
-                            <el-icon><Close /></el-icon>
-                        </el-button>
                     </div>
 
-                    <el-button v-if="$userCan('write_settings') && times.length < maxTimes" link @click="addTime">
-                        <el-icon><Plus /></el-icon>
-                        <span>{{ $t('Add Another Reminder') }}</span>
-                    </el-button>
+                    <div class="fe-form__toggle">
+                        <div class="fe-form__toggle-text">
+                            <span class="fe-form__toggle-title">{{ $t('Cancellation email') }}</span>
+                            <span class="fe-form__hint">
+                                {{ cancellation.enabled
+                                    ? $t('Email guests when they cancel or an admin cancels their registration.')
+                                    : $t('Guests get no email when their registration is cancelled.') }}
+                            </span>
+                        </div>
+
+                        <el-switch
+                            v-model="cancellation.enabled"
+                            :disabled="!$userCan('write_settings')"
+                            :aria-label="$t('Send an email when a registration is cancelled')"
+                        />
+                    </div>
                 </div>
-            </el-form-item>
+            </section>
+
+            <section class="fe-form__section">
+                <div class="fe-form__section-rail">
+                    <h2 class="fe-form__section-title">{{ $t('Reminders') }}</h2>
+                    <p class="fe-form__section-desc">{{ $t('Sent to registered guests before the event starts.') }}</p>
+                </div>
+
+                <div class="fe-form__section-fields">
+                    <div class="fe-form__toggle">
+                        <div class="fe-form__toggle-text">
+                            <span class="fe-form__toggle-title">{{ $t('Reminder emails') }}</span>
+                            <span class="fe-form__hint">
+                                {{ reminder.enabled
+                                    ? $t('Email guests a reminder before an event starts.')
+                                    : $t('No guest will get a reminder before an event starts.') }}
+                            </span>
+                        </div>
+
+                        <el-switch
+                            v-model="reminder.enabled"
+                            :disabled="!$userCan('write_settings')"
+                            :aria-label="$t('Send reminder emails to guests')"
+                        />
+                    </div>
+
+                    <div v-if="reminder.enabled" class="fe-form__panel">
+                        <div class="fe-form__panel-head">
+                            <span class="fe-form__panel-title">{{ $t('Schedule') }}</span>
+                            <span class="fe-form__count">{{ $t('%d of %d', times.length, maxTimes) }}</span>
+                        </div>
+
+                        <div class="fe-form__times">
+                            <div v-for="(time, index) in times" :key="index" class="fe-form__time">
+                                <el-input-number
+                                    v-model="time.value"
+                                    class="fe-form__number"
+                                    :controls="false"
+                                    :disabled="!$userCan('write_settings')"
+                                    :aria-label="$t('Reminder time')"
+                                />
+
+                                <el-select
+                                    v-model="time.unit"
+                                    class="fe-form__unit"
+                                    :disabled="!$userCan('write_settings')"
+                                    :aria-label="$t('Reminder unit')"
+                                >
+                                    <el-option
+                                        v-for="unit in timeUnits"
+                                        :key="unit.value"
+                                        :label="unit.label"
+                                        :value="unit.value"
+                                    />
+                                </el-select>
+
+                                <el-button
+                                    v-if="$userCan('write_settings') && times.length > 1"
+                                    link
+                                    :aria-label="$t('Remove reminder')"
+                                    :title="$t('Remove reminder')"
+                                    @click="removeTime(index)"
+                                >
+                                    <el-icon><Close /></el-icon>
+                                </el-button>
+                            </div>
+
+                            <el-button v-if="$userCan('write_settings') && times.length < maxTimes" link @click="addTime">
+                                <el-icon><Plus /></el-icon>
+                                <span>{{ $t('Add reminder') }}</span>
+                            </el-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <div v-if="$userCan('write_settings')" class="fe-form__actions">
                 <el-button
@@ -136,9 +168,9 @@
         computed: {
             timeUnits() {
                 return [
-                    { value: 'minutes', label: this.$t('Minutes Before') },
-                    { value: 'hours', label: this.$t('Hours Before') },
-                    { value: 'days', label: this.$t('Days Before') },
+                    { value: 'minutes', label: this.$t('Minutes before') },
+                    { value: 'hours', label: this.$t('Hours before') },
+                    { value: 'days', label: this.$t('Days before') },
                 ];
             },
         },
