@@ -14,7 +14,7 @@ Source spec: [../integrations/fcom.md](../integrations/fcom.md). There is no `ev
 | Post title, description, comments, reactions, scope, schedule | fcom | `fcom_posts` (`content_type = 'event'`, `meta.event_id`) |
 | Event title, description, dates, venue, cover, entry type, capacity | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
 | Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id` |
-| Event → post link | FluentEvent | `fe_event_details.meta.fcom_feed_id` |
+| Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (indexed, so the events list joins on it) |
 | Guests | FluentEvent | `fe_guests` (`source = 'community'`, `source_id` = post id) |
 
 Post and event titles/descriptions are separate. Editing the post uses fcom's normal edit modal.
@@ -43,9 +43,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   (fcom bulk-deletes the posts without per-post hooks); `space/updated` keeps the calendar's title
   and slug in step with the space.
 
-## Portal UI (FluentEvent `resources/portal/`)
+## Portal UI (FluentEvent `resources/fcom-portal/`)
 
-- `fe-portal.js` registers routes through fcom's `fluent_com_portal_routes`: `/events`,
+- `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`: `/events`,
   `/space/:space/events` and `/space/:space/create-event`. It also registers the event card for
   `content_type = 'event'`, the "Create new event" entry in the space "…" menu, and switches the
   post editor's attachments off for event posts.
