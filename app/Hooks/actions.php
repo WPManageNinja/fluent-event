@@ -15,7 +15,6 @@ require_once __DIR__ . '/logoicon.php';
  * @var $app FluentEvent\Framework\Foundation\Application
  */
 
-(new \FluentEvent\App\Hooks\Handlers\SchedulerHandler())->register();
 (new \FluentEvent\App\Hooks\Handlers\EmailNotificationHandler())->register();
 
 $app->addAction('admin_menu', 'AdminMenuHandler');

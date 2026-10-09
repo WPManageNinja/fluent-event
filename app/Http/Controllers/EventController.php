@@ -4,8 +4,6 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
-use FluentEvent\App\Models\Meta;
-use FluentEvent\App\Services\EventReminderService;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\PostService;
 use FluentEvent\App\Utils\DateTimeHelper;
@@ -111,15 +109,6 @@ class EventController extends Controller
                 'venue_type'  => Arr::get($data, 'venue_type'),
                 'meta'        => Arr::get($data, 'meta', []),
             ]);
-
-            // A reminder already sent or skipped for the old start time would block the one for the new time.
-            if ($event->isDirty('start_at')) {
-                Meta::query()
-                    ->where('object_type', Meta::OBJECT_TYPE_EVENT)
-                    ->where('object_id', $event->id)
-                    ->where('meta_key', 'like', EventReminderService::META_KEY . ':%')
-                    ->delete();
-            }
 
             $event->save();
 
