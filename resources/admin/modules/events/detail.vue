@@ -149,11 +149,19 @@
                     </template>
 
                     <template #description>
-                        <div class="fe-card">
-                            <div v-if="event.description" class="fe-rich-text" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
-
-                            <el-empty v-else :description="$t('No description yet.')" />
+                        <div v-if="event.description" class="fe-card">
+                            <div class="fe-rich-text" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
                         </div>
+
+                        <EmptyState
+                            v-else
+                            :title="$t('No description yet')"
+                            :message="$t('The description tells guests what this event is about.')"
+                        >
+                            <template v-if="$userCan('write_events')" #action>
+                                <el-button @click="goToEdit">{{ $t('Add Description') }}</el-button>
+                            </template>
+                        </EmptyState>
                     </template>
 
                     <template #guests>
@@ -177,6 +185,7 @@
     import Tabs from '@/components/Tabs.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import ErrorState from '@/components/ErrorState.vue';
+    import EmptyState from '@/components/EmptyState.vue';
     import EventGuests from './parts/EventGuests.vue';
     import EventDangerZone from './parts/EventDangerZone.vue';
 
@@ -190,6 +199,7 @@
             Tabs,
             Skeleton,
             ErrorState,
+            EmptyState,
             EventGuests,
             EventDangerZone,
         },
