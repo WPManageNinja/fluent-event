@@ -35,8 +35,23 @@ class EventReminderService
         $queued = [];
 
         foreach ($reminderMetas as $leadTime => $reminderMeta) {
-            if (($reminderMeta->value['status'] ?? '') === 'scheduled' && empty($reminderMeta->value['cursor'])) {
-                $queued[] = $leadTime;
+            if (($reminderMeta->value['status'] ?? '') !== 'scheduled') {
+                continue;
+            }
+
+            // Deactivation cancels every queued send but leaves the meta saying scheduled.
+            $hasAction = as_has_scheduled_action('fluent_event/send_event_reminders_to_guests', [$eventId, $leadTime], 'fluent-event');
+
+            if (empty($reminderMeta->value['cursor'])) {
+                if ($hasAction) {
+                    $queued[] = $leadTime;
+                } else {
+                    $reminderMeta->delete();
+                    unset($reminderMetas[$leadTime]);
+                }
+            } elseif (!$hasAction && !$resend) {
+                // Half sent: resume from the saved cursor.
+                as_schedule_single_action(time(), 'fluent_event/send_event_reminders_to_guests', [$eventId, $leadTime], 'fluent-event');
             }
         }
 
