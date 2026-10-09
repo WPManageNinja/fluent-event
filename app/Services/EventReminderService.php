@@ -15,83 +15,95 @@ class EventReminderService
     const MAX_SENDS_PER_SECOND = 10;
     const MAX_RUN_TIME = 45;
 
-    public static function scheduleDueReminders()
+    // One send per reminder time, queued for start - lead time. Skips when the queued set already
+    // matches; otherwise requeues it all. Sent or mid-send ones stay put unless $resend (the start moved).
+    public static function scheduleReminders($event, $resend = false)
     {
-        if (!function_exists('as_schedule_single_action')) return;
+        $eventId = (int) $event->id;
+        $startsAt = strtotime($event->start_at . ' UTC');
+        $leadTimes = [];
 
-        if (!\ActionScheduler::lock()->set('fluent_event_reminder_scheduler')) return;
-
-        $now = time();
-
-        $events = Event::query()
-            ->select(['id', 'start_at'])
-            ->whereIn('status', ['public', 'private'])
-            ->where('start_at', '>', gmdate(DateTimeHelper::FORMAT, $now))
-            ->where('start_at', '<=', gmdate(DateTimeHelper::FORMAT, $now + Settings::MAX_REMINDER_TIME))
-            ->get();
-
-        if ($events->isEmpty()) return;
-
-        $eventIds = $events->pluck('id')->all();
-        $globalReminder = Settings::get(Settings::EMAIL_NOTIFICATIONS)['reminder_to_guest'];
-        $eventReminders = [];
-
-        $overrides = Meta::query()
-            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
-            ->whereIn('object_id', $eventIds)
-            ->byKey(Settings::EMAIL_NOTIFICATIONS)
-            ->get();
-
-        foreach ($overrides as $override) {
-            if (isset($override->value['reminder_to_guest'])) {
-                $eventReminders[(int) $override->object_id] = $override->value['reminder_to_guest'];
+        if (in_array($event->status, ['public', 'private'], true)) {
+            foreach (self::leadTimes(self::reminderFor($eventId)) as $leadTime) {
+                if ($startsAt - $leadTime > time()) {
+                    $leadTimes[] = $leadTime;
+                }
             }
         }
 
-        $reminderMetas = [];
+        $reminderMetas = self::reminderMetas($eventId);
+        $queued = [];
 
-        $rows = Meta::query()
-            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
-            ->where('meta_key', 'like', self::META_KEY . ':%')
-            ->whereIn('object_id', $eventIds)
-            ->get();
-
-        foreach ($rows as $row) {
-            $reminderMetas[$row->object_id][$row->meta_key] = $row;
+        foreach ($reminderMetas as $leadTime => $reminderMeta) {
+            if (($reminderMeta->value['status'] ?? '') === 'scheduled' && empty($reminderMeta->value['cursor'])) {
+                $queued[] = $leadTime;
+            }
         }
+
+        sort($queued);
+
+        if (!$resend && $queued === $leadTimes) {
+            return;
+        }
+
+        foreach ($reminderMetas as $leadTime => $reminderMeta) {
+            if (!$resend && !in_array($leadTime, $queued, true)) {
+                $leadTimes = array_diff($leadTimes, [$leadTime]);
+                continue;
+            }
+
+            as_unschedule_all_actions('fluent_event/send_event_reminders_to_guests', [$eventId, $leadTime], 'fluent-event');
+            $reminderMeta->delete();
+        }
+
+        foreach ($leadTimes as $leadTime) {
+            Meta::query()->create([
+                'object_type' => Meta::OBJECT_TYPE_EVENT,
+                'object_id'   => $eventId,
+                'meta_key'    => self::META_KEY . ':' . $leadTime,
+                'value'       => ['status' => 'scheduled', 'cursor' => 0],
+            ]);
+
+            as_schedule_single_action($startsAt - $leadTime, 'fluent_event/send_event_reminders_to_guests', [$eventId, $leadTime], 'fluent-event');
+        }
+    }
+
+    // A new start time owes every reminder again, including ones already sent for the old time.
+    public static function rescheduleReminders($event)
+    {
+        self::scheduleReminders($event, $event->wasChanged('start_at'));
+    }
+
+    public static function rescheduleAllReminders()
+    {
+        as_enqueue_async_action('fluent_event/reschedule_event_reminders', [0], 'fluent-event');
+    }
+
+    public static function cancelReminders($event)
+    {
+        foreach (array_keys(self::reminderMetas($event->id)) as $leadTime) {
+            as_unschedule_all_actions('fluent_event/send_event_reminders_to_guests', [(int) $event->id, $leadTime], 'fluent-event');
+        }
+    }
+
+    // Requeues every upcoming event in batches, each batch its own job.
+    public static function rescheduleUpcoming($afterId = 0)
+    {
+        $events = Event::query()
+            ->select(['id', 'status', 'start_at'])
+            ->whereIn('status', ['public', 'private'])
+            ->where('start_at', '>', gmdate(DateTimeHelper::FORMAT))
+            ->where('id', '>', (int) $afterId)
+            ->orderBy('id', 'ASC')
+            ->limit(self::BATCH_SIZE)
+            ->get();
 
         foreach ($events as $event) {
-            $eventId = (int) $event->id;
-            $secondsLeft = strtotime($event->start_at . ' UTC') - $now;
-            $isClosestDue = true;
+            self::scheduleReminders($event);
+        }
 
-            foreach (self::leadTimes($eventReminders[$eventId] ?? $globalReminder) as $leadTime) {
-                if ($leadTime < $secondsLeft) continue;
-
-                $metaKey = self::META_KEY . ':' . $leadTime;
-                $reminderMeta = $reminderMetas[$eventId][$metaKey] ?? null;
-
-                if (!$reminderMeta) {
-                    // Farther reminders due at the same time have already passed; only the closest one is sent.
-                    Meta::query()->create([
-                        'object_type' => Meta::OBJECT_TYPE_EVENT,
-                        'object_id'   => $eventId,
-                        'meta_key'    => $metaKey,
-                        'value'       => ['status' => $isClosestDue ? 'scheduled' : 'skipped', 'cursor' => 0],
-                    ]);
-
-                    if ($isClosestDue) {
-                        as_schedule_single_action(time(), 'fluent_event/send_event_reminders_to_guests', [$eventId, $leadTime], 'fluent-event');
-                    }
-                } elseif (
-                    ($reminderMeta->value['status'] ?? '') === 'scheduled'
-                    && !as_next_scheduled_action('fluent_event/send_event_reminders_to_guests', [$eventId, $leadTime], 'fluent-event')
-                ) {
-                    as_schedule_single_action(time(), 'fluent_event/send_event_reminders_to_guests', [$eventId, $leadTime], 'fluent-event');
-                }
-
-                $isClosestDue = false;
-            }
+        if (count($events) === self::BATCH_SIZE) {
+            as_enqueue_async_action('fluent_event/reschedule_event_reminders', [(int) $events->last()->id], 'fluent-event');
         }
     }
 
@@ -226,7 +238,7 @@ class EventReminderService
         do_action('fluent_event/guest/cancellation_sent', $guest, $event);
     }
 
-    // Sorted closest first; empty when the reminder is turned off.
+    // Sorted, so scheduleReminders() can compare it to what is queued; empty when the reminder is turned off.
     protected static function leadTimes($reminder)
     {
         if (empty($reminder['enabled'])) return [];
@@ -251,6 +263,24 @@ class EventReminderService
 
         return $override->value['reminder_to_guest']
             ?? Settings::get(Settings::EMAIL_NOTIFICATIONS)['reminder_to_guest'];
+    }
+
+    // Keyed by lead time in seconds.
+    protected static function reminderMetas($eventId)
+    {
+        $reminderMetas = [];
+
+        $rows = Meta::query()
+            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+            ->where('object_id', $eventId)
+            ->where('meta_key', 'like', self::META_KEY . ':%')
+            ->get();
+
+        foreach ($rows as $row) {
+            $reminderMetas[(int) substr($row->meta_key, strlen(self::META_KEY) + 1)] = $row;
+        }
+
+        return $reminderMetas;
     }
 
     protected static function finishReminderMeta($reminderMeta, $status)
