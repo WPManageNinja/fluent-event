@@ -14,7 +14,7 @@ Source spec: [../integrations/fcom.md](../integrations/fcom.md). There is no `ev
 | Post title, description, comments, reactions, scope, schedule | fcom | `fcom_posts` (`content_type = 'event'`, `meta.event_id`) |
 | Event title, description, dates, venue, cover, entry type, capacity | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
 | Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id` |
-| Event → post link | FluentEvent | `fe_event_details.meta.fcom_feed_id` |
+| Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (indexed, so the events list joins on it) |
 | Guests | FluentEvent | `fe_guests` (`source = 'community'`, `source_id` = post id) |
 
 Post and event titles/descriptions are separate. Editing the post uses fcom's normal edit modal.

@@ -7,6 +7,7 @@ use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Framework\Support\Arr;
@@ -28,7 +29,11 @@ class CommunityEvents
 
     public static function feedIdOf($event)
     {
-        return (int) Arr::get((array) $event->meta, self::FEED_META_KEY);
+        return (int) Meta::query()
+            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+            ->where('object_id', $event->id)
+            ->where('meta_key', self::FEED_META_KEY)
+            ->value('value');
     }
 
     public static function isDiscussionSpace($space)

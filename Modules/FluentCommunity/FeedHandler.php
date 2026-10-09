@@ -8,6 +8,7 @@ use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\PermissionManager;
@@ -35,7 +36,8 @@ class FeedHandler
         add_filter('fluent_community/feed/update_data', [$this, 'keepEventLink'], 10, 2);
         add_action('fluent_community/feed/updated', [$this, 'followSpaceMove'], 10, 2);
         add_action('fluent_community/feed/before_deleted', [$this, 'deleteEvent']);
-        add_action('fluent_event/event/deleted', [$this, 'unlinkPost']);
+        // Before CleanupHandler (priority 10) wipes the event's fe_meta, which holds the post link.
+        add_action('fluent_event/event/before_deleted', [$this, 'unlinkPost'], 5);
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);
     }
@@ -87,7 +89,6 @@ class FeedHandler
         }
 
         $data = EventRequest::format($input);
-        $data['meta'][CommunityEvents::FEED_META_KEY] = (int) $feed->id;
 
         try {
             $event = EventService::createEvent($data, $feed->user_id);
@@ -101,6 +102,13 @@ class FeedHandler
         $meta['event_id'] = (int) $event->id;
         $feed->meta = $meta;
         $feed->save();
+
+        Meta::query()->create([
+            'object_type' => Meta::OBJECT_TYPE_EVENT,
+            'object_id'   => $event->id,
+            'meta_key'    => CommunityEvents::FEED_META_KEY,
+            'value'       => (int) $feed->id,
+        ]);
 
         do_action('fluent_event/event/created', $event);
     }

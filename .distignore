@@ -1,0 +1,13 @@
+# .distignore — files/dirs to strip when building a release zip.
+# One pattern per line. Lines starting with # are comments.
+# Patterns match either a bare basename (e.g. `NOTES.md`) or a relative
+# path from the plugin root (e.g. `docs/internal/`).
+#
+# Built-in framework excludes are always applied (VCS metadata, dev/,
+# tests/, AI tool artifacts, composer/npm lockfiles, etc.) — you don't
+# need to repeat them here. List project-specific extras only.
+
+# Example project-specific excludes:
+# docs/internal/
+# scripts/dev-only/
+# NOTES.md

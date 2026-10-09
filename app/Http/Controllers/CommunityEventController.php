@@ -2,11 +2,11 @@
 
 namespace FluentEvent\App\Http\Controllers;
 
-use FluentCommunity\App\Models\Feed as FcomFeed;
 use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Framework\Http\Request\Request;
@@ -27,23 +27,19 @@ class CommunityEventController extends Controller
             $spaceIds = FcomSpace::query()->whereIn('id', $spaceIds)->where('slug', $spaceSlug)->pluck('id')->toArray();
         }
 
-        // Event id => the published post it lives in.
-        $posts = [];
-
-        $feeds = FcomFeed::query()
-            ->select(['id', 'slug', 'meta'])
-            ->where('content_type', CommunityEvents::CONTENT_TYPE)
-            ->where('status', 'published')
-            ->whereIn('space_id', $spaceIds)
-            ->get();
-
-        foreach ($feeds as $feed) {
-            $posts[CommunityEvents::eventIdOf($feed)] = $feed;
-        }
-
         $events = Event::query()
             ->with(['post'])
-            ->whereIn('id', array_keys($posts))
+            // Visibility is matched in SQL, so only the requested page is ever loaded.
+            ->whereIn('id', function ($query) use ($spaceIds) {
+                $query->select('fe_meta.object_id')
+                    ->from('fe_meta')
+                    ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
+                    ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
+                    ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
+                    ->where('fcom_posts.content_type', CommunityEvents::CONTENT_TYPE)
+                    ->where('fcom_posts.status', 'published')
+                    ->whereIn('fcom_posts.space_id', $spaceIds);
+            })
             ->byStatus(['public', 'private'])
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->inDateRange(
@@ -54,11 +50,20 @@ class CommunityEventController extends Controller
             ->paginate(EventRequest::perPage($request));
 
         $formatted = CommunityEvents::formatEvents($events->items());
+
+        $slugs = Meta::query()
+            ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
+            ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
+            ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
+            ->whereIn('fe_meta.object_id', array_keys($formatted))
+            ->pluck('fcom_posts.slug', 'fe_meta.object_id')
+            ->toArray();
+
         $items = [];
 
         foreach ($events->items() as $event) {
             $items[] = array_merge($formatted[$event->id], [
-                'post_slug' => $posts[$event->id]->slug,
+                'post_slug' => $slugs[$event->id],
             ]);
         }
 

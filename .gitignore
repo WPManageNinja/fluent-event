@@ -55,3 +55,7 @@ tests/php/.phpunit.cache
 # Vite auto-generated type shims
 components.d.ts
 auto-imports.d.ts
+
+# Build artifacts
+build/
+buildtemp/
