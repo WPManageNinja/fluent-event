@@ -148,15 +148,11 @@ class Event extends Model
 
     public function scopeInDateRange($query, $from, $to)
     {
-        $isDate = function ($value) {
-            return $value && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value);
-        };
-
-        if ($isDate($from)) {
+        if (DateTimeHelper::isDate($from)) {
             $query->where('end_at', '>=', $from . ' 00:00:00');
         }
 
-        if ($isDate($to)) {
+        if (DateTimeHelper::isDate($to)) {
             $query->where('start_at', '<=', $to . ' 23:59:59');
         }
 

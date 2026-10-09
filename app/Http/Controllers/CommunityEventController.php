@@ -48,8 +48,13 @@ class CommunityEventController extends Controller
             ->inDateRange($from, $to)
             ->byPeriod($request->getSafe('scope', 'sanitize_text_field', 'upcoming'));
 
-        // The calendar takes its whole date window at once, as the admin grid does; the window bounds it.
-        if ($from && $to && !$request->getSafe('paginate', 'rest_sanitize_boolean', true)) {
+        // The calendar takes its whole date window at once, as the admin grid does. Only a real window of at
+        // most two months skips paging: the date filter ignores anything else, which would return everything.
+        $fromTime = DateTimeHelper::isDate($from) ? strtotime($from) : false;
+        $toTime = DateTimeHelper::isDate($to) ? strtotime($to) : false;
+        $isWindow = $fromTime && $toTime && $toTime - $fromTime <= 62 * DAY_IN_SECONDS;
+
+        if ($isWindow && !$request->getSafe('paginate', 'rest_sanitize_boolean', true)) {
             $events = $query->get()->all();
             $pages = ['total' => count($events), 'current_page' => 1, 'last_page' => 1];
         } else {

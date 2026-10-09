@@ -63,6 +63,12 @@ class DateTimeHelper
         'U' => 'X',    // Seconds since the Unix Epoch
     ];
 
+    // The Y-m-d form every date filter accepts; one check, so callers can't disagree on what is a date.
+    public static function isDate($value)
+    {
+        return $value && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value);
+    }
+
     public static function convertToDayJsFormat($phpFormat)
     {
         $result = '';
