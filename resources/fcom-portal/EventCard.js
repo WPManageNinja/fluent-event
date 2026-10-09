@@ -108,9 +108,9 @@ export default {
                         <div class="fe-event-card__head">
                             <h3 class="fe-event-card__title" :class="{ 'fe-event-card__title--truncated': !is_single }" :title="is_single ? null : event.title">
                                 <router-link
-                                    v-if="!is_single && feed.slug"
+                                    v-if="feed.slug"
                                     class="fe-event-card__title-link"
-                                    :to="{ name: 'single_feed', params: { feed_slug: feed.slug } }"
+                                    :to="{ name: 'fe_event_view', params: { feed_slug: feed.slug } }"
                                 >{{ event.title }}</router-link>
                                 <template v-else>{{ event.title }}</template>
                             </h3>

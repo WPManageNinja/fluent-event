@@ -48,7 +48,7 @@
             :events="events"
             :date="calendarDate"
             @change-date="calendarDate = $event"
-            @open="openPost"
+            @open="openEvent"
         />
 
         <div
@@ -98,7 +98,7 @@
 
                     <div class="fe-event-item__info">
                         <div class="fe-event-item__head">
-                            <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openPost(event)">
+                            <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openEvent(event)">
                                 <span class="fe-event-item__title-text">{{ event.title }}</span>
                             </a>
                             <event-menu class="fe-event-item__menu" :event="event"></event-menu>
@@ -299,8 +299,8 @@ export default {
                 this.events.splice(index, 1, { ...event, ...response.event });
             }
         },
-        openPost(event) {
-            this.router.push({ name: 'single_feed', params: { feed_slug: event.post_slug } });
+        openEvent(event) {
+            this.router.push({ name: 'fe_event_view', params: { feed_slug: event.post_slug } });
         },
     },
 };

@@ -11,18 +11,23 @@ const pages = {
     events: () => import('./app/EventsPage.vue'),
     space_events: () => import('./app/EventsPage.vue'),
     create_event: () => import('./app/CreateEventPage.vue'),
+    event_view: () => import('./app/EventViewPage.vue'),
 };
 
 // A route shell on fcom's Vue; the page itself is a separate app loaded on first visit.
 function pageShell(page) {
     return {
         name: 'FluentEventPage',
-        props: ['space_profile'],
+        // fcom hands space routes space_profile, search and the like; the shell reads $route instead.
+        inheritAttrs: false,
         data() {
             return { unmount: null, gone: false };
         },
         watch: {
             '$route.params.space'() {
+                this.remount();
+            },
+            '$route.params.feed_slug'() {
                 this.remount();
             },
         },
@@ -45,8 +50,8 @@ function pageShell(page) {
 
                 // Its own Vue app: fcom exposes neither its Vue nor Element Plus to add-ons.
                 const app = createApp(Page, {
-                    spaceSlug: this.$route.params.space || '',
-                    spaceTitle: (this.space_profile && this.space_profile.title) || '',
+                    spaceSlug: this.$route.params.space,
+                    feedSlug: this.$route.params.feed_slug,
                     router: this.$router,
                 });
                 app.config.globalProperties.$t = t;
@@ -67,6 +72,14 @@ function register() {
             path: '/events',
             name: 'fe_events',
             component: pageShell('events'),
+            meta: { active_menu: 'fe_events' },
+        });
+
+        // Beside fcom's /post/:feed_slug, but outside its feed layout: the event alone.
+        routes.push({
+            path: '/post/:feed_slug/event',
+            name: 'fe_event_view',
+            component: pageShell('event_view'),
             meta: { active_menu: 'fe_events' },
         });
 

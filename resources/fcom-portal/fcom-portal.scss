@@ -337,7 +337,8 @@
     padding: 20px 0;
 
     // Same frame as fcom's wide pages (the .fcom_max_layout body), so it matches the space Events tab.
-    &.fe-fcom-portal-page--events {
+    &.fe-fcom-portal-page--events,
+    &.fe-fcom-portal-page--event_view {
         box-sizing: border-box;
         max-width: 1080px;
         margin: 0 auto;
@@ -1424,6 +1425,186 @@
         &:focus-visible {
             outline: 2px solid var(--fcom-primary-button, #2B2E33);
             outline-offset: 2px;
+
+// The event on its own page, after FluentCommunity's event-spaces view: details beside an RSVP panel.
+.fe-event-view {
+    color: var(--fcom-primary-text, #19283a);
+
+    &__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    &__back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
+        cursor: pointer;
+
+        &:hover {
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 2px;
+        }
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 24px;
+        align-items: start;
+
+        @media (max-width: 900px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    &__cover {
+        display: block;
+        width: 100%;
+        max-height: 320px;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+
+    &__title {
+        margin: 0 0 14px;
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.25;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    // On the title, not the cover: fcom's `.fhr_wrap img { margin: 0 }` outranks a margin on the image.
+    &__cover + &__title {
+        margin-top: 20px;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        margin: 0 0 24px;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: var(--fcom-secondary-text, #525866);
+
+        .el-icon {
+            font-size: 16px;
+        }
+    }
+
+    &__card {
+        padding: 20px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 12px;
+        background: var(--fcom-primary-bg, #ffffff);
+    }
+
+    &__section-title {
+        margin: 0 0 12px;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__description {
+        font-size: 15px;
+        line-height: 1.65;
+        overflow-wrap: anywhere;
+
+        p:first-child {
+            margin-top: 0;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    }
+
+    // Stays in view beside a long description; stacks under it on narrow screens.
+    &__side {
+        position: sticky;
+        top: calc(var(--fcom-header-height, 55px) + 24px);
+
+        @media (max-width: 900px) {
+            position: static;
+        }
+
+        .fe-rsvp,
+        .fe-rsvp__trigger {
+            width: 100%;
+        }
+    }
+
+    &__panel-title {
+        margin: 0 0 14px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__facts {
+        margin: 0 0 16px;
+    }
+
+    &__fact + &__fact {
+        margin-top: 14px;
+    }
+
+    &__fact-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__fact-value {
+        margin: 4px 0 0;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+
+        a {
+            color: var(--fcom-text-link, #2271b1);
+        }
+    }
+
+    &__line {
+        display: block;
+    }
+
+    &__error {
+        margin: 8px 0 0;
+        font-size: 13px;
+        color: var(--fcom-danger, #d63638);
+    }
+}
         }
     }
 

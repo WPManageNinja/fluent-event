@@ -52,6 +52,7 @@ export const eventsApi = {
 };
 
 export const communityApi = {
+    get: (route, data) => request(window.fluentComAdmin.rest.url, 'GET', route, data),
     post: (route, data) => request(window.fluentComAdmin.rest.url, 'POST', route, data),
 };
 
