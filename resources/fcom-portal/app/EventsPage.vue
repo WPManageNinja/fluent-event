@@ -254,7 +254,7 @@ export default {
 
                 params.from = month.startOf('month').startOf('week').subtract(1, 'day').format('YYYY-MM-DD');
                 params.to = month.endOf('month').endOf('week').add(1, 'day').format('YYYY-MM-DD');
-                params.per_page = 100;
+                params.paginate = false;
             }
 
             this.loading = true;

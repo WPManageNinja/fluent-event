@@ -27,9 +27,12 @@ class CommunityEventController extends Controller
             $spaceIds = FcomSpace::query()->whereIn('id', $spaceIds)->where('slug', $spaceSlug)->pluck('id')->toArray();
         }
 
-        $events = Event::query()
+        $from = $request->getSafe('from', 'sanitize_text_field');
+        $to = $request->getSafe('to', 'sanitize_text_field');
+
+        $query = Event::query()
             ->with(['post'])
-            // Visibility is matched in SQL, so only the requested page is ever loaded.
+            // Visibility is matched in SQL, so only what was asked for is ever loaded.
             ->whereIn('id', function ($query) use ($spaceIds) {
                 $query->select('fe_meta.object_id')
                     ->from('fe_meta')
@@ -42,14 +45,24 @@ class CommunityEventController extends Controller
             })
             ->byStatus(['public', 'private'])
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
-            ->inDateRange(
-                $request->getSafe('from', 'sanitize_text_field'),
-                $request->getSafe('to', 'sanitize_text_field')
-            )
-            ->byPeriod($request->getSafe('scope', 'sanitize_text_field', 'upcoming'))
-            ->paginate(EventRequest::perPage($request));
+            ->inDateRange($from, $to)
+            ->byPeriod($request->getSafe('scope', 'sanitize_text_field', 'upcoming'));
 
-        $formatted = CommunityEvents::formatEvents($events->items());
+        // The calendar takes its whole date window at once, as the admin grid does; the window bounds it.
+        if ($from && $to && !$request->getSafe('paginate', 'rest_sanitize_boolean', true)) {
+            $events = $query->get()->all();
+            $pages = ['total' => count($events), 'current_page' => 1, 'last_page' => 1];
+        } else {
+            $paginator = $query->paginate(EventRequest::perPage($request));
+            $events = $paginator->items();
+            $pages = [
+                'total'        => $paginator->total(),
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+            ];
+        }
+
+        $formatted = CommunityEvents::formatEvents($events);
 
         $slugs = Meta::query()
             ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
@@ -61,18 +74,13 @@ class CommunityEventController extends Controller
 
         $items = [];
 
-        foreach ($events->items() as $event) {
+        foreach ($events as $event) {
             $items[] = array_merge($formatted[$event->id], [
                 'post_slug' => $slugs[$event->id],
             ]);
         }
 
-        return [
-            'events'       => $items,
-            'total'        => $events->total(),
-            'current_page' => $events->currentPage(),
-            'last_page'    => $events->lastPage(),
-        ];
+        return array_merge(['events' => $items], $pages);
     }
 
     // RSVP only: an open event is view-only and takes no registration.
