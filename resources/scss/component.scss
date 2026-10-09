@@ -125,11 +125,17 @@
         color: var(--fe-secondary-text, #525866);
     }
 
+    // Choices are bordered cards side by side; the checked one takes the text color.
     &__choices.el-radio-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+        width: 100%;
         gap: var(--fe-space-3, 12px);
+
+        @media screen and (max-width: 575px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
 
         // EP pins a radio to one 32px line; let the hint wrap under the title.
         .el-radio {
@@ -137,6 +143,16 @@
             height: auto;
             margin-right: 0;
             white-space: normal;
+        }
+
+        .el-radio.is-bordered {
+            padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
+            border-color: var(--fe-border-medium, #d0d5dd);
+            border-radius: var(--fe-radius, 8px);
+        }
+
+        .el-radio.is-bordered.is-checked {
+            border-color: var(--fe-primary-button, #2b2e33);
         }
 
         .el-radio__input {
@@ -155,22 +171,16 @@
         color: var(--fe-primary-text, #19283a);
     }
 
-    &__switch-group {
-        display: flex;
-        flex-direction: column;
-        gap: var(--fe-space-1, 4px);
-    }
-
     &__switch-row {
         display: flex;
         align-items: center;
         gap: var(--fe-space-3, 12px);
-        min-height: var(--fe-control-height, 36px);
     }
 
     &__switch-text {
         font-size: var(--fe-text-sm, 14px);
         color: var(--fe-primary-text, #19283a);
+        cursor: pointer;
     }
 
     &__pair {
@@ -1116,7 +1126,7 @@
         margin: 0;
         padding: 0 0 var(--fe-space-1, 4px);
         border: 0;
-        border-bottom: 2px solid transparent;
+        border-bottom: 2px solid var(--fe-border-medium, #d0d5dd);
         border-radius: 0;
         background-color: transparent;
         box-shadow: none;
@@ -1127,6 +1137,10 @@
 
         &::placeholder {
             color: var(--fe-secondary-text, #525866);
+        }
+
+        &:hover {
+            border-bottom-color: var(--fe-border-strong, #808b9c);
         }
 
         &:focus,
@@ -1142,10 +1156,6 @@
         border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-primary-bg, #ffffff);
-    }
-
-    &__schedule {
-        padding: var(--fe-space-3, 12px);
     }
 
     &__window {
@@ -1199,41 +1209,21 @@
         }
     }
 
-    &__row {
+    &__card-head {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: var(--fe-space-3, 12px);
-        width: 100%;
         padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
-        border: 0;
-        background-color: transparent;
-        text-align: left;
-        cursor: pointer;
-
-        &:hover {
-            background-color: var(--fe-active-bg, #f0f0f1);
-        }
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
     }
 
-    &__row-icon {
+    &__card-icon {
         flex-shrink: 0;
-        margin-top: 2px;
         font-size: var(--fe-text-2xl, 24px);
         color: var(--fe-secondary-text, #525866);
     }
 
-    &__row-chevron {
-        flex-shrink: 0;
-        align-self: center;
-        color: var(--fe-secondary-text, #525866);
-        transition: transform 0.2s ease;
-
-        &.fe-event-form__row-chevron--open {
-            transform: rotate(90deg);
-        }
-    }
-
-    &__row-text {
+    &__card-text {
         display: flex;
         flex: 1 1 auto;
         flex-direction: column;
@@ -1241,7 +1231,7 @@
         min-width: 0;
     }
 
-    &__row-title {
+    &__card-title {
         font-size: var(--fe-text-sm, 14px);
         font-weight: 500;
         line-height: 1.4;
@@ -1249,22 +1239,16 @@
         overflow-wrap: anywhere;
     }
 
-    &__row-hint {
-        font-size: var(--fe-text-xs, 12px);
-        line-height: 1.5;
-        color: var(--fe-secondary-text, #525866);
+    // The card body is a flex column; keep the switch at its own width.
+    &__venue-switch {
+        align-self: flex-start;
     }
 
-    &__row-body {
+    &__card-body {
         display: flex;
         flex-direction: column;
         gap: var(--fe-space-3, 12px);
-        padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px) var(--fe-space-4, 16px);
-    }
-
-    &__submit.el-button {
-        width: 100%;
-        margin: 0;
+        padding: var(--fe-space-4, 16px);
     }
 
     &__skeleton-cover.el-skeleton__image {
@@ -1402,6 +1386,7 @@
         z-index: 1;
         display: inline-flex;
         align-items: center;
+        gap: var(--fe-space-2, 8px);
         padding: 0 var(--fe-space-4, 16px);
         border: 0;
         border-radius: var(--fe-radius-sm, 4px);

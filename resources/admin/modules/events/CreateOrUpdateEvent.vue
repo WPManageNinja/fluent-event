@@ -11,6 +11,17 @@
                     <el-button @click="$goBack">
                         {{ $t('Go Back') }}
                     </el-button>
+
+                    <el-button
+                        v-if="hasForm"
+                        type="primary"
+                        native-type="submit"
+                        form="fe-event-form"
+                        :loading="saving"
+                        :disabled="saving"
+                    >
+                        {{ submitLabel }}
+                    </el-button>
                 </div>
             </div>
 
@@ -30,328 +41,298 @@
                 </el-empty>
             </div>
 
-            <form v-else class="fe-event-form" @submit.prevent="saveEvent">
-                <div class="fe-event-form__grid">
-                    <aside class="fe-event-form__aside">
-                        <MediaPicker
-                            v-model="event.cover_url"
-                            class="fe-cover-picker"
-                            :frame-title="$t('Select a cover image')"
-                            :action-label="$t('Use this image')"
-                            :alt="$t('Event cover image')"
-                            :add-label="$t('Add a cover image')"
-                            :change-label="$t('Change cover image')"
-                            :remove-label="$t('Remove cover image')"
-                        >
-                            <template #placeholder>
-                                <div class="fe-cover-picker__placeholder">
-                                    <el-icon
-                                        class="fe-cover-picker__placeholder-icon"
-                                        aria-hidden="true"
-                                    >
-                                        <Picture />
-                                    </el-icon>
-                                    <span class="fe-cover-picker__placeholder-text">
-                                        {{ $t('Click to add a cover image') }}
-                                    </span>
-                                </div>
-                            </template>
-                        </MediaPicker>
-                    </aside>
-
-                    <div class="fe-event-form__main">
-                        <div class="fe-event-form__header">
-                            <el-select
-                                v-model="event.calendar_id"
-                                class="fe-event-form__calendar-select"
-                                :aria-label="$t('Calendar')"
-                                :placeholder="$t('Choose a calendar')"
-                                filterable
-                                :loading="loadingCalendars"
-                                :loading-text="$t('Loading…')"
-                            >
-                                <template #prefix>
-                                    <span
-                                        class="fe-color-swatch fe-event-form__calendar-swatch"
-                                        :style="{ background: calendarColor }"
-                                    ></span>
-                                </template>
-
-                                <el-option
-                                    v-for="calendar in calendars"
-                                    :key="calendar.id"
-                                    :label="calendar.title"
-                                    :value="calendar.id"
+            <form v-else id="fe-event-form" class="fe-event-form" novalidate @submit.prevent="saveEvent">
+                <Tabs v-model="tab" :tabs="tabs">
+                    <template #details>
+                        <div class="fe-event-form__grid">
+                            <aside class="fe-event-form__aside">
+                                <MediaPicker
+                                    v-model="event.cover_url"
+                                    class="fe-cover-picker"
+                                    :frame-title="$t('Select a cover image')"
+                                    :action-label="$t('Use this image')"
+                                    :alt="$t('Event cover image')"
+                                    :add-label="$t('Add a cover image')"
+                                    :change-label="$t('Change cover image')"
+                                    :remove-label="$t('Remove cover image')"
                                 >
-                                    <span class="fe-event-form__calendar-option">
-                                        <span
-                                            class="fe-color-swatch fe-event-form__calendar-swatch"
-                                            :style="{ background: calendar.meta?.theme_color }"
-                                        ></span>
-                                        {{ calendar.title }}
-                                    </span>
-                                </el-option>
-                            </el-select>
-
-                            <el-select
-                                v-model="event.status"
-                                class="fe-event-form__header-select"
-                                :aria-label="$t('Status')"
-                            >
-                                <el-option
-                                    v-for="option in statuses"
-                                    :key="option.value"
-                                    :label="option.label"
-                                    :value="option.value"
-                                />
-                            </el-select>
-                        </div>
-
-                        <label class="fe-event-form__title-label" for="fe-event-title">
-                            {{ $t('Event name') }}
-                        </label>
-                        <input
-                            id="fe-event-title"
-                            ref="titleInput"
-                            v-model="event.title"
-                            class="fe-event-form__title"
-                            type="text"
-                            :placeholder="$t('Event Name')"
-                        />
-
-                        <div class="fe-event-form__card fe-event-form__schedule">
-                            <div class="fe-event-form__window">
-                                <div
-                                    v-for="bound in bounds"
-                                    :key="bound.key"
-                                    class="fe-event-form__window-row"
-                                >
-                                    <span class="fe-event-form__window-label">{{ bound.label }}</span>
-
-                                    <el-date-picker
-                                        v-model="event[bound.dateKey]"
-                                        class="fe-event-form__date"
-                                        type="date"
-                                        :format="dateFormat"
-                                        value-format="YYYY-MM-DD"
-                                        :clearable="false"
-                                        :aria-label="bound.dateLabel"
-                                        :disabled-date="bound.disabledDate"
-                                        @change="syncEndDate"
-                                    />
-
-                                    <el-time-picker
-                                        v-model="event[bound.timeKey]"
-                                        class="fe-event-form__time"
-                                        :format="timeFormat"
-                                        value-format="HH:mm"
-                                        :clearable="false"
-                                        :aria-label="bound.timeLabel"
-                                    />
-                                </div>
-
-                                <div class="fe-event-form__window-row">
-                                    <span class="fe-event-form__window-label">
-                                        {{ $t('Timezone') }}
-                                    </span>
-
-                                    <el-select-v2
-                                        v-model="event.timezone"
-                                        class="fe-event-form__timezone"
-                                        :options="timezones"
-                                        filterable
-                                        :aria-label="$t('Timezone')"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="fe-event-form__card">
-                            <button
-                                type="button"
-                                class="fe-event-form__row"
-                                :aria-expanded="expanded.location"
-                                @click="toggle('location')"
-                            >
-                                <el-icon class="fe-event-form__row-icon" aria-hidden="true">
-                                    <LocationInformation />
-                                </el-icon>
-
-                                <span class="fe-event-form__row-text">
-                                    <span class="fe-event-form__row-title">{{ $t('Add Venue Type') }}</span>
-                                    <span class="fe-event-form__row-hint">
-                                        {{ $t('Offline location or virtual link') }}
-                                    </span>
-                                </span>
-
-                                <el-icon
-                                    class="fe-event-form__row-chevron"
-                                    :class="{ 'fe-event-form__row-chevron--open': expanded.location }"
-                                    aria-hidden="true"
-                                >
-                                    <ArrowRight />
-                                </el-icon>
-                            </button>
-
-                            <div v-show="expanded.location" class="fe-event-form__row-body">
-                                <el-radio-group v-model="event.venue_type" :aria-label="$t('Venue type')">
-                                    <el-radio
-                                        v-for="option in venueTypes"
-                                        :key="option.value"
-                                        :value="option.value"
-                                    >
-                                        {{ option.label }}
-                                    </el-radio>
-                                </el-radio-group>
-
-                                <!-- A div, not <el-form>: a nested form swallows Enter and submits natively. -->
-                                <div v-if="event.venue_type === 'online'" class="fe-form">
-                                    <el-form-item :label="$t('Meeting link *')" label-position="top">
-                                        <el-input
-                                            v-model="event.online_meeting_url"
-                                            type="url"
-                                            placeholder="https://meet.example.com/standup"
-                                        />
-                                        <span class="fe-form__hint">
-                                            {{ $t('Only http and https links are accepted.') }}
-                                        </span>
-                                    </el-form-item>
-                                </div>
-
-                                <div v-else class="fe-form">
-                                    <el-form-item :label="$t('Venue name')" label-position="top">
-                                        <el-input
-                                            v-model="event.venue"
-                                            :placeholder="$t('e.g. Kingsway Hall')"
-                                        />
-                                    </el-form-item>
-
-                                    <el-form-item :label="$t('Address')" label-position="top">
-                                        <el-input
-                                            v-model="event.address"
-                                            type="textarea"
-                                            :rows="2"
-                                            :placeholder="$t('Street, city, country')"
-                                        />
-                                    </el-form-item>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="fe-event-form__card">
-                            <button
-                                type="button"
-                                class="fe-event-form__row"
-                                :aria-expanded="expanded.registration"
-                                @click="toggle('registration')"
-                            >
-                                <el-icon class="fe-event-form__row-icon" aria-hidden="true">
-                                    <User />
-                                </el-icon>
-
-                                <span class="fe-event-form__row-text">
-                                    <span class="fe-event-form__row-title">{{ $t('Registration Type') }}</span>
-                                    <span class="fe-event-form__row-hint">
-                                        {{ $t('How guests join, and how many can') }}
-                                    </span>
-                                </span>
-
-                                <el-icon
-                                    class="fe-event-form__row-chevron"
-                                    :class="{ 'fe-event-form__row-chevron--open': expanded.registration }"
-                                    aria-hidden="true"
-                                >
-                                    <ArrowRight />
-                                </el-icon>
-                            </button>
-
-                            <div v-show="expanded.registration" class="fe-event-form__row-body">
-                                <div class="fe-form">
-                                    <el-form-item :label="$t('Entry type *')" label-position="top">
-                                        <el-radio-group
-                                            v-model="event.entry_type"
-                                            class="fe-form__choices"
-                                            :aria-label="$t('Registration Type')"
-                                        >
-                                            <el-radio
-                                                v-for="option in $entryTypes()"
-                                                :key="option.value"
-                                                :value="option.value"
+                                    <template #placeholder>
+                                        <div class="fe-cover-picker__placeholder">
+                                            <el-icon
+                                                class="fe-cover-picker__placeholder-icon"
+                                                aria-hidden="true"
                                             >
-                                                <span class="fe-form__choice-title">{{ option.label }}</span>
-                                                <span class="fe-form__hint">{{ option.hint }}</span>
-                                            </el-radio>
-                                        </el-radio-group>
-                                    </el-form-item>
-
-                                    <el-form-item
-                                        v-if="event.entry_type === 'rsvp'"
-                                        :label="$t('Guests')"
-                                        label-position="top"
-                                    >
-                                        <div class="fe-form__switch-group">
-                                            <div class="fe-form__switch-row">
-                                                <el-switch
-                                                    v-model="event.show_guest_count"
-                                                    active-value="yes"
-                                                    inactive-value="no"
-                                                    :aria-label="$t('Show how many guests are going')"
-                                                />
-                                                <span class="fe-form__switch-text">{{ $t('Show how many guests are going') }}</span>
-                                            </div>
+                                                <Picture />
+                                            </el-icon>
+                                            <span class="fe-cover-picker__placeholder-text">
+                                                {{ $t('Click to add a cover image') }}
+                                            </span>
                                         </div>
-                                    </el-form-item>
+                                    </template>
+                                </MediaPicker>
+                            </aside>
+
+                            <div class="fe-event-form__main">
+                                <div class="fe-event-form__header">
+                                    <el-select
+                                        v-model="event.calendar_id"
+                                        class="fe-event-form__calendar-select"
+                                        :aria-label="$t('Calendar')"
+                                        :placeholder="$t('Choose a calendar')"
+                                        filterable
+                                        :loading="loadingCalendars"
+                                        :loading-text="$t('Loading…')"
+                                    >
+                                        <template #prefix>
+                                            <span
+                                                class="fe-color-swatch fe-event-form__calendar-swatch"
+                                                :style="{ background: calendarColor }"
+                                            ></span>
+                                        </template>
+
+                                        <el-option
+                                            v-for="calendar in calendars"
+                                            :key="calendar.id"
+                                            :label="calendar.title"
+                                            :value="calendar.id"
+                                        >
+                                            <span class="fe-event-form__calendar-option">
+                                                <span
+                                                    class="fe-color-swatch fe-event-form__calendar-swatch"
+                                                    :style="{ background: calendar.meta?.theme_color }"
+                                                ></span>
+                                                {{ calendar.title }}
+                                            </span>
+                                        </el-option>
+                                    </el-select>
+
+                                    <el-select
+                                        v-model="event.status"
+                                        class="fe-event-form__header-select"
+                                        :aria-label="$t('Status')"
+                                    >
+                                        <el-option
+                                            v-for="option in statuses"
+                                            :key="option.value"
+                                            :label="option.label"
+                                            :value="option.value"
+                                        />
+                                    </el-select>
+                                </div>
+
+                                <label class="fe-event-form__title-label" for="fe-event-title">
+                                    {{ $t('Event name') }}
+                                </label>
+                                <input
+                                    id="fe-event-title"
+                                    ref="titleInput"
+                                    v-model="event.title"
+                                    class="fe-event-form__title"
+                                    type="text"
+                                    :placeholder="$t('Event Name')"
+                                />
+
+                                <div class="fe-event-form__card">
+                                    <div class="fe-event-form__card-head">
+                                        <el-icon class="fe-event-form__card-icon" aria-hidden="true">
+                                            <Document />
+                                        </el-icon>
+
+                                        <span class="fe-event-form__card-text">
+                                            <span id="fe-event-description-label" class="fe-event-form__card-title">{{ $t('Description') }}</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="fe-event-form__card-body">
+                                        <WpEditor
+                                            v-model="event.description"
+                                            :height="280"
+                                            aria-labelledby="fe-event-description-label"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </template>
 
-                        <div class="fe-event-form__card">
-                            <button
-                                type="button"
-                                class="fe-event-form__row"
-                                :aria-expanded="expanded.description"
-                                @click="toggle('description')"
-                            >
-                                <el-icon class="fe-event-form__row-icon" aria-hidden="true">
-                                    <Document />
-                                </el-icon>
+                    <template #schedule>
+                        <div class="fe-event-form__main">
+                            <div class="fe-event-form__card">
+                                <div class="fe-event-form__card-head">
+                                    <el-icon class="fe-event-form__card-icon" aria-hidden="true">
+                                        <Calendar />
+                                    </el-icon>
 
-                                <span class="fe-event-form__row-text">
-                                    <span id="fe-event-description-label" class="fe-event-form__row-title">{{ $t('Add Description') }}</span>
-                                    <span class="fe-event-form__row-hint">
-                                        {{ $t('What should guests know before they come?') }}
+                                    <span class="fe-event-form__card-text">
+                                        <span class="fe-event-form__card-title">{{ $t('Date and time') }}</span>
                                     </span>
-                                </span>
+                                </div>
 
-                                <el-icon
-                                    class="fe-event-form__row-chevron"
-                                    :class="{ 'fe-event-form__row-chevron--open': expanded.description }"
-                                    aria-hidden="true"
-                                >
-                                    <ArrowRight />
-                                </el-icon>
-                            </button>
+                                <div class="fe-event-form__card-body">
+                                    <div class="fe-event-form__window">
+                                        <div
+                                            v-for="bound in bounds"
+                                            :key="bound.key"
+                                            class="fe-event-form__window-row"
+                                        >
+                                            <span class="fe-event-form__window-label">{{ bound.label }}</span>
 
-                            <div v-if="expanded.description" class="fe-event-form__row-body">
-                                <WpEditor
-                                    v-model="event.description"
-                                    :height="180"
-                                    aria-labelledby="fe-event-description-label"
-                                />
+                                            <el-date-picker
+                                                v-model="event[bound.dateKey]"
+                                                class="fe-event-form__date"
+                                                type="date"
+                                                :format="dateFormat"
+                                                value-format="YYYY-MM-DD"
+                                                :clearable="false"
+                                                :aria-label="bound.dateLabel"
+                                                :disabled-date="bound.disabledDate"
+                                                @change="syncEndDate"
+                                            />
+
+                                            <el-time-picker
+                                                v-model="event[bound.timeKey]"
+                                                class="fe-event-form__time"
+                                                :format="timeFormat"
+                                                value-format="HH:mm"
+                                                :clearable="false"
+                                                :aria-label="bound.timeLabel"
+                                            />
+                                        </div>
+
+                                        <div class="fe-event-form__window-row">
+                                            <span class="fe-event-form__window-label">
+                                                {{ $t('Timezone') }}
+                                            </span>
+
+                                            <el-select-v2
+                                                v-model="event.timezone"
+                                                class="fe-event-form__timezone"
+                                                :options="timezones"
+                                                filterable
+                                                :aria-label="$t('Timezone')"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="fe-event-form__card">
+                                <div class="fe-event-form__card-head">
+                                    <el-icon class="fe-event-form__card-icon" aria-hidden="true">
+                                        <LocationInformation />
+                                    </el-icon>
+
+                                    <span class="fe-event-form__card-text">
+                                        <span class="fe-event-form__card-title">{{ $t('Location') }}</span>
+                                    </span>
+                                </div>
+
+                                <div class="fe-event-form__card-body">
+                                    <SegmentedSwitch
+                                        v-model="event.venue_type"
+                                        class="fe-event-form__venue-switch"
+                                        :options="venueTypes"
+                                        :label="$t('Venue type')"
+                                        show-labels
+                                    />
+
+                                    <!-- A div, not <el-form>: a nested form swallows Enter and submits natively. -->
+                                    <div v-if="event.venue_type === 'online'" class="fe-form">
+                                        <el-form-item :label="$t('Meeting link *')" label-position="top">
+                                            <el-input
+                                                v-model="event.online_meeting_url"
+                                                type="url"
+                                                placeholder="https://meet.example.com/standup"
+                                            />
+                                            <span class="fe-form__hint">
+                                                {{ $t('Only http and https links are accepted.') }}
+                                            </span>
+                                        </el-form-item>
+                                    </div>
+
+                                    <div v-else class="fe-form">
+                                        <el-form-item :label="$t('Venue name')" label-position="top">
+                                            <el-input
+                                                v-model="event.venue"
+                                                :placeholder="$t('e.g. Kingsway Hall')"
+                                            />
+                                        </el-form-item>
+
+                                        <el-form-item :label="$t('Address')" label-position="top">
+                                            <el-input
+                                                v-model="event.address"
+                                                type="textarea"
+                                                :rows="2"
+                                                :placeholder="$t('Street, city, country')"
+                                            />
+                                        </el-form-item>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="fe-event-form__card">
+                                <div class="fe-event-form__card-head">
+                                    <el-icon class="fe-event-form__card-icon" aria-hidden="true">
+                                        <User />
+                                    </el-icon>
+
+                                    <span class="fe-event-form__card-text">
+                                        <span class="fe-event-form__card-title">{{ $t('Registration') }}</span>
+                                    </span>
+                                </div>
+
+                                <div class="fe-event-form__card-body">
+                                    <div class="fe-form">
+                                        <el-form-item :label="$t('Entry type *')" label-position="top">
+                                            <el-radio-group
+                                                v-model="event.entry_type"
+                                                class="fe-form__choices"
+                                                :aria-label="$t('Registration Type')"
+                                            >
+                                                <el-radio
+                                                    v-for="option in $entryTypes()"
+                                                    :key="option.value"
+                                                    :value="option.value"
+                                                    border
+                                                >
+                                                    <span class="fe-form__choice-title">{{ option.label }}</span>
+                                                    <span class="fe-form__hint">{{ option.hint }}</span>
+                                                </el-radio>
+                                            </el-radio-group>
+                                        </el-form-item>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="event.entry_type === 'rsvp'" class="fe-event-form__card">
+                                <div class="fe-event-form__card-head">
+                                    <el-icon class="fe-event-form__card-icon" aria-hidden="true">
+                                        <Operation />
+                                    </el-icon>
+
+                                    <span class="fe-event-form__card-text">
+                                        <span class="fe-event-form__card-title">{{ $t('Guest control') }}</span>
+                                    </span>
+                                </div>
+
+                                <div class="fe-event-form__card-body">
+                                    <div class="fe-form__switch-row">
+                                        <label class="fe-form__switch-text" for="fe-event-show-guest-count">
+                                            {{ $t('Show how many guests are going') }}
+                                        </label>
+
+                                        <el-switch
+                                            id="fe-event-show-guest-count"
+                                            v-model="event.show_guest_count"
+                                            active-value="yes"
+                                            inactive-value="no"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        <el-button
-                            type="primary"
-                            class="fe-event-form__submit"
-                            native-type="submit"
-                            :loading="saving"
-                            :disabled="saving"
-                        >
-                            {{ submitLabel }}
-                        </el-button>
-                    </div>
-                </div>
+                    </template>
+                </Tabs>
             </form>
         </div>
     </transition>
@@ -359,11 +340,13 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
-    import { Document, LocationInformation, ArrowRight, Picture, User } from '@element-plus/icons-vue';
+    import { Calendar, Document, LocationInformation, MapLocation, Operation, Picture, User, VideoCamera } from '@element-plus/icons-vue';
     import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
+    import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
+    import Tabs from '@/components/Tabs.vue';
 
     const config = window.fluentEventAdmin;
 
@@ -373,15 +356,18 @@
     export default {
         name: 'CreateOrUpdateEvent',
         components: {
+            Calendar,
             Document,
             LocationInformation,
-            ArrowRight,
+            Operation,
             Picture,
             User,
             WpEditor,
             ErrorState,
             MediaPicker,
+            SegmentedSwitch,
             Skeleton,
+            Tabs,
         },
         data() {
             return {
@@ -392,16 +378,21 @@
                 saving: false,
                 calendars: [],
                 event: {},
-                expanded: {
-                    location: false,
-                    registration: false,
-                    description: false,
-                },
+                tab: 'details',
             };
         },
         computed: {
             error() {
                 return this.eventError || this.calendarError;
+            },
+            hasForm() {
+                return !this.loadingEvent && !this.error && (this.loadingCalendars || this.calendars.length > 0);
+            },
+            tabs() {
+                return [
+                    { value: 'details', label: this.$t('Details') },
+                    { value: 'schedule', label: this.$t('Schedule & Registration') },
+                ];
             },
             eventId() {
                 return this.$route.params.id;
@@ -431,8 +422,8 @@
             },
             venueTypes() {
                 return [
-                    { value: 'offline', label: this.$t('In person') },
-                    { value: 'online', label: this.$t('Online') },
+                    { value: 'offline', label: this.$t('In person'), icon: MapLocation },
+                    { value: 'online', label: this.$t('Online'), icon: VideoCamera },
                 ];
             },
             bounds() {
@@ -542,15 +533,9 @@
                     errorState: 'eventError',
                     onSuccess: response => {
                         this.event = this.initForm(response.event);
-
-                        this.expanded.location = !!(this.event.venue
-                            || this.event.address
-                            || this.event.online_meeting_url);
-                        this.expanded.registration = !!this.event.entry_type;
-                        this.expanded.description = !!this.event.description;
-
-                        this.focusTitle();
                     },
+                    // loadingEvent drops after onSuccess, so the title input only exists from here.
+                    onFinally: () => this.focusTitle(),
                 });
             },
             focusTitle() {
@@ -591,9 +576,6 @@
                     return '';
                 }
             },
-            toggle(section) {
-                this.expanded[section] = !this.expanded[section];
-            },
             saveEvent() {
                 this.$requestServer({
                     method: this.isEditing ? 'patch' : 'post',
@@ -624,7 +606,15 @@
                         });
                     },
                     onError: error => {
-                        this.expanded.location = true;
+                        // Open the tab holding the first invalid field, or the error points at nothing visible.
+                        const field = Object.keys(error?.errors || {})[0];
+
+                        if (field) {
+                            this.tab = ['title', 'calendar_id', 'status', 'cover_url', 'description'].includes(field)
+                                ? 'details'
+                                : 'schedule';
+                        }
+
                         this.$handleError(error);
                     },
                 });
