@@ -121,6 +121,10 @@ class EventController extends Controller
 
         do_action('fluent_event/event/updated', $event);
 
+        if ($calendarId !== $previousCalendarId) {
+            do_action('fluent_event/event/calendar_changed', $event, $previousCalendarId);
+        }
+
         return [
             'message' => __('Event has been successfully updated', 'fluent-event'),
             'event'   => $event
