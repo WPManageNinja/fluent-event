@@ -103,6 +103,10 @@
                 color: var(--fe-secondary-text, #525866);
             }
 
+            .mce-ico {
+                color: inherit;
+            }
+
             &:hover,
             &:focus,
             &.mce-active,
@@ -125,6 +129,138 @@
         .mce-statusbar {
             background-color: var(--fe-active-bg, #f0f0f1);
             border-top: 1px solid var(--fe-primary-border, #eaecf0);
+        }
+
+        // Core paints the listbox and carets for light mode only; dark mode would lose them.
+        .mce-btn-group .mce-btn.mce-listbox {
+            border-color: transparent;
+            border-radius: var(--fe-radius-sm, 4px);
+            background: var(--fe-active-bg, #f0f0f1);
+        }
+
+        .mce-btn i.mce-caret {
+            border-top-color: var(--fe-secondary-text, #525866);
+        }
+
+        .mce-btn:hover i.mce-caret,
+        .mce-btn:focus i.mce-caret,
+        .mce-active i.mce-caret {
+            border-top-color: var(--fe-primary-text, #19283a);
+            border-bottom-color: var(--fe-primary-text, #19283a);
+        }
+    }
+
+    // wp.editor builds this wrap only with quick tags on; it holds the border TinyMCE has alone.
+    .wp-editor-wrap {
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        overflow: hidden;
+        background-color: var(--fe-primary-bg, #ffffff);
+
+        .wp-editor-tools {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            column-gap: var(--fe-space-1, 4px);
+            padding-top: var(--fe-space-2, 8px);
+
+            > :first-child {
+                margin-left: var(--fe-space-1, 4px);
+            }
+        }
+
+        .wp-editor-tabs {
+            display: flex;
+            gap: var(--fe-space-1, 4px);
+        }
+
+        .wp-media-buttons .button,
+        .wp-switch-editor {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--fe-space-1, 4px);
+            box-sizing: border-box;
+            top: 0;
+            height: auto;
+            min-height: var(--fe-control-height, 36px);
+            margin: 0;
+            padding: 0 var(--fe-space-3, 12px);
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius-sm, 4px);
+            background: transparent;
+            color: var(--fe-secondary-text, #525866);
+            font-size: var(--fe-text-sm, 14px);
+            font-weight: 500;
+            line-height: 1;
+
+            &:hover {
+                background: var(--fe-hover-bg, #f9fafb);
+                color: var(--fe-primary-text, #19283a);
+            }
+        }
+
+        &.tmce-active .switch-tmce,
+        &.html-active .switch-html {
+            background: var(--fe-active-bg, #f0f0f1);
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        // Core nests the container inside the tools row; give it a full line below the buttons.
+        .wp-editor-container {
+            flex-basis: 100%;
+            border: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .quicktags-toolbar {
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+            background: var(--fe-primary-bg, #ffffff);
+
+            input.button {
+                border-color: var(--fe-primary-border, #eaecf0);
+                background: transparent;
+                color: var(--fe-secondary-text, #525866);
+
+                &:hover {
+                    background: var(--fe-active-bg, #f0f0f1);
+                    color: var(--fe-primary-text, #19283a);
+                }
+            }
+        }
+
+        &.html-active .wp-editor-area {
+            border-radius: 0;
+            background: var(--fe-primary-bg, #ffffff);
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        .mce-tinymce {
+            border: 0;
+            border-radius: 0;
+        }
+
+        div.mce-toolbar-grp,
+        div.mce-statusbar {
+            background-color: var(--fe-primary-bg, #ffffff);
+        }
+
+        div.mce-toolbar-grp {
+            border-bottom: 0;
+        }
+
+        .mce-toolbar .mce-btn-group .mce-btn {
+            border-color: var(--fe-primary-border, #eaecf0);
+
+            &:hover,
+            &:focus,
+            &.mce-active {
+                background: var(--fe-active-bg, #f0f0f1);
+            }
+
+            &.mce-listbox {
+                border-color: transparent;
+            }
         }
     }
 }

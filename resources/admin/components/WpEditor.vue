@@ -3,7 +3,7 @@
         <textarea
             v-if="hasWpEditor"
             :id="editorId"
-            class="fe-editor__area"
+            class="fe-editor__area wp-editor-area"
             :aria-labelledby="ariaLabelledby || null"
         >{{ modelValue }}</textarea>
 
@@ -147,7 +147,8 @@
                     },
                 });
 
-                jQuery(`#${this.editorId}`).on('change', this.emitContent);
+                // Code-tab quick tags and media inserts set the value without a change event; blur still fires.
+                jQuery(`#${this.editorId}`).on('blur', this.emitContent);
             },
             queueEmit() {
                 clearTimeout(this.emitTimer);
@@ -182,7 +183,7 @@
             this.themeObserver?.disconnect();
             clearTimeout(this.emitTimer);
 
-            jQuery(`#${this.editorId}`).off('change', this.emitContent);
+            jQuery(`#${this.editorId}`).off('blur', this.emitContent);
             this.editor.remove(this.editorId);
         },
     };
