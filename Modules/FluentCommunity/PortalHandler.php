@@ -22,7 +22,6 @@ class PortalHandler
     public function register()
     {
         add_action('fluent_community/before_js_loaded', [$this, 'printAssets']);
-        add_action('fluent_community/portal_footer', [$this, 'printEditor']);
         add_filter('fluent_community/menu_settings_api_response', [$this, 'addMenuSetting']);
         add_filter('fluent_community/main_menu_items', [$this, 'refreshMenuItem']);
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
@@ -112,26 +111,6 @@ class PortalHandler
         ];
 
         return $links;
-    }
-
-    // fcom renders the portal headless, without wp_head or wp_footer, so the WordPress editor the
-    // create-event description uses is printed here by hand.
-    public function printEditor()
-    {
-        $userId = get_current_user_id();
-
-        if (!$userId || !PermissionManager::userCan('write_events', $userId)) {
-            return;
-        }
-
-        wp_enqueue_editor();
-
-        // wplink searches posts over admin-ajax, which only wp-admin defines.
-        wp_add_inline_script('wplink', 'window.ajaxurl = window.ajaxurl || ' . wp_json_encode(admin_url('admin-ajax.php')) . ';', 'before');
-
-        wp_print_styles(['editor-buttons', 'buttons']);
-        wp_print_scripts(['editor', 'quicktags', 'wplink', 'jquery-ui-autocomplete']);
-        \_WP_Editors::print_default_editor_scripts();
     }
 
     public function printAssets()

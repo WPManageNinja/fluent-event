@@ -167,4 +167,21 @@ class CommunityEventController extends Controller
             'event'   => CommunityEvents::formatEvents([$event])[(int) $event->id],
         ];
     }
+
+    // The portal renders headless, so the WordPress editor its create-event page uses is handed over
+    // as the markup WordPress would print, and loaded only when that page opens.
+    public function getEditorAssets(Request $request)
+    {
+        wp_enqueue_editor();
+
+        // wplink searches posts over admin-ajax, which only wp-admin defines.
+        wp_add_inline_script('wplink', 'window.ajaxurl = window.ajaxurl || ' . wp_json_encode(admin_url('admin-ajax.php')) . ';', 'before');
+
+        ob_start();
+        wp_print_styles(['editor-buttons', 'buttons']);
+        wp_print_scripts(['editor', 'quicktags', 'wplink', 'jquery-ui-autocomplete']);
+        \_WP_Editors::print_default_editor_scripts();
+
+        return ['html' => ob_get_clean()];
+    }
 }
