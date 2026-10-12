@@ -1045,6 +1045,58 @@
     }
 }
 
+.fe-tabs {
+    &__nav {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+    }
+
+    &__tab {
+        position: relative;
+        padding: 0 12px 12px;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+        color: var(--fcom-secondary-text, #525866);
+
+        &::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            bottom: -1px;
+            left: 0;
+            height: 2px;
+            background-color: transparent;
+        }
+
+        &:hover {
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 2px;
+        }
+
+        &.fe-tabs__tab--active {
+            font-weight: 600;
+            color: var(--fcom-primary-text, #19283a);
+
+            &::after {
+                background-color: var(--fcom-primary-text, #19283a);
+            }
+        }
+    }
+}
+
 .fe-create-event {
     color: var(--fcom-primary-text, #19283a);
 
@@ -1078,6 +1130,10 @@
         margin: 0;
         font-size: 22px;
         font-weight: 700;
+    }
+
+    &__submit.el-button {
+        margin-left: auto;
     }
 
     &__grid {
@@ -1182,7 +1238,7 @@
         margin: 0;
         padding: 0 0 4px;
         border: 0;
-        border-bottom: 2px solid transparent;
+        border-bottom: 2px solid var(--fcom-primary-border, #e3e8ee);
         border-radius: 0;
         background: transparent;
         box-shadow: none;
@@ -1192,7 +1248,11 @@
         color: var(--fcom-primary-text, #19283a);
 
         &::placeholder {
-            color: var(--fcom-secondary-text, #525866);
+            color: var(--el-text-color-placeholder, #a8abb2);
+        }
+
+        &:hover {
+            border-bottom-color: var(--fcom-secondary-border, #9ca3af);
         }
 
         &:focus,
@@ -1210,11 +1270,76 @@
         background: var(--fcom-primary-bg, #ffffff);
     }
 
-    &__schedule {
+    &__card-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+    }
+
+    &__card-icon {
+        flex-shrink: 0;
+        font-size: 24px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__card-text {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    &__card-title {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+        color: var(--fcom-primary-text, #19283a);
+        overflow-wrap: anywhere;
+    }
+
+    &__card-hint {
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__card-body {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        padding: 12px;
+        gap: 12px;
+        padding: 16px;
+
+        .el-form-item {
+            margin-bottom: 0;
+        }
+    }
+
+    // The card body is a flex column; keep the switch at its own width.
+    &__venue-switch {
+        align-self: flex-start;
+
+        // Labelled here, unlike the icon-only view switch, so it takes the admin form's spacing.
+        .fe-switch__option {
+            gap: 8px;
+            padding: 0 16px;
+            font-size: 14px;
+
+            .el-icon {
+                font-size: 16px;
+            }
+        }
+    }
+
+    &__hint {
+        display: block;
+        width: 100%;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
     }
 
     &__window-row {
@@ -1254,80 +1379,17 @@
         }
     }
 
-    &__row {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        width: 100%;
-        padding: 12px 16px;
-        border: 0;
-        background: transparent;
-        text-align: left;
-        color: inherit;
-        cursor: pointer;
-
-        &:hover {
-            background: var(--fcom-active-bg, #f0f3f5);
-        }
-    }
-
-    &__row-icon {
-        flex-shrink: 0;
-        margin-top: 2px;
-        font-size: 24px;
-        color: var(--fcom-secondary-text, #525866);
-    }
-
-    &__row-text {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 0;
-    }
-
-    &__row-title {
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 1.4;
-        color: var(--fcom-primary-text, #19283a);
-        overflow-wrap: anywhere;
-    }
-
-    &__row-hint {
-        font-size: 12px;
-        line-height: 1.5;
-        color: var(--fcom-secondary-text, #525866);
-    }
-
-    &__row-chevron {
-        flex-shrink: 0;
-        align-self: center;
-        color: var(--fcom-secondary-text, #525866);
-        transition: transform 0.2s ease;
-
-        &.fe-create-event__row-chevron--open {
-            transform: rotate(90deg);
-        }
-    }
-
-    &__row-body {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 16px;
-        border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
-
-        .el-form-item {
-            margin-bottom: 0;
-        }
-    }
-
+    // Choices are bordered cards side by side; the checked one takes the text color.
     &__choices.el-radio-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+        width: 100%;
         gap: 12px;
+
+        @media (max-width: 575px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
 
         // EP pins a radio to one 32px line; let the hint wrap under the title.
         .el-radio {
@@ -1337,8 +1399,22 @@
             white-space: normal;
         }
 
+        .el-radio.is-bordered {
+            padding: 12px 16px;
+            border-color: var(--fcom-primary-border, #e3e8ee);
+            border-radius: 8px;
+        }
+
+        .el-radio.is-bordered.is-checked {
+            border-color: var(--fcom-primary-button, #2b2e33);
+        }
+
         .el-radio__input {
             margin-top: 4px;
+        }
+
+        .fe-create-event__hint {
+            margin-top: 0;
         }
     }
 
@@ -1349,35 +1425,16 @@
         color: var(--fcom-primary-text, #19283a);
     }
 
-    &__choice-hint {
-        display: block;
-        font-size: 12px;
-        line-height: 1.5;
-        color: var(--fcom-secondary-text, #525866);
-    }
-
-    &__switch-group {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    // Fixed to the input's height, so switching "Limit seats" on doesn't grow the row.
     &__switch-row {
         display: flex;
         align-items: center;
         gap: 12px;
-        height: 40px;
     }
 
     &__switch-text {
         font-size: 14px;
         color: var(--fcom-primary-text, #19283a);
-    }
-
-    &__error {
-        margin: 0;
-        color: var(--fcom-danger, #d63638);
+        cursor: pointer;
     }
 
     &__post-schedule .el-button .el-icon {
@@ -1405,9 +1462,238 @@
         }
     }
 
-    &__submit.el-button {
-        width: 100%;
-        margin: 0;
+    // Read by WpEditor for the TinyMCE iframe; the same colors as fcom's other inputs.
+    .fe-editor {
+        --fe-editor-bg: var(--el-fill-color-blank, #ffffff);
+        --fe-editor-text: var(--el-text-color-regular, #606266);
+        --fe-editor-border: var(--fcom-primary-border, #e3e8ee);
+    }
+
+    // The WordPress editor's chrome is painted for wp-admin; this restyles it in fcom's tokens.
+    .wp-editor-wrap {
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: var(--fcom-primary-bg, #ffffff);
+
+        .wp-editor-tools {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            column-gap: 4px;
+            padding-top: 8px;
+
+            > :first-child {
+                margin-left: 4px;
+            }
+        }
+
+        .wp-editor-tabs {
+            display: flex;
+            gap: 4px;
+        }
+
+        // Not wp-switch-editor on our button: core binds that class's clicks to the Visual/Code switch.
+        .wp-switch-editor,
+        .fe-create-event__editor-tool.el-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-sizing: border-box;
+            top: 0;
+            height: auto;
+            min-height: 36px;
+            margin: 0;
+            padding: 0 12px;
+            border: 1px solid var(--fcom-primary-border, #e3e8ee);
+            border-radius: 4px;
+            background: transparent;
+            color: var(--fcom-secondary-text, #525866);
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1;
+            cursor: pointer;
+
+            &:hover {
+                background: var(--fcom-active-bg, #f0f3f5);
+                color: var(--fcom-primary-text, #19283a);
+            }
+        }
+
+        &.tmce-active .switch-tmce,
+        &.html-active .switch-html {
+            background: var(--fcom-active-bg, #f0f3f5);
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        // Core nests the container inside the tools row; give it a full line below the buttons.
+        .wp-editor-container {
+            flex-basis: 100%;
+            border: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .quicktags-toolbar {
+            border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+            background: var(--fcom-primary-bg, #ffffff);
+
+            input.button {
+                min-height: 28px;
+                margin: 2px;
+                padding: 0 8px;
+                border: 1px solid var(--fcom-primary-border, #e3e8ee);
+                border-radius: 4px;
+                background: transparent;
+                font-size: 13px;
+                color: var(--fcom-secondary-text, #525866);
+                cursor: pointer;
+
+                &:hover {
+                    background: var(--fcom-active-bg, #f0f3f5);
+                    color: var(--fcom-primary-text, #19283a);
+                }
+            }
+        }
+
+        &.html-active .wp-editor-area {
+            border-radius: 0;
+            background: var(--el-fill-color-blank, #ffffff);
+            color: var(--el-text-color-regular, #606266);
+        }
+
+        .mce-tinymce {
+            border: 0;
+            box-shadow: none;
+        }
+
+        .mce-top-part::before {
+            box-shadow: none;
+        }
+
+        .mce-panel {
+            border-color: var(--fcom-primary-border, #e3e8ee);
+            background-color: transparent;
+        }
+
+        div.mce-toolbar-grp {
+            border-bottom: 0;
+            background-color: var(--fcom-primary-bg, #ffffff);
+        }
+
+        div.mce-statusbar {
+            border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
+            background-color: var(--fcom-primary-bg, #ffffff);
+        }
+
+        .mce-toolbar .mce-btn-group .mce-btn {
+            border-color: var(--fcom-primary-border, #e3e8ee);
+            box-shadow: none;
+            background: transparent;
+
+            button {
+                color: var(--fcom-secondary-text, #525866);
+            }
+
+            .mce-ico {
+                color: inherit;
+            }
+
+            &:hover,
+            &:focus,
+            &.mce-active {
+                background: var(--fcom-active-bg, #f0f3f5);
+
+                button {
+                    color: var(--fcom-primary-text, #19283a);
+                }
+            }
+
+            &.mce-disabled button {
+                opacity: 0.5;
+            }
+
+            &.mce-listbox {
+                border-color: transparent;
+                border-radius: 4px;
+                background: var(--fcom-active-bg, #f0f3f5);
+            }
+        }
+
+        // Core paints the carets for light mode only; dark mode would lose them.
+        .mce-btn i.mce-caret {
+            border-top-color: var(--fcom-secondary-text, #525866);
+        }
+
+        .mce-btn:hover i.mce-caret,
+        .mce-btn:focus i.mce-caret,
+        .mce-active i.mce-caret {
+            border-top-color: var(--fcom-primary-text, #19283a);
+            border-bottom-color: var(--fcom-primary-text, #19283a);
+        }
+    }
+}
+
+// TinyMCE's menus and inline link box float on <body>, outside .fe-create-event, and core paints
+// them for light mode only. `body` lifts these over the skin TinyMCE loads after this sheet.
+body {
+    .mce-menu.mce-floatpanel {
+        border-color: var(--fcom-primary-border, #e3e8ee);
+        background: var(--fcom-primary-bg, #ffffff);
+        color: var(--fcom-primary-text, #19283a);
+
+        .mce-menu-item:hover,
+        .mce-menu-item:focus,
+        .mce-menu-item.mce-selected,
+        .mce-menu-item.mce-active {
+            background: var(--fcom-active-bg, #f0f3f5);
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        .mce-menu-shortcut {
+            color: var(--fcom-secondary-text, #525866);
+        }
+    }
+
+    div.mce-inline-toolbar-grp {
+        border-color: var(--fcom-primary-border, #e3e8ee);
+        background: var(--fcom-primary-bg, #ffffff);
+        color: var(--fcom-primary-text, #19283a);
+
+        div.mce-panel,
+        div.mce-toolbar-grp {
+            background: transparent;
+        }
+
+        .mce-btn:not(.mce-primary) .mce-ico {
+            color: var(--fcom-secondary-text, #525866);
+        }
+
+        div.wp-link-input input {
+            border: 1px solid var(--fcom-primary-border, #e3e8ee);
+            background: var(--el-fill-color-blank, #ffffff);
+            color: var(--el-text-color-regular, #606266);
+        }
+
+        div.wp-link-preview a {
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        &.mce-arrow-up::before {
+            border-bottom-color: var(--fcom-primary-border, #e3e8ee);
+        }
+
+        &.mce-arrow-up::after {
+            border-bottom-color: var(--fcom-primary-bg, #ffffff);
+        }
+
+        &.mce-arrow-down::before {
+            border-top-color: var(--fcom-primary-border, #e3e8ee);
+        }
+
+        &.mce-arrow-down::after {
+            border-top-color: var(--fcom-primary-bg, #ffffff);
+        }
     }
 }
 

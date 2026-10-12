@@ -7,14 +7,23 @@
             :aria-labelledby="ariaLabelledby || null"
         >{{ modelValue }}</textarea>
 
-        <el-input
-            v-else
-            v-model="plainContent"
-            type="textarea"
-            :rows="6"
-            :placeholder="placeholder"
-            :aria-labelledby="ariaLabelledby || null"
-        />
+        <template v-else>
+            <div v-if="$slots.tools" class="fe-editor__tools">
+                <slot name="tools" />
+            </div>
+
+            <el-input
+                v-model="plainContent"
+                type="textarea"
+                :rows="6"
+                :placeholder="placeholder"
+                :aria-labelledby="ariaLabelledby || null"
+            />
+        </template>
+
+        <Teleport v-if="toolsTarget" :to="toolsTarget">
+            <slot name="tools" />
+        </Teleport>
     </div>
 </template>
 
@@ -62,6 +71,7 @@
                 editor: window.wp?.oldEditor || window.wp?.editor,
                 hasWpEditor: !!(window.wp?.editor?.autop || window.wp?.oldEditor),
                 plainContent: this.modelValue,
+                toolsTarget: null,
                 themeObserver: null,
                 emitTimer: null,
             };
@@ -89,8 +99,13 @@
                     return '';
                 }
 
-                return 'html,body{background-color:#11171d;color:#f0f3f5;}'
-                    + '*{color:#f0f3f5;border-color:#2C3C4E;}'
+                // The host page sets these, so the editor body matches its other inputs.
+                const style = getComputedStyle(this.$el);
+                const token = (name, fallback) => style.getPropertyValue(name).trim() || fallback;
+                const text = token('--fe-editor-text', '#f0f3f5');
+
+                return `html,body{background-color:${token('--fe-editor-bg', '#11171d')};color:${text};}`
+                    + `*{color:${text};border-color:${token('--fe-editor-border', '#2C3C4E')};}`
                     + 'a{color:#8ab4f8;}';
             },
             applyThemeStyle() {
@@ -126,7 +141,6 @@
                         statusbar: true,
                         elementpath: false,
                         resize: true,
-                        content_style: this.themeContentStyle(),
                         setup: (editor) => {
                             // Each emit serializes the whole document, so emit once typing pauses,
                             // and at once on blur so a Save right after typing gets the last keys.
@@ -137,6 +151,10 @@
                             // association does not reach it. Name the iframe too,
                             // or the Visual tab is an unlabelled control.
                             editor.on('init', () => {
+                                // Through the swappable style tag, not content_style, which
+                                // init bakes in and a later switch to light cannot undo.
+                                this.applyThemeStyle();
+
                                 if (this.ariaLabelledby) {
                                     editor.iframeElement?.setAttribute(
                                         'aria-labelledby', this.ariaLabelledby
@@ -149,6 +167,16 @@
 
                 // Code-tab quick tags and media inserts set the value without a change event; blur still fires.
                 jQuery(`#${this.editorId}`).on('blur', this.emitContent);
+
+                // wp.editor builds the Visual/Code row outside Vue; the tools slot is teleported in beside the tabs.
+                const tabs = document.querySelector(`#wp-${this.editorId}-wrap .wp-editor-tabs`);
+
+                if (this.$slots.tools && tabs) {
+                    const tools = document.createElement('div');
+                    tools.className = 'fe-editor__tools';
+                    tabs.before(tools);
+                    this.toolsTarget = tools;
+                }
             },
             queueEmit() {
                 clearTimeout(this.emitTimer);
@@ -160,6 +188,23 @@
                     'update:modelValue',
                     this.editor.getContent(this.editorId)
                 );
+            },
+            insertContent(html) {
+                const tiny = window.tinymce?.get(this.editorId);
+
+                if (tiny && !tiny.isHidden()) {
+                    tiny.insertContent(html);
+                } else if (this.hasWpEditor) {
+                    const area = document.getElementById(this.editorId);
+                    const start = area.selectionStart;
+
+                    area.value = area.value.slice(0, start) + html + area.value.slice(area.selectionEnd);
+                } else {
+                    this.plainContent += html;
+                    return;
+                }
+
+                this.emitContent();
             },
         },
         mounted() {

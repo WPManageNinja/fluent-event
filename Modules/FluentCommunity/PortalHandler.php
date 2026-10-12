@@ -22,6 +22,7 @@ class PortalHandler
     public function register()
     {
         add_action('fluent_community/before_js_loaded', [$this, 'printAssets']);
+        add_action('fluent_community/portal_footer', [$this, 'printEditor']);
         add_filter('fluent_community/menu_settings_api_response', [$this, 'addMenuSetting']);
         add_filter('fluent_community/main_menu_items', [$this, 'refreshMenuItem']);
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
@@ -113,6 +114,26 @@ class PortalHandler
         return $links;
     }
 
+    // fcom renders the portal headless, without wp_head or wp_footer, so the WordPress editor the
+    // create-event description uses is printed here by hand.
+    public function printEditor()
+    {
+        $userId = get_current_user_id();
+
+        if (!$userId || !PermissionManager::userCan('write_events', $userId)) {
+            return;
+        }
+
+        wp_enqueue_editor();
+
+        // wplink searches posts over admin-ajax, which only wp-admin defines.
+        wp_add_inline_script('wplink', 'window.ajaxurl = window.ajaxurl || ' . wp_json_encode(admin_url('admin-ajax.php')) . ';', 'before');
+
+        wp_print_styles(['editor-buttons', 'buttons']);
+        wp_print_scripts(['editor', 'quicktags', 'wplink', 'jquery-ui-autocomplete']);
+        \_WP_Editors::print_default_editor_scripts();
+    }
+
     public function printAssets()
     {
         $script = Enqueue::url('fcom-portal/fcom-portal.js');
@@ -153,9 +174,8 @@ class PortalHandler
             /* translators: %s: number of guests going */
             '%s going' => __('%s going', 'fluent-event'),
             'About This Event' => __('About This Event', 'fluent-event'),
-            'Add Description' => __('Add Description', 'fluent-event'),
-            'Add Venue Type' => __('Add Venue Type', 'fluent-event'),
             'Add a cover image' => __('Add a cover image', 'fluent-event'),
+            'Add image' => __('Add image', 'fluent-event'),
             'Address' => __('Address', 'fluent-event'),
             'All' => __('All', 'fluent-event'),
             'All Events' => __('All Events', 'fluent-event'),
@@ -167,9 +187,11 @@ class PortalHandler
             'Create Event' => __('Create Event', 'fluent-event'),
             'Create new event' => __('Create new event', 'fluent-event'),
             'Date' => __('Date', 'fluent-event'),
+            'Date and time' => __('Date and time', 'fluent-event'),
             'Day' => __('Day', 'fluent-event'),
             /* translators: %d: day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
+            'Description' => __('Description', 'fluent-event'),
             'Details' => __('Details', 'fluent-event'),
             'Edit event' => __('Edit event', 'fluent-event'),
             'End' => __('End', 'fluent-event'),
@@ -177,6 +199,7 @@ class PortalHandler
             'End time' => __('End time', 'fluent-event'),
             'Ended' => __('Ended', 'fluent-event'),
             'Entry type *' => __('Entry type *', 'fluent-event'),
+            'Error' => __('Error', 'fluent-event'),
             'Event Name' => __('Event Name', 'fluent-event'),
             'Event cover image' => __('Event cover image', 'fluent-event'),
             'Event name' => __('Event name', 'fluent-event'),
@@ -186,9 +209,8 @@ class PortalHandler
             'Events that have ended will show up here.' => __('Events that have ended will show up here.', 'fluent-event'),
             'Feed post' => __('Feed post', 'fluent-event'),
             'Going' => __('Going', 'fluent-event'),
-            'Guests' => __('Guests', 'fluent-event'),
+            'Guest control' => __('Guest control', 'fluent-event'),
             'Host' => __('Host', 'fluent-event'),
-            'How guests join, and how many can' => __('How guests join, and how many can', 'fluent-event'),
             'In person' => __('In person', 'fluent-event'),
             'Interested?' => __('Interested?', 'fluent-event'),
             'Join the meeting' => __('Join the meeting', 'fluent-event'),
@@ -206,21 +228,23 @@ class PortalHandler
             'No upcoming events' => __('No upcoming events', 'fluent-event'),
             'Nobody registers. Anyone who can see the event sees all of it, meeting link included.' => __('Nobody registers. Anyone who can see the event sees all of it, meeting link included.', 'fluent-event'),
             'Not going' => __('Not going', 'fluent-event'),
-            'Offline location or virtual link' => __('Offline location or virtual link', 'fluent-event'),
             'Online' => __('Online', 'fluent-event'),
             'Online event' => __('Online event', 'fluent-event'),
+            'Only http and https links are accepted.' => __('Only http and https links are accepted.', 'fluent-event'),
             'Open' => __('Open', 'fluent-event'),
             'Past' => __('Past', 'fluent-event'),
-            'Please fill in the required fields.' => __('Please fill in the required fields.', 'fluent-event'),
             'Please register for the event to see the meeting link.' => __('Please register for the event to see the meeting link.', 'fluent-event'),
+            'Post' => __('Post', 'fluent-event'),
             'Post message *' => __('Post message *', 'fluent-event'),
             'Post title' => __('Post title', 'fluent-event'),
             'Post title *' => __('Post title *', 'fluent-event'),
             'Previous' => __('Previous', 'fluent-event'),
             'RSVP' => __('RSVP', 'fluent-event'),
+            'Registration' => __('Registration', 'fluent-event'),
             'Registration Type' => __('Registration Type', 'fluent-event'),
             'Remove Schedule' => __('Remove Schedule', 'fluent-event'),
             'Remove cover image' => __('Remove cover image', 'fluent-event'),
+            'Schedule & Registration' => __('Schedule & Registration', 'fluent-event'),
             'Schedule Post' => __('Schedule Post', 'fluent-event'),
             'Schedule post' => __('Schedule post', 'fluent-event'),
             /* translators: 1: scheduled date, 2: scheduled time */
@@ -251,7 +275,6 @@ class PortalHandler
             'View %s' => __('View %s', 'fluent-event'),
             'Week' => __('Week', 'fluent-event'),
             'What members see in the space feed, above the event.' => __('What members see in the space feed, above the event.', 'fluent-event'),
-            'What should guests know before they come?' => __('What should guests know before they come?', 'fluent-event'),
             'e.g. Kingsway Hall' => __('e.g. Kingsway Hall', 'fluent-event'),
         ];
     }
