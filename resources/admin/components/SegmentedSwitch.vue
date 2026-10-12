@@ -9,15 +9,15 @@
             class="fe-switch__option"
             :class="{ 'fe-switch__option--active': option.value === modelValue }"
             :aria-pressed="option.value === modelValue"
-            :aria-label="option.icon ? option.label : null"
-            :title="option.icon ? option.label : null"
+            :aria-label="option.icon && !showLabels ? option.label : null"
+            :title="option.icon && !showLabels ? option.label : null"
             @click="select(option.value)"
         >
             <el-icon v-if="option.icon" aria-hidden="true">
                 <component :is="option.icon" />
             </el-icon>
 
-            <template v-else>{{ option.label }}</template>
+            <template v-if="!option.icon || showLabels">{{ option.label }}</template>
         </button>
     </div>
 </template>
@@ -38,6 +38,11 @@ export default {
             required: false,
             type: String,
             default: ''
+        },
+        // Icons render alone unless this is set.
+        showLabels: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ['update:modelValue', 'change'],
