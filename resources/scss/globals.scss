@@ -70,7 +70,12 @@
     }
 
     // Components
+    // Read by WpEditor for the TinyMCE iframe, which this stylesheet cannot reach.
     .fe-editor {
+        --fe-editor-bg: var(--fe-primary-bg, #ffffff);
+        --fe-editor-text: var(--fe-primary-text, #19283a);
+        --fe-editor-border: var(--fe-primary-border, #eaecf0);
+
         width: 100%;
     }
 
@@ -261,6 +266,67 @@
             &.mce-listbox {
                 border-color: transparent;
             }
+        }
+    }
+
+    // TinyMCE's menus and inline link box float on <body>, outside .wp-editor-wrap,
+    // and core paints them for light mode only.
+    .mce-menu.mce-floatpanel {
+        border-color: var(--fe-primary-border, #eaecf0);
+        background: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+
+        .mce-menu-item:hover,
+        .mce-menu-item:focus,
+        .mce-menu-item.mce-selected,
+        .mce-menu-item.mce-active {
+            background: var(--fe-active-bg, #f0f0f1);
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        .mce-menu-shortcut {
+            color: var(--fe-secondary-text, #525866);
+        }
+    }
+
+    div.mce-inline-toolbar-grp {
+        border-color: var(--fe-primary-border, #eaecf0);
+        background: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+
+        div.mce-panel,
+        div.mce-toolbar-grp {
+            background: transparent;
+        }
+
+        .mce-btn:not(.mce-primary) .mce-ico {
+            color: var(--fe-secondary-text, #525866);
+        }
+
+        div.wp-link-input input {
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            background: var(--fe-primary-bg, #ffffff);
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        div.wp-link-preview a {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &.mce-arrow-up::before {
+            border-bottom-color: var(--fe-primary-border, #eaecf0);
+        }
+
+        &.mce-arrow-up::after {
+            border-bottom-color: var(--fe-primary-bg, #ffffff);
+        }
+
+        &.mce-arrow-down::before {
+            border-top-color: var(--fe-primary-border, #eaecf0);
+        }
+
+        &.mce-arrow-down::after {
+            border-top-color: var(--fe-primary-bg, #ffffff);
         }
     }
 }

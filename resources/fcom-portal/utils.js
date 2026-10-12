@@ -57,16 +57,18 @@ export const communityApi = {
 };
 
 export function errorMessage(error) {
-    if (error && error.message) {
+    if (error && typeof error.message === 'string') {
         return error.message;
     }
 
-    const errors = (error && error.errors) || {};
+    // fcom's validation errors are keyed by field, and its post field is itself named "message".
+    const errors = (error && (error.errors || error)) || {};
 
     for (const field of Object.keys(errors)) {
-        const first = Object.values(errors[field] || {})[0];
+        const rules = errors[field];
+        const first = rules && typeof rules === 'object' ? Object.values(rules)[0] : '';
 
-        if (first) {
+        if (typeof first === 'string' && first) {
             return first;
         }
     }
