@@ -2,10 +2,12 @@
 
 namespace FluentEvent\Modules\FluentCommunity;
 
-use FluentCommunity\App\Models\BaseSpace;
+use FluentCommunity\App\Models\Activity as FcomActivity;
+use FluentCommunity\App\Models\BaseSpace as FcomBaseSpace;
 use FluentCommunity\App\Models\Feed as FcomFeed;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
+use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
@@ -35,6 +37,7 @@ class FeedHandler
         add_filter('fluent_community/feed/update_feed_data_type_event', [$this, 'validatePostUpdate'], 10, 3);
         add_filter('fluent_community/feed/update_data', [$this, 'keepEventLink'], 10, 2);
         add_action('fluent_community/feed/updated', [$this, 'followSpaceMove'], 10, 2);
+        add_action('fluent_event/event/calendar_changed', [$this, 'followCalendarChange']);
         add_action('fluent_community/feed/before_deleted', [$this, 'deleteEvent']);
         // Before CleanupHandler (priority 10) wipes the event's fe_meta, which holds the post link.
         add_action('fluent_event/event/before_deleted', [$this, 'unlinkPost'], 5);
@@ -52,7 +55,7 @@ class FeedHandler
             return new \WP_Error('fluent_event_forbidden', __('You are not allowed to create events.', 'fluent-event'));
         }
 
-        $space = BaseSpace::query()->find((int) Arr::get($data, 'space_id'));
+        $space = FcomBaseSpace::query()->find((int) Arr::get($data, 'space_id'));
 
         if (!CommunityEvents::isDiscussionSpace($space)) {
             return new \WP_Error('fluent_event_space', __('Events can only be posted in discussion spaces.', 'fluent-event'));
@@ -124,7 +127,7 @@ class FeedHandler
         }
 
         if ($newSpaceId = (int) Arr::get($requestData, 'new_space_id')) {
-            if (!CommunityEvents::isDiscussionSpace(BaseSpace::query()->find($newSpaceId))) {
+            if (!CommunityEvents::isDiscussionSpace(FcomBaseSpace::query()->find($newSpaceId))) {
                 return new \WP_Error('fluent_event_space', __('Events can only be moved to discussion spaces.', 'fluent-event'));
             }
         }
@@ -175,6 +178,47 @@ class FeedHandler
         });
 
         do_action('fluent_event/event/updated', $event);
+    }
+
+    public function followCalendarChange($event)
+    {
+        $feed = FcomFeed::query()->find(CommunityEvents::feedIdOf($event));
+
+        if (!$feed || CommunityEvents::eventIdOf($feed) !== (int) $event->id) {
+            return;
+        }
+
+        $calendar = Calendar::query()->find($event->calendar_id);
+        $space = FcomBaseSpace::query()->find((int) Arr::get((array) $calendar->meta, CalendarService::SPACE_META_KEY));
+
+        // A calendar with no space has nowhere to hold the post, so the post lets go of the event.
+        if (!CommunityEvents::isDiscussionSpace($space)) {
+            DB::transaction(function () use ($event) {
+                $this->unlinkPost($event);
+
+                Meta::query()
+                    ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+                    ->where('object_id', $event->id)
+                    ->where('meta_key', CommunityEvents::FEED_META_KEY)
+                    ->delete();
+            });
+
+            return;
+        }
+
+        if ((int) $feed->space_id === (int) $space->id) {
+            return;
+        }
+
+        DB::transaction(function () use ($feed, $space) {
+            $feed->space_id = $space->id;
+            $feed->save();
+
+            FcomActivity::query()->where('feed_id', $feed->id)->update(['space_id' => $space->id]);
+
+            // Topics are space-scoped; the old space's topics do not carry over.
+            $feed->terms()->where('taxonomy_name', 'post_topic')->detach();
+        });
     }
 
     public function deleteEvent($feed)
@@ -312,7 +356,7 @@ class FeedHandler
             return $calendar;
         }
 
-        $space = BaseSpace::query()->find($spaceId);
+        $space = FcomBaseSpace::query()->find($spaceId);
         $calendar = CalendarService::createForSpace($spaceId, $space->title, $space->slug);
 
         do_action('fluent_event/calendar/created', $calendar);
