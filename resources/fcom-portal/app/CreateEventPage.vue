@@ -88,7 +88,10 @@
                                 </div>
 
                                 <div class="fe-create-event__card-body">
+                                    <div v-if="!editorReady" v-loading="true" class="fe-create-event__editor-loading"></div>
+
                                     <WpEditor
+                                        v-else
                                         ref="descriptionEditor"
                                         v-model="event.description"
                                         :height="280"
@@ -377,7 +380,10 @@ import { ArrowLeft, Calendar, ChatLineSquare, Clock, Delete, Document, EditPen, 
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Tabs from '@/components/Tabs.vue';
 import WpEditor from '@/components/WpEditor.vue';
-import { communityApi, errorMessage, t, timeFormat, timezoneOffset } from '../utils';
+import { communityApi, errorMessage, eventsApi, t, timeFormat, timezoneOffset } from '../utils';
+
+// Module scope, not data(): leaving the page and coming back reuses the first load instead of re-running WordPress's scripts.
+let wpEditorLoad = null;
 
 export default {
     name: 'CreateEventPage',
@@ -419,6 +425,7 @@ export default {
             },
             uploading: false,
             imageUploading: false,
+            editorReady: false,
             saving: false,
             scheduleOpen: false,
             schedule: { date: '', time: '' },
@@ -511,8 +518,49 @@ export default {
     },
     mounted() {
         this.$refs.titleInput.focus();
+
+        this.loadWpEditor().then(() => {
+            this.editorReady = true;
+        });
     },
     methods: {
+        // The WordPress editor is heavy, so it loads only when this page opens. A failed
+        // load resolves anyway; the editor component then falls back to a plain textarea.
+        loadWpEditor() {
+            if (!wpEditorLoad) {
+                wpEditorLoad = eventsApi.get('community/editor-assets')
+                    .then(({ html }) => this.insertMarkup(html))
+                    .catch(() => {});
+            }
+
+            return wpEditorLoad;
+        },
+        // Markup first, so the link dialog exists when wplink initialises; then each script in order.
+        // Anything already on the page by id, jQuery say, is left alone.
+        async insertMarkup(html) {
+            const template = document.createElement('template');
+            template.innerHTML = html;
+
+            const nodes = [...template.content.children].filter((node) => !node.id || !document.getElementById(node.id));
+
+            nodes.filter((node) => node.tagName !== 'SCRIPT').forEach((node) => document.body.appendChild(node));
+
+            for (const node of nodes.filter((node) => node.tagName === 'SCRIPT')) {
+                const script = document.createElement('script');
+
+                [...node.attributes].forEach((attribute) => script.setAttribute(attribute.name, attribute.value));
+                script.text = node.text;
+
+                await new Promise((resolve) => {
+                    script.onload = script.onerror = resolve;
+                    document.body.appendChild(script);
+
+                    if (!script.src) {
+                        resolve();
+                    }
+                });
+            }
+        },
         isPastDay(date) {
             return dayjs(date).isBefore(dayjs(), 'day');
         },

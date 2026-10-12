@@ -2,6 +2,7 @@
 
 namespace FluentEvent\App\Http\Policies;
 
+use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\Framework\Http\Request\Request;
 
 /**
@@ -19,5 +20,13 @@ class CommunityPolicy extends Policy
     public function register(Request $request, ...$args)
     {
         return defined('FLUENT_COMMUNITY_PLUGIN_VERSION') && get_current_user_id() > 0;
+    }
+
+    // Only the create-event page asks for the editor, and only event creators reach it.
+    public function getEditorAssets(Request $request, ...$args)
+    {
+        $userId = get_current_user_id();
+
+        return defined('FLUENT_COMMUNITY_PLUGIN_VERSION') && $userId && PermissionManager::userCan('write_events', $userId);
     }
 }
