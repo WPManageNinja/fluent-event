@@ -27,6 +27,8 @@ $app->addCustomAction('exception', 'ExceptionHandler');
  */
 $app->addAction('init', 'CPTHandler@registerPostTypes');
 
+(new \FluentEvent\App\Hooks\Handlers\LandingPageHandler())->register();
+
 /**
  * Cascade cleanup rides the deletion actions - never model boot hooks.
  */

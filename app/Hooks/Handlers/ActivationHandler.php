@@ -18,6 +18,9 @@ class ActivationHandler
     {
         DBMigrator::run($network_wide);
 
+        (new LandingPageHandler())->addRewriteRules();
+        flush_rewrite_rules();
+
         // Deactivation unschedules every queued action, reminder sends included.
         if (function_exists('as_enqueue_async_action')) {
             as_enqueue_async_action('fluent_event/reschedule_event_reminders', [0], 'fluent-event');

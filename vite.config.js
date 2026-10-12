@@ -50,7 +50,9 @@ export default defineConfig(({ mode }) => {
                     'resources/scss/admin.scss',
                     // FluentCommunity portal: the route/card loader and its stylesheet.
                     'resources/fcom-portal/fcom-portal.js',
-                    'resources/fcom-portal/fcom-portal.scss'
+                    'resources/fcom-portal/fcom-portal.scss',
+                    // Public landing pages under the portal slug.
+                    'resources/portal/portal.scss'
                 ],
                 output: {
                     chunkFileNames: '[name].js',
