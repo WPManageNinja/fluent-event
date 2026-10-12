@@ -8,6 +8,19 @@ class CustomSanitizer extends Sanitizer
 {
     public static function webUrl($arg)
     {
-        return esc_url_raw(trim((string) $arg), ['http', 'https']) ?: '';
+        $url = esc_url_raw(trim((string) $arg), ['http', 'https']) ?: '';
+
+        // esc_url_raw leaves non-ASCII as is (an upload named "Feature – 2"), and the url rule
+        // rejects it. Encode it past the host, so an international domain name stays intact.
+        $scheme = strpos($url, '://');
+        $pathStart = $scheme === false ? false : strpos($url, '/', $scheme + 3);
+
+        if ($pathStart === false) {
+            return $url;
+        }
+
+        return substr($url, 0, $pathStart) . preg_replace_callback('/[^\x00-\x7F]+/', function ($match) {
+            return rawurlencode($match[0]);
+        }, substr($url, $pathStart));
     }
 }
