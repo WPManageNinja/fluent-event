@@ -24,7 +24,7 @@
         </div>
 
         <Tabs v-model="tab" :tabs="tabs">
-            <template #details>
+            <template #general>
                 <div class="fe-create-event__grid">
                     <aside class="fe-create-event__aside">
                         <div class="fe-create-event__cover">
@@ -120,7 +120,7 @@
                 </div>
             </template>
 
-            <template #schedule>
+            <template #setup>
                 <div class="fe-create-event__main">
                     <div class="fe-create-event__card">
                         <div class="fe-create-event__card-head">
@@ -302,7 +302,7 @@ export default {
                 value: zone,
                 label: `${zone} (${timezoneOffset(zone)})`,
             }))),
-            tab: 'details',
+            tab: 'general',
             event: {
                 title: '',
                 description: '',
@@ -328,8 +328,8 @@ export default {
     computed: {
         tabs() {
             return [
-                { value: 'details', label: this.$t('Details') },
-                { value: 'schedule', label: this.$t('Schedule & Registration') },
+                { value: 'general', label: this.$t('General') },
+                { value: 'setup', label: this.$t('Setup') },
                 { value: 'post', label: this.$t('Post') },
             ];
         },
