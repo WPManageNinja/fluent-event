@@ -85,7 +85,7 @@
                                 </span>
                             </div>
 
-                            <div class="fe-create-event__card-body">
+                            <div class="fe-create-event__card-body fe-create-event__card-body--flush">
                                 <div v-if="!editorReady" v-loading="true" class="fe-create-event__editor-loading"></div>
 
                                 <WpEditor

@@ -1309,13 +1309,16 @@
         .el-form-item {
             margin-bottom: 0;
         }
+
+        // The description editor fills the card edge to edge, so the card is its only frame.
+        &.fe-create-event__card-body--flush {
+            padding: 0;
+        }
     }
 
     // Holds the description card's height while the WordPress editor loads.
     &__editor-loading {
         min-height: 400px;
-        border: 1px solid var(--fcom-primary-border, #e3e8ee);
-        border-radius: 8px;
     }
 
     // The card body is a flex column; keep the switch at its own width.
@@ -1448,20 +1451,20 @@
 
     // The WordPress editor's chrome is painted for wp-admin; this restyles it in fcom's tokens.
     .wp-editor-wrap {
-        border: 1px solid var(--fcom-primary-border, #e3e8ee);
-        border-radius: 8px;
         overflow: hidden;
         background-color: var(--fcom-primary-bg, #ffffff);
 
+        // Core nests the editor container in this row, so the 16px inset (matching the card head)
+        // goes on the first button, not the row, or the editor would lose its edge-to-edge fit.
         .wp-editor-tools {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             column-gap: 4px;
-            padding-top: 8px;
+            padding-top: 12px;
 
             > :first-child {
-                margin-left: 4px;
+                margin-left: 16px;
             }
         }
 
@@ -1556,6 +1559,10 @@
         div.mce-toolbar-grp {
             border-bottom: 0;
             background-color: var(--fcom-primary-bg, #ffffff);
+
+            > div {
+                padding: 4px 14px;
+            }
         }
 
         div.mce-statusbar {
