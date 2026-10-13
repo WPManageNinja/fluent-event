@@ -53,7 +53,8 @@
                         </div>
                     </div>
 
-                    <span class="fe-event-view__status" :class="`fe-event-view__status--${phase}`">{{ statusLabel }}</span>
+                    <span v-if="phase === 'live'" class="fe-live-badge">{{ $t('Happening now') }}</span>
+                    <span v-else class="fe-event-view__status" :class="`fe-event-view__status--${phase}`">{{ statusLabel }}</span>
 
                     <div v-if="hasActions || countLabel" class="fe-event-view__rsvp">
                         <event-actions v-if="hasActions" :event="event" @done="event = $event.event" @error="error = $event"></event-actions>
@@ -159,8 +160,6 @@ export default {
             event: null,
             feed: null,
             error: '',
-            now: Date.now(),
-            ticker: null,
             icons: { APPLE, GOOGLE },
         };
     },
@@ -210,19 +209,15 @@ export default {
             );
         },
         phase() {
-            return eventPhase(this.event, this.now);
+            return eventPhase(this.event);
         },
         statusLabel() {
             if (this.phase === 'ended') {
                 return this.$t('Ended');
             }
 
-            if (this.phase === 'live') {
-                return this.$t('Happening now');
-            }
-
             /* translators: %s: relative time, e.g. "in 3 days" */
-            return this.$t('Starts %s', utc(this.event.start_at).from(this.now));
+            return this.$t('Starts %s', utc(this.event.start_at).fromNow());
         },
         meetingLink() {
             return /^https?:\/\//i.test(this.event.online_meeting_url) ? this.event.online_meeting_url : '';
@@ -269,13 +264,6 @@ export default {
     },
     mounted() {
         this.fetchEvent();
-        // Keeps "Starts in …" and the live / ended state current while the page stays open.
-        this.ticker = setInterval(() => {
-            this.now = Date.now();
-        }, 60000);
-    },
-    beforeUnmount() {
-        clearInterval(this.ticker);
     },
     methods: {
         async fetchEvent() {

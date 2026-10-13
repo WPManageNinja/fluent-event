@@ -79,7 +79,9 @@ export function errorMessage(error) {
 const dayjs = (value) => window.dayjs(value);
 const utc = (value) => window.dayjs.utc(value);
 
-export function eventPhase(event, now = Date.now()) {
+export function eventPhase(event) {
+    const now = Date.now();
+
     if (event.is_past || now >= utc(event.end_at).valueOf()) {
         return 'ended';
     }

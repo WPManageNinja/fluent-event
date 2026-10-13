@@ -91,7 +91,7 @@
                         <el-icon><Calendar/></el-icon>
                     </span>
 
-                    <span v-if="view === 'cards' && isLive(event)" class="fe-event-item__live">{{ $t('Happening now') }}</span>
+                    <span v-if="view === 'cards' && isLive(event)" class="fe-event-item__live fe-live-badge">{{ $t('Happening now') }}</span>
 
                     <span v-if="view === 'cards'" class="fe-event-item__date fe-date-chip" aria-hidden="true">
                         <span class="fe-date-chip__month">{{ month(event) }}</span>
