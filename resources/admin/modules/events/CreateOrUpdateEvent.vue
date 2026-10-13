@@ -43,7 +43,7 @@
 
             <form v-else id="fe-event-form" class="fe-event-form" novalidate @submit.prevent="saveEvent">
                 <Tabs v-model="tab" :tabs="tabs">
-                    <template #details>
+                    <template #general>
                         <div class="fe-event-form__grid">
                             <aside class="fe-event-form__aside">
                                 <MediaPicker
@@ -158,7 +158,7 @@
                         </div>
                     </template>
 
-                    <template #schedule>
+                    <template #setup>
                         <div class="fe-event-form__main">
                             <div class="fe-event-form__card">
                                 <div class="fe-event-form__card-head">
@@ -381,7 +381,7 @@
                 saving: false,
                 calendars: [],
                 event: {},
-                tab: 'details',
+                tab: 'general',
             };
         },
         computed: {
@@ -393,8 +393,8 @@
             },
             tabs() {
                 return [
-                    { value: 'details', label: this.$t('Details') },
-                    { value: 'schedule', label: this.$t('Schedule & Registration') },
+                    { value: 'general', label: this.$t('General') },
+                    { value: 'setup', label: this.$t('Setup') },
                 ];
             },
             eventId() {
@@ -614,8 +614,8 @@
 
                         if (field) {
                             this.tab = ['title', 'calendar_id', 'status', 'cover_url', 'description'].includes(field)
-                                ? 'details'
-                                : 'schedule';
+                                ? 'general'
+                                : 'setup';
                         }
 
                         this.$handleError(error);
