@@ -238,10 +238,14 @@
         }
     }
 
-    &__pop {
+    // As wide as the trigger, never narrower than 180px (the feed card's trigger is smaller).
+    // Three classes: Element Plus's `.el-popover.el-popper` min-width loads after this sheet.
+    &__pop.el-popover.el-popper {
         top: calc(100% + 4px);
         right: 0;
-        width: 180px;
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 180px;
 
         li + li {
             margin-top: 10px;
@@ -1731,43 +1735,62 @@ body {
         }
     }
 
-    &__grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 300px;
-        gap: 24px;
-        align-items: start;
-
-        @media (max-width: 900px) {
-            grid-template-columns: minmax(0, 1fr);
-        }
-    }
-
+    // Wide and short, so the title and the action card still show without scrolling.
     &__cover {
         display: block;
         width: 100%;
-        max-height: 320px;
+        aspect-ratio: 21 / 8;
         border-radius: 12px;
         object-fit: cover;
     }
 
+    // The action card sits beside the content, but before it on narrow screens.
+    &__grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        grid-template-areas:
+            "intro side"
+            "body side";
+        gap: 20px 28px;
+        align-items: start;
+
+        @media (max-width: 900px) {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas:
+                "intro"
+                "side"
+                "body";
+        }
+    }
+
+    // On the grid, not the cover: fcom's `.fhr_wrap img { margin: 0 }` outranks a margin on the image.
+    &__cover + &__grid {
+        margin-top: 20px;
+    }
+
+    &__intro {
+        grid-area: intro;
+    }
+
+    &__body {
+        grid-area: body;
+        display: grid;
+        gap: 16px;
+    }
+
     &__title {
-        margin: 0 0 14px;
+        margin: 0 0 12px;
         font-size: 28px;
         font-weight: 700;
         line-height: 1.25;
         color: var(--fcom-primary-text, #19283a);
     }
 
-    // On the title, not the cover: fcom's `.fhr_wrap img { margin: 0 }` outranks a margin on the image.
-    &__cover + &__title {
-        margin-top: 20px;
-    }
-
     &__meta {
         display: flex;
         flex-wrap: wrap;
         gap: 8px 20px;
-        margin: 0 0 24px;
+        margin: 0;
         padding: 0;
         list-style: none;
     }
@@ -1811,14 +1834,35 @@ body {
             margin-bottom: 0;
         }
 
+        // Organizer headings stay below the section title above them.
+        h1,
+        h2,
+        h3 {
+            margin: 18px 0 8px;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        h4,
+        h5,
+        h6 {
+            margin: 14px 0 6px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
         img {
             max-width: 100%;
             height: auto;
         }
     }
 
-    // Stays in view beside a long description; stacks under it on narrow screens.
+    // Stays in view beside a long description; scrolls with the page on narrow screens.
     &__side {
+        grid-area: side;
+        display: grid;
+        gap: 14px;
         position: sticky;
         top: calc(var(--fcom-header-height, 55px) + 24px);
 
@@ -1832,46 +1876,209 @@ body {
         }
     }
 
-    &__panel-title {
-        margin: 0 0 14px;
-        font-size: 12px;
-        font-weight: 700;
+    &__when {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    &__date-chip {
+        flex: none;
+        width: 52px;
+        overflow: hidden;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    &__date-month {
+        display: block;
+        padding: 2px 0;
+        font-size: 11px;
+        font-weight: 600;
         letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--fcom-secondary-text, #525866);
+        background: var(--fcom-active-bg, #f0f3f5);
     }
 
-    &__facts {
-        margin: 0 0 16px;
+    &__date-day {
+        display: block;
+        padding: 3px 0 5px;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.2;
     }
 
-    &__fact + &__fact {
-        margin-top: 14px;
+    &__when-text {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
     }
 
-    &__fact-label {
-        font-size: 11px;
+    &__when-date {
+        font-size: 15px;
         font-weight: 600;
+    }
+
+    &__when-local {
+        font-size: 12px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__status {
+        justify-self: start;
+        padding: 2px 10px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+        background: var(--fcom-active-bg, #f0f3f5);
+
+        &.fe-event-view__status--live {
+            color: var(--fcom-danger, #d63638);
+            border-color: currentColor;
+            background: transparent;
+        }
+
+        &.fe-event-view__status--ended {
+            color: var(--fcom-secondary-text, #525866);
+            border-color: var(--fcom-primary-border, #e3e8ee);
+            background: transparent;
+        }
+    }
+
+    &__join.el-button {
+        width: 100%;
+        margin: 0;
+    }
+
+    &__note {
+        margin: 0;
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__calendar {
+        display: grid;
+        gap: 8px;
+        padding-top: 14px;
+        border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
+    }
+
+    &__calendar-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
         color: var(--fcom-secondary-text, #525866);
     }
 
-    &__fact-value {
-        margin: 4px 0 0;
-        font-size: 14px;
-        overflow-wrap: anywhere;
+    // Stacked: side by side, the labels wrap beside their icons in the narrow card.
+    &__calendar-links {
+        display: grid;
+        gap: 8px;
+    }
 
-        a {
-            color: var(--fcom-text-link, #2271b1);
+    &__calendar-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 36px;
+        padding: 6px 10px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+        background: transparent;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--fcom-primary-text, #19283a);
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--fcom-active-bg, #f0f3f5);
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 2px;
         }
     }
 
-    &__line {
+    &__rsvp {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .fe-event-actions {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    &__calendar-icon {
+        display: inline-flex;
+        flex: none;
+        width: 15px;
+        height: 15px;
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__count {
+        flex: none;
+        font-size: 14px;
+        white-space: nowrap;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    // Sits where online events show Join online, so "where" has one place in the card.
+    &__place {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__place-icon {
+        flex: none;
+        margin-top: 2px;
+        font-size: 18px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__place-text {
+        min-width: 0;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+    }
+
+    &__venue {
         display: block;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    &__address {
+        display: block;
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
     }
 
     &__error {
-        margin: 8px 0 0;
+        margin: 0;
         font-size: 13px;
         color: var(--fcom-danger, #d63638);
     }
