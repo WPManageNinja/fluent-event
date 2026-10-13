@@ -39,6 +39,13 @@ function pageShell(page) {
             this.unmount && this.unmount();
         },
         methods: {
+            pageProps() {
+                return {
+                    spaceSlug: this.$route.params.space,
+                    feedSlug: this.$route.params.feed_slug,
+                    router: this.$router,
+                };
+            },
             async remount() {
                 const [{ createApp }, { default: Page }] = await Promise.all([import('vue'), pages[page]()]);
 
@@ -49,11 +56,7 @@ function pageShell(page) {
                 this.unmount && this.unmount();
 
                 // Its own Vue app: fcom exposes neither its Vue nor Element Plus to add-ons.
-                const app = createApp(Page, {
-                    spaceSlug: this.$route.params.space,
-                    feedSlug: this.$route.params.feed_slug,
-                    router: this.$router,
-                });
+                const app = createApp(Page, this.pageProps());
                 app.config.globalProperties.$t = t;
                 app.mount(this.$refs.mount);
 
@@ -63,6 +66,91 @@ function pageShell(page) {
         template: `<div class="fe-fcom-portal-page fe-fcom-portal-page--${page}"><div ref="mount"></div></div>`,
     };
 }
+
+// fcom's own composer writes and submits the post; our page only fills in the event it carries.
+// The composer lives on fcom's Vue, outside our tabs, so the page reports the open tab to show it under Post.
+const createEventShell = {
+    extends: pageShell('create_event'),
+    data() {
+        return {
+            tab: '',
+            // Mounted on first visit, like our own tab panels: hidden at mount, fcom sizes its title field to nothing.
+            postOpened: false,
+            onPosting: null,
+            feed: {
+                title: '',
+                message: '',
+                type: 'text',
+                content_type: 'event',
+                event: {},
+                topic_ids: [],
+                send_announcement_email: 'no',
+                status: 'published',
+            },
+        };
+    },
+    methods: {
+        t,
+        pageProps() {
+            return {
+                spaceSlug: this.$route.params.space,
+                router: this.$router,
+                onChange: (event) => {
+                    this.feed.event = event;
+                },
+                onTabChange: (tab) => {
+                    this.tab = tab;
+                    this.postOpened = this.postOpened || tab === 'post';
+                },
+                submitPost: (onPosting) => this.submitPost(onPosting),
+            };
+        },
+        // Our header button submits fcom's composer, which reports back while it posts.
+        submitPost(onPosting) {
+            const composer = this.$refs.composer;
+
+            if (!composer) {
+                return false;
+            }
+
+            this.onPosting = onPosting;
+            composer.post();
+
+            return true;
+        },
+        watchPosting() {
+            this.$refs.composer.$watch('posting', (posting) => this.onPosting && this.onPosting(posting));
+        },
+        // A scheduled or held post has no page to open yet.
+        posted(feed) {
+            const route = feed.status === 'published'
+                ? { name: 'single_feed', params: { feed_slug: feed.slug } }
+                : { name: 'fe_space_events', params: { space: this.$route.params.space } };
+
+            this.$router.push(route);
+        },
+    },
+    template: `
+        <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event">
+            <div ref="mount"></div>
+            <section v-if="postOpened" v-show="tab === 'post'" class="fe-create-event-post">
+                <h2 class="fe-create-event-post__title">{{ t('Feed post') }}</h2>
+                <p class="fe-create-event-post__hint">{{ t('What members see in the space feed, above the event.') }}</p>
+                <create-status-form
+                    ref="composer"
+                    default-state="active"
+                    :space="$route.params.space"
+                    :disableSpace="true"
+                    :hideSubmit="true"
+                    :editing_feed="feed"
+                    @vue:mounted="watchPosting"
+                    @added="posted"
+                    @scheduled="posted"
+                />
+            </section>
+        </div>
+    `,
+};
 
 function register() {
     const { addFilter } = window.FluentCommunityUtil.hooks;
@@ -97,7 +185,7 @@ function register() {
                 {
                     path: 'create-event',
                     name: 'fe_space_create_event',
-                    component: pageShell('create_event'),
+                    component: createEventShell,
                     props: true,
                     meta: { in_space: true, show_sidebar: false },
                 }
@@ -124,7 +212,7 @@ function register() {
         return actions;
     });
 
-    // Event posts carry the event instead of media, so the post editor offers no attachments.
+    // Event posts carry the event instead of attachments; images inside the message stay allowed.
     addFilter('fluent_com_composer_config', 'fluent-event', (config, feed) => {
         if (!feed || feed.content_type !== 'event') {
             return config;
@@ -137,7 +225,6 @@ function register() {
             videoApp: false,
             mediaApp: false,
             giphyApp: false,
-            disableUpload: true,
         };
     });
 }
