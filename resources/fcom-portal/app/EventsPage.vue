@@ -91,6 +91,8 @@
                         <el-icon><Calendar/></el-icon>
                     </span>
 
+                    <span v-if="view === 'cards' && isLive(event)" class="fe-event-item__live">{{ $t('Happening now') }}</span>
+
                     <span v-if="view === 'cards'" class="fe-event-item__date fe-date-chip" aria-hidden="true">
                         <span class="fe-date-chip__month">{{ month(event) }}</span>
                         <span class="fe-date-chip__day">{{ day(event) }}</span>
@@ -136,7 +138,7 @@
 import { Calendar, Grid, MapLocation, Search, Tickets, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions, eventStart } from '../utils';
+import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 import EventsCalendar from './EventsCalendar.vue';
@@ -222,6 +224,9 @@ export default {
     methods: {
         month: eventMonth,
         day: eventDay,
+        isLive(event) {
+            return eventPhase(event) === 'live';
+        },
         countLabel: guestCountLabel,
         startDate: eventStart,
         timelineDate(event) {
