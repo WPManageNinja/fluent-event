@@ -1300,12 +1300,6 @@
         overflow-wrap: anywhere;
     }
 
-    &__card-hint {
-        font-size: 12px;
-        line-height: 1.5;
-        color: var(--fcom-secondary-text, #525866);
-    }
-
     &__card-body {
         display: flex;
         flex-direction: column;
@@ -1444,30 +1438,6 @@
         cursor: pointer;
     }
 
-    &__post-schedule .el-button .el-icon {
-        margin-right: 6px;
-    }
-
-    &__post-schedule-info {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 0;
-        border: 0;
-        background: none;
-        font-size: 14px;
-        color: var(--fcom-secondary-text, #525866);
-        cursor: pointer;
-
-        &:hover {
-            color: var(--fcom-primary-text, #19283a);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--fcom-primary-button, #2B2E33);
-            outline-offset: 2px;
-        }
-    }
 
     // Read by WpEditor for the TinyMCE iframe; the same colors as fcom's other inputs.
     .fe-editor {
@@ -1704,16 +1674,17 @@ body {
     }
 }
 
-// The dialog's look comes from fcom's own fcom_common_dialog classes; this only fills the gaps.
-.fe-schedule-dialog {
-    --el-color-primary: var(--fcom-primary-button, #2B2E33);
-
-    .fcom_schedule_form .el-select {
-        width: 210px;
+// Wraps fcom's own composer as the Post tab's content; the composer styles itself.
+.fe-create-event-post {
+    &__title {
+        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
     }
 
-    &__help {
-        margin: 4px 0 0;
+    &__hint {
+        margin: 0 0 12px;
         font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
     }

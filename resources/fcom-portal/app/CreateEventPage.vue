@@ -15,382 +15,279 @@
 
             <el-button
                 class="fcom_primary_button fe-create-event__submit"
-                native-type="submit"
-                form="fe-create-event-form"
                 :loading="saving"
                 :disabled="saving || uploading || imageUploading"
+                @click="submit"
             >
                 {{ $t('Create Event') }}
             </el-button>
         </div>
 
-        <form id="fe-create-event-form" novalidate @submit.prevent="submit">
-            <Tabs v-model="tab" :tabs="tabs">
-                <template #details>
-                    <div class="fe-create-event__grid">
-                        <aside class="fe-create-event__aside">
-                            <div class="fe-create-event__cover">
-                                <label v-loading="uploading" class="fe-create-event__cover-box">
-                                    <img
-                                        v-if="event.cover_url"
-                                        class="fe-create-event__cover-img"
-                                        :src="event.cover_url"
-                                        :alt="$t('Event cover image')"
-                                    />
-
-                                    <span v-else class="fe-create-event__cover-empty">
-                                        <el-icon class="fe-create-event__cover-icon" aria-hidden="true"><Picture/></el-icon>
-                                        <span>{{ $t('Click to add a cover image') }}</span>
-                                    </span>
-
-                                    <input
-                                        class="fe-create-event__file"
-                                        type="file"
-                                        accept="image/*"
-                                        :disabled="uploading"
-                                        :aria-label="$t('Add a cover image')"
-                                        @change="uploadCover"
-                                    />
-                                </label>
-
-                                <el-button
+        <Tabs v-model="tab" :tabs="tabs">
+            <template #details>
+                <div class="fe-create-event__grid">
+                    <aside class="fe-create-event__aside">
+                        <div class="fe-create-event__cover">
+                            <label v-loading="uploading" class="fe-create-event__cover-box">
+                                <img
                                     v-if="event.cover_url"
-                                    class="fe-create-event__cover-remove"
-                                    circle
-                                    :aria-label="$t('Remove cover image')"
-                                    :title="$t('Remove cover image')"
-                                    @click="event.cover_url = ''"
-                                >
-                                    <el-icon><Delete/></el-icon>
-                                </el-button>
-                            </div>
-                        </aside>
-
-                        <div class="fe-create-event__main">
-                            <label class="fe-create-event__title-label" for="fe-create-event-title">{{ $t('Event name') }}</label>
-                            <input
-                                id="fe-create-event-title"
-                                ref="titleInput"
-                                v-model="event.title"
-                                class="fe-create-event__title"
-                                type="text"
-                                maxlength="255"
-                                :placeholder="$t('Event Name')"
-                            />
-
-                            <div class="fe-create-event__card">
-                                <div class="fe-create-event__card-head">
-                                    <el-icon class="fe-create-event__card-icon" aria-hidden="true"><Document/></el-icon>
-
-                                    <span class="fe-create-event__card-text">
-                                        <span id="fe-create-event-description-label" class="fe-create-event__card-title">{{ $t('Description') }}</span>
-                                    </span>
-                                </div>
-
-                                <div class="fe-create-event__card-body">
-                                    <div v-if="!editorReady" v-loading="true" class="fe-create-event__editor-loading"></div>
-
-                                    <WpEditor
-                                        v-else
-                                        ref="descriptionEditor"
-                                        v-model="event.description"
-                                        :height="280"
-                                        quick-tags
-                                        toolbar="formatselect,bold,italic,bullist,numlist,link,blockquote,alignleft,aligncenter,alignright,underline,strikethrough,forecolor,removeformat,outdent,indent,undo,redo"
-                                        aria-labelledby="fe-create-event-description-label"
-                                    >
-                                        <template #tools>
-                                            <el-button class="fe-create-event__editor-tool" :loading="imageUploading" @click="$refs.imageInput.click()">
-                                                <el-icon v-if="!imageUploading" aria-hidden="true"><Picture/></el-icon>
-                                                <span>{{ $t('Add image') }}</span>
-                                            </el-button>
-
-                                            <input
-                                                ref="imageInput"
-                                                class="fe-create-event__file"
-                                                type="file"
-                                                accept="image/*"
-                                                tabindex="-1"
-                                                aria-hidden="true"
-                                                @change="uploadImage"
-                                            />
-                                        </template>
-                                    </WpEditor>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-
-                <template #schedule>
-                    <div class="fe-create-event__main">
-                        <div class="fe-create-event__card">
-                            <div class="fe-create-event__card-head">
-                                <el-icon class="fe-create-event__card-icon" aria-hidden="true"><Calendar/></el-icon>
-
-                                <span class="fe-create-event__card-text">
-                                    <span class="fe-create-event__card-title">{{ $t('Date and time') }}</span>
-                                </span>
-                            </div>
-
-                            <div class="fe-create-event__card-body">
-                                <div v-for="bound in bounds" :key="bound.dateKey" class="fe-create-event__window-row">
-                                    <span class="fe-create-event__window-label">{{ bound.label }}</span>
-
-                                    <el-date-picker
-                                        v-model="event[bound.dateKey]"
-                                        class="fe-create-event__date"
-                                        type="date"
-                                        format="MMM D, YYYY"
-                                        value-format="YYYY-MM-DD"
-                                        :clearable="false"
-                                        :aria-label="bound.dateLabel"
-                                        :disabled-date="bound.disabledDate"
-                                        @change="syncEndDate"
-                                    />
-
-                                    <el-time-picker
-                                        v-model="event[bound.timeKey]"
-                                        class="fe-create-event__time"
-                                        :format="timeFormat"
-                                        value-format="HH:mm"
-                                        :clearable="false"
-                                        :aria-label="bound.timeLabel"
-                                    />
-                                </div>
-
-                                <div class="fe-create-event__window-row">
-                                    <span class="fe-create-event__window-label">{{ $t('Timezone') }}</span>
-
-                                    <el-select-v2
-                                        v-model="event.timezone"
-                                        class="fe-create-event__timezone"
-                                        :options="timezones"
-                                        filterable
-                                        :aria-label="$t('Timezone')"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="fe-create-event__card">
-                            <div class="fe-create-event__card-head">
-                                <el-icon class="fe-create-event__card-icon" aria-hidden="true"><LocationInformation/></el-icon>
-
-                                <span class="fe-create-event__card-text">
-                                    <span class="fe-create-event__card-title">{{ $t('Location') }}</span>
-                                </span>
-                            </div>
-
-                            <div class="fe-create-event__card-body">
-                                <SegmentedSwitch
-                                    v-model="event.venue_type"
-                                    class="fe-create-event__venue-switch"
-                                    :options="venueTypes"
-                                    :label="$t('Venue type')"
-                                    show-labels
+                                    class="fe-create-event__cover-img"
+                                    :src="event.cover_url"
+                                    :alt="$t('Event cover image')"
                                 />
 
-                                <el-form-item v-if="event.venue_type === 'online'" :label="$t('Meeting link *')" label-position="top">
-                                    <el-input v-model="event.online_meeting_url" type="url" placeholder="https://meet.example.com/standup"/>
-                                    <span class="fe-create-event__hint">{{ $t('Only http and https links are accepted.') }}</span>
-                                </el-form-item>
-
-                                <template v-else>
-                                    <el-form-item :label="$t('Venue name')" label-position="top">
-                                        <el-input v-model="event.venue" maxlength="255" :placeholder="$t('e.g. Kingsway Hall')"/>
-                                    </el-form-item>
-
-                                    <el-form-item :label="$t('Address')" label-position="top">
-                                        <el-input
-                                            v-model="event.address"
-                                            type="textarea"
-                                            :rows="2"
-                                            maxlength="500"
-                                            :placeholder="$t('Street, city, country')"
-                                        />
-                                    </el-form-item>
-                                </template>
-                            </div>
-                        </div>
-
-                        <div class="fe-create-event__card">
-                            <div class="fe-create-event__card-head">
-                                <el-icon class="fe-create-event__card-icon" aria-hidden="true"><User/></el-icon>
-
-                                <span class="fe-create-event__card-text">
-                                    <span class="fe-create-event__card-title">{{ $t('Registration') }}</span>
+                                <span v-else class="fe-create-event__cover-empty">
+                                    <el-icon class="fe-create-event__cover-icon" aria-hidden="true"><Picture/></el-icon>
+                                    <span>{{ $t('Click to add a cover image') }}</span>
                                 </span>
-                            </div>
 
-                            <div class="fe-create-event__card-body">
-                                <el-form-item :label="$t('Entry type *')" label-position="top">
-                                    <el-radio-group
-                                        v-model="event.entry_type"
-                                        class="fe-create-event__choices"
-                                        :aria-label="$t('Registration Type')"
-                                    >
-                                        <el-radio v-for="option in entryTypes" :key="option.value" :value="option.value" border>
-                                            <span class="fe-create-event__choice-title">{{ option.label }}</span>
-                                            <span class="fe-create-event__hint">{{ option.hint }}</span>
-                                        </el-radio>
-                                    </el-radio-group>
-                                </el-form-item>
-                            </div>
+                                <input
+                                    class="fe-create-event__file"
+                                    type="file"
+                                    accept="image/*"
+                                    :disabled="uploading"
+                                    :aria-label="$t('Add a cover image')"
+                                    @change="uploadCover"
+                                />
+                            </label>
+
+                            <el-button
+                                v-if="event.cover_url"
+                                class="fe-create-event__cover-remove"
+                                circle
+                                :aria-label="$t('Remove cover image')"
+                                :title="$t('Remove cover image')"
+                                @click="event.cover_url = ''"
+                            >
+                                <el-icon><Delete/></el-icon>
+                            </el-button>
                         </div>
+                    </aside>
 
-                        <div v-if="event.entry_type === 'rsvp'" class="fe-create-event__card">
-                            <div class="fe-create-event__card-head">
-                                <el-icon class="fe-create-event__card-icon" aria-hidden="true"><Operation/></el-icon>
-
-                                <span class="fe-create-event__card-text">
-                                    <span class="fe-create-event__card-title">{{ $t('Guest control') }}</span>
-                                </span>
-                            </div>
-
-                            <div class="fe-create-event__card-body">
-                                <div class="fe-create-event__switch-row">
-                                    <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
-                                        {{ $t('Show how many guests are going') }}
-                                    </label>
-
-                                    <el-switch
-                                        id="fe-create-event-show-guest-count"
-                                        v-model="event.show_guest_count"
-                                        active-value="yes"
-                                        inactive-value="no"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-
-                <template #post>
                     <div class="fe-create-event__main">
+                        <label class="fe-create-event__title-label" for="fe-create-event-title">{{ $t('Event name') }}</label>
+                        <input
+                            id="fe-create-event-title"
+                            ref="titleInput"
+                            v-model="event.title"
+                            class="fe-create-event__title"
+                            type="text"
+                            maxlength="255"
+                            :placeholder="$t('Event Name')"
+                        />
+
                         <div class="fe-create-event__card">
                             <div class="fe-create-event__card-head">
-                                <el-icon class="fe-create-event__card-icon" aria-hidden="true"><ChatLineSquare/></el-icon>
+                                <el-icon class="fe-create-event__card-icon" aria-hidden="true"><Document/></el-icon>
 
                                 <span class="fe-create-event__card-text">
-                                    <span class="fe-create-event__card-title">{{ $t('Feed post') }}</span>
-                                    <span class="fe-create-event__card-hint">{{ $t('What members see in the space feed, above the event.') }}</span>
+                                    <span id="fe-create-event-description-label" class="fe-create-event__card-title">{{ $t('Description') }}</span>
                                 </span>
                             </div>
 
                             <div class="fe-create-event__card-body">
-                                <el-form-item
-                                    v-if="postTitlePref"
-                                    :label="postTitlePref === 'required' ? $t('Post title *') : $t('Post title')"
-                                    label-position="top"
+                                <div v-if="!editorReady" v-loading="true" class="fe-create-event__editor-loading"></div>
+
+                                <WpEditor
+                                    v-else
+                                    ref="descriptionEditor"
+                                    v-model="event.description"
+                                    :height="280"
+                                    quick-tags
+                                    toolbar="formatselect,bold,italic,bullist,numlist,link,blockquote,alignleft,aligncenter,alignright,underline,strikethrough,forecolor,removeformat,outdent,indent,undo,redo"
+                                    aria-labelledby="fe-create-event-description-label"
                                 >
-                                    <el-input v-model="post.title" maxlength="192"/>
-                                </el-form-item>
+                                    <template #tools>
+                                        <el-button class="fe-create-event__editor-tool" :loading="imageUploading" @click="$refs.imageInput.click()">
+                                            <el-icon v-if="!imageUploading" aria-hidden="true"><Picture/></el-icon>
+                                            <span>{{ $t('Add image') }}</span>
+                                        </el-button>
 
-                                <el-form-item :label="$t('Post message *')" label-position="top">
-                                    <el-input v-model="post.message" type="textarea" :rows="4"/>
-                                </el-form-item>
-
-                                <div v-if="canSchedule" class="fe-create-event__post-schedule">
-                                    <button
-                                        v-if="post.scheduled_at"
-                                        type="button"
-                                        class="fe-create-event__post-schedule-info"
-                                        @click="openSchedule"
-                                    >
-                                        <span>{{ scheduleLabel }}</span>
-                                        <el-icon aria-hidden="true"><EditPen/></el-icon>
-                                    </button>
-
-                                    <el-button v-else class="fcom_secondary_button" @click="openSchedule">
-                                        <el-icon aria-hidden="true"><Calendar/></el-icon>
-                                        <span>{{ $t('Schedule post') }}</span>
-                                    </el-button>
-                                </div>
+                                        <input
+                                            ref="imageInput"
+                                            class="fe-create-event__file"
+                                            type="file"
+                                            accept="image/*"
+                                            tabindex="-1"
+                                            aria-hidden="true"
+                                            @change="uploadImage"
+                                        />
+                                    </template>
+                                </WpEditor>
                             </div>
                         </div>
                     </div>
-                </template>
-            </Tabs>
-        </form>
+                </div>
+            </template>
 
-        <!-- fcom's own schedule modal classes, so it matches the feed composer's. -->
-        <el-dialog
-            v-model="scheduleOpen"
-            class="fe-schedule-dialog"
-            modal-class="fcom_common_dialog"
-            width="500px"
-            append-to-body
-            :close-on-click-modal="false"
-        >
-            <template #header>
-                <div class="dialog_header">
-                    <div class="dialog_left schedule_header_left">
-                        <h4>{{ $t('Schedule Post') }}</h4>
-                        <p>{{ $t('Choose a date and time in the future when you want your post to be published') }}</p>
+            <template #schedule>
+                <div class="fe-create-event__main">
+                    <div class="fe-create-event__card">
+                        <div class="fe-create-event__card-head">
+                            <el-icon class="fe-create-event__card-icon" aria-hidden="true"><Calendar/></el-icon>
+
+                            <span class="fe-create-event__card-text">
+                                <span class="fe-create-event__card-title">{{ $t('Date and time') }}</span>
+                            </span>
+                        </div>
+
+                        <div class="fe-create-event__card-body">
+                            <div v-for="bound in bounds" :key="bound.dateKey" class="fe-create-event__window-row">
+                                <span class="fe-create-event__window-label">{{ bound.label }}</span>
+
+                                <el-date-picker
+                                    v-model="event[bound.dateKey]"
+                                    class="fe-create-event__date"
+                                    type="date"
+                                    format="MMM D, YYYY"
+                                    value-format="YYYY-MM-DD"
+                                    :clearable="false"
+                                    :aria-label="bound.dateLabel"
+                                    :disabled-date="bound.disabledDate"
+                                    @change="syncEndDate"
+                                />
+
+                                <el-time-picker
+                                    v-model="event[bound.timeKey]"
+                                    class="fe-create-event__time"
+                                    :format="timeFormat"
+                                    value-format="HH:mm"
+                                    :clearable="false"
+                                    :aria-label="bound.timeLabel"
+                                />
+                            </div>
+
+                            <div class="fe-create-event__window-row">
+                                <span class="fe-create-event__window-label">{{ $t('Timezone') }}</span>
+
+                                <el-select-v2
+                                    v-model="event.timezone"
+                                    class="fe-create-event__timezone"
+                                    :options="timezones"
+                                    filterable
+                                    :aria-label="$t('Timezone')"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fe-create-event__card">
+                        <div class="fe-create-event__card-head">
+                            <el-icon class="fe-create-event__card-icon" aria-hidden="true"><LocationInformation/></el-icon>
+
+                            <span class="fe-create-event__card-text">
+                                <span class="fe-create-event__card-title">{{ $t('Location') }}</span>
+                            </span>
+                        </div>
+
+                        <div class="fe-create-event__card-body">
+                            <SegmentedSwitch
+                                v-model="event.venue_type"
+                                class="fe-create-event__venue-switch"
+                                :options="venueTypes"
+                                :label="$t('Venue type')"
+                                show-labels
+                            />
+
+                            <el-form-item v-if="event.venue_type === 'online'" :label="$t('Meeting link *')" label-position="top">
+                                <el-input v-model="event.online_meeting_url" type="url" placeholder="https://meet.example.com/standup"/>
+                                <span class="fe-create-event__hint">{{ $t('Only http and https links are accepted.') }}</span>
+                            </el-form-item>
+
+                            <template v-else>
+                                <el-form-item :label="$t('Venue name')" label-position="top">
+                                    <el-input v-model="event.venue" maxlength="255" :placeholder="$t('e.g. Kingsway Hall')"/>
+                                </el-form-item>
+
+                                <el-form-item :label="$t('Address')" label-position="top">
+                                    <el-input
+                                        v-model="event.address"
+                                        type="textarea"
+                                        :rows="2"
+                                        maxlength="500"
+                                        :placeholder="$t('Street, city, country')"
+                                    />
+                                </el-form-item>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="fe-create-event__card">
+                        <div class="fe-create-event__card-head">
+                            <el-icon class="fe-create-event__card-icon" aria-hidden="true"><User/></el-icon>
+
+                            <span class="fe-create-event__card-text">
+                                <span class="fe-create-event__card-title">{{ $t('Registration') }}</span>
+                            </span>
+                        </div>
+
+                        <div class="fe-create-event__card-body">
+                            <el-form-item :label="$t('Entry type *')" label-position="top">
+                                <el-radio-group
+                                    v-model="event.entry_type"
+                                    class="fe-create-event__choices"
+                                    :aria-label="$t('Registration Type')"
+                                >
+                                    <el-radio v-for="option in entryTypes" :key="option.value" :value="option.value" border>
+                                        <span class="fe-create-event__choice-title">{{ option.label }}</span>
+                                        <span class="fe-create-event__hint">{{ option.hint }}</span>
+                                    </el-radio>
+                                </el-radio-group>
+                            </el-form-item>
+                        </div>
+                    </div>
+
+                    <div v-if="event.entry_type === 'rsvp'" class="fe-create-event__card">
+                        <div class="fe-create-event__card-head">
+                            <el-icon class="fe-create-event__card-icon" aria-hidden="true"><Operation/></el-icon>
+
+                            <span class="fe-create-event__card-text">
+                                <span class="fe-create-event__card-title">{{ $t('Guest control') }}</span>
+                            </span>
+                        </div>
+
+                        <div class="fe-create-event__card-body">
+                            <div class="fe-create-event__switch-row">
+                                <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
+                                    {{ $t('Show how many guests are going') }}
+                                </label>
+
+                                <el-switch
+                                    id="fe-create-event-show-guest-count"
+                                    v-model="event.show_guest_count"
+                                    active-value="yes"
+                                    inactive-value="no"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </template>
-
-            <el-form label-position="top" class="fcom_schedule_form">
-                <el-form-item :label="$t('Date')">
-                    <el-date-picker
-                        v-model="schedule.date"
-                        type="date"
-                        format="MMM D, YYYY"
-                        value-format="YYYY-MM-DD"
-                        :placeholder="$t('Select Date')"
-                        :disabled-date="isPastDay"
-                        @change="schedule.time = ''"
-                    />
-                </el-form-item>
-
-                <el-form-item :label="$t('Time')">
-                    <el-select v-model="schedule.time" :disabled="!schedule.date" :placeholder="$t('Select Time')">
-                        <template #prefix>
-                            <el-icon aria-hidden="true"><Clock/></el-icon>
-                        </template>
-                        <el-option v-for="time in scheduleTimes" :key="time.value" :label="time.label" :value="time.value"/>
-                    </el-select>
-                </el-form-item>
-            </el-form>
-
-            <p class="fe-schedule-dialog__help">{{ $t("The date and time is based on your site's Timezone") }}</p>
-
-            <template #footer>
-                <div class="dialog_footer">
-                    <el-button class="fcom_secondary_button" @click="removeSchedule">{{ $t('Remove Schedule') }}</el-button>
-                    <el-button
-                        class="fcom_primary_button"
-                        :disabled="!schedule.date || !schedule.time"
-                        @click="applySchedule"
-                    >
-                        {{ $t('Select Schedule') }}
-                    </el-button>
-                </div>
-            </template>
-        </el-dialog>
+        </Tabs>
     </div>
 </template>
 
 <script>
 import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
-import { ArrowLeft, Calendar, ChatLineSquare, Clock, Delete, Document, EditPen, LocationInformation, MapLocation, Operation, Picture, User, VideoCamera } from '@element-plus/icons-vue';
+import { ArrowLeft, Calendar, Delete, Document, LocationInformation, MapLocation, Operation, Picture, User, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Tabs from '@/components/Tabs.vue';
 import WpEditor from '@/components/WpEditor.vue';
-import { communityApi, errorMessage, eventsApi, t, timeFormat, timezoneOffset } from '../utils';
+import { communityApi, errorMessage, eventsApi, timeFormat, timezoneOffset } from '../utils';
 
 // Module scope, not data(): leaving the page and coming back reuses the first load instead of re-running WordPress's scripts.
 let wpEditorLoad = null;
 
 export default {
     name: 'CreateEventPage',
-    components: { ArrowLeft, Calendar, ChatLineSquare, Clock, Delete, Document, EditPen, LocationInformation, Operation, Picture, User, SegmentedSwitch, Tabs, WpEditor },
+    components: { ArrowLeft, Calendar, Delete, Document, LocationInformation, Operation, Picture, User, SegmentedSwitch, Tabs, WpEditor },
     props: {
         spaceSlug: { type: String, required: true },
         router: { type: Object, required: true },
+        onChange: { type: Function, required: true },
+        onTabChange: { type: Function, required: true },
+        submitPost: { type: Function, required: true },
     },
     data() {
         const start = dayjs().add(1, 'hour').startOf('hour');
@@ -406,7 +303,6 @@ export default {
                 label: `${zone} (${timezoneOffset(zone)})`,
             }))),
             tab: 'details',
-            post: { title: '', message: '', scheduled_at: '' },
             event: {
                 title: '',
                 description: '',
@@ -427,8 +323,6 @@ export default {
             imageUploading: false,
             editorReady: false,
             saving: false,
-            scheduleOpen: false,
-            schedule: { date: '', time: '' },
         };
     },
     computed: {
@@ -439,50 +333,24 @@ export default {
                 { value: 'post', label: this.$t('Post') },
             ];
         },
-        // fcom-pro schedules only for community or space moderators; anyone else's post publishes at once.
-        canSchedule() {
-            const vars = window.fluentComAdmin || {};
-            const permissions = vars.permissions || {};
-            const space = ((vars.auth || {}).spaces || {})[this.spaceSlug] || {};
+        // The `event` field of the composer's POST feeds; FeedHandler builds the event from it.
+        payload() {
+            const event = this.event;
 
-            return !!vars.pro && !!(
-                permissions.community_admin
-                || permissions.community_moderator
-                || (space.permissions || {}).community_moderator
-            );
-        },
-        // 10-minute slots; fcom-pro rejects anything 30 minutes out or less, so today starts past that.
-        scheduleTimes() {
-            if (!this.schedule.date) {
-                return [];
-            }
-
-            const day = dayjs(this.schedule.date);
-            let slot = day.startOf('day');
-
-            if (day.isSame(dayjs(), 'day')) {
-                const earliest = dayjs().add(31, 'minute');
-                slot = earliest.add((10 - (earliest.minute() % 10)) % 10, 'minute').startOf('minute');
-            }
-
-            const times = [];
-
-            while (slot.isSame(day, 'day')) {
-                times.push({ value: slot.format('HH:mm'), label: slot.format(this.timeFormat) });
-                slot = slot.add(10, 'minute');
-            }
-
-            return times;
-        },
-        scheduleLabel() {
-            const at = dayjs(this.post.scheduled_at);
-
-            return t('Scheduled for %1$s at %2$s', at.format('MMM D, YYYY'), at.format(this.timeFormat));
-        },
-        // fcom's own post title setting: '' (off), 'optional' or 'required'.
-        postTitlePref() {
-            const features = (window.fluentComAdmin && window.fluentComAdmin.features) || {};
-            return features.has_post_title || '';
+            return {
+                title: event.title,
+                description: event.description,
+                start_at: `${event.start_date} ${event.start_time}:00`,
+                end_at: `${event.end_date} ${event.end_time}:00`,
+                timezone: event.timezone,
+                venue_type: event.venue_type,
+                venue: event.venue,
+                address: event.address,
+                online_meeting_url: event.online_meeting_url,
+                cover_url: event.cover_url,
+                entry_type: event.entry_type,
+                show_guest_count: event.show_guest_count,
+            };
         },
         bounds() {
             return [
@@ -514,6 +382,20 @@ export default {
                 { value: 'rsvp', label: this.$t('RSVP'), hint: this.$t('Logged-in members say whether they are going.') },
                 { value: 'open', label: this.$t('Open'), hint: this.$t('Nobody registers. Anyone who can see the event sees all of it, meeting link included.') },
             ];
+        },
+    },
+    watch: {
+        payload: {
+            immediate: true,
+            handler(payload) {
+                this.onChange(payload);
+            },
+        },
+        tab: {
+            immediate: true,
+            handler(tab) {
+                this.onTabChange(tab);
+            },
         },
     },
     mounted() {
@@ -561,22 +443,11 @@ export default {
                 });
             }
         },
-        isPastDay(date) {
-            return dayjs(date).isBefore(dayjs(), 'day');
-        },
-        openSchedule() {
-            const at = this.post.scheduled_at ? dayjs(this.post.scheduled_at) : null;
-
-            this.schedule = at ? { date: at.format('YYYY-MM-DD'), time: at.format('HH:mm') } : { date: '', time: '' };
-            this.scheduleOpen = true;
-        },
-        applySchedule() {
-            this.post.scheduled_at = `${this.schedule.date} ${this.schedule.time}:00`;
-            this.scheduleOpen = false;
-        },
-        removeSchedule() {
-            this.post.scheduled_at = '';
-            this.scheduleOpen = false;
+        // The post message is required, and the composer only exists once its tab has been opened.
+        submit() {
+            if (!this.submitPost((posting) => { this.saving = posting; })) {
+                this.tab = 'post';
+            }
         },
         syncEndDate() {
             if (dayjs(this.event.end_date).isBefore(this.event.start_date)) {
@@ -634,45 +505,6 @@ export default {
                 this.showError(error);
             } finally {
                 this.uploading = false;
-            }
-        },
-        async submit() {
-            const event = this.event;
-
-            this.saving = true;
-
-            try {
-                const response = await communityApi.post('feeds', {
-                    title: this.post.title,
-                    message: this.post.message,
-                    space: this.spaceSlug,
-                    content_type: 'event',
-                    scheduled_at: this.post.scheduled_at || undefined,
-                    event: {
-                        title: event.title,
-                        description: event.description,
-                        start_at: `${event.start_date} ${event.start_time}:00`,
-                        end_at: `${event.end_date} ${event.end_time}:00`,
-                        timezone: event.timezone,
-                        venue_type: event.venue_type,
-                        venue: event.venue,
-                        address: event.address,
-                        online_meeting_url: event.online_meeting_url,
-                        cover_url: event.cover_url,
-                        entry_type: event.entry_type,
-                        show_guest_count: event.show_guest_count,
-                    },
-                });
-
-                if (response.feed && response.feed.status === 'published') {
-                    this.router.push({ name: 'single_feed', params: { feed_slug: response.feed.slug } });
-                } else {
-                    this.goBack();
-                }
-            } catch (error) {
-                this.showError(error);
-            } finally {
-                this.saving = false;
             }
         },
     },
