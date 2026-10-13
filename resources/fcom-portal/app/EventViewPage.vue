@@ -114,9 +114,35 @@ import EventMenu from '../EventMenu';
 const dayjs = (value) => window.dayjs(value);
 const utc = (value) => window.dayjs.utc(value);
 
-// Calendar files limit lines to 75 octets and need commas, semicolons and newlines escaped.
+// Calendar files need commas, semicolons and newlines escaped.
 const icsText = (value) => String(value || '').replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n');
-const icsFold = (line) => line.match(/.{1,73}/g).join('\r\n ');
+
+const encoder = new TextEncoder();
+
+// Lines are capped at 75 bytes, not characters; fold between whole characters so accents, CJK and emoji survive.
+const icsFold = (line) => {
+    const lines = [];
+    let current = '';
+    let bytes = 0;
+
+    for (const char of line) {
+        const size = encoder.encode(char).length;
+
+        // A continuation line starts with a space, which counts toward its 75.
+        if (bytes + size > (lines.length ? 74 : 75)) {
+            lines.push(current);
+            current = '';
+            bytes = 0;
+        }
+
+        current += char;
+        bytes += size;
+    }
+
+    lines.push(current);
+
+    return lines.join('\r\n ');
+};
 const icsStamp = (value) => utc(value).format('YYYYMMDD[T]HHmmss[Z]');
 
 // The event on its own page, read through fcom's post endpoint so it is visible exactly when its post is.
