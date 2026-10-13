@@ -148,6 +148,8 @@ class PortalHandler
     protected function strings()
     {
         return [
+            /* translators: 1: start time, 2: end time, both in the visitor's own timezone */
+            '%1$s – %2$s in your time' => __('%1$s – %2$s in your time', 'fluent-event'),
             /* translators: %d: number of further events on that day */
             '%d more' => __('%d more', 'fluent-event'),
             /* translators: %s: number of guests going */
@@ -155,9 +157,11 @@ class PortalHandler
             'About This Event' => __('About This Event', 'fluent-event'),
             'Add a cover image' => __('Add a cover image', 'fluent-event'),
             'Add image' => __('Add image', 'fluent-event'),
+            'Add to calendar' => __('Add to calendar', 'fluent-event'),
             'Address' => __('Address', 'fluent-event'),
             'All' => __('All', 'fluent-event'),
             'All Events' => __('All Events', 'fluent-event'),
+            'Apple / Outlook' => __('Apple / Outlook', 'fluent-event'),
             'Back' => __('Back', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
@@ -169,7 +173,6 @@ class PortalHandler
             /* translators: %d: day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
             'Description' => __('Description', 'fluent-event'),
-            'Details' => __('Details', 'fluent-event'),
             'Edit event' => __('Edit event', 'fluent-event'),
             'End' => __('End', 'fluent-event'),
             'End date' => __('End date', 'fluent-event'),
@@ -187,11 +190,12 @@ class PortalHandler
             'Feed post' => __('Feed post', 'fluent-event'),
             'General' => __('General', 'fluent-event'),
             'Going' => __('Going', 'fluent-event'),
+            'Google Calendar' => __('Google Calendar', 'fluent-event'),
             'Guest control' => __('Guest control', 'fluent-event'),
-            'Host' => __('Host', 'fluent-event'),
+            'Happening now' => __('Happening now', 'fluent-event'),
             'In person' => __('In person', 'fluent-event'),
             'Interested?' => __('Interested?', 'fluent-event'),
-            'Join the meeting' => __('Join the meeting', 'fluent-event'),
+            'Join online' => __('Join online', 'fluent-event'),
             'Load more' => __('Load more', 'fluent-event'),
             'Location' => __('Location', 'fluent-event'),
             'Log in to RSVP' => __('Log in to RSVP', 'fluent-event'),
@@ -207,7 +211,6 @@ class PortalHandler
             'Nobody registers. Anyone who can see the event sees all of it, meeting link included.' => __('Nobody registers. Anyone who can see the event sees all of it, meeting link included.', 'fluent-event'),
             'Not going' => __('Not going', 'fluent-event'),
             'Online' => __('Online', 'fluent-event'),
-            'Online event' => __('Online event', 'fluent-event'),
             'Only http and https links are accepted.' => __('Only http and https links are accepted.', 'fluent-event'),
             'Open' => __('Open', 'fluent-event'),
             'Past' => __('Past', 'fluent-event'),
@@ -225,6 +228,8 @@ class PortalHandler
             'Start' => __('Start', 'fluent-event'),
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
+            /* translators: %s: relative time, e.g. "in 3 days" */
+            'Starts %s' => __('Starts %s', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
             'Switch between month, week and day view' => __('Switch between month, week and day view', 'fluent-event'),

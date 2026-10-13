@@ -97,9 +97,10 @@ export function eventDay(event) {
     return dayjs(event.start_at_local).format('D');
 }
 
-export function timezoneOffset(zone) {
+// Pass the event's date to label the offset it will have then, not today's (daylight saving).
+export function timezoneOffset(zone, date = new Date()) {
     try {
-        const parts = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' }).formatToParts(new Date());
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' }).formatToParts(date);
         return (parts.find((part) => part.type === 'timeZoneName') || {}).value || '';
     } catch (e) {
         return '';
