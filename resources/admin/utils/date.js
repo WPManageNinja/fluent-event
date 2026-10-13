@@ -12,3 +12,79 @@ export const toDayKey = (time) => new Date(time).toISOString().slice(0, 10);
  * @returns {number}
  */
 export const daySpan = (start, end) => (toUtcDay(end) - toUtcDay(start)) / DAY_MS + 1;
+
+// "Add to calendar" files (.ics).
+
+const encoder = new TextEncoder();
+
+// Commas, semicolons, backslashes and newlines carry meaning in a calendar line.
+const icsText = (value) => String(value || '').replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n');
+
+// Lines are capped at 75 bytes, not characters; fold between whole characters so accents, CJK and emoji survive.
+const icsFold = (line) => {
+    const lines = [];
+    let current = '';
+    let bytes = 0;
+
+    for (const char of line) {
+        const size = encoder.encode(char).length;
+
+        // A continuation line starts with a space, which counts toward its 75.
+        if (bytes + size > (lines.length ? 74 : 75)) {
+            lines.push(current);
+            current = '';
+            bytes = 0;
+        }
+
+        current += char;
+        bytes += size;
+    }
+
+    lines.push(current);
+
+    return lines.join('\r\n ');
+};
+
+/**
+ * A UTC time as calendars write it, e.g. 20261013T113000Z.
+ * @param  {string} value  Stored "YYYY-MM-DD HH:mm:ss" in UTC, or an ISO string.
+ * @returns {string}
+ */
+export const icsStamp = (value) => `${String(value).replace(/[-:]/g, '').replace(' ', 'T').slice(0, 15)}Z`;
+
+/**
+ * One event as calendar file text. The UID is stable per event, so a re-import updates it instead of duplicating.
+ * @param  {{ id: number, title: string, start_at: string, end_at: string, description: string, location: string, url: string }} event
+ * @returns {string}
+ */
+export function buildIcs(event) {
+    const lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Fluent Events//EN',
+        'CALSCALE:GREGORIAN',
+        'BEGIN:VEVENT',
+        `UID:fluent-event-${event.id}@${window.location.host}`,
+        `DTSTAMP:${icsStamp(new Date().toISOString())}`,
+        `DTSTART:${icsStamp(event.start_at)}`,
+        `DTEND:${icsStamp(event.end_at)}`,
+        `SUMMARY:${icsText(event.title)}`,
+        `DESCRIPTION:${icsText(event.description)}`,
+        `LOCATION:${icsText(event.location)}`,
+        `URL:${event.url}`,
+        'END:VEVENT',
+        'END:VCALENDAR',
+    ];
+
+    return lines.map(icsFold).join('\r\n');
+}
+
+export function downloadIcs(text, filename) {
+    const blob = new Blob([text], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
