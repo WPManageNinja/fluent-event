@@ -1,6 +1,37 @@
 // Loaded on FluentCommunity portal pages. Colours come from fcom's own tokens so the
 // event UI follows the community theme and its dark mode.
 
+// The feed card, the events list and the event page share one date chip.
+.fe-date-chip {
+    flex: none;
+    align-self: flex-start;
+    width: 52px;
+    overflow: hidden;
+    border: 1px solid var(--fcom-primary-border, #e3e8ee);
+    border-radius: 10px;
+    text-align: center;
+    color: var(--fcom-primary-text, #19283a);
+
+    &__month {
+        display: block;
+        padding: 2px 0;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--fcom-secondary-text, #525866);
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__day {
+        display: block;
+        padding: 3px 0 5px;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+}
+
 .fe-event-card {
     margin: 12px 0 16px;
     border: 1px solid var(--fcom-primary-border, #e3e8ee);
@@ -27,31 +58,6 @@
         display: flex;
         gap: 14px;
         padding: 14px 16px 6px;
-    }
-
-    &__date {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 52px;
-        height: 56px;
-        border: 1px solid var(--fcom-primary-border, #e3e8ee);
-        border-radius: 8px;
-        background: var(--fcom-secondary-bg, #f7f8fa);
-    }
-
-    &__month {
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        color: var(--fcom-primary-button, #2b2e33);
-    }
-
-    &__day {
-        font-size: 20px;
-        font-weight: 700;
-        line-height: 1.1;
     }
 
     &__info {
@@ -817,33 +823,6 @@
     border-radius: 8px;
     background: var(--fcom-primary-bg, #ffffff);
     color: var(--fcom-primary-text, #19283a);
-
-    // Same date box as the feed card.
-    &__date {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 52px;
-        height: 56px;
-        border: 1px solid var(--fcom-primary-border, #e3e8ee);
-        border-radius: 8px;
-        background: var(--fcom-secondary-bg, #f7f8fa);
-        color: var(--fcom-primary-text, #19283a);
-    }
-
-    &__month {
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        color: var(--fcom-primary-button, #2b2e33);
-    }
-
-    &__day {
-        font-size: 20px;
-        font-weight: 700;
-        line-height: 1.1;
-    }
 
     &__info {
         grid-area: info;
@@ -1880,34 +1859,6 @@ body {
         display: flex;
         align-items: flex-start;
         gap: 12px;
-    }
-
-    &__date-chip {
-        flex: none;
-        width: 52px;
-        overflow: hidden;
-        border: 1px solid var(--fcom-primary-border, #e3e8ee);
-        border-radius: 10px;
-        text-align: center;
-    }
-
-    &__date-month {
-        display: block;
-        padding: 2px 0;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--fcom-secondary-text, #525866);
-        background: var(--fcom-active-bg, #f0f3f5);
-    }
-
-    &__date-day {
-        display: block;
-        padding: 3px 0 5px;
-        font-size: 22px;
-        font-weight: 700;
-        line-height: 1.2;
     }
 
     &__when-text {
