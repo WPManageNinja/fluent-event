@@ -86,7 +86,7 @@
                                 <span class="fe-event-view__calendar-icon" aria-hidden="true" v-html="icons.GOOGLE"></span> <!-- coding-rules-scan:ignore — static SVG constant from icons.js -->
                                 {{ $t('Google Calendar') }}
                             </a>
-                            <button type="button" class="fe-event-view__calendar-link" @click="downloadIcs">
+                            <button type="button" class="fe-event-view__calendar-link" @click="saveToCalendar">
                                 <span class="fe-event-view__calendar-icon" aria-hidden="true" v-html="icons.APPLE"></span> <!-- coding-rules-scan:ignore — static SVG constant from icons.js -->
                                 {{ $t('Apple / Outlook') }}
                             </button>
@@ -108,43 +108,13 @@
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
 import { communityApi, eventDay, eventMonth, eventPhase, guestCountLabel, hasEventActions, isSeated, timeFormat, timezoneOffset } from '../utils';
+import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 
 const dayjs = (value) => window.dayjs(value);
 const utc = (value) => window.dayjs.utc(value);
-
-// Calendar files need commas, semicolons and newlines escaped.
-const icsText = (value) => String(value || '').replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n');
-
-const encoder = new TextEncoder();
-
-// Lines are capped at 75 bytes, not characters; fold between whole characters so accents, CJK and emoji survive.
-const icsFold = (line) => {
-    const lines = [];
-    let current = '';
-    let bytes = 0;
-
-    for (const char of line) {
-        const size = encoder.encode(char).length;
-
-        // A continuation line starts with a space, which counts toward its 75.
-        if (bytes + size > (lines.length ? 74 : 75)) {
-            lines.push(current);
-            current = '';
-            bytes = 0;
-        }
-
-        current += char;
-        bytes += size;
-    }
-
-    lines.push(current);
-
-    return lines.join('\r\n ');
-};
-const icsStamp = (value) => utc(value).format('YYYYMMDD[T]HHmmss[Z]');
 
 // The event on its own page, read through fcom's post endpoint so it is visible exactly when its post is.
 export default {
@@ -278,32 +248,18 @@ export default {
                 this.loading = false;
             }
         },
-        downloadIcs() {
-            const lines = [
-                'BEGIN:VCALENDAR',
-                'VERSION:2.0',
-                'PRODID:-//Fluent Events//EN',
-                'CALSCALE:GREGORIAN',
-                'BEGIN:VEVENT',
-                `UID:fluent-event-${this.event.id}@${window.location.host}`,
-                `DTSTAMP:${icsStamp(new Date().toISOString())}`,
-                `DTSTART:${icsStamp(this.event.start_at)}`,
-                `DTEND:${icsStamp(this.event.end_at)}`,
-                `SUMMARY:${icsText(this.event.title)}`,
-                `DESCRIPTION:${icsText(this.summary)}`,
-                `LOCATION:${icsText(this.place)}`,
-                `URL:${window.location.href}`,
-                'END:VEVENT',
-                'END:VCALENDAR',
-            ];
+        saveToCalendar() {
+            const text = buildIcs({
+                id: this.event.id,
+                title: this.event.title,
+                start_at: this.event.start_at,
+                end_at: this.event.end_at,
+                description: this.summary,
+                location: this.place,
+                url: window.location.href,
+            });
 
-            const blob = new Blob([lines.map(icsFold).join('\r\n')], { type: 'text/calendar;charset=utf-8' });
-            const link = document.createElement('a');
-
-            link.href = URL.createObjectURL(blob);
-            link.download = `${this.feedSlug}.ics`;
-            link.click();
-            URL.revokeObjectURL(link.href);
+            downloadIcs(text, `${this.feedSlug}.ics`);
         },
         // Back to wherever the member came from; a direct visit falls back to the space's Events tab.
         goBack() {
