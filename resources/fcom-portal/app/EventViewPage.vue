@@ -41,9 +41,9 @@
 
                 <aside class="fe-event-view__card fe-event-view__side" :aria-label="$t('Registration')">
                     <div class="fe-event-view__when">
-                        <span class="fe-event-view__date-chip" aria-hidden="true">
-                            <span class="fe-event-view__date-month">{{ month }}</span>
-                            <span class="fe-event-view__date-day">{{ day }}</span>
+                        <span class="fe-date-chip" aria-hidden="true">
+                            <span class="fe-date-chip__month">{{ month }}</span>
+                            <span class="fe-date-chip__day">{{ day }}</span>
                         </span>
 
                         <div class="fe-event-view__when-text">

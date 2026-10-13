@@ -58,9 +58,9 @@ export default {
             <template v-else>
                 <img v-if="event.cover_url" class="fe-event-card__cover" :src="event.cover_url" alt="" />
                 <div class="fe-event-card__body">
-                    <div class="fe-event-card__date" aria-hidden="true">
-                        <span class="fe-event-card__month">{{ month }}</span>
-                        <span class="fe-event-card__day">{{ day }}</span>
+                    <div class="fe-date-chip" aria-hidden="true">
+                        <span class="fe-date-chip__month">{{ month }}</span>
+                        <span class="fe-date-chip__day">{{ day }}</span>
                     </div>
                     <div class="fe-event-card__info">
                         <div class="fe-event-card__head">
