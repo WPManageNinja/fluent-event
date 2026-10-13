@@ -77,6 +77,15 @@ export function errorMessage(error) {
 }
 
 const dayjs = (value) => window.dayjs(value);
+const utc = (value) => window.dayjs.utc(value);
+
+export function eventPhase(event, now = Date.now()) {
+    if (event.is_past || now >= utc(event.end_at).valueOf()) {
+        return 'ended';
+    }
+
+    return now >= utc(event.start_at).valueOf() ? 'live' : 'upcoming';
+}
 
 // fcom's time format: the site's WordPress setting as a dayjs pattern, so 24-hour sites read 18:00.
 export function timeFormat() {

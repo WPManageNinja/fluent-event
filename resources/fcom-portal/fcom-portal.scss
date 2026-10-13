@@ -927,6 +927,41 @@
         color: var(--fcom-secondary-text, #525866);
     }
 
+    // Laid over the cover's top-left corner; translucent, with a blur so the text still reads on a busy photo.
+    &__live {
+        grid-area: cover;
+        align-self: start;
+        justify-self: start;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+        padding: 1px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 18px;
+        color: var(--fcom-danger, #d63638);
+        color: color-mix(in srgb, var(--fcom-danger, #d63638) 75%, var(--fcom-primary-text, #19283a));
+        background: var(--fcom-primary-bg, #ffffff);
+        background: color-mix(in srgb, var(--fcom-danger, #d63638) 14%, color-mix(in srgb, var(--fcom-primary-bg, #ffffff) 65%, transparent));
+        backdrop-filter: blur(6px);
+
+        &::before {
+            content: '';
+            flex: none;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: fe-radar 1.6s ease-out infinite;
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+            }
+        }
+    }
+
     // The tile spans the grid row height, so the info row absorbs the slack and actions sit at the bottom.
     &.fe-event-item--card {
         display: grid;
@@ -965,6 +1000,16 @@
             align-self: end;
             margin: 0 -14px -14px;
         }
+    }
+}
+
+@keyframes fe-radar {
+    from {
+        box-shadow: 0 0 0 0 currentColor;
+    }
+
+    to {
+        box-shadow: 0 0 0 6px transparent;
     }
 }
 

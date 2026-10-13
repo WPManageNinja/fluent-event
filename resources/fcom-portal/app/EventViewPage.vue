@@ -106,7 +106,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventDay, eventMonth, guestCountLabel, hasEventActions, isSeated, timeFormat, timezoneOffset } from '../utils';
+import { communityApi, eventDay, eventMonth, eventPhase, guestCountLabel, hasEventActions, isSeated, timeFormat, timezoneOffset } from '../utils';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
@@ -210,11 +210,7 @@ export default {
             );
         },
         phase() {
-            if (this.event.is_past || this.now >= utc(this.event.end_at).valueOf()) {
-                return 'ended';
-            }
-
-            return this.now >= utc(this.event.start_at).valueOf() ? 'live' : 'upcoming';
+            return eventPhase(this.event, this.now);
         },
         statusLabel() {
             if (this.phase === 'ended') {
