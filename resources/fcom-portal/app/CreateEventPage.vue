@@ -227,23 +227,21 @@
 
             <section class="fe-create-event__section">
                 <div>
-                    <h2 class="fe-create-event__section-title">{{ $t('Registration') }}</h2>
+                    <h2 class="fe-create-event__section-title">{{ $t('Entry type') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('How guests join and what they see.') }}</p>
                 </div>
 
                 <div class="fe-create-event__section-fields">
-                    <el-form-item :label="$t('Entry type')" label-position="top">
-                        <el-radio-group
-                            v-model="event.entry_type"
-                            class="fe-create-event__choices"
-                            :aria-label="$t('Entry type')"
-                        >
-                            <el-radio v-for="option in entryTypes" :key="option.value" :value="option.value" border>
-                                <span class="fe-create-event__choice-title">{{ option.label }}</span>
-                                <span class="fe-create-event__hint">{{ option.hint }}</span>
-                            </el-radio>
-                        </el-radio-group>
-                    </el-form-item>
+                    <el-radio-group
+                        v-model="event.entry_type"
+                        class="fe-create-event__choices"
+                        :aria-label="$t('Entry type')"
+                    >
+                        <el-radio v-for="option in entryTypes" :key="option.value" :value="option.value" border>
+                            <span class="fe-create-event__choice-title">{{ option.label }}</span>
+                            <span class="fe-create-event__hint">{{ option.hint }}</span>
+                        </el-radio>
+                    </el-radio-group>
 
                     <div v-if="event.entry_type === 'rsvp'" class="fe-create-event__switch-row">
                         <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
