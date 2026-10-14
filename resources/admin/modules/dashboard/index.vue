@@ -74,7 +74,7 @@
                                 :key="`top-${event.id}`"
                                 :event="event"
                                 :meta="eventCalendarMeta(event)"
-                                :count="$t('%d guests', event.guests_count)"
+                                :count="$_n('%d guest', '%d guests', event.guests_count)"
                             />
                         </template>
                         <p v-else class="fe-dashboard__empty">

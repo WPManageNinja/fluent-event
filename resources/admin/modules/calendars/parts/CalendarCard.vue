@@ -31,10 +31,10 @@
                     {{ $calendarStatusLabel(calendar.status) }}
                 </span>
                 <span class="fe-calendars__card-stat">
-                    {{ $t('%d events', calendar.events_count) }}
+                    {{ $_n('%d event', '%d events', calendar.events_count) }}
                 </span>
                 <span class="fe-calendars__card-stat">
-                    {{ $t('%d guests', calendar.guests_count) }}
+                    {{ $_n('%d guest', '%d guests', calendar.guests_count) }}
                 </span>
             </div>
         </div>
