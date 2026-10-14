@@ -143,12 +143,16 @@
                         </span>
                     </button>
 
+                    <!-- Not teleported, so Tab reaches the hidden events; fixed so the scrolling grid cannot clip it.
+                         Touch has no hover, so a tap switches the chip to a click trigger. -->
                     <el-popover
                         v-for="more in column.more"
-                        :key="`more-${more.from}`"
+                        :key="more.key"
                         :width="260"
-                        :trigger="['hover', 'focus']"
+                        :trigger="moreTrigger"
                         placement="right"
+                        :teleported="false"
+                        :popper-options="{ strategy: 'fixed' }"
                         :persistent="false"
                         popper-class="fe-events-grid__popover"
                     >
@@ -158,6 +162,7 @@
                                 class="fe-events-grid__week-more"
                                 :style="moreStyle(more)"
                                 :aria-label="$t('%d more', more.entries.length)"
+                                @pointerdown="moreTrigger = $event.pointerType === 'touch' ? 'click' : 'hover'"
                             >
                                 {{ $t('+%d', more.entries.length) }}
                             </button>
@@ -220,6 +225,11 @@
             },
         },
         emits: ['open', 'change-month', 'update:viewMode'],
+        data() {
+            return {
+                moreTrigger: 'hover',
+            };
+        },
         computed: {
             mode: {
                 get() {
@@ -386,8 +396,11 @@
                     });
 
                     if (hidden.length) {
+                        const from = Math.min(...hidden.map(block => block.from));
+
                         more.push({
-                            from: Math.min(...hidden.map(block => block.from)),
+                            key: `${day.format('YYYY-MM-DD')}-${from}`,
+                            from,
                             until: Math.max(...hidden.map(block => block.until)),
                             entries: hidden.map(block => block.entry),
                         });
