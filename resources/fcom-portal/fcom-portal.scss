@@ -1430,11 +1430,18 @@
     }
 
     // The WordPress editor's chrome is painted for wp-admin; this restyles it in fcom's tokens.
+    // Framed in the section dividers' color; it lights up on focus like fcom's inputs.
     .wp-editor-wrap {
         overflow: hidden;
         border: 1px solid var(--fcom-primary-border, #e3e8ee);
         border-radius: 8px;
         background-color: var(--fcom-primary-bg, #ffffff);
+        transition: border-color 0.2s;
+
+        // TinyMCE types in an iframe, which counts as focus inside the wrap.
+        &:focus-within {
+            border-color: var(--el-input-focus-border-color, var(--el-color-primary, #409eff));
+        }
 
         // Core nests the editor container in this row, so the inset goes on the first button,
         // not the row, or the editor would lose its edge-to-edge fit inside the frame.
