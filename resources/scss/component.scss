@@ -2373,20 +2373,16 @@
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        margin: var(--fe-space-1, 4px) 0 0;
+        gap: var(--fe-space-3, 12px);
+        margin: var(--fe-space-2, 8px) 0 0;
         font-size: var(--fe-text-sm, 14px);
         color: var(--fe-secondary-text, #525866);
 
-        span:not(:last-child)::after {
-            content: '\00b7';
-            margin: 0 var(--fe-space-2, 8px);
-            // Scaled up so the separator reads at 14px body size; line-height 0
-            // keeps the taller glyph from stretching the row.
-            font-size: 1.6em;
-            line-height: 0;
-            vertical-align: middle;
-            color: var(--fe-secondary-border, #9ca3af);
-        }
+    }
+    &__venue {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
     }
 
     &__manage {

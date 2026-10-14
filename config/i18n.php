@@ -93,8 +93,6 @@ return [
             'Back to Dashboard' => __('Back to Dashboard', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
             'Breadcrumb' => __('Breadcrumb', 'fluent-event'),
-            /* translators: %s is the event author's name */
-            'by %s' => __('by %s', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
             /* translators: %s is the calendar title */
             'Calendar: %s' => __('Calendar: %s', 'fluent-event'),
