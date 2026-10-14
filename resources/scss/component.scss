@@ -2114,10 +2114,33 @@
         border-bottom: none;
     }
 
+    &__week-more {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        padding: var(--fe-space-1, 4px) 0;
+        border: none;
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--fe-secondary-text, #525866);
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--fe-secondary-bg, #f3f5fa);
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
     &__week-event {
         position: absolute;
-        left: 4px;
-        right: 4px;
         overflow: hidden;
         display: flex;
         flex-direction: column;

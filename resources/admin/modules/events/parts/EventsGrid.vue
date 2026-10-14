@@ -44,23 +44,14 @@
                     <span class="fe-events-grid__day">{{ dayNumber(data.day) }}</span>
 
                     <div class="fe-events-grid__entries">
-                        <button
+                        <EventsGridEntry
                             v-for="entry in visibleEntries(data.day)"
                             :key="entry.event.id"
-                            type="button"
-                            class="fe-events-grid__event"
-                            :style="{ '--fe-event-color': entryColor(entry) }"
-                            :title="entry.event.title"
-                            :aria-label="$t('View %s', entry.event.title)"
-                            @click="$emit('open', entry.event)"
-                        >
-                            <span class="fe-events-grid__event-time">
-                                {{ entryTime(entry) }}
-                            </span>
-                            <span class="fe-events-grid__event-title">
-                                {{ entry.event.title }}
-                            </span>
-                        </button>
+                            :event="entry.event"
+                            :time="entryTime(entry)"
+                            :color="entryColor(entry)"
+                            @open="$emit('open', $event)"
+                        />
 
                         <el-popover
                             v-if="hiddenEntries(data.day).length"
@@ -81,23 +72,14 @@
                                     {{ $formatDate(data.day, 'dddd, MMM D') }}
                                 </p>
 
-                                <button
+                                <EventsGridEntry
                                     v-for="entry in entriesFor(data.day)"
                                     :key="entry.event.id"
-                                    type="button"
-                                    class="fe-events-grid__event"
-                                    :style="{ '--fe-event-color': entryColor(entry) }"
-                                    :title="entry.event.title"
-                                    :aria-label="$t('View %s', entry.event.title)"
-                                    @click="$emit('open', entry.event)"
-                                >
-                                    <span class="fe-events-grid__event-time">
-                                        {{ entryTime(entry) }}
-                                    </span>
-                                    <span class="fe-events-grid__event-title">
-                                        {{ entry.event.title }}
-                                    </span>
-                                </button>
+                                    :event="entry.event"
+                                    :time="entryTime(entry)"
+                                    :color="entryColor(entry)"
+                                    @open="$emit('open', $event)"
+                                />
                             </template>
                         </el-popover>
                     </div>
@@ -132,8 +114,8 @@
                 </div>
 
                 <div
-                    v-for="day in viewDays"
-                    :key="`col-${day.format('YYYY-MM-DD')}`"
+                    v-for="column in dayColumns"
+                    :key="`col-${column.key}`"
                     class="fe-events-grid__week-col"
                 >
                     <span
@@ -144,7 +126,7 @@
                     ></span>
 
                     <button
-                        v-for="block in dayBlocks(day)"
+                        v-for="block in column.blocks"
                         :key="`block-${block.entry.event.id}`"
                         type="button"
                         class="fe-events-grid__week-event"
@@ -160,6 +142,42 @@
                             {{ block.entry.event.title }}
                         </span>
                     </button>
+
+                    <el-popover
+                        v-for="more in column.more"
+                        :key="`more-${more.from}`"
+                        :width="260"
+                        :trigger="['hover', 'focus']"
+                        placement="right"
+                        :persistent="false"
+                        popper-class="fe-events-grid__popover"
+                    >
+                        <template #reference>
+                            <button
+                                type="button"
+                                class="fe-events-grid__week-more"
+                                :style="moreStyle(more)"
+                                :aria-label="$t('%d more', more.entries.length)"
+                            >
+                                {{ $t('+%d', more.entries.length) }}
+                            </button>
+                        </template>
+
+                        <template #default>
+                            <p class="fe-events-grid__popover-title">
+                                {{ $formatDate(column.key, 'dddd, MMM D') }}
+                            </p>
+
+                            <EventsGridEntry
+                                v-for="entry in more.entries"
+                                :key="entry.event.id"
+                                :event="entry.event"
+                                :time="entryTime(entry)"
+                                :color="entryColor(entry)"
+                                @open="$emit('open', $event)"
+                            />
+                        </template>
+                    </el-popover>
                 </div>
             </div>
         </div>
@@ -170,11 +188,14 @@
     import dayjs from 'dayjs';
     import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import EventsGridEntry from './EventsGridEntry.vue';
     import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
 
     const VISIBLE_PER_DAY = 3;
     const HOUR_PX = 48;
     const MINUTES_PER_DAY = 1440;
+    const MAX_LANES = 3;
+    const MORE_STRIP_PX = 36;
 
     export default {
         name: 'EventsGrid',
@@ -182,6 +203,7 @@
             ArrowLeft,
             ArrowRight,
             SegmentedSwitch,
+            EventsGridEntry,
         },
         props: {
             events: {
@@ -251,6 +273,12 @@
                 const start = anchor.startOf('week');
 
                 return Array.from({ length: 7 }, (unused, index) => start.add(index, 'day'));
+            },
+            dayColumns() {
+                return this.viewDays.map(day => ({
+                    key: day.format('YYYY-MM-DD'),
+                    ...this.dayLayout(day),
+                }));
             },
             weekColumns() {
                 return `64px repeat(${this.viewDays.length}, 1fr)`;
@@ -324,11 +352,11 @@
 
                 return dayjs(this.month).hour(hour).minute(0).format(format);
             },
-            dayBlocks(day) {
+            dayLayout(day) {
                 const dayStart = day.startOf('day');
                 const dayEnd = dayStart.add(1, 'day');
 
-                return this.entriesFor(day.format('YYYY-MM-DD')).map(entry => {
+                const blocks = this.entriesFor(day.format('YYYY-MM-DD')).map(entry => {
                     const start = dayjs(entry.event.start_at_local);
                     const end = dayjs(entry.event.end_at_local);
 
@@ -337,14 +365,69 @@
                         ? MINUTES_PER_DAY
                         : Math.max(end.diff(dayStart, 'minute'), from + 30);
 
-                    return { entry, from, until };
+                    return { entry, from, until, lane: 0 };
+                }).sort((a, b) => a.from - b.from || b.until - a.until);
+
+                // Clashing events split the column: each takes the first lane free at its start.
+                // A run of overlaps keeps MAX_LANES lanes; the rest fold into one "+N" strip on the right.
+                const visible = [];
+                const more = [];
+                let group = [];
+                let laneEnds = [];
+                let groupEnd = 0;
+
+                const closeGroup = () => {
+                    const hidden = group.filter(block => block.lane >= MAX_LANES);
+                    const lanes = Math.min(laneEnds.length, MAX_LANES);
+                    const strip = hidden.length ? MORE_STRIP_PX : 0;
+
+                    group.filter(block => block.lane < MAX_LANES).forEach(block => {
+                        visible.push({ ...block, lanes, strip });
+                    });
+
+                    if (hidden.length) {
+                        more.push({
+                            from: Math.min(...hidden.map(block => block.from)),
+                            until: Math.max(...hidden.map(block => block.until)),
+                            entries: hidden.map(block => block.entry),
+                        });
+                    }
+
+                    group = [];
+                    laneEnds = [];
+                };
+
+                blocks.forEach(block => {
+                    if (group.length && block.from >= groupEnd) {
+                        closeGroup();
+                    }
+
+                    const free = laneEnds.findIndex(laneEnd => laneEnd <= block.from);
+                    block.lane = free === -1 ? laneEnds.length : free;
+                    laneEnds[block.lane] = block.until;
+                    group.push(block);
+                    groupEnd = Math.max(groupEnd, block.until);
                 });
+
+                closeGroup();
+
+                return { blocks: visible, more };
             },
             blockStyle(block) {
                 return {
                     top: `${(block.from / 60) * HOUR_PX}px`,
                     height: `${((block.until - block.from) / 60) * HOUR_PX - 2}px`,
+                    left: `calc(4px + (100% - 8px - ${block.strip}px) * ${block.lane / block.lanes})`,
+                    width: `calc((100% - 8px - ${block.strip}px) / ${block.lanes} - 2px)`,
                     '--fe-event-color': this.entryColor(block.entry),
+                };
+            },
+            moreStyle(more) {
+                return {
+                    top: `${(more.from / 60) * HOUR_PX}px`,
+                    height: `${((more.until - more.from) / 60) * HOUR_PX - 2}px`,
+                    right: '4px',
+                    width: `${MORE_STRIP_PX - 2}px`,
                 };
             },
             moveStep(step) {

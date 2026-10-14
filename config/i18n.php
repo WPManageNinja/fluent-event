@@ -67,6 +67,8 @@ return [
             '%s will lose all access to this plugin. Continue?' => __('%s will lose all access to this plugin. Continue?', 'fluent-event'),
             /* translators: 1: filter name, 2: selected filter value */
             '%s: %s' => __('%1$s: %2$s', 'fluent-event'),
+            /* translators: %d is the number of hidden overlapping events in a time slot */
+            '+%d' => __('+%d', 'fluent-event'),
             'A calendar holds your events. Give it a title and you can start adding events to it.' => __('A calendar holds your events. Give it a title and you can start adding events to it.', 'fluent-event'),
             'A calendar holds your events. You need one before you can add an event.' => __('A calendar holds your events. You need one before you can add an event.', 'fluent-event'),
             'A venue for in-person events, a link for online ones.' => __('A venue for in-person events, a link for online ones.', 'fluent-event'),
