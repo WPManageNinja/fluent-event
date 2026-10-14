@@ -51,6 +51,17 @@
             flex-direction: column;
             align-items: stretch;
         }
+
+        // Long forms keep their save button in reach. It sticks under the fixed navbar and
+        // bleeds over the canvas padding so content scrolls out of sight behind it.
+        &.fe-page__header--sticky {
+            position: sticky;
+            top: var(--fe-navbar-height, 65px);
+            z-index: 5;
+            margin: calc(var(--fe-space-5, 20px) * -1) calc(var(--fe-space-5, 20px) * -1) 0;
+            padding: var(--fe-space-5, 20px);
+            background-color: var(--fe-secondary-bg, #f3f5fa);
+        }
     }
 
     &__breadcrumb {

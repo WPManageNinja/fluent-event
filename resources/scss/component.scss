@@ -258,6 +258,55 @@
         gap: var(--fe-space-5, 20px);
     }
 
+    // Sections run far down the page, so failed saves list every problem at the top.
+    &__error-summary {
+        margin: var(--fe-space-6, 24px) var(--fe-space-6, 24px) 0;
+        padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
+        border-left: 3px solid var(--fe-danger-text, #cf222e);
+        border-radius: var(--fe-radius, 8px);
+        background-color: color-mix(in srgb, var(--fe-danger-text, #cf222e) 8%, var(--fe-primary-bg, #ffffff));
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-danger-text, #cf222e);
+            outline-offset: 2px;
+        }
+
+        @media screen and (max-width: 782px) {
+            margin: var(--fe-space-4, 16px) var(--fe-space-4, 16px) 0;
+        }
+    }
+
+    &__error-summary-title {
+        margin: 0 0 var(--fe-space-2, 8px);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__error-summary-list {
+        margin: 0;
+        padding-left: var(--fe-space-5, 20px);
+        list-style: disc;
+        color: var(--fe-danger-text, #cf222e);
+    }
+
+    &__error-summary-link {
+        padding: 0;
+        border: 0;
+        background: none;
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.6;
+        color: var(--fe-danger-text, #cf222e);
+        text-align: left;
+        text-decoration: underline;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-danger-text, #cf222e);
+            outline-offset: 2px;
+        }
+    }
+
     &__swatches {
         display: flex;
         flex-wrap: wrap;
@@ -1030,73 +1079,6 @@
 }
 
 .fe-event-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--fe-space-5, 20px);
-
-    &__grid {
-        display: grid;
-        grid-template-columns: 340px minmax(0, 1fr);
-        gap: var(--fe-space-8, 32px);
-        align-items: start;
-
-        @media screen and (max-width: 782px) {
-            grid-template-columns: minmax(0, 1fr);
-        }
-    }
-
-    &__main {
-        display: flex;
-        flex-direction: column;
-        gap: var(--fe-space-5, 20px);
-    }
-
-    // The navbar is fixed over the scroll area, so stick below it.
-    &__aside {
-        position: sticky;
-        top: calc(var(--fe-navbar-height, 65px) + var(--fe-space-5, 20px));
-
-        @media screen and (max-width: 782px) {
-            position: static;
-        }
-    }
-
-    .el-radio {
-        margin-right: var(--fe-space-4, 16px);
-    }
-
-    &__header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: var(--fe-space-3, 12px);
-    }
-
-    &__header-select.el-select {
-        width: fit-content;
-        max-width: 100%;
-
-        .el-select__wrapper {
-            gap: var(--fe-space-2, 8px);
-        }
-
-        .el-select__placeholder {
-            position: static;
-            width: auto;
-            transform: none;
-        }
-    }
-
-    &__calendar-select.el-select {
-        width: 240px;
-        max-width: 100%;
-
-        .el-select__wrapper {
-            gap: var(--fe-space-2, 8px);
-        }
-    }
-
     &__calendar-swatch {
         width: 14px;
         height: 14px;
@@ -1109,53 +1091,9 @@
         gap: var(--fe-space-2, 8px);
     }
 
-    &__title-label {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        margin: -1px;
-        padding: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        border: 0;
-        clip-path: inset(50%);
-    }
-
-    &__title[type="text"] {
-        width: 100%;
-        margin: 0;
-        padding: 0 0 var(--fe-space-1, 4px);
-        border: 0;
-        border-bottom: 2px solid var(--fe-border-medium, #d0d5dd);
-        border-radius: 0;
-        background-color: transparent;
-        box-shadow: none;
-        font-size: var(--fe-text-3xl, 32px);
-        font-weight: 600;
-        line-height: 1.25;
-        color: var(--fe-primary-text, #19283a);
-
-        &::placeholder {
-            color: var(--fe-secondary-text, #525866);
-        }
-
-        &:hover {
-            border-bottom-color: var(--fe-border-strong, #808b9c);
-        }
-
-        &:focus,
-        &:focus-visible {
-            outline: none;
-            box-shadow: none;
-            border-bottom-color: var(--el-color-primary);
-        }
-    }
-
-    &__card {
-        overflow: hidden;
-        border: 1px solid var(--fe-primary-border, #eaecf0);
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-primary-bg, #ffffff);
+    // Sections are grids that stretch their children; keep the switch at its own width.
+    &__venue-switch {
+        justify-self: start;
     }
 
     &__window {
@@ -1207,65 +1145,6 @@
             flex: 1 1 0;
             min-width: 0;
         }
-    }
-
-    &__card-head {
-        display: flex;
-        align-items: center;
-        gap: var(--fe-space-3, 12px);
-        padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
-        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
-    }
-
-    &__card-icon {
-        flex-shrink: 0;
-        font-size: var(--fe-text-2xl, 24px);
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    &__card-text {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: column;
-        gap: var(--fe-space-1, 4px);
-        min-width: 0;
-    }
-
-    &__card-title {
-        font-size: var(--fe-text-sm, 14px);
-        font-weight: 500;
-        line-height: 1.4;
-        color: var(--fe-primary-text, #19283a);
-        overflow-wrap: anywhere;
-    }
-
-    // The card body is a flex column; keep the switch at its own width.
-    &__venue-switch {
-        align-self: flex-start;
-    }
-
-    &__card-body {
-        display: flex;
-        flex-direction: column;
-        gap: var(--fe-space-3, 12px);
-        padding: var(--fe-space-4, 16px);
-    }
-
-    &__skeleton-cover.el-skeleton__image {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1;
-        border-radius: var(--fe-radius-lg, 12px);
-    }
-
-    &__skeleton-title.el-skeleton__h1 {
-        width: 60%;
-        height: var(--fe-text-3xl, 32px);
-    }
-
-    &__skeleton-card.el-skeleton__rect {
-        height: 72px;
-        border-radius: var(--fe-radius, 8px);
     }
 }
 
@@ -1319,8 +1198,9 @@
     }
 }
 
+// Same crop as the cover on the portal event page.
 .fe-cover-picker {
-    aspect-ratio: 1;
+    aspect-ratio: 21 / 8;
     border: 1px solid var(--fe-primary-border, #eaecf0);
     border-radius: var(--fe-radius-lg, 12px);
     background-color: var(--fe-primary-bg, #ffffff);
