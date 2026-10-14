@@ -88,7 +88,7 @@
         </el-calendar>
 
         <div v-else class="fe-events-grid__week">
-            <div class="fe-events-grid__week-head" :style="{ gridTemplateColumns: weekColumns }">
+            <div class="fe-events-grid__week-head" :style="weekGridStyle">
                 <span class="fe-events-grid__week-gutter" aria-hidden="true"></span>
 
                 <div
@@ -102,7 +102,7 @@
                 </div>
             </div>
 
-            <div class="fe-events-grid__week-body" :style="{ gridTemplateColumns: weekColumns }">
+            <div class="fe-events-grid__week-body" :style="weekGridStyle">
                 <div class="fe-events-grid__week-times">
                     <span
                         v-for="hour in hours"
@@ -152,7 +152,7 @@
                         :trigger="moreTrigger"
                         placement="right"
                         :teleported="false"
-                        :popper-options="{ strategy: 'fixed' }"
+                        :popper-options="morePopper"
                         :persistent="false"
                         popper-class="fe-events-grid__popover"
                     >
@@ -201,6 +201,8 @@
     const MINUTES_PER_DAY = 1440;
     const MAX_LANES = 3;
     const MORE_STRIP_PX = 36;
+    // Narrower, and three lanes plus the "+N" strip no longer fit; the week scrolls sideways instead.
+    const DAY_MIN_PX = 120;
 
     export default {
         name: 'EventsGrid',
@@ -228,6 +230,11 @@
         data() {
             return {
                 moreTrigger: 'hover',
+                morePopper: {
+                    strategy: 'fixed',
+                    // A phone has no room beside the chip on either side; drop below it instead.
+                    modifiers: [{ name: 'flip', options: { fallbackPlacements: ['left', 'bottom', 'top'] } }],
+                },
             };
         },
         computed: {
@@ -290,8 +297,13 @@
                     ...this.dayLayout(day),
                 }));
             },
-            weekColumns() {
-                return `64px repeat(${this.viewDays.length}, 1fr)`;
+            weekGridStyle() {
+                const days = this.viewDays.length;
+
+                return {
+                    gridTemplateColumns: `64px repeat(${days}, minmax(${DAY_MIN_PX}px, 1fr))`,
+                    minWidth: `${64 + days * DAY_MIN_PX}px`,
+                };
             },
             hours() {
                 return Array.from({ length: 24 }, (unused, index) => index);
