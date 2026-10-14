@@ -35,19 +35,18 @@
                         {{ $t('Administrator') }}
                     </el-tag>
 
-                    <el-tag
+                    <span
                         v-for="permission in member.permissions"
                         :key="permission"
-                        type="info"
-                        size="small"
+                        class="fe-badge"
                     >
                         {{ permissionLabel(permission) }}
-                    </el-tag>
+                    </span>
                 </div>
 
                 <div class="fe-team__actions">
                     <el-button
-                        size="small"
+                        class="fe-team__action fe-team__action--edit"
                         :aria-label="$t('Edit permissions')"
                         :title="$t('Edit permissions')"
                         @click="openEdit(member)"
@@ -56,9 +55,8 @@
                     </el-button>
 
                     <el-button
-                        size="small"
+                        class="fe-team__action fe-team__action--danger"
                         type="danger"
-                        plain
                         :aria-label="$t('Remove member')"
                         :title="$t('Remove member')"
                         :disabled="removing"

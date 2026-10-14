@@ -285,10 +285,6 @@
         align-items: center;
         gap: var(--fe-space-2, 8px);
         min-width: 0;
-
-        .el-tag + .el-tag {
-            margin-left: 0;
-        }
     }
 
     &__actions {
@@ -299,6 +295,32 @@
         .el-button + .el-button {
             margin-left: 0;
         }
+    }
+
+    &__action.el-button {
+        width: var(--fe-control-height, 36px);
+        padding: 0;
+
+        .el-icon {
+            font-size: 16px;
+        }
+    }
+
+    &__action--edit.el-button {
+        --el-button-text-color: var(--fe-primary-text, #19283a);
+    }
+
+    // Solid danger red under a white icon is under 3:1; outline it like the edit button and fill only on hover.
+    &__action--danger.el-button {
+        --el-button-text-color: var(--fe-danger-text, #cf222e);
+        --el-button-bg-color: var(--fe-primary-bg, #ffffff);
+        --el-button-border-color: var(--fe-primary-border, #eaecf0);
+        --el-button-hover-text-color: var(--fe-primary-bg, #ffffff);
+        --el-button-hover-bg-color: var(--fe-danger-text, #cf222e);
+        --el-button-hover-border-color: var(--fe-danger-text, #cf222e);
+        --el-button-active-text-color: var(--fe-primary-bg, #ffffff);
+        --el-button-active-bg-color: var(--fe-danger-text, #cf222e);
+        --el-button-active-border-color: var(--fe-danger-text, #cf222e);
     }
 
     &__skeleton-avatar.el-skeleton__circle {
