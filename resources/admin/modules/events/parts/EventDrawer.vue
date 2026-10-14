@@ -22,10 +22,6 @@
 
             <h2 class="fe-event-detail__title">{{ event.title }}</h2>
 
-            <p v-if="event.author" class="fe-event-detail__host">
-                {{ $t('Created by %s', event.author.name) }}
-            </p>
-
             <div v-if="event.calendar" class="fe-event-detail__row">
                 <span class="fe-event-detail__row-icon">
                     <span
@@ -106,7 +102,7 @@
             <div v-if="event.description" class="fe-event-detail__section">
                 <h3 class="fe-event-detail__section-title">{{ $t('Description') }}</h3>
 
-                <div class="fe-event-detail__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
+                <div class="fe-rich-text fe-event-detail__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
             </div>
         </div>
     </Drawer>

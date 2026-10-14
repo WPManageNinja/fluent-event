@@ -93,8 +93,6 @@ return [
             'Back to Dashboard' => __('Back to Dashboard', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
             'Breadcrumb' => __('Breadcrumb', 'fluent-event'),
-            /* translators: %s is the event author's name */
-            'by %s' => __('by %s', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
             /* translators: %s is the calendar title */
             'Calendar: %s' => __('Calendar: %s', 'fluent-event'),
@@ -123,8 +121,6 @@ return [
             'Create your first calendar' => __('Create your first calendar', 'fluent-event'),
             'Created' => __('Created', 'fluent-event'),
             'Created by' => __('Created by', 'fluent-event'),
-            /* translators: %s is the event author's name */
-            'Created by %s' => __('Created by %s', 'fluent-event'),
             'Cyan' => __('Cyan', 'fluent-event'),
             'Danger Zone' => __('Danger Zone', 'fluent-event'),
             'Dashboard' => __('Dashboard', 'fluent-event'),

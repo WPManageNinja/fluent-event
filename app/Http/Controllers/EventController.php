@@ -19,10 +19,7 @@ class EventController extends Controller
         $events = Event::query()
             ->with([
                 'post'        => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content', 'post_author']);
-                },
-                'post.author' => function ($query) {
-                    $query->select(['ID', 'display_name']);
+                    $query->select(['ID', 'post_title', 'post_content']);
                 },
                 'calendar'    => function ($query) {
                     $query->select(['id', 'title', 'meta']);
@@ -51,10 +48,7 @@ class EventController extends Controller
         $event = Event::query()
             ->with([
                 'post'        => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content', 'post_author']);
-                },
-                'post.author' => function ($query) {
-                    $query->select(['ID', 'display_name']);
+                    $query->select(['ID', 'post_title', 'post_content']);
                 },
                 'calendar'    => function ($query) {
                     $query->select(['id', 'title', 'status', 'meta']);
