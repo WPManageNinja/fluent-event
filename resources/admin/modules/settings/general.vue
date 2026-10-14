@@ -127,7 +127,8 @@
 
                     <WpEditor
                         v-model="email.email_footer"
-                        toolbar="bold,italic,underline,bullist,numlist,link,undo,redo"
+                        media-buttons
+                        quick-tags
                         aria-labelledby="fe-email-footer-label"
                     />
 
@@ -169,14 +170,14 @@
         },
         data() {
             return {
-                generalLoading: false,
+                generalLoading: true,
                 generalSaving: false,
                 generalError: '',
                 general: {
                     default_events_view: 'timeline',
                     disable_event_view_switch: 'no',
                 },
-                emailLoading: false,
+                emailLoading: true,
                 emailSaving: false,
                 emailError: '',
                 email: {
