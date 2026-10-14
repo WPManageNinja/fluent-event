@@ -58,6 +58,17 @@
         }
     }
 
+    // wp-admin sizes every native checkbox and radio, and sets 0.7 opacity on disabled ones,
+    // which revives the input Element Plus hides behind its own box. `input.` matches WP's specificity.
+    input.el-checkbox__original,
+    input.el-radio__original {
+        width: 0;
+        min-width: 0;
+        height: 0;
+        border: 0;
+        opacity: 0;
+    }
+
     // Utils
     .capitalize {
         text-transform: capitalize;
