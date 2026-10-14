@@ -622,13 +622,6 @@
         }
     }
 
-    &__card-status.el-tag {
-        position: absolute;
-        top: var(--fe-space-2, 8px);
-        right: var(--fe-space-2, 8px);
-        z-index: 1;
-    }
-
     &__card-mark {
         position: relative;
         z-index: 1;

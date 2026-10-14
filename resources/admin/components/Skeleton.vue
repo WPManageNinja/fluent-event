@@ -304,7 +304,7 @@
 
                         <div class="fe-calendars__card-meta">
                             <el-skeleton-item
-                                v-for="tag in 2"
+                                v-for="tag in 3"
                                 :key="tag"
                                 variant="text"
                                 class="fe-skeleton__tag"
