@@ -205,7 +205,7 @@
         },
         data() {
             return {
-                loading: false,
+                loading: true,
                 error: '',
                 tab: 'overview',
                 event: {},
