@@ -125,7 +125,11 @@
                         <span id="fe-email-footer-label">{{ $t('Email footer for event related emails') }}</span>
                     </template>
 
-                    <WpEditor v-model="email.email_footer" aria-labelledby="fe-email-footer-label" />
+                    <WpEditor
+                        v-model="email.email_footer"
+                        toolbar="bold,italic,underline,bullist,numlist,link,undo,redo"
+                        aria-labelledby="fe-email-footer-label"
+                    />
 
                     <span class="fe-form__hint">
                         {{ $t('Shown at the bottom of every event email. You may include your business name, address, or why the recipient got this email.') }}

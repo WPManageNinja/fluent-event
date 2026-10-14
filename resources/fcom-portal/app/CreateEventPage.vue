@@ -99,7 +99,6 @@
                         v-model="event.description"
                         :height="280"
                         quick-tags
-                        toolbar="formatselect,bold,italic,bullist,numlist,link,blockquote,alignleft,aligncenter,alignright,underline,strikethrough,forecolor,removeformat,outdent,indent,undo,redo"
                         aria-labelledby="fe-create-event-description-label"
                     >
                         <template #tools>

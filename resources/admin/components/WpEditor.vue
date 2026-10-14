@@ -61,7 +61,7 @@
             },
             toolbar: {
                 type: String,
-                default: 'bold,italic,underline,bullist,numlist,link,undo,redo',
+                default: 'formatselect,bold,italic,bullist,numlist,link,blockquote,alignleft,aligncenter,alignright,underline,strikethrough,forecolor,removeformat,outdent,indent,undo,redo',
             },
         },
         emits: ['update:modelValue'],

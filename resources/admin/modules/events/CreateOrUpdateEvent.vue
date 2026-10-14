@@ -193,7 +193,6 @@
                                 :height="280"
                                 media-buttons
                                 quick-tags
-                                toolbar="formatselect,bold,italic,bullist,numlist,link,blockquote,alignleft,aligncenter,alignright,underline,strikethrough,forecolor,removeformat,outdent,indent,undo,redo"
                                 aria-labelledby="fe-event-description-label"
                             />
                         </div>
