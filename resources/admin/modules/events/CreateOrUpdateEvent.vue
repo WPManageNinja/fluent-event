@@ -554,7 +554,8 @@
                     venue: meta.venue || '',
                     address: meta.address || '',
                     cover_url: meta.cover_url || '',
-                    entry_type: meta.entry_type || 'rsvp',
+                    // RSVP only for new events; an existing event keeps its saved type, so an edit never switches it silently.
+                    entry_type: event ? (meta.entry_type || '') : 'rsvp',
                     show_guest_count: meta.show_guest_count || 'yes',
                 };
             },
