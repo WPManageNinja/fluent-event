@@ -2252,6 +2252,12 @@
         }
     }
 
+    &__popover.el-popover.is-light {
+        --el-popover-bg-color: var(--fe-primary-bg, #ffffff);
+        --el-popper-bg-color-light: var(--fe-primary-bg, #ffffff);
+        --el-popover-border-color: var(--fe-primary-border, #eaecf0);
+    }
+
     &__popover-title {
         margin: 0 0 var(--fe-space-2, 8px);
         font-size: var(--fe-text-sm, 14px);
