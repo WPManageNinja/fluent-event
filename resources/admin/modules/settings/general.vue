@@ -169,14 +169,14 @@
         },
         data() {
             return {
-                generalLoading: false,
+                generalLoading: true,
                 generalSaving: false,
                 generalError: '',
                 general: {
                     default_events_view: 'timeline',
                     disable_event_view_switch: 'no',
                 },
-                emailLoading: false,
+                emailLoading: true,
                 emailSaving: false,
                 emailError: '',
                 email: {
