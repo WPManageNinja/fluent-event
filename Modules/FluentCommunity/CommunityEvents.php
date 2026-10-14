@@ -54,7 +54,7 @@ class CommunityEvents
             return FcomSpace::query()->where('privacy', 'public')->pluck('id')->toArray();
         }
 
-        $spaceIds = array_filter((array) $user->getSpaceIds());
+        $spaceIds = array_filter((array) $user->getAccessSpaceIds());
 
         if (!$spaceIds) {
             return [];
