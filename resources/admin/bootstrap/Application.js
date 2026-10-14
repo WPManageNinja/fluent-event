@@ -60,6 +60,11 @@ export default class Application {
             });
         };
 
+        // Two forms only: the strings map is built without a count, so a language's other plural forms can't reach it.
+        app.config.globalProperties.$_n = (single, plural, count) => {
+            return app.config.globalProperties.$t(Number(count) === 1 ? single : plural, count);
+        };
+
         /** BCP-47 locale derived from WordPress's `user_locale` (e.g. `en-US`) for Intl.NumberFormat. */
         const locale = (fluentEventAdmin.user_locale || 'en_US').replace('_', '-');
         app.config.globalProperties.$n = (value, options) => {

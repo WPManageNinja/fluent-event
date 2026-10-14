@@ -47,8 +47,12 @@ return [
             '%d / page' => __('%d / page', 'fluent-event'),
             /* translators: %d is a number of days */
             '%d days' => __('%d days', 'fluent-event'),
+            /* translators: %d is 1, the number of events */
+            '%d event' => __('%d event', 'fluent-event'),
             /* translators: %d is a number of events */
             '%d events' => __('%d events', 'fluent-event'),
+            /* translators: %d is 1, the number of guests */
+            '%d guest' => __('%d guest', 'fluent-event'),
             /* translators: %d is a number of guests */
             '%d guests' => __('%d guests', 'fluent-event'),
             /* translators: %d is the number of hidden calendar entries on this day */
