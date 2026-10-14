@@ -274,18 +274,17 @@
 
     <el-skeleton v-else-if="type === 'event-form'" animated>
         <template #template>
-            <div class="fe-event-form__grid">
-                <el-skeleton-item variant="image" class="fe-event-form__skeleton-cover" />
+            <div class="fe-card fe-card--flush">
+                <div v-for="section in rowCount" :key="section" class="fe-form__section">
+                    <div>
+                        <el-skeleton-item variant="text" class="fe-skeleton__label" />
+                        <el-skeleton-item variant="text" class="fe-skeleton__hint" />
+                    </div>
 
-                <div class="fe-event-form__main">
-                    <el-skeleton-item variant="h1" class="fe-event-form__skeleton-title" />
-
-                    <el-skeleton-item
-                        v-for="row in rowCount"
-                        :key="row"
-                        variant="rect"
-                        class="fe-event-form__skeleton-card"
-                    />
+                    <div>
+                        <el-skeleton-item variant="text" class="fe-skeleton__label" />
+                        <el-skeleton-item variant="rect" class="fe-skeleton__input" />
+                    </div>
                 </div>
             </div>
         </template>
