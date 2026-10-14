@@ -21,7 +21,7 @@ function pageShell(page) {
         // fcom hands space routes space_profile, search and the like; the shell reads $route instead.
         inheritAttrs: false,
         data() {
-            return { unmount: null, gone: false };
+            return { unmount: null, gone: false, ready: false };
         },
         watch: {
             '$route.params.space'() {
@@ -61,6 +61,7 @@ function pageShell(page) {
                 app.mount(this.$refs.mount);
 
                 this.unmount = () => app.unmount();
+                this.ready = true;
             },
         },
         template: `<div class="fe-fcom-portal-page fe-fcom-portal-page--${page}"><div ref="mount"></div></div>`,
@@ -68,14 +69,11 @@ function pageShell(page) {
 }
 
 // fcom's own composer writes and submits the post; our page only fills in the event it carries.
-// The composer lives on fcom's Vue, outside our tabs, so the page reports the open tab to show it under Post.
+// The composer lives on fcom's Vue, so it is the page's last section from out here, shown once the page is in.
 const createEventShell = {
     extends: pageShell('create_event'),
     data() {
         return {
-            tab: '',
-            // Mounted on first visit, like our own tab panels: hidden at mount, fcom sizes its title field to nothing.
-            postOpened: false,
             onPosting: null,
             feed: {
                 title: '',
@@ -98,25 +96,13 @@ const createEventShell = {
                 onChange: (event) => {
                     this.feed.event = event;
                 },
-                onTabChange: (tab) => {
-                    this.tab = tab;
-                    this.postOpened = this.postOpened || tab === 'post';
-                },
                 submitPost: (onPosting) => this.submitPost(onPosting),
             };
         },
         // Our header button submits fcom's composer, which reports back while it posts.
         submitPost(onPosting) {
-            const composer = this.$refs.composer;
-
-            if (!composer) {
-                return false;
-            }
-
             this.onPosting = onPosting;
-            composer.post();
-
-            return true;
+            this.$refs.composer.post();
         },
         watchPosting() {
             this.$refs.composer.$watch('posting', (posting) => this.onPosting && this.onPosting(posting));
@@ -133,21 +119,26 @@ const createEventShell = {
     template: `
         <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event">
             <div ref="mount"></div>
-            <section v-if="postOpened" v-show="tab === 'post'" class="fe-create-event-post">
-                <h2 class="fe-create-event-post__title">{{ t('Feed post') }}</h2>
-                <p class="fe-create-event-post__hint">{{ t('What members see in the space feed, above the event.') }}</p>
-                <create-status-form
-                    ref="composer"
-                    default-state="active"
-                    :space="$route.params.space"
-                    :disableSpace="true"
-                    :hideSubmit="true"
-                    :editing_feed="feed"
-                    @vue:mounted="watchPosting"
-                    @added="posted"
-                    @scheduled="posted"
-                />
+            <section v-if="ready" class="fe-create-event-post">
+                <div>
+                    <h2 class="fe-create-event-post__title">{{ t('Feed post') }}</h2>
+                    <p class="fe-create-event-post__hint">{{ t('What members see in the space feed, above the event.') }}</p>
+                </div>
+                <div class="fe-create-event-post__composer">
+                    <create-status-form
+                        ref="composer"
+                        default-state="active"
+                        :space="$route.params.space"
+                        :disableSpace="true"
+                        :hideSubmit="true"
+                        :editing_feed="feed"
+                        @vue:mounted="watchPosting"
+                        @added="posted"
+                        @scheduled="posted"
+                    />
+                </div>
             </section>
+            <div id="fe-create-event-actions"></div>
         </div>
     `,
 };

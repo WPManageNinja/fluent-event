@@ -1164,28 +1164,67 @@
         font-weight: 700;
     }
 
-    &__submit.el-button {
-        margin-left: auto;
-    }
-
-    &__grid {
-        display: grid;
-        grid-template-columns: 340px minmax(0, 1fr);
-        gap: 32px;
-        align-items: start;
+    // Closes the form card under fcom's composer section.
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 16px 24px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 0 0 12px 12px;
+        background: var(--fcom-primary-bg, #ffffff);
 
         @media (max-width: 900px) {
-            grid-template-columns: minmax(0, 1fr);
+            padding: 16px;
         }
     }
 
-    // Clears fcom's sticky top bar and the 52px space header that sticks under it.
-    &__aside {
-        position: sticky;
-        top: calc(var(--fcom-header-height, 55px) + 52px + 20px);
+    // The form card; fcom's composer joins it below as the last section, so its bottom stays open.
+    &__form {
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-bottom: 0;
+        border-radius: 12px 12px 0 0;
+        background: var(--fcom-primary-bg, #ffffff);
+    }
+
+    &__section {
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        gap: 32px;
+        padding: 24px;
+
+        + .fe-create-event__section {
+            border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
+        }
 
         @media (max-width: 900px) {
-            position: static;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 16px;
+            padding: 16px;
+        }
+    }
+
+    &__section-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__section-desc {
+        margin: 4px 0 0;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__section-fields {
+        display: grid;
+        gap: 20px;
+        min-width: 0;
+
+        .el-form-item {
+            margin-bottom: 0;
         }
     }
 
@@ -1193,9 +1232,10 @@
         position: relative;
     }
 
+    // Same crop as the cover on the event page.
     &__cover-box {
         display: block;
-        aspect-ratio: 1;
+        aspect-ratio: 21 / 8;
         overflow: hidden;
         border: 1px solid var(--fcom-primary-border, #e3e8ee);
         border-radius: 12px;
@@ -1250,112 +1290,14 @@
         color: var(--fcom-danger, #d63638);
     }
 
-    &__main {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    &__title-label {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
-    }
-
-    &__title[type="text"] {
-        width: 100%;
-        margin: 0;
-        padding: 0 0 4px;
-        border: 0;
-        border-bottom: 2px solid var(--fcom-primary-border, #e3e8ee);
-        border-radius: 0;
-        background: transparent;
-        box-shadow: none;
-        font-size: 32px;
-        font-weight: 600;
-        line-height: 1.25;
-        color: var(--fcom-primary-text, #19283a);
-
-        &::placeholder {
-            color: var(--el-text-color-placeholder, #a8abb2);
-        }
-
-        &:hover {
-            border-bottom-color: var(--fcom-secondary-border, #9ca3af);
-        }
-
-        &:focus,
-        &:focus-visible {
-            outline: none;
-            box-shadow: none;
-            border-bottom-color: var(--el-color-primary);
-        }
-    }
-
-    &__card {
-        overflow: hidden;
-        border: 1px solid var(--fcom-primary-border, #e3e8ee);
-        border-radius: 8px;
-        background: var(--fcom-primary-bg, #ffffff);
-    }
-
-    &__card-head {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
-    }
-
-    &__card-icon {
-        flex-shrink: 0;
-        font-size: 24px;
-        color: var(--fcom-secondary-text, #525866);
-    }
-
-    &__card-text {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 0;
-    }
-
-    &__card-title {
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 1.4;
-        color: var(--fcom-primary-text, #19283a);
-        overflow-wrap: anywhere;
-    }
-
-    &__card-body {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 16px;
-
-        .el-form-item {
-            margin-bottom: 0;
-        }
-
-        // The description editor fills the card edge to edge, so the card is its only frame.
-        &.fe-create-event__card-body--flush {
-            padding: 0;
-        }
-    }
-
-    // Holds the description card's height while the WordPress editor loads.
+    // Holds the description's height while the WordPress editor loads.
     &__editor-loading {
         min-height: 400px;
     }
 
-    // The card body is a flex column; keep the switch at its own width.
+    // Sections are grids that stretch their children; keep the switch at its own width.
     &__venue-switch {
-        align-self: flex-start;
+        justify-self: start;
 
         // Labelled here, unlike the icon-only view switch, so it takes the admin form's spacing.
         .fe-switch__option {
@@ -1376,6 +1318,12 @@
         font-size: 12px;
         line-height: 1.5;
         color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__window {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
 
     &__window-row {
@@ -1484,19 +1432,21 @@
     // The WordPress editor's chrome is painted for wp-admin; this restyles it in fcom's tokens.
     .wp-editor-wrap {
         overflow: hidden;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
         background-color: var(--fcom-primary-bg, #ffffff);
 
-        // Core nests the editor container in this row, so the 16px inset (matching the card head)
-        // goes on the first button, not the row, or the editor would lose its edge-to-edge fit.
+        // Core nests the editor container in this row, so the inset goes on the first button,
+        // not the row, or the editor would lose its edge-to-edge fit inside the frame.
         .wp-editor-tools {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             column-gap: 4px;
-            padding-top: 12px;
+            padding-top: 8px;
 
             > :first-child {
-                margin-left: 16px;
+                margin-left: 8px;
             }
         }
 
@@ -1713,19 +1663,39 @@ body {
     }
 }
 
-// Wraps fcom's own composer as the Post tab's content; the composer styles itself.
+// fcom's own composer as the create form's last section, between the form card and the Create bar.
 .fe-create-event-post {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 32px;
+    padding: 24px;
+    border: 1px solid var(--fcom-primary-border, #e3e8ee);
+    border-bottom: 0;
+    background: var(--fcom-primary-bg, #ffffff);
+
+    @media (max-width: 900px) {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+        padding: 16px;
+    }
+
     &__title {
-        margin: 0 0 4px;
-        font-size: 16px;
+        margin: 0;
+        font-size: 14px;
         font-weight: 600;
+        line-height: 1.4;
         color: var(--fcom-primary-text, #19283a);
     }
 
     &__hint {
-        margin: 0 0 12px;
-        font-size: 13px;
+        margin: 4px 0 0;
+        font-size: 12px;
+        line-height: 1.5;
         color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__composer {
+        min-width: 0;
     }
 }
 
