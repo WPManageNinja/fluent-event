@@ -1,7 +1,7 @@
 <template>
     <transition name="fade" mode="out-in" appear>
         <div class="fe-page fe-page--narrow fe-event-create">
-            <div class="fe-page__header fe-page__header--sticky">
+            <div class="fe-page__header">
                 <div>
                     <h1 class="fe-page__title">{{ pageTitle }}</h1>
                     <p class="fe-page__subtitle">{{ pageSubtitle }}</p>
@@ -10,17 +10,6 @@
                 <div class="fe-page__actions">
                     <el-button @click="$goBack">
                         {{ $t('Go Back') }}
-                    </el-button>
-
-                    <el-button
-                        v-if="hasForm"
-                        type="primary"
-                        native-type="submit"
-                        form="fe-event-form"
-                        :loading="saving"
-                        :disabled="saving"
-                    >
-                        {{ submitLabel }}
                     </el-button>
                 </div>
             </div>
@@ -383,6 +372,17 @@
                             </div>
                         </div>
                     </section>
+
+                    <div class="fe-form__actions fe-form__actions--bar">
+                        <el-button
+                            type="primary"
+                            native-type="submit"
+                            :loading="saving"
+                            :disabled="saving"
+                        >
+                            {{ submitLabel }}
+                        </el-button>
+                    </div>
                 </el-form>
             </div>
         </div>
@@ -434,9 +434,6 @@
         computed: {
             error() {
                 return this.eventError || this.calendarError;
-            },
-            hasForm() {
-                return !this.loadingEvent && !this.error && (this.loadingCalendars || this.calendars.length > 0);
             },
             eventId() {
                 return this.$route.params.id;
