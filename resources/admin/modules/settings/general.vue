@@ -127,7 +127,8 @@
 
                     <WpEditor
                         v-model="email.email_footer"
-                        toolbar="bold,italic,underline,bullist,numlist,link,undo,redo"
+                        media-buttons
+                        quick-tags
                         aria-labelledby="fe-email-footer-label"
                     />
 
