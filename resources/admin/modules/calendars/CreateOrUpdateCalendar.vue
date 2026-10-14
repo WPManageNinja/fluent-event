@@ -111,7 +111,9 @@
                             <div class="fe-form__section-fields">
                                 <WpEditor
                                     v-model="calendar.description"
-                                    :height="140"
+                                    :height="280"
+                                    media-buttons
+                                    quick-tags
                                     aria-labelledby="fe-calendar-description-label"
                                 />
                             </div>
