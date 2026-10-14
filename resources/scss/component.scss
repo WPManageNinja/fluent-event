@@ -807,6 +807,15 @@
     }
 }
 
+.fe-badge {
+    display: inline-block;
+    padding: 2px var(--fe-space-2, 8px);
+    font-size: var(--fe-text-xs, 12px);
+    color: var(--fe-primary-text, #19283a);
+    background: var(--fe-badge-color, #e1e4ea);
+    border-radius: var(--fe-radius-sm, 4px);
+}
+
 .fe-rich-text {
     font-size: var(--fe-text-sm, 14px);
     line-height: 1.7;
@@ -1796,11 +1805,6 @@
     &__event-count {
         flex-shrink: 0;
         margin-left: auto;
-        padding: 2px var(--fe-space-2, 8px);
-        font-size: var(--fe-text-xs, 12px);
-        color: var(--fe-primary-text, #19283a);
-        background: var(--fe-badge-color, #e1e4ea);
-        border-radius: var(--fe-radius-sm, 4px);
     }
 
     &__empty {
@@ -2527,15 +2531,6 @@
         text-transform: uppercase;
         letter-spacing: 0.02em;
         color: var(--fe-secondary-text, #525866);
-    }
-
-    // Same chip as the dashboard's Top Events guest count.
-    &__badge-value {
-        padding: 2px var(--fe-space-2, 8px);
-        font-size: var(--fe-text-xs, 12px);
-        color: var(--fe-primary-text, #19283a);
-        background: var(--fe-badge-color, #e1e4ea);
-        border-radius: var(--fe-radius-sm, 4px);
     }
 
     &__row {

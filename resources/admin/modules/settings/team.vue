@@ -35,14 +35,13 @@
                         {{ $t('Administrator') }}
                     </el-tag>
 
-                    <el-tag
+                    <span
                         v-for="permission in member.permissions"
                         :key="permission"
-                        type="info"
-                        size="small"
+                        class="fe-badge"
                     >
                         {{ permissionLabel(permission) }}
-                    </el-tag>
+                    </span>
                 </div>
 
                 <div class="fe-team__actions">

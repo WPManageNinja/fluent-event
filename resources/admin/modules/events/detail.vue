@@ -59,7 +59,7 @@
                                     <div v-if="event.meta?.entry_type" class="fe-event-overview__badge">
                                         <span class="fe-event-overview__badge-label">{{ $t('Registration Type') }}</span>
 
-                                        <span class="fe-event-overview__badge-value">
+                                        <span class="fe-badge">
                                             {{ $entryTypeLabel(event.meta.entry_type) }}
                                         </span>
                                     </div>

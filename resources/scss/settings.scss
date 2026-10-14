@@ -285,10 +285,6 @@
         align-items: center;
         gap: var(--fe-space-2, 8px);
         min-width: 0;
-
-        .el-tag + .el-tag {
-            margin-left: 0;
-        }
     }
 
     &__actions {
