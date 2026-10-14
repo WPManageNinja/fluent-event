@@ -22,10 +22,6 @@
 
             <h2 class="fe-event-detail__title">{{ event.title }}</h2>
 
-            <p v-if="event.author" class="fe-event-detail__host">
-                {{ $t('Created by %s', event.author.name) }}
-            </p>
-
             <div v-if="event.calendar" class="fe-event-detail__row">
                 <span class="fe-event-detail__row-icon">
                     <span

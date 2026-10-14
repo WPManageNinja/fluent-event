@@ -46,7 +46,6 @@ class Event extends Model
     protected $appends = [
         'title',
         'description',
-        'author',
         'start_at_local',
         'end_at_local',
     ];
@@ -91,17 +90,6 @@ class Event extends Model
     public function getDescriptionAttribute()
     {
         return wp_kses_post($this->post->post_content ?? '');
-    }
-
-    public function getAuthorAttribute()
-    {
-        $author = $this->post->author ?? null;
-        if (!$author) return null;
-
-        return [
-            'name'   => $author->display_name,
-            'avatar' => get_avatar_url($author->ID),
-        ];
     }
 
     public function getStartAtLocalAttribute()

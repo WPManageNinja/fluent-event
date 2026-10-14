@@ -121,8 +121,6 @@ return [
             'Create your first calendar' => __('Create your first calendar', 'fluent-event'),
             'Created' => __('Created', 'fluent-event'),
             'Created by' => __('Created by', 'fluent-event'),
-            /* translators: %s is the event author's name */
-            'Created by %s' => __('Created by %s', 'fluent-event'),
             'Cyan' => __('Cyan', 'fluent-event'),
             'Danger Zone' => __('Danger Zone', 'fluent-event'),
             'Dashboard' => __('Dashboard', 'fluent-event'),
