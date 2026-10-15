@@ -77,18 +77,24 @@ class GuestController extends Controller
             GuestRequest::messages()
         );
 
-        $status = Arr::get($data, 'status') ?: Guest::DEFAULT_STATUS;
         $previousStatus = $guest->status;
 
-        $guest->fill([
-            'name'          => Arr::get($data, 'name'),
-            'email'         => Arr::get($data, 'email'),
-            'user_id'       => Arr::get($data, 'user_id') ?: null,
-            'status'        => $status,
-            'checked_in_at' => $status === 'checked_in'
+        // Partial: a field left out of the request keeps its value; an explicit null still clears user_id.
+        $fields = Arr::only($data, ['name', 'email', 'user_id', 'status']);
+
+        if (array_key_exists('user_id', $fields)) {
+            $fields['user_id'] = $fields['user_id'] ?: null;
+        }
+
+        if (array_key_exists('status', $fields)) {
+            $fields['status'] = $fields['status'] ?: Guest::DEFAULT_STATUS;
+            $fields['checked_in_at'] = $fields['status'] === 'checked_in'
                 ? ($guest->checked_in_at ?: current_time('mysql'))
-                : null,
-        ])->save();
+                : null;
+        }
+
+        $guest->fill($fields)->save();
+        $status = $guest->status;
 
         do_action('fluent_event/guest/updated', $guest, $previousStatus);
 
