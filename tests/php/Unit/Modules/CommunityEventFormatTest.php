@@ -92,6 +92,13 @@ class CommunityEventFormatTest extends TestCase
         $this->assertNull($this->format($this->event([], ['entry_type' => 'open']), 5)['guest_count']);
     }
 
+    public function test_staff_follow_the_events_guest_count_setting_too()
+    {
+        // The event's "Show guest count" switch decides for everyone; staff get no override.
+        $this->assertNull($this->format($this->event([], ['show_guest_count' => 'no']), 5, null, true, true)['guest_count']);
+        $this->assertSame(5, $this->format($this->event(), 5, null, true, true)['guest_count']);
+    }
+
     public function test_registration_closes_once_the_event_has_ended()
     {
         $past = $this->event(['end_at' => gmdate('Y-m-d H:i:s', strtotime('-1 hour'))]);

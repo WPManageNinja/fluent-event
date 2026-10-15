@@ -199,6 +199,25 @@ class CommunityRsvpTest extends IntegrationTestCase
         $this->assertContains($this->rsvp($event, 'going')['status'], [401, 403]);
     }
 
+    public function test_the_guest_count_follows_the_events_setting()
+    {
+        [$shown] = $this->communityEvent();
+        [$hidden] = $this->communityEvent([], ['show_guest_count' => 'no']);
+
+        $this->assertSame(1, $this->rsvp($shown, 'going')['data']['event']['guest_count']);
+        $this->assertNull($this->rsvp($hidden, 'going')['data']['event']['guest_count']);
+    }
+
+    public function test_staff_see_no_guest_count_when_the_event_hides_it()
+    {
+        [$event] = $this->communityEvent([], ['show_guest_count' => 'no']);
+        $staff = $this->createUser('editor', ['read_guests', 'read_events']);
+        FcomHelper::addToSpace($this->spaceId, $staff, 'member', 'by_admin');
+        $this->actAs($staff);
+
+        $this->assertNull($this->rsvp($event, 'going')['data']['event']['guest_count']);
+    }
+
     public function test_the_meeting_link_is_revealed_only_to_a_member_who_is_going()
     {
         [$event] = $this->communityEvent(['venue_type' => 'online'], ['online_meeting_url' => 'https://meet.example.test/launch']);
