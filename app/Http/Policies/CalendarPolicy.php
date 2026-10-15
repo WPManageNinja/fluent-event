@@ -12,6 +12,11 @@ class CalendarPolicy extends Policy
         return PermissionManager::userCan(['read_calendars', 'write_calendars']);
     }
 
+    public function getCalendarOptions(Request $request, ...$args)
+    {
+        return PermissionManager::userCan(['read_calendars', 'write_calendars', 'read_events', 'write_events']);
+    }
+
     public function createCalendar(Request $request, ...$args)
     {
         return PermissionManager::userCan('write_calendars');
