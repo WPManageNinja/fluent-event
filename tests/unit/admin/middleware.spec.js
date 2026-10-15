@@ -3,6 +3,24 @@ import middlewares from '@/router/middlewares';
 import { runBeforeMiddleware, runRouteMiddleware, runAfterMiddleware } from '@/router/middlewareHandler';
 import createAdminRouter from '@/router';
 
+// The router lazy-loads every page it lands on. Stubbed so the router tests never compile real pages,
+// which on a loaded run could outlast the 5s test timeout; only where navigation ends up is asserted.
+const page = vi.hoisted(() => () => ({ default: { render: () => null } }));
+
+vi.mock('@/modules/dashboard/index.vue', page);
+vi.mock('@/modules/calendars/index.vue', page);
+vi.mock('@/modules/calendars/CreateOrUpdateCalendar.vue', page);
+vi.mock('@/modules/calendars/detail.vue', page);
+vi.mock('@/modules/events/index.vue', page);
+vi.mock('@/modules/events/CreateOrUpdateEvent.vue', page);
+vi.mock('@/modules/events/detail.vue', page);
+vi.mock('@/modules/settings/index.vue', page);
+vi.mock('@/modules/settings/general.vue', page);
+vi.mock('@/modules/settings/email-notifications.vue', page);
+vi.mock('@/modules/settings/team.vue', page);
+vi.mock('@/components/Unauthorized', page);
+vi.mock('@/components/NotFound', page);
+
 const appFor = (me) => ({ config: { globalProperties: { appVars: { me } } } });
 const member = (permissions) => appFor({ id: 7, is_admin: false, permissions });
 const to = (meta) => ({ meta });
