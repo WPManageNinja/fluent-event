@@ -35,7 +35,7 @@ mode; `guests.ticket_type_id` stays nullable for it.
 
 Statuses: events and calendars are both `public | private | draft`. `private` means no
 public page; space calendars start `private`. FluentCommunity integration (events as posts
-in discussion spaces): [.claude/docs/functional-requirements/fluentcommunity-integration.md](.claude/docs/functional-requirements/fluentcommunity-integration.md).
+in discussion spaces) lives in `Modules/FluentCommunity/`; that code and its tests are the spec.
 
 Schema: [docs/db/fe_db_schema.sql](.claude/docs/db/fe_db_schema.sql).
 
