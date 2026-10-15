@@ -59,4 +59,7 @@ Every test runs in a transaction rolled back in `tearDown()`, which then fails t
 
 - One behaviour per test, named as a sentence.
 - A comment only where the *why* isn't obvious.
-- A test that pins a known bug says `KNOWN ISSUE` and what it should assert once fixed.
+- A known bug gets a test of the **correct** behaviour, linked to its GitHub issue, that
+  passes while the bug is open and fails once it is fixed: `expectKnownIssue('#NNN', …)` in
+  JS (`tests/unit/known-issue.js`), a guard plus `markTestIncomplete()` in PHP. Setup is
+  asserted outside the wrapper, so a broken setup can't pass for a bug that is still open.

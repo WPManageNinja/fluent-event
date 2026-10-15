@@ -5,6 +5,7 @@ import config from '@/bootstrap/config';
 import { useConfig } from '@/composables/useConfig';
 import { toAlpha } from '@/composables/useCssVar';
 import ResponseProxyItr from '@/utils/http/ResponseProxyItr';
+import { expectKnownIssue } from '../known-issue';
 
 describe('config', () => {
     const seed = () => Object.assign(config, {
@@ -104,8 +105,10 @@ describe('toAlpha', () => {
         expect(toAlpha(null)).toBe('');
     });
 
-    // KNOWN BUG: the docblock promises #RGB support, but "fff" splits into ["ff", "f"] and is rejected.
-    it('rejects three-digit hex shorthand', () => {
-        expect(toAlpha('#fff')).toBe('');
+    it('accepts three-digit hex shorthand', async () => {
+        // #176: the docblock promises #RGB support, but "fff" splits into ["ff", "f"] and is rejected.
+        await expectKnownIssue('#176', () => {
+            expect(toAlpha('#fff')).toBe('rgba(255,255,255, 0.2)');
+        });
     });
 });

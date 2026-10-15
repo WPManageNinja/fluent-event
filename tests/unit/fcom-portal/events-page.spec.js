@@ -17,7 +17,7 @@ const pending = () => {
 
 const query = (call = fetch.mock.calls.length - 1) => Object.fromEntries(new URL(fetch.mock.calls[call][0]).searchParams);
 
-// The v-loading KNOWN BUG below warns on every mount; drop only that warning so others still surface.
+// These direct mounts never register ElLoading, so v-loading warns on every mount; drop only that warning.
 const warnHandler = (message, instance, trace) => {
     if (!message.includes('Failed to resolve directive: loading')) {
         console.warn(`[Vue warn]: ${message}${trace}`);
@@ -133,14 +133,13 @@ describe('EventsPage', () => {
             expect(wrapper.find('[role="alert"]').text()).toBe('Space not found.');
         });
 
-        // KNOWN BUG: the portal page is its own createApp() and never registers ElLoading, so v-loading is inert.
-        it('shows no loading mask while the list loads', async () => {
+        // The mask itself is checked through the real portal mount in fcom-portal.spec.js (#173).
+        it('is loading while the list request is pending', async () => {
             fetch.mockReturnValueOnce(pending().promise);
 
-            const { wrapper, vm } = await eventsPage();
+            const { vm } = await eventsPage();
 
             expect(vm.loading).toBe(true);
-            expect(wrapper.find('.el-loading-mask').exists()).toBe(false);
         });
     });
 

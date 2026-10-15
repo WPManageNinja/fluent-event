@@ -102,18 +102,21 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('#123456', Calendar::query()->find($calendar->id)->meta['theme_color']);
     }
 
-    /**
-     * KNOWN ISSUE: sanitize_hex_color() turns 'red' into null before validation, so the
-     * regex rule in CalendarRequest never sees it and the save reports success. Expect 422 once fixed.
-     */
-    public function test_an_invalid_theme_colour_is_silently_ignored_instead_of_rejected()
+    public function test_an_invalid_theme_colour_is_rejected()
     {
         $calendar = $this->createCalendar(['meta' => ['theme_color' => '#abcdef']]);
 
         $response = $this->rest('PATCH', "calendars/{$calendar->id}", ['title' => 'X', 'slug' => $calendar->slug, 'status' => 'public', 'theme_color' => 'red']);
 
-        $this->assertSame(200, $response['status']);
-        $this->assertSame('#abcdef', Calendar::query()->find($calendar->id)->meta['theme_color']);
+        $this->assertContains($response['status'], [200, 422], wp_json_encode($response['data']));
+        $this->assertSame('#abcdef', Calendar::query()->find($calendar->id)->meta['theme_color'], 'An invalid colour must never be stored');
+
+        // #177: sanitize_hex_color() nulls 'red' before validation, so the regex rule never runs and the save reports success.
+        if ($response['status'] === 422) {
+            $this->fail('#177 is fixed: assert the 422 directly and remove this guard.');
+        }
+
+        $this->markTestIncomplete('#177: an invalid theme colour is saved as success instead of 422.');
     }
 
     public function test_deleting_a_calendar_deletes_its_events_their_posts_and_guests()

@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { mount } from '@vue/test-utils';
+import { expectKnownIssue } from '../known-issue';
 
 const spaceRoute = () => ({ path: '/space/:space/', children: [{ path: 'home', name: 'space_feeds' }] });
 
@@ -143,5 +145,56 @@ describe('fcom-portal entry', () => {
             [{ name: 'single_feed', params: { feed_slug: 'meetup' } }],
             [{ name: 'fe_space_events', params: { space: 'design' } }]
         ]);
+    });
+
+    // Mounts the real route shell, so the page goes through the same createApp() the portal uses.
+    describe('page shell', () => {
+        let wrapper;
+
+        const mountEventsShell = async () => {
+            const { filters } = await loadPortal();
+            const shell = filters.fluent_com_portal_routes([{ path: '/', name: 'all_feeds' }])
+                .find(route => route.name === 'fe_events').component;
+
+            wrapper = mount(shell, { global: { mocks: { $route: { params: {} }, $router: { push: vi.fn() } } } });
+
+            // The page and Vue load through dynamic imports (a first compile takes over a second), then the page app mounts.
+            for (let i = 0; i < 1200 && !wrapper.vm.ready; i++) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            return wrapper;
+        };
+
+        beforeEach(() => {
+            // A list request that never answers keeps the page loading.
+            vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
+
+            const warn = console.warn;
+            vi.spyOn(console, 'warn').mockImplementation((message, ...rest) => {
+                if (!String(message).includes('Failed to resolve directive: loading')) {
+                    warn(message, ...rest);
+                }
+            });
+        });
+
+        afterEach(() => {
+            wrapper && wrapper.unmount();
+            vi.unstubAllGlobals();
+            vi.restoreAllMocks();
+        });
+
+        it('shows a loading mask while the list loads', async () => {
+            await mountEventsShell();
+
+            expect(wrapper.vm.ready).toBe(true);
+            expect(wrapper.find('.fe-events-page__list').exists()).toBe(true);
+
+            // #173: the page app never registers ElLoading, so v-loading is inert.
+            await expectKnownIssue('#173', () => {
+                expect(wrapper.find('.el-loading-mask').exists()).toBe(true);
+            });
+        }, 15000);
     });
 });

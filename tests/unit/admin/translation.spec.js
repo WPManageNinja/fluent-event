@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils';
 import Application from '@/bootstrap/Application';
 import { useTranslation } from '@/composables/useTranslation';
 import { translate, translatePlural } from '../../setup';
+import { expectKnownIssue } from '../known-issue';
 
 // Application reads fluentEventAdmin.i18n and user_locale once, when the globals are registered.
 const boot = (vars = {}) => {
@@ -72,9 +73,11 @@ describe('$n', () => {
         expect(boot().$n(Infinity)).toBe('Infinity');
     });
 
-    // KNOWN BUG: only the first "_" becomes "-", so a three-part locale like de_DE_formal is an invalid tag and loses formatting.
-    it('falls back to raw digits for a three-part WordPress locale', () => {
-        expect(boot({ user_locale: 'de_DE_formal' }).$n(1234.5)).toBe('1234.5');
+    it('formats numbers for a three-part WordPress locale', async () => {
+        // #175: only the first "_" becomes "-", so de_DE_formal is an invalid tag and $n returns raw digits.
+        await expectKnownIssue('#175', () => {
+            expect(boot({ user_locale: 'de_DE_formal' }).$n(1234.5)).toBe(new Intl.NumberFormat('de-DE').format(1234.5));
+        });
     });
 });
 
