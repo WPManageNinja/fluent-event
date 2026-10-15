@@ -1,12 +1,18 @@
 <?php
 /**
- * Lint: raw SQL must not name a plugin table without its prefix.
+ * Lint: raw SQL must not name a table without resolving its prefix.
  *
  * where()/select()/join() go through the query grammar, which prepends
  * $wpdb->prefix. selectRaw(), whereRaw(), orderByRaw() and friends hand their
- * string to MySQL verbatim, so `fe_guests.status` inside one is an
- * "Unknown column" on every site. Unlike fluent-booking's line-based version,
- * this reads the whole call, so a literal on the line after `selectRaw(` counts.
+ * string to MySQL verbatim, so a table named inside one must carry the prefix
+ * itself. Flagged: our and FluentCommunity's tables (fe_*, fcom_*) and WordPress
+ * core tables left unprefixed, and any hardcoded `wp_` table, which passes on a
+ * wp_-prefixed dev site and fails everywhere else.
+ *
+ * A name counts as a table when it is qualified (`fe_guests.id`, backticks
+ * allowed), follows FROM/JOIN/UPDATE/INTO, or opens a fromRaw(). Quoted SQL
+ * values are ignored, heredocs are read, and a variable passed to the call is
+ * followed back to its assignments in the same function.
  *
  * Usage: php tests/lint/raw-sql-prefix.php [path]
  * Exit:  0 clean, 1 violations found
@@ -16,45 +22,119 @@ $root = dirname(__DIR__, 2);
 $scanDirs = isset($argv[1]) && $argv[1] !== '' ? [rtrim($argv[1], '/')] : ['app', 'Modules', 'database'];
 
 // Every *Raw entry point in vendor/wpfluent/framework/src/WPFluent/Database/.
-$rawCall = '/\b(?:selectRaw|fromRaw|whereRaw|orWhereRaw|whereInRaw|whereNotInRaw'
+$rawCall = '/\b(selectRaw|fromRaw|whereRaw|orWhereRaw|whereInRaw|whereNotInRaw'
     . '|whereIntegerInRaw|whereIntegerNotInRaw|orWhereIntegerInRaw|orWhereIntegerNotInRaw'
     . '|havingRaw|orHavingRaw|orderByRaw|groupByRaw|raw)\s*\(/i';
 
-// A table-qualified identifier for one of our tables or FluentCommunity's.
-$qualified = '/\b(?:fe|fcom)_[a-z0-9_]+\s*\./i';
+$coreTables = 'posts|postmeta|users|usermeta|options|comments|commentmeta|terms|termmeta|term_taxonomy|term_relationships|links';
+$table = '(?:wp_)?(?:(?:fe|fcom)_[a-z0-9_]+|' . $coreTables . ')(?![a-z0-9_])|wp_[a-z0-9_]+';
 
-$literal = '/"((?:[^"\\\\]|\\\\.)*)"|\'((?:[^\'\\\\]|\\\\.)*)\'/s';
-$prefixInside = '/\$wpdb->prefix|getTablePrefix\s*\(|\{\$|\$[a-zA-Z_]/';
-$prefixBefore = '/(?:\$wpdb->prefix|getTablePrefix\s*\(\s*\)|\$[a-zA-Z_][a-zA-Z0-9_]*)\s*\.\s*$/';
+// Not after a word char, `$`, `>` or `}`: `{$wpdb->prefix}fe_x` and `{$wpdb->posts}` are resolved.
+$qualifiedUse = '/(?<![\w$>}])`?(' . $table . ')`?(?=\s*\.)/i';
+$keywordUse = '/\b(?:FROM|JOIN|UPDATE|INTO)\s+`?(' . $table . ')`?(?![\w{$])/i';
+$leadingUse = '/^\s*`?(' . $table . ')`?(?![\w{$])/i';
 
-// The text between a call's parentheses, skipping parentheses inside string literals.
-$arguments = function ($source, $open) {
+$prefixBefore = '/(?:\$wpdb->(?:base_)?prefix|getTablePrefix\s*\(\s*\)|\$\w*prefix\w*)\s*\.\s*$/i';
+
+// Heredoc/nowdoc body, double-quoted, single-quoted.
+$literalBody = '<<<[ \t]*(["\']?)([A-Za-z_]\w*)\1\r?\n(.*?)\r?\n[ \t]*\2\b'
+    . '|"((?:[^"\\\\]|\\\\.)*)"|\'((?:[^\'\\\\]|\\\\.)*)\'';
+$literal = '/' . $literalBody . '/s';
+$literalAt = '/\G(?:' . $literalBody . ')/s';
+
+// SQL string values inside a literal, blanked to spaces so offsets and line numbers hold.
+$sqlValues = ['/\\\\\'.*?\\\\\'/s', '/\\\\".*?\\\\"/s', '/\'[^\']*\'/', '/"[^"]*"/'];
+
+$skipLiteral = function ($source, $i) use ($literalAt) {
+    return preg_match($literalAt, $source, $m, 0, $i) ? $i + strlen($m[0]) : null;
+};
+
+// End offset of the bracketed span opening at $open, or of the statement starting at $open.
+$spanEnd = function ($source, $open, $untilSemicolon) use ($skipLiteral) {
     $depth = 0;
-    $quote = null;
     $length = strlen($source);
 
     for ($i = $open; $i < $length; $i++) {
-        $char = $source[$i];
-
-        if ($quote !== null) {
-            if ($char === '\\') {
-                $i++;
-            } elseif ($char === $quote) {
-                $quote = null;
-            }
+        if (($end = $skipLiteral($source, $i)) !== null) {
+            $i = $end - 1;
             continue;
         }
 
-        if ($char === '"' || $char === "'") {
-            $quote = $char;
-        } elseif ($char === '(') {
+        $char = $source[$i];
+
+        if ($char === '(' || $char === '[') {
             $depth++;
-        } elseif ($char === ')' && --$depth === 0) {
-            return substr($source, $open + 1, $i - $open - 1);
+        } elseif ($char === ')' || $char === ']') {
+            $depth--;
+
+            if (!$untilSemicolon && $depth === 0) {
+                return $i;
+            }
+        } elseif ($untilSemicolon && $char === ';' && $depth <= 0) {
+            return $i;
         }
     }
 
-    return substr($source, $open + 1);
+    return $length;
+};
+
+/**
+ * @return array<int, array{offset: int, ident: string}>
+ */
+$findUses = function ($source, $start, $end, $isFromRaw) use ($literal, $sqlValues, $qualifiedUse, $keywordUse, $leadingUse, $prefixBefore) {
+    $segment = substr($source, $start, $end - $start);
+    $uses = [];
+
+    if (!preg_match_all($literal, $segment, $strings, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
+        return $uses;
+    }
+
+    foreach ($strings as $index => $string) {
+        $body = null;
+
+        foreach ([3, 4, 5] as $group) {
+            if (isset($string[$group]) && $string[$group][1] !== -1) {
+                [$body, $bodyOffset] = $string[$group];
+                break;
+            }
+        }
+
+        if ($body === null) {
+            continue;
+        }
+
+        $text = $body;
+        foreach ($sqlValues as $pattern) {
+            $text = preg_replace_callback($pattern, function ($m) {
+                return preg_replace('/[^\n]/', ' ', $m[0]);
+            }, $text);
+        }
+
+        $hits = [];
+        foreach ([$qualifiedUse, $keywordUse] as $pattern) {
+            if (preg_match_all($pattern, $text, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[1] as $hit) {
+                    $hits[$hit[1]] = $hit[0];
+                }
+            }
+        }
+
+        if ($isFromRaw && $index === 0 && preg_match($leadingUse, $text, $m, PREG_OFFSET_CAPTURE)) {
+            $hits[$m[1][1]] = $m[1][0];
+        }
+
+        foreach ($hits as $offset => $ident) {
+            // `$wpdb->prefix . 'fe_x.col'`: the prefix is concatenated directly onto the table.
+            $leading = ltrim(substr($text, 0, $offset), '`') === '';
+            if ($leading && preg_match($prefixBefore, substr($segment, 0, $string[0][1]))) {
+                continue;
+            }
+
+            $uses[] = ['offset' => $start + $bodyOffset + $offset, 'ident' => $ident];
+        }
+    }
+
+    return $uses;
 };
 
 $violations = [];
@@ -79,33 +159,46 @@ foreach ($scanDirs as $dir) {
         $scanned++;
         $source = file_get_contents($path);
 
-        if (!preg_match_all($rawCall, $source, $calls, PREG_OFFSET_CAPTURE)) {
+        if (!preg_match_all($rawCall, $source, $calls, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
             continue;
         }
 
-        foreach ($calls[0] as $call) {
-            $open = $call[1] + strlen($call[0]) - 1;
-            $args = $arguments($source, $open);
+        foreach ($calls as $call) {
+            $open = $call[0][1] + strlen($call[0][0]) - 1;
+            $close = $spanEnd($source, $open, false);
+            $isFromRaw = strcasecmp($call[1][0], 'fromRaw') === 0;
 
-            if (!preg_match_all($literal, $args, $strings, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
-                continue;
+            $uses = $findUses($source, $open + 1, $close, $isFromRaw);
+
+            // A variable passed in: check what it was assigned earlier in the same function.
+            $functionStart = 0;
+            if (preg_match_all('/\bfunction\b/', substr($source, 0, $open), $fn, PREG_OFFSET_CAPTURE)) {
+                $functionStart = end($fn[0])[1];
             }
 
-            foreach ($strings as $string) {
-                $text = isset($string[2]) && $string[2][1] !== -1 ? $string[2][0] : $string[1][0];
+            preg_match_all('/\$([a-zA-Z_]\w*)(?!\s*->)/', substr($source, $open, $close - $open), $vars);
 
-                if (!preg_match($qualified, $text, $hit) || preg_match($prefixInside, $text)) {
+            foreach (array_unique(array_diff($vars[1], ['this', 'wpdb'])) as $var) {
+                $scope = substr($source, $functionStart, $open - $functionStart);
+
+                if (!preg_match_all('/\$' . $var . '\s*\.?=(?!=)/', $scope, $assignments, PREG_OFFSET_CAPTURE)) {
                     continue;
                 }
 
-                if (preg_match($prefixBefore, substr($args, 0, $string[0][1]))) {
-                    continue;
+                foreach ($assignments[0] as $assignment) {
+                    $rhsStart = $functionStart + $assignment[1] + strlen($assignment[0]);
+                    $uses = array_merge($uses, $findUses($source, $rhsStart, $spanEnd($source, $rhsStart, true), false));
                 }
+            }
 
-                $violations[] = [
+            foreach ($uses as $use) {
+                $line = substr_count($source, "\n", 0, $use['offset']) + 1;
+                $key = $path . ':' . $line . ':' . $use['ident'];
+
+                $violations[$key] = [
                     'file'  => str_replace($root . '/', '', $path),
-                    'line'  => substr_count($source, "\n", 0, $open + 1 + $string[0][1]) + 1,
-                    'ident' => trim($hit[0]),
+                    'line'  => $line,
+                    'ident' => $use['ident'],
                 ];
             }
         }
@@ -115,14 +208,15 @@ foreach ($scanDirs as $dir) {
 echo "raw-sql-prefix: scanned {$scanned} PHP files\n";
 
 if (!$violations) {
-    echo "OK - no unprefixed table-qualified identifiers inside raw SQL.\n";
+    echo "OK - no unprefixed or hardcoded-prefix tables inside raw SQL.\n";
     exit(0);
 }
 
 echo "\nFAIL - " . count($violations) . " violation(s):\n\n";
 
 foreach ($violations as $violation) {
-    echo "  {$violation['file']}:{$violation['line']}  unprefixed identifier: {$violation['ident']}\n";
+    $problem = stripos($violation['ident'], 'wp_') === 0 ? 'hardcoded prefix' : 'unprefixed table';
+    echo "  {$violation['file']}:{$violation['line']}  {$problem}: {$violation['ident']}\n";
 }
 
 echo "\nRaw SQL bypasses the query grammar. Resolve the prefix explicitly:\n";

@@ -31,8 +31,9 @@ post-update script runs PHP-Scoper over every third-party package in `vendor/`, 
 the permission matrix; hook wiring (every callback exists, every queued job has a listener,
 reminders cancel before cleanup); model contracts (`$fillable`, statuses, `defaultMeta()`);
 request shaping; dates; mail header building; the portal's meeting-link rule; and
-`tests/lint/raw-sql-prefix.php`, which statically catches an unprefixed table inside
-`selectRaw()` and friends. The test table prefix is `wptest_`, never `wp_`.
+`tests/lint/raw-sql-prefix.php`, which statically catches an unprefixed or hardcoded-`wp_`
+table inside `selectRaw()` and friends, heredocs and variables passed in included. The test
+table prefix is `wptest_`, never `wp_`.
 
 URL sanitizing is deliberately not tested here: the `esc_url_raw()` stub has no protocol
 allowlist, so a test against it would only test the stub.
