@@ -4,7 +4,12 @@
         "watch": "npm run dev",
         "build": "node resources/vite/vite.js --build && vite build",
         "production": "npm run build",
-        "prod": "npm run build"
+        "prod": "npm run build",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:php": "tests/vendor/bin/phpunit --no-coverage",
+        "test:integration": "FE_INTEGRATION=1 php -d memory_limit=1G tests/vendor/bin/phpunit -c phpunit.integration.xml",
+        "test:all": "npm test && npm run test:php"
     },
     "dependencies": {
         "@element-plus/icons-vue": "^2.0.9",
@@ -18,7 +23,9 @@
     },
     "devDependencies": {
         "@vue/compiler-sfc": "^3.2.40",
+        "@vue/test-utils": "2.4.11",
         "glob": "^10.3.4",
+        "happy-dom": "20.14.5",
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.93.2",
         "sass-loader": "^13.0.2",
@@ -26,6 +33,7 @@
         "unplugin-vue-components": "^0.22.7",
         "vite": "^4.4.9",
         "vite-plugin-static-copy": "^0.16.0",
+        "vitest": "0.34.6",
         "vue-loader": "^17.0.0"
     }
 }

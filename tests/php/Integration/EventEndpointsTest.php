@@ -1,0 +1,145 @@
+<?php
+
+namespace FluentEvent\Tests\Integration;
+
+use FluentEvent\App\Models\Event;
+use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Models\Meta;
+use FluentEvent\Tests\IntegrationTestCase;
+
+/**
+ * The event endpoints end to end. The post and its event_details row are one
+ * record split across two tables, so every write must keep them in step.
+ */
+class EventEndpointsTest extends IntegrationTestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actAs($this->createAdmin());
+    }
+
+    public function test_updating_an_event_keeps_its_post_in_step()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Renamed', 'status' => 'private']));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $post = get_post($event->post_id);
+        $this->assertSame('Renamed', $post->post_title);
+        $this->assertSame('private', $post->post_status);
+        $this->assertSame('private', Event::query()->find($event->id)->status);
+    }
+
+    public function test_a_local_start_time_is_stored_in_utc()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'timezone' => 'Asia/Dhaka',
+            'start_at' => '2030-01-10 10:00:00',
+            'end_at'   => '2030-01-10 12:00:00',
+        ]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $fresh = Event::query()->find($event->id);
+        $this->assertSame('2030-01-10 04:00:00', $fresh->start_at);
+        $this->assertSame('2030-01-10 10:00:00', $fresh->start_at_local);
+    }
+
+    public function test_an_event_that_ends_before_it_starts_is_rejected_and_nothing_changes()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'title'    => 'Should not stick',
+            'start_at' => '2030-01-10 12:00:00',
+            'end_at'   => '2030-01-10 10:00:00',
+        ]));
+
+        $this->assertSame(422, $response['status']);
+        $this->assertStringContainsString('end_at', wp_json_encode($response['data']));
+        $this->assertSame('Integration event', get_post($event->post_id)->post_title);
+    }
+
+    public function test_an_online_event_without_a_meeting_link_is_rejected()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['venue_type' => 'online', 'online_meeting_url' => '']));
+
+        $this->assertSame(422, $response['status']);
+        $this->assertStringContainsString('online_meeting_url', wp_json_encode($response['data']));
+    }
+
+    public function test_an_event_cannot_be_moved_into_a_calendar_that_does_not_exist()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['calendar_id' => 999999999]));
+
+        $this->assertSame(422, $response['status']);
+    }
+
+    public function test_script_in_an_event_description_is_stripped_on_save()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'description' => '<p>Bring snacks</p><script>alert(1)</script>',
+        ]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $content = get_post($event->post_id)->post_content;
+        $this->assertStringContainsString('<p>Bring snacks</p>', $content);
+        $this->assertStringNotContainsString('<script', $content);
+    }
+
+    public function test_moving_an_event_to_another_calendar_moves_its_guests()
+    {
+        $event = $this->createEvent();
+        $guest = $this->createGuest($event);
+        $target = $this->createCalendar();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['calendar_id' => $target->id]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame((int) $target->id, (int) Guest::query()->find($guest->id)->calendar_id);
+    }
+
+    public function test_deleting_an_event_removes_its_post_guests_and_meta()
+    {
+        $event = $this->createEvent();
+        $this->createGuest($event);
+        Meta::query()->create(['object_type' => Meta::OBJECT_TYPE_EVENT, 'object_id' => $event->id, 'meta_key' => 'probe', 'value' => []]);
+
+        $response = $this->rest('DELETE', "events/{$event->id}");
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull(Event::query()->find($event->id));
+        $this->assertNull(get_post($event->post_id));
+        $this->assertSame(0, Guest::query()->where('event_id', $event->id)->count());
+        $this->assertSame(0, Meta::query()->where('object_type', Meta::OBJECT_TYPE_EVENT)->where('object_id', $event->id)->count());
+    }
+
+    public function test_a_missing_event_is_a_404()
+    {
+        $this->assertSame(404, $this->rest('GET', 'events/999999999')['status']);
+    }
+
+    public function test_the_event_list_filters_by_calendar()
+    {
+        $mine = $this->createEvent();
+        $this->createEvent();
+
+        $response = $this->rest('GET', 'events', ['calendar_id' => $mine->calendar_id, 'paginate' => 'false']);
+
+        $this->assertSame(200, $response['status']);
+        $this->assertSame([(int) $mine->id], array_map('intval', array_column($response['data']['events'], 'id')));
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "name": "fluent-event/tests",
+    "description": "Test tooling for FluentEvent. Kept out of the root composer.json: its post-update script runs PHP-Scoper over every third-party package in vendor/, and vendor/composer is tracked.",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+        "mockery/mockery": "^1.6",
+        "brain/monkey": "^2.6"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FluentEvent\\Tests\\": "php/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit -c ../phpunit.xml.dist --no-coverage",
+        "test:integration": "phpunit -c ../phpunit.integration.xml"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        },
+        "sort-packages": true
+    }
+}
