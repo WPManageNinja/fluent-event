@@ -43,8 +43,9 @@ its controller). Requests go through the real router, policies, validator and da
 
 ## Integration safety
 
-Every test runs in a transaction rolled back in `tearDown()`, which then fails the test if
-`wp_fe_meta`'s row count changed. That is what lets it point at a working dev site. So:
+Every test runs in a transaction rolled back in `tearDown()`. A sentinel row written right after
+the transaction opens must be gone after the rollback; if it survived, something committed and the
+test fails. That is what lets it point at a working dev site. So:
 
 - **No DDL, no TRUNCATE, no COMMIT.** DDL implicitly commits in MySQL and makes every later
   write permanent. `DB::transaction()` is fine — the harness opens the outer transaction on
@@ -60,7 +61,8 @@ Every test runs in a transaction rolled back in `tearDown()`, which then fails t
 - One behaviour per test, named as a sentence.
 - A comment only where the *why* isn't obvious.
 - A known bug gets a test of the **correct** behaviour, linked to its GitHub issue, that
-  passes while the bug is open and fails once it is fixed: `expectKnownIssue('#NNN', …)` in
-  JS (`tests/unit/known-issue.js`), a guard plus `markTestIncomplete()` in PHP. Its name says so
-  (`KNOWN ISSUE #NNN — …` in JS, `test_known_issue_NNN_…` in PHP), so a green run never hides it. Setup is
-  asserted outside the wrapper, so a broken setup can't pass for a bug that is still open.
+  doesn't fail while the bug is open and fails once it is fixed: `expectKnownIssue('#NNN', …)` in JS
+  (`tests/unit/known-issue.js`), a guard plus `markTestIncomplete()` in PHP. Its name says so
+  (`KNOWN ISSUE #NNN — …` in JS, `test_known_issue_NNN_…` in PHP), and it reports as skipped
+  (JS) or incomplete (PHP), never as passed. Setup is asserted outside the wrapper, so a broken
+  setup fails normally.

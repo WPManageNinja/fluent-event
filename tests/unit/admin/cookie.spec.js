@@ -37,17 +37,17 @@ describe('Cookie', () => {
         expect(cookie.get('fe_state')).toEqual({ tab: 'past' });
     });
 
-    it('KNOWN ISSUE #174 — keeps a value that itself contains "="', async () => {
+    it('KNOWN ISSUE #174 — keeps a value that itself contains "="', async (context) => {
         // #174: parse() splits on every "=", so WordPress's own wp-settings-1 cookie is cut short.
-        await expectKnownIssue('#174', () => {
+        await expectKnownIssue('#174', context, () => {
             expect(cookie.parse('wp-settings-1=libraryContent=browse&editor=tinymce'))
                 .toEqual({ 'wp-settings-1': 'libraryContent=browse&editor=tinymce' });
         });
     });
 
-    it('KNOWN ISSUE #174 — reads a cookie with no "=" as an empty value', async () => {
+    it('KNOWN ISSUE #174 — reads a cookie with no "=" as an empty value', async (context) => {
         // #174: a valueless cookie (legal per RFC 6265) makes parse() throw.
-        await expectKnownIssue('#174', () => {
+        await expectKnownIssue('#174', context, () => {
             expect(cookie.parse('fe_flag; fe_state=abc')).toEqual({ fe_flag: '', fe_state: 'abc' });
         });
     });

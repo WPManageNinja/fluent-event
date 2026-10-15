@@ -185,14 +185,14 @@ describe('fcom-portal entry', () => {
             vi.restoreAllMocks();
         });
 
-        it('KNOWN ISSUE #173 — shows a loading mask while the list loads', async () => {
+        it('KNOWN ISSUE #173 — shows a loading mask while the list loads', async (context) => {
             await mountEventsShell();
 
             expect(wrapper.vm.ready).toBe(true);
             expect(wrapper.find('.fe-events-page__list').exists()).toBe(true);
 
             // #173: the page app never registers ElLoading, so v-loading is inert.
-            await expectKnownIssue('#173', () => {
+            await expectKnownIssue('#173', context, () => {
                 expect(wrapper.find('.el-loading-mask').exists()).toBe(true);
             });
         }, 15000);
