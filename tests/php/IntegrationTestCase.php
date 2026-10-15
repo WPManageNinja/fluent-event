@@ -30,11 +30,8 @@ abstract class IntegrationTestCase extends BaseTestCase
     /** @var mixed */
     private $connection;
 
-    /** @var string */
-    private $witnessTable;
-
     /** @var int */
-    private $witnessCountBefore;
+    private $sentinelId;
 
     /** @var int */
     private $previousUser;
@@ -61,8 +58,18 @@ abstract class IntegrationTestCase extends BaseTestCase
         $this->connection = App::make('db');
         $this->connection->beginTransaction();
 
-        $this->witnessTable = $wpdb->prefix . 'fe_meta';
-        $this->witnessCountBefore = $this->rowCount($this->witnessTable);
+        // Written inside the transaction: if anything commits during the test, this row survives the rollback.
+        $wpdb->insert($wpdb->prefix . 'fe_meta', [
+            'object_type' => 'fe_rollback_sentinel',
+            'object_id'   => 0,
+            'meta_key'    => wp_generate_password(20, false, false),
+            'value'       => '[]',
+        ]);
+        $this->sentinelId = (int) $wpdb->insert_id;
+
+        if (!$this->sentinelId) {
+            $this->fail('Could not write the rollback sentinel; refusing to run without it.');
+        }
 
         $this->assertTransactionIsOpen();
     }
@@ -81,16 +88,16 @@ abstract class IntegrationTestCase extends BaseTestCase
         wp_set_current_user($this->previousUser);
         wp_cache_flush();
 
-        $after = $this->rowCount($this->witnessTable);
+        $sentinelTable = $this->wpdb->prefix . 'fe_meta';
+        $survived = $this->wpdb->get_var($this->wpdb->prepare("SELECT id FROM {$sentinelTable} WHERE id = %d", $this->sentinelId));
 
-        if ($after !== $this->witnessCountBefore) {
-            $this->fail(sprintf(
-                "ROLLBACK did not restore %s (%d rows before, %d after). Something in this test committed, "
-                . "most likely DDL. Those rows are now permanent. See tests/php/integration-bootstrap.php.",
-                $this->witnessTable,
-                $this->witnessCountBefore,
-                $after
-            ));
+        if ($survived) {
+            $this->wpdb->delete($sentinelTable, ['id' => $this->sentinelId]);
+
+            $this->fail(
+                'Something in this test committed (most likely DDL), so everything it wrote before that '
+                . 'point is now permanent in the database. See tests/php/integration-bootstrap.php.'
+            );
         }
 
         parent::tearDown();
