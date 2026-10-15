@@ -55,6 +55,9 @@ class EventPost
             // attachment. No custom-fields: nothing edits postmeta by hand.
             'supports'            => ['title', 'editor', 'author'],
 
+            // Events belong to the site, not their author: deleting a WP user must not delete them.
+            'delete_with_user'    => false,
+
 'capability_type'     => 'post',
             'map_meta_cap'        => true,
             'hierarchical'        => false,

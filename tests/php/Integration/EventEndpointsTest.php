@@ -34,6 +34,49 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('private', Event::query()->find($event->id)->status);
     }
 
+    public function test_deleting_a_wordpress_user_keeps_the_events_they_created()
+    {
+        require_once ABSPATH . 'wp-admin/includes/user.php';
+
+        $authorId = $this->createUser('editor', ['write_events']);
+        $this->actAs($authorId);
+        $event = $this->createEvent();
+        $this->actAs($this->createAdmin());
+
+        // No reassign: WordPress's "Delete all content" choice.
+        wp_delete_user($authorId);
+
+        $this->assertNotNull(get_post($event->post_id));
+    }
+
+    // A post removed outside the plugin (XML-RPC, WP-CLI, another plugin) must not leave an undeletable event.
+    public function test_an_event_whose_post_is_already_gone_can_still_be_deleted()
+    {
+        $event = $this->createEvent();
+        $guest = $this->createGuest($event);
+        wp_delete_post($event->post_id, true);
+
+        $response = $this->rest('DELETE', "events/{$event->id}");
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull(Event::query()->find($event->id));
+        $this->assertNull(Guest::query()->find($guest->id));
+    }
+
+    public function test_a_calendar_holding_an_event_whose_post_is_gone_can_still_be_deleted()
+    {
+        $calendar = $this->createCalendar();
+        $orphan = $this->createEvent(['calendar_id' => $calendar->id]);
+        $sibling = $this->createEvent(['calendar_id' => $calendar->id]);
+        wp_delete_post($orphan->post_id, true);
+
+        $response = $this->rest('DELETE', "calendars/{$calendar->id}");
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull(Event::query()->find($orphan->id));
+        $this->assertNull(Event::query()->find($sibling->id));
+    }
+
     public function test_backslashes_in_a_title_and_description_survive_saving()
     {
         $event = $this->createEvent(['title' => 'AC\DC Live']);

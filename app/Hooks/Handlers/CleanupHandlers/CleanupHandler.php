@@ -28,7 +28,8 @@ class CleanupHandler
     {
         if (empty($event)) return;
 
-        if (!wp_delete_post($event->post_id, true)) {
+        // A post already deleted outside the plugin (XML-RPC, WP-CLI) leaves nothing to remove here.
+        if (get_post($event->post_id) && !wp_delete_post($event->post_id, true)) {
             throw new HttpException(
                 422,
                 esc_html__('The event could not be deleted. Please try again.', 'fluent-event'),
