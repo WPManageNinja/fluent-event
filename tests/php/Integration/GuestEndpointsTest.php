@@ -71,6 +71,78 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertNull(Guest::query()->find($id)->checked_in_at);
     }
 
+    // The guest list's quick status change sends only the status.
+    public function test_changing_only_the_status_keeps_the_rest_of_the_guest()
+    {
+        $userId = $this->createUser('subscriber');
+        $guest = $this->createGuest($this->event, ['user_id' => $userId]);
+
+        $response = $this->rest('PATCH', "events/{$this->event->id}/guests/{$guest->id}", ['status' => 'checked_in']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $stored = Guest::query()->find($guest->id);
+        $this->assertSame('checked_in', $stored->status);
+        $this->assertNotNull($stored->checked_in_at);
+        $this->assertSame($userId, (int) $stored->user_id);
+        $this->assertSame($guest->name, $stored->name);
+        $this->assertSame($guest->email, $stored->email);
+    }
+
+    public function test_a_guest_whose_wordpress_user_was_deleted_can_still_change_status()
+    {
+        require_once ABSPATH . 'wp-admin/includes/user.php';
+
+        $userId = $this->createUser('subscriber');
+        $guest = $this->createGuest($this->event, ['user_id' => $userId]);
+        wp_delete_user($userId);
+
+        $response = $this->rest('PATCH', "events/{$this->event->id}/guests/{$guest->id}", ['status' => 'checked_in']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('checked_in', Guest::query()->find($guest->id)->status);
+    }
+
+    public function test_an_update_without_a_status_keeps_the_current_one()
+    {
+        $guest = $this->createGuest($this->event, ['status' => 'checked_in', 'checked_in_at' => current_time('mysql')]);
+
+        $response = $this->rest('PATCH', "events/{$this->event->id}/guests/{$guest->id}", ['name' => 'Renamed']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $stored = Guest::query()->find($guest->id);
+        $this->assertSame('Renamed', $stored->name);
+        $this->assertSame('checked_in', $stored->status);
+        $this->assertNotNull($stored->checked_in_at);
+    }
+
+    public function test_an_update_cannot_blank_the_name_or_email()
+    {
+        $guest = $this->createGuest($this->event);
+
+        $response = $this->rest('PATCH', "events/{$this->event->id}/guests/{$guest->id}", ['name' => '', 'email' => '']);
+
+        $this->assertSame(422, $response['status']);
+        $this->assertArrayHasKey('name', $response['data']);
+        $this->assertArrayHasKey('email', $response['data']);
+    }
+
+    public function test_the_edit_form_can_still_unlink_a_guest_from_their_wordpress_user()
+    {
+        $guest = $this->createGuest($this->event, ['user_id' => $this->createUser('subscriber')]);
+
+        $response = $this->rest('PATCH', "events/{$this->event->id}/guests/{$guest->id}", [
+            'name'    => $guest->name,
+            'email'   => $guest->email,
+            'status'  => 'going',
+            'user_id' => null,
+        ]);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull(Guest::query()->find($guest->id)->user_id);
+    }
+
     public function test_a_confirmation_is_queued_only_when_asked_for()
     {
         $silent = $this->addGuest(['name' => 'Quiet', 'email' => 'quiet@example.test'])['data']['guest']['id'];

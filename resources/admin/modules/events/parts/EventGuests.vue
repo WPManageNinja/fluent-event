@@ -307,11 +307,7 @@
                 this.$requestServer({
                     method: 'patch',
                     path: `events/${this.eventId}/guests/${row.id}`,
-                    payload: {
-                        name: row.name,
-                        email: row.email,
-                        status,
-                    },
+                    payload: { status },
                     loadingState: 'mutating',
                     errorState: null,
                     successNotify: true,
