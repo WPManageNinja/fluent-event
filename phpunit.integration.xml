@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Integration tier: real WordPress, real database, every test in a rolled-back
+  transaction. Opt-in, and separate so the unit tier stays runnable with no DB:
+
+      FE_INTEGRATION=1 php -d memory_limit=1G tests/vendor/bin/phpunit -c phpunit.integration.xml
+
+  Read the safety rules in tests/php/integration-bootstrap.php before adding a test.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="tests/vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/php/integration-bootstrap.php"
+         backupGlobals="false"
+         colors="true"
+         processIsolation="false"
+         stopOnFailure="true"
+         stderr="true"
+         cacheResultFile="tests/php/.phpunit.cache/integration-results">
+
+    <!--
+      stopOnFailure: a failure here can mean the rollback guarantee broke, so stop before more writes land.
+      stderr: progress on stdout flips headers_sent(), which changes how WordPress answers REST/AJAX.
+    -->
+
+    <testsuites>
+        <testsuite name="Integration Tests">
+            <directory>tests/php/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage processUncoveredFiles="false">
+        <include>
+            <directory suffix=".php">app/</directory>
+            <directory suffix=".php">Modules/</directory>
+        </include>
+        <exclude>
+            <directory>app/Views/</directory>
+        </exclude>
+    </coverage>
+</phpunit>

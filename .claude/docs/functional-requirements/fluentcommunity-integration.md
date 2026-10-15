@@ -5,53 +5,68 @@ The post carries `content_type = 'event'` and `meta.event_id`; everything about 
 FluentEvent's tables. FluentEvent pushes all of it into fcom through hooks; fcom only gains a few
 event-agnostic extension points. Without fcom, FluentEvent runs standalone and nothing below loads.
 
-Source spec: [../integrations/fcom.md](../integrations/fcom.md). There is no `event` space type any more.
+This is the record of intended behaviour. Keep it in step with `Modules/FluentCommunity/` and
+`resources/fcom-portal/`; the tests listed at the end verify it.
 
 ## Ownership
 
 | Concern | Owner | Where |
 |---|---|---|
-| Post title, description, comments, reactions, scope, schedule | fcom | `fcom_posts` (`content_type = 'event'`, `meta.event_id`) |
-| Event title, description, dates, venue, cover, entry type, capacity | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
+| Post title, message, comments, reactions, topics, schedule | fcom | `fcom_posts` (`content_type = 'event'`, `meta.event_id`) |
+| Event title, description, dates, venue, cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
 | Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id` |
-| Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (indexed, so the events list joins on it) |
+| Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (the events list joins on it) |
 | Guests | FluentEvent | `fe_guests` (`source = 'community'`, `source_id` = post id) |
 
 Post and event titles/descriptions are separate. Editing the post uses fcom's normal edit modal.
-The event card shows an **Edit event** button to `write_events` holders, which opens the FluentEvent
+The event card shows an **Edit event** link to `write_events` holders, which opens the FluentEvent
 edit page.
 
-## Bridge (FluentEvent `Modules/FluentCommunity/`)
+## Bridge (`Modules/FluentCommunity/`)
 
 Registered on `fluent_community/portal_loaded`, so it only runs while fcom is active.
 
-- **PortalHandler** — top-level **Events** nav (`fluent_community/main_menu_items`, `mobile_menu`,
-  `app_route_paths`), the space **Events** tab (`space_header_links`, discussion spaces only), and
-  the portal script printed at `fluent_community/before_js_loaded`.
+- **PortalHandler**
+  - An **Events** item in fcom's Menu Settings, off until an admin enables it; the mobile menu
+    places it before Profile.
+  - A space **Events** tab for discussion spaces only, off until a space admin enables it.
+  - `events` in fcom's route paths, and the portal script and styles printed at
+    `fluent_community/before_js_loaded` (the portal is headless, so enqueues never print).
 - **FeedHandler** — the event-post lifecycle:
-  - `new_feed_data_type_event` — `write_events` check, discussion-space check, event validation,
-    media stripped. Vetoes return `WP_Error` (a thrown exception becomes a bare HTTP 500 in fcom).
-  - `just_created_type_event` — find or create the space calendar, create the event, write
-    `meta.event_id`. If the event can't be created, the post is deleted.
-  - `update_feed_data_type_event` / `update_data` — keep the event link through edits (fcom
-    rebuilds post meta), block moves to the profile or to non-discussion spaces.
-  - `feed/updated` — a post moved to another space moves its event to that space's calendar.
-  - `feed/before_deleted` — deleting the post deletes the event and its guests.
-  - `feed_general_config` + `rendering_feed_model` — batch-load events and attach the portal
-    payload as `feed.fluent_event`.
+  - `new_feed_data_type_event`: requires `write_events`, a discussion space, and valid event
+    input; strips media. Vetoes return `WP_Error` (a thrown exception becomes a bare HTTP 500 in fcom).
+  - `just_created_type_event`: finds or creates the space calendar, claims uploaded cover and
+    description images, creates the event (status `public`, author = post author), writes
+    `meta.event_id` and the `fcom_feed_id` link. If the event can't be created, the post is deleted.
+  - `update_feed_data_type_event` / `update_data`: keep the event link through edits (fcom
+    rebuilds post meta); block moves to the profile or to non-discussion spaces.
+  - `feed/updated`: a post moved to another space moves its event to that space's calendar, and
+    the guests follow.
+  - `fluent_event/event/calendar_changed`: an event moved to another calendar in the admin moves
+    its post to that calendar's space; if the calendar has no discussion space, the post lets go
+    of the event and becomes a plain post.
+  - `feed/before_deleted`: deleting the post deletes the event and its guests.
+  - `fluent_event/event/before_deleted` (priority 5, before cleanup): deleting the event in the
+    admin turns the post back into a plain post.
+  - `feed_general_config` + `rendering_feed_model`: batch-load events and attach the portal
+    payload as `feed.fluent_event`; registration is closed on a post that isn't published or unlisted.
 - **SpaceHandler** — `space/before_delete` deletes the space calendar with its events and guests
   (fcom bulk-deletes the posts without per-post hooks); `space/updated` keeps the calendar's title
   and slug in step with the space.
 
-## Portal UI (FluentEvent `resources/fcom-portal/`)
+## Portal UI (`resources/fcom-portal/`)
 
 - `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`: `/events`,
-  `/space/:space/events` and `/space/:space/create-event`. It also registers the event card for
-  `content_type = 'event'`, the "Create new event" entry in the space "…" menu, and switches the
-  post editor's attachments off for event posts.
+  `/post/:feed_slug/event`, `/space/:space/events` and `/space/:space/create-event`. It also
+  registers the event card for `content_type = 'event'`, a **Create new event** item in the space
+  "…" menu (for `write_events` holders who may post in that space), and turns the post composer's
+  attachment apps off for event posts.
 - The pages are a separate Vue + Element Plus app loaded on first visit (fcom exposes neither
   to add-ons). The card is a string template on fcom's own Vue.
-- REST: `fluent-event/v2/community/*` — event lists, one event, register, cancel, cover upload.
+- REST, `fluent-event/v2/community/*`:
+  - `GET events` — the events list, filtered to visible posts in SQL.
+  - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute.
+  - `GET editor-assets` — the WordPress editor markup for the create-event page; `write_events` only.
 
 ## fcom extension points (event-agnostic)
 
@@ -67,19 +82,39 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Calendars:** created lazily on the first event, named and slugged after the space, status
   `private` (no public page). Admins may change the status later.
 - **Statuses:** events and calendars are `public | private | draft`. fcom-created events start
-  `public`. fcom renders `public` and `private` events; `draft` events are not returned.
-- **Entry types:** `rsvp` (logged-in, going / not going; no seat limit) and `open` (view-only:
-  nobody registers, no guests).
-- **Show guest count:** `rsvp` only; count only, default on. Staff always see it.
-- **Meeting link:** `rsvp` shows it to registered guests and staff; `open` shows it to everyone
-  who can see the post.
-- **Visibility:** lists and registration follow the post — published posts in discussion spaces the
-  viewer can see (joined + public; public only for logged-out visitors on a public portal).
-- **Email:** registration confirmation (toggle in Email Notifications, default on) plus the
-  existing reminders. "New event" notifications are fcom's own new-post notifications.
+  `public`. The portal shows `public` and `private` events; `draft` events are never returned.
+- **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit) and `open`
+  (view-only: nobody registers, no guests).
+- **Guest count:** shown only for `rsvp` events whose **Show guest count** switch is on, and then
+  to everyone, staff included. The switch alone decides; nobody gets an override. It counts
+  `going` and `checked_in` guests.
+- **Meeting link:** an online `rsvp` event shows it to its registered guests (`going` or
+  `checked_in`) and to staff (any `read_`/`write_` events or guests key); an online `open` event
+  shows it to everyone who can see the post.
+  An offline event never exposes one.
+- **Registration:**
+  - Logged-in members only; `rsvp` events only; refused once the event has ended.
+  - One guest row per member per event. A row an admin added under the member's email is
+    claimed, not duplicated; an email already registered to another member is refused.
+  - Saying *going* again keeps a checked-in guest checked in.
+- **Visibility:** lists show published posts in discussion spaces the viewer can see (joined +
+  public; public only for logged-out visitors on a publicly accessible portal). Registration also
+  accepts an unlisted post the viewer can open. Draft events and events with no post are not found.
+- **Email:** a confirmation when a member becomes *going* and a cancellation when they move from
+  *going* to *not going* (each toggled in Email Notifications, default on), plus the event
+  reminders. "New event" notifications are fcom's own new-post notifications.
 - **FluentEvent admin:** no "Add New Event" menu, no create-event or create-calendar buttons,
   no `/events/new` or `/calendars/new` routes. Editing and deleting stay. The create forms
   (`CreateOrUpdateEvent`, `CreateOrUpdateCalendar`) and REST create endpoints stay in the code.
+
+## Tests
+
+- **Covered:** registration, entry types, the guest count and meeting-link rules
+  (`tests/php/Integration/CommunityRsvpTest.php`, `tests/php/Unit/Modules/CommunityEventFormatTest.php`);
+  hook wiring and ordering (`tests/php/Unit/Hooks/HookRegistrationTest.php`); portal routes, card
+  and composer filters (`tests/unit/fcom-portal/`).
+- **Not yet covered:** the `FeedHandler` post lifecycle, `SpaceHandler`, and list visibility for
+  private and secret spaces. Until they are, this document is the only record of that behaviour.
 
 ## Out of scope
 

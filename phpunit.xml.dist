@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Unit tier: no WordPress, no database. Runs on a bare checkout.
+      tests/vendor/bin/phpunit
+  The integration tier is phpunit.integration.xml.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="tests/vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/php/bootstrap.php"
+         backupGlobals="false"
+         colors="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         cacheResultFile="tests/php/.phpunit.cache/test-results">
+
+    <testsuites>
+        <testsuite name="Unit Tests">
+            <directory>tests/php/Unit</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage processUncoveredFiles="true">
+        <!-- processUncoveredFiles=true keeps untested files in the denominator, so the figure can't flatter itself. -->
+        <include>
+            <directory suffix=".php">app/</directory>
+            <directory suffix=".php">Modules/</directory>
+        </include>
+        <exclude>
+            <directory>app/Views/</directory>
+        </exclude>
+        <report>
+            <html outputDirectory="tests/php/coverage/html"/>
+            <text outputFile="php://stdout" showUncoveredFiles="false"/>
+        </report>
+    </coverage>
+</phpunit>
