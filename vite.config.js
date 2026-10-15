@@ -8,7 +8,6 @@ import Components from 'unplugin-vue-components/vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
-const pluginFolder = path.basename(__dirname);
 const devPort = process.env.PORT ? parseInt(process.env.PORT) : 8880;
 
 // The resolver injects per-component Element Plus CSS that Vite's startup scan can't see, so the
@@ -22,7 +21,9 @@ export default defineConfig(({ mode }) => {
     const isDev = mode === 'development';
 
     return {
-        base: `/wp-content/plugins/${pluginFolder}/assets/`,
+        // Relative: lazy chunks and their CSS resolve from the loaded script's URL. An absolute path
+        // breaks WordPress in a subdirectory, a custom plugins URL, or a checkout under another name.
+        base: './',
         plugins: [
             vue(),
             liveReload([`${__dirname}/**/*.php`]),
