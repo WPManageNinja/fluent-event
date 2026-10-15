@@ -1,8 +1,7 @@
 /**
- * A known bug's test asserts the correct behaviour through this: it passes while the bug is
- * there and fails once the bug is fixed, so the fix has to update the test too. Only the
- * assertion about the bug goes inside; setup is asserted outside, so a broken setup can't
- * pass for a bug that is still open.
+ * A known bug's test (titled "KNOWN ISSUE #NNN — …") asserts the correct behaviour through this.
+ * It passes while the bug is open and fails once it is fixed, so the fix updates the test too.
+ * Only the bug assertion goes inside; setup stays outside, so a broken setup can't pass.
  */
 export async function expectKnownIssue(issue, assertion) {
     try {
@@ -11,5 +10,5 @@ export async function expectKnownIssue(issue, assertion) {
         return;
     }
 
-    throw new Error(`${issue} is fixed: assert this directly and drop expectKnownIssue().`);
+    throw new Error(`${issue} is fixed: assert this directly and drop expectKnownIssue() and the KNOWN ISSUE title.`);
 }

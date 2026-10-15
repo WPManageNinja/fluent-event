@@ -105,7 +105,7 @@ describe('toAlpha', () => {
         expect(toAlpha(null)).toBe('');
     });
 
-    it('accepts three-digit hex shorthand', async () => {
+    it('KNOWN ISSUE #176 — accepts three-digit hex shorthand', async () => {
         // #176: the docblock promises #RGB support, but "fff" splits into ["ff", "f"] and is rejected.
         await expectKnownIssue('#176', () => {
             expect(toAlpha('#fff')).toBe('rgba(255,255,255, 0.2)');

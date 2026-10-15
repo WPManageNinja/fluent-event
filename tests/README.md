@@ -61,5 +61,6 @@ Every test runs in a transaction rolled back in `tearDown()`, which then fails t
 - A comment only where the *why* isn't obvious.
 - A known bug gets a test of the **correct** behaviour, linked to its GitHub issue, that
   passes while the bug is open and fails once it is fixed: `expectKnownIssue('#NNN', …)` in
-  JS (`tests/unit/known-issue.js`), a guard plus `markTestIncomplete()` in PHP. Setup is
+  JS (`tests/unit/known-issue.js`), a guard plus `markTestIncomplete()` in PHP. Its name says so
+  (`KNOWN ISSUE #NNN — …` in JS, `test_known_issue_NNN_…` in PHP), so a green run never hides it. Setup is
   asserted outside the wrapper, so a broken setup can't pass for a bug that is still open.

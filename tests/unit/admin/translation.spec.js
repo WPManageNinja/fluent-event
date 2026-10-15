@@ -73,7 +73,7 @@ describe('$n', () => {
         expect(boot().$n(Infinity)).toBe('Infinity');
     });
 
-    it('formats numbers for a three-part WordPress locale', async () => {
+    it('KNOWN ISSUE #175 — formats numbers for a three-part WordPress locale', async () => {
         // #175: only the first "_" becomes "-", so de_DE_formal is an invalid tag and $n returns raw digits.
         await expectKnownIssue('#175', () => {
             expect(boot({ user_locale: 'de_DE_formal' }).$n(1234.5)).toBe(new Intl.NumberFormat('de-DE').format(1234.5));

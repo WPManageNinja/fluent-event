@@ -37,7 +37,7 @@ describe('Cookie', () => {
         expect(cookie.get('fe_state')).toEqual({ tab: 'past' });
     });
 
-    it('keeps a value that itself contains "="', async () => {
+    it('KNOWN ISSUE #174 — keeps a value that itself contains "="', async () => {
         // #174: parse() splits on every "=", so WordPress's own wp-settings-1 cookie is cut short.
         await expectKnownIssue('#174', () => {
             expect(cookie.parse('wp-settings-1=libraryContent=browse&editor=tinymce'))
@@ -45,7 +45,7 @@ describe('Cookie', () => {
         });
     });
 
-    it('reads a cookie with no "=" as an empty value', async () => {
+    it('KNOWN ISSUE #174 — reads a cookie with no "=" as an empty value', async () => {
         // #174: a valueless cookie (legal per RFC 6265) makes parse() throw.
         await expectKnownIssue('#174', () => {
             expect(cookie.parse('fe_flag; fe_state=abc')).toEqual({ fe_flag: '', fe_state: 'abc' });

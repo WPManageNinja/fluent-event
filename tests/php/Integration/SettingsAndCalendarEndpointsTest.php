@@ -102,7 +102,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('#123456', Calendar::query()->find($calendar->id)->meta['theme_color']);
     }
 
-    public function test_an_invalid_theme_colour_is_rejected()
+    public function test_known_issue_177_an_invalid_theme_colour_is_rejected()
     {
         $calendar = $this->createCalendar(['meta' => ['theme_color' => '#abcdef']]);
 
@@ -113,7 +113,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
         // #177: sanitize_hex_color() nulls 'red' before validation, so the regex rule never runs and the save reports success.
         if ($response['status'] === 422) {
-            $this->fail('#177 is fixed: assert the 422 directly and remove this guard.');
+            $this->fail('#177 is fixed: assert the 422 directly, remove this guard and the known_issue_177 name.');
         }
 
         $this->markTestIncomplete('#177: an invalid theme colour is saved as success instead of 422.');

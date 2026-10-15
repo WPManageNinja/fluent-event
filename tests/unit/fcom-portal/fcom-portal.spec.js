@@ -185,7 +185,7 @@ describe('fcom-portal entry', () => {
             vi.restoreAllMocks();
         });
 
-        it('shows a loading mask while the list loads', async () => {
+        it('KNOWN ISSUE #173 — shows a loading mask while the list loads', async () => {
             await mountEventsShell();
 
             expect(wrapper.vm.ready).toBe(true);
