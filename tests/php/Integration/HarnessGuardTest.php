@@ -18,15 +18,17 @@ class HarnessGuardTest extends IntegrationTestCase
 
     public function test_a_transaction_is_open_during_the_test()
     {
-        $active = $this->wpdb->get_var(
-            'SELECT COUNT(*) FROM information_schema.INNODB_TRX WHERE trx_mysql_thread_id = CONNECTION_ID()'
+        $this->assertTrue($this->inTransaction());
+    }
+
+    public function test_the_rollback_sentinel_is_written_inside_the_transaction()
+    {
+        // Exactly one: this test's own. A sentinel left by an earlier test would mean a commit went unnoticed.
+        $sentinels = (int) $this->wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->table('fe_meta')} WHERE object_type = 'fe_rollback_sentinel'"
         );
 
-        if ($active === null) {
-            $this->markTestSkipped('No PROCESS privilege to read INNODB_TRX; tearDown\'s row count is the guarantee.');
-        }
-
-        $this->assertGreaterThanOrEqual(1, (int) $active);
+        $this->assertSame(1, $sentinels);
     }
 
     public function test_a_write_is_visible_inside_the_test()
@@ -58,14 +60,7 @@ class HarnessGuardTest extends IntegrationTestCase
             Meta::query()->create(['object_type' => 'fe_harness_probe', 'object_id' => 0, 'meta_key' => 'nested', 'value' => []]);
         });
 
-        $active = $this->wpdb->get_var(
-            'SELECT COUNT(*) FROM information_schema.INNODB_TRX WHERE trx_mysql_thread_id = CONNECTION_ID()'
-        );
-
-        if ($active !== null) {
-            $this->assertGreaterThanOrEqual(1, (int) $active, 'DB::transaction() issued a real COMMIT');
-        }
-
+        $this->assertTrue($this->inTransaction(), 'DB::transaction() issued a real COMMIT');
         $this->assertSame(1, Meta::query()->where('object_type', 'fe_harness_probe')->where('meta_key', 'nested')->count());
     }
 

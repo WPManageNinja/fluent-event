@@ -71,11 +71,17 @@ abstract class IntegrationTestCase extends BaseTestCase
             $this->fail('Could not write the rollback sentinel; refusing to run without it.');
         }
 
-        $this->assertTransactionIsOpen();
+        if (!$this->inTransaction()) {
+            $this->fail('No transaction is open on this connection; every write would persist. Refusing to run.');
+        }
     }
 
     protected function tearDown(): void
     {
+        // Two independent signals that something committed mid-test: the transaction is gone before
+        // the rollback, or the sentinel written inside it survives the rollback.
+        $transactionLost = !$this->inTransaction();
+
         $this->connection->rollBack();
 
         // In case a nested commit escaped, end anything still open rather than leak it to the next test.
@@ -89,18 +95,22 @@ abstract class IntegrationTestCase extends BaseTestCase
         wp_cache_flush();
 
         $sentinelTable = $this->wpdb->prefix . 'fe_meta';
-        $survived = $this->wpdb->get_var($this->wpdb->prepare("SELECT id FROM {$sentinelTable} WHERE id = %d", $this->sentinelId));
+        $sentinelSurvived = (bool) $this->wpdb->get_var(
+            $this->wpdb->prepare("SELECT id FROM {$sentinelTable} WHERE id = %d", $this->sentinelId)
+        );
 
-        if ($survived) {
+        if ($sentinelSurvived) {
             $this->wpdb->delete($sentinelTable, ['id' => $this->sentinelId]);
+        }
 
+        parent::tearDown();
+
+        if ($transactionLost || $sentinelSurvived) {
             $this->fail(
                 'Something in this test committed (most likely DDL), so everything it wrote before that '
                 . 'point is now permanent in the database. See tests/php/integration-bootstrap.php.'
             );
         }
-
-        parent::tearDown();
     }
 
     /**
@@ -270,16 +280,25 @@ abstract class IntegrationTestCase extends BaseTestCase
         return as_has_scheduled_action($hook, $args, 'fluent-event');
     }
 
-    private function assertTransactionIsOpen()
+    /**
+     * A savepoint only exists inside an open transaction, so rolling back to one fails once
+     * something has committed. Real-time and needs no privilege, unlike INNODB_TRX, which MySQL
+     * caches for up to 100ms and so still shows a transaction that was just committed.
+     */
+    protected function inTransaction()
     {
-        $active = $this->wpdb->get_var(
-            'SELECT COUNT(*) FROM information_schema.INNODB_TRX WHERE trx_mysql_thread_id = CONNECTION_ID()'
-        );
+        $suppress = $this->wpdb->suppress_errors(true);
 
-        // Null means no PROCESS privilege; tearDown's row count is then the only guarantee.
-        if ($active !== null && (int) $active < 1) {
-            $this->fail('No transaction is open on this connection; every write would persist. Refusing to run.');
+        $this->wpdb->query('SAVEPOINT fe_transaction_probe');
+        $open = $this->wpdb->query('ROLLBACK TO SAVEPOINT fe_transaction_probe') !== false;
+
+        if ($open) {
+            $this->wpdb->query('RELEASE SAVEPOINT fe_transaction_probe');
         }
+
+        $this->wpdb->suppress_errors($suppress);
+
+        return $open;
     }
 
     // Rows these static caches hold were read inside a transaction that is now gone.

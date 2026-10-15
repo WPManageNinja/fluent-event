@@ -43,9 +43,10 @@ its controller). Requests go through the real router, policies, validator and da
 
 ## Integration safety
 
-Every test runs in a transaction rolled back in `tearDown()`. A sentinel row written right after
-the transaction opens must be gone after the rollback; if it survived, something committed and the
-test fails. That is what lets it point at a working dev site. So:
+Every test runs in a transaction rolled back in `tearDown()`, which fails the test if something
+committed mid-test: either the transaction is already gone before the rollback, or a sentinel row
+written right after it opened survives the rollback. That is what lets it point at a working dev
+site. So:
 
 - **No DDL, no TRUNCATE, no COMMIT.** DDL implicitly commits in MySQL and makes every later
   write permanent. `DB::transaction()` is fine — the harness opens the outer transaction on
