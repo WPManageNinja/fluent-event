@@ -13,6 +13,9 @@ use FluentEvent\Framework\Foundation\Exceptions\HttpException;
  * Identity (title, body, status, author) lives in WordPress; the typed columns
  * live in `wp_fe_event_details`. Keeping the post writes here means a caller
  * only deals with one API, and the WP_Error-to-422 translation happens once.
+ *
+ * The title and description are wp_slash()ed: WordPress unslashes post fields, and request
+ * data arrives already unslashed, so a backslash in either would be lost.
  */
 class PostService
 {
@@ -20,8 +23,8 @@ class PostService
     {
         $postId = wp_insert_post([
             'post_type'    => EventPost::POST_TYPE,
-            'post_title'   => Arr::get($data, 'title'),
-            'post_content' => Arr::get($data, 'description', ''),
+            'post_title'   => wp_slash(Arr::get($data, 'title')),
+            'post_content' => wp_slash(Arr::get($data, 'description', '')),
             'post_status'  => Event::postStatusFor(Arr::get($data, 'status')),
             'post_author'  => $authorId ?: get_current_user_id(),
         ], true);
@@ -41,8 +44,8 @@ class PostService
     {
         $result = wp_update_post([
             'ID'           => $postId,
-            'post_title'   => Arr::get($data, 'title'),
-            'post_content' => Arr::get($data, 'description', ''),
+            'post_title'   => wp_slash(Arr::get($data, 'title')),
+            'post_content' => wp_slash(Arr::get($data, 'description', '')),
             'post_status'  => Event::postStatusFor(Arr::get($data, 'status')),
         ], true);
 

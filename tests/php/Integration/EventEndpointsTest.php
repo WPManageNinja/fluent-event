@@ -34,6 +34,35 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('private', Event::query()->find($event->id)->status);
     }
 
+    public function test_backslashes_in_a_title_and_description_survive_saving()
+    {
+        $event = $this->createEvent(['title' => 'AC\DC Live']);
+        $this->assertSame('AC\DC Live', get_post($event->post_id)->post_title);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'title'       => 'AC\DC Live',
+            'description' => '<p>Slides in C:\Reports</p>',
+        ]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $post = get_post($event->post_id);
+        $this->assertSame('AC\DC Live', $post->post_title);
+        $this->assertStringContainsString('C:\Reports', $post->post_content);
+    }
+
+    // Without unfiltered_html, WordPress stores "&" in a post title as "&amp;".
+    public function test_an_ampersand_in_a_title_reads_back_as_typed_for_staff_without_unfiltered_html()
+    {
+        $event = $this->createEvent();
+        $this->actAs($this->createUser('author', ['write_events']));
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Wine & Cheese']));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('Wine & Cheese', $this->rest('GET', "events/{$event->id}")['data']['event']['title']);
+    }
+
     public function test_a_local_start_time_is_stored_in_utc()
     {
         $event = $this->createEvent();

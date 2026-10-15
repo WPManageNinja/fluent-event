@@ -84,7 +84,7 @@ class Event extends Model
 
     public function getTitleAttribute()
     {
-        return $this->post->post_title ?? '';
+        return strtr($this->post->post_title ?? '', ['&amp;' => '&', '&gt;' => '>', '&quot;' => '"', '&#039;' => "'"]);
     }
 
     public function getDescriptionAttribute()
