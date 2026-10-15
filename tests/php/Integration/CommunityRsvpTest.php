@@ -3,6 +3,7 @@
 namespace FluentEvent\Tests\Integration;
 
 use FluentCommunity\App\Models\Feed as FcomFeed;
+use FluentCommunity\App\Models\XProfile;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
@@ -189,6 +190,27 @@ class CommunityRsvpTest extends IntegrationTestCase
     public function test_an_event_with_no_community_post_is_not_found()
     {
         $this->assertSame(404, $this->rsvp($this->createEvent(), 'going')['status']);
+    }
+
+    // Blocking only flips the profile status; the member keeps their space memberships.
+    public function test_a_blocked_member_can_neither_list_events_nor_rsvp()
+    {
+        [$event] = $this->communityEvent();
+        XProfile::query()->where('user_id', $this->member)->update(['status' => 'blocked']);
+
+        $this->assertSame(403, $this->rest('GET', 'community/events')['status']);
+        $this->assertSame(403, $this->rsvp($event, 'going')['status']);
+        $this->assertSame(0, Guest::query()->where('event_id', $event->id)->count());
+    }
+
+    public function test_a_user_the_portal_shuts_out_can_neither_list_events_nor_rsvp()
+    {
+        [$event] = $this->communityEvent();
+        $this->addTestFilter('fluent_community/can_access_portal', '__return_false');
+
+        $this->assertSame(403, $this->rest('GET', 'community/events')['status']);
+        $this->assertSame(403, $this->rsvp($event, 'going')['status']);
+        $this->assertSame(0, Guest::query()->where('event_id', $event->id)->count());
     }
 
     public function test_a_logged_out_visitor_cannot_rsvp()
