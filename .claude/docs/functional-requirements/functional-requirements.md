@@ -44,4 +44,4 @@
 
 **Summary:** Optional bridge into FluentCommunity. With fcom active, an event is a post (`content_type = 'event'`, `meta.event_id`) in a discussion space, and each space links to one `private` FluentEvent calendar. Event data always lives in `wp_fe_*`; fcom stores only the post. Without fcom, FluentEvent runs standalone.
 
-→ No separate spec: the code in `Modules/FluentCommunity/` and its tests are the record.
+→ Full spec: [fluentcommunity-integration.md](fluentcommunity-integration.md)
