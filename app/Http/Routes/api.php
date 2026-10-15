@@ -35,6 +35,7 @@ $router->prefix('settings')->withPolicy('SettingsPolicy')->group(function ($rout
 
 $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($router) {
     $router->get('/', [CalendarController::class, 'getAllCalendars']);
+    $router->get('/options', [CalendarController::class, 'getCalendarOptions']);
     $router->get('/{id}', [CalendarController::class, 'getCalendar'])->int('id');
 
     // $router->post('/', [CalendarController::class, 'createCalendar']);

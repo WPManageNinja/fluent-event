@@ -66,7 +66,7 @@ describe('CreateOrUpdateEvent', () => {
         it('preselects the calendar named in the URL', () => {
             const { vm, request } = form({ query: { calendar_id: '3' } });
 
-            request('calendars').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
+            request('calendars/options').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
 
             expect(vm.event.calendar_id).toBe(3);
         });
@@ -74,7 +74,7 @@ describe('CreateOrUpdateEvent', () => {
         it('falls back to the first calendar when the URL names none or a missing one', () => {
             const { vm, request } = form({ query: { calendar_id: '99' } });
 
-            request('calendars').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
+            request('calendars/options').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
 
             expect(vm.event.calendar_id).toBe(2);
         });
@@ -115,7 +115,7 @@ describe('CreateOrUpdateEvent', () => {
             const { vm, request } = form({ params: { id: '12' }, query: { calendar_id: '2' } });
             vm.event.calendar_id = 3;
 
-            request('calendars').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
+            request('calendars/options').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
 
             expect(vm.event.calendar_id).toBe(3);
         });

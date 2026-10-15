@@ -38,6 +38,20 @@ class PermissionEndpointsTest extends IntegrationTestCase
         $this->assertSame('Integration event', get_post($event->post_id)->post_title);
     }
 
+    // The event form needs calendar names; the full list and detail carry guest numbers event staff can't read.
+    public function test_an_event_writer_can_load_calendar_names_but_not_the_full_calendar_list()
+    {
+        $calendar = $this->createCalendar();
+        $this->actAs($this->createUser('editor', ['write_events']));
+
+        $options = $this->rest('GET', 'calendars/options');
+
+        $this->assertSame(200, $options['status'], wp_json_encode($options['data']));
+        $this->assertContains((int) $calendar->id, array_map('intval', array_column($options['data']['calendars'], 'id')));
+        $this->assertSame(403, $this->rest('GET', 'calendars')['status']);
+        $this->assertSame(403, $this->rest('GET', "calendars/{$calendar->id}")['status']);
+    }
+
     public function test_a_guest_reader_can_list_guests_but_not_add_them_or_see_the_event_list()
     {
         $event = $this->createEvent();

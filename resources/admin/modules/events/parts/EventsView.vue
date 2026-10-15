@@ -371,8 +371,7 @@
             },
             fetchCalendars() {
                 this.$requestServer({
-                    path: 'calendars',
-                    payload: { view: 'options' },
+                    path: 'calendars/options',
                     loadingState: null,
                     errorState: null,
                     errorNotify: true,

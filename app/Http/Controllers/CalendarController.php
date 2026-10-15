@@ -17,17 +17,6 @@ class CalendarController extends Controller
         $query = Calendar::query()
             ->searchBy($request->getSafe('search', 'sanitize_text_field'));
 
-        // Dropdowns only need the id, title and colour: skip the counts.
-        if ($request->getSafe('view', 'sanitize_key') === 'options') {
-            return [
-                'calendars' => $query
-                    ->select(['id', 'title', 'meta'])
-                    ->byStatus($request->getSafe('status', 'sanitize_text_field'))
-                    ->orderBy($orderBy, $orderType)
-                    ->get(),
-            ];
-        }
-
         $counts = array_map('intval', (clone $query)
             ->selectRaw('status, COUNT(*) AS total')
             ->groupBy('status')
@@ -43,6 +32,21 @@ class CalendarController extends Controller
         return [
             'calendars' => $calendars,
             'counts'    => ['all' => array_sum($counts)] + $counts,
+        ];
+    }
+
+    // Dropdowns only need the id, title and colour: no counts.
+    public function getCalendarOptions(Request $request)
+    {
+        list($orderBy, $orderType) = CalendarRequest::sorting($request);
+
+        return [
+            'calendars' => Calendar::query()
+                ->select(['id', 'title', 'meta'])
+                ->searchBy($request->getSafe('search', 'sanitize_text_field'))
+                ->byStatus($request->getSafe('status', 'sanitize_text_field'))
+                ->orderBy($orderBy, $orderType)
+                ->get(),
         ];
     }
 
