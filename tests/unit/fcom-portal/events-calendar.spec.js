@@ -4,7 +4,7 @@ import { t } from '../../../resources/fcom-portal/utils';
 import EventsCalendar from '../../../resources/fcom-portal/app/EventsCalendar.vue';
 
 let nextId = 1;
-const event = (start, end) => ({ id: nextId++, title: 'Event', start_at_local: start, end_at_local: end });
+const event = (start, end) => ({ id: nextId++, title: 'Event', start_at_site: start, end_at_site: end });
 
 const calendar = (props = {}) => mount(EventsCalendar, {
     props: { events: [], date: '2026-10-14', mode: 'day', ...props },

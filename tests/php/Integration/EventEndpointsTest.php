@@ -214,4 +214,41 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(200, $response['status']);
         $this->assertSame([(int) $mine->id], array_map('intval', array_column($response['data']['events'], 'id')));
     }
+
+    // Lists show every event on the site's clock, so a filtered day is a site day, whatever the event's own zone.
+    public function test_the_event_list_date_filter_uses_the_sites_days()
+    {
+        $this->addTestFilter('pre_option_timezone_string', function () {
+            return 'Asia/Dhaka';
+        });
+        $calendarId = $this->createCalendar()->id;
+        // 03:00 Oct 20 in Dhaka.
+        $lateNight = $this->createEvent(['calendar_id' => $calendarId, 'timezone' => 'Europe/London', 'start_at' => '2030-10-19 22:00:00', 'end_at' => '2030-10-19 23:00:00']);
+        // 02:00 Oct 26 in Dhaka.
+        $this->createEvent(['calendar_id' => $calendarId, 'timezone' => 'Europe/London', 'start_at' => '2030-10-25 21:00:00', 'end_at' => '2030-10-25 22:00:00']);
+
+        $filter = function ($from, $to) use ($calendarId) {
+            $response = $this->rest('GET', 'events', ['calendar_id' => $calendarId, 'start_date' => $from, 'end_date' => $to, 'paginate' => 'false']);
+            $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+            return array_map('intval', array_column($response['data']['events'], 'id'));
+        };
+
+        $this->assertSame([(int) $lateNight->id], $filter('2030-10-20', '2030-10-25'));
+        $this->assertSame([], $filter('2030-10-18', '2030-10-19'));
+    }
+
+    public function test_an_event_reads_on_both_its_own_and_the_sites_clock()
+    {
+        $this->addTestFilter('pre_option_timezone_string', function () {
+            return 'Asia/Dhaka';
+        });
+        $event = $this->createEvent(['timezone' => 'Europe/London', 'start_at' => '2030-10-19 22:00:00', 'end_at' => '2030-10-19 23:00:00']);
+
+        $data = $this->rest('GET', "events/{$event->id}")['data']['event'];
+
+        $this->assertSame('2030-10-19 22:00:00', $data['start_at_local']);
+        $this->assertSame('2030-10-20 03:00:00', $data['start_at_site']);
+        $this->assertSame('2030-10-20 04:00:00', $data['end_at_site']);
+    }
 }

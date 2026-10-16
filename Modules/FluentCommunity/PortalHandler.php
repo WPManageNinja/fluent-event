@@ -129,6 +129,7 @@ class PortalHandler
             'is_logged_in'      => (bool) $userId,
             'can_create_events' => $userId && PermissionManager::userCan('write_events', $userId),
             'default_view'      => $settings['default_events_view'],
+            'timezone'          => wp_timezone_string(),
             'i18n'              => $this->strings(),
         ];
 
@@ -148,8 +149,6 @@ class PortalHandler
     protected function strings()
     {
         return [
-            /* translators: 1: start time, 2: end time, both in the visitor's own timezone */
-            '%1$s – %2$s in your time' => __('%1$s – %2$s in your time', 'fluent-event'),
             /* translators: %d: number of further events on that day */
             '%d more' => __('%d more', 'fluent-event'),
             /* translators: %s: number of guests going */

@@ -11,6 +11,8 @@ const meetup = (overrides = {}) => ({
     end_at: '2026-10-20 14:00:00',
     start_at_local: '2026-10-20 12:00:00',
     end_at_local: '2026-10-20 14:00:00',
+    start_at_site: '2026-10-20 12:00:00',
+    end_at_site: '2026-10-20 14:00:00',
     timezone: 'UTC',
     venue_type: 'offline',
     venue: 'Hall A',
@@ -71,7 +73,7 @@ describe('EventViewPage', () => {
     });
 
     describe('when it happens', () => {
-        it("labels the time with the event zone's offset on the event date", async () => {
+        it("labels the time with the event's timezone name", async () => {
             const { vm } = await page(meetup({
                 timezone: 'America/New_York',
                 start_at: '2026-11-10 23:00:00',
@@ -79,20 +81,30 @@ describe('EventViewPage', () => {
                 end_at_local: '2026-11-10 20:00:00'
             }));
 
-            expect(vm.eventTimeLabel).toBe('6:00 PM – 8:00 PM GMT-5');
+            expect(vm.eventTimeLabel).toBe('6:00 PM – 8:00 PM (America/New_York)');
         });
 
-        it("adds the visitor's own time when their clock differs from the event's", async () => {
-            const { vm } = await page(meetup({
-                timezone: 'Asia/Dhaka',
-                start_at_local: '2026-10-20 18:00:00',
-                end_at_local: '2026-10-20 20:00:00'
+        it("heads the page with the site's clock and adds it under the event's own in the side card", async () => {
+            vi.stubGlobal('fluentEventFcomPortal', { ...window.fluentEventFcomPortal, timezone: 'Asia/Dhaka' });
+            const { wrapper, vm } = await page(meetup({
+                timezone: 'Europe/London',
+                start_at_local: '2026-10-19 22:00:00',
+                end_at_local: '2026-10-19 23:00:00',
+                start_at_site: '2026-10-20 03:00:00',
+                end_at_site: '2026-10-20 04:00:00'
             }));
 
-            expect(vm.localTimeLabel).toBe('12:00 PM – 2:00 PM in your time');
+            const heading = wrapper.find('.fe-event-view__meta').text();
+            expect(heading).toContain('Tuesday, October 20, 2026');
+            expect(heading).toContain('3:00 AM – 4:00 AM (Asia/Dhaka)');
+            expect(heading).not.toContain('10:00 PM');
+
+            expect(vm.day).toBe('19');
+            expect(vm.dateLabel).toBe('Monday, October 19, 2026');
+            expect(vm.localTimeLabel).toBe('Oct 20, 3:00 AM – 4:00 AM (Asia/Dhaka)');
         });
 
-        it("adds nothing when the visitor shares the event's zone", async () => {
+        it("adds nothing when the site's clock reads the same as the event's", async () => {
             const { wrapper } = await page(meetup());
 
             expect(wrapper.find('.fe-event-view__when-local').exists()).toBe(false);

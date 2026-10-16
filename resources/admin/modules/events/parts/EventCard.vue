@@ -102,18 +102,18 @@
                 return this.event.venue_type === 'online';
             },
             date() {
-                return this.$formatDate(this.event.start_at_local);
+                return this.$formatDate(this.event.start_at_site);
             },
             timeRange() {
-                const start = this.$formatTime(this.event.start_at_local);
-                const end = this.event.end_at_local
-                    ? this.$formatTime(this.event.end_at_local)
+                const start = this.$formatTime(this.event.start_at_site);
+                const end = this.event.end_at_site
+                    ? this.$formatTime(this.event.end_at_site)
                     : '';
 
                 return end && end !== start ? `${start} – ${end}` : start;
             },
             dayCount() {
-                const span = daySpan(this.event.start_at_local, this.event.end_at_local);
+                const span = daySpan(this.event.start_at_site, this.event.end_at_site);
 
                 return span > 1 ? span : 0;
             },

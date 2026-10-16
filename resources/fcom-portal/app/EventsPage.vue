@@ -230,10 +230,10 @@ export default {
         countLabel: guestCountLabel,
         startDate: eventStart,
         timelineDate(event) {
-            return dayjs(event.start_at_local).format('MMM D, YYYY');
+            return dayjs(event.start_at_site).format('MMM D, YYYY');
         },
         weekday(event) {
-            return dayjs(event.start_at_local).format('dddd');
+            return dayjs(event.start_at_site).format('dddd');
         },
         hasActions: hasEventActions,
         reload() {
@@ -253,12 +253,12 @@ export default {
                 per_page: 20,
             };
 
-            // The whole visible grid, padded a day each side so events crossing a timezone edge still land.
+            // The whole visible grid; the server reads these as site days, the clock the grid places by.
             if (this.view === 'calendar') {
                 const month = dayjs(this.calendarDate);
 
-                params.from = month.startOf('month').startOf('week').subtract(1, 'day').format('YYYY-MM-DD');
-                params.to = month.endOf('month').endOf('week').add(1, 'day').format('YYYY-MM-DD');
+                params.from = month.startOf('month').startOf('week').format('YYYY-MM-DD');
+                params.to = month.endOf('month').endOf('week').format('YYYY-MM-DD');
                 params.paginate = false;
             }
 

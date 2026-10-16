@@ -201,6 +201,8 @@ class CommunityEvents
             'end_at'             => $event->end_at,
             'start_at_local'     => $event->start_at_local,
             'end_at_local'       => $event->end_at_local,
+            'start_at_site'      => $event->start_at_site,
+            'end_at_site'        => $event->end_at_site,
             'timezone'           => $event->timezone,
             'venue_type'         => $event->venue_type,
             'venue'              => $meta['venue'],

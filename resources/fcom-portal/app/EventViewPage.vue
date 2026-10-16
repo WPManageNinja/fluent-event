@@ -23,11 +23,11 @@
                     <ul class="fe-event-view__meta">
                         <li class="fe-event-view__meta-item">
                             <el-icon aria-hidden="true"><Calendar/></el-icon>
-                            <span>{{ dateLabel }}</span>
+                            <span>{{ siteDateLabel }}</span>
                         </li>
                         <li class="fe-event-view__meta-item">
                             <el-icon aria-hidden="true"><Clock/></el-icon>
-                            <span>{{ eventTimeLabel }}</span>
+                            <span>{{ siteTimeLabel }}</span>
                         </li>
                         <li class="fe-event-view__meta-item">
                             <el-icon aria-hidden="true">
@@ -107,7 +107,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventDay, eventMonth, eventPhase, guestCountLabel, hasEventActions, isSeated, timeFormat, timezoneOffset } from '../utils';
+import { communityApi, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
 import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -137,46 +137,36 @@ export default {
         isOnline() {
             return this.event.venue_type === 'online';
         },
-        isMultiDay() {
-            return !dayjs(this.event.start_at_local).isSame(dayjs(this.event.end_at_local), 'day');
-        },
         month() {
-            return eventMonth(this.event);
+            return dayjs(this.event.start_at_local).format('MMM');
         },
         day() {
-            return eventDay(this.event);
+            return dayjs(this.event.start_at_local).format('D');
         },
         dateLabel() {
-            const start = dayjs(this.event.start_at_local);
-
-            if (!this.isMultiDay) {
-                return start.format('dddd, MMMM D, YYYY');
-            }
-
-            return `${start.format('MMM D')} – ${dayjs(this.event.end_at_local).format('MMM D, YYYY')}`;
-        },
-        timeFormat() {
-            return this.isMultiDay ? `MMM D, ${timeFormat()}` : timeFormat();
+            return this.dateRange(this.event.start_at_local, this.event.end_at_local);
         },
         eventTimeLabel() {
-            const range = `${dayjs(this.event.start_at_local).format(this.timeFormat)} – ${dayjs(this.event.end_at_local).format(this.timeFormat)}`;
-            const offset = this.event.timezone ? timezoneOffset(this.event.timezone, utc(this.event.start_at).toDate()) : '';
-
-            return offset ? `${range} ${offset}` : range;
+            return this.timeRange(this.event.start_at_local, this.event.end_at_local, this.event.timezone);
         },
-        // Only when the visitor's clock differs from the event's, so nobody converts zones in their head.
+        // The heading reads the site's clock, like every list; the side card leads with the event's own.
+        siteDateLabel() {
+            return this.dateRange(this.event.start_at_site, this.event.end_at_site);
+        },
+        siteTimeLabel() {
+            return this.timeRange(this.event.start_at_site, this.event.end_at_site, portalVars().timezone);
+        },
+        // The site's clock, which the lists use; only when it reads differently from the event's.
         localTimeLabel() {
-            const start = utc(this.event.start_at);
+            const { start_at_site: start, end_at_site: end } = this.event;
 
-            if (!this.event.timezone || start.local().utcOffset() === start.tz(this.event.timezone).utcOffset()) {
+            if (start === this.event.start_at_local && end === this.event.end_at_local) {
                 return '';
             }
 
-            /* translators: 1: start time, 2: end time, both in the visitor's own timezone */
-            return this.$t('%1$s – %2$s in your time',
-                start.local().format(this.timeFormat),
-                utc(this.event.end_at).local().format(this.timeFormat)
-            );
+            const endFormat = dayjs(end).isSame(start, 'day') ? timeFormat() : `MMM D, ${timeFormat()}`;
+
+            return `${dayjs(start).format(`MMM D, ${timeFormat()}`)} – ${dayjs(end).format(endFormat)} (${portalVars().timezone})`;
         },
         phase() {
             return eventPhase(this.event);
@@ -236,6 +226,21 @@ export default {
         this.fetchEvent();
     },
     methods: {
+        dateRange(start, end) {
+            const from = dayjs(start);
+
+            if (from.isSame(dayjs(end), 'day')) {
+                return from.format('dddd, MMMM D, YYYY');
+            }
+
+            return `${from.format('MMM D')} – ${dayjs(end).format('MMM D, YYYY')}`;
+        },
+        timeRange(start, end, zone) {
+            const format = dayjs(start).isSame(dayjs(end), 'day') ? timeFormat() : `MMM D, ${timeFormat()}`;
+            const range = `${dayjs(start).format(format)} – ${dayjs(end).format(format)}`;
+
+            return zone ? `${range} (${zone})` : range;
+        },
         async fetchEvent() {
             try {
                 const response = await communityApi.get(`feeds/${this.feedSlug}/by-slug`);

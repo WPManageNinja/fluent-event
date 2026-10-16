@@ -158,6 +158,26 @@ describe('number and date formatting', () => {
         expect(vm.$formatDate('2026-10-03')).toBe('October 3rd, 2026');
     });
 
+    it("formats an event's range on its own clock or the site's, dating only what falls on another day", () => {
+        window.fluentEventAdmin.date_format = 'MMM D';
+        window.fluentEventAdmin.time_format = 'h:mm A';
+        window.fluentEventAdmin.timezone = 'Asia/Dhaka';
+        const london = {
+            timezone: 'Europe/London',
+            start_at_local: '2026-10-19 22:00:00',
+            end_at_local: '2026-10-19 23:00:00',
+            start_at_site: '2026-10-20 03:00:00',
+            end_at_site: '2026-10-20 04:00:00',
+        };
+
+        expect(vm.$formatTimeRange(london)).toBe('10:00 PM – 11:00 PM (Europe/London)');
+        expect(vm.$formatTimeRange(london, 'site')).toBe('Oct 20 3:00 AM – 4:00 AM (Asia/Dhaka)');
+        expect(vm.$formatTimeRange({ ...london, end_at_site: '2026-10-21 01:00:00' }, 'site'))
+            .toBe('Oct 20 3:00 AM – Oct 21 1:00 AM (Asia/Dhaka)');
+        expect(vm.$formatTimeRange({ ...london, end_at_local: '2026-10-21 09:00:00' }))
+            .toBe('10:00 PM – Oct 21 9:00 AM (Europe/London)');
+    });
+
     it('lets an explicit format win over the site format', () => {
         expect(vm.$formatDate('2026-10-13', 'YYYY/MM/DD')).toBe('2026/10/13');
     });
