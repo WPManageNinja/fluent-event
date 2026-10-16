@@ -113,7 +113,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 ## Tests
 
 - **Covered:** registration, entry types, the guest count and meeting-link rules
-  (`tests/php/Integration/CommunityRsvpTest.php`, `tests/php/Unit/Modules/CommunityEventFormatTest.php`);
+  (`tests/php/Integration/CommunityEndpointsTest.php`, `tests/php/Unit/Modules/CommunityEventFormatTest.php`);
   hook wiring and ordering (`tests/php/Unit/Hooks/HookRegistrationTest.php`); portal routes, card
   and composer filters (`tests/unit/fcom-portal/`).
 - **Not yet covered:** the `FeedHandler` post lifecycle, `SpaceHandler`, and list visibility for

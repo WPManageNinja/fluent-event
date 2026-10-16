@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { t } from '../../../resources/fcom-portal/utils';
 import EventViewPage from '../../../resources/fcom-portal/app/EventViewPage.vue';
+import EventActions from '../../../resources/fcom-portal/EventActions';
 
 const meetup = (overrides = {}) => ({
     id: 5,
@@ -175,6 +176,16 @@ describe('EventViewPage', () => {
             }));
 
             expect(vm.summary).toBe(`Bring snacks\n• Agenda\n• Q&A\n\n${window.location.href}`);
+        });
+
+        it('keeps the description after an RSVP, whose answer carries none', async () => {
+            const { wrapper, vm } = await page(meetup({ description: '<p>Bring snacks</p>' }));
+            const { description, ...answer } = meetup({ my_status: 'going' });
+
+            wrapper.findComponent(EventActions).vm.$emit('done', { event: answer });
+
+            expect(vm.event.my_status).toBe('going');
+            expect(vm.event.description).toBe('<p>Bring snacks</p>');
         });
 
         it('caps the description at 600 characters', async () => {

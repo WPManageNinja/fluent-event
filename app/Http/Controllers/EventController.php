@@ -22,7 +22,7 @@ class EventController extends Controller
         $events = Event::query()
             ->with([
                 'post'        => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content']);
+                    $query->select(['ID', 'post_title']);
                 },
                 'calendar'    => function ($query) {
                     $query->select(['id', 'title', 'meta']);
@@ -62,7 +62,7 @@ class EventController extends Controller
             ->findOrFail($id);
 
         return [
-            'event' => $event
+            'event' => $event->append('description')
         ];
     }
 

@@ -45,7 +45,6 @@ class Event extends Model
 
     protected $appends = [
         'title',
-        'description',
         'start_at_local',
         'end_at_local',
         'start_at_site',

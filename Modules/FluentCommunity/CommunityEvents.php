@@ -133,9 +133,10 @@ class CommunityEvents
      * Portal-ready event data keyed by event id. Draft events are left out: they are
      * still being built, so the community never sees them.
      *
-     * @param Event[] $events Loaded with the `post` relation.
+     * @param Event[] $events  Loaded with the `post` relation.
+     * @param array   $options withDescription: add the kses'd description, which only the event page shows.
      */
-    public static function formatEvents($events)
+    public static function formatEvents($events, $options = [])
     {
         $events = array_filter((array) $events, function ($event) {
             return $event && $event->status !== 'draft';
@@ -179,6 +180,10 @@ class CommunityEvents
                 $isStaff,
                 $canEdit
             );
+
+            if (Arr::get($options, 'withDescription')) {
+                $formatted[$eventId]['description'] = $event->description;
+            }
         }
 
         return $formatted;
@@ -195,7 +200,6 @@ class CommunityEvents
         return [
             'id'                 => (int) $event->id,
             'title'              => $event->title,
-            'description'        => $event->description,
             'status'             => $event->status,
             'start_at'           => $event->start_at,
             'end_at'             => $event->end_at,

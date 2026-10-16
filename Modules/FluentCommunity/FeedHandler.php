@@ -248,7 +248,10 @@ class FeedHandler
 
     public function preloadEvents($config, $feeds)
     {
-        $feeds = Arr::get($config, 'is_collection') ? $feeds : [$feeds];
+        if (!Arr::get($config, 'is_collection')) {
+            return $config;
+        }
+
         $eventIds = [];
 
         foreach ($feeds as $feed) {
@@ -271,11 +274,17 @@ class FeedHandler
 
         $eventId = CommunityEvents::eventIdOf($feed);
 
-        if (!array_key_exists($eventId, $this->formattedEvents)) {
-            $this->preload([$eventId]);
-        }
+        if (Arr::get($config, 'is_collection')) {
+            if (!array_key_exists($eventId, $this->formattedEvents)) {
+                $this->preload([$eventId]);
+            }
 
-        $formatted = $this->formattedEvents[$eventId] ?? null;
+            $formatted = $this->formattedEvents[$eventId] ?? null;
+        } else {
+            // A single post is the event page, the one view that shows the description.
+            $event = Event::query()->with(['post'])->find($eventId);
+            $formatted = CommunityEvents::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
+        }
 
         if ($formatted && !in_array($feed->status, ['published', 'unlisted'], true)) {
             $formatted['registration_open'] = false;

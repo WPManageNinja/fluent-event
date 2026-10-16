@@ -100,10 +100,11 @@
                 {{ $t('View Full Details') }}
             </el-button>
 
-            <div v-if="event.description" class="fe-event-detail__section">
+            <div v-if="loadingDescription || description" class="fe-event-detail__section">
                 <h3 class="fe-event-detail__section-title">{{ $t('Description') }}</h3>
 
-                <div class="fe-rich-text fe-event-detail__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
+                <Skeleton v-if="loadingDescription" :rows="3" />
+                <div v-else class="fe-rich-text fe-event-detail__description" v-html="description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
             </div>
         </div>
     </Drawer>
@@ -113,11 +114,13 @@
     import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
+    import Skeleton from '@/components/Skeleton.vue';
 
     export default {
         name: 'EventDrawer',
         components: {
             Drawer,
+            Skeleton,
             LocationInformation,
             TopRight,
             VideoCamera,
@@ -133,6 +136,33 @@
             },
         },
         emits: ['update:modelValue'],
+        data() {
+            return {
+                description: '',
+                loadingDescription: false,
+            };
+        },
+        watch: {
+            // The event list leaves descriptions out, so the drawer loads the one it shows.
+            event: {
+                immediate: true,
+                handler(event) {
+                    this.description = '';
+
+                    if (!event) return;
+
+                    // One loading state, so a slow answer for an event opened earlier is dropped.
+                    this.$requestServer({
+                        path: `events/${event.id}`,
+                        loadingState: 'loadingDescription',
+                        errorState: null,
+                        onSuccess: response => {
+                            this.description = response.event.description;
+                        },
+                    });
+                },
+            },
+        },
         computed: {
             isOnline() {
                 return this.event?.venue_type === 'online';

@@ -57,7 +57,7 @@
                     <span v-else class="fe-event-view__status" :class="`fe-event-view__status--${phase}`">{{ statusLabel }}</span>
 
                     <div v-if="hasActions || countLabel" class="fe-event-view__rsvp">
-                        <event-actions v-if="hasActions" :event="event" @done="event = $event.event" @error="error = $event"></event-actions>
+                        <event-actions v-if="hasActions" :event="event" @done="applyResponse" @error="error = $event"></event-actions>
                         <span v-if="countLabel" class="fe-event-view__count">{{ countLabel }}</span>
                     </div>
 
@@ -226,6 +226,9 @@ export default {
         this.fetchEvent();
     },
     methods: {
+        applyResponse(response) {
+            this.event = { ...this.event, ...response.event };
+        },
         dateRange(start, end) {
             const from = dayjs(start);
 

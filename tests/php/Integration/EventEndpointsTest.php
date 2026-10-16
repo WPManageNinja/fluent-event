@@ -224,6 +224,18 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertArrayHasKey('total', $reversed);
     }
 
+    // Only the event's page and edit form show the description; lists skip the wp_kses_post it costs per event.
+    public function test_only_the_single_event_response_carries_the_description()
+    {
+        $event = $this->createEvent();
+
+        $listed = array_column($this->rest('GET', 'events', ['calendar_id' => $event->calendar_id])['data']['events']['data'], null, 'id');
+        $single = $this->rest('GET', "events/{$event->id}")['data']['event'];
+
+        $this->assertArrayNotHasKey('description', $listed[$event->id]);
+        $this->assertSame('<p>Written by the integration suite; rolled back.</p>', $single['description']);
+    }
+
     public function test_the_event_list_filters_by_calendar()
     {
         $mine = $this->createEvent();
