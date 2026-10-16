@@ -4,6 +4,7 @@ namespace FluentEvent\Tests\Integration;
 
 use FluentCommunity\App\Models\Feed as FcomFeed;
 use FluentCommunity\App\Models\XProfile;
+use FluentCommunity\App\Services\FeedsHelper as FcomFeedsHelper;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
@@ -12,10 +13,11 @@ use FluentEvent\Modules\FluentCommunity\CommunityEvents;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * Member RSVP from the FluentCommunity portal. RSVP is for logged-in members,
- * going / not going, no seat limit; an open event takes no registrations.
+ * The endpoints the FluentCommunity portal calls: the events list and member RSVP
+ * (logged-in members, going / not going, no seat limit; an open event takes none),
+ * who may reach them, and what event data they return.
  */
-class CommunityRsvpTest extends IntegrationTestCase
+class CommunityEndpointsTest extends IntegrationTestCase
 {
     /** @var int */
     private $spaceId;
@@ -190,6 +192,24 @@ class CommunityRsvpTest extends IntegrationTestCase
     public function test_an_event_with_no_community_post_is_not_found()
     {
         $this->assertSame(404, $this->rsvp($this->createEvent(), 'going')['status']);
+    }
+
+    // Only the event page shows the description; everything else skips the wp_kses_post it costs per event.
+    public function test_only_the_event_page_gets_the_description()
+    {
+        [$event, $feed] = $this->communityEvent();
+        $description = '<p>Written by the integration suite; rolled back.</p>';
+
+        $listed = array_column($this->rest('GET', 'community/events')['data']['events'], null, 'id');
+        $this->assertArrayNotHasKey('description', $listed[$event->id]);
+        $this->assertArrayNotHasKey('description', $this->rsvp($event, 'going')['data']['event']);
+
+        // A feed page and a single post rendered in one request must not share a cached copy.
+        $page = FcomFeedsHelper::transformFeedsCollection(FcomFeed::query()->where('id', $feed->id)->get());
+        $single = FcomFeedsHelper::transformFeed(FcomFeed::query()->find($feed->id));
+
+        $this->assertArrayNotHasKey('description', $page->first()->fluent_event);
+        $this->assertSame($description, $single->fluent_event['description']);
     }
 
     // An end before the start is no calendar window, so it pages like any other list.
