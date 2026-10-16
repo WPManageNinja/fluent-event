@@ -66,10 +66,14 @@ class DeactivationHandler
     {
         if ($networkDeactivating) {
             if (is_super_admin()) {
-                foreach (get_sites() as $blog) {
-                    switch_to_blog((int) $blog->blog_id);
-                    $this->deactivatePlugin();
-                    restore_current_blog();
+                foreach (get_sites(['number' => 0, 'fields' => 'ids']) as $blogId) {
+                    switch_to_blog($blogId);
+
+                    try {
+                        $this->deactivatePlugin();
+                    } finally {
+                        restore_current_blog();
+                    }
                 }
             }
         } else {

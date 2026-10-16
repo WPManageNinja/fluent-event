@@ -22,22 +22,10 @@ class DBMigrator
         NotificationUsersMigrator::class
     ];
 
-    public static function run($network_wide = false)
+    public static function run()
     {
         if (!function_exists('dbDelta')) {
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        }
-
-        if ($network_wide) {
-            global $wpdb;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for multisite network activation
-            $blogs = $wpdb->get_results("SELECT blog_id FROM $wpdb->blogs");
-            foreach ($blogs as $blog) {
-                switch_to_blog($blog->blog_id);
-                self::migrate();
-                restore_current_blog();
-            }
-            return;
         }
 
         self::migrate();
