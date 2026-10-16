@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
+import { ElNotification } from 'element-plus';
 import main from '@/mixins/main';
+import ResponseProxyItr from '@/utils/http/ResponseProxyItr';
 import CreateOrUpdateEvent from '@/modules/events/CreateOrUpdateEvent.vue';
+
+vi.mock('element-plus', async () => ({ ...(await vi.importActual('element-plus')), ElNotification: vi.fn() }));
 
 const form = ({ params = {}, query = {} } = {}) => {
     const requestServer = vi.fn();
@@ -214,6 +218,21 @@ describe('CreateOrUpdateEvent', () => {
                 { field: 'title', message: 'Title is required.' },
                 { field: 'venue', message: 'Venue must be text.' }
             ]);
+        });
+
+        it.each([
+            [404, { message: 'No query results for model [Event] 12' }],
+            [403, { code: 'rest_forbidden', message: 'Sorry, you are not allowed to do that.', data: { status: 403 } }],
+            [422, { code: 'event_post_update_failed', message: 'The event could not be saved. Please try again.', data: [] }]
+        ])('notifies a %i that is not a validation error instead of listing it as field errors', (status, responseJSON) => {
+            const { vm, requestServer } = form({ params: { id: '12' } });
+            filled(vm);
+
+            vm.saveEvent();
+            requestServer.mock.calls.at(-1)[0].onError(new ResponseProxyItr({ status, responseJSON }));
+
+            expect(vm.errorList).toEqual([]);
+            expect(ElNotification.mock.calls.at(-1)[0].message).toBe(responseJSON.message);
         });
     });
 });
