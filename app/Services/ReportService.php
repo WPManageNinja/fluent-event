@@ -207,7 +207,7 @@ class ReportService
             ->limit($limit)
             ->with([
                 'event.post' => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content']);
+                    $query->select(['ID', 'post_title']);
                 },
                 'event.calendar' => function ($query) {
                     $query->select(['id', 'title', 'meta']);
@@ -244,7 +244,7 @@ class ReportService
             ->whereIn('status', self::LIVE_EVENT_STATUSES)
             ->with([
                 'post' => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content']);
+                    $query->select(['ID', 'post_title']);
                 },
                 'calendar' => function ($query) {
                     $query->select(['id', 'title', 'meta']);
