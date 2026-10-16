@@ -258,55 +258,6 @@
         gap: var(--fe-space-5, 20px);
     }
 
-    // Sections run far down the page, so failed saves list every problem at the top.
-    &__error-summary {
-        margin: var(--fe-space-6, 24px) var(--fe-space-6, 24px) 0;
-        padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
-        border-left: 3px solid var(--fe-danger-text, #cf222e);
-        border-radius: var(--fe-radius, 8px);
-        background-color: color-mix(in srgb, var(--fe-danger-text, #cf222e) 8%, var(--fe-primary-bg, #ffffff));
-
-        &:focus-visible {
-            outline: 2px solid var(--fe-danger-text, #cf222e);
-            outline-offset: 2px;
-        }
-
-        @media screen and (max-width: 782px) {
-            margin: var(--fe-space-4, 16px) var(--fe-space-4, 16px) 0;
-        }
-    }
-
-    &__error-summary-title {
-        margin: 0 0 var(--fe-space-2, 8px);
-        font-size: var(--fe-text-sm, 14px);
-        font-weight: 600;
-        color: var(--fe-primary-text, #19283a);
-    }
-
-    &__error-summary-list {
-        margin: 0;
-        padding-left: var(--fe-space-5, 20px);
-        list-style: disc;
-        color: var(--fe-danger-text, #cf222e);
-    }
-
-    &__error-summary-link {
-        padding: 0;
-        border: 0;
-        background: none;
-        font-size: var(--fe-text-sm, 14px);
-        line-height: 1.6;
-        color: var(--fe-danger-text, #cf222e);
-        text-align: left;
-        text-decoration: underline;
-        cursor: pointer;
-
-        &:focus-visible {
-            outline: 2px solid var(--fe-danger-text, #cf222e);
-            outline-offset: 2px;
-        }
-    }
-
     &__swatches {
         display: flex;
         flex-wrap: wrap;

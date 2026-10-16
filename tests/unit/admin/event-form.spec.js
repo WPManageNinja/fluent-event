@@ -1,11 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, flushPromises } from '@vue/test-utils';
 import { ElNotification } from 'element-plus';
 import main from '@/mixins/main';
+import Rest from '@/utils/http/Rest.js';
 import ResponseProxyItr from '@/utils/http/ResponseProxyItr';
 import CreateOrUpdateEvent from '@/modules/events/CreateOrUpdateEvent.vue';
 
 vi.mock('element-plus', async () => ({ ...(await vi.importActual('element-plus')), ElNotification: vi.fn() }));
+
+vi.mock('@/utils/http/Rest.js', () => ({
+    default: { get: vi.fn(() => new Promise(() => {})), post: vi.fn(), patch: vi.fn() }
+}));
 
 const form = ({ params = {}, query = {} } = {}) => {
     const requestServer = vi.fn();
@@ -125,48 +130,7 @@ describe('CreateOrUpdateEvent', () => {
         });
     });
 
-    describe('validation before saving', () => {
-        it('lists every problem in page order and sends nothing', () => {
-            const { vm, requestServer } = form();
-            filled(vm, { title: '   ', calendar_id: null, end_time: '17:00', venue_type: 'online' });
-            const calls = requestServer.mock.calls.length;
-
-            vm.saveEvent();
-
-            expect(vm.errorList.map(error => error.field)).toEqual(['title', 'calendar_id', 'end_at', 'online_meeting_url']);
-            expect(requestServer.mock.calls.length).toBe(calls);
-        });
-
-        it('rejects an end equal to the start', () => {
-            const { vm } = form();
-            filled(vm, { end_time: '18:00' });
-
-            expect(vm.fieldError('end_at')).toBe('End must be after the start.');
-        });
-
-        it('accepts an end on a later day even at an earlier hour', () => {
-            const { vm } = form();
-            filled(vm, { end_date: '2026-10-21', end_time: '01:00' });
-
-            expect(vm.fieldError('end_at')).toBe('');
-        });
-
-        it('requires an http(s) meeting link for an online event', () => {
-            const { vm } = form();
-            filled(vm, { venue_type: 'online', online_meeting_url: 'javascript:alert(1)' });
-            expect(vm.fieldError('online_meeting_url')).toBe('Meeting link must be a valid http or https URL.');
-
-            vm.event.online_meeting_url = '  https://meet.example.test/abc  ';
-            expect(vm.fieldError('online_meeting_url')).toBe('');
-        });
-
-        it('ignores the meeting link for an in-person event', () => {
-            const { vm } = form();
-            filled(vm, { venue_type: 'offline', online_meeting_url: 'not a url' });
-
-            expect(vm.fieldError('online_meeting_url')).toBe('');
-        });
-
+    describe('dates', () => {
         it('pulls the end date forward when the start moves past it', () => {
             const { vm } = form();
             filled(vm, { start_date: '2026-10-25' });
@@ -205,34 +169,56 @@ describe('CreateOrUpdateEvent', () => {
             expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: '12' } });
         });
 
-        it('shows the first server message for each rejected field', () => {
-            const { vm, requestServer } = form();
-            filled(vm);
+        it('leaves every check to the server', () => {
+            const { vm, request } = form();
+            filled(vm, { title: '', calendar_id: null, end_time: '17:00', venue_type: 'online' });
 
             vm.saveEvent();
-            requestServer.mock.calls.at(-1)[0].onError({
-                errors: { title: { required: 'Title is required.', max: 'Too long.' }, venue: { string: 'Venue must be text.' } }
-            });
 
-            expect(vm.errorList).toEqual([
-                { field: 'title', message: 'Title is required.' },
-                { field: 'venue', message: 'Venue must be text.' }
-            ]);
+            expect(request('events').payload).toMatchObject({ title: '', calendar_id: null, end_at: '2026-10-20 17:00:00' });
         });
 
-        it.each([
-            [404, { message: 'No query results for model [Event] 12' }],
-            [403, { code: 'rest_forbidden', message: 'Sorry, you are not allowed to do that.', data: { status: 403 } }],
-            [422, { code: 'event_post_update_failed', message: 'The event could not be saved. Please try again.', data: [] }]
-        ])('notifies a %i that is not a validation error instead of listing it as field errors', (status, responseJSON) => {
-            const { vm, requestServer } = form({ params: { id: '12' } });
-            filled(vm);
+        describe('when the server rejects it', () => {
+            // The real $requestServer and form items, so the toast comes from the path the page takes.
+            const rejected = async (status, responseJSON) => {
+                ElNotification.mockClear();
+                Rest.post.mockRejectedValueOnce(new ResponseProxyItr({ status, responseJSON }));
+                const wrapper = shallowMount(CreateOrUpdateEvent, {
+                    global: {
+                        stubs: { transition: false, ElForm: false, ElFormItem: false },
+                        mixins: [main, { methods: { $changeTitle: vi.fn() } }],
+                        mocks: { $route: { params: {}, query: {} }, $router: { push: vi.fn() } }
+                    }
+                });
+                filled(wrapper.vm);
 
-            vm.saveEvent();
-            requestServer.mock.calls.at(-1)[0].onError(new ResponseProxyItr({ status, responseJSON }));
+                wrapper.vm.saveEvent();
+                await flushPromises();
 
-            expect(vm.errorList).toEqual([]);
-            expect(ElNotification.mock.calls.at(-1)[0].message).toBe(responseJSON.message);
+                return { calls: ElNotification.mock.calls, wrapper };
+            };
+
+            it('toasts every validation message instead of marking fields', async () => {
+                const { calls, wrapper } = await rejected(422, {
+                    title: { required: 'Event title is required.' },
+                    end_at: { after: 'End must be after the start.' }
+                });
+
+                expect(calls).toHaveLength(1);
+                expect(calls[0][0]).toMatchObject({ type: 'error', message: 'Event title is required. End must be after the start.' });
+                expect(wrapper.find('[data-field="title"]').exists()).toBe(true);
+                expect(wrapper.findAll('.is-error')).toHaveLength(0);
+            });
+
+            it.each([
+                [404, { message: 'No query results for model [Event] 12' }],
+                [403, { code: 'rest_forbidden', message: 'Sorry, you are not allowed to do that.', data: { status: 403 } }],
+                [422, { code: 'event_post_update_failed', message: 'The event could not be saved. Please try again.', data: [] }]
+            ])('toasts the server message for a %i that is not a validation error', async (status, responseJSON) => {
+                const { calls } = await rejected(status, responseJSON);
+
+                expect(calls.at(-1)[0].message).toBe(responseJSON.message);
+            });
         });
     });
 });
