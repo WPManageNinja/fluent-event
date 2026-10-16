@@ -52,7 +52,7 @@ class CommunityEventController extends Controller
         // most two months skips paging: the date filter ignores anything else, which would return everything.
         $fromTime = DateTimeHelper::isDate($from) ? strtotime($from) : false;
         $toTime = DateTimeHelper::isDate($to) ? strtotime($to) : false;
-        $isWindow = $fromTime && $toTime && $toTime - $fromTime <= 62 * DAY_IN_SECONDS;
+        $isWindow = $fromTime && $toTime && $toTime >= $fromTime && $toTime - $fromTime <= 62 * DAY_IN_SECONDS;
 
         if ($isWindow && !$request->getSafe('paginate', 'rest_sanitize_boolean', true)) {
             $events = $query->get()->all();

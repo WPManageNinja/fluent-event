@@ -204,15 +204,35 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(404, $this->rest('GET', 'events/999999999')['status']);
     }
 
+    // Only a calendar-sized window skips paging; a missing or wider window comes back a page at a time.
+    public function test_the_event_list_pages_unless_asked_for_a_short_window()
+    {
+        $calendarId = $this->createCalendar()->id;
+        foreach (range(1, 3) as $i) {
+            $this->createEvent(['calendar_id' => $calendarId]);
+        }
+
+        $query = ['calendar_id' => $calendarId, 'paginate' => 'false', 'per_page' => 2];
+        $unbounded = $this->rest('GET', 'events', $query)['data']['events'];
+        $wide = $this->rest('GET', 'events', $query + ['start_date' => '2020-01-01', 'end_date' => '2035-12-31'])['data']['events'];
+        $reversed = $this->rest('GET', 'events', $query + ['start_date' => '2035-12-31', 'end_date' => '2020-01-01'])['data']['events'];
+
+        $this->assertSame(3, (int) $unbounded['total']);
+        $this->assertCount(2, $unbounded['data']);
+        $this->assertSame(3, (int) $wide['total']);
+        $this->assertCount(2, $wide['data']);
+        $this->assertArrayHasKey('total', $reversed);
+    }
+
     public function test_the_event_list_filters_by_calendar()
     {
         $mine = $this->createEvent();
         $this->createEvent();
 
-        $response = $this->rest('GET', 'events', ['calendar_id' => $mine->calendar_id, 'paginate' => 'false']);
+        $response = $this->rest('GET', 'events', ['calendar_id' => $mine->calendar_id]);
 
         $this->assertSame(200, $response['status']);
-        $this->assertSame([(int) $mine->id], array_map('intval', array_column($response['data']['events'], 'id')));
+        $this->assertSame([(int) $mine->id], array_map('intval', array_column($response['data']['events']['data'], 'id')));
     }
 
     // Lists show every event on the site's clock, so a filtered day is a site day, whatever the event's own zone.
