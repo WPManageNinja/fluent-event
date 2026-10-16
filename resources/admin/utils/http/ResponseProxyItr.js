@@ -18,7 +18,9 @@ export default class ResponseProxyItr {
                     } else if (prop in target.response.responseJSON) {
                         return target.response.responseJSON[prop];
                     } else if (prop === 'errors') {
-                        return target.response.responseJSON;
+                        // A validation body is the field => rules map itself; a 404/403/WP_Error body is not.
+                        const body = target.response.responseJSON;
+                        return Object.values(body).every(rules => rules && typeof rules === 'object') ? body : undefined;
                     }
                 } catch (e) {
                     return target.response;

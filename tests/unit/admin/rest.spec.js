@@ -202,6 +202,11 @@ describe('ResponseProxyItr', () => {
         expect(wrap({ title: { required: 'Required' } }).errors).toEqual({ title: { required: 'Required' } });
     });
 
+    it('has no errors for a body that is not a field => rules map', () => {
+        expect(wrap({ message: 'Not found' }, { status: 404 }).errors).toBeUndefined();
+        expect(wrap({ code: 'event_post_update_failed', message: 'Could not save', data: [] }, { status: 422 }).errors).toBeUndefined();
+    });
+
     it('spreads, iterates and lists keys over the JSON payload', () => {
         const response = wrap({ a: 1, b: 2 });
 
