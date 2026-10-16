@@ -84,7 +84,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Statuses:** events and calendars are `public | private | draft`. fcom-created events start
   `public`. The portal shows `public` and `private` events; `draft` events are never returned.
 - **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit) and `open`
-  (view-only: nobody registers, no guests).
+  (view-only: members can't register; admins can still add guests, who get the usual emails).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
   the `from`/`to` filter means site days. The event page shows the event's own clock with its
   offset, plus the site's clock when that reads differently.

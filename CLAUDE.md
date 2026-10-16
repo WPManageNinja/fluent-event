@@ -29,8 +29,8 @@ Three things people get wrong:
   holds whatever per-record config accrues, and is documented by the model's `defaultMeta()`.
 
 Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going)
-or `open` (view-only: nobody registers, no guests, every viewer sees the whole event,
-meeting link included). `show_guest_count` sits beside it for `rsvp`. RSVP has no seat limit. `ticketed` is a documented future
+or `open` (view-only: members can't register, every viewer sees the whole event,
+meeting link included; admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp`. RSVP has no seat limit. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.
 
 Statuses: events and calendars are both `public | private | draft`. `private` means no

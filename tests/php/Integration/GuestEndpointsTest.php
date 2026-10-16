@@ -42,6 +42,17 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $guest->status);
     }
 
+    // Members can't register for an open event, but an admin still manages its guests, emails included.
+    public function test_an_admin_can_add_a_guest_to_an_open_event()
+    {
+        $open = $this->createEvent([], ['entry_type' => 'open']);
+
+        $response = $this->addGuest(['name' => 'Walk-in', 'email' => 'walkin@example.test', 'send_email' => 1], $open);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $response['data']['guest']['id']]));
+    }
+
     public function test_the_same_email_cannot_join_an_event_twice()
     {
         $this->addGuest(['name' => 'Rafi', 'email' => 'rafi@example.test']);
