@@ -53,10 +53,11 @@ export default defineConfig(({ mode }) => {
                     'resources/fcom-portal/fcom-portal.js',
                     'resources/fcom-portal/fcom-portal.scss'
                 ],
+                // Chunks import each other without the entries' ?ver=, so their names carry a content hash.
                 output: {
-                    chunkFileNames: '[name].js',
+                    chunkFileNames: '[name]-[hash].js',
                     entryFileNames: '[name].js',
-                    assetFileNames: 'admin/[name].[ext]'
+                    assetFileNames: 'admin/[name]-[hash][extname]'
                 }
             }
         },

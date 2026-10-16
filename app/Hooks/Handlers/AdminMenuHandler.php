@@ -277,7 +277,7 @@ class AdminMenuHandler
      */
     protected function enqueueAdminStyles($handle)
     {
-        Enqueue::style($handle, 'admin/admin.css', [], FLUENT_EVENT_PLUGIN_VERSION);
+        Enqueue::style($handle, 'scss/admin.scss', [], FLUENT_EVENT_PLUGIN_VERSION);
     }
 
     /**
