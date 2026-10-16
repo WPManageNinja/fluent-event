@@ -115,7 +115,7 @@
                         :aria-label="$t('View %s', block.entry.event.title)"
                         @click="$emit('open', block.entry.event)"
                     >
-                        <span class="fe-events-calendar__event-time">{{ dayjs(block.entry.event.start_at_local).format(timeFormat) }}</span>
+                        <span class="fe-events-calendar__event-time">{{ dayjs(block.entry.event.start_at_site).format(timeFormat) }}</span>
                         <span class="fe-events-calendar__event-title">{{ block.entry.event.title }}</span>
                     </button>
                 </div>
@@ -211,8 +211,8 @@ export default {
             const days = {};
 
             this.events.forEach((event) => {
-                const start = toUtcDay(event.start_at_local);
-                const end = toUtcDay(event.end_at_local);
+                const start = toUtcDay(event.start_at_site);
+                const end = toUtcDay(event.end_at_site);
 
                 for (let day = Math.max(start, first); day <= Math.min(end, last); day += DAY_MS) {
                     const key = toDayKey(day);
@@ -223,7 +223,7 @@ export default {
             });
 
             Object.values(days).forEach((entries) => entries.sort(
-                (a, b) => a.event.start_at_local.localeCompare(b.event.start_at_local)
+                (a, b) => a.event.start_at_site.localeCompare(b.event.start_at_site)
             ));
 
             return days;
@@ -241,15 +241,15 @@ export default {
                 return this.$t('Day %d', entry.dayIndex);
             }
 
-            return this.dayjs(entry.event.start_at_local).format(this.timeFormat);
+            return this.dayjs(entry.event.start_at_site).format(this.timeFormat);
         },
         dayBlocks(day) {
             const dayStart = day.startOf('day');
             const dayEnd = dayStart.add(1, 'day');
 
             return this.entriesFor(day.format('YYYY-MM-DD')).map((entry) => {
-                const start = this.dayjs(entry.event.start_at_local);
-                const end = this.dayjs(entry.event.end_at_local);
+                const start = this.dayjs(entry.event.start_at_site);
+                const end = this.dayjs(entry.event.end_at_site);
                 const from = start.isBefore(dayStart) ? 0 : start.diff(dayStart, 'minute');
                 const until = end.isAfter(dayEnd) ? 24 * 60 : Math.max(end.diff(dayStart, 'minute'), from + 30);
 

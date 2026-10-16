@@ -66,7 +66,9 @@ class DateTimeHelper
     // The Y-m-d form every date filter accepts; one check, so callers can't disagree on what is a date.
     public static function isDate($value)
     {
-        return $value && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value);
+        return $value
+            && preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $parts)
+            && checkdate((int) $parts[2], (int) $parts[3], (int) $parts[1]);
     }
 
     public static function convertToDayJsFormat($phpFormat)

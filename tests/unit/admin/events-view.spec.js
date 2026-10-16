@@ -63,7 +63,7 @@ describe('EventsView', () => {
             });
         });
 
-        it('loads the whole month grid, padded a day each side, for the calendar', () => {
+        it('loads exactly the month grid it shows for the calendar', () => {
             vi.useFakeTimers();
             vi.setSystemTime(new Date('2026-10-14T12:00:00Z'));
             Storage.set('events_view', 'calendar');
@@ -73,8 +73,8 @@ describe('EventsView', () => {
             // October 2026's grid runs Sun 27 Sep to Sat 31 Oct.
             expect(lastPayload()).toMatchObject({
                 paginate: false,
-                start_date: '2026-09-26',
-                end_date: '2026-11-01'
+                start_date: '2026-09-27',
+                end_date: '2026-10-31'
             });
             expect(lastPayload()).not.toHaveProperty('page');
         });

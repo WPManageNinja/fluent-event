@@ -85,6 +85,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   `public`. The portal shows `public` and `private` events; `draft` events are never returned.
 - **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit) and `open`
   (view-only: nobody registers, no guests).
+- **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
+  the `from`/`to` filter means site days. The event page shows the event's own clock with its
+  offset, plus the site's clock when that reads differently.
 - **Guest count:** shown only for `rsvp` events whose **Show guest count** switch is on, and then
   to everyone, staff included. The switch alone decides; nobody gets an override. It counts
   `going` and `checked_in` guests.

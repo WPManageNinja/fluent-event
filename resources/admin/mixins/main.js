@@ -196,6 +196,17 @@ export default {
         $formatDateTime(date) {
             return `${this.$formatDate(date)} ${this.$formatTime(date)}`;
         },
+        // clock: 'local' or 'site'.
+        $formatTimeRange(event, clock = 'local') {
+            const start = event[`start_at_${clock}`];
+            const end = event[`end_at_${clock}`];
+            const zone = clock === 'site' ? config.timezone : event.timezone;
+
+            const startText = dayjs(start).isSame(event.start_at_local, 'day') ? this.$formatTime(start) : this.$formatDateTime(start);
+            const endText = dayjs(end).isSame(start, 'day') ? this.$formatTime(end) : this.$formatDateTime(end);
+
+            return `${startText} – ${endText} (${zone})`;
+        },
         $changeTitle(title) {
             document.querySelector(
                 'head title'

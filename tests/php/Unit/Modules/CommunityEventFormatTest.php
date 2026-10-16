@@ -23,6 +23,8 @@ class CommunityEventFormatTest extends TestCase
             'end_at'         => gmdate('Y-m-d H:i:s', strtotime('+1 day +2 hours')),
             'start_at_local' => '',
             'end_at_local'   => '',
+            'start_at_site'  => '',
+            'end_at_site'    => '',
             'timezone'       => 'UTC',
             'venue_type'     => 'online',
             'meta'           => array_merge([

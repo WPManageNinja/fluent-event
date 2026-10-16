@@ -21,6 +21,9 @@ class DateTimeHelperTest extends TestCase
             'date'          => ['2026-10-15', true],
             'date and time' => ['2026-10-15 10:00:00', false],
             'injection'     => ["2026-10-15' OR 1=1", false],
+            // Converting the filter bounds would throw on a month 13, a 500 instead of no filter.
+            'no such month' => ['2026-13-01', false],
+            'no such day'   => ['2026-02-31', false],
             'empty'         => ['', false],
             'null'          => [null, false],
         ];

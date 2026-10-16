@@ -73,7 +73,8 @@
 
                                     <div>
                                         <p class="fe-event-overview__row-title">{{ fullDate }}</p>
-                                        <p class="fe-event-overview__row-text">{{ timeRange }}</p>
+                                        <p class="fe-event-overview__row-text">{{ $formatTimeRange(event) }}</p>
+                                        <p v-if="showSiteTime" class="fe-event-overview__row-text fe-event-overview__row-text--muted">{{ $formatTimeRange(event, 'site') }}</p>
                                     </div>
                                 </div>
 
@@ -256,15 +257,8 @@
 
                 return `${start} – ${end}`;
             },
-            timeRange() {
-                const format = date => this.isMultiDay
-                    ? this.$formatDateTime(date)
-                    : this.$formatTime(date);
-
-                const start = format(this.event.start_at_local);
-                const end = format(this.event.end_at_local);
-
-                return `${start} – ${end} (${this.event.timezone})`;
+            showSiteTime() {
+                return this.event.start_at_site !== this.event.start_at_local || this.event.end_at_site !== this.event.end_at_local;
             },
             meetingUrl() {
                 return this.$httpUrl(this.event.meta?.online_meeting_url);

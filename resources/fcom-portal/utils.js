@@ -95,17 +95,17 @@ export function timeFormat() {
 }
 
 export function eventStart(event) {
-    const start = dayjs(event.start_at_local);
+    const start = dayjs(event.start_at_site);
 
     return `${start.format('ddd, MMM D, YYYY')} · ${start.format(timeFormat())}`;
 }
 
 export function eventMonth(event) {
-    return dayjs(event.start_at_local).format('MMM');
+    return dayjs(event.start_at_site).format('MMM');
 }
 
 export function eventDay(event) {
-    return dayjs(event.start_at_local).format('D');
+    return dayjs(event.start_at_site).format('D');
 }
 
 // Pass the event's date to label the offset it will have then, not today's (daylight saving).

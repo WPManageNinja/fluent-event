@@ -5,7 +5,7 @@ import main from '@/mixins/main';
 import EventsGrid from '@/modules/events/parts/EventsGrid.vue';
 
 let nextId = 1;
-const event = (start, end, extra = {}) => ({ id: nextId++, title: 'Event', start_at_local: start, end_at_local: end, ...extra });
+const event = (start, end, extra = {}) => ({ id: nextId++, title: 'Event', start_at_site: start, end_at_site: end, ...extra });
 
 const grid = (props = {}) => mount(EventsGrid, {
     props: { events: [], month: '2026-10-14', viewMode: 'week', ...props },

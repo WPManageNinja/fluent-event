@@ -76,13 +76,13 @@ describe('EventsPage', () => {
             expect(query()).toEqual({ scope: 'upcoming', space: 'design', search: '', page: '1', per_page: '20' });
         });
 
-        it('loads the whole visible month, padded a day each side, in calendar view', async () => {
+        it('loads exactly the visible month grid in calendar view', async () => {
             Storage.set('portal_events_view', 'calendar');
 
             await eventsPage();
 
             // October 2026's grid runs Sun 27 Sep to Sat 31 Oct.
-            expect(query()).toMatchObject({ from: '2026-09-26', to: '2026-11-01', paginate: 'false' });
+            expect(query()).toMatchObject({ from: '2026-09-27', to: '2026-10-31', paginate: 'false' });
         });
 
         it('appends the next page to the list', async () => {

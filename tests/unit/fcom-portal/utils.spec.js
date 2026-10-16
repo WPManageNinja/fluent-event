@@ -146,7 +146,7 @@ describe('errorMessage', () => {
 });
 
 describe('event time helpers', () => {
-    const meetup = { start_at: '2026-10-20 12:00:00', end_at: '2026-10-20 14:00:00', start_at_local: '2026-10-20 18:00:00' };
+    const meetup = { start_at: '2026-10-20 12:00:00', end_at: '2026-10-20 14:00:00', start_at_site: '2026-10-20 18:00:00' };
 
     afterEach(() => {
         vi.useRealTimers();
@@ -187,8 +187,8 @@ describe('event time helpers', () => {
     });
 
     it('splits the start into a month and unpadded day for the date chip', () => {
-        expect(eventMonth({ start_at_local: '2026-10-04 09:00:00' })).toBe('Oct');
-        expect(eventDay({ start_at_local: '2026-10-04 09:00:00' })).toBe('4');
+        expect(eventMonth({ start_at_site: '2026-10-04 09:00:00' })).toBe('Oct');
+        expect(eventDay({ start_at_site: '2026-10-04 09:00:00' })).toBe('4');
     });
 
     it("labels a zone's offset as it will be on the event date", () => {

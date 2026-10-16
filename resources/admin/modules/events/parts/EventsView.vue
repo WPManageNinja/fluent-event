@@ -332,10 +332,8 @@
                         ...params,
                         paginate: false,
                         period: this.period,
-                        start_date: month.startOf('month').startOf('week')
-                            .subtract(1, 'day').format('YYYY-MM-DD'),
-                        end_date: month.endOf('month').endOf('week')
-                            .add(1, 'day').format('YYYY-MM-DD'),
+                        start_date: month.startOf('month').startOf('week').format('YYYY-MM-DD'),
+                        end_date: month.endOf('month').endOf('week').format('YYYY-MM-DD'),
                     };
                 }
 
