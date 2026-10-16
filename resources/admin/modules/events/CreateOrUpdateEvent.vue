@@ -38,28 +38,6 @@
                     novalidate
                     @submit.prevent="saveEvent"
                 >
-                    <div
-                        v-if="errorList.length"
-                        ref="errorSummary"
-                        class="fe-form__error-summary"
-                        role="alert"
-                        tabindex="-1"
-                    >
-                        <p class="fe-form__error-summary-title">{{ $t('Fix these to save the event:') }}</p>
-
-                        <ul class="fe-form__error-summary-list">
-                            <li v-for="item in errorList" :key="item.field">
-                                <button
-                                    type="button"
-                                    class="fe-form__error-summary-link"
-                                    @click="focusField(item.field)"
-                                >
-                                    {{ item.message }}
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-
                     <section class="fe-form__section" data-field="cover_url">
                         <div class="fe-form__section-rail">
                             <h2 class="fe-form__section-title">{{ $t('Cover image') }}</h2>
@@ -106,7 +84,6 @@
                                 :label="$t('Event name')"
                                 for="fe-event-title"
                                 required
-                                :error="errors.title"
                                 data-field="title"
                             >
                                 <el-input
@@ -114,15 +91,12 @@
                                     ref="titleInput"
                                     v-model="event.title"
                                     :placeholder="$t('e.g. Friday Q&A')"
-                                    @blur="validate('title')"
-                                    @input="errors.title && validate('title')"
                                 />
                             </el-form-item>
 
                             <el-form-item
                                 :label="$t('Calendar')"
                                 required
-                                :error="errors.calendar_id"
                                 data-field="calendar_id"
                             >
                                 <el-select
@@ -132,7 +106,6 @@
                                     filterable
                                     :loading="loadingCalendars"
                                     :loading-text="$t('Loading…')"
-                                    @change="validate('calendar_id')"
                                 >
                                     <template #prefix>
                                         <span
@@ -158,7 +131,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item :label="$t('Visibility')" :error="errors.status" data-field="status">
+                            <el-form-item :label="$t('Visibility')" data-field="status">
                                 <el-radio-group
                                     v-model="event.status"
                                     class="fe-form__state"
@@ -208,7 +181,6 @@
 
                         <div class="fe-form__section-fields">
                             <el-form-item
-                                :error="errors.start_at || errors.end_at || errors.timezone"
                                 data-field="start_at end_at timezone"
                             >
                                 <div class="fe-event-form__window">
@@ -238,7 +210,6 @@
                                             value-format="HH:mm"
                                             :clearable="false"
                                             :aria-label="bound.timeLabel"
-                                            @change="validate('end_at')"
                                         />
                                     </div>
 
@@ -282,7 +253,6 @@
                                 :label="$t('Meeting link')"
                                 for="fe-event-meeting-link"
                                 required
-                                :error="errors.online_meeting_url"
                                 data-field="online_meeting_url"
                             >
                                 <el-input
@@ -290,8 +260,6 @@
                                     v-model="event.online_meeting_url"
                                     type="url"
                                     placeholder="https://meet.example.com/standup"
-                                    @blur="validate('online_meeting_url')"
-                                    @input="errors.online_meeting_url && validate('online_meeting_url')"
                                 />
                                 <span class="fe-form__hint">
                                     {{ $t('Only http and https links are accepted.') }}
@@ -302,7 +270,6 @@
                                 <el-form-item
                                     :label="$t('Venue name')"
                                     for="fe-event-venue"
-                                    :error="errors.venue"
                                     data-field="venue"
                                 >
                                     <el-input
@@ -315,7 +282,6 @@
                                 <el-form-item
                                     :label="$t('Address')"
                                     for="fe-event-address"
-                                    :error="errors.address"
                                     data-field="address"
                                 >
                                     <el-input
@@ -339,7 +305,7 @@
                         </div>
 
                         <div class="fe-form__section-fields">
-                            <el-form-item :label="$t('Entry type')" :error="errors.entry_type" data-field="entry_type">
+                            <el-form-item :label="$t('Entry type')" data-field="entry_type">
                                 <el-radio-group
                                     v-model="event.entry_type"
                                     class="fe-form__choices"
@@ -399,12 +365,6 @@
 
     const config = window.fluentEventAdmin;
 
-    // Page order, so the error summary lists problems top to bottom.
-    const FIELD_ORDER = [
-        'cover_url', 'title', 'calendar_id', 'status', 'description', 'start_at', 'end_at', 'timezone',
-        'venue_type', 'online_meeting_url', 'venue', 'address', 'entry_type', 'show_guest_count',
-    ];
-
     // Built once per page load: ~420 zones each need their own Intl formatter.
     let timezoneOptions = null;
 
@@ -427,7 +387,6 @@
                 saving: false,
                 calendars: [],
                 event: {},
-                errors: {},
             };
         },
         computed: {
@@ -513,21 +472,6 @@
 
                 return selected?.meta?.theme_color;
             },
-            errorList() {
-                const position = field => (FIELD_ORDER.includes(field) ? FIELD_ORDER.indexOf(field) : FIELD_ORDER.length);
-
-                return Object.keys(this.errors)
-                    .filter(field => this.errors[field])
-                    .sort((a, b) => position(a) - position(b))
-                    .map(field => ({ field, message: this.errors[field] }));
-            },
-        },
-        watch: {
-            'event.venue_type'() {
-                if (this.errors.online_meeting_url) {
-                    this.validate('online_meeting_url');
-                }
-            },
         },
         methods: {
             initForm(event = null) {
@@ -556,7 +500,6 @@
             },
             loadForm() {
                 this.event = this.initForm();
-                this.errors = {};
                 this.fetchCalendars();
 
                 if (this.isEditing) {
@@ -606,8 +549,6 @@
                 if (dayjs(this.event.end_date).isBefore(this.event.start_date)) {
                     this.event.end_date = this.event.start_date;
                 }
-
-                this.validate('end_at');
             },
             isValidTimezone(timezone) {
                 if (!timezone) return false;
@@ -633,60 +574,7 @@
                     return '';
                 }
             },
-            // The EventRequest rules this form can break, checked here so problems show before a round trip.
-            fieldError(field) {
-                const event = this.event;
-
-                if (field === 'title' && !event.title.trim()) {
-                    return this.$t('Event title is required.');
-                }
-
-                if (field === 'calendar_id' && !event.calendar_id) {
-                    return this.$t('Please choose a calendar for this event.');
-                }
-
-                if (field === 'end_at' && `${event.end_date} ${event.end_time}` <= `${event.start_date} ${event.start_time}`) {
-                    return this.$t('End must be after the start.');
-                }
-
-                if (field === 'online_meeting_url' && event.venue_type === 'online') {
-                    const link = event.online_meeting_url.trim();
-
-                    if (!link) {
-                        return this.$t('An online event needs a meeting link.');
-                    }
-
-                    if (!/^https?:\/\/\S+$/i.test(link)) {
-                        return this.$t('Meeting link must be a valid http or https URL.');
-                    }
-                }
-
-                return '';
-            },
-            validate(field) {
-                this.errors[field] = this.fieldError(field);
-            },
-            showErrorSummary() {
-                this.$nextTick(() => {
-                    this.$refs.errorSummary?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                    this.$refs.errorSummary?.focus({ preventScroll: true });
-                });
-            },
-            focusField(field) {
-                const target = this.$el.querySelector(`[data-field~="${field}"]`);
-
-                target?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                target?.querySelector('input, textarea')?.focus({ preventScroll: true });
-            },
             saveEvent() {
-                this.errors = {};
-                ['title', 'calendar_id', 'end_at', 'online_meeting_url'].forEach(field => this.validate(field));
-
-                if (this.errorList.length) {
-                    this.showErrorSummary();
-                    return;
-                }
-
                 this.$requestServer({
                     method: this.isEditing ? 'patch' : 'post',
                     path: this.isEditing ? `events/${this.eventId}` : 'events',
@@ -709,25 +597,12 @@
                     loadingState: 'saving',
                     errorState: null,
                     successNotify: true,
+                    errorNotify: true,
                     onSuccess: response => {
                         this.$router.push({
                             name: 'event_detail',
                             params: { id: this.eventId || response.event.id },
                         });
-                    },
-                    onError: error => {
-                        const fieldErrors = error?.errors || {};
-
-                        if (!Object.keys(fieldErrors).length) {
-                            this.$handleError(error);
-                            return;
-                        }
-
-                        // The server keys messages by rule; show the first one per field.
-                        this.errors = Object.fromEntries(
-                            Object.entries(fieldErrors).map(([field, rules]) => [field, Object.values(rules)[0]])
-                        );
-                        this.showErrorSummary();
                     },
                 });
             },
