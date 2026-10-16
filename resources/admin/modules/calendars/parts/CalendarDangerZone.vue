@@ -6,7 +6,7 @@
             <h3 class="fe-danger-zone__heading">{{ $t('Delete this calendar') }}</h3>
 
             <p class="fe-danger-zone__text">
-                {{ $t('Deleting a calendar is permanent and cannot be undone.') }}
+                {{ $t('Deleting this calendar also permanently deletes all of its events and their guests. This cannot be undone.') }}
             </p>
 
             <label class="fe-danger-zone__label" for="fe-delete-confirm">
@@ -58,7 +58,7 @@
             promptDelete() {
                 if (!this.canDelete) return;
                 this.$confirm(
-                    this.$t('This calendar will be permanently deleted.'),
+                    this.$t('Deleting this calendar also permanently deletes all of its events and their guests. This cannot be undone.'),
                     this.$t('Delete Calendar'),
                     {
                         type: 'warning',
