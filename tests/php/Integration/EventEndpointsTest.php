@@ -215,11 +215,13 @@ class EventEndpointsTest extends IntegrationTestCase
         $query = ['calendar_id' => $calendarId, 'paginate' => 'false', 'per_page' => 2];
         $unbounded = $this->rest('GET', 'events', $query)['data']['events'];
         $wide = $this->rest('GET', 'events', $query + ['start_date' => '2020-01-01', 'end_date' => '2035-12-31'])['data']['events'];
+        $reversed = $this->rest('GET', 'events', $query + ['start_date' => '2035-12-31', 'end_date' => '2020-01-01'])['data']['events'];
 
         $this->assertSame(3, (int) $unbounded['total']);
         $this->assertCount(2, $unbounded['data']);
         $this->assertSame(3, (int) $wide['total']);
         $this->assertCount(2, $wide['data']);
+        $this->assertArrayHasKey('total', $reversed);
     }
 
     public function test_the_event_list_filters_by_calendar()

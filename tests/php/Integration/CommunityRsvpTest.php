@@ -192,6 +192,28 @@ class CommunityRsvpTest extends IntegrationTestCase
         $this->assertSame(404, $this->rsvp($this->createEvent(), 'going')['status']);
     }
 
+    // An end before the start is no calendar window, so it pages like any other list.
+    public function test_a_reversed_date_window_still_pages()
+    {
+        foreach (range(1, 2) as $i) {
+            $this->communityEvent([
+                'start_at' => gmdate('Y-m-d H:i:s', strtotime('+1 day')),
+                'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+10 days')),
+            ]);
+        }
+
+        $response = $this->rest('GET', 'community/events', [
+            'from'     => gmdate('Y-m-d', strtotime('+5 days')),
+            'to'       => gmdate('Y-m-d', strtotime('+3 days')),
+            'paginate' => 'false',
+            'per_page' => 1,
+        ]);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertCount(1, $response['data']['events']);
+        $this->assertSame(2, (int) $response['data']['last_page']);
+    }
+
     // Blocking only flips the profile status; the member keeps their space memberships.
     public function test_a_blocked_member_can_neither_list_events_nor_rsvp()
     {

@@ -37,7 +37,7 @@ class EventController extends Controller
         // As in the community calendar: only a real window of at most two months skips paging.
         $fromTime = DateTimeHelper::isDate($from) ? strtotime($from) : false;
         $toTime = DateTimeHelper::isDate($to) ? strtotime($to) : false;
-        $isWindow = $fromTime && $toTime && $toTime - $fromTime <= 62 * DAY_IN_SECONDS;
+        $isWindow = $fromTime && $toTime && $toTime >= $fromTime && $toTime - $fromTime <= 62 * DAY_IN_SECONDS;
 
         $paginate = !$isWindow || $request->getSafe('paginate', 'rest_sanitize_boolean', true);
 
