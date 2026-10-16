@@ -9,4 +9,14 @@ describe('vite build config', () => {
 
         expect(base).not.toMatch(/^(\/|[a-z]+:)/i);
     });
+
+    // Chunks import each other by relative URL, without the entries' ?ver=, so only a content hash makes
+    // a long-cached copy miss after an update. Entries keep stable names: PHP enqueues them with ?ver=.
+    it('hashes chunk and asset names and keeps entry names stable', () => {
+        const { output } = viteConfig({ mode: 'production', command: 'build' }).build.rollupOptions;
+
+        expect(output.chunkFileNames).toContain('[hash]');
+        expect(output.assetFileNames).toContain('[hash]');
+        expect(output.entryFileNames).not.toContain('[hash]');
+    });
 });
