@@ -33,6 +33,25 @@ class ActivationHandler
         }
     }
 
+    public function handleNewSite($site, $pluginBasename)
+    {
+        // Read the option directly: front-end signup creates sites without wp-admin/includes/plugin.php,
+        // so is_plugin_active_for_network() may not exist.
+        $networkPlugins = (array) get_site_option('active_sitewide_plugins', []);
+
+        if (!isset($networkPlugins[$pluginBasename])) {
+            return;
+        }
+
+        switch_to_blog((int) $site->blog_id);
+
+        try {
+            $this->activateSite();
+        } finally {
+            restore_current_blog();
+        }
+    }
+
     protected function activateSite()
     {
         DBMigrator::run();

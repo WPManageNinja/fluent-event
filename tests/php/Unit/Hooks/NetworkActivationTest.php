@@ -95,4 +95,54 @@ class NetworkActivationTest extends TestCase
         $this->assertSame(range(1, 150), $clearedOn);
         $this->assertSame(1, $this->currentBlog);
     }
+
+    public function test_a_new_site_is_set_up_when_the_plugin_is_network_active()
+    {
+        // As on front-end signup (wp-activate.php), where wp-admin/includes/plugin.php is never loaded.
+        $this->assertFalse(function_exists('is_plugin_active_for_network'));
+
+        Functions\when('get_site_option')->justReturn(['fluent-events/fluent-event.php' => time()]);
+        $queuedOn = $this->recordReminderRequeues();
+
+        (new ActivationHandler($this->app()))->handleNewSite((object) ['blog_id' => 42], 'fluent-events/fluent-event.php');
+
+        $this->assertSame([42], $queuedOn->getArrayCopy());
+        $this->assertSame(1, $this->currentBlog);
+    }
+
+    public function test_a_new_site_is_left_alone_when_the_plugin_is_not_network_active()
+    {
+        Functions\when('get_site_option')->justReturn(['another-plugin/another-plugin.php' => time()]);
+        $queuedOn = $this->recordReminderRequeues();
+
+        (new ActivationHandler($this->app()))->handleNewSite((object) ['blog_id' => 42], 'fluent-events/fluent-event.php');
+
+        $this->assertSame([], $queuedOn->getArrayCopy());
+        $this->assertSame(1, $this->currentBlog);
+    }
+
+    public function test_new_sites_are_set_up_after_core_creates_their_tables()
+    {
+        $boot = file_get_contents(FLUENT_EVENT_PLUGIN_DIR . 'boot/app.php');
+
+        // wp_insert_site fires before core's wp_initialize_site (priority 10) creates the site's tables.
+        $this->assertStringNotContainsString("'wp_insert_site'", $boot);
+        $this->assertSame(1, preg_match("/add_action\('wp_initialize_site',.*?\}, (\d+)\);/s", $boot, $match));
+        $this->assertGreaterThan(10, (int) $match[1]);
+    }
+
+    private function recordReminderRequeues()
+    {
+        $queuedOn = new \ArrayObject();
+
+        Functions\when('as_enqueue_async_action')->alias(function ($hook) use ($queuedOn) {
+            if ($hook === 'fluent_event/reschedule_event_reminders') {
+                $queuedOn[] = $this->currentBlog;
+            }
+
+            return 1;
+        });
+
+        return $queuedOn;
+    }
 }
