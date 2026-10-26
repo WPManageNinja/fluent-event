@@ -125,12 +125,13 @@ class PortalHandler
         $settings = Settings::get();
 
         $vars = [
-            'rest_url'          => esc_url_raw(rest_url('fluent-event/v2')),
-            'is_logged_in'      => (bool) $userId,
-            'can_create_events' => $userId && PermissionManager::userCan('write_events', $userId),
-            'default_view'      => $settings['default_events_view'],
-            'timezone'          => wp_timezone_string(),
-            'i18n'              => $this->strings(),
+            'rest_url'            => esc_url_raw(rest_url('fluent-event/v2')),
+            'is_logged_in'        => (bool) $userId,
+            'can_create_events'   => $userId && PermissionManager::userCan('write_events', $userId),
+            'default_view'        => $settings['default_events_view'],
+            'disable_view_switch' => $settings['disable_event_view_switch'] === 'yes',
+            'timezone'            => wp_timezone_string(),
+            'i18n'                => $this->strings(),
         ];
 
         $style = Enqueue::url('fcom-portal/fcom-portal.scss');

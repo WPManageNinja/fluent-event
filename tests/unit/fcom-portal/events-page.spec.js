@@ -67,6 +67,33 @@ describe('EventsPage', () => {
 
             expect([vm.tab, vm.view, vm.calendarMode]).toEqual(['upcoming', 'timeline', 'month']);
         });
+
+        it("opens on the admin's default view when the member has not picked one", async () => {
+            window.fluentEventFcomPortal.default_view = 'cards';
+
+            expect((await eventsPage()).vm.view).toBe('cards');
+        });
+
+        it("keeps the member's own view over the default while switching is allowed", async () => {
+            window.fluentEventFcomPortal.default_view = 'cards';
+            Storage.set('portal_events_view', 'timeline');
+
+            const { wrapper, vm } = await eventsPage();
+
+            expect(vm.view).toBe('timeline');
+            expect(wrapper.findComponent({ name: 'SegmentedSwitch' }).exists()).toBe(true);
+        });
+
+        it("uses the admin's view for everyone and hides the switch when it is locked", async () => {
+            window.fluentEventFcomPortal.default_view = 'cards';
+            window.fluentEventFcomPortal.disable_view_switch = true;
+            Storage.set('portal_events_view', 'timeline');
+
+            const { wrapper, vm } = await eventsPage();
+
+            expect(vm.view).toBe('cards');
+            expect(wrapper.findComponent({ name: 'SegmentedSwitch' }).exists()).toBe(false);
+        });
     });
 
     describe('loading', () => {
