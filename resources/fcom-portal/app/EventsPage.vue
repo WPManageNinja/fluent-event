@@ -33,6 +33,7 @@
             </el-input>
 
             <segmented-switch
+                v-if="!viewLocked"
                 v-model="view"
                 :options="views"
                 :label="$t('Switch between card, timeline and calendar view')"
@@ -153,13 +154,16 @@ export default {
         router: { type: Object, required: true },
     },
     data() {
+        // The admin's view setting applies here as in the admin list; locked, it overrides the member's choice.
+        const viewLocked = !!portalVars().disable_view_switch;
         const savedTab = Storage.get('portal_events_tab');
-        const savedView = Storage.get('portal_events_view');
+        const savedView = viewLocked ? null : Storage.get('portal_events_view');
         const savedMode = Storage.get('portal_events_calendar_mode');
 
         return {
+            viewLocked,
             tab: ['all', 'upcoming', 'past'].includes(savedTab) ? savedTab : 'upcoming',
-            view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : 'timeline',
+            view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : (portalVars().default_view || 'timeline'),
             search: '',
             calendarDate: dayjs().format('YYYY-MM-DD'),
             calendarMode: ['month', 'week', 'day'].includes(savedMode) ? savedMode : 'month',

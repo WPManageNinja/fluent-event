@@ -58,6 +58,7 @@ export const portalVars = () => ({
     is_logged_in: true,
     can_create_events: true,
     default_view: 'timeline',
+    disable_view_switch: false,
     i18n: {}
 });
 
