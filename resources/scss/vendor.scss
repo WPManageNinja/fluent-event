@@ -108,6 +108,12 @@
         }
     }
 
+    // wp-admin's `li { margin-bottom: 6px }` breaks EP's scroll math, which takes a row's
+    // CSS height as its pitch — rows drift off the selection band and the end is unreachable.
+    .el-time-spinner__item {
+        margin: 0;
+    }
+
     .el-overlay {
         // A dialog with a fixed width prop (e.g. 600px) must never
         // exceed the viewport — phones were clipping the footer.
