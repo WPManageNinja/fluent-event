@@ -185,7 +185,11 @@ describe('CreateOrUpdateEvent', () => {
                 Rest.post.mockRejectedValueOnce(new ResponseProxyItr({ status, responseJSON }));
                 const wrapper = shallowMount(CreateOrUpdateEvent, {
                     global: {
-                        stubs: { transition: false, ElForm: false, ElFormItem: false },
+                        stubs: {
+                            transition: false, ElForm: false, ElFormItem: false,
+                            // The real calendar load renders the form, and create mode focuses the title.
+                            ElInput: { template: '<input />', methods: { focus: vi.fn() } }
+                        },
                         mixins: [main, { methods: { $changeTitle: vi.fn() } }],
                         mocks: { $route: { params: {}, query: {} }, $router: { push: vi.fn() } }
                     }
