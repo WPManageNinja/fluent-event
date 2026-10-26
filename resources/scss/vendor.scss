@@ -175,15 +175,26 @@
         height: var(--fe-control-height, 36px);
     }
 
-    .el-select__popper.el-popper {
+    .el-select__popper.el-popper,
+    .el-picker__popper.el-popper {
         --el-bg-color-overlay: var(--fe-primary-bg, #ffffff);
         --el-border-color-light: var(--fe-primary-border, #eaecf0);
+        --el-border-color-lighter: var(--fe-primary-border, #eaecf0);
         --el-fill-color-light: var(--fe-active-bg, #f0f0f1);
+    }
 
+    .el-select__popper.el-popper {
         .el-select-dropdown__item.is-selected {
             color: var(--el-text-color-regular);
             background-color: var(--fe-active-bg, #f0f0f1);
         }
+    }
+
+    // The picker borders itself and its arrow with its own variable, not --el-border-color-light.
+    .el-picker__popper.el-popper {
+        --el-datepicker-border-color: var(--fe-primary-border, #eaecf0);
+        --el-datepicker-inrange-bg-color: var(--fe-active-bg, #f0f0f1);
+        --el-datepicker-inrange-hover-bg-color: var(--fe-active-bg, #f0f0f1);
     }
 
     .el-color-picker__panel {
