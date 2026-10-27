@@ -9,6 +9,7 @@ use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
+use FluentEvent\Facade\DB;
 use FluentEvent\Framework\Http\Request\Request;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
@@ -121,24 +122,41 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('This email is already registered for this event.', 'fluent-event')], 422);
         }
 
+        $isNew = !$guest;
         $previousStatus = $guest ? $guest->status : null;
+        $capacity = (int) Arr::get((array) $event->meta, 'capacity');
+        $takesSeat = $status === 'going' && !in_array($previousStatus, Event::SEAT_STATUSES, true);
 
-        if (!$guest) {
-            $guest = Guest::create([
-                'event_id'    => $event->id,
-                'calendar_id' => $event->calendar_id,
-                'group_id'    => wp_generate_password(32, false, false),
-                'is_buyer'    => 1,
-                'name'        => $user->display_name,
-                'email'       => $user->user_email,
-                'user_id'     => $user->ID,
-                'status'      => $status,
-                'source'      => 'community',
-                'source_id'   => (int) $feed->id,
-            ]);
+        $guest = DB::transaction(function () use ($event, $feed, $user, $guest, $status, $capacity, $takesSeat) {
+            if ($capacity && $takesSeat) {
+                // Holds every other RSVP to this event until commit, so two members cannot both take the last seat.
+                Event::query()->where('id', $event->id)->lockForUpdate()->first();
 
-            do_action('fluent_event/guest/created', $guest);
-        } else {
+                $taken = Guest::query()
+                    ->where('event_id', $event->id)
+                    ->whereIn('status', Event::SEAT_STATUSES)
+                    ->count();
+
+                if ($taken >= $capacity) {
+                    return null;
+                }
+            }
+
+            if (!$guest) {
+                return Guest::create([
+                    'event_id'    => $event->id,
+                    'calendar_id' => $event->calendar_id,
+                    'group_id'    => wp_generate_password(32, false, false),
+                    'is_buyer'    => 1,
+                    'name'        => $user->display_name,
+                    'email'       => $user->user_email,
+                    'user_id'     => $user->ID,
+                    'status'      => $status,
+                    'source'      => 'community',
+                    'source_id'   => (int) $feed->id,
+                ]);
+            }
+
             // Going again keeps a checked-in guest checked in.
             if ($status === 'not_going' || !in_array($guest->status, Event::SEAT_STATUSES, true)) {
                 $guest->status = $status;
@@ -147,6 +165,16 @@ class CommunityEventController extends Controller
             $guest->user_id = $user->ID;
             $guest->save();
 
+            return $guest;
+        });
+
+        if (!$guest) {
+            return $this->sendError(['message' => __('This event is full.', 'fluent-event')], 422);
+        }
+
+        if ($isNew) {
+            do_action('fluent_event/guest/created', $guest);
+        } else {
             do_action('fluent_event/guest/updated', $guest, $previousStatus);
         }
 

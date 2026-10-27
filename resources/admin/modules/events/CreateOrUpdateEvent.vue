@@ -323,18 +323,36 @@
                                 </el-radio-group>
                             </el-form-item>
 
-                            <div v-if="event.entry_type === 'rsvp'" class="fe-form__switch-row" data-field="show_guest_count">
-                                <label class="fe-form__switch-text" for="fe-event-show-guest-count">
-                                    {{ $t('Show how many guests are going') }}
-                                </label>
+                            <template v-if="event.entry_type === 'rsvp'">
+                                <div class="fe-form__switch-row" data-field="show_guest_count">
+                                    <label class="fe-form__switch-text" for="fe-event-show-guest-count">
+                                        {{ $t('Show how many guests are going') }}
+                                    </label>
 
-                                <el-switch
-                                    id="fe-event-show-guest-count"
-                                    v-model="event.show_guest_count"
-                                    active-value="yes"
-                                    inactive-value="no"
-                                />
-                            </div>
+                                    <el-switch
+                                        id="fe-event-show-guest-count"
+                                        v-model="event.show_guest_count"
+                                        active-value="yes"
+                                        inactive-value="no"
+                                    />
+                                </div>
+
+                                <el-form-item :label="$t('Capacity')" for="fe-event-capacity" data-field="capacity">
+                                    <el-input-number
+                                        id="fe-event-capacity"
+                                        v-model="event.capacity"
+                                        class="fe-event-form__capacity"
+                                        align="left"
+                                        :min="1"
+                                        step-strictly
+                                        :controls="false"
+                                        :placeholder="$t('Unlimited')"
+                                    />
+                                    <span class="fe-form__hint">
+                                        {{ $t('How many members can say they are going. Leave empty for no limit.') }}
+                                    </span>
+                                </el-form-item>
+                            </template>
                         </div>
                     </section>
 
@@ -495,7 +513,8 @@
                     address: meta.address || '',
                     cover_url: meta.cover_url || '',
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
-                    show_guest_count: meta.show_guest_count || 'yes',
+                    show_guest_count: event ? (meta.show_guest_count || 'yes') : 'no',
+                    capacity: meta.capacity || null,
                 };
             },
             loadForm() {
@@ -593,6 +612,7 @@
                         address: this.event.address,
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
+                        capacity: this.event.capacity || 0,
                     },
                     loadingState: 'saving',
                     errorState: null,

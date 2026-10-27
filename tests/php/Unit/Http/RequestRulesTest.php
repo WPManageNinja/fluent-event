@@ -92,6 +92,13 @@ class RequestRulesTest extends TestCase
         $this->assertSame('rsvp', $formatted['meta']['entry_type']);
     }
 
+    public function test_a_capacity_is_a_whole_number_and_none_means_unlimited()
+    {
+        $this->assertSame('nullable|integer|min:0', EventRequest::RULES['capacity']);
+        $this->assertSame(25, EventRequest::sanitize(['capacity' => '25'])['capacity']);
+        $this->assertSame(0, EventRequest::format($this->eventInput())['meta']['capacity']);
+    }
+
     public function test_an_offline_event_never_keeps_a_meeting_link()
     {
         $meta = EventRequest::format($this->eventInput(['venue_type' => 'offline']))['meta'];

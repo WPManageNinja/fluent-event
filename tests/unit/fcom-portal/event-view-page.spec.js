@@ -136,6 +136,58 @@ describe('EventViewPage', () => {
         });
     });
 
+    describe('capacity', () => {
+        const capped = (going, capacity = 10) => meetup({ guest_count: going, capacity, is_full: going >= capacity });
+
+        it('meters the seats taken and counts the ones left', async () => {
+            const { wrapper } = await page(capped(7));
+
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('7 out of 10 going3 spots left');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 70%');
+            expect(wrapper.find('.fe-event-view__count').exists()).toBe(false);
+        });
+
+        it('says one spot in the singular', async () => {
+            const { wrapper } = await page(capped(9));
+
+            expect(wrapper.find('.fe-capacity__status').text()).toBe('1 spot left');
+        });
+
+        it('tells a member without a seat the event is full in place of the RSVP, under a full meter', async () => {
+            const { wrapper } = await page(capped(10));
+
+            expect(wrapper.find('.fe-event-view__full-title').text()).toBe('Event full');
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('10 out of 10 going');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.find('.fe-event-view__count').exists()).toBe(false);
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it('says the event is full even when the host hides the count, with no meter', async () => {
+            const { wrapper } = await page(meetup({ guest_count: null, capacity: 10, is_full: true }));
+
+            expect(wrapper.find('.fe-event-view__full').exists()).toBe(true);
+            expect(wrapper.find('.fe-capacity').exists()).toBe(false);
+        });
+
+        it('keeps the full meter and the RSVP for a guest who holds a seat', async () => {
+            const { wrapper } = await page({ ...capped(10), my_status: 'going' });
+
+            expect(wrapper.find('.fe-event-view__full').exists()).toBe(false);
+            expect(wrapper.find('.fe-capacity__status').text()).toBe('Event full');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        it('shows no meter when the host hides the count or set no capacity', async () => {
+            expect((await page(meetup({ guest_count: null, capacity: 10 }))).wrapper.find('.fe-capacity').exists()).toBe(false);
+
+            const uncapped = (await page(meetup({ guest_count: 4, capacity: null }))).wrapper;
+            expect(uncapped.find('.fe-capacity').exists()).toBe(false);
+            expect(uncapped.find('.fe-event-view__count').text()).toBe('4 going');
+        });
+    });
+
     describe('getting there', () => {
         it('offers a join button only for an http(s) meeting link', async () => {
             const online = (url) => meetup({ venue_type: 'online', online_meeting_url: url });

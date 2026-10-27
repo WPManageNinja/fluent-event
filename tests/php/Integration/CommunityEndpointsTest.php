@@ -14,7 +14,7 @@ use FluentEvent\Tests\IntegrationTestCase;
 
 /**
  * The endpoints the FluentCommunity portal calls: the events list and member RSVP
- * (logged-in members, going / not going, no seat limit; an open event takes none),
+ * (logged-in members, going / not going up to the event's capacity; an open event takes none),
  * who may reach them, and what event data they return.
  */
 class CommunityEndpointsTest extends IntegrationTestCase
@@ -172,6 +172,50 @@ class CommunityEndpointsTest extends IntegrationTestCase
         ]);
 
         $this->assertSame(422, $this->rsvp($event, 'going')['status']);
+    }
+
+    public function test_the_last_seat_goes_to_the_member_who_takes_it()
+    {
+        [$event] = $this->communityEvent([], ['capacity' => 2]);
+        $this->createGuest($event);
+
+        $response = $this->rsvp($event, 'going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertTrue($response['data']['event']['is_full']);
+    }
+
+    // A capacity lowered below the going count keeps everyone already going and only blocks new seats.
+    public function test_a_full_event_refuses_a_new_going_and_keeps_everyone_already_going()
+    {
+        [$event] = $this->communityEvent([], ['capacity' => 1]);
+        $this->createGuest($event);
+        $this->createGuest($event);
+
+        $this->assertSame(422, $this->rsvp($event, 'going')['status']);
+
+        $guests = $this->guestsOf($event);
+        $this->assertCount(2, $guests);
+        $this->assertSame(['going', 'going'], $guests->pluck('status')->all());
+    }
+
+    public function test_a_member_who_said_not_going_cannot_take_a_seat_once_the_event_is_full()
+    {
+        [$event] = $this->communityEvent([], ['capacity' => 1]);
+        $this->rsvp($event, 'not_going');
+        $this->createGuest($event);
+
+        $this->assertSame(422, $this->rsvp($event, 'going')['status']);
+        $this->assertSame('not_going', Guest::query()->where('event_id', $event->id)->where('user_id', $this->member)->value('status'));
+    }
+
+    public function test_a_guest_already_going_keeps_their_seat_on_a_full_event()
+    {
+        [$event] = $this->communityEvent([], ['capacity' => 1]);
+        $this->rsvp($event, 'going');
+
+        $this->assertSame(200, $this->rsvp($event, 'going')['status']);
+        $this->assertSame(200, $this->rsvp($event, 'not_going')['status']);
     }
 
     public function test_a_status_other_than_going_or_not_going_is_refused()

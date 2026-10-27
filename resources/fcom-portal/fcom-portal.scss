@@ -209,6 +209,21 @@
         background: var(--fcom-active-bg, #f0f3f5);
         color: var(--fcom-secondary-text, #525866);
     }
+
+    // A state, not a refusal: plain text where the RSVP would be.
+    &__full {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__full-icon {
+        display: inline-flex;
+        font-size: 16px;
+    }
 }
 
 // The RSVP dropdown: its popover wears fcom's classes, this places it and draws the trigger.
@@ -231,7 +246,7 @@
         color: var(--fcom-primary-text, #19283a);
         cursor: pointer;
 
-        &:hover {
+        &:hover:not(:disabled) {
             background: var(--fcom-active-bg, #f0f3f5);
         }
 
@@ -308,6 +323,41 @@
             outline: 2px solid var(--fcom-primary-button, #2b2e33);
             outline-offset: 2px;
         }
+    }
+}
+
+// The event page's seat meter for a capped event.
+.fe-capacity {
+    display: grid;
+    gap: 6px;
+
+    &__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__status {
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__track {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__fill {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--fcom-primary-button, #2b2e33);
     }
 }
 
@@ -1421,6 +1471,11 @@
         cursor: pointer;
     }
 
+    &__capacity.el-input-number {
+        width: 220px;
+        max-width: 100%;
+    }
+
 
     // Read by WpEditor for the TinyMCE iframe; the same colors as fcom's other inputs.
     .fe-editor {
@@ -2027,6 +2082,47 @@ body {
         flex: none;
         margin-top: 2px;
         font-size: 18px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    // Takes the RSVP's place once a capped event has no seat left for this member.
+    // Outlined, not filled, so it never reads as the venue panel below it.
+    &__full {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+    }
+
+    &__full-icon {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        font-size: 18px;
+        color: var(--fcom-secondary-text, #525866);
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__full-text {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+        line-height: 1.45;
+    }
+
+    &__full-title {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    &__full-desc {
+        font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
     }
 

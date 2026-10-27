@@ -242,18 +242,34 @@
                         </el-radio>
                     </el-radio-group>
 
-                    <div v-if="event.entry_type === 'rsvp'" class="fe-create-event__switch-row">
-                        <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
-                            {{ $t('Show how many guests are going') }}
-                        </label>
+                    <template v-if="event.entry_type === 'rsvp'">
+                        <div class="fe-create-event__switch-row">
+                            <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
+                                {{ $t('Show how many guests are going') }}
+                            </label>
 
-                        <el-switch
-                            id="fe-create-event-show-guest-count"
-                            v-model="event.show_guest_count"
-                            active-value="yes"
-                            inactive-value="no"
-                        />
-                    </div>
+                            <el-switch
+                                id="fe-create-event-show-guest-count"
+                                v-model="event.show_guest_count"
+                                active-value="yes"
+                                inactive-value="no"
+                            />
+                        </div>
+
+                        <el-form-item :label="$t('Capacity')" label-position="top" for="fe-create-event-capacity">
+                            <el-input-number
+                                id="fe-create-event-capacity"
+                                v-model="event.capacity"
+                                class="fe-create-event__capacity"
+                                align="left"
+                                :min="1"
+                                step-strictly
+                                :controls="false"
+                                :placeholder="$t('Unlimited')"
+                            />
+                            <span class="fe-create-event__hint">{{ $t('How many members can say they are going. Leave empty for no limit.') }}</span>
+                        </el-form-item>
+                    </template>
                 </div>
             </section>
         </div>
@@ -321,7 +337,8 @@ export default {
                 online_meeting_url: '',
                 cover_url: '',
                 entry_type: 'rsvp',
-                show_guest_count: 'yes',
+                show_guest_count: 'no',
+                capacity: null,
             },
             uploading: false,
             imageUploading: false,
@@ -347,6 +364,7 @@ export default {
                 cover_url: event.cover_url,
                 entry_type: event.entry_type,
                 show_guest_count: event.show_guest_count,
+                capacity: event.capacity || 0,
             };
         },
         bounds() {
