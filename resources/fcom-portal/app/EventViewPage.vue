@@ -17,26 +17,35 @@
             <img v-if="event.cover_url" class="fe-event-view__cover" :src="event.cover_url" alt=""/>
 
             <div class="fe-event-view__grid">
-                <div class="fe-event-view__intro">
-                    <h1 class="fe-event-view__title">{{ event.title }}</h1>
+                <div class="fe-event-view__main">
+                    <div class="fe-event-view__intro">
+                        <h1 class="fe-event-view__title">{{ event.title }}</h1>
 
-                    <ul class="fe-event-view__meta">
-                        <li class="fe-event-view__meta-item">
-                            <el-icon aria-hidden="true"><Calendar/></el-icon>
-                            <span>{{ siteDateLabel }}</span>
-                        </li>
-                        <li class="fe-event-view__meta-item">
-                            <el-icon aria-hidden="true"><Clock/></el-icon>
-                            <span>{{ siteTimeLabel }}</span>
-                        </li>
-                        <li class="fe-event-view__meta-item">
-                            <el-icon aria-hidden="true">
-                                <VideoCamera v-if="isOnline"/>
-                                <MapLocation v-else/>
-                            </el-icon>
-                            <span>{{ isOnline ? $t('Online') : (event.venue || $t('In person')) }}</span>
-                        </li>
-                    </ul>
+                        <ul class="fe-event-view__meta">
+                            <li class="fe-event-view__meta-item">
+                                <el-icon aria-hidden="true"><Calendar/></el-icon>
+                                <span>{{ siteDateLabel }}</span>
+                            </li>
+                            <li class="fe-event-view__meta-item">
+                                <el-icon aria-hidden="true"><Clock/></el-icon>
+                                <span>{{ siteTimeLabel }}</span>
+                            </li>
+                            <li class="fe-event-view__meta-item">
+                                <el-icon aria-hidden="true">
+                                    <VideoCamera v-if="isOnline"/>
+                                    <MapLocation v-else/>
+                                </el-icon>
+                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In person')) }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="fe-event-view__body">
+                        <section v-if="event.description" class="fe-event-view__card">
+                            <h2 class="fe-event-view__section-title">{{ $t('About This Event') }}</h2>
+                            <div class="fe-event-view__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
+                        </section>
+                    </div>
                 </div>
 
                 <aside class="fe-event-view__card fe-event-view__side" :aria-label="$t('Registration')">
@@ -132,13 +141,6 @@
                         </div>
                     </div>
                 </aside>
-
-                <div class="fe-event-view__body">
-                    <section v-if="event.description" class="fe-event-view__card">
-                        <h2 class="fe-event-view__section-title">{{ $t('About This Event') }}</h2>
-                        <div class="fe-event-view__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
-                    </section>
-                </div>
             </div>
         </template>
     </div>

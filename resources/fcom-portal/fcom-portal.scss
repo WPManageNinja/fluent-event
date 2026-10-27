@@ -1821,9 +1821,7 @@ body {
     &__grid {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 320px;
-        grid-template-areas:
-            "intro side"
-            "body side";
+        grid-template-areas: "main side";
         gap: 20px 28px;
         align-items: start;
 
@@ -1839,6 +1837,19 @@ body {
     // On the grid, not the cover: fcom's `.fhr_wrap img { margin: 0 }` outranks a margin on the image.
     &__cover + &__grid {
         margin-top: 20px;
+    }
+
+    // Its own column, so a card taller than the title and description can't open a gap between them.
+    &__main {
+        grid-area: main;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        // Hands its children to the grid, which puts the card between them.
+        @media (max-width: 900px) {
+            display: contents;
+        }
     }
 
     &__intro {
