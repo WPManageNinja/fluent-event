@@ -210,19 +210,32 @@
         color: var(--fcom-secondary-text, #525866);
     }
 
-    // A state, not a refusal: plain text where the RSVP would be.
-    &__full {
+    // A state, not a refusal: plain text where the RSVP would be (Event full, Waitlisted, Cancelled).
+    &__state {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         font-size: 14px;
         font-weight: 500;
         color: var(--fcom-secondary-text, #525866);
+
+        &.fe-event-actions__state--cancelled {
+            color: var(--fcom-danger, #d63638);
+        }
+
+        &.fe-event-actions__state--waitlisted {
+            color: color-mix(in srgb, var(--el-color-warning, #e6a23c) 75%, var(--fcom-primary-text, #19283a));
+        }
     }
 
-    &__full-icon {
+    &__state-icon {
         display: inline-flex;
         font-size: 16px;
+
+        svg {
+            width: 1em;
+            height: 1em;
+        }
     }
 }
 
@@ -1934,6 +1947,13 @@ body {
         .fe-rsvp__trigger {
             width: 100%;
         }
+
+        // Same size as the RSVP trigger it stands in for; outranks `.fe-event-actions .el-button.el-button`.
+        .fe-event-actions .fe-event-actions__join.el-button {
+            width: 100%;
+            height: 34px;
+            margin: 0;
+        }
     }
 
     &__when {
@@ -2085,18 +2105,49 @@ body {
         color: var(--fcom-secondary-text, #525866);
     }
 
-    // Takes the RSVP's place once a capped event has no seat left for this member.
+    // Event full, waitlisted or cancelled: takes the RSVP's place.
     // Outlined, not filled, so it never reads as the venue panel below it.
-    &__full {
+    &__notice {
         display: flex;
         align-items: center;
         gap: 12px;
         padding: 12px;
         border: 1px solid var(--fcom-primary-border, #e3e8ee);
         border-radius: 8px;
+
+        // Unlike full or waitlisted, a cancelled registration is bad news for this member.
+        &.fe-event-view__notice--cancelled {
+            border-color: var(--fcom-danger, #d63638);
+            border-color: color-mix(in srgb, var(--fcom-danger, #d63638) 45%, transparent);
+
+            .fe-event-view__notice-icon {
+                color: var(--fcom-danger, #d63638);
+                background: color-mix(in srgb, var(--fcom-danger, #d63638) 14%, transparent);
+            }
+
+            .fe-event-view__notice-title {
+                color: var(--fcom-danger, #d63638);
+            }
+        }
+
+        // Pending, not refused: amber reads as "still in line".
+        &.fe-event-view__notice--waiting {
+            border-color: var(--el-color-warning, #e6a23c);
+            border-color: color-mix(in srgb, var(--el-color-warning, #e6a23c) 50%, transparent);
+
+            .fe-event-view__notice-icon {
+                color: var(--el-color-warning, #e6a23c);
+                background: color-mix(in srgb, var(--el-color-warning, #e6a23c) 16%, transparent);
+            }
+
+            // Mixed toward the text colour so the amber holds contrast in light mode too.
+            .fe-event-view__notice-title {
+                color: color-mix(in srgb, var(--el-color-warning, #e6a23c) 75%, var(--fcom-primary-text, #19283a));
+            }
+        }
     }
 
-    &__full-icon {
+    &__notice-icon {
         display: inline-flex;
         flex: none;
         align-items: center;
@@ -2109,19 +2160,19 @@ body {
         background: var(--fcom-active-bg, #f0f3f5);
     }
 
-    &__full-text {
+    &__notice-text {
         display: grid;
         gap: 2px;
         min-width: 0;
         line-height: 1.45;
     }
 
-    &__full-title {
+    &__notice-title {
         font-size: 15px;
         font-weight: 600;
     }
 
-    &__full-desc {
+    &__notice-desc {
         font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
     }

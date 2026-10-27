@@ -99,6 +99,12 @@ class RequestRulesTest extends TestCase
         $this->assertSame(0, EventRequest::format($this->eventInput())['meta']['capacity']);
     }
 
+    public function test_a_waitlist_is_yes_or_no_and_off_by_default()
+    {
+        $this->assertSame('nullable|string|in:yes,no', EventRequest::RULES['waitlist']);
+        $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['waitlist']);
+    }
+
     public function test_an_offline_event_never_keeps_a_meeting_link()
     {
         $meta = EventRequest::format($this->eventInput(['venue_type' => 'offline']))['meta'];

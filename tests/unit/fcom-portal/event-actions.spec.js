@@ -37,7 +37,7 @@ describe('EventActions', () => {
     it('says Event full in place of the RSVP for a member without a seat', () => {
         wrapper = actions(rsvp({ is_full: true, my_status: 'not_going' }));
 
-        expect(wrapper.find('.fe-event-actions__full').text()).toBe('Event full');
+        expect(wrapper.find('.fe-event-actions__state').text()).toBe('Event full');
         expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
     });
 
@@ -46,6 +46,28 @@ describe('EventActions', () => {
 
         expect(wrapper.find('.fe-rsvp__label').text()).toBe('Going');
         expect(wrapper.find('.fe-rsvp__trigger').attributes('disabled')).toBeUndefined();
+    });
+
+    it('offers a full event with a waitlist as one Join waitlist button', async () => {
+        wrapper = actions(rsvp({ is_full: true, waitlist: true, my_status: 'not_going' }));
+
+        expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
+
+        await wrapper.find('.fe-event-actions__join').trigger('click');
+        await flushPromises();
+
+        expect(fetch.mock.calls[0][1].body).toBe('{"status":"going"}');
+    });
+
+    it.each([
+        ['waitlisted', 'Waitlisted'],
+        ['cancelled', 'Cancelled'],
+    ])('shows a %s member their status as text, with no RSVP to change it', (status, label) => {
+        wrapper = actions(rsvp({ is_full: false, waitlist: true, my_status: status }));
+
+        expect(wrapper.find('.fe-event-actions__state').text()).toBe(label);
+        expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
+        expect(wrapper.find('.fe-event-actions__join').exists()).toBe(false);
     });
 
     it("sends a logged-out visitor to fcom's login page", () => {

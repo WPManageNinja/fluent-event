@@ -1,5 +1,5 @@
 import { t, portalVars, eventsApi, errorMessage, isSeated } from './utils';
-import { CHECK, CHEVRON, CROSS, TICKET } from './icons';
+import { CHECK, CHEVRON, CLOCK, CROSS, TICKET } from './icons';
 
 /*
  * The RSVP dropdown; an open event is view-only and has none.
@@ -31,7 +31,14 @@ export default {
                 return 'going';
             }
 
-            return this.event.my_status === 'not_going' ? 'not_going' : '';
+            return ['not_going', 'waitlisted', 'cancelled'].includes(this.event.my_status) ? this.event.my_status : '';
+        },
+        // The member answers only going / not going; any other status is the host's or the waitlist's to change.
+        stateLabel() {
+            return { waitlisted: t('Waitlisted'), cancelled: t('Cancelled') }[this.status] || '';
+        },
+        isFullForMe() {
+            return !!this.event.is_full && this.status !== 'going';
         },
     },
     beforeUnmount() {
@@ -86,12 +93,27 @@ export default {
         <div class="fe-event-actions">
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
 
-            <span v-else-if="event.is_full && status !== 'going'" class="fe-event-actions__full">
-                <span class="fe-event-actions__full-icon" aria-hidden="true">${TICKET}</span>
+            <span v-else-if="stateLabel" class="fe-event-actions__state" :class="'fe-event-actions__state--' + status">
+                <span v-if="status === 'waitlisted'" class="fe-event-actions__state-icon" aria-hidden="true">${CLOCK}</span>
+                <span v-else class="fe-event-actions__state-icon" aria-hidden="true">${CROSS}</span>
+                {{ stateLabel }}
+            </span>
+
+            <span v-else-if="isFullForMe && !event.waitlist" class="fe-event-actions__state">
+                <span class="fe-event-actions__state-icon" aria-hidden="true">${TICKET}</span>
                 {{ t('Event full') }}
             </span>
 
             <a v-else-if="!isLoggedIn" class="el-button fcom_primary_button" :href="loginUrl">{{ t('Log in to RSVP') }}</a>
+
+            <!-- The server files it as waitlisted while the event is full. -->
+            <button
+                v-else-if="isFullForMe"
+                type="button"
+                class="el-button fcom_primary_button fe-event-actions__join"
+                :disabled="busy"
+                @click="choose('going')"
+            >{{ t('Join waitlist') }}</button>
 
             <div v-else class="fe-rsvp">
                 <button

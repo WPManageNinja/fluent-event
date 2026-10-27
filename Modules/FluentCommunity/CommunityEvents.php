@@ -220,6 +220,7 @@ class CommunityEvents
             'guest_count'        => $isRsvp && $meta['show_guest_count'] === 'yes' ? $seats : null,
             'capacity'           => $capacity ?: null,
             'is_full'            => $capacity > 0 && $seats >= $capacity,
+            'waitlist'           => $capacity > 0 && $meta['waitlist'] === 'yes',
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
             'registration_open'  => $isRsvp && !$isPast,

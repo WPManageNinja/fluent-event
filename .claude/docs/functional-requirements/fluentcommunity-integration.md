@@ -65,7 +65,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   to add-ons). The card is a string template on fcom's own Vue.
 - REST, `fluent-event/v2/community/*`:
   - `GET events` — the events list, filtered to visible posts in SQL.
-  - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute.
+  - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute. A
+    `going` to a full event lands as `waitlisted` when its waitlist is on, else 422.
   - `GET editor-assets` — the WordPress editor markup for the create-event page; `write_events` only.
 
 ## fcom extension points (event-agnostic)
@@ -99,6 +100,16 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   Luma's sold-out state; with the count shown it sits under the full meter), and the feed card and events list show **Event full** as plain
   text with a ticket icon. Neutral colours: full is a state, not an error. The register endpoint refuses a
   new "going" (422). Guests already going keep their seat and can still say not going.
+- **Waitlist:** a per-event switch (`meta.waitlist`, off by default, only with a capacity). When on,
+  a full event offers a single **Join waitlist** button (no dropdown); the RSVP lands as
+  `waitlisted`, which holds no seat, sees no meeting link and gets no reminders. Admins filter by
+  Waitlisted and use **Move to Going**. Until auto-promote lands, a freed seat goes to whoever
+  says going first.
+- **Member-owned vs host-owned status:** the RSVP dropdown is only for `going` / `not_going`
+  (`checked_in` shows as Going). `waitlisted` and `cancelled` are the host's to change: the event
+  page shows a notice ("You are on the waitlist"; "Your registration has been cancelled" in a
+  danger tone), cards and lists show plain "Waitlisted" / "Cancelled" text, and the register
+  endpoint refuses the member's own change with 422.
 - **Meeting link:** an online `rsvp` event shows it to its registered guests (`going` or
   `checked_in`) and to staff (any `read_`/`write_` events or guests key); an online `open` event
   shows it to everyone who can see the post.

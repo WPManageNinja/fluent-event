@@ -269,6 +269,19 @@
                             />
                             <span class="fe-create-event__hint">{{ $t('How many members can say they are going. Leave empty for no limit.') }}</span>
                         </el-form-item>
+
+                        <div v-if="event.capacity" class="fe-create-event__switch-row">
+                            <label class="fe-create-event__switch-text" for="fe-create-event-waitlist">
+                                {{ $t('Let members join a waitlist when the event is full') }}
+                            </label>
+
+                            <el-switch
+                                id="fe-create-event-waitlist"
+                                v-model="event.waitlist"
+                                active-value="yes"
+                                inactive-value="no"
+                            />
+                        </div>
                     </template>
                 </div>
             </section>
@@ -339,6 +352,7 @@ export default {
                 entry_type: 'rsvp',
                 show_guest_count: 'no',
                 capacity: null,
+                waitlist: 'no',
             },
             uploading: false,
             imageUploading: false,
@@ -365,6 +379,7 @@ export default {
                 entry_type: event.entry_type,
                 show_guest_count: event.show_guest_count,
                 capacity: event.capacity || 0,
+                waitlist: event.waitlist,
             };
         },
         bounds() {

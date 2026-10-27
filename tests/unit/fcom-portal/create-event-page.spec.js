@@ -66,7 +66,8 @@ describe('CreateEventPage', () => {
             venue_type: 'offline',
             entry_type: 'rsvp',
             show_guest_count: 'no',
-            capacity: 0
+            capacity: 0,
+            waitlist: 'no'
         }));
     });
 

@@ -126,6 +126,7 @@ class ReminderEmailTest extends IntegrationTestCase
         $checkedIn = $this->createGuest($event, ['status' => 'checked_in']);
         $this->createGuest($event, ['status' => 'not_going']);
         $this->createGuest($event, ['status' => 'cancelled']);
+        $this->createGuest($event, ['status' => 'waitlisted']);
 
         EventReminderService::scheduleReminders($event);
         EventReminderService::sendReminders($event->id, self::DAY);

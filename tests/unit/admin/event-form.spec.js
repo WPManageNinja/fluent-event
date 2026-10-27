@@ -63,7 +63,7 @@ describe('CreateOrUpdateEvent', () => {
             window.fluentEventAdmin.timezone = 'Asia/Dhaka';
             const { vm } = form();
 
-            expect(vm.event).toMatchObject({ status: 'public', entry_type: 'rsvp', show_guest_count: 'no', capacity: null, timezone: 'Asia/Dhaka' });
+            expect(vm.event).toMatchObject({ status: 'public', entry_type: 'rsvp', show_guest_count: 'no', capacity: null, waitlist: 'no', timezone: 'Asia/Dhaka' });
         });
 
         it("uses the browser's timezone when the site's is not a real zone", () => {
@@ -103,7 +103,7 @@ describe('CreateOrUpdateEvent', () => {
                     end_at_local: '2026-11-02 21:00:00',
                     timezone: 'Europe/Berlin',
                     venue_type: 'online',
-                    meta: { online_meeting_url: 'https://meet.example.test/x', entry_type: 'open', show_guest_count: 'no', capacity: 40 }
+                    meta: { online_meeting_url: 'https://meet.example.test/x', entry_type: 'open', show_guest_count: 'no', capacity: 40, waitlist: 'yes' }
                 }
             });
 
@@ -117,7 +117,8 @@ describe('CreateOrUpdateEvent', () => {
                 online_meeting_url: 'https://meet.example.test/x',
                 entry_type: 'open',
                 show_guest_count: 'no',
-                capacity: 40
+                capacity: 40,
+                waitlist: 'yes'
             });
         });
 

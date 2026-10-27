@@ -25,6 +25,7 @@ class EventRequest extends BaseRequest
         'entry_type',
         'show_guest_count',
         'capacity',
+        'waitlist',
     ];
     const SANITIZERS = [
         'calendar_id'        => 'intval',
@@ -42,6 +43,7 @@ class EventRequest extends BaseRequest
         'entry_type'         => 'sanitize_text_field',
         'show_guest_count'   => 'sanitize_text_field',
         'capacity'           => 'intval',
+        'waitlist'           => 'sanitize_text_field',
     ];
     const RULES = [
         'calendar_id'        => 'required|exists:fe_calendars,id',
@@ -59,6 +61,7 @@ class EventRequest extends BaseRequest
         'entry_type'         => 'required|string|in:' . Event::ENTRY_TYPES,
         'show_guest_count'   => 'nullable|string|in:yes,no',
         'capacity'           => 'nullable|integer|min:0',
+        'waitlist'           => 'nullable|string|in:yes,no',
     ];
 
     public static function rules($data)
@@ -116,6 +119,7 @@ class EventRequest extends BaseRequest
             'show_guest_count.in'         => __('Show guest count must be yes or no.', 'fluent-event'),
             'capacity.integer'            => __('Capacity must be a whole number.', 'fluent-event'),
             'capacity.min'                => __('Capacity cannot be negative.', 'fluent-event'),
+            'waitlist.in'                 => __('Waitlist must be yes or no.', 'fluent-event'),
         ];
     }
 

@@ -101,6 +101,20 @@ class CommunityEventFormatTest extends TestCase
         $this->assertNull($formatted['capacity']);
     }
 
+    public function test_a_waitlist_only_counts_on_a_capped_event()
+    {
+        $this->assertTrue($this->format($this->event([], ['capacity' => 2, 'waitlist' => 'yes']))['waitlist']);
+        $this->assertFalse($this->format($this->event([], ['waitlist' => 'yes']))['waitlist']);
+        $this->assertFalse($this->format($this->event([], ['capacity' => 2, 'waitlist' => 'no']))['waitlist']);
+    }
+
+    public function test_a_waitlisted_member_does_not_see_an_rsvp_link()
+    {
+        $event = $this->event([], ['capacity' => 2, 'waitlist' => 'yes']);
+
+        $this->assertSame('', $this->format($event, 2, 'waitlisted')['online_meeting_url']);
+    }
+
     public function test_an_open_event_shows_its_link_to_every_viewer()
     {
         $formatted = $this->format($this->event([], ['entry_type' => 'open']));
