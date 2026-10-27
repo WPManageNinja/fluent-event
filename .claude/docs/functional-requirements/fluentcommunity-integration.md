@@ -83,14 +83,20 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   `private` (no public page). Admins may change the status later.
 - **Statuses:** events and calendars are `public | private | draft`. fcom-created events start
   `public`. The portal shows `public` and `private` events; `draft` events are never returned.
-- **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit) and `open`
+- **Entry types:** `rsvp` (logged-in members, going / not going, up to the event's capacity) and `open`
   (view-only: members can't register; admins can still add guests, who get the usual emails).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
   the `from`/`to` filter means site days. The event page shows the event's own clock with its
   offset, plus the site's clock when that reads differently.
 - **Guest count:** shown only for `rsvp` events whose **Show guest count** switch is on, and then
   to everyone, staff included. The switch alone decides; nobody gets an override. It counts
-  `going` and `checked_in` guests.
+  `going` and `checked_in` guests, and reads `12 out of 50 going` when the event has a capacity.
+- **Capacity:** with the count shown, the event page meters a capped event (`7 out of 10 going`, a
+  fill bar, `3 spots left`). Once seats reach the capacity, anyone without a seat loses the RSVP:
+  the event page shows an **Event full** notice in place of the RSVP (count shown or not, like
+  Luma's sold-out state; with the count shown it sits under the full meter), and the feed card and events list show **Event full** as plain
+  text with a ticket icon. Neutral colours: full is a state, not an error. The register endpoint refuses a
+  new "going" (422). Guests already going keep their seat and can still say not going.
 - **Meeting link:** an online `rsvp` event shows it to its registered guests (`going` or
   `checked_in`) and to staff (any `read_`/`write_` events or guests key); an online `open` event
   shows it to everyone who can see the post.

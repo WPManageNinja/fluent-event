@@ -24,6 +24,7 @@ class EventRequest extends BaseRequest
         'address',
         'entry_type',
         'show_guest_count',
+        'capacity',
     ];
     const SANITIZERS = [
         'calendar_id'        => 'intval',
@@ -40,6 +41,7 @@ class EventRequest extends BaseRequest
         'address'            => 'sanitize_textarea_field',
         'entry_type'         => 'sanitize_text_field',
         'show_guest_count'   => 'sanitize_text_field',
+        'capacity'           => 'intval',
     ];
     const RULES = [
         'calendar_id'        => 'required|exists:fe_calendars,id',
@@ -56,6 +58,7 @@ class EventRequest extends BaseRequest
         'address'            => 'nullable|string|max:500',
         'entry_type'         => 'required|string|in:' . Event::ENTRY_TYPES,
         'show_guest_count'   => 'nullable|string|in:yes,no',
+        'capacity'           => 'nullable|integer|min:0',
     ];
 
     public static function rules($data)
@@ -111,6 +114,8 @@ class EventRequest extends BaseRequest
             'entry_type.required'         => __('Registration type is required.', 'fluent-event'),
             'entry_type.in'               => __('Registration must be RSVP or open.', 'fluent-event'),
             'show_guest_count.in'         => __('Show guest count must be yes or no.', 'fluent-event'),
+            'capacity.integer'            => __('Capacity must be a whole number.', 'fluent-event'),
+            'capacity.min'                => __('Capacity cannot be negative.', 'fluent-event'),
         ];
     }
 

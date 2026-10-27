@@ -56,9 +56,35 @@
                     <span v-if="phase === 'live'" class="fe-live-badge">{{ $t('Happening now') }}</span>
                     <span v-else class="fe-event-view__status" :class="`fe-event-view__status--${phase}`">{{ statusLabel }}</span>
 
-                    <div v-if="hasActions || countLabel" class="fe-event-view__rsvp">
+                    <div v-if="showMeter" class="fe-capacity">
+                        <div class="fe-capacity__head">
+                            <span>{{ countLabel }}</span>
+                            <span v-if="!isFullForMe" class="fe-capacity__status">{{ capacityStatus }}</span>
+                        </div>
+                        <div
+                            class="fe-capacity__track"
+                            role="progressbar"
+                            aria-valuemin="0"
+                            :aria-valuemax="event.capacity"
+                            :aria-valuenow="event.guest_count"
+                            :aria-valuetext="countLabel"
+                            :aria-label="$t('Capacity')"
+                        >
+                            <span class="fe-capacity__fill" :style="{ width: `${capacityPercent}%` }"></span>
+                        </div>
+                    </div>
+
+                    <div v-if="isFullForMe" class="fe-event-view__full">
+                        <span class="fe-event-view__full-icon" aria-hidden="true"><el-icon><Ticket/></el-icon></span>
+                        <div class="fe-event-view__full-text">
+                            <span class="fe-event-view__full-title">{{ $t('Event full') }}</span>
+                            <span class="fe-event-view__full-desc">{{ $t('This event is full and no longer taking registrations.') }}</span>
+                        </div>
+                    </div>
+
+                    <div v-if="hasActions || (countLabel && !showMeter)" class="fe-event-view__rsvp">
                         <event-actions v-if="hasActions" :event="event" @done="applyResponse" @error="error = $event"></event-actions>
-                        <span v-if="countLabel" class="fe-event-view__count">{{ countLabel }}</span>
+                        <span v-if="countLabel && !showMeter" class="fe-event-view__count">{{ countLabel }}</span>
                     </div>
 
                     <p v-if="error" class="fe-event-view__error" role="alert">{{ error }}</p>
@@ -106,7 +132,7 @@
 </template>
 
 <script>
-import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
+import { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
 import { communityApi, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
 import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
@@ -119,7 +145,7 @@ const utc = (value) => window.dayjs.utc(value);
 // The event on its own page, read through fcom's post endpoint so it is visible exactly when its post is.
 export default {
     name: 'EventViewPage',
-    components: { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera, EventActions, EventMenu },
+    components: { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera, EventActions, EventMenu },
     props: {
         feedSlug: { type: String, required: true },
         router: { type: Object, required: true },
@@ -185,8 +211,27 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
+        isFullForMe() {
+            return this.event.is_full && !isSeated(this.event) && this.phase !== 'ended';
+        },
+        // Only a capped event whose host shows the count, until it ends.
+        showMeter() {
+            return !!this.event.capacity && !!this.countLabel && this.phase !== 'ended';
+        },
+        capacityPercent() {
+            return Math.min(100, Math.round((this.event.guest_count / this.event.capacity) * 100));
+        },
+        capacityStatus() {
+            if (this.event.is_full) {
+                return this.$t('Event full');
+            }
+
+            const left = this.event.capacity - this.event.guest_count;
+
+            return left === 1 ? this.$t('1 spot left') : this.$t('%d spots left', left);
+        },
         hasActions() {
-            return hasEventActions(this.event);
+            return hasEventActions(this.event) && !this.isFullForMe;
         },
         // Once someone is going, or for open events anyone can attend.
         canAddToCalendar() {

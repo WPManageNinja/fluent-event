@@ -31,6 +31,7 @@ const createPage = async (Page = CreateEventPage) => {
             stubs: {
                 ElFormItem: { template: '<div><slot /></div>' },
                 ElInput: { template: '<input />', methods: { focus() {} } },
+                ElInputNumber: { template: '<input />' },
                 WpEditor: { template: '<div></div>', methods: { insertContent } }
             },
             config: { warnHandler }
@@ -64,7 +65,8 @@ describe('CreateEventPage', () => {
             end_at: '2026-10-14 11:00:00',
             venue_type: 'offline',
             entry_type: 'rsvp',
-            show_guest_count: 'yes'
+            show_guest_count: 'no',
+            capacity: 0
         }));
     });
 

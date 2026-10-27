@@ -150,8 +150,13 @@ class PortalHandler
     protected function strings()
     {
         return [
+            /* translators: 1: number of guests going, 2: the event's capacity */
+            '%1$s out of %2$s going' => __('%1$s out of %2$s going', 'fluent-event'),
             /* translators: %d: number of further events on that day */
             '%d more' => __('%d more', 'fluent-event'),
+            /* translators: %d: seats still open on a capped event */
+            '%d spots left' => __('%d spots left', 'fluent-event'),
+            '1 spot left' => __('1 spot left', 'fluent-event'),
             /* translators: %s: number of guests going */
             '%s going' => __('%s going', 'fluent-event'),
             'A venue for in-person events, a link for online ones.' => __('A venue for in-person events, a link for online ones.', 'fluent-event'),
@@ -166,6 +171,7 @@ class PortalHandler
             'Back' => __('Back', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
+            'Capacity' => __('Capacity', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
             'Cover image' => __('Cover image', 'fluent-event'),
@@ -181,6 +187,7 @@ class PortalHandler
             'End date' => __('End date', 'fluent-event'),
             'End time' => __('End time', 'fluent-event'),
             'Ended' => __('Ended', 'fluent-event'),
+            'Event full' => __('Event full', 'fluent-event'),
             'Entry type' => __('Entry type', 'fluent-event'),
             'Error' => __('Error', 'fluent-event'),
             'Event cover image' => __('Event cover image', 'fluent-event'),
@@ -194,6 +201,7 @@ class PortalHandler
             'Google Calendar' => __('Google Calendar', 'fluent-event'),
             'Happening now' => __('Happening now', 'fluent-event'),
             'How guests join and what they see.' => __('How guests join and what they see.', 'fluent-event'),
+            'How many members can say they are going. Leave empty for no limit.' => __('How many members can say they are going. Leave empty for no limit.', 'fluent-event'),
             'In person' => __('In person', 'fluent-event'),
             'Interested?' => __('Interested?', 'fluent-event'),
             'Join online' => __('Join online', 'fluent-event'),
@@ -232,11 +240,13 @@ class PortalHandler
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
             'Switch between month, week and day view' => __('Switch between month, week and day view', 'fluent-event'),
+            'This event is full and no longer taking registrations.' => __('This event is full and no longer taking registrations.', 'fluent-event'),
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
             'Try a different search term.' => __('Try a different search term.', 'fluent-event'),
+            'Unlimited' => __('Unlimited', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
             'Venue name' => __('Venue name', 'fluent-event'),
             'Venue type' => __('Venue type', 'fluent-event'),

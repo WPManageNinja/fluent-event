@@ -1,5 +1,5 @@
 import { t, portalVars, eventsApi, errorMessage, isSeated } from './utils';
-import { CHECK, CHEVRON, CROSS } from './icons';
+import { CHECK, CHEVRON, CROSS, TICKET } from './icons';
 
 /*
  * The RSVP dropdown; an open event is view-only and has none.
@@ -85,6 +85,11 @@ export default {
     template: `
         <div class="fe-event-actions">
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
+
+            <span v-else-if="event.is_full && status !== 'going'" class="fe-event-actions__full">
+                <span class="fe-event-actions__full-icon" aria-hidden="true">${TICKET}</span>
+                {{ t('Event full') }}
+            </span>
 
             <a v-else-if="!isLoggedIn" class="el-button fcom_primary_button" :href="loginUrl">{{ t('Log in to RSVP') }}</a>
 

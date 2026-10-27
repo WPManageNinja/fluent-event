@@ -53,6 +53,18 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $response['data']['guest']['id']]));
     }
 
+    // Capacity limits members' RSVPs only; an admin can always add past it.
+    public function test_an_admin_can_add_a_guest_to_a_full_event()
+    {
+        $full = $this->createEvent([], ['capacity' => 1]);
+        $this->createGuest($full);
+
+        $response = $this->addGuest(['name' => 'Plus one', 'email' => 'plusone@example.test'], $full);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('going', $response['data']['guest']['status']);
+    }
+
     public function test_the_same_email_cannot_join_an_event_twice()
     {
         $this->addGuest(['name' => 'Rafi', 'email' => 'rafi@example.test']);

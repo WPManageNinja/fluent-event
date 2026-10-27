@@ -71,6 +71,36 @@ class CommunityEventFormatTest extends TestCase
         $this->assertSame('https://meet.example.com/launch', $this->format($this->event(), 0, null, true)['online_meeting_url']);
     }
 
+    public function test_a_capped_event_is_full_once_its_seats_are_taken()
+    {
+        $event = $this->event([], ['capacity' => 2]);
+
+        $this->assertFalse($this->format($event, 1)['is_full']);
+        $this->assertTrue($this->format($event, 2)['is_full']);
+        $this->assertSame(2, $this->format($event, 2)['capacity']);
+    }
+
+    public function test_an_event_holding_more_guests_than_a_lowered_capacity_is_full()
+    {
+        $this->assertTrue($this->format($this->event([], ['capacity' => 2]), 5)['is_full']);
+    }
+
+    public function test_an_event_without_a_capacity_is_never_full()
+    {
+        $formatted = $this->format($this->event(), 500);
+
+        $this->assertFalse($formatted['is_full']);
+        $this->assertNull($formatted['capacity']);
+    }
+
+    public function test_an_open_event_ignores_a_stored_capacity()
+    {
+        $formatted = $this->format($this->event([], ['entry_type' => 'open', 'capacity' => 1]), 3);
+
+        $this->assertFalse($formatted['is_full']);
+        $this->assertNull($formatted['capacity']);
+    }
+
     public function test_an_open_event_shows_its_link_to_every_viewer()
     {
         $formatted = $this->format($this->event([], ['entry_type' => 'open']));
