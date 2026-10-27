@@ -40,10 +40,11 @@ Limited-seat RSVP events for community meetups. All logged-in members, no public
 | Feature | Seen in | Notes |
 |---|---|---|
 | Capacity limit | Luma, Meetup | max "going" guests; empty = unlimited (today's behaviour). Shows "12 / 50 going"; button turns to "Full" or "Join waitlist" |
-| Waitlist (seat overflow) | Luma, Eventbrite, Meetup | when full, an RSVP lands as `waitlisted`. When a going guest drops (not going, cancelled, removed) the first in line is promoted automatically and emailed "You're in". Admin can promote by hand. On/off per event |
+| Waitlist (seat overflow) | Luma, Eventbrite, Meetup | when full, an RSVP lands as `waitlisted` and gets a "You are on the waitlist" email (its own on/off in Guest Emails, no meeting link). No auto-promote: the host moves waitlisted guests to going by hand (one at a time or in bulk), optionally emailing the confirmation. On/off per event |
+| Guest bulk actions | Luma, Eventbrite | select guests on the current page (checkbox per row + select all); change their status (optional confirmation / cancellation / waitlist email, queued per guest) or delete them. Export comes later |
 | RSVP deadline | Luma, Meetup | registration closes at a set time (e.g. 2 hours before start); admins can still add guests after it |
 | Registration opens at | Meetup, Eventbrite | RSVP stays closed until a set time ("opens Monday 10:00"); pairs with the deadline |
-| Guests may cancel until X hours before start | — | after the cutoff the "Not going" button is locked for members; admins can still change a guest. A seat freed before the cutoff still promotes the waitlist |
+| Guests may cancel until X hours before start | — | after the cutoff the "Not going" button is locked for members; admins can still change a guest |
 
 Design:
 - **No new entry type.** Capacity, waitlist and deadline are settings on RSVP events
@@ -173,6 +174,8 @@ Design:
 - Sold out + waitlist (v1.1): a waitlisted guest gets a time-limited offer to buy, not an
   automatic seat.
 - Partial refund: the admin chooses which tickets in the order to cancel.
+- Meeting link visibility (`CommunityEvents.php`, `!$isRsvp || …`) shows the link for any
+  non-RSVP entry type — switch it to an allowlist so `ticketed` shows it only to buyers.
 - The spec (FR-6.4) still says Paymattic — update it to FluentCart.
 
 ---
