@@ -59,7 +59,7 @@
                     <div v-if="showMeter" class="fe-capacity">
                         <div class="fe-capacity__head">
                             <span>{{ countLabel }}</span>
-                            <span v-if="!isFullForMe" class="fe-capacity__status">{{ capacityStatus }}</span>
+                            <span v-if="!isFullForMe && phase !== 'ended'" class="fe-capacity__status">{{ capacityStatus }}</span>
                         </div>
                         <div
                             class="fe-capacity__track"
@@ -133,7 +133,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
+import { communityApi, eventPhase, guestCountLabel, isSeated, portalVars, timeFormat } from '../utils';
 import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -212,11 +212,11 @@ export default {
             return guestCountLabel(this.event);
         },
         isFullForMe() {
-            return this.event.is_full && !isSeated(this.event) && this.phase !== 'ended';
+            return this.event.is_full && !isSeated(this.event);
         },
-        // Only a capped event whose host shows the count, until it ends.
+        // Only a capped event whose host shows the count; an ended one keeps it as a record of how full it got.
         showMeter() {
-            return !!this.event.capacity && !!this.countLabel && this.phase !== 'ended';
+            return !!this.event.capacity && !!this.countLabel;
         },
         capacityPercent() {
             return Math.min(100, Math.round((this.event.guest_count / this.event.capacity) * 100));
@@ -230,8 +230,9 @@ export default {
 
             return left === 1 ? this.$t('1 spot left') : this.$t('%d spots left', left);
         },
+        // The status above already says Ended, so an ended event gets no RSVP slot of its own here.
         hasActions() {
-            return hasEventActions(this.event) && !this.isFullForMe;
+            return this.event.entry_type === 'rsvp' && this.phase !== 'ended' && !this.isFullForMe;
         },
         // Once someone is going, or for open events anyone can attend.
         canAddToCalendar() {

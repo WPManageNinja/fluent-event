@@ -179,12 +179,47 @@ describe('EventViewPage', () => {
             expect(wrapper.findComponent(EventActions).exists()).toBe(true);
         });
 
+        const ended = (event) => ({ ...event, start_at: '2026-10-10 12:00:00', end_at: '2026-10-10 14:00:00', is_past: true });
+
+        it('keeps the meter on an ended event, without spots left or a full notice while seats were left', async () => {
+            const { wrapper } = await page(ended(capped(7)));
+
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('7 out of 10 going');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 70%');
+            expect(wrapper.find('.fe-event-view__full').exists()).toBe(false);
+        });
+
+        it('keeps the full notice on an ended event that filled up', async () => {
+            const { wrapper } = await page(ended(capped(10)));
+
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.find('.fe-event-view__full').exists()).toBe(true);
+        });
+
         it('shows no meter when the host hides the count or set no capacity', async () => {
             expect((await page(meetup({ guest_count: null, capacity: 10 }))).wrapper.find('.fe-capacity').exists()).toBe(false);
 
             const uncapped = (await page(meetup({ guest_count: 4, capacity: null }))).wrapper;
             expect(uncapped.find('.fe-capacity').exists()).toBe(false);
             expect(uncapped.find('.fe-event-view__count').text()).toBe('4 going');
+        });
+    });
+
+    describe('ended', () => {
+        const over = { start_at: '2026-10-10 12:00:00', end_at: '2026-10-10 14:00:00', is_past: true };
+
+        it('says Ended once, in the status, with no RSVP slot repeating it', async () => {
+            const { wrapper } = await page(meetup({ ...over, guest_count: 12 }));
+
+            expect(wrapper.find('.fe-event-view__status--ended').text()).toBe('Ended');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+            expect(wrapper.find('.fe-event-view__count').text()).toBe('12 going');
+        });
+
+        it('shows an open event no RSVP slot either', async () => {
+            const { wrapper } = await page(meetup({ ...over, entry_type: 'open' }));
+
+            expect(wrapper.find('.fe-event-view__rsvp').exists()).toBe(false);
         });
     });
 
