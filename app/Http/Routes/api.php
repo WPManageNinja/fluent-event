@@ -58,6 +58,7 @@ $router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
 
     $router->get('/{eventId}/guests', [GuestController::class, 'getGuests'])->int('eventId');
     $router->post('/{eventId}/guests', [GuestController::class, 'createGuest'])->int('eventId');
+    $router->post('/{eventId}/guests/bulk-action', [GuestController::class, 'handleBulkActions'])->int('eventId');
     $router->patch('/{eventId}/guests/{guestId}', [GuestController::class, 'updateGuest'])
         ->int('eventId')->int('guestId');
     $router->delete('/{eventId}/guests/{guestId}', [GuestController::class, 'deleteGuest'])

@@ -65,6 +65,84 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $response['data']['guest']['status']);
     }
 
+    private function bulk(array $params)
+    {
+        return $this->rest('POST', "events/{$this->event->id}/guests/bulk-action", $params);
+    }
+
+    public function test_a_bulk_status_change_moves_only_the_selected_guests()
+    {
+        $first = $this->createGuest($this->event, ['status' => 'waitlisted']);
+        $second = $this->createGuest($this->event, ['status' => 'waitlisted']);
+        $untouched = $this->createGuest($this->event, ['status' => 'waitlisted']);
+
+        $response = $this->bulk(['action' => 'change_status', 'status' => 'going', 'guest_ids' => [$first->id, $second->id]]);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('going', Guest::query()->find($first->id)->status);
+        $this->assertSame('going', Guest::query()->find($second->id)->status);
+        $this->assertSame('waitlisted', Guest::query()->find($untouched->id)->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $first->id]));
+    }
+
+    public function test_a_bulk_status_change_queues_the_matching_email_only_when_asked()
+    {
+        $guest = $this->createGuest($this->event, ['status' => 'going']);
+
+        $this->bulk(['action' => 'change_status', 'status' => 'cancelled', 'guest_ids' => [$guest->id], 'send_email' => 1]);
+
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
+    }
+
+    public function test_a_bulk_check_in_stamps_the_time()
+    {
+        $guest = $this->createGuest($this->event);
+
+        $this->bulk(['action' => 'change_status', 'status' => 'checked_in', 'guest_ids' => [$guest->id]]);
+
+        $this->assertNotEmpty(Guest::query()->find($guest->id)->checked_in_at);
+    }
+
+    public function test_a_bulk_delete_removes_only_the_selected_guests()
+    {
+        $gone = $this->createGuest($this->event);
+        $kept = $this->createGuest($this->event);
+
+        $this->assertSame(200, $this->bulk(['action' => 'delete', 'guest_ids' => [$gone->id]])['status']);
+        $this->assertNull(Guest::query()->find($gone->id));
+        $this->assertNotNull(Guest::query()->find($kept->id));
+    }
+
+    public function test_a_bulk_action_leaves_guests_of_another_event_alone()
+    {
+        $other = $this->createGuest($this->createEvent(), ['status' => 'going']);
+
+        $this->bulk(['action' => 'change_status', 'status' => 'cancelled', 'guest_ids' => [$other->id]]);
+        $this->bulk(['action' => 'delete', 'guest_ids' => [$other->id]]);
+
+        $this->assertSame('going', Guest::query()->find($other->id)->status);
+    }
+
+    /**
+     * @dataProvider invalidBulkRequests
+     */
+    public function test_an_invalid_bulk_request_is_refused($params)
+    {
+        $guest = $this->createGuest($this->event);
+
+        $this->assertSame(422, $this->bulk(array_merge(['guest_ids' => [$guest->id]], $params))['status']);
+    }
+
+    public function invalidBulkRequests()
+    {
+        return [
+            'unknown action'      => [['action' => 'archive']],
+            'status change, none' => [['action' => 'change_status']],
+            'unknown status'      => [['action' => 'change_status', 'status' => 'maybe']],
+            'no guests'           => [['action' => 'delete', 'guest_ids' => []]],
+        ];
+    }
+
     public function test_the_same_email_cannot_join_an_event_twice()
     {
         $this->addGuest(['name' => 'Rafi', 'email' => 'rafi@example.test']);

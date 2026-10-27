@@ -46,4 +46,9 @@ class EventPolicy extends Policy
     {
         return PermissionManager::userCan('write_guests');
     }
+
+    public function handleBulkActions(Request $request, ...$args)
+    {
+        return PermissionManager::userCan('write_guests');
+    }
 }

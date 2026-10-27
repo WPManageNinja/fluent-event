@@ -67,7 +67,7 @@ class GuestRequest extends BaseRequest
             'user_id.integer' => __('The WordPress user must be a valid id.', 'fluent-event'),
             'user_id.exists' => __('The selected WordPress user no longer exists.', 'fluent-event'),
             'user_id.unique' => __('This WordPress user is already a guest on this event.', 'fluent-event'),
-            'status.in'      => __('Status must be going, not going, checked in or cancelled.', 'fluent-event'),
+            'status.in'      => __('Status must be going, not going, checked in, cancelled or waitlisted.', 'fluent-event'),
             'source.string'  => __('Source must be text.', 'fluent-event'),
             'source.max'     => __('Source cannot exceed 64 characters.', 'fluent-event'),
         ];

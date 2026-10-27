@@ -69,6 +69,8 @@ class PolicyMatrixTest extends TestCase
             'guests: read key may not add a guest'   => [EventPolicy::class, 'createGuest', ['read_guests'], false],
             'guests: read key may not remove'        => [EventPolicy::class, 'deleteGuest', ['read_guests'], false],
             'guests: write key may add a guest'      => [EventPolicy::class, 'createGuest', ['write_guests'], true],
+            'guests: read key may not bulk-edit'     => [EventPolicy::class, 'handleBulkActions', ['read_guests'], false],
+            'guests: write key may bulk-edit'        => [EventPolicy::class, 'handleBulkActions', ['write_guests'], true],
             'guests: guest key may not open events'  => [EventPolicy::class, 'verifyRequest', ['read_guests'], false],
             'calendars: read key may list'           => [CalendarPolicy::class, 'verifyRequest', ['read_calendars'], true],
             'calendars: read key may not delete'     => [CalendarPolicy::class, 'deleteCalendar', ['read_calendars'], false],

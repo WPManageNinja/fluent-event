@@ -99,11 +99,7 @@ class GuestController extends Controller
         do_action('fluent_event/guest/updated', $guest, $previousStatus);
 
         if ($status !== $previousStatus && $request->getSafe('send_email', 'rest_sanitize_boolean')) {
-            if ($status === 'going') {
-                as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
-            } elseif (in_array($status, ['not_going', 'cancelled'], true)) {
-                as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
-            }
+            $this->queueStatusEmail($guest);
         }
 
         return [
@@ -133,6 +129,93 @@ class GuestController extends Controller
         return [
             'message' => __('Guest has been successfully deleted', 'fluent-event')
         ];
+    }
+
+    // One page of selected guests at a time: change their status, or delete them.
+    public function handleBulkActions(Request $request, $eventId)
+    {
+        $event = Event::query()->findOrFail($eventId);
+
+        $data = [
+            'action'    => $request->getSafe('action', 'sanitize_text_field'),
+            'status'    => $request->getSafe('status', 'sanitize_text_field'),
+            'guest_ids' => array_values(array_filter(array_map('absint', (array) $request->get('guest_ids', [])))),
+        ];
+
+        $rules = [
+            'action'    => 'required|in:change_status,delete',
+            'guest_ids' => 'required|array|max:' . GuestRequest::PER_PAGE_MAX,
+        ];
+
+        if ($data['action'] === 'change_status') {
+            $rules['status'] = 'required|in:' . Guest::STATUSES;
+        }
+
+        $this->validate($data, $rules, [
+            'action.in'          => __('Choose a valid bulk action.', 'fluent-event'),
+            'status.required'    => __('Choose the status to move the guests to.', 'fluent-event'),
+            'status.in'          => GuestRequest::messages()['status.in'],
+            'guest_ids.required' => __('Select at least one guest.', 'fluent-event'),
+            'guest_ids.max'      => __('Too many guests selected at once.', 'fluent-event'),
+        ]);
+
+        $guests = Guest::query()
+            ->where('event_id', $event->id)
+            ->whereIn('id', $data['guest_ids'])
+            ->get();
+
+        if ($data['action'] === 'delete') {
+            foreach ($guests as $guest) {
+                do_action('fluent_event/guest/before_deleted', $guest);
+                $guest->delete();
+                do_action('fluent_event/guest/deleted', $guest);
+            }
+
+            return [
+                /* translators: %d: number of guests deleted */
+                'message' => sprintf(_n('%d guest has been deleted.', '%d guests have been deleted.', count($guests), 'fluent-event'), count($guests)),
+            ];
+        }
+
+        $sendEmail = $request->getSafe('send_email', 'rest_sanitize_boolean');
+        $updated = 0;
+
+        foreach ($guests as $guest) {
+            $previousStatus = $guest->status;
+
+            if ($previousStatus === $data['status']) {
+                continue;
+            }
+
+            $guest->status = $data['status'];
+            $guest->checked_in_at = $data['status'] === 'checked_in'
+                ? ($guest->checked_in_at ?: current_time('mysql'))
+                : null;
+            $guest->save();
+
+            do_action('fluent_event/guest/updated', $guest, $previousStatus);
+
+            if ($sendEmail) {
+                $this->queueStatusEmail($guest);
+            }
+
+            $updated++;
+        }
+
+        return [
+            /* translators: %d: number of guests whose status changed */
+            'message' => sprintf(_n('%d guest has been updated.', '%d guests have been updated.', $updated, 'fluent-event'), $updated),
+        ];
+    }
+
+    // Each email is its own background job, so a bulk change never sends in a loop on the request.
+    protected function queueStatusEmail($guest)
+    {
+        if ($guest->status === 'going') {
+            as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
+        } elseif (in_array($guest->status, ['not_going', 'cancelled'], true)) {
+            as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
+        }
     }
 
     protected function guestCounts($eventId, $search = '')
