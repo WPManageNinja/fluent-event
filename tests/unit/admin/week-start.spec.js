@@ -33,4 +33,10 @@ describe('applyWeekStart', () => {
         expect(() => applyWeekStart(undefined, undefined)).not.toThrow();
         expect(dayjs.Ls.en.weekStart).toBe(0);
     });
+
+    it('falls back to Sunday for a day outside 0-6', () => {
+        applyWeekStart('7');
+
+        expect(dayjs.Ls.en.weekStart).toBe(0);
+    });
 });

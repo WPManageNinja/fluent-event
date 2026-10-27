@@ -3,10 +3,11 @@ import updateLocale from 'dayjs/plugin/updateLocale';
 
 dayjs.extend(updateLocale);
 
-// WordPress "Week Starts On" for our dayjs (Element Plus calendars and pickers read it) and another copy the page uses.
-export function applyWeekStart(value, otherDayjs) {
-    const weekStart = parseInt(value, 10) || 0;
+// WordPress "Week Starts On" for our dayjs (Element Plus reads it) and, in the portal, fcom's window.dayjs.
+export function applyWeekStart(value, hostDayjs) {
+    const day = parseInt(value, 10);
+    const weekStart = day >= 0 && day <= 6 ? day : 0;
 
     dayjs.updateLocale('en', { weekStart });
-    otherDayjs?.updateLocale('en', { weekStart });
+    hostDayjs?.updateLocale('en', { weekStart });
 }
