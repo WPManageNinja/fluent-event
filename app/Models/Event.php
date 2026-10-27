@@ -85,7 +85,8 @@ class Event extends Model
 
     public function getTitleAttribute()
     {
-        return strtr($this->post->post_title ?? '', ['&amp;' => '&', '&gt;' => '>', '&quot;' => '"', '&#039;' => "'"]);
+        // Plain text with "<" and ">" restored — every sink must escape it, never print it as HTML.
+        return strtr($this->post->post_title ?? '', ['&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', '&#039;' => "'"]);
     }
 
     public function getDescriptionAttribute()
