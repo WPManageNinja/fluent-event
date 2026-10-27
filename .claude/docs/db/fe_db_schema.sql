@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_guests` (
   `name` VARCHAR(255) NULL DEFAULT NULL,
   `email` VARCHAR(192) NULL DEFAULT NULL,
   `user_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'wp_users.ID when logged in',
-  `status` VARCHAR(64) NOT NULL COMMENT 'going | not_going | checked_in | cancelled',
+  `status` VARCHAR(64) NOT NULL COMMENT 'going | not_going | checked_in | cancelled | waitlisted',
   `hash` VARCHAR(64) NULL DEFAULT NULL COMMENT 'per-ticket token, wp_generate_password',
   `checked_in_at` DATETIME NULL DEFAULT NULL,
   `payment_status` VARCHAR(64) NULL DEFAULT NULL COMMENT 'paid | unpaid | refunded',

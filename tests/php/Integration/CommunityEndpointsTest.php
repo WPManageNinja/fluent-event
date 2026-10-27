@@ -218,6 +218,45 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame(200, $this->rsvp($event, 'not_going')['status']);
     }
 
+    private function memberGuest(Event $event)
+    {
+        return Guest::query()->where('event_id', $event->id)->where('user_id', $this->member)->first();
+    }
+
+    public function test_a_full_event_with_a_waitlist_files_a_new_going_as_waitlisted()
+    {
+        [$event] = $this->communityEvent([], ['capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($event);
+
+        $response = $this->rsvp($event, 'going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('waitlisted', $response['data']['status']);
+        $this->assertSame('waitlisted', $this->memberGuest($event)->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $this->memberGuest($event)->id]));
+    }
+
+    /**
+     * @dataProvider hostOwnedStatuses
+     */
+    public function test_a_member_cannot_change_a_status_the_host_owns($ownedStatus, $answer)
+    {
+        [$event] = $this->communityEvent([], ['capacity' => 5, 'waitlist' => 'yes']);
+        $this->createGuest($event, ['user_id' => $this->member, 'email' => get_userdata($this->member)->user_email, 'status' => $ownedStatus]);
+
+        $this->assertSame(422, $this->rsvp($event, $answer)['status']);
+        $this->assertSame($ownedStatus, $this->memberGuest($event)->status);
+    }
+
+    public function hostOwnedStatuses()
+    {
+        return [
+            'waitlisted going'     => ['waitlisted', 'going'],
+            'waitlisted not going' => ['waitlisted', 'not_going'],
+            'cancelled going'      => ['cancelled', 'going'],
+        ];
+    }
+
     public function test_a_status_other_than_going_or_not_going_is_refused()
     {
         [$event] = $this->communityEvent();

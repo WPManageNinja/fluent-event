@@ -352,6 +352,19 @@
                                         {{ $t('How many members can say they are going. Leave empty for no limit.') }}
                                     </span>
                                 </el-form-item>
+
+                                <div v-if="event.capacity" class="fe-form__switch-row" data-field="waitlist">
+                                    <label class="fe-form__switch-text" for="fe-event-waitlist">
+                                        {{ $t('Let members join a waitlist when the event is full') }}
+                                    </label>
+
+                                    <el-switch
+                                        id="fe-event-waitlist"
+                                        v-model="event.waitlist"
+                                        active-value="yes"
+                                        inactive-value="no"
+                                    />
+                                </div>
                             </template>
                         </div>
                     </section>
@@ -515,6 +528,7 @@
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
                     show_guest_count: event ? (meta.show_guest_count || 'yes') : 'no',
                     capacity: meta.capacity || null,
+                    waitlist: meta.waitlist || 'no',
                 };
             },
             loadForm() {
@@ -613,6 +627,7 @@
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
                         capacity: this.event.capacity || 0,
+                        waitlist: this.event.waitlist,
                     },
                     loadingState: 'saving',
                     errorState: null,

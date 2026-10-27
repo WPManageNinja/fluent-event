@@ -61,6 +61,7 @@ class Event extends Model
             'entry_type'         => '',
             'show_guest_count'   => 'yes',
             'capacity'           => 0, // most guests going at once; 0 = unlimited
+            'waitlist'           => 'no', // yes: a full event files new RSVPs as waitlisted
         ];
     }
 

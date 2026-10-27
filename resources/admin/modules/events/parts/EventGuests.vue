@@ -218,6 +218,7 @@
                     not_going: this.$t('Not Going'),
                     checked_in: this.$t('Checked In'),
                     cancelled: this.$t('Cancelled'),
+                    waitlisted: this.$t('Waitlisted'),
                 };
             },
             statuses() {
@@ -264,6 +265,7 @@
                             not_going: 'info',
                             checked_in: 'primary',
                             cancelled: 'danger',
+                            waitlisted: 'warning',
                         }[guest.status] || 'info',
                     };
 
@@ -278,6 +280,10 @@
                 const actions = [
                     { label: this.$t('View'), action: () => this.openDetails(row) },
                 ];
+
+                if (this.$userCan('write_guests') && row.status === 'waitlisted') {
+                    actions.push({ label: this.$t('Move to Going'), action: () => this.changeStatus(row, 'going', () => {}) });
+                }
 
                 if (this.$userCan('write_guests')) {
                     actions.push(

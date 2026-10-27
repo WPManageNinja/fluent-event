@@ -122,12 +122,18 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('This email is already registered for this event.', 'fluent-event')], 422);
         }
 
+        // A member answers only going / not going; waitlisted and cancelled are the host's to change.
+        if ($guest && in_array($guest->status, ['waitlisted', 'cancelled'], true)) {
+            return $this->sendError(['message' => __('Only the host can change this RSVP.', 'fluent-event')], 422);
+        }
+
         $isNew = !$guest;
         $previousStatus = $guest ? $guest->status : null;
         $capacity = (int) Arr::get((array) $event->meta, 'capacity');
+        $hasWaitlist = $capacity && Arr::get((array) $event->meta, 'waitlist') === 'yes';
         $takesSeat = $status === 'going' && !in_array($previousStatus, Event::SEAT_STATUSES, true);
 
-        $guest = DB::transaction(function () use ($event, $feed, $user, $guest, $status, $capacity, $takesSeat) {
+        $guest = DB::transaction(function () use ($event, $feed, $user, $guest, $status, $capacity, $hasWaitlist, $takesSeat) {
             if ($capacity && $takesSeat) {
                 // Holds every other RSVP to this event until commit, so two members cannot both take the last seat.
                 Event::query()->where('id', $event->id)->lockForUpdate()->first();
@@ -138,7 +144,11 @@ class CommunityEventController extends Controller
                     ->count();
 
                 if ($taken >= $capacity) {
-                    return null;
+                    if (!$hasWaitlist) {
+                        return null;
+                    }
+
+                    $status = 'waitlisted';
                 }
             }
 
@@ -187,10 +197,16 @@ class CommunityEventController extends Controller
             as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
         }
 
+        $message = __('You are registered.', 'fluent-event');
+
+        if ($guest->status === 'not_going') {
+            $message = __('Your RSVP has been updated.', 'fluent-event');
+        } elseif ($guest->status === 'waitlisted') {
+            $message = __('You are on the waitlist.', 'fluent-event');
+        }
+
         return [
-            'message' => $guest->status === 'not_going'
-                ? __('Your RSVP has been updated.', 'fluent-event')
-                : __('You are registered.', 'fluent-event'),
+            'message' => $message,
             'status'  => $guest->status,
             'event'   => CommunityEvents::formatEvents([$event])[(int) $event->id],
         ];

@@ -18,7 +18,7 @@
 - **Entry mode** via `event_details.meta.entry_type` (built: `rsvp`, `open`; `ticketed` is future):
   - **`rsvp`** — logged-in "I'm coming". Guest rows with **`ticket_type_id` = NULL**; going / not going via `status` (`going` / `not_going`).
   - **`open`** — view-only. Nobody registers and there are no guest rows; anyone who can see the event sees all of it, the online meeting link included.
-  - **Capacity** — `meta.capacity` caps `going` + `checked_in` guests (0 = unlimited). A full event refuses a member's "going" and shows **Event full** in place of the RSVP; a guest already going keeps their seat, and admins can add past it. `meta.show_guest_count` (`yes` / `no`) shows viewers how many are `going` + `checked_in`.
+  - **Capacity** — `meta.capacity` caps `going` + `checked_in` guests (0 = unlimited). A full event refuses a member's "going" and shows **Event full** in place of the RSVP; a guest already going keeps their seat, and admins can add past it. With `meta.waitlist` = `yes`, a full event files the "going" as `waitlisted` instead (no seat, no meeting link, no reminders). `meta.show_guest_count` (`yes` / `no`) shows viewers how many are `going` + `checked_in`.
   - **`ticketed`** (future) — buy tickets. Guest rows **require** `ticket_type_id`, payment on the `is_buyer=1` row; the service layer enforces it.
   - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.slot IS NULL`).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
