@@ -197,10 +197,10 @@ class CommunityEventController extends Controller
             as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
         }
 
-        $message = __('You are registered.', 'fluent-event');
+        $message = __('You are registered to this event.', 'fluent-event');
 
         if ($guest->status === 'not_going') {
-            $message = __('Your RSVP has been updated.', 'fluent-event');
+            $message = __("You've marked this event as Not Going.", 'fluent-event');
         } elseif ($guest->status === 'waitlisted') {
             $message = __('You are on the waitlist.', 'fluent-event');
         }
