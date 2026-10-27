@@ -24,6 +24,7 @@ export const adminVars = () => ({
     email_notifications: {
         registration_confirmation: { enabled: true },
         registration_cancellation: { enabled: true },
+        registration_waitlist: { enabled: true },
         reminder_to_guest: { enabled: true, times: [{ value: 24, unit: 'hours' }] }
     },
     date_format: 'MMM D, YYYY',

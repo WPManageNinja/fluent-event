@@ -234,6 +234,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('waitlisted', $response['data']['status']);
         $this->assertSame('waitlisted', $this->memberGuest($event)->status);
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $this->memberGuest($event)->id]));
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_waitlist', [(int) $this->memberGuest($event)->id]));
     }
 
     /**

@@ -56,8 +56,8 @@ class GuestController extends Controller
 
         do_action('fluent_event/guest/created', $guest);
 
-        if ($status === 'going' && $request->getSafe('send_email', 'rest_sanitize_boolean')) {
-            as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
+        if (in_array($status, ['going', 'waitlisted'], true) && $request->getSafe('send_email', 'rest_sanitize_boolean')) {
+            $this->queueStatusEmail($guest);
         }
 
         return [
@@ -215,6 +215,8 @@ class GuestController extends Controller
             as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
         } elseif (in_array($guest->status, ['not_going', 'cancelled'], true)) {
             as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
+        } elseif ($guest->status === 'waitlisted') {
+            as_enqueue_async_action('fluent_event/send_registration_waitlist', [(int) $guest->id], 'fluent-event');
         }
     }
 

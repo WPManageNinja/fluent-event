@@ -82,6 +82,10 @@
                     return this.$t('Send cancellation emails');
                 }
 
+                if (status === 'waitlisted' && notifications.registration_waitlist?.enabled) {
+                    return this.$t('Send waitlist emails');
+                }
+
                 return '';
             },
         },
