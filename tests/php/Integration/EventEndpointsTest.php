@@ -106,6 +106,31 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('Wine & Cheese', $this->rest('GET', "events/{$event->id}")['data']['event']['title']);
     }
 
+    /**
+     * sanitize_text_field() stores a lone "<" as "&lt;".
+     *
+     * @dataProvider titlesWithLessThan
+     */
+    public function test_a_less_than_sign_in_a_title_reads_back_as_typed($title)
+    {
+        $event = $this->createEvent();
+        $this->actAs($this->createUser('author', ['write_events']));
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => $title]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame($title, $this->rest('GET', "events/{$event->id}")['data']['event']['title']);
+    }
+
+    public function titlesWithLessThan()
+    {
+        return [
+            'age limit'      => ['Kids <5'],
+            'less or equal'  => ['Ages 5 <= 12'],
+            'mixed entities' => ['"Q&A" <3'],
+        ];
+    }
+
     public function test_a_local_start_time_is_stored_in_utc()
     {
         $event = $this->createEvent();
