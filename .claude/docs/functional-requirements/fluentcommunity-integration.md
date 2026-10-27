@@ -92,7 +92,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   to everyone, staff included. The switch alone decides; nobody gets an override. It counts
   `going` and `checked_in` guests, and reads `12 out of 50 going` when the event has a capacity.
 - **Capacity:** with the count shown, the event page meters a capped event (`7 out of 10 going`, a
-  fill bar, `3 spots left`). Once seats reach the capacity, anyone without a seat loses the RSVP:
+  fill bar, `3 spots left`). An ended event keeps the count and bar, without the spots left, and
+  the full notice only if it filled up. The event page says Ended once, in its status; the RSVP
+  slot is dropped on an ended event (RSVP or open). Once seats reach the capacity, anyone without a seat loses the RSVP:
   the event page shows an **Event full** notice in place of the RSVP (count shown or not, like
   Luma's sold-out state; with the count shown it sits under the full meter), and the feed card and events list show **Event full** as plain
   text with a ticket icon. Neutral colours: full is a state, not an error. The register endpoint refuses a
