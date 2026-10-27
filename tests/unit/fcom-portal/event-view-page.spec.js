@@ -73,6 +73,18 @@ describe('EventViewPage', () => {
         });
     });
 
+    describe('layout', () => {
+        // Sharing grid rows with a taller card stretched the title's row and left a gap above a short description.
+        it('stacks the title and the description in their own column beside the card', async () => {
+            const { wrapper } = await page(meetup({ description: '<p>Bring a laptop.</p>' }));
+            const main = wrapper.find('.fe-event-view__grid > .fe-event-view__main');
+
+            expect(main.findAll(':scope > div').map(column => column.classes()[0])).toEqual(['fe-event-view__intro', 'fe-event-view__body']);
+            expect(main.find('.fe-event-view__description').text()).toBe('Bring a laptop.');
+            expect(wrapper.find('.fe-event-view__grid > .fe-event-view__side').exists()).toBe(true);
+        });
+    });
+
     describe('when it happens', () => {
         it("labels the time with the event's timezone name", async () => {
             const { vm } = await page(meetup({
