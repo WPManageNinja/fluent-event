@@ -16,7 +16,8 @@ export const adminVars = () => ({
     theme: null,
     user_locale: 'en_US',
     timezone: 'UTC',
-    start_of_week: 0,
+    // wp_localize_script() stringifies scalars.
+    start_of_week: '0',
     general_settings: {
         default_events_view: 'timeline',
         disable_event_view_switch: 'no'
@@ -59,6 +60,7 @@ export const portalVars = () => ({
     can_create_events: true,
     default_view: 'timeline',
     disable_view_switch: false,
+    start_of_week: 0,
     i18n: {}
 });
 

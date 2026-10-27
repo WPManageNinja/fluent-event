@@ -2,11 +2,14 @@ import { capitalize } from 'vue';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import Rest from '@/utils/http/Rest.js';
+import { applyWeekStart } from '@/utils/weekStart';
 import { ElNotification, ElMessageBox } from 'element-plus';
 
 dayjs.extend(advancedFormat);
 
 const config = window.fluentEventAdmin;
+
+applyWeekStart(config.start_of_week);
 
 // Per-component request counters, so only the newest read writes state back.
 const requestSeq = new WeakMap();
