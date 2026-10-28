@@ -212,6 +212,29 @@ class PortalHandler
             'Join the waitlist to be moved to going if a seat opens up.' => __('Join the waitlist to be moved to going if a seat opens up.', 'fluent-event'),
             'Join waitlist' => __('Join waitlist', 'fluent-event'),
             'Let members join a waitlist when the event is full' => __('Let members join a waitlist when the event is full', 'fluent-event'),
+            'Registration window' => __('Registration window', 'fluent-event'),
+            'Guest control' => __('Guest control', 'fluent-event'),
+            'Seats, the waitlist and the guest count members see.' => __('Seats, the waitlist and the guest count members see.', 'fluent-event'),
+            'When members can start joining.' => __('When members can start joining.', 'fluent-event'),
+            'If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.' => __('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.', 'fluent-event'),
+            /* translators: label for when registration opens */
+            'Opens' => __('Opens', 'fluent-event'),
+            /* translators: label for when registration closes */
+            'Closes' => __('Closes', 'fluent-event'),
+            'Not set' => __('Not set', 'fluent-event'),
+            'Time before the event starts' => __('Time before the event starts', 'fluent-event'),
+            /* translators: %s is the date and time registration opens */
+            'Opens %s' => __('Opens %s', 'fluent-event'),
+            'Minutes before' => __('Minutes before', 'fluent-event'),
+            'Hours before' => __('Hours before', 'fluent-event'),
+            'Days before' => __('Days before', 'fluent-event'),
+            'Registration closed' => __('Registration closed', 'fluent-event'),
+            'Registration not open yet' => __('Registration not open yet', 'fluent-event'),
+            /* translators: %s is the date and time registration opens */
+            'Registration opens %s.' => __('Registration opens %s.', 'fluent-event'),
+            /* translators: %s is the date and time registration closes */
+            'Registration closes %s' => __('Registration closes %s', 'fluent-event'),
+            'This event is no longer taking registrations.' => __('This event is no longer taking registrations.', 'fluent-event'),
             'Load more' => __('Load more', 'fluent-event'),
             'Log in to RSVP' => __('Log in to RSVP', 'fluent-event'),
             'Logged-in members say whether they are going.' => __('Logged-in members say whether they are going.', 'fluent-event'),

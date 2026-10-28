@@ -105,6 +105,62 @@ class RequestRulesTest extends TestCase
         $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['waitlist']);
     }
 
+    public function test_a_registration_limit_is_checked_only_once_the_host_sets_one()
+    {
+        $this->assertArrayNotHasKey('registration_opens.value', EventRequest::rules($this->eventInput()));
+
+        $rules = EventRequest::rules($this->eventInput(['registration_opens' => ['value' => 2, 'unit' => 'days']]));
+
+        $this->assertSame('required|integer|min:0', $rules['registration_opens.value']);
+        $this->assertSame('required|in:minutes,hours,days', $rules['registration_opens.unit']);
+        $this->assertArrayNotHasKey('registration_closes.value', $rules);
+    }
+
+    public function test_a_registration_limit_keeps_only_its_offset_and_empty_means_no_limit()
+    {
+        $meta = EventRequest::format($this->eventInput([
+            'registration_opens'  => ['value' => 2, 'unit' => 'days', 'extra' => 'dropped'],
+            'registration_closes' => null,
+        ]))['meta'];
+
+        $this->assertSame(['value' => 2, 'unit' => 'days'], $meta['registration_opens']);
+        $this->assertNull($meta['registration_closes']);
+        $this->assertNull(EventRequest::format($this->eventInput())['meta']['registration_opens']);
+    }
+
+    /**
+     * @dataProvider registrationWindows
+     */
+    public function test_registration_must_close_after_it_opens($opens, $closes, $isValid)
+    {
+        $data = ['start_at' => '2026-11-10 18:00', 'end_at' => '2026-11-10 20:00', 'registration_opens' => $opens, 'registration_closes' => $closes];
+
+        try {
+            EventRequest::validateDateWindow($data);
+            $this->assertTrue($isValid, 'The registration window was accepted');
+        } catch (ValidationException $e) {
+            $this->assertFalse($isValid, 'The registration window was refused');
+            $this->assertArrayHasKey('registration_closes', $e->errors());
+        }
+    }
+
+    public function registrationWindows()
+    {
+        return [
+            'opens a week out, closes an hour out' => [['value' => 7, 'unit' => 'days'], ['value' => 1, 'unit' => 'hours'], true],
+            'closes before it opens'               => [['value' => 1, 'unit' => 'hours'], ['value' => 2, 'unit' => 'days'], false],
+            'opens and closes together'            => [['value' => 60, 'unit' => 'minutes'], ['value' => 1, 'unit' => 'hours'], false],
+            'only a closing time'                  => [null, ['value' => 0, 'unit' => 'hours'], true],
+            'only an opening time'                 => [['value' => 3, 'unit' => 'days'], null, true],
+            'no limits'                            => [null, null, true],
+            'opens at the start, no closing time'  => [['value' => 0, 'unit' => 'minutes'], null, true],
+            'both at the start'                    => [['value' => 0, 'unit' => 'days'], ['value' => 0, 'unit' => 'minutes'], false],
+            'a day against 24 hours'               => [['value' => 1, 'unit' => 'days'], ['value' => 24, 'unit' => 'hours'], false],
+            'a day against 23 hours'               => [['value' => 1, 'unit' => 'days'], ['value' => 23, 'unit' => 'hours'], true],
+            '90 minutes against an hour'           => [['value' => 90, 'unit' => 'minutes'], ['value' => 1, 'unit' => 'hours'], true],
+        ];
+    }
+
     public function test_an_offline_event_never_keeps_a_meeting_link()
     {
         $meta = EventRequest::format($this->eventInput(['venue_type' => 'offline']))['meta'];

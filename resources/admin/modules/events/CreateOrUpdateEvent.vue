@@ -296,34 +296,80 @@
                         </div>
                     </section>
 
-                    <section class="fe-form__section">
+                    <section class="fe-form__section" data-field="entry_type">
                         <div class="fe-form__section-rail">
-                            <h2 class="fe-form__section-title">{{ $t('Registration') }}</h2>
+                            <h2 class="fe-form__section-title">{{ $t('Entry type') }}</h2>
                             <p class="fe-form__section-desc">
                                 {{ $t('How guests join and what they see.') }}
                             </p>
                         </div>
 
                         <div class="fe-form__section-fields">
-                            <el-form-item :label="$t('Entry type')" data-field="entry_type">
-                                <el-radio-group
-                                    v-model="event.entry_type"
-                                    class="fe-form__choices"
-                                    :aria-label="$t('Entry type')"
+                            <el-radio-group
+                                v-model="event.entry_type"
+                                class="fe-form__choices"
+                                :aria-label="$t('Entry type')"
+                            >
+                                <el-radio
+                                    v-for="option in $entryTypes()"
+                                    :key="option.value"
+                                    :value="option.value"
+                                    border
                                 >
-                                    <el-radio
-                                        v-for="option in $entryTypes()"
-                                        :key="option.value"
-                                        :value="option.value"
-                                        border
-                                    >
-                                        <span class="fe-form__choice-title">{{ option.label }}</span>
-                                        <span class="fe-form__hint">{{ option.hint }}</span>
-                                    </el-radio>
-                                </el-radio-group>
-                            </el-form-item>
+                                    <span class="fe-form__choice-title">{{ option.label }}</span>
+                                    <span class="fe-form__hint">{{ option.hint }}</span>
+                                </el-radio>
+                            </el-radio-group>
+                        </div>
+                    </section>
 
-                            <template v-if="event.entry_type === 'rsvp'">
+                    <template v-if="event.entry_type === 'rsvp'">
+                        <section class="fe-form__section">
+                            <div class="fe-form__section-rail">
+                                <h2 class="fe-form__section-title">{{ $t('Registration window') }}</h2>
+                                <p class="fe-form__section-desc">
+                                    {{ $t('When members can start joining.') }}
+                                </p>
+                            </div>
+
+                            <div class="fe-form__section-fields fe-event-form__limits">
+                                <RegistrationLimitField
+                                    id="fe-event-registration-opens"
+                                    v-model="event.registration_opens"
+                                    kind="opens"
+                                    :start="eventStart"
+                                    :time-format="timeFormat"
+                                    data-field="registration_opens"
+                                />
+
+                                <RegistrationLimitField
+                                    id="fe-event-registration-closes"
+                                    v-model="event.registration_closes"
+                                    kind="closes"
+                                    :start="eventStart"
+                                    :time-format="timeFormat"
+                                    data-field="registration_closes"
+                                />
+
+                                <el-alert
+                                    class="fe-event-form__limits-note"
+                                    type="info"
+                                    :title="$t('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.')"
+                                    :closable="false"
+                                    show-icon
+                                />
+                            </div>
+                        </section>
+
+                        <section class="fe-form__section">
+                            <div class="fe-form__section-rail">
+                                <h2 class="fe-form__section-title">{{ $t('Guest control') }}</h2>
+                                <p class="fe-form__section-desc">
+                                    {{ $t('Seats, the waitlist and the guest count members see.') }}
+                                </p>
+                            </div>
+
+                            <div class="fe-form__section-fields">
                                 <div class="fe-form__switch-row" data-field="show_guest_count">
                                     <label class="fe-form__switch-text" for="fe-event-show-guest-count">
                                         {{ $t('Show how many guests are going') }}
@@ -365,9 +411,9 @@
                                         inactive-value="no"
                                     />
                                 </div>
-                            </template>
-                        </div>
-                    </section>
+                            </div>
+                        </section>
+                    </template>
 
                     <div class="fe-form__actions fe-form__actions--bar">
                         <el-button
@@ -391,6 +437,7 @@
     import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
+    import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
@@ -406,6 +453,7 @@
             WpEditor,
             ErrorState,
             MediaPicker,
+            RegistrationLimitField,
             SegmentedSwitch,
             Skeleton,
         },
@@ -435,6 +483,9 @@
             },
             isEditing() {
                 return !!this.eventId;
+            },
+            eventStart() {
+                return `${this.event.start_date} ${this.event.start_time}`;
             },
             pageTitle() {
                 return this.isEditing ? this.$t('Edit Event') : this.$t('Create Event');
@@ -529,6 +580,8 @@
                     show_guest_count: event ? (meta.show_guest_count || 'yes') : 'no',
                     capacity: meta.capacity || null,
                     waitlist: meta.waitlist || 'no',
+                    registration_opens: meta.registration_opens || null,
+                    registration_closes: meta.registration_closes || null,
                 };
             },
             loadForm() {
@@ -628,6 +681,8 @@
                         show_guest_count: this.event.show_guest_count,
                         capacity: this.event.capacity || 0,
                         waitlist: this.event.waitlist,
+                        registration_opens: this.event.registration_opens,
+                        registration_closes: this.event.registration_closes,
                     },
                     loadingState: 'saving',
                     errorState: null,

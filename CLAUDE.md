@@ -30,7 +30,7 @@ Three things people get wrong:
 
 Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going)
 or `open` (view-only: members can't register, every viewer sees the whole event,
-meeting link included; admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp`, and so does `capacity`: the most members going at once (0 = unlimited); admins can add guests past it. With `waitlist` on, a full event files a member's RSVP as `waitlisted` (no seat, no meeting link, no reminders). `ticketed` is a documented future
+meeting link included; admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp`, and so does `capacity`: the most members going at once (0 = unlimited); admins can add guests past it. With `waitlist` on, a full event files a member's RSVP as `waitlisted` (no seat, no meeting link, no reminders). `registration_opens` / `registration_closes` (`{value, unit}` before the start, null = no limit) bound when members can RSVP; one already going can still give up the seat. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.
 
 Statuses: events and calendars are both `public | private | draft`. `private` means no

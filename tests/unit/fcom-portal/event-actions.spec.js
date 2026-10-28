@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import EventActions from '../../../resources/fcom-portal/EventActions';
 
-const rsvp = (overrides = {}) => ({ id: 5, entry_type: 'rsvp', is_past: false, my_status: null, ...overrides });
+const rsvp = (overrides = {}) => ({ id: 5, entry_type: 'rsvp', is_past: false, registration_open: true, my_status: null, ...overrides });
 const actions = (event = rsvp()) => mount(EventActions, { props: { event }, attachTo: document.body });
 
 const deferredResponse = () => {
@@ -39,6 +39,38 @@ describe('EventActions', () => {
 
         expect(wrapper.find('.fe-event-actions__state').text()).toBe('Event full');
         expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
+    });
+
+    it('says when registration opens in place of the RSVP', () => {
+        wrapper = actions(rsvp({ registration_open: false, registration_opens_at: '2026-11-03 10:00:00' }));
+
+        expect(wrapper.find('.fe-event-actions__state').text()).toBe('Opens Tue, Nov 3, 2026 · 10:00 AM');
+        expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
+    });
+
+    it('says registration closed, but keeps a going member the RSVP to give up the seat', () => {
+        wrapper = actions(rsvp({ registration_open: false, is_full: true }));
+
+        expect(wrapper.find('.fe-event-actions__state').text()).toBe('Registration closed');
+        wrapper.unmount();
+
+        wrapper = actions(rsvp({ registration_open: false, my_status: 'checked_in' }));
+
+        expect(wrapper.find('.fe-rsvp__label').text()).toBe('Going');
+    });
+
+    it.each([
+        ['an ended event says Ended, not closed', rsvp({ is_past: true, registration_open: false }), '.fe-event-actions__badge', 'Ended'],
+        ['a member who said not going sees it closed', rsvp({ registration_open: false, my_status: 'not_going' }), '.fe-event-actions__state', 'Registration closed'],
+        ['a member who said not going sees when it opens', rsvp({ registration_open: false, registration_opens_at: '2026-11-03 10:00:00', my_status: 'not_going' }), '.fe-event-actions__state', 'Opens Tue, Nov 3, 2026 · 10:00 AM'],
+        ['a full event with a waitlist says closed, not Join waitlist', rsvp({ registration_open: false, is_full: true, waitlist: true }), '.fe-event-actions__state', 'Registration closed'],
+        ['a waitlisted member still sees where they stand', rsvp({ registration_open: false, my_status: 'waitlisted' }), '.fe-event-actions__state', 'Waitlisted']
+    ])('outside the registration window, %s', (label, event, selector, text) => {
+        wrapper = actions(event);
+
+        expect(wrapper.find(selector).text()).toBe(text);
+        expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
+        expect(wrapper.text()).not.toContain('Join waitlist');
     });
 
     it('keeps the RSVP for a guest who already holds a seat on a full event', () => {

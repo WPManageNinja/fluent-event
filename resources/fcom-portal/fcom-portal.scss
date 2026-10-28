@@ -1080,6 +1080,36 @@
     }
 }
 
+// Same component as the admin event form's, on fcom's tokens.
+.fe-registration-limit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+
+    &__value.el-input-number {
+        width: 120px;
+    }
+
+    &__unit.el-select {
+        width: 160px;
+    }
+
+    // fcom's number box is taller than its select; stretch the select to match it.
+    &__unit .el-select__wrapper {
+        height: 100%;
+    }
+
+    &__hint {
+        display: block;
+        width: 100%;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+}
+
 // Same component as the admin view switch, on fcom's tokens.
 .fe-switch {
     position: relative;
@@ -1289,6 +1319,17 @@
         .el-form-item {
             margin-bottom: 0;
         }
+    }
+
+    // Side by side while both fit, stacked once fcom's column gets narrow.
+    &__limits {
+        grid-template-columns: repeat(auto-fit, minmax(288px, 1fr));
+    }
+
+    &__limits-note.el-alert--info {
+        --el-alert-bg-color: var(--fcom-primary-bg, #ffffff);
+        grid-column: 1 / -1;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
     }
 
     &__cover {

@@ -129,6 +129,20 @@ class CommunityEventController extends Controller
 
         $isNew = !$guest;
         $previousStatus = $guest ? $guest->status : null;
+
+        // Outside the registration window a member can only give up a seat they already hold.
+        if (!in_array($previousStatus, Event::SEAT_STATUSES, true)) {
+            [$opensAt, $closesAt] = Event::registrationWindow($event);
+
+            if ($opensAt && time() < $opensAt) {
+                return $this->sendError(['message' => __('Registration has not opened yet.', 'fluent-event')], 422);
+            }
+
+            if ($closesAt && time() >= $closesAt) {
+                return $this->sendError(['message' => __('Registration has closed.', 'fluent-event')], 422);
+            }
+        }
+
         $capacity = (int) Arr::get((array) $event->meta, 'capacity');
         $hasWaitlist = $capacity && Arr::get((array) $event->meta, 'waitlist') === 'yes';
         $takesSeat = $status === 'going' && !in_array($previousStatus, Event::SEAT_STATUSES, true);

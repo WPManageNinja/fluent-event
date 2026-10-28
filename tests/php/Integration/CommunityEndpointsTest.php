@@ -238,6 +238,127 @@ class CommunityEndpointsTest extends IntegrationTestCase
     }
 
     /**
+     * Outside the window a member can only give up a seat they already hold; inside it, any answer goes.
+     * The event starts in 3 days (createEvent's default).
+     *
+     * @dataProvider windowAnswers
+     */
+    public function test_what_a_member_can_answer_around_the_registration_window($limits, $previous, $answer, $httpStatus, $message, $finalStatus)
+    {
+        [$event] = $this->communityEvent([], $limits);
+
+        if ($previous) {
+            $this->createGuest($event, ['user_id' => $this->member, 'email' => get_userdata($this->member)->user_email, 'status' => $previous]);
+        }
+
+        $response = $this->rsvp($event, $answer);
+
+        $this->assertSame($httpStatus, $response['status'], wp_json_encode($response['data']));
+        $message && $this->assertSame($message, $response['data']['message']);
+        $this->assertSame($finalStatus, $this->memberGuest($event) ? $this->memberGuest($event)->status : null);
+    }
+
+    public function windowAnswers()
+    {
+        $notOpen = ['registration_opens' => ['value' => 1, 'unit' => 'days']];
+        $open = ['registration_opens' => ['value' => 7, 'unit' => 'days'], 'registration_closes' => ['value' => 1, 'unit' => 'hours']];
+        $closed = ['registration_closes' => ['value' => 4, 'unit' => 'days']];
+        $notYet = 'Registration has not opened yet.';
+        $over = 'Registration has closed.';
+
+        // [limits, status before, answer, HTTP status, message, status after]
+        return [
+            'not open: a new member says going'        => [$notOpen, null, 'going', 422, $notYet, null],
+            'not open: a new member says not going'    => [$notOpen, null, 'not_going', 422, $notYet, null],
+            'not open: not going changes to going'     => [$notOpen, 'not_going', 'going', 422, $notYet, 'not_going'],
+            'not open: an added guest gives up a seat' => [$notOpen, 'going', 'not_going', 200, null, 'not_going'],
+            'open: a new member says going'            => [$open, null, 'going', 200, null, 'going'],
+            'open: a new member says not going'        => [$open, null, 'not_going', 200, null, 'not_going'],
+            'open: not going changes to going'         => [$open, 'not_going', 'going', 200, null, 'going'],
+            'open: going changes to not going'         => [$open, 'going', 'not_going', 200, null, 'not_going'],
+            'closed: a new member says going'          => [$closed, null, 'going', 422, $over, null],
+            'closed: a new member says not going'      => [$closed, null, 'not_going', 422, $over, null],
+            'closed: not going changes to going'       => [$closed, 'not_going', 'going', 422, $over, 'not_going'],
+            'closed: going gives up the seat'          => [$closed, 'going', 'not_going', 200, null, 'not_going'],
+            'closed: checked in gives up the seat'     => [$closed, 'checked_in', 'not_going', 200, null, 'not_going'],
+            'closed: going answers going again'        => [$closed, 'going', 'going', 200, null, 'going'],
+        ];
+    }
+
+    public function test_after_giving_up_a_seat_once_registration_closes_a_member_cannot_take_it_back()
+    {
+        [$event] = $this->communityEvent([], ['registration_closes' => ['value' => 4, 'unit' => 'days']]);
+        $this->createGuest($event, ['user_id' => $this->member, 'email' => get_userdata($this->member)->user_email, 'status' => 'checked_in']);
+
+        $this->assertSame(200, $this->rsvp($event, 'not_going')['status']);
+        $this->assertSame(422, $this->rsvp($event, 'going')['status']);
+        $this->assertSame('not_going', $this->memberGuest($event)->status);
+    }
+
+    /**
+     * @dataProvider eventsUnderWay
+     */
+    public function test_an_event_under_way_takes_rsvps_until_its_closing_time($limits, $httpStatus)
+    {
+        [$event] = $this->communityEvent([
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-1 hour')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+1 hour')),
+        ], $limits);
+
+        $this->assertSame($httpStatus, $this->rsvp($event, 'going')['status']);
+    }
+
+    public function eventsUnderWay()
+    {
+        return [
+            'no limits'                      => [[], 200],
+            'only an opening time'           => [['registration_opens' => ['value' => 2, 'unit' => 'days']], 200],
+            'opens at the start'             => [['registration_opens' => ['value' => 0, 'unit' => 'hours']], 200],
+            'closes at the start'            => [['registration_closes' => ['value' => 0, 'unit' => 'minutes']], 422],
+            'closed the day before'          => [['registration_closes' => ['value' => 1, 'unit' => 'days']], 422],
+        ];
+    }
+
+    public function test_an_ended_event_says_it_has_ended_whatever_its_window()
+    {
+        [$event] = $this->communityEvent([
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-3 hours')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-1 hour')),
+        ], ['registration_opens' => ['value' => 7, 'unit' => 'days']]);
+
+        $response = $this->rsvp($event, 'going');
+
+        $this->assertSame(422, $response['status']);
+        $this->assertSame('This event has already ended.', $response['data']['message']);
+    }
+
+    // A closed window wins over the waitlist: a late member is refused, not filed as waitlisted.
+    public function test_a_full_event_with_a_waitlist_refuses_a_member_once_registration_closes()
+    {
+        [$event] = $this->communityEvent([], ['capacity' => 1, 'waitlist' => 'yes', 'registration_closes' => ['value' => 4, 'unit' => 'days']]);
+        $this->createGuest($event);
+
+        $response = $this->rsvp($event, 'going');
+
+        $this->assertSame(422, $response['status']);
+        $this->assertSame('Registration has closed.', $response['data']['message']);
+        $this->assertNull($this->memberGuest($event));
+    }
+
+    public function test_moving_the_event_later_reopens_a_closed_window()
+    {
+        [$event] = $this->communityEvent([], ['registration_closes' => ['value' => 4, 'unit' => 'days']]);
+        $this->assertSame(422, $this->rsvp($event, 'going')['status']);
+
+        Event::query()->where('id', $event->id)->update([
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('+10 days')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+10 days +2 hours')),
+        ]);
+
+        $this->assertSame(200, $this->rsvp($event, 'going')['status']);
+    }
+
+    /**
      * @dataProvider hostOwnedStatuses
      */
     public function test_a_member_cannot_change_a_status_the_host_owns($ownedStatus, $answer)

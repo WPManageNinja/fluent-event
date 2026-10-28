@@ -241,8 +241,50 @@
                             <span class="fe-create-event__hint">{{ option.hint }}</span>
                         </el-radio>
                     </el-radio-group>
+                </div>
+            </section>
 
-                    <template v-if="event.entry_type === 'rsvp'">
+            <template v-if="event.entry_type === 'rsvp'">
+                <section class="fe-create-event__section">
+                    <div>
+                        <h2 class="fe-create-event__section-title">{{ $t('Registration window') }}</h2>
+                        <p class="fe-create-event__section-desc">{{ $t('When members can start joining.') }}</p>
+                    </div>
+
+                    <div class="fe-create-event__section-fields fe-create-event__limits">
+                        <RegistrationLimitField
+                            id="fe-create-event-registration-opens"
+                            v-model="event.registration_opens"
+                            kind="opens"
+                            :start="`${event.start_date} ${event.start_time}`"
+                            :time-format="timeFormat"
+                        />
+
+                        <RegistrationLimitField
+                            id="fe-create-event-registration-closes"
+                            v-model="event.registration_closes"
+                            kind="closes"
+                            :start="`${event.start_date} ${event.start_time}`"
+                            :time-format="timeFormat"
+                        />
+
+                        <el-alert
+                            class="fe-create-event__limits-note"
+                            type="info"
+                            :title="$t('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.')"
+                            :closable="false"
+                            show-icon
+                        />
+                    </div>
+                </section>
+
+                <section class="fe-create-event__section">
+                    <div>
+                        <h2 class="fe-create-event__section-title">{{ $t('Guest control') }}</h2>
+                        <p class="fe-create-event__section-desc">{{ $t('Seats, the waitlist and the guest count members see.') }}</p>
+                    </div>
+
+                    <div class="fe-create-event__section-fields">
                         <div class="fe-create-event__switch-row">
                             <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
                                 {{ $t('Show how many guests are going') }}
@@ -282,9 +324,9 @@
                                 inactive-value="no"
                             />
                         </div>
-                    </template>
-                </div>
-            </section>
+                    </div>
+                </section>
+            </template>
         </div>
 
         <!-- After fcom's composer, which the shell renders below this page, so Create comes last. -->
@@ -307,6 +349,7 @@
 import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
+import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import WpEditor from '@/components/WpEditor.vue';
 import { communityApi, errorMessage, eventsApi, timeFormat, timezoneOffset } from '../utils';
@@ -316,7 +359,7 @@ let wpEditorLoad = null;
 
 export default {
     name: 'CreateEventPage',
-    components: { ArrowLeft, Delete, Picture, SegmentedSwitch, WpEditor },
+    components: { ArrowLeft, Delete, Picture, RegistrationLimitField, SegmentedSwitch, WpEditor },
     props: {
         spaceSlug: { type: String, required: true },
         router: { type: Object, required: true },
@@ -353,6 +396,8 @@ export default {
                 show_guest_count: 'no',
                 capacity: null,
                 waitlist: 'no',
+                registration_opens: null,
+                registration_closes: null,
             },
             uploading: false,
             imageUploading: false,
@@ -380,6 +425,8 @@ export default {
                 show_guest_count: event.show_guest_count,
                 capacity: event.capacity || 0,
                 waitlist: event.waitlist,
+                registration_opens: event.registration_opens,
+                registration_closes: event.registration_closes,
             };
         },
         bounds() {
