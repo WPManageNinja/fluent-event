@@ -152,6 +152,7 @@ class GuestEndpointsTest extends IntegrationTestCase
             'status change, none' => [['action' => 'change_status']],
             'unknown status'      => [['action' => 'change_status', 'status' => 'maybe']],
             'no guests'           => [['action' => 'delete', 'guest_ids' => []]],
+            'guests not a list'   => [['action' => 'delete', 'guest_ids' => '5']],
         ];
     }
 

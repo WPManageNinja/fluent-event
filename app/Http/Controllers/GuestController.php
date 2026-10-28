@@ -136,28 +136,8 @@ class GuestController extends Controller
     {
         $event = Event::query()->findOrFail($eventId);
 
-        $data = [
-            'action'    => $request->getSafe('action', 'sanitize_text_field'),
-            'status'    => $request->getSafe('status', 'sanitize_text_field'),
-            'guest_ids' => array_values(array_filter(array_map('absint', (array) $request->get('guest_ids', [])))),
-        ];
-
-        $rules = [
-            'action'    => 'required|in:change_status,delete',
-            'guest_ids' => 'required|array|max:' . GuestRequest::PER_PAGE_MAX,
-        ];
-
-        if ($data['action'] === 'change_status') {
-            $rules['status'] = 'required|in:' . Guest::STATUSES;
-        }
-
-        $this->validate($data, $rules, [
-            'action.in'          => __('Choose a valid bulk action.', 'fluent-event'),
-            'status.required'    => __('Choose the status to move the guests to.', 'fluent-event'),
-            'status.in'          => GuestRequest::messages()['status.in'],
-            'guest_ids.required' => __('Select at least one guest.', 'fluent-event'),
-            'guest_ids.max'      => __('Too many guests selected at once.', 'fluent-event'),
-        ]);
+        $data = GuestRequest::sanitize($request->all());
+        $this->validate($data, GuestRequest::bulkRules($data), GuestRequest::messages());
 
         $guests = Guest::query()
             ->where('event_id', $event->id)
