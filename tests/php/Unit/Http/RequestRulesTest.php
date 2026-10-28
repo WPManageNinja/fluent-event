@@ -144,6 +144,35 @@ class RequestRulesTest extends TestCase
         }
     }
 
+    /**
+     * An update may send one side of the window; the other keeps its saved offset.
+     *
+     * @dataProvider partialWindowUpdates
+     */
+    public function test_an_update_checks_the_window_it_will_store($submitted, $isValid)
+    {
+        $data = array_merge(['start_at' => '2026-11-10 18:00', 'end_at' => '2026-11-10 20:00'], $submitted);
+        $saved = ['registration_opens' => ['value' => 1, 'unit' => 'hours'], 'registration_closes' => null];
+
+        try {
+            EventRequest::validateDateWindow($data, $saved);
+            $this->assertTrue($isValid, 'The registration window was accepted');
+        } catch (ValidationException $e) {
+            $this->assertFalse($isValid, 'The registration window was refused');
+            $this->assertArrayHasKey('registration_closes', $e->errors());
+        }
+    }
+
+    public function partialWindowUpdates()
+    {
+        return [
+            'closes before the saved opening'      => [['registration_closes' => ['value' => 1, 'unit' => 'days']], false],
+            'closes after the saved opening'       => [['registration_closes' => ['value' => 30, 'unit' => 'minutes']], true],
+            'saved opening cleared in the same go' => [['registration_opens' => null, 'registration_closes' => ['value' => 1, 'unit' => 'days']], true],
+            'neither side sent'                    => [[], true],
+        ];
+    }
+
     public function registrationWindows()
     {
         return [

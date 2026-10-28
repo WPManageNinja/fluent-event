@@ -91,7 +91,7 @@ class EventRequest extends BaseRequest
         return $rules;
     }
 
-    public static function validateDateWindow($data)
+    public static function validateDateWindow($data, $existingMeta = [])
     {
         $start = strtotime(Arr::get($data, 'start_at'));
         $end = strtotime(Arr::get($data, 'end_at'));
@@ -104,9 +104,12 @@ class EventRequest extends BaseRequest
             ]);
         }
 
+        // An omitted side keeps its saved offset (see meta()), so check the pair that will be stored; null clears.
+        [$opens, $closes] = array_map(function ($key) use ($data, $existingMeta) {
+            return array_key_exists($key, $data) ? $data[$key] : Arr::get((array) $existingMeta, $key);
+        }, Event::REGISTRATION_LIMITS);
+
         // Both are offsets before the start, so opening first means the larger offset.
-        $opens = Arr::get($data, 'registration_opens');
-        $closes = Arr::get($data, 'registration_closes');
 
         if ($opens && $closes && Settings::reminderInSeconds($opens) <= Settings::reminderInSeconds($closes)) {
             throw new ValidationException('Unprocessable Entity!', 422, null, [

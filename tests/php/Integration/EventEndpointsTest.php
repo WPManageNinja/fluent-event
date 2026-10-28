@@ -179,6 +179,29 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertStringContainsString('Registration must close after it opens.', wp_json_encode($response['data']));
     }
 
+    public function test_an_update_sending_only_a_closing_time_is_checked_against_the_saved_opening()
+    {
+        $event = $this->createEvent([], ['registration_opens' => ['value' => 1, 'unit' => 'hours']]);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_closes' => ['value' => 1, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertStringContainsString('Registration must close after it opens.', wp_json_encode($response['data']));
+        $this->assertNull(Event::query()->find($event->id)->meta['registration_closes']);
+
+        $cleared = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens'  => null,
+            'registration_closes' => ['value' => 1, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame(200, $cleared['status'], wp_json_encode($cleared['data']));
+        $meta = Event::query()->find($event->id)->meta;
+        $this->assertNull($meta['registration_opens']);
+        $this->assertSame(['value' => 1, 'unit' => 'days'], $meta['registration_closes']);
+    }
+
     public function test_a_zero_offset_is_kept_as_the_events_start_not_dropped()
     {
         $event = $this->createEvent();
