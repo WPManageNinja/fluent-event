@@ -16,6 +16,7 @@ class DateTimeHelper
         'j' => 'D',    // Day of the month without leading zeros
         'l' => 'dddd', // A full textual representation of the day of the week
         'N' => '',     // Not supported in Day.js (ISO-8601 numeric day of the week)
+        'S' => '',     // Only after "j"/"d", where it becomes "Do" (see convertToDayJsFormat)
         'w' => 'd',    // Numeric representation of the day of the week
         'z' => 'DDD',  // The day of the year (starting from 0)
 
@@ -83,13 +84,10 @@ class DateTimeHelper
                 continue;
             }
 
-            // Day.js only has an ordinal for the day of month ("Do"), so "jS"/"dS" become "Do".
-            if ($char === 'S') {
-                $prev = $i > 0 ? $phpFormat[$i - 1] : '';
-                $isEscaped = $i > 1 && $phpFormat[$i - 2] === '\\';
-                if (($prev === 'j' || $prev === 'd') && !$isEscaped) {
-                    $result = substr($result, 0, -strlen(self::PHP_TO_DAYJS[$prev])) . 'Do';
-                }
+            // Day.js only has an ordinal for the day of month, so "jS"/"dS" become "Do".
+            if (($char === 'j' || $char === 'd') && ($phpFormat[$i + 1] ?? '') === 'S') {
+                $result .= 'Do';
+                $i++;
                 continue;
             }
 
