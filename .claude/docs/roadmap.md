@@ -44,36 +44,21 @@ Limited-seat RSVP events for community meetups. All logged-in members, no public
 | Guest bulk actions | Luma, Eventbrite | select guests on the current page (checkbox per row + select all); change their status (optional confirmation / cancellation / waitlist email, queued per guest) or delete them. Export comes later |
 | RSVP deadline | Luma, Meetup | registration closes at a set time (e.g. 2 hours before start); admins can still add guests after it |
 | Registration opens at | Meetup, Eventbrite | RSVP stays closed until a set time ("opens Monday 10:00"); pairs with the deadline |
-| Guests may cancel until X hours before start | — | after the cutoff the "Not going" button is locked for members; admins can still change a guest |
 
 Design:
-- **No new entry type.** Capacity, waitlist and deadline are settings on RSVP events
-  (`event_details.meta`: `capacity`, `waitlist`, `rsvp_opens_at`, `rsvp_deadline`, `cancel_until`). The entry type stays "how
-  people get in" (rsvp / open / later ticketed); ticketed mode reuses the same waitlist with
-  per-tier seats.
-- New guest status `waitlisted`. Waitlisted guests get no meeting link and no reminders —
-  the reminder query must switch to `Event::SEAT_STATUSES` (today it only excludes
-  `cancelled` / `not_going`, `EventReminderService.php:162`).
+- **No new entry type.** Capacity, waitlist and the registration window are settings on RSVP
+  events (`event_details.meta`: `capacity`, `waitlist`, `registration_opens`,
+  `registration_closes`; the window is an offset `{value, unit}` before the start, so it moves
+  with the event). The entry type stays "how people get in" (rsvp / open / later ticketed);
+  ticketed mode reuses the same waitlist with per-tier seats.
+- New guest status `waitlisted`. Waitlisted guests get no meeting link and no reminders (the
+  reminder query reads `Event::SEAT_STATUSES`).
 - The last seat is a race: two members RSVPing at once must not both get it. Take seats
   under a lock, not a read-then-insert.
 
 ---
 
-## Release 3 — v1.2 "Approval & FluentCRM"
-
-| Feature | Seen in | Notes |
-|---|---|---|
-| Guest approval ("request to join") | Luma | FR-6.9. When on, an RSVP lands as `pending`; the host approves or declines from the guest list (bulk too). Email on approve (with the meeting link) and on decline. An approval takes a seat — if the event is full, the guest goes to the waitlist |
-| FluentCRM tag on RSVP | Fluent suite | on "going": add the contact (create if new) to chosen tags / lists. Optional: remove on not going / cancel. Set per calendar, override per event. Expose an "RSVP'd to event" automation trigger |
-
-Design:
-- Approval is another RSVP setting (`event_details.meta.approval`), matching the spec's
-  `join_policy = approval`. New guest status `pending`.
-- FluentCRM is optional: the settings only appear when FluentCRM is active.
-
----
-
-## Release 4 — v1.3 "Venues, organizers, speakers & categories"
+## Release 3 — v1.2 "Venues, organizers, speakers & categories"
 
 Reusable records instead of retyping them in every event. Designed as WordPress taxonomies
 on `fe_event` with extra fields in term meta (FR-6.17) — not registered yet.
@@ -88,6 +73,20 @@ on `fe_event` with extra fields in term meta (FR-6.17) — not registered yet.
 
 ---
 
+## Release 4 — v1.3 "Approval & FluentCRM"
+
+| Feature | Seen in | Notes |
+|---|---|---|
+| Guest approval ("request to join") | Luma | FR-6.9. When on, an RSVP lands as `pending`; the host approves or declines from the guest list (bulk too). Email on approve (with the meeting link) and on decline. An approval takes a seat — if the event is full, the guest goes to the waitlist |
+| FluentCRM tag on RSVP | Fluent suite | on "going": add the contact (create if new) to chosen tags / lists. Optional: remove on not going / cancel. Set per calendar, override per event. Expose an "RSVP'd to event" automation trigger |
+
+Design:
+- Approval is another RSVP setting (`event_details.meta.approval`), matching the spec's
+  `join_policy = approval`. New guest status `pending`.
+- FluentCRM is optional: the settings only appear when FluentCRM is active.
+
+---
+
 ## Release 5 — v2.0 "Event landing pages" (major)
 
 Every event and calendar gets its own public page, outside FluentCommunity — the way
@@ -98,7 +97,7 @@ community add-on into a standalone event tool, and makes events shareable anywhe
 |---|---|---|
 | Public event page: cover, date/time, venue or online, host, description, guest count, add to calendar, share | FluentBooking, Luma, Eventbrite | own full-page template, not the theme. `fe_event` CPT stays non-public |
 | Calendar page: upcoming + past events of one calendar, with its branding | FluentBooking host page, Luma calendars | schema ready: `calendars.meta` logo / cover / theme_color |
-| Register on the page without an account (name + email) | Luma, Eventbrite | schema ready: guest rows allow no `user_id`. Public endpoint needs nonce + rate limit + honeypot. Capacity, waitlist, deadline and approval from v1.1–v1.2 apply here too |
+| Register on the page without an account (name + email) | Luma, Eventbrite | schema ready: guest rows allow no `user_id`. Public endpoint needs nonce + rate limit + honeypot. Capacity, waitlist, deadline and approval from v1.1–v1.3 apply here too |
 | Confirmation page + "manage my RSVP" link (change / cancel) | FluentBooking, Luma | signed per-guest link in the confirmation email |
 | Visibility: public / unlisted (link only) / private | Luma | FR-6.5 — only meaningful once a public page exists |
 | Reveal the meeting link only X minutes before start | — | until then going guests see "Link available 15 min before start"; stops the link spreading early. Applies to the community post too |
@@ -161,6 +160,7 @@ rows sharing `group_id`, payment reference on the `is_buyer` row.
 | ⭐ Seat hold during checkout (e.g. 15 min), released on failed / abandoned payment | Eventbrite | stops two buyers paying for the last seat |
 | ⭐ Coupons, discounts, tax, invoices, receipts | — | FluentCart |
 | ⭐ Cancel / refund in FluentCart → tickets cancelled, seats freed | — | `fluent_cart/order_canceled`, `order_fully_refunded`, `order_partially_refunded` |
+| ⭐ Guests may cancel until X hours before start | — | an offset before the start like the registration window (`meta.cancel_until`, `{value, unit}`). After the cutoff a guest can no longer cancel or request a refund themselves; admins can still change a guest |
 | ⭐ Sales reports | — | FluentCart; FluentEvent keeps attendance |
 | ⭐ Ticket email with QR code + QR scan check-in | Event Tickets Plus, Tickera, Luma | phone camera, no app needed |
 
@@ -226,7 +226,7 @@ FluentBooking keeps Twilio SMS in Pro too (`fluent-booking-pro/app/Services/Inte
 
 | Feature | Seen in | Notes |
 |---|---|---|
-| ⭐ FluentCRM for tickets: tags on purchase, more automation triggers | — | extends the v1.2 RSVP integration |
+| ⭐ FluentCRM for tickets: tags on purchase, more automation triggers | — | extends the v1.3 RSVP integration |
 | Import events from iCal / Google / Eventbrite | TEC Event Aggregator | |
 | Per-event insights (page views, sign-ups, conversion) | Luma | FR-6.11; landing pages give the view count |
 | Outgoing webhooks | Eventbrite | for Zapier-style automation |
