@@ -195,6 +195,8 @@ class CommunityEventController extends Controller
             as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
         } elseif ($guest->status === 'not_going' && $wasGoing && !empty($emails['registration_cancellation']['enabled'])) {
             as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
+        } elseif ($guest->status === 'waitlisted' && $previousStatus !== 'waitlisted' && !empty($emails['registration_waitlist']['enabled'])) {
+            as_enqueue_async_action('fluent_event/send_registration_waitlist', [(int) $guest->id], 'fluent-event');
         }
 
         $message = __('You are registered to this event.', 'fluent-event');

@@ -12,7 +12,7 @@
             <section class="fe-form__section">
                 <div class="fe-form__section-rail">
                     <h2 class="fe-form__section-title">{{ $t('Registration') }}</h2>
-                    <p class="fe-form__section-desc">{{ $t('Sent right after a guest registers or cancels.') }}</p>
+                    <p class="fe-form__section-desc">{{ $t('Sent right after a guest registers, is waitlisted or cancels.') }}</p>
                 </div>
 
                 <div class="fe-form__section-fields">
@@ -47,6 +47,23 @@
                             v-model="cancellation.enabled"
                             :disabled="!$userCan('write_settings')"
                             :aria-label="$t('Send an email when a registration is cancelled')"
+                        />
+                    </div>
+
+                    <div class="fe-form__toggle">
+                        <div class="fe-form__toggle-text">
+                            <span class="fe-form__toggle-title">{{ $t('Waitlist email') }}</span>
+                            <span class="fe-form__hint">
+                                {{ waitlist.enabled
+                                    ? $t('Email guests when they join the waitlist of a full event or an admin moves them to it.')
+                                    : $t('Guests get no email when they are waitlisted.') }}
+                            </span>
+                        </div>
+
+                        <el-switch
+                            v-model="waitlist.enabled"
+                            :disabled="!$userCan('write_settings')"
+                            :aria-label="$t('Send an email when a guest is waitlisted')"
                         />
                     </div>
                 </div>
@@ -160,6 +177,7 @@
                 error: '',
                 confirmation: { enabled: true },
                 cancellation: { enabled: true },
+                waitlist: { enabled: true },
                 reminder: { enabled: true },
                 times: [{ value: 24, unit: 'hours' }],
                 maxTimes: 5,
@@ -184,6 +202,7 @@
             setSettings(settings) {
                 this.confirmation = { enabled: settings.registration_confirmation.enabled };
                 this.cancellation = { enabled: settings.registration_cancellation.enabled };
+                this.waitlist = { enabled: settings.registration_waitlist.enabled };
                 this.reminder = { enabled: settings.reminder_to_guest.enabled };
                 this.times = settings.reminder_to_guest.times.map(time => ({ ...time }));
             },
@@ -207,6 +226,9 @@
                         },
                         registration_cancellation: {
                             enabled: this.cancellation.enabled,
+                        },
+                        registration_waitlist: {
+                            enabled: this.waitlist.enabled,
                         },
                         reminder_to_guest: {
                             enabled: this.reminder.enabled,

@@ -253,6 +253,33 @@ class EventReminderService
         do_action('fluent_event/guest/cancellation_sent', $guest, $event);
     }
 
+    public static function sendWaitlist($guestId)
+    {
+        if (empty(Settings::get(Settings::EMAIL_NOTIFICATIONS)['registration_waitlist']['enabled'])) return;
+
+        $guest = Guest::query()->find((int) $guestId);
+
+        if (!$guest || $guest->status !== 'waitlisted' || !is_email($guest->email)) return;
+
+        $event = Event::query()->find($guest->event_id);
+
+        if (!$event || $event->status === 'draft') return;
+
+        $subject = sprintf(
+            /* translators: %s is the event title */
+            __('You are on the waitlist for %s', 'fluent-event'),
+            $event->title
+        );
+
+        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+        $intro = __('You are on the waitlist for %1$s on %2$s (%3$s). The event is full, so you do not have a seat yet.', 'fluent-event');
+
+        // A waitlisted guest has no seat, so like a cancellation it stops before the meeting link.
+        Mailer::send($guest->email, $subject, self::buildGreeting($event, $guest, $intro));
+
+        do_action('fluent_event/guest/waitlist_sent', $guest, $event);
+    }
+
     // Sorted, so scheduleReminders() can compare it to what is queued; empty when the reminder is turned off.
     protected static function leadTimes($reminder)
     {
