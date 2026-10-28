@@ -1,4 +1,4 @@
-import { t, portalVars, eventsApi, errorMessage, isSeated } from './utils';
+import { t, portalVars, eventsApi, errorMessage, isSeated, siteDateTime } from './utils';
 import { CHECK, CHEVRON, CLOCK, CROSS, TICKET } from './icons';
 
 /*
@@ -39,6 +39,16 @@ export default {
         },
         isFullForMe() {
             return !!this.event.is_full && this.status !== 'going';
+        },
+        // Outside the registration window only a member already going keeps the RSVP, to give up the seat.
+        registrationNote() {
+            if (this.status === 'going' || this.event.registration_open) {
+                return '';
+            }
+
+            return this.event.registration_opens_at
+                ? t('Opens %s', siteDateTime(this.event.registration_opens_at))
+                : t('Registration closed');
         },
     },
     beforeUnmount() {
@@ -97,6 +107,12 @@ export default {
                 <span v-if="status === 'waitlisted'" class="fe-event-actions__state-icon" aria-hidden="true">${CLOCK}</span>
                 <span v-else class="fe-event-actions__state-icon" aria-hidden="true">${CROSS}</span>
                 {{ stateLabel }}
+            </span>
+
+            <span v-else-if="registrationNote" class="fe-event-actions__state">
+                <span v-if="event.registration_opens_at" class="fe-event-actions__state-icon" aria-hidden="true">${CLOCK}</span>
+                <span v-else class="fe-event-actions__state-icon" aria-hidden="true">${TICKET}</span>
+                {{ registrationNote }}
             </span>
 
             <span v-else-if="isFullForMe && !event.waitlist" class="fe-event-actions__state">

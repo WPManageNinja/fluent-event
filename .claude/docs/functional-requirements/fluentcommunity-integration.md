@@ -66,7 +66,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - REST, `fluent-event/v2/community/*`:
   - `GET events` — the events list, filtered to visible posts in SQL.
   - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute. A
-    `going` to a full event lands as `waitlisted` when its waitlist is on, else 422.
+    `going` to a full event lands as `waitlisted` when its waitlist is on, else 422. Outside the
+    registration window only a member already going may answer, and only to give up the seat.
   - `GET editor-assets` — the WordPress editor markup for the create-event page; `write_events` only.
 
 ## fcom extension points (event-agnostic)
@@ -103,8 +104,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Waitlist:** a per-event switch (`meta.waitlist`, off by default, only with a capacity). When on,
   a full event offers a single **Join waitlist** button (no dropdown); the RSVP lands as
   `waitlisted`, which holds no seat, sees no meeting link and gets no reminders. Admins filter by
-  Waitlisted and use **Move to Going**. Until auto-promote lands, a freed seat goes to whoever
-  says going first.
+  Waitlisted and use **Move to Going** (one guest or in bulk). There is no auto-promote: a freed
+  seat goes to whoever says going first.
 - **Member-owned vs host-owned status:** the RSVP dropdown is only for `going` / `not_going`
   (`checked_in` shows as Going). `waitlisted` and `cancelled` are the host's to change: the event
   page shows a notice ("You are on the waitlist"; "Your registration has been cancelled" in a
@@ -116,6 +117,13 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   An offline event never exposes one.
 - **Registration:**
   - Logged-in members only; `rsvp` events only; refused once the event has ended.
+  - **Window:** `meta.registration_opens` / `registration_closes`, each `{value, unit}` before the
+    start (null = open once published / until the event ends), set in both event forms with a
+    preview of the date they work out to. Being offsets, they move with the event. Before it opens
+    the event page shows "Registration not open yet" with the opening time, and cards show
+    "Opens …"; after it closes both say "Registration closed". While open, the page shows
+    "Registration closes …". A member already going (or checked in) keeps the RSVP to give up
+    the seat; admins can add guests any time.
   - One guest row per member per event. A row an admin added under the member's email is
     claimed, not duplicated; an email already registered to another member is refused.
   - Saying *going* again keeps a checked-in guest checked in.
@@ -140,5 +148,5 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 
 ## Out of scope
 
-Ticketed mode, waitlists, recurring events in posts, host notifications per registration,
+Ticketed mode, recurring events in posts, host notifications per registration,
 schema.org markup.

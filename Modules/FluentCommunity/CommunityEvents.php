@@ -197,6 +197,8 @@ class CommunityEvents
         $isRegistered = in_array($myStatus, Event::SEAT_STATUSES, true);
         $isPast = $event->end_at < gmdate(DateTimeHelper::FORMAT);
         $hasMeetingUrl = $event->venue_type === 'online' && !empty($meta['online_meeting_url']);
+        [$opensAt, $closesAt] = Event::registrationWindow($event);
+        $now = time();
 
         return [
             'id'                 => (int) $event->id,
@@ -223,7 +225,10 @@ class CommunityEvents
             'waitlist'           => $capacity > 0 && $meta['waitlist'] === 'yes',
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
-            'registration_open'  => $isRsvp && !$isPast,
+            'registration_open'  => $isRsvp && !$isPast && (!$opensAt || $now >= $opensAt) && (!$closesAt || $now < $closesAt),
+            // In site time, like start_at_site; each only while that moment is still ahead.
+            'registration_opens_at'  => $isRsvp && $opensAt > $now ? DateTimeHelper::timestampToSite($opensAt) : null,
+            'registration_closes_at' => $isRsvp && $closesAt > $now ? DateTimeHelper::timestampToSite($closesAt) : null,
             'edit_url'           => $canEdit ? self::editUrl($event->id) : '',
         ];
     }

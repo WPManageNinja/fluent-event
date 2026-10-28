@@ -207,6 +207,16 @@ return [
             'Unlimited' => __('Unlimited', 'fluent-event'),
             'How many members can say they are going. Leave empty for no limit.' => __('How many members can say they are going. Leave empty for no limit.', 'fluent-event'),
             'Let members join a waitlist when the event is full' => __('Let members join a waitlist when the event is full', 'fluent-event'),
+            'Registration window' => __('Registration window', 'fluent-event'),
+            'Guest control' => __('Guest control', 'fluent-event'),
+            'Seats, the waitlist and the guest count members see.' => __('Seats, the waitlist and the guest count members see.', 'fluent-event'),
+            'When members can start joining.' => __('When members can start joining.', 'fluent-event'),
+            'If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.' => __('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.', 'fluent-event'),
+            /* translators: label for when registration opens */
+            'Opens' => __('Opens', 'fluent-event'),
+            /* translators: label for when registration closes */
+            'Closes' => __('Closes', 'fluent-event'),
+            'Time before the event starts' => __('Time before the event starts', 'fluent-event'),
             'Waitlisted' => __('Waitlisted', 'fluent-event'),
             'Move to Going' => __('Move to Going', 'fluent-event'),
             'RSVP' => __('RSVP', 'fluent-event'),

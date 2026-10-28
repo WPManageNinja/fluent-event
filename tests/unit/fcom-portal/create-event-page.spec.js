@@ -67,7 +67,9 @@ describe('CreateEventPage', () => {
             entry_type: 'rsvp',
             show_guest_count: 'no',
             capacity: 0,
-            waitlist: 'no'
+            waitlist: 'no',
+            registration_opens: null,
+            registration_closes: null
         }));
     });
 

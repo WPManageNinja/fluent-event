@@ -2,6 +2,7 @@
 
 namespace FluentEvent\Tests\Unit\Services;
 
+use Brain\Monkey\Functions;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Tests\TestCase;
 
@@ -37,6 +38,13 @@ class DateTimeHelperTest extends TestCase
     public function test_utc_converts_back_to_local_time()
     {
         $this->assertSame('2026-10-15 10:00:00', DateTimeHelper::convertFromUtc('2026-10-15 04:00:00', 'Asia/Dhaka'));
+    }
+
+    public function test_a_timestamp_converts_to_site_time()
+    {
+        Functions\when('wp_timezone_string')->justReturn('Asia/Dhaka');
+
+        $this->assertSame('2026-10-15 10:00:00', DateTimeHelper::timestampToSite(strtotime('2026-10-15 04:00:00 UTC')));
     }
 
     public function test_conversion_follows_daylight_saving()

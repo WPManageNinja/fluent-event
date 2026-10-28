@@ -65,6 +65,16 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $response['data']['guest']['status']);
     }
 
+    // The registration window limits members' RSVPs only; an admin can add before it opens and after it closes.
+    public function test_an_admin_can_add_a_guest_outside_the_registration_window()
+    {
+        $notOpen = $this->createEvent([], ['registration_opens' => ['value' => 1, 'unit' => 'days']]);
+        $closed = $this->createEvent([], ['registration_closes' => ['value' => 4, 'unit' => 'days']]);
+
+        $this->assertSame(200, $this->addGuest(['name' => 'Early', 'email' => 'early@example.test'], $notOpen)['status']);
+        $this->assertSame(200, $this->addGuest(['name' => 'Late', 'email' => 'late@example.test'], $closed)['status']);
+    }
+
     private function bulk(array $params)
     {
         return $this->rest('POST', "events/{$this->event->id}/guests/bulk-action", $params);

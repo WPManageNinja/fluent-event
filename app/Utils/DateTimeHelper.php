@@ -118,4 +118,9 @@ class DateTimeHelper
 
         return $dateTime->format($format);
     }
+
+    public static function timestampToSite($timestamp)
+    {
+        return self::convertFromUtc(gmdate(self::FORMAT, $timestamp), wp_timezone_string());
+    }
 }

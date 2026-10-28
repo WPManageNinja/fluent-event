@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Requests;
 
 use FluentEvent\App\Models\Event;
+use FluentEvent\App\Services\Settings;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Validator\ValidationException;
 
@@ -26,6 +27,8 @@ class EventRequest extends BaseRequest
         'show_guest_count',
         'capacity',
         'waitlist',
+        'registration_opens',
+        'registration_closes',
     ];
     const SANITIZERS = [
         'calendar_id'        => 'intval',
@@ -44,6 +47,10 @@ class EventRequest extends BaseRequest
         'show_guest_count'   => 'sanitize_text_field',
         'capacity'           => 'intval',
         'waitlist'           => 'sanitize_text_field',
+        'registration_opens.value'  => 'absint',
+        'registration_opens.unit'   => 'sanitize_key',
+        'registration_closes.value' => 'absint',
+        'registration_closes.unit'  => 'sanitize_key',
     ];
     const RULES = [
         'calendar_id'        => 'required|exists:fe_calendars,id',
@@ -62,6 +69,8 @@ class EventRequest extends BaseRequest
         'show_guest_count'   => 'nullable|string|in:yes,no',
         'capacity'           => 'nullable|integer|min:0',
         'waitlist'           => 'nullable|string|in:yes,no',
+        'registration_opens'  => 'nullable|array',
+        'registration_closes' => 'nullable|array',
     ];
 
     public static function rules($data)
@@ -72,23 +81,43 @@ class EventRequest extends BaseRequest
             $rules['online_meeting_url'] = 'required|url';
         }
 
+        foreach (Event::REGISTRATION_LIMITS as $key) {
+            if (Arr::get($data, $key)) {
+                $rules[$key . '.value'] = 'required|integer|min:0';
+                $rules[$key . '.unit'] = 'required|in:' . implode(',', array_keys(Settings::REMINDER_UNITS));
+            }
+        }
+
         return $rules;
     }
 
-    public static function validateDateWindow($data)
+    public static function validateDateWindow($data, $existingMeta = [])
     {
         $start = strtotime(Arr::get($data, 'start_at'));
         $end = strtotime(Arr::get($data, 'end_at'));
 
-        if ($start && $end && $end > $start) {
-            return;
+        if (!$start || !$end || $end <= $start) {
+            throw new ValidationException('Unprocessable Entity!', 422, null, [
+                'end_at' => [
+                    'after' => esc_html__('End must be after the start.', 'fluent-event')
+                ]
+            ]);
         }
 
-        throw new ValidationException('Unprocessable Entity!', 422, null, [
-            'end_at' => [
-                'after' => esc_html__('End must be after the start.', 'fluent-event')
-            ]
-        ]);
+        // An omitted side keeps its saved offset (see meta()), so check the pair that will be stored; null clears.
+        [$opens, $closes] = array_map(function ($key) use ($data, $existingMeta) {
+            return array_key_exists($key, $data) ? $data[$key] : Arr::get((array) $existingMeta, $key);
+        }, Event::REGISTRATION_LIMITS);
+
+        // Both are offsets before the start, so opening first means the larger offset.
+
+        if ($opens && $closes && Settings::reminderInSeconds($opens) <= Settings::reminderInSeconds($closes)) {
+            throw new ValidationException('Unprocessable Entity!', 422, null, [
+                'registration_closes' => [
+                    'after' => esc_html__('Registration must close after it opens.', 'fluent-event')
+                ]
+            ]);
+        }
     }
 
     public static function messages()
@@ -120,6 +149,12 @@ class EventRequest extends BaseRequest
             'capacity.integer'            => __('Capacity must be a whole number.', 'fluent-event'),
             'capacity.min'                => __('Capacity cannot be negative.', 'fluent-event'),
             'waitlist.in'                 => __('Waitlist must be yes or no.', 'fluent-event'),
+            'registration_opens.value.integer' => __('Registration opens must be a whole number.', 'fluent-event'),
+            'registration_opens.value.min' => __('Registration opens cannot be negative.', 'fluent-event'),
+            'registration_opens.unit.in' => __('Registration opens must be in minutes, hours or days.', 'fluent-event'),
+            'registration_closes.value.integer' => __('Registration closes must be a whole number.', 'fluent-event'),
+            'registration_closes.value.min' => __('Registration closes cannot be negative.', 'fluent-event'),
+            'registration_closes.unit.in' => __('Registration closes must be in minutes, hours or days.', 'fluent-event'),
         ];
     }
 
@@ -148,6 +183,13 @@ class EventRequest extends BaseRequest
 
         foreach ($unused as $key) {
             $meta[$key] = '';
+        }
+
+        // Empty means no limit on that side; otherwise keep only the offset itself.
+        foreach (Event::REGISTRATION_LIMITS as $key) {
+            if (array_key_exists($key, $meta)) {
+                $meta[$key] = Arr::get($meta, $key . '.unit') ? Arr::only($meta[$key], ['value', 'unit']) : null;
+            }
         }
 
         return $meta;

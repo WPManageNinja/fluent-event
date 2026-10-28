@@ -93,7 +93,7 @@
                     >
                         <span class="fe-event-view__notice-icon" aria-hidden="true">
                             <el-icon>
-                                <Clock v-if="notice.icon === 'waiting'"/>
+                                <Clock v-if="notice.icon === 'waiting' || notice.icon === 'upcoming'"/>
                                 <CircleClose v-else-if="notice.icon === 'cancelled'"/>
                                 <Ticket v-else/>
                             </el-icon>
@@ -108,6 +108,8 @@
                         <event-actions v-if="hasActions" :event="event" @done="applyResponse" @error="error = $event"></event-actions>
                         <span v-if="countLabel && !showMeter" class="fe-event-view__count">{{ countLabel }}</span>
                     </div>
+
+                    <p v-if="closesLabel" class="fe-event-view__note">{{ closesLabel }}</p>
 
                     <p v-if="error" class="fe-event-view__error" role="alert">{{ error }}</p>
 
@@ -148,7 +150,7 @@
 
 <script>
 import { ArrowLeft, Calendar, CircleClose, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventPhase, guestCountLabel, isSeated, portalVars, timeFormat } from '../utils';
+import { communityApi, eventPhase, guestCountLabel, isSeated, portalVars, siteDateTime, timeFormat } from '../utils';
 import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -236,6 +238,21 @@ export default {
         canJoinWaitlist() {
             return this.isFullForMe && !!this.event.waitlist && this.phase !== 'ended' && !this.isHostOwned;
         },
+        // Before registration opens or after it closes; a member already going keeps the RSVP to give up the seat.
+        registrationShut() {
+            return this.event.entry_type === 'rsvp'
+                && this.phase !== 'ended'
+                && !this.event.registration_open
+                && !isSeated(this.event)
+                && !this.isHostOwned;
+        },
+        closesLabel() {
+            if (!this.event.registration_open || !this.event.registration_closes_at) {
+                return '';
+            }
+
+            return this.$t('Registration closes %s', siteDateTime(this.event.registration_closes_at));
+        },
         notice() {
             if (this.event.my_status === 'cancelled') {
                 return {
@@ -251,6 +268,20 @@ export default {
                     title: this.$t('You are on the waitlist'),
                     desc: this.$t('If a seat opens up, you will be moved to going.'),
                 };
+            }
+
+            if (this.registrationShut) {
+                return this.event.registration_opens_at
+                    ? {
+                        icon: 'upcoming',
+                        title: this.$t('Registration not open yet'),
+                        desc: this.$t('Registration opens %s.', siteDateTime(this.event.registration_opens_at)),
+                    }
+                    : {
+                        icon: 'full',
+                        title: this.$t('Registration closed'),
+                        desc: this.$t('This event is no longer taking registrations.'),
+                    };
             }
 
             if (!this.isFullForMe) {
@@ -286,6 +317,7 @@ export default {
             return this.event.entry_type === 'rsvp'
                 && this.phase !== 'ended'
                 && !this.isHostOwned
+                && !this.registrationShut
                 && (!this.isFullForMe || this.canJoinWaitlist);
         },
         // Once someone is going, or for open events anyone can attend.

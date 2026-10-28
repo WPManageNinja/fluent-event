@@ -88,7 +88,7 @@ class EventController extends Controller
 
         $data = EventRequest::sanitize($request->all());
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
-        EventRequest::validateDateWindow($data);
+        EventRequest::validateDateWindow($data, $event->meta);
 
         $data     = EventRequest::format($data, $event->meta);
         $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));

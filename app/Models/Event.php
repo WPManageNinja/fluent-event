@@ -2,6 +2,7 @@
 
 namespace FluentEvent\App\Models;
 
+use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 
 /**
@@ -17,6 +18,7 @@ class Event extends Model
     const VENUE_TYPES = 'offline,online';
     const ENTRY_TYPES = 'rsvp,open';
     const SEAT_STATUSES = ['going', 'checked_in'];
+    const REGISTRATION_LIMITS = ['registration_opens', 'registration_closes'];
     const POST_STATUSES = [
         'public'   => 'publish',
         'private'  => 'private',
@@ -54,20 +56,40 @@ class Event extends Model
     public static function defaultMeta()
     {
         return [
-            'cover_url'          => '',
-            'online_meeting_url' => '',
-            'venue'              => '',
-            'address'            => '',
-            'entry_type'         => '',
-            'show_guest_count'   => 'yes',
-            'capacity'           => 0, // most guests going at once; 0 = unlimited
-            'waitlist'           => 'no', // yes: a full event files new RSVPs as waitlisted
+            'cover_url'           => '',
+            'online_meeting_url'  => '',
+            'venue'               => '',
+            'address'             => '',
+            'entry_type'          => '',
+            'show_guest_count'    => 'yes',
+            'capacity'            => 0, // most guests going at once; 0 = unlimited
+            'waitlist'            => 'no', // yes: a full event files new RSVPs as waitlisted
+            'registration_opens'  => null, // {value, unit} before the start; null = as soon as published
+            'registration_closes' => null, // {value, unit} before the start; null = until the event ends
         ];
     }
 
     public static function postStatusFor($status)
     {
         return self::POST_STATUSES[$status] ?? 'draft';
+    }
+
+    // [opens, closes] as UTC timestamps, each null where the host set no limit.
+    // Counted back on the event's own clock, as the form previews it, so "7 days before" survives a DST change.
+    public static function registrationWindow($event)
+    {
+        $meta = (array) $event->meta;
+        $startsAt = strtotime(DateTimeHelper::convertFromUtc($event->start_at, $event->timezone) . ' UTC');
+
+        return array_map(function ($key) use ($meta, $startsAt, $event) {
+            if (empty($meta[$key])) {
+                return null;
+            }
+
+            $local = gmdate(DateTimeHelper::FORMAT, $startsAt - Settings::reminderInSeconds($meta[$key]));
+
+            return strtotime(DateTimeHelper::convertToUtc($local, $event->timezone) . ' UTC');
+        }, self::REGISTRATION_LIMITS);
     }
 
     public function guests()

@@ -2,6 +2,7 @@
 
 namespace FluentEvent\Tests\Unit\Modules;
 
+use Brain\Monkey\Functions;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
 use FluentEvent\Tests\TestCase;
 
@@ -121,6 +122,68 @@ class CommunityEventFormatTest extends TestCase
 
         $this->assertSame('https://meet.example.com/launch', $formatted['online_meeting_url']);
         $this->assertFalse($formatted['registration_open'], 'An open event takes no registrations');
+    }
+
+    /**
+     * What a member is told about registration, for every limit against every
+     * point in an event's life. The *_at fields name only a moment still ahead.
+     *
+     * @dataProvider registrationStates
+     */
+    public function test_the_registration_window_across_the_events_life($startsIn, $meta, $isOpen, $opensBefore, $closesBefore)
+    {
+        Functions\when('wp_timezone_string')->justReturn('UTC');
+        $start = time() + $startsIn;
+        $formatted = $this->format($this->event(
+            ['start_at' => gmdate('Y-m-d H:i:s', $start), 'end_at' => gmdate('Y-m-d H:i:s', $start + 2 * HOUR_IN_SECONDS)],
+            $meta
+        ));
+        $before = function ($offset) use ($start) {
+            return $offset === null ? null : gmdate('Y-m-d H:i:s', $start - $offset);
+        };
+
+        $this->assertSame($isOpen, $formatted['registration_open'], 'registration_open');
+        $this->assertSame($before($opensBefore), $formatted['registration_opens_at'], 'registration_opens_at');
+        $this->assertSame($before($closesBefore), $formatted['registration_closes_at'], 'registration_closes_at');
+    }
+
+    public function registrationStates()
+    {
+        $hour = 3600;
+        $day = 86400;
+        $opens = function ($value, $unit) {
+            return ['registration_opens' => ['value' => $value, 'unit' => $unit]];
+        };
+        $closes = function ($value, $unit) {
+            return ['registration_closes' => ['value' => $value, 'unit' => $unit]];
+        };
+        $week = $opens(7, 'days') + $closes(1, 'days');
+
+        // [starts in, limits, open?, opens_at (before the start), closes_at (before the start)]
+        return [
+            'no limits, upcoming'                => [3 * $day, [], true, null, null],
+            'no limits, under way'               => [-$hour, [], true, null, null],
+            'no limits, ended'                   => [-3 * $hour, [], false, null, null],
+            'opens later'                        => [3 * $day, $opens(1, 'days'), false, $day, null],
+            'opened already'                     => [2 * $day, $opens(3, 'days'), true, null, null],
+            'opens this second'                  => [$hour, $opens(60, 'minutes'), true, null, null],
+            'opens at the start, not yet'        => [2 * $hour, $opens(0, 'hours'), false, 0, null],
+            'opens at the start, under way'      => [-$hour, $opens(0, 'hours'), true, null, null],
+            'opens in minutes, not yet'          => [2 * $hour, $opens(90, 'minutes'), false, 90 * 60, null],
+            'opens in minutes, open'             => [$hour, $opens(90, 'minutes'), true, null, null],
+            'only an opening, under way'         => [-$hour, $opens(2, 'days'), true, null, null],
+            'closes later'                       => [3 * $day, $closes(1, 'hours'), true, null, $hour],
+            'closed already'                     => [3 * $hour, $closes(1, 'days'), false, null, null],
+            'closes this second'                 => [$hour, $closes(60, 'minutes'), false, null, null],
+            'closes at the start, not yet'       => [30 * 60, $closes(0, 'minutes'), true, null, 0],
+            'closes at the start, under way'     => [-$hour, $closes(0, 'minutes'), false, null, null],
+            'both, window still ahead'           => [10 * $day, $week, false, 7 * $day, $day],
+            'both, inside the window'            => [3 * $day, $week, true, null, $day],
+            'both, window over before the start' => [12 * $hour, $week, false, null, null],
+            'both, event under way'              => [-$hour, $week, false, null, null],
+            'both, event ended'                  => [-3 * $day, $week, false, null, null],
+            'an open event ignores any window'   => [10 * $day, ['entry_type' => 'open'] + $week, false, null, null],
+        ];
     }
 
     public function test_an_offline_event_never_exposes_a_stale_meeting_link()

@@ -94,10 +94,15 @@ export function timeFormat() {
     return (window.fluentComAdmin && window.fluentComAdmin.time_formatter) || 'h:mm A';
 }
 
-export function eventStart(event) {
-    const start = dayjs(event.start_at_site);
+// A *_site value, read on the site's clock like every list.
+export function siteDateTime(value) {
+    const time = dayjs(value);
 
-    return `${start.format('ddd, MMM D, YYYY')} · ${start.format(timeFormat())}`;
+    return `${time.format('ddd, MMM D, YYYY')} · ${time.format(timeFormat())}`;
+}
+
+export function eventStart(event) {
+    return siteDateTime(event.start_at_site);
 }
 
 export function eventMonth(event) {
