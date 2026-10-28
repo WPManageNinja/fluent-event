@@ -63,20 +63,22 @@ gets to see what was removed. A `deleted` hook taking `$id` while its three sibl
 **Emit `before_deleted` and `deleted` as a pair** whenever a delete has listeners worth
 serving — the first for work needing related rows still present, the second for cleanup.
 
-### Shipped — guest bulk actions
+### Shipped — guest bulk hooks
 
-The bulk endpoint writes each action with one query, so it fires one hook for the whole set
-instead of the per-guest ones (and no model events):
+A guest-list bulk action and an event delete each write guests with one query, so they fire
+one hook for the whole set instead of the per-guest ones (and no model events). The event
+always comes first, whichever path fires the hook:
 
 ```php
-fluent_event/guest/before_bulk_deleted  // $guests, $event — rows still exist
-fluent_event/guest/bulk_deleted         // $guests, $event — rows gone, models in memory
-fluent_event/guest/bulk_updated         // $guests, $previousStatuses [id => status], $event — changed guests only
+fluent_event/guest/before_bulk_deleted  // $event, $guests — rows still exist
+fluent_event/guest/bulk_deleted         // $event, $guests — rows gone, models in memory
+fluent_event/guest/bulk_updated         // $event, $guests, $previousStatuses [id => status] — changed guests only
 ```
 
-A removal fires either `guest/deleted` (one guest) or `guest/bulk_deleted` (a bulk delete),
-never both, so a listener that must see every removal hooks both. Same for `guest/updated`
-and `guest/bulk_updated`.
+`bulk_deleted` fires for a guest-list bulk delete (the selected guests) and for an event
+delete (all of its guests). A removal fires either `guest/deleted` (one guest) or
+`guest/bulk_deleted`, never both, so a listener that must see every removal hooks both. Same
+for `guest/updated` and `guest/bulk_updated`.
 
 **Filters — `fluent_event/<thing>`,** named for the value being filtered, not an event:
 

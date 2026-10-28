@@ -132,16 +132,16 @@ class GuestEndpointsTest extends IntegrationTestCase
         $ids = [(int) $first->id, (int) $second->id];
         $calls = [];
 
-        $this->addTestFilter('fluent_event/guest/before_bulk_deleted', function ($guests, $event) use (&$calls) {
+        $this->addTestFilter('fluent_event/guest/before_bulk_deleted', function ($event, $guests) use (&$calls) {
             $keys = array_map('intval', $guests->modelKeys());
             sort($keys);
             $calls[] = ['before', $keys, (int) $event->id, Guest::query()->whereIn('id', $keys)->count()];
         }, 10, 2);
-        $this->addTestFilter('fluent_event/guest/bulk_deleted', function ($guests) use (&$calls) {
+        $this->addTestFilter('fluent_event/guest/bulk_deleted', function ($event, $guests) use (&$calls) {
             $keys = array_map('intval', $guests->modelKeys());
             sort($keys);
             $calls[] = ['after', $keys, Guest::query()->whereIn('id', $keys)->count()];
-        });
+        }, 10, 2);
         $this->addTestFilter('fluent_event/guest/deleted', function () use (&$calls) {
             $calls[] = ['single'];
         });
@@ -158,7 +158,7 @@ class GuestEndpointsTest extends IntegrationTestCase
         $alreadyGoing = $this->createGuest($this->event, ['status' => 'going']);
         $calls = [];
 
-        $this->addTestFilter('fluent_event/guest/bulk_updated', function ($guests, $previous, $event) use (&$calls) {
+        $this->addTestFilter('fluent_event/guest/bulk_updated', function ($event, $guests, $previous) use (&$calls) {
             $statuses = $guests->pluck('status', 'id')->all();
             ksort($statuses);
             ksort($previous);

@@ -147,11 +147,11 @@ class GuestController extends Controller
 
         if ($data['action'] === 'delete') {
             if ($guests->isNotEmpty()) {
-                do_action('fluent_event/guest/before_bulk_deleted', $guests, $event);
+                do_action('fluent_event/guest/before_bulk_deleted', $event, $guests);
 
                 Guest::query()->whereIn('id', $guests->modelKeys())->delete();
 
-                do_action('fluent_event/guest/bulk_deleted', $guests, $event);
+                do_action('fluent_event/guest/bulk_deleted', $event, $guests);
             }
 
             return [
@@ -179,7 +179,7 @@ class GuestController extends Controller
                 $guest->fill($values);
             }
 
-            do_action('fluent_event/guest/bulk_updated', $changed, $previousStatuses, $event);
+            do_action('fluent_event/guest/bulk_updated', $event, $changed, $previousStatuses);
 
             if ($request->getSafe('send_email', 'rest_sanitize_boolean')) {
                 foreach ($changed as $guest) {
