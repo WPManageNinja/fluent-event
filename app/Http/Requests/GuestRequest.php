@@ -87,9 +87,11 @@ class GuestRequest extends BaseRequest
             'status.in'      => __('Status must be going, not going, checked in, cancelled or waitlisted.', 'fluent-event'),
             'source.string'  => __('Source must be text.', 'fluent-event'),
             'source.max'     => __('Source cannot exceed 64 characters.', 'fluent-event'),
+            'action.required' => __('Choose a bulk action.', 'fluent-event'),
             'action.in'      => __('Choose a valid bulk action.', 'fluent-event'),
             'status.required' => __('Choose the status to move the guests to.', 'fluent-event'),
             'guest_ids.required' => __('Select at least one guest.', 'fluent-event'),
+            'guest_ids.array' => __('The selected guests must be a list.', 'fluent-event'),
             'guest_ids.max'  => __('Too many guests selected at once.', 'fluent-event'),
         ];
     }

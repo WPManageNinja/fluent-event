@@ -155,7 +155,7 @@ class GuestController extends Controller
             }
 
             return [
-                /* translators: %d: number of guests deleted */
+                /* translators: %d is the number of guests deleted */
                 'message' => sprintf(_n('%d guest has been deleted.', '%d guests have been deleted.', count($guests), 'fluent-event'), count($guests)),
             ];
         }
@@ -189,7 +189,7 @@ class GuestController extends Controller
         }
 
         return [
-            /* translators: %d: number of guests whose status changed */
+            /* translators: %d is the number of guests whose status changed */
             'message' => sprintf(_n('%d guest has been updated.', '%d guests have been updated.', count($changed), 'fluent-event'), count($changed)),
         ];
     }

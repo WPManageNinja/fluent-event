@@ -34,7 +34,7 @@ One handler per subsystem. `CleanupHandler`, `RateLimitHandler`, `NotificationEv
 fluent_event/calendar/created
 fluent_event/calendar/updated
 fluent_event/event/deleted
-fluent_event/guest/rsvp_recorded
+fluent_event/guest/created
 ```
 
 fcom's real ones: `space/joined`, `space/updated`, `space/user_left`,

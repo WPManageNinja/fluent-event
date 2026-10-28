@@ -197,6 +197,15 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $this->bulk(array_merge(['guest_ids' => [$guest->id]], $params))['status']);
     }
 
+    public function test_a_bulk_request_missing_its_action_or_list_gets_the_plugins_own_message()
+    {
+        $noAction = $this->bulk(['guest_ids' => [$this->createGuest($this->event)->id]]);
+        $notAList = $this->bulk(['action' => 'delete', 'guest_ids' => '5']);
+
+        $this->assertStringContainsString('Choose a bulk action.', wp_json_encode($noAction['data']));
+        $this->assertStringContainsString('The selected guests must be a list.', wp_json_encode($notAList['data']));
+    }
+
     public function invalidBulkRequests()
     {
         return [
