@@ -125,6 +125,58 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertNotNull(Guest::query()->find($kept->id));
     }
 
+    public function test_a_bulk_delete_fires_one_hook_pair_around_the_rows()
+    {
+        $first = $this->createGuest($this->event);
+        $second = $this->createGuest($this->event);
+        $ids = [(int) $first->id, (int) $second->id];
+        $calls = [];
+
+        $this->addTestFilter('fluent_event/guest/before_bulk_deleted', function ($guests, $event) use (&$calls) {
+            $keys = array_map('intval', $guests->modelKeys());
+            sort($keys);
+            $calls[] = ['before', $keys, (int) $event->id, Guest::query()->whereIn('id', $keys)->count()];
+        }, 10, 2);
+        $this->addTestFilter('fluent_event/guest/bulk_deleted', function ($guests) use (&$calls) {
+            $keys = array_map('intval', $guests->modelKeys());
+            sort($keys);
+            $calls[] = ['after', $keys, Guest::query()->whereIn('id', $keys)->count()];
+        });
+        $this->addTestFilter('fluent_event/guest/deleted', function () use (&$calls) {
+            $calls[] = ['single'];
+        });
+
+        $this->bulk(['action' => 'delete', 'guest_ids' => $ids]);
+
+        $this->assertSame([['before', $ids, (int) $this->event->id, 2], ['after', $ids, 0]], $calls);
+    }
+
+    public function test_a_bulk_status_change_fires_one_hook_with_the_previous_statuses()
+    {
+        $waitlisted = $this->createGuest($this->event, ['status' => 'waitlisted']);
+        $notGoing = $this->createGuest($this->event, ['status' => 'not_going']);
+        $alreadyGoing = $this->createGuest($this->event, ['status' => 'going']);
+        $calls = [];
+
+        $this->addTestFilter('fluent_event/guest/bulk_updated', function ($guests, $previous, $event) use (&$calls) {
+            $statuses = $guests->pluck('status', 'id')->all();
+            ksort($statuses);
+            ksort($previous);
+            $calls[] = [$statuses, $previous, (int) $event->id];
+        }, 10, 3);
+        $this->addTestFilter('fluent_event/guest/updated', function () use (&$calls) {
+            $calls[] = 'single';
+        });
+
+        $this->bulk(['action' => 'change_status', 'status' => 'going', 'guest_ids' => [$waitlisted->id, $notGoing->id, $alreadyGoing->id]]);
+
+        $this->assertSame([[
+            [(int) $waitlisted->id => 'going', (int) $notGoing->id => 'going'],
+            [(int) $waitlisted->id => 'waitlisted', (int) $notGoing->id => 'not_going'],
+            (int) $this->event->id,
+        ]], $calls);
+    }
+
     public function test_a_bulk_action_leaves_guests_of_another_event_alone()
     {
         $other = $this->createGuest($this->createEvent(), ['status' => 'going']);

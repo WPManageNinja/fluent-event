@@ -132,6 +132,7 @@ class GuestController extends Controller
     }
 
     // One page of selected guests at a time: change their status, or delete them.
+    // The writes are single queries, so model events don't fire; the bulk hooks are the contract.
     public function handleBulkActions(Request $request, $eventId)
     {
         $event = Event::query()->findOrFail($eventId);
@@ -145,10 +146,12 @@ class GuestController extends Controller
             ->get();
 
         if ($data['action'] === 'delete') {
-            foreach ($guests as $guest) {
-                do_action('fluent_event/guest/before_deleted', $guest);
-                $guest->delete();
-                do_action('fluent_event/guest/deleted', $guest);
+            if ($guests->isNotEmpty()) {
+                do_action('fluent_event/guest/before_bulk_deleted', $guests, $event);
+
+                Guest::query()->whereIn('id', $guests->modelKeys())->delete();
+
+                do_action('fluent_event/guest/bulk_deleted', $guests, $event);
             }
 
             return [
@@ -157,34 +160,37 @@ class GuestController extends Controller
             ];
         }
 
-        $sendEmail = $request->getSafe('send_email', 'rest_sanitize_boolean');
-        $updated = 0;
+        $changed = $guests->filter(function ($guest) use ($data) {
+            return $guest->status !== $data['status'];
+        })->values();
 
-        foreach ($guests as $guest) {
-            $previousStatus = $guest->status;
+        if ($changed->isNotEmpty()) {
+            $previousStatuses = $changed->pluck('status', 'id')->all();
 
-            if ($previousStatus === $data['status']) {
-                continue;
+            // Guests already checked in were filtered out above, so every one here gets a fresh time.
+            $values = [
+                'status'        => $data['status'],
+                'checked_in_at' => $data['status'] === 'checked_in' ? current_time('mysql') : null,
+            ];
+
+            Guest::query()->whereIn('id', $changed->modelKeys())->update($values);
+
+            foreach ($changed as $guest) {
+                $guest->fill($values);
             }
 
-            $guest->status = $data['status'];
-            $guest->checked_in_at = $data['status'] === 'checked_in'
-                ? ($guest->checked_in_at ?: current_time('mysql'))
-                : null;
-            $guest->save();
+            do_action('fluent_event/guest/bulk_updated', $changed, $previousStatuses, $event);
 
-            do_action('fluent_event/guest/updated', $guest, $previousStatus);
-
-            if ($sendEmail) {
-                $this->queueStatusEmail($guest);
+            if ($request->getSafe('send_email', 'rest_sanitize_boolean')) {
+                foreach ($changed as $guest) {
+                    $this->queueStatusEmail($guest);
+                }
             }
-
-            $updated++;
         }
 
         return [
             /* translators: %d: number of guests whose status changed */
-            'message' => sprintf(_n('%d guest has been updated.', '%d guests have been updated.', $updated, 'fluent-event'), $updated),
+            'message' => sprintf(_n('%d guest has been updated.', '%d guests have been updated.', count($changed), 'fluent-event'), count($changed)),
         ];
     }
 
