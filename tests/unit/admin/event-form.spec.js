@@ -199,6 +199,28 @@ describe('CreateOrUpdateEvent', () => {
             expect(request('events').payload.capacity).toBe(0);
         });
 
+        it('loads the saved venues for the picker', () => {
+            expect(form().request('venues/options')).toMatchObject({ loadingState: null, errorState: null });
+        });
+
+        it('sends the picked saved venue, and none once it is cleared or gone from the list', () => {
+            const { vm, request, requestServer } = form();
+            vm.venues = [{ id: 4, name: 'Kingsway Hall', address: '12 Kingsway' }];
+            filled(vm, { venue_id: 4 });
+
+            vm.saveEvent();
+            expect(request('events').payload).toMatchObject({ venue_id: 4 });
+
+            vm.event.venue_id = null;
+            vm.saveEvent();
+            expect(requestServer.mock.calls.at(-1)[0].payload).toMatchObject({ venue_id: null });
+
+            vm.venues = [];
+            vm.event.venue_id = 4;
+            vm.saveEvent();
+            expect(requestServer.mock.calls.at(-1)[0].payload).toMatchObject({ venue_id: null });
+        });
+
         it('sends the registration limits as set, with null for no limit', () => {
             const { vm, request } = form();
             filled(vm, { registration_opens: { value: 3, unit: 'days' }, registration_closes: null });

@@ -1110,6 +1110,58 @@
     }
 }
 
+// Same component as the admin event form's, on fcom's tokens.
+.fe-venue-select {
+    width: 100%;
+
+    &__summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__map {
+        color: var(--fcom-text-link, #2b2e33);
+        text-decoration: underline;
+    }
+
+    &__hint {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__name,
+    &__address {
+        display: block;
+        overflow: hidden;
+        line-height: 1.4;
+        text-overflow: ellipsis;
+    }
+
+    &__name {
+        font-weight: 500;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__address {
+        font-size: 12px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+}
+
+.fe-venue-select__popper .el-select-dropdown__item {
+    height: auto;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
 // Same component as the admin view switch, on fcom's tokens.
 .fe-switch {
     position: relative;
@@ -2245,6 +2297,14 @@ body {
         display: block;
         font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__map {
+        display: inline-block;
+        margin-top: 2px;
+        font-size: 13px;
+        color: var(--fcom-text-link, #2b2e33);
+        text-decoration: underline;
     }
 
     &__error {

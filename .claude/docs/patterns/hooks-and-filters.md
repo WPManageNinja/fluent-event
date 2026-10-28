@@ -63,6 +63,18 @@ gets to see what was removed. A `deleted` hook taking `$id` while its three sibl
 **Emit `before_deleted` and `deleted` as a pair** whenever a delete has listeners worth
 serving — the first for work needing related rows still present, the second for cleanup.
 
+### Shipped — venues
+
+`VenueController` emits the calendar set for a venue. A venue is a `fe_venue` term, so the
+hooks pass the `WP_Term`:
+
+```php
+fluent_event/venue/created         // $venue — after insert
+fluent_event/venue/updated         // $venue — after save
+fluent_event/venue/before_deleted  // $venue — term still exists
+fluent_event/venue/deleted         // $venue — term is gone, object still in memory
+```
+
 ### Shipped — guest bulk hooks
 
 A guest-list bulk action and an event delete each write guests with one query, so they fire

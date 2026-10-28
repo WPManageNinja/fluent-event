@@ -4,6 +4,7 @@ namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
 use FluentEvent\App\CPT\EventPost;
+use FluentEvent\App\CPT\VenueTaxonomy;
 
 class CPTHandler
 {
@@ -20,6 +21,15 @@ class CPTHandler
 	];
 
 	/**
+	 * Taxonomy classes, each with a `registerTaxonomy()` method.
+	 *
+	 * @var array<class-string>
+	 */
+	protected $taxonomies = [
+		VenueTaxonomy::class,
+	];
+
+	/**
 	 * Register every custom post type declared on this handler.
 	 *
 	 * Wired from app/Hooks/actions.php via
@@ -31,6 +41,10 @@ class CPTHandler
 	{
 		foreach ($this->customPostTypes as $cpt) {
 			App::make($cpt)->registerPostType();
+		}
+
+		foreach ($this->taxonomies as $taxonomy) {
+			App::make($taxonomy)->registerTaxonomy();
 		}
 	}
 }

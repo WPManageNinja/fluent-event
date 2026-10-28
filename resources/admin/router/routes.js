@@ -90,6 +90,18 @@ export default [
         },
     },
     {
+        path: '/venues',
+        name: 'venues',
+        component: () => import('@/modules/venues/index.vue'),
+        // Reached from the WordPress menu only; the topbar keeps Events lit.
+        meta: {
+            active_menu: 'events',
+            middleware: 'permission',
+            permissions: ['read_venues', 'write_venues'],
+            match_type: 'any',
+        },
+    },
+    {
         path: '/settings',
         component: () => import('@/modules/settings/index.vue'),
         redirect: { name: 'settings_general' },

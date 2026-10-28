@@ -68,7 +68,7 @@ class EventReminderServiceTest extends TestCase
 
         $body = $this->callProtected(EventReminderService::class, 'buildBody', [$event, (object) ['name' => 'Rafi'], '%1$s']);
 
-        $this->assertStringContainsString('Hall A 12 Road', $body);
+        $this->assertStringContainsString('Hall A, 12 Road', $body);
         $this->assertStringNotContainsString('meet.example.com', $body);
     }
 

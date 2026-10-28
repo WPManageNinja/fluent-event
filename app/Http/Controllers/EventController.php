@@ -6,6 +6,7 @@ use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\PostService;
+use FluentEvent\App\Services\VenueService;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\Facade\DB;
@@ -61,6 +62,8 @@ class EventController extends Controller
             ])
             ->findOrFail($id);
 
+        $event->setAttribute('venue_id', VenueService::eventVenueId($event->post_id));
+
         return [
             'event' => $event->append('description')
         ];
@@ -71,6 +74,7 @@ class EventController extends Controller
         $data = EventRequest::sanitize($request->all());
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
         EventRequest::validateDateWindow($data);
+        EventRequest::validateVenue($data);
 
         $event = EventService::createEvent(EventRequest::format($data));
 
@@ -89,6 +93,7 @@ class EventController extends Controller
         $data = EventRequest::sanitize($request->all());
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
         EventRequest::validateDateWindow($data, $event->meta);
+        EventRequest::validateVenue($data);
 
         $data     = EventRequest::format($data, $event->meta);
         $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));
@@ -110,6 +115,8 @@ class EventController extends Controller
             ]);
 
             $event->save();
+
+            VenueService::linkEvent($event->post_id, Arr::get($data, 'venue_id'));
 
             if ($calendarId !== $previousCalendarId) {
                 Guest::query()

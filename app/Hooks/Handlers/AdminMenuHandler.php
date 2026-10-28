@@ -78,6 +78,7 @@ class AdminMenuHandler
         // $this->addSubmenu(__('Add New Event', 'fluent-event'), 'events/new', $capabilities['add_event']);
         $this->addSubmenu(__('Calendars', 'fluent-event'), 'calendars', $capabilities['calendars']);
         $this->addSubmenu(__('Events', 'fluent-event'), 'events', $capabilities['events']);
+        $this->addSubmenu(__('Venues', 'fluent-event'), 'venues', $capabilities['venues']);
         $this->addSubmenu(__('Settings', 'fluent-event'), 'settings', $capabilities['settings']);
     }
 

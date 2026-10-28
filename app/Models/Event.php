@@ -60,6 +60,10 @@ class Event extends Model
             'online_meeting_url'  => '',
             'venue'               => '',
             'address'             => '',
+            'city'                => '', // city, zip_code, country, map_url: copied from a saved venue; a one-off venue has none
+            'zip_code'            => '',
+            'country'             => '',
+            'map_url'             => '',
             'entry_type'          => '',
             'show_guest_count'    => 'yes',
             'capacity'            => 0, // most guests going at once; 0 = unlimited

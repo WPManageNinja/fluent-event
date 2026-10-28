@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Requests;
 
 use FluentEvent\App\Models\Event;
+use FluentEvent\App\Services\VenueService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Validator\ValidationException;
@@ -41,6 +42,7 @@ class EventRequest extends BaseRequest
         'venue_type'         => 'sanitize_text_field',
         'cover_url'          => 'web_url',
         'online_meeting_url' => 'web_url',
+        'venue_id'           => 'intval',
         'venue'              => 'sanitize_text_field',
         'address'            => 'sanitize_textarea_field',
         'entry_type'         => 'sanitize_text_field',
@@ -63,6 +65,7 @@ class EventRequest extends BaseRequest
         'venue_type'         => 'required|string|in:' . Event::VENUE_TYPES,
         'cover_url'          => 'nullable|url',
         'online_meeting_url' => 'nullable|url',
+        'venue_id'           => 'nullable|integer',
         'venue'              => 'nullable|string|max:255',
         'address'            => 'nullable|string|max:500',
         'entry_type'         => 'required|string|in:' . Event::ENTRY_TYPES,
@@ -120,6 +123,20 @@ class EventRequest extends BaseRequest
         }
     }
 
+    // The venue may have been deleted while the form was open.
+    public static function validateVenue($data)
+    {
+        $venueId = Arr::get($data, 'venue_id');
+
+        if ($venueId && Arr::get($data, 'venue_type') === 'offline' && !VenueService::find($venueId)) {
+            throw new ValidationException('Unprocessable Entity!', 422, null, [
+                'venue_id' => [
+                    'exists' => esc_html__('This venue no longer exists. Choose another one.', 'fluent-event')
+                ]
+            ]);
+        }
+    }
+
     public static function messages()
     {
         return [
@@ -164,16 +181,20 @@ class EventRequest extends BaseRequest
             $data, array_merge(self::COLUMNS, ['title', 'description'])
         );
 
+        $venueId = Arr::get($data, 'venue_type') === 'offline' ? Arr::get($data, 'venue_id') : null;
+        $venue = $venueId ? VenueService::find($venueId) : null;
+
         $formatted['meta'] = array_merge(
             Event::defaultMeta(),
             (array) $existingMeta,
-            self::meta($data)
+            self::meta($data, $venue)
         );
+        $formatted['venue_id'] = $venue ? $venue->term_id : null;
 
         return $formatted;
     }
 
-    protected static function meta($data)
+    protected static function meta($data, $venue = null)
     {
         $meta = Arr::only($data, self::META_KEYS);
 
@@ -181,8 +202,13 @@ class EventRequest extends BaseRequest
             ? ['venue', 'address']
             : ['online_meeting_url'];
 
-        foreach ($unused as $key) {
+        foreach (array_merge($unused, ['city', 'zip_code', 'country', 'map_url']) as $key) {
             $meta[$key] = '';
+        }
+
+        // A saved venue replaces whatever was typed; a one-off venue is only a name and an address.
+        if ($venue) {
+            $meta = array_merge($meta, VenueService::eventFields($venue));
         }
 
         // Empty means no limit on that side; otherwise keep only the offset itself.

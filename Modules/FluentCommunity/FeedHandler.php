@@ -352,6 +352,7 @@ class FeedHandler
 
         try {
             EventRequest::validateDateWindow($input);
+            EventRequest::validateVenue($input);
         } catch (ValidationException $e) {
             return $this->toWpError($e->errors());
         }

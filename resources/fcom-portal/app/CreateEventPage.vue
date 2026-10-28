@@ -201,25 +201,34 @@
                     </el-form-item>
 
                     <template v-else>
-                        <el-form-item :label="$t('Venue name')" label-position="top" for="fe-create-event-venue">
-                            <el-input
-                                id="fe-create-event-venue"
-                                v-model="event.venue"
-                                maxlength="255"
-                                :placeholder="$t('e.g. Kingsway Hall')"
-                            />
-                        </el-form-item>
+                        <VenueSelect
+                            v-if="venues.length"
+                            id="fe-create-event-venue-id"
+                            v-model="event.venue_id"
+                            :venues="venues"
+                        />
 
-                        <el-form-item :label="$t('Address')" label-position="top" for="fe-create-event-address">
-                            <el-input
-                                id="fe-create-event-address"
-                                v-model="event.address"
-                                type="textarea"
-                                :rows="2"
-                                maxlength="500"
-                                :placeholder="$t('Street, city, country')"
-                            />
-                        </el-form-item>
+                        <template v-if="!selectedVenue">
+                            <el-form-item :label="$t('Venue name')" label-position="top" for="fe-create-event-venue">
+                                <el-input
+                                    id="fe-create-event-venue"
+                                    v-model="event.venue"
+                                    maxlength="255"
+                                    :placeholder="$t('e.g. Kingsway Hall')"
+                                />
+                            </el-form-item>
+
+                            <el-form-item :label="$t('Address')" label-position="top" for="fe-create-event-address">
+                                <el-input
+                                    id="fe-create-event-address"
+                                    v-model="event.address"
+                                    type="textarea"
+                                    :rows="2"
+                                    maxlength="500"
+                                    :placeholder="$t('Street, city, country')"
+                                />
+                            </el-form-item>
+                        </template>
                     </template>
                 </div>
             </section>
@@ -350,6 +359,7 @@ import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
 import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
+import VenueSelect from '@/components/VenueSelect.vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import WpEditor from '@/components/WpEditor.vue';
 import { communityApi, errorMessage, eventsApi, timeFormat, timezoneOffset } from '../utils';
@@ -359,7 +369,7 @@ let wpEditorLoad = null;
 
 export default {
     name: 'CreateEventPage',
-    components: { ArrowLeft, Delete, Picture, RegistrationLimitField, SegmentedSwitch, WpEditor },
+    components: { ArrowLeft, Delete, Picture, RegistrationLimitField, SegmentedSwitch, VenueSelect, WpEditor },
     props: {
         spaceSlug: { type: String, required: true },
         router: { type: Object, required: true },
@@ -388,6 +398,7 @@ export default {
                 end_time: end.format('HH:mm'),
                 timezone,
                 venue_type: 'offline',
+                venue_id: null,
                 venue: '',
                 address: '',
                 online_meeting_url: '',
@@ -399,6 +410,7 @@ export default {
                 registration_opens: null,
                 registration_closes: null,
             },
+            venues: [],
             uploading: false,
             imageUploading: false,
             editorReady: false,
@@ -406,6 +418,9 @@ export default {
         };
     },
     computed: {
+        selectedVenue() {
+            return this.venues.find((venue) => venue.id === this.event.venue_id) || null;
+        },
         // The `event` field of the composer's POST feeds; FeedHandler builds the event from it.
         payload() {
             const event = this.event;
@@ -417,6 +432,7 @@ export default {
                 end_at: `${event.end_date} ${event.end_time}:00`,
                 timezone: event.timezone,
                 venue_type: event.venue_type,
+                venue_id: this.selectedVenue ? event.venue_id : null,
                 venue: event.venue,
                 address: event.address,
                 online_meeting_url: event.online_meeting_url,
@@ -475,6 +491,13 @@ export default {
         this.loadWpEditor().then(() => {
             this.editorReady = true;
         });
+
+        // Without saved venues the member types a one-off venue, as before.
+        eventsApi.get('venues/options')
+            .then(({ venues }) => {
+                this.venues = venues || [];
+            })
+            .catch(() => {});
     },
     methods: {
         // The WordPress editor is heavy, so it loads only when this page opens. A failed

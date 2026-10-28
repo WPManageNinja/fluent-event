@@ -267,31 +267,41 @@
                             </el-form-item>
 
                             <template v-else>
-                                <el-form-item
-                                    :label="$t('Venue name')"
-                                    for="fe-event-venue"
-                                    data-field="venue"
-                                >
-                                    <el-input
-                                        id="fe-event-venue"
-                                        v-model="event.venue"
-                                        :placeholder="$t('e.g. Kingsway Hall')"
-                                    />
-                                </el-form-item>
+                                <VenueSelect
+                                    v-if="venues.length"
+                                    id="fe-event-venue-id"
+                                    v-model="event.venue_id"
+                                    :venues="venues"
+                                    data-field="venue_id"
+                                />
 
-                                <el-form-item
-                                    :label="$t('Address')"
-                                    for="fe-event-address"
-                                    data-field="address"
-                                >
-                                    <el-input
-                                        id="fe-event-address"
-                                        v-model="event.address"
-                                        type="textarea"
-                                        :rows="2"
-                                        :placeholder="$t('Street, city, country')"
-                                    />
-                                </el-form-item>
+                                <template v-if="!selectedVenue">
+                                    <el-form-item
+                                        :label="$t('Venue name')"
+                                        for="fe-event-venue"
+                                        data-field="venue"
+                                    >
+                                        <el-input
+                                            id="fe-event-venue"
+                                            v-model="event.venue"
+                                            :placeholder="$t('e.g. Kingsway Hall')"
+                                        />
+                                    </el-form-item>
+
+                                    <el-form-item
+                                        :label="$t('Address')"
+                                        for="fe-event-address"
+                                        data-field="address"
+                                    >
+                                        <el-input
+                                            id="fe-event-address"
+                                            v-model="event.address"
+                                            type="textarea"
+                                            :rows="2"
+                                            :placeholder="$t('Street, city, country')"
+                                        />
+                                    </el-form-item>
+                                </template>
                             </template>
                         </div>
                     </section>
@@ -438,6 +448,7 @@
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
     import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
+    import VenueSelect from '@/components/VenueSelect.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
@@ -454,6 +465,7 @@
             ErrorState,
             MediaPicker,
             RegistrationLimitField,
+            VenueSelect,
             SegmentedSwitch,
             Skeleton,
         },
@@ -465,6 +477,7 @@
                 eventError: '',
                 saving: false,
                 calendars: [],
+                venues: [],
                 event: {},
             };
         },
@@ -474,6 +487,9 @@
             },
             eventId() {
                 return this.$route.params.id;
+            },
+            selectedVenue() {
+                return this.venues.find(venue => venue.id === this.event.venue_id) || null;
             },
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'ddd, MMM D';
@@ -573,6 +589,7 @@
                     timezone: event?.timezone || this.defaultTimezone,
                     venue_type: event?.venue_type || this.venueTypes[0].value,
                     online_meeting_url: meta.online_meeting_url || '',
+                    venue_id: event?.venue_id || null,
                     venue: meta.venue || '',
                     address: meta.address || '',
                     cover_url: meta.cover_url || '',
@@ -587,6 +604,7 @@
             loadForm() {
                 this.event = this.initForm();
                 this.fetchCalendars();
+                this.fetchVenues();
 
                 if (this.isEditing) {
                     this.fetchEvent();
@@ -608,6 +626,17 @@
                         this.calendars = [];
                     },
 
+                });
+            },
+            // Without venues, or the key to list them, the form keeps only the one-off fields.
+            fetchVenues() {
+                this.$requestServer({
+                    path: 'venues/options',
+                    loadingState: null,
+                    errorState: null,
+                    onSuccess: response => {
+                        this.venues = response.venues;
+                    },
                 });
             },
             fetchEvent() {
@@ -675,6 +704,7 @@
                         venue_type: this.event.venue_type,
                         cover_url: this.event.cover_url,
                         online_meeting_url: this.event.online_meeting_url,
+                        venue_id: this.selectedVenue ? this.event.venue_id : null,
                         venue: this.event.venue,
                         address: this.event.address,
                         entry_type: this.event.entry_type,

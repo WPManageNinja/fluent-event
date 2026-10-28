@@ -64,6 +64,7 @@ describe('CreateEventPage', () => {
             start_at: '2026-10-14 10:00:00',
             end_at: '2026-10-14 11:00:00',
             venue_type: 'offline',
+            venue_id: null,
             entry_type: 'rsvp',
             show_guest_count: 'no',
             capacity: 0,

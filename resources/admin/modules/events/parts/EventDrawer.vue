@@ -86,9 +86,18 @@
                     <p class="fe-event-detail__row-title">
                         {{ event.meta?.venue || $t('No venue yet') }}
                     </p>
-                    <p v-if="event.meta?.address" class="fe-event-detail__row-text">
-                        {{ event.meta.address }}
+                    <p v-if="location" class="fe-event-detail__row-text">
+                        {{ location }}
                     </p>
+                    <a
+                        v-if="mapLink"
+                        class="fe-event-detail__row-link"
+                        :href="mapLink"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ $t('Open map') }}
+                    </a>
                 </div>
             </div>
 
@@ -113,6 +122,7 @@
 <script type="text/javascript">
     import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
+    import { fullAddress, mapUrl } from '@/utils/venue';
     import Drawer from '@/components/Drawer.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
@@ -164,6 +174,12 @@
             },
         },
         computed: {
+            location() {
+                return fullAddress(this.event.meta);
+            },
+            mapLink() {
+                return mapUrl(this.event.meta);
+            },
             isOnline() {
                 return this.event?.venue_type === 'online';
             },

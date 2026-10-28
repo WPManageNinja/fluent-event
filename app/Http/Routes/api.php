@@ -7,6 +7,7 @@ use FluentEvent\App\Http\Controllers\GuestController;
 use FluentEvent\App\Http\Controllers\UserController;
 use FluentEvent\App\Http\Controllers\ReportController;
 use FluentEvent\App\Http\Controllers\CalendarController;
+use FluentEvent\App\Http\Controllers\VenueController;
 use FluentEvent\App\Http\Controllers\SettingsController;
 use FluentEvent\App\Http\Controllers\CommunityEventController;
 
@@ -41,6 +42,14 @@ $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($rou
     // $router->post('/', [CalendarController::class, 'createCalendar']);
     $router->patch('/{id}', [CalendarController::class, 'updateCalendar'])->int('id');
     $router->delete('/{id}', [CalendarController::class, 'deleteCalendar'])->int('id');
+});
+
+$router->prefix('venues')->withPolicy('VenuePolicy')->group(function ($router) {
+    $router->get('/', [VenueController::class, 'getVenues']);
+    $router->get('/options', [VenueController::class, 'getVenueOptions']);
+    $router->post('/', [VenueController::class, 'createVenue']);
+    $router->patch('/{id}', [VenueController::class, 'updateVenue'])->int('id');
+    $router->delete('/{id}', [VenueController::class, 'deleteVenue'])->int('id');
 });
 
 $router->prefix('reports')->withPolicy('ReportPolicy')->group(function ($router) {

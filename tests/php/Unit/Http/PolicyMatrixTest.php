@@ -8,6 +8,7 @@ use FluentEvent\App\Http\Policies\EventPolicy;
 use FluentEvent\App\Http\Policies\ReportPolicy;
 use FluentEvent\App\Http\Policies\SettingsPolicy;
 use FluentEvent\App\Http\Policies\UserPolicy;
+use FluentEvent\App\Http\Policies\VenuePolicy;
 use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\Framework\Http\Request\Request;
 use FluentEvent\Tests\TestCase;
@@ -24,6 +25,7 @@ class PolicyMatrixTest extends TestCase
         SettingsPolicy::class,
         ReportPolicy::class,
         UserPolicy::class,
+        VenuePolicy::class,
     ];
 
     protected function tearDown(): void
@@ -78,6 +80,12 @@ class PolicyMatrixTest extends TestCase
             'calendars: event key may load options'  => [CalendarPolicy::class, 'getCalendarOptions', ['write_events'], true],
             'calendars: event key may not list'      => [CalendarPolicy::class, 'verifyRequest', ['read_events'], false],
             'calendars: guest key may not load options' => [CalendarPolicy::class, 'getCalendarOptions', ['read_guests'], false],
+
+            'venues: read key may list'              => [VenuePolicy::class, 'verifyRequest', ['read_venues'], true],
+            'venues: read key may not create'        => [VenuePolicy::class, 'createVenue', ['read_venues'], false],
+            'venues: read key may not delete'        => [VenuePolicy::class, 'deleteVenue', ['read_venues'], false],
+            'venues: write key may update'           => [VenuePolicy::class, 'updateVenue', ['write_venues'], true],
+            'venues: event key may not list'         => [VenuePolicy::class, 'verifyRequest', ['write_events'], false],
             'settings: read key may view'            => [SettingsPolicy::class, 'verifyRequest', ['read_settings'], true],
             'settings: read key may not save'        => [SettingsPolicy::class, 'updateEmail', ['read_settings'], false],
             'settings: write key may save'           => [SettingsPolicy::class, 'updateGeneral', ['write_settings'], true],

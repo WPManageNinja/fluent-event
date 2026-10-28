@@ -28,6 +28,11 @@ Three things people get wrong:
   attachment FK. The column is `meta` on both `event_details` and `calendars` — open-ended,
   holds whatever per-record config accrues, and is documented by the model's `defaultMeta()`.
 
+Reusable venues are the `fe_venue` taxonomy (term name + term meta). An event picks one through
+the term relationship and keeps a copy of its fields in `meta` (`venue`, `address`, `city`,
+`zip_code`, `country`, `map_url`); editing the venue rewrites the copies, deleting it leaves
+them as a one-off venue. A one-off venue is only `venue` + `address`.
+
 Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going)
 or `open` (view-only: members can't register, every viewer sees the whole event,
 meeting link included; admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp`, and so does `capacity`: the most members going at once (0 = unlimited); admins can add guests past it. With `waitlist` on, a full event files a member's RSVP as `waitlisted` (no seat, no meeting link, no reminders). `registration_opens` / `registration_closes` (`{value, unit}` before the start, null = no limit) bound when members can RSVP; one already going can still give up the seat. `ticketed` is a documented future
