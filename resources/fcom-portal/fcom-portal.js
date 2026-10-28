@@ -47,13 +47,20 @@ function pageShell(page) {
                 };
             },
             async remount() {
-                const [{ createApp }, { default: Page }] = await Promise.all([import('vue'), pages[page]()]);
+                const [{ createApp }, { default: Page }, { applyWeekStart }] = await Promise.all([
+                    import('vue'),
+                    pages[page](),
+                    import('@/utils/date'),
+                ]);
 
                 if (this.gone) {
                     return;
                 }
 
                 this.unmount && this.unmount();
+
+                // Our Element Plus and fcom's window.dayjs (the page's week maths) both start on the WordPress "Week Starts On" day.
+                applyWeekStart(portalVars().start_of_week, window.dayjs);
 
                 // Its own Vue app: fcom exposes neither its Vue nor Element Plus to add-ons.
                 const app = createApp(Page, this.pageProps());

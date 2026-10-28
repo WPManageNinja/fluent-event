@@ -131,6 +131,7 @@ class PortalHandler
             'default_view'        => $settings['default_events_view'],
             'disable_view_switch' => $settings['disable_event_view_switch'] === 'yes',
             'timezone'            => wp_timezone_string(),
+            'start_of_week'       => (int) get_option('start_of_week', 0),
             'i18n'                => $this->strings(),
         ];
 

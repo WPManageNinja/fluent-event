@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
+import dayjs from 'dayjs';
 import { expectKnownIssue } from '../known-issue';
 
 const spaceRoute = () => ({ path: '/space/:space/', children: [{ path: 'home', name: 'space_feeds' }] });
@@ -183,7 +184,20 @@ describe('fcom-portal entry', () => {
             wrapper && wrapper.unmount();
             vi.unstubAllGlobals();
             vi.restoreAllMocks();
+            // remount() sets the week start on the shared test dayjs; the other tests expect Sunday.
+            dayjs.updateLocale('en', { weekStart: 0 });
         });
+
+        it('starts the page app and fcom\'s dayjs on the WordPress "Week Starts On" day', async () => {
+            window.fluentEventFcomPortal.start_of_week = 1;
+            // fcom's window.dayjs is a separate copy in the portal; here both are the test's dayjs.
+            const updateLocale = vi.spyOn(window.dayjs, 'updateLocale');
+
+            await mountEventsShell();
+
+            expect(updateLocale.mock.calls).toEqual([['en', { weekStart: 1 }], ['en', { weekStart: 1 }]]);
+            expect(dayjs('2026-10-28').startOf('week').format('YYYY-MM-DD')).toBe('2026-10-26');
+        }, 15000);
 
         it('KNOWN ISSUE #173 — shows a loading mask while the list loads', async (context) => {
             await mountEventsShell();
