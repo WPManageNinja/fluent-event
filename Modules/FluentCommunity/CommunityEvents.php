@@ -227,14 +227,9 @@ class CommunityEvents
             'my_status'          => $myStatus,
             'registration_open'  => $isRsvp && !$isPast && (!$opensAt || $now >= $opensAt) && (!$closesAt || $now < $closesAt),
             // In site time, like start_at_site; each only while that moment is still ahead.
-            'registration_opens_at'  => $isRsvp && $opensAt > $now ? self::siteTime($opensAt) : null,
-            'registration_closes_at' => $isRsvp && $closesAt > $now ? self::siteTime($closesAt) : null,
+            'registration_opens_at'  => $isRsvp && $opensAt > $now ? DateTimeHelper::timestampToSite($opensAt) : null,
+            'registration_closes_at' => $isRsvp && $closesAt > $now ? DateTimeHelper::timestampToSite($closesAt) : null,
             'edit_url'           => $canEdit ? self::editUrl($event->id) : '',
         ];
-    }
-
-    protected static function siteTime($timestamp)
-    {
-        return DateTimeHelper::convertFromUtc(gmdate(DateTimeHelper::FORMAT, $timestamp), wp_timezone_string());
     }
 }
