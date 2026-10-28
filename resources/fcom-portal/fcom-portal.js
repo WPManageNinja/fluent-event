@@ -50,7 +50,7 @@ function pageShell(page) {
                 const [{ createApp }, { default: Page }, { applyWeekStart }] = await Promise.all([
                     import('vue'),
                     pages[page](),
-                    import('@/utils/weekStart'),
+                    import('@/utils/date'),
                 ]);
 
                 if (this.gone) {

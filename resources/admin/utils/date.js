@@ -1,3 +1,8 @@
+import dayjs from 'dayjs';
+import updateLocale from 'dayjs/plugin/updateLocale';
+
+dayjs.extend(updateLocale);
+
 /** One day in milliseconds. */
 export const DAY_MS = 86400000;
 
@@ -12,6 +17,15 @@ export const toDayKey = (time) => new Date(time).toISOString().slice(0, 10);
  * @returns {number}
  */
 export const daySpan = (start, end) => (toUtcDay(end) - toUtcDay(start)) / DAY_MS + 1;
+
+// WordPress "Week Starts On" for our dayjs (Element Plus reads it) and, in the portal, fcom's window.dayjs.
+export function applyWeekStart(value, hostDayjs) {
+    const day = parseInt(value, 10);
+    const weekStart = day >= 0 && day <= 6 ? day : 0;
+
+    dayjs.updateLocale('en', { weekStart });
+    hostDayjs?.updateLocale('en', { weekStart });
+}
 
 // "Add to calendar" files (.ics).
 

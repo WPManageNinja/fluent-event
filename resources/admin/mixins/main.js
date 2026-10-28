@@ -2,7 +2,7 @@ import { capitalize } from 'vue';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import Rest from '@/utils/http/Rest.js';
-import { applyWeekStart } from '@/utils/weekStart';
+import { applyWeekStart } from '@/utils/date';
 import { ElNotification, ElMessageBox } from 'element-plus';
 
 dayjs.extend(advancedFormat);

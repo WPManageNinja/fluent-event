@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import dayjs from 'dayjs';
-import { applyWeekStart } from '@/utils/weekStart';
+import { applyWeekStart } from '@/utils/date';
 
 // main.js reads the setting once at import; this site starts its week on Monday.
 window.fluentEventAdmin.start_of_week = '1';
