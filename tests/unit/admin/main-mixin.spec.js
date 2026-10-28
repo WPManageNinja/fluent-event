@@ -158,6 +158,12 @@ describe('number and date formatting', () => {
         expect(vm.$formatDate('2026-10-03')).toBe('October 3rd, 2026');
     });
 
+    it('supports ISO week tokens from a WordPress "W" or "o" date format', () => {
+        window.fluentEventAdmin.date_format = 'GGGG-[W]W';
+
+        expect(vm.$formatDate('2026-10-15')).toBe('2026-W42');
+    });
+
     it("formats an event's range on its own clock or the site's, dating only what falls on another day", () => {
         window.fluentEventAdmin.date_format = 'MMM D';
         window.fluentEventAdmin.time_format = 'h:mm A';
