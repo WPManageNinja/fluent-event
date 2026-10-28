@@ -81,6 +81,11 @@ class DateTimeHelperTest extends TestCase
             '24 hour'        => ['H:i', 'HH:mm'],
             'escaped letter' => ['\\a\\t g A', '[a][t] h A'],
             'unsupported'    => ['L', ''],
+            'ordinal after j' => ['jS F Y', 'Do MMMM YYYY'],
+            'ordinal after d' => ['dS F Y', 'Do MMMM YYYY'],
+            'escaped j'      => ['\\jS F', '[j] MMMM'],
+            // Day.js has no ISO weekday token, so "N" is dropped.
+            'iso weekday'    => ['N j', ' D'],
         ];
     }
 }
