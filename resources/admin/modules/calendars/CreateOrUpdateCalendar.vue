@@ -95,6 +95,7 @@
                             </div>
                         </section>
 
+                        <!-- v1 has no calendar page outside the admin, so the description is hidden; kept for Release 5.
                         <section class="fe-form__section">
                             <div class="fe-form__section-rail">
                                 <h2
@@ -118,6 +119,7 @@
                                 />
                             </div>
                         </section>
+                        -->
 
                         <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                         <section class="fe-form__section">

@@ -60,15 +60,17 @@
                         <CalendarTabLayout :calendar="calendar" :upcoming-events="upcomingEvents">
                             <StatGroups v-if="hasStats" :stats="stats" />
 
+                            <!-- v1 has no calendar page outside the admin, so the description is hidden; kept for Release 5.
                             <div class="fe-card">
                                 <template v-if="calendar.description">
                                     <p class="fe-calendar-detail__about">{{ $t('About this calendar') }}</p>
 
-                                    <div class="fe-rich-text" v-html="calendar.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in CalendarController::getCalendar() -->
+                                    <div class="fe-rich-text" v-html="calendar.description"></div> (coding-rules-scan:ignore — wp_kses_post runs in CalendarController::getCalendar())
                                 </template>
 
                                 <el-empty v-else :description="$t('No description yet.')" />
                             </div>
+                            -->
                         </CalendarTabLayout>
                     </template>
 
