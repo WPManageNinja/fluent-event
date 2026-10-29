@@ -1218,6 +1218,76 @@
     }
 }
 
+.fe-venue-select {
+    width: 100%;
+
+    &__summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px);
+        margin-top: var(--fe-space-1, 4px);
+        font-size: var(--fe-text-xs, 12px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__map {
+        color: var(--fe-primary-text, #19283a);
+        text-decoration: underline;
+    }
+
+    &__name,
+    &__address {
+        display: block;
+        overflow: hidden;
+        line-height: 1.4;
+        text-overflow: ellipsis;
+    }
+
+    &__name {
+        font-weight: 500;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__address {
+        font-size: var(--fe-text-xs, 12px);
+        color: var(--fe-secondary-text, #525866);
+    }
+}
+
+// Two lines per option, name over address; Element Plus sizes an option for one.
+.fe-venue-select__popper .el-select-dropdown__item {
+    height: auto;
+    padding-top: var(--fe-space-2, 8px);
+    padding-bottom: var(--fe-space-2, 8px);
+}
+
+.fe-venue-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--fe-space-5, 20px);
+
+    .el-form-item {
+        margin-bottom: 0;
+    }
+
+    &__wide {
+        grid-column: 1 / -1;
+    }
+
+    &__hint {
+        display: block;
+        margin-top: var(--fe-space-1, 4px);
+        font-size: var(--fe-text-xs, 12px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    @media screen and (max-width: 575px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 .fe-switch {
     position: relative;
     display: inline-flex;
@@ -2922,6 +2992,107 @@
 
         &__actions {
             grid-area: actions;
+        }
+    }
+}
+
+.fe-venues {
+    &__search {
+        max-width: 300px;
+        margin-bottom: var(--fe-space-4, 16px);
+
+        @media screen and (max-width: 782px) {
+            max-width: none;
+        }
+    }
+
+    &__row {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-3, 12px);
+        padding: var(--fe-space-3, 12px);
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+
+        &:last-of-type {
+            border-bottom: 0;
+        }
+    }
+
+    &__row--head {
+        padding-top: var(--fe-space-2, 8px);
+        padding-bottom: var(--fe-space-2, 8px);
+        border-bottom: 0;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        color: var(--fe-secondary-text, #525866);
+
+        .fe-venues__address {
+            font-size: inherit;
+            color: inherit;
+        }
+    }
+
+    &__name {
+        display: flex;
+        flex: 0 0 30%;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        min-width: 0;
+    }
+
+    &__name-text {
+        overflow: hidden;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__map {
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-size: var(--fe-text-lg, 18px);
+        color: var(--fe-secondary-text, #525866);
+
+        &:hover,
+        &:focus-visible {
+            color: var(--fe-primary-text, #19283a);
+        }
+    }
+
+    &__address {
+        flex: 1 1 0;
+        min-width: 0;
+        margin: 0;
+        overflow: hidden;
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.4;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__actions {
+        display: flex;
+        flex: 0 0 72px;
+        justify-content: flex-end;
+    }
+
+    @media screen and (max-width: 782px) {
+        &__row {
+            flex-wrap: wrap;
+        }
+
+        &__name {
+            flex: 1 1 100%;
+        }
+
+        &__row--head {
+            display: none;
         }
     }
 }

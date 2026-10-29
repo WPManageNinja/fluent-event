@@ -344,9 +344,18 @@ class EventReminderService
                     . esc_html($meta['online_meeting_url']) . '</a>'
             ) . '</p>';
         } elseif (!empty($meta['venue']) || !empty($meta['address'])) {
-            $body .= '<p>' . esc_html(trim(
-                ($meta['venue'] ?? '') . ' ' . ($meta['address'] ?? '')
-            )) . '</p>';
+            $place = array_filter([
+                $meta['venue'] ?? '',
+                $meta['address'] ?? '',
+                trim(($meta['city'] ?? '') . ' ' . ($meta['zip_code'] ?? '')),
+                $meta['country'] ?? '',
+            ]);
+
+            $body .= '<p>' . esc_html(implode(', ', $place)) . '</p>';
+
+            if (!empty($meta['map_url'])) {
+                $body .= '<p><a href="' . esc_url($meta['map_url']) . '">' . esc_html__('View map', 'fluent-event') . '</a></p>';
+            }
         }
 
         $body .= '<p>' . esc_html__('See you there!', 'fluent-event') . '</p>';

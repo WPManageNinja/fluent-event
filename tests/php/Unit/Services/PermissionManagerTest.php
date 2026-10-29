@@ -26,6 +26,7 @@ class PermissionManagerTest extends TestCase
         $this->assertSame([
             'read_calendars', 'write_calendars',
             'read_events', 'write_events',
+            'read_venues', 'write_venues',
             'read_guests', 'write_guests',
             'read_settings', 'write_settings',
             PermissionManager::ALL_DATA,
@@ -95,7 +96,7 @@ class PermissionManagerTest extends TestCase
         Functions\when('current_user_can')->justReturn(true);
 
         $this->assertSame(
-            ['dashboard' => 'manage_options', 'calendars' => 'manage_options', 'events' => 'manage_options', 'settings' => 'manage_options'],
+            ['dashboard' => 'manage_options', 'calendars' => 'manage_options', 'events' => 'manage_options', 'venues' => 'manage_options', 'settings' => 'manage_options'],
             PermissionManager::getMenuCapabilities()
         );
     }
@@ -107,7 +108,7 @@ class PermissionManagerTest extends TestCase
 
         // An empty capability hides the item; the member's own role shows it.
         $this->assertSame(
-            ['dashboard' => 'editor', 'calendars' => '', 'events' => 'editor', 'settings' => ''],
+            ['dashboard' => 'editor', 'calendars' => '', 'events' => 'editor', 'venues' => '', 'settings' => ''],
             PermissionManager::getMenuCapabilities()
         );
     }

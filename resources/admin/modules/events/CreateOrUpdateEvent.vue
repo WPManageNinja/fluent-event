@@ -267,31 +267,70 @@
                             </el-form-item>
 
                             <template v-else>
-                                <el-form-item
-                                    :label="$t('Venue name')"
-                                    for="fe-event-venue"
-                                    data-field="venue"
+                                <el-radio-group
+                                    v-if="venues.length"
+                                    v-model="event.venue_source"
+                                    class="fe-venue-source"
+                                    :aria-label="$t('Venue')"
                                 >
-                                    <el-input
-                                        id="fe-event-venue"
-                                        v-model="event.venue"
-                                        :placeholder="$t('e.g. Kingsway Hall')"
-                                    />
-                                </el-form-item>
+                                    <el-radio value="saved">{{ $t('Saved venue') }}</el-radio>
+                                    <el-radio value="new">{{ $t('New venue') }}</el-radio>
+                                </el-radio-group>
 
-                                <el-form-item
-                                    :label="$t('Address')"
-                                    for="fe-event-address"
-                                    data-field="address"
-                                >
-                                    <el-input
-                                        id="fe-event-address"
-                                        v-model="event.address"
-                                        type="textarea"
-                                        :rows="2"
-                                        :placeholder="$t('Street, city, country')"
+                                <VenueSelect
+                                    v-if="venueSource === 'saved'"
+                                    id="fe-event-venue-id"
+                                    v-model="event.venue_id"
+                                    :venues="venues"
+                                    data-field="venue_id"
+                                />
+
+                                <template v-else>
+                                    <el-form-item
+                                        :label="$t('Venue name')"
+                                        for="fe-event-venue"
+                                        required
+                                        data-field="venue"
+                                    >
+                                        <el-input
+                                            id="fe-event-venue"
+                                            v-model="event.venue"
+                                            :placeholder="$t('e.g. Kingsway Hall')"
+                                        />
+                                    </el-form-item>
+
+                                    <el-form-item
+                                        :label="$t('Address')"
+                                        for="fe-event-address"
+                                        required
+                                        data-field="address"
+                                    >
+                                        <el-input
+                                            id="fe-event-address"
+                                            v-model="event.address"
+                                            type="textarea"
+                                            :rows="2"
+                                            :placeholder="$t('Street and number')"
+                                        />
+                                    </el-form-item>
+
+                                    <VenueAddressFields
+                                        v-model:city="event.city"
+                                        v-model:zip-code="event.zip_code"
+                                        v-model:country="event.country"
+                                        v-model:map-url="event.map_url"
+                                        id-prefix="fe-event"
                                     />
-                                </el-form-item>
+
+                                    <el-checkbox
+                                        v-if="canSaveVenue"
+                                        v-model="event.save_as_venue"
+                                        true-value="yes"
+                                        false-value="no"
+                                    >
+                                        {{ $t('Save as a venue for future events') }}
+                                    </el-checkbox>
+                                </template>
                             </template>
                         </div>
                     </section>
@@ -438,6 +477,8 @@
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
     import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
+    import VenueSelect from '@/components/VenueSelect.vue';
+    import VenueAddressFields from '@/components/VenueAddressFields.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
@@ -454,6 +495,8 @@
             ErrorState,
             MediaPicker,
             RegistrationLimitField,
+            VenueSelect,
+            VenueAddressFields,
             SegmentedSwitch,
             Skeleton,
         },
@@ -465,6 +508,7 @@
                 eventError: '',
                 saving: false,
                 calendars: [],
+                venues: [],
                 event: {},
             };
         },
@@ -474,6 +518,16 @@
             },
             eventId() {
                 return this.$route.params.id;
+            },
+            selectedVenue() {
+                return this.venues.find(venue => venue.id === this.event.venue_id) || null;
+            },
+            canSaveVenue() {
+                return this.$userCan('write_venues');
+            },
+            // With no saved venues there is nothing to pick, so the typed fields are the only way.
+            venueSource() {
+                return this.venues.length ? this.event.venue_source : 'new';
             },
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'ddd, MMM D';
@@ -573,8 +627,16 @@
                     timezone: event?.timezone || this.defaultTimezone,
                     venue_type: event?.venue_type || this.venueTypes[0].value,
                     online_meeting_url: meta.online_meeting_url || '',
+                    venue_id: event?.venue_id || null,
+                    // A linked venue, or a new event, opens on the picker; a one-off opens on its fields.
+                    venue_source: event?.venue_id || !meta.venue ? 'saved' : 'new',
                     venue: meta.venue || '',
                     address: meta.address || '',
+                    city: meta.city || '',
+                    zip_code: meta.zip_code || '',
+                    country: meta.country || '',
+                    map_url: meta.map_url || '',
+                    save_as_venue: 'no',
                     cover_url: meta.cover_url || '',
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
                     show_guest_count: event ? (meta.show_guest_count || 'yes') : 'no',
@@ -587,6 +649,7 @@
             loadForm() {
                 this.event = this.initForm();
                 this.fetchCalendars();
+                this.fetchVenues();
 
                 if (this.isEditing) {
                     this.fetchEvent();
@@ -608,6 +671,17 @@
                         this.calendars = [];
                     },
 
+                });
+            },
+            // Without venues, or the key to list them, the form keeps only the one-off fields.
+            fetchVenues() {
+                this.$requestServer({
+                    path: 'venues/options',
+                    loadingState: null,
+                    errorState: null,
+                    onSuccess: response => {
+                        this.venues = response.venues;
+                    },
                 });
             },
             fetchEvent() {
@@ -675,8 +749,15 @@
                         venue_type: this.event.venue_type,
                         cover_url: this.event.cover_url,
                         online_meeting_url: this.event.online_meeting_url,
+                        venue_source: this.venueSource,
+                        venue_id: this.venueSource === 'saved' && this.selectedVenue ? this.event.venue_id : null,
                         venue: this.event.venue,
                         address: this.event.address,
+                        city: this.event.city,
+                        zip_code: this.event.zip_code,
+                        country: this.event.country,
+                        map_url: this.event.map_url,
+                        save_as_venue: this.venueSource === 'new' && this.canSaveVenue ? this.event.save_as_venue : 'no',
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
                         capacity: this.event.capacity || 0,

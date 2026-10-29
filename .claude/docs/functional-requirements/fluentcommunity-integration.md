@@ -13,7 +13,7 @@ This is the record of intended behaviour. Keep it in step with `Modules/FluentCo
 | Concern | Owner | Where |
 |---|---|---|
 | Post title, message, comments, reactions, topics, schedule | fcom | `fcom_posts` (`content_type = 'event'`, `meta.event_id`) |
-| Event title, description, dates, venue, cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
+| Event title, description, dates, venue (a saved `fe_venue` picked on the create page, or a one-off name + address), cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
 | Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id` |
 | Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (the events list joins on it) |
 | Guests | FluentEvent | `fe_guests` (`source = 'community'`, `source_id` = post id) |

@@ -214,6 +214,10 @@ class CommunityEvents
             'venue_type'         => $event->venue_type,
             'venue'              => $meta['venue'],
             'address'            => $meta['address'],
+            'city'               => $meta['city'],
+            'zip_code'           => $meta['zip_code'],
+            'country'            => $meta['country'],
+            'map_url'            => $meta['map_url'],
             'cover_url'          => $meta['cover_url'],
             'has_meeting_url'    => $hasMeetingUrl,
             // An RSVP's link is for its guests and staff; an open event shows it to every viewer.

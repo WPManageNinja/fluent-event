@@ -14,6 +14,7 @@ use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\PermissionManager;
+use FluentEvent\App\Services\VenueService;
 use FluentEvent\Facade\DB;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Validator\ValidationException;
@@ -84,6 +85,13 @@ class FeedHandler
 
             return $match[1] . $match[2] . esc_attr($url) . $match[2];
         }, (string) Arr::get($input, 'description', ''));
+
+        // "Save as a venue" on a typed one-off: the new venue becomes the event's saved venue.
+        if (EventRequest::wantsNewVenue($input)) {
+            $venue = VenueService::createFromEvent($input);
+            do_action('fluent_event/venue/created', $venue);
+            $input['venue_id'] = $venue->term_id;
+        }
 
         $data = EventRequest::format($input);
 
@@ -352,6 +360,7 @@ class FeedHandler
 
         try {
             EventRequest::validateDateWindow($input);
+            EventRequest::validateVenue($input);
         } catch (ValidationException $e) {
             return $this->toWpError($e->errors());
         }

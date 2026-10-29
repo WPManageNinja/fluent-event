@@ -9,6 +9,7 @@ use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\Settings;
+use FluentEvent\App\Services\VenueService;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
 use FluentEvent\Tests\IntegrationTestCase;
 
@@ -131,6 +132,40 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertInstanceOf(\WP_Error::class, $this->validate(['space_id' => $spaceId], $closesFirst));
     }
 
+    public function test_a_posted_event_can_take_a_saved_venue()
+    {
+        $spaceId = $this->createSpace();
+        $venue = VenueService::create(['name' => 'Portal Test Hall ' . wp_generate_password(6, false, false), 'address' => '5 Station Road', 'city' => 'York']);
+        $request = $this->postRequest(['venue_id' => $venue->term_id, 'venue' => 'Typed', 'address' => 'Typed']);
+
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+
+        $event = Event::query()->find((int) FcomFeed::query()->find($feed->id)->meta['event_id']);
+        $this->assertSame('5 Station Road', $event->meta['address']);
+        $this->assertSame('York', $event->meta['city']);
+        $this->assertSame($venue->term_id, VenueService::eventVenueId($event->post_id));
+
+        $gone = $this->postRequest(['venue_id' => 999999]);
+        $this->assertInstanceOf(\WP_Error::class, $this->validate(['space_id' => $spaceId], $gone));
+    }
+
+    public function test_a_venue_writer_can_save_a_typed_venue_from_the_portal()
+    {
+        $this->actAs($this->createUser('editor', ['write_events', 'write_venues']));
+        $spaceId = $this->createSpace();
+        $name = 'Portal Saved Hall ' . wp_generate_password(6, false, false);
+        $request = $this->postRequest(['venue' => $name, 'address' => '3 Quay Street', 'save_as_venue' => 'yes']);
+
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+
+        $event = Event::query()->find((int) FcomFeed::query()->find($feed->id)->meta['event_id']);
+        $venueId = VenueService::eventVenueId($event->post_id);
+        $this->assertNotNull($venueId);
+        $this->assertSame($name, VenueService::format(VenueService::find($venueId))['name']);
+    }
+
     public function test_fcom_still_fires_the_hooks_event_creation_hangs_on()
     {
         $store = new \ReflectionMethod(FcomFeedsController::class, 'store');
@@ -170,7 +205,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
                 'timezone'         => 'UTC',
                 'venue_type'       => 'offline',
                 'venue'            => 'Hall A',
-                'address'          => '',
+                'address'          => '12 Road',
                 'entry_type'       => 'rsvp',
                 'show_guest_count' => 'yes',
             ], $event),

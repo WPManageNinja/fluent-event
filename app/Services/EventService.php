@@ -19,7 +19,7 @@ class EventService
         // The post and its details row must land together — a post without its
         // typed row is an event the app cannot read.
         return DB::transaction(function () use ($data, $timezone, $authorId) {
-            return Event::create([
+            $event = Event::create([
                 'post_id'         => PostService::createEventPost($data, $authorId),
                 'calendar_id'     => Arr::get($data, 'calendar_id'),
                 'parent_event_id' => null,
@@ -30,6 +30,10 @@ class EventService
                 'venue_type'      => Arr::get($data, 'venue_type'),
                 'meta'            => Arr::get($data, 'meta', []),
             ]);
+
+            VenueService::linkEvent($event->post_id, Arr::get($data, 'venue_id'));
+
+            return $event;
         });
     }
 }

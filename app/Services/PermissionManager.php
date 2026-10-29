@@ -23,6 +23,9 @@ class PermissionManager
             'read_events'      => __('Read access to Events', 'fluent-event'),
             'write_events'     => __('Write access to Events', 'fluent-event'),
 
+            'read_venues'      => __('Read access to Venues', 'fluent-event'),
+            'write_venues'     => __('Write access to Venues', 'fluent-event'),
+
             'read_guests'      => __('Read access to Guests', 'fluent-event'),
             'write_guests'     => __('Write access to Guests', 'fluent-event'),
 
@@ -94,6 +97,7 @@ class PermissionManager
             'dashboard' => static::hasAnyPermission(),
             'calendars' => static::userCan(['read_calendars', 'write_calendars']),
             'events'    => static::userCan(['read_events', 'write_events']),
+            'venues'    => static::userCan(['read_venues', 'write_venues']),
             // 'add_event' => static::userCan('write_events'),
             'settings'  => static::userCan(['read_settings', 'write_settings']),
         ];

@@ -117,7 +117,8 @@
                         <el-icon class="fe-event-view__place-icon" aria-hidden="true"><MapLocation/></el-icon>
                         <div class="fe-event-view__place-text">
                             <span v-if="event.venue" class="fe-event-view__venue">{{ event.venue }}</span>
-                            <span v-if="event.address" class="fe-event-view__address">{{ event.address }}</span>
+                            <span v-if="location" class="fe-event-view__address">{{ location }}</span>
+                            <a v-if="mapLink" class="fe-event-view__map" :href="mapLink" target="_blank" rel="noopener noreferrer">{{ $t('Open map') }}</a>
                         </div>
                     </div>
 
@@ -152,6 +153,7 @@
 import { ArrowLeft, Calendar, CircleClose, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
 import { communityApi, eventPhase, guestCountLabel, isSeated, portalVars, siteDateTime, timeFormat } from '../utils';
 import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
+import { fullAddress, mapUrl } from '@/utils/venue';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
@@ -324,12 +326,18 @@ export default {
         canAddToCalendar() {
             return this.phase !== 'ended' && (this.event.entry_type === 'open' || isSeated(this.event));
         },
+        location() {
+            return fullAddress(this.event);
+        },
+        mapLink() {
+            return mapUrl(this.event);
+        },
         place() {
             if (this.isOnline) {
                 return this.meetingLink || window.location.href;
             }
 
-            return [this.event.venue, this.event.address].filter(Boolean).join(', ');
+            return [this.event.venue, this.location].filter(Boolean).join(', ');
         },
         // Plain text for calendar apps; block tags become line breaks so words don't run together.
         summary() {
