@@ -75,12 +75,19 @@ export default {
     },
     template: `
         <div class="fe-event-card" :class="{ 'fe-event-card--single': is_single, 'fe-event-card--child': is_child }">
-            <div v-if="loading" class="fe-event-card__body fe-event-card__skeleton" role="status" :aria-label="t('Loading event')">
-                <span class="fe-event-card__skeleton-chip"></span>
-                <span class="fe-event-card__skeleton-lines">
-                    <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--title"></span>
-                    <span class="fe-event-card__skeleton-line"></span>
-                    <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--short"></span>
+            <div v-if="loading" class="fe-event-card__skeleton" role="status" :aria-label="t('Loading event')">
+                <span class="fe-event-card__skeleton-cover"></span>
+                <span class="fe-event-card__body">
+                    <span class="fe-event-card__skeleton-chip"></span>
+                    <span class="fe-event-card__skeleton-lines">
+                        <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--title"></span>
+                        <span class="fe-event-card__skeleton-line"></span>
+                        <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--short"></span>
+                    </span>
+                </span>
+                <span class="fe-event-card__actions">
+                    <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--count"></span>
+                    <span class="fe-event-card__skeleton-button"></span>
                 </span>
             </div>
             <p v-else-if="!event" class="fe-event-card__unavailable">{{ t('This event is not available.') }}</p>
