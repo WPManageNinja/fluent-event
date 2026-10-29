@@ -209,6 +209,7 @@ class PortalHandler
             'Interested?' => __('Interested?', 'fluent-event'),
             'Join online' => __('Join online', 'fluent-event'),
             'Load more' => __('Load more', 'fluent-event'),
+            'Loading event' => __('Loading event', 'fluent-event'),
             'Log in to RSVP' => __('Log in to RSVP', 'fluent-event'),
             'Logged-in members say whether they are going.' => __('Logged-in members say whether they are going.', 'fluent-event'),
             'Meeting link' => __('Meeting link', 'fluent-event'),

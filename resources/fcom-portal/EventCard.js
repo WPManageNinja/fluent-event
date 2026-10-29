@@ -75,7 +75,14 @@ export default {
     },
     template: `
         <div class="fe-event-card" :class="{ 'fe-event-card--single': is_single, 'fe-event-card--child': is_child }">
-            <template v-if="loading"></template>
+            <div v-if="loading" class="fe-event-card__body fe-event-card__skeleton" role="status" :aria-label="t('Loading event')">
+                <span class="fe-event-card__skeleton-chip"></span>
+                <span class="fe-event-card__skeleton-lines">
+                    <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--title"></span>
+                    <span class="fe-event-card__skeleton-line"></span>
+                    <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--short"></span>
+                </span>
+            </div>
             <p v-else-if="!event" class="fe-event-card__unavailable">{{ t('This event is not available.') }}</p>
             <template v-else>
                 <img v-if="event.cover_url" class="fe-event-card__cover" :src="event.cover_url" alt="" />

@@ -77,6 +77,51 @@
         color: var(--fcom-secondary-text, #525866);
     }
 
+    // Stands in while the card loads its own event: fcom's moderation reports hand the post over without it.
+    &__skeleton {
+        padding-bottom: 14px;
+    }
+
+    &__skeleton-chip,
+    &__skeleton-line {
+        background: var(--fcom-primary-border, #e3e8ee);
+        animation: fe-skeleton-pulse 1.4s ease-in-out infinite;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+    }
+
+    &__skeleton-chip {
+        flex: none;
+        width: 52px;
+        height: 58px;
+        border-radius: 10px;
+    }
+
+    &__skeleton-lines {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 4px;
+    }
+
+    &__skeleton-line {
+        width: 55%;
+        height: 12px;
+        border-radius: 6px;
+
+        &.fe-event-card__skeleton-line--title {
+            width: 80%;
+            height: 16px;
+        }
+
+        &.fe-event-card__skeleton-line--short {
+            width: 30%;
+        }
+    }
+
     // Rounds itself: a clipping card would also clip the RSVP dropdown in the footer.
     &__cover {
         display: block;
@@ -1004,6 +1049,12 @@
             align-self: end;
             margin: 0 -14px -14px;
         }
+    }
+}
+
+@keyframes fe-skeleton-pulse {
+    50% {
+        opacity: 0.45;
     }
 }
 

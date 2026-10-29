@@ -63,10 +63,12 @@ describe('EventCard', () => {
             fetch.mockResolvedValueOnce(new Response(JSON.stringify({ feed: { fluent_event: meetup() } })));
             const wrapper = card({ id: 1466, slug: 'community-meetup' });
 
+            expect(wrapper.find('.fe-event-card__skeleton').attributes('role')).toBe('status');
             expect(wrapper.find('.fe-event-card__unavailable').exists()).toBe(false);
             await flushPromises();
 
             expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/1466/by-id');
+            expect(wrapper.find('.fe-event-card__skeleton').exists()).toBe(false);
             expect(wrapper.find('.fe-event-card__title').text()).toBe('Community meetup');
         });
 
