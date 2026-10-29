@@ -29,8 +29,10 @@
                 <h2 class="fe-calendar-tab__panel-title">{{ $t('Details') }}</h2>
 
                 <dl class="fe-calendar-tab__facts">
+                    <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                     <dt>{{ $t('Status') }}</dt>
                     <dd class="capitalize">{{ $calendarStatusLabel(calendar.status) }}</dd>
+                    -->
 
                     <dt>{{ $t('Created') }}</dt>
                     <dd>{{ $formatDate(calendar.created_at) }}</dd>

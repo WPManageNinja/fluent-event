@@ -39,6 +39,7 @@
                         <div class="fe-calendar-detail__title-row">
                             <h1 class="fe-page__title">{{ calendar.title }}</h1>
 
+                            <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                             <el-tag
                                 v-if="calendar.status && calendar.status !== 'public'"
                                 class="capitalize"
@@ -47,6 +48,7 @@
                             >
                                 {{ $calendarStatusLabel(calendar.status) }}
                             </el-tag>
+                            -->
                         </div>
 
                         <p class="fe-calendar-detail__slug">{{ calendar.slug }}</p>

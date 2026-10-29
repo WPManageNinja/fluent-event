@@ -131,6 +131,7 @@
                                 </el-select>
                             </el-form-item>
 
+                            <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                             <el-form-item :label="$t('Visibility')" data-field="status">
                                 <el-radio-group
                                     v-model="event.status"
@@ -147,6 +148,7 @@
                                     </el-radio>
                                 </el-radio-group>
                             </el-form-item>
+                            -->
                         </div>
                     </section>
 

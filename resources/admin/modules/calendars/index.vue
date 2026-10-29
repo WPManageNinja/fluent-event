@@ -17,6 +17,7 @@
             </div>
 
             <div v-if="!isOnboarding" class="fe-calendars__toolbar">
+                <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                 <SegmentedSwitch
                     v-model="query.status"
                     class="fe-switch--compact"
@@ -24,6 +25,7 @@
                     :label="$t('Filter calendars by status')"
                     @change="fetchCalendars"
                 />
+                -->
 
                 <SearchInput
                     v-model="query.search"

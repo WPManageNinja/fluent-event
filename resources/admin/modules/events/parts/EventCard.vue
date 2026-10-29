@@ -34,9 +34,11 @@
             <p class="fe-event-card__time">{{ timeRange }}</p>
 
             <div class="fe-event-card__meta">
+                <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                 <el-tag class="capitalize" :type="$eventStatusType(event.status)" size="small">
                     {{ $eventStatusLabel(event.status) }}
                 </el-tag>
+                -->
 
                 <span class="fe-event-card__venue">
                     <el-icon aria-hidden="true">
