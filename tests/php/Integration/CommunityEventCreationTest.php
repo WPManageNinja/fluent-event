@@ -53,7 +53,8 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $event = Event::query()->find($eventId);
         $this->assertNotNull($event, 'The post was not linked to a new event.');
         $this->assertSame('Community meetup', $event->title);
-        $this->assertSame('public', $event->status);
+        $this->assertSame('private', $event->status);
+        $this->assertSame('private', get_post($event->post_id)->post_status);
         $this->assertSame($this->host, (int) get_post($event->post_id)->post_author);
 
         $calendar = Calendar::query()->find($event->calendar_id);

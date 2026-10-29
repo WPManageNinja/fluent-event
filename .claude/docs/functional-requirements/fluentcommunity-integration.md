@@ -36,7 +36,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   - `new_feed_data_type_event`: requires `write_events`, a discussion space, and valid event
     input; strips media. Vetoes return `WP_Error` (a thrown exception becomes a bare HTTP 500 in fcom).
   - `just_created_type_event`: finds or creates the space calendar, claims uploaded cover and
-    description images, creates the event (status `public`, author = post author), writes
+    description images, creates the event (status `private`, author = post author), writes
     `meta.event_id` and the `fcom_feed_id` link. If the event can't be created, the post is deleted.
   - `update_feed_data_type_event` / `update_data`: keep the event link through edits (fcom
     rebuilds post meta); block moves to the profile or to non-discussion spaces.
@@ -82,7 +82,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Calendars:** created lazily on the first event, named and slugged after the space, status
   `private` (no public page). Admins may change the status later.
 - **Statuses:** events and calendars are `public | private | draft`. fcom-created events start
-  `public`. The portal shows `public` and `private` events; `draft` events are never returned.
+  `private`, like their calendars; v1 neither shows nor lets anyone change the status. The portal
+  shows `public` and `private` events; `draft` events are never returned.
 - **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit) and `open`
   (view-only: members can't register; admins can still add guests, who get the usual emails).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and

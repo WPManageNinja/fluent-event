@@ -336,7 +336,7 @@ class FeedHandler
     protected function eventInput($requestData)
     {
         $input = EventRequest::sanitize((array) Arr::get($requestData, 'event', []));
-        $input['status'] = 'public';
+        $input['status'] = 'private';
 
         return $input;
     }
