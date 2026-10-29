@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { mount, flushPromises, RouterLinkStub } from '@vue/test-utils';
 import EventCard from '../../../resources/fcom-portal/EventCard';
 import EventActions from '../../../resources/fcom-portal/EventActions';
 
@@ -19,8 +19,8 @@ const meetup = (overrides = {}) => ({
     ...overrides
 });
 
-const card = (feed = { slug: 'community-meetup', fluent_event: meetup() }, props = {}) =>
-    mount(EventCard, { props: { feed, ...props } });
+const card = (feed = { slug: 'community-meetup', fluent_event: meetup() }, props = {}, hasEventPage = true) =>
+    mount(EventCard, { props: { feed, ...props }, global: { mocks: { $router: { hasRoute: () => hasEventPage } } } });
 
 describe('EventCard', () => {
     it('says the event is unavailable when the post carries none', () => {
@@ -41,6 +41,48 @@ describe('EventCard', () => {
 
         expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false);
         expect(wrapper.find('.fe-event-card__title').text()).toBe('Community meetup');
+    });
+
+    it("shows a plain title in fcom's admin app, which has no event page route", () => {
+        const wrapper = card(undefined, {}, false);
+
+        expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false);
+        expect(wrapper.find('.fe-event-card__title').text()).toBe('Community meetup');
+    });
+
+    describe('a post handed over without its event (fcom moderation reports)', () => {
+        beforeEach(() => {
+            vi.stubGlobal('fetch', vi.fn());
+        });
+
+        afterEach(() => {
+            vi.unstubAllGlobals();
+        });
+
+        it('loads the event through the post', async () => {
+            fetch.mockResolvedValueOnce(new Response(JSON.stringify({ feed: { fluent_event: meetup() } })));
+            const wrapper = card({ id: 1466, slug: 'community-meetup' });
+
+            expect(wrapper.find('.fe-event-card__unavailable').exists()).toBe(false);
+            await flushPromises();
+
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/1466/by-id');
+            expect(wrapper.find('.fe-event-card__title').text()).toBe('Community meetup');
+        });
+
+        it('says the event is unavailable when the post cannot be loaded', async () => {
+            fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Not found' }), { status: 404 }));
+            const wrapper = card({ id: 1466, slug: 'gone' });
+            await flushPromises();
+
+            expect(wrapper.find('.fe-event-card__unavailable').exists()).toBe(true);
+        });
+
+        it('does not load anything when the post carries its event, even an empty one', () => {
+            card({ slug: 'gone', fluent_event: null });
+
+            expect(fetch).not.toHaveBeenCalled();
+        });
     });
 
     it('shows the date chip and the start time', () => {
