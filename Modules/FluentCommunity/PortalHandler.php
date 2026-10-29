@@ -23,7 +23,6 @@ class PortalHandler
     {
         add_action('fluent_community/before_js_loaded', [$this, 'printVars']);
         add_filter('fluent_community/module_scripts', [$this, 'addModuleScript']);
-        // After fcom's own (10) adds the admin app's stylesheet, so ours still comes last.
         add_filter('fluent_community/portal_data_vars', [$this, 'addStylesheet'], 20);
         add_filter('fluent_community/menu_settings_api_response', [$this, 'addMenuSetting']);
         add_filter('fluent_community/main_menu_items', [$this, 'refreshMenuItem']);
