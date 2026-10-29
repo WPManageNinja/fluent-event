@@ -267,18 +267,29 @@
                             </el-form-item>
 
                             <template v-else>
-                                <VenueSelect
+                                <el-radio-group
                                     v-if="venues.length"
+                                    v-model="event.venue_source"
+                                    class="fe-venue-source"
+                                    :aria-label="$t('Venue')"
+                                >
+                                    <el-radio value="saved">{{ $t('Saved venue') }}</el-radio>
+                                    <el-radio value="new">{{ $t('New venue') }}</el-radio>
+                                </el-radio-group>
+
+                                <VenueSelect
+                                    v-if="venueSource === 'saved'"
                                     id="fe-event-venue-id"
                                     v-model="event.venue_id"
                                     :venues="venues"
                                     data-field="venue_id"
                                 />
 
-                                <template v-if="!selectedVenue">
+                                <template v-else>
                                     <el-form-item
                                         :label="$t('Venue name')"
                                         for="fe-event-venue"
+                                        required
                                         data-field="venue"
                                     >
                                         <el-input
@@ -291,6 +302,7 @@
                                     <el-form-item
                                         :label="$t('Address')"
                                         for="fe-event-address"
+                                        required
                                         data-field="address"
                                     >
                                         <el-input
@@ -298,9 +310,26 @@
                                             v-model="event.address"
                                             type="textarea"
                                             :rows="2"
-                                            :placeholder="$t('Street, city, country')"
+                                            :placeholder="$t('Street and number')"
                                         />
                                     </el-form-item>
+
+                                    <VenueAddressFields
+                                        v-model:city="event.city"
+                                        v-model:zip-code="event.zip_code"
+                                        v-model:country="event.country"
+                                        v-model:map-url="event.map_url"
+                                        id-prefix="fe-event"
+                                    />
+
+                                    <el-checkbox
+                                        v-if="canSaveVenue"
+                                        v-model="event.save_as_venue"
+                                        true-value="yes"
+                                        false-value="no"
+                                    >
+                                        {{ $t('Save as a venue for future events') }}
+                                    </el-checkbox>
                                 </template>
                             </template>
                         </div>
@@ -449,6 +478,7 @@
     import MediaPicker from '@/components/MediaPicker.vue';
     import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
     import VenueSelect from '@/components/VenueSelect.vue';
+    import VenueAddressFields from '@/components/VenueAddressFields.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
@@ -466,6 +496,7 @@
             MediaPicker,
             RegistrationLimitField,
             VenueSelect,
+            VenueAddressFields,
             SegmentedSwitch,
             Skeleton,
         },
@@ -490,6 +521,13 @@
             },
             selectedVenue() {
                 return this.venues.find(venue => venue.id === this.event.venue_id) || null;
+            },
+            canSaveVenue() {
+                return this.$userCan('write_venues');
+            },
+            // With no saved venues there is nothing to pick, so the typed fields are the only way.
+            venueSource() {
+                return this.venues.length ? this.event.venue_source : 'new';
             },
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'ddd, MMM D';
@@ -590,8 +628,15 @@
                     venue_type: event?.venue_type || this.venueTypes[0].value,
                     online_meeting_url: meta.online_meeting_url || '',
                     venue_id: event?.venue_id || null,
+                    // A linked venue, or a new event, opens on the picker; a one-off opens on its fields.
+                    venue_source: event?.venue_id || !meta.venue ? 'saved' : 'new',
                     venue: meta.venue || '',
                     address: meta.address || '',
+                    city: meta.city || '',
+                    zip_code: meta.zip_code || '',
+                    country: meta.country || '',
+                    map_url: meta.map_url || '',
+                    save_as_venue: 'no',
                     cover_url: meta.cover_url || '',
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
                     show_guest_count: event ? (meta.show_guest_count || 'yes') : 'no',
@@ -704,9 +749,15 @@
                         venue_type: this.event.venue_type,
                         cover_url: this.event.cover_url,
                         online_meeting_url: this.event.online_meeting_url,
-                        venue_id: this.selectedVenue ? this.event.venue_id : null,
+                        venue_source: this.venueSource,
+                        venue_id: this.venueSource === 'saved' && this.selectedVenue ? this.event.venue_id : null,
                         venue: this.event.venue,
                         address: this.event.address,
+                        city: this.event.city,
+                        zip_code: this.event.zip_code,
+                        country: this.event.country,
+                        map_url: this.event.map_url,
+                        save_as_venue: this.venueSource === 'new' && this.canSaveVenue ? this.event.save_as_venue : 'no',
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
                         capacity: this.event.capacity || 0,

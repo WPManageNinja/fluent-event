@@ -1129,14 +1129,6 @@
         text-decoration: underline;
     }
 
-    &__hint {
-        display: block;
-        margin-top: 4px;
-        font-size: 12px;
-        line-height: 1.5;
-        color: var(--fcom-secondary-text, #525866);
-    }
-
     &__name,
     &__address {
         display: block;
@@ -1160,6 +1152,32 @@
     height: auto;
     padding-top: 8px;
     padding-bottom: 8px;
+}
+
+.fe-venue-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+
+    .el-form-item {
+        margin-bottom: 0;
+    }
+
+    &__wide {
+        grid-column: 1 / -1;
+    }
+
+    &__hint {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    @media (max-width: 575px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 // Same component as the admin view switch, on fcom's tokens.

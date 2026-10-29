@@ -28,29 +28,13 @@
                 />
             </el-form-item>
 
-            <div class="fe-form__pair">
-                <el-form-item :label="$t('City')" for="fe-venue-city">
-                    <el-input id="fe-venue-city" v-model="form.city" maxlength="100" />
-                </el-form-item>
-
-                <el-form-item :label="$t('ZIP code')" for="fe-venue-zip-code">
-                    <el-input id="fe-venue-zip-code" v-model="form.zip_code" maxlength="20" />
-                </el-form-item>
-            </div>
-
-            <el-form-item :label="$t('Country')" for="fe-venue-country">
-                <el-input id="fe-venue-country" v-model="form.country" maxlength="100" />
-            </el-form-item>
-
-            <el-form-item :label="$t('Map link')" for="fe-venue-map-url">
-                <el-input
-                    id="fe-venue-map-url"
-                    v-model="form.map_url"
-                    type="url"
-                    placeholder="https://maps.google.com/..."
-                />
-                <span class="fe-form__hint">{{ $t('A Google Maps or other map link for guests.') }}</span>
-            </el-form-item>
+            <VenueAddressFields
+                v-model:city="form.city"
+                v-model:zip-code="form.zip_code"
+                v-model:country="form.country"
+                v-model:map-url="form.map_url"
+                id-prefix="fe-venue"
+            />
         </el-form>
 
         <template #footer>
@@ -66,10 +50,15 @@
 </template>
 
 <script type="text/javascript">
+    import VenueAddressFields from '@/components/VenueAddressFields.vue';
+
     const FIELDS = ['name', 'address', 'city', 'zip_code', 'country', 'map_url'];
 
     export default {
         name: 'VenueFormModal',
+        components: {
+            VenueAddressFields,
+        },
         props: {
             modelValue: {
                 type: Boolean,

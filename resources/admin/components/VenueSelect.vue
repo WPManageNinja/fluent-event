@@ -1,5 +1,5 @@
 <template>
-    <el-form-item :label="$t('Saved venue')" label-position="top" :for="id">
+    <el-form-item :label="$t('Venue')" label-position="top" :for="id" required>
         <el-select
             :id="id"
             :model-value="selected ? modelValue : null"
@@ -31,7 +31,6 @@
             </a>
         </div>
 
-        <span v-else class="fe-venue-select__hint">{{ $t('Or leave it empty and enter a one-off venue below.') }}</span>
     </el-form-item>
 </template>
 

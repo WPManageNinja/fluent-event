@@ -93,12 +93,13 @@ class ModelContractTest extends TestCase
 
     public function test_every_event_meta_key_the_request_accepts_has_a_default()
     {
-        // The venue fields beyond name and address are copied from a saved venue, never accepted from the request.
-        $this->assertEmpty(array_diff(EventRequest::META_KEYS, array_keys(Event::defaultMeta())));
-        $this->assertSame(
-            ['city', 'zip_code', 'country', 'map_url'],
-            array_values(array_diff(array_keys(Event::defaultMeta()), EventRequest::META_KEYS))
-        );
+        $defaults = array_keys(Event::defaultMeta());
+        sort($defaults);
+
+        $accepted = EventRequest::META_KEYS;
+        sort($accepted);
+
+        $this->assertSame($defaults, $accepted);
     }
 
     public function test_every_calendar_meta_key_the_request_accepts_has_a_default()

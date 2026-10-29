@@ -243,7 +243,7 @@ abstract class IntegrationTestCase extends BaseTestCase
             'timezone'         => $event->timezone,
             'venue_type'       => $event->venue_type,
             'venue'            => 'Hall A',
-            'address'          => '',
+            'address'          => '12 Road',
             'entry_type'       => 'rsvp',
             'show_guest_count' => 'yes',
         ], $overrides);

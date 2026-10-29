@@ -199,6 +199,43 @@ describe('CreateOrUpdateEvent', () => {
             expect(request('events').payload.capacity).toBe(0);
         });
 
+        it('sends a one-off venue with its city, ZIP code, country and map link', () => {
+            const { vm, request } = form();
+            filled(vm, { venue: 'Corner Café', address: '1 High Street', city: 'Leeds', zip_code: 'LS1', country: 'United Kingdom', map_url: 'https://maps.example.com/c' });
+
+            vm.saveEvent();
+
+            expect(request('events').payload).toMatchObject({
+                venue_id: null,
+                venue: 'Corner Café',
+                address: '1 High Street',
+                city: 'Leeds',
+                zip_code: 'LS1',
+                country: 'United Kingdom',
+                map_url: 'https://maps.example.com/c'
+            });
+        });
+
+        it('opens on the saved-venue picker, and sends typed fields only from New venue', () => {
+            const { vm, request, requestServer } = form();
+            vm.venues = [{ id: 4, name: 'Kingsway Hall', address: '12 Kingsway' }];
+            expect(vm.venueSource).toBe('saved');
+
+            filled(vm, { venue_source: 'new', venue_id: 4, venue: 'Mill Hall', address: '7 Mill Lane', save_as_venue: 'yes' });
+            vm.saveEvent();
+            expect(request('events').payload).toMatchObject({ venue_source: 'new', venue_id: null, save_as_venue: 'yes' });
+
+            vm.event.venue_source = 'saved';
+            vm.saveEvent();
+            expect(requestServer.mock.calls.at(-1)[0].payload).toMatchObject({ venue_source: 'saved', venue_id: 4, save_as_venue: 'no' });
+        });
+
+        it('falls back to New venue when there are no saved venues to pick', () => {
+            const { vm } = form();
+
+            expect(vm.venueSource).toBe('new');
+        });
+
         it('loads the saved venues for the picker', () => {
             expect(form().request('venues/options')).toMatchObject({ loadingState: null, errorState: null });
         });

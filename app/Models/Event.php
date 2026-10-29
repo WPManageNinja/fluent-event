@@ -60,7 +60,7 @@ class Event extends Model
             'online_meeting_url'  => '',
             'venue'               => '',
             'address'             => '',
-            'city'                => '', // city, zip_code, country, map_url: copied from a saved venue; a one-off venue has none
+            'city'                => '', // with zip_code, country, map_url: copied from a saved venue, or typed for a one-off
             'zip_code'            => '',
             'country'             => '',
             'map_url'             => '',

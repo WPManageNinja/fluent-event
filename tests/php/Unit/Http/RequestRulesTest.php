@@ -105,6 +105,23 @@ class RequestRulesTest extends TestCase
         $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['waitlist']);
     }
 
+    public function test_a_one_off_venue_needs_a_name_and_an_address()
+    {
+        $oneOff = EventRequest::rules($this->eventInput());
+        $this->assertSame('required|string|max:255', $oneOff['venue']);
+        $this->assertSame('required|string|max:500', $oneOff['address']);
+
+        $saved = EventRequest::rules($this->eventInput(['venue_id' => 4]));
+        $this->assertSame('nullable|string|max:255', $saved['venue']);
+
+        $picking = EventRequest::rules($this->eventInput(['venue_source' => 'saved']));
+        $this->assertSame('required|integer|min:1', $picking['venue_id']);
+        $this->assertSame('nullable|string|max:255', $picking['venue']);
+
+        $online = EventRequest::rules($this->eventInput(['venue_type' => 'online']));
+        $this->assertSame('nullable|string|max:500', $online['address']);
+    }
+
     public function test_a_registration_limit_is_checked_only_once_the_host_sets_one()
     {
         $this->assertArrayNotHasKey('registration_opens.value', EventRequest::rules($this->eventInput()));

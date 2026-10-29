@@ -1236,14 +1236,6 @@
         text-decoration: underline;
     }
 
-    &__hint {
-        display: block;
-        margin-top: var(--fe-space-1, 4px);
-        font-size: var(--fe-text-xs, 12px);
-        line-height: 1.5;
-        color: var(--fe-secondary-text, #525866);
-    }
-
     &__name,
     &__address {
         display: block;
@@ -1268,6 +1260,32 @@
     height: auto;
     padding-top: var(--fe-space-2, 8px);
     padding-bottom: var(--fe-space-2, 8px);
+}
+
+.fe-venue-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--fe-space-5, 20px);
+
+    .el-form-item {
+        margin-bottom: 0;
+    }
+
+    &__wide {
+        grid-column: 1 / -1;
+    }
+
+    &__hint {
+        display: block;
+        margin-top: var(--fe-space-1, 4px);
+        font-size: var(--fe-text-xs, 12px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    @media screen and (max-width: 575px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .fe-switch {

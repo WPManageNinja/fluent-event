@@ -117,6 +117,11 @@ class VenueService
         return ['venue' => $venue['name']] + Arr::only($venue, self::FIELDS);
     }
 
+    public static function createFromEvent(array $data)
+    {
+        return self::create(['name' => Arr::get($data, 'venue')] + Arr::only($data, self::FIELDS));
+    }
+
     public static function linkEvent($postId, $venueId)
     {
         wp_set_object_terms($postId, $venueId ? [(int) $venueId] : [], VenueTaxonomy::TAXONOMY);

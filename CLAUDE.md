@@ -31,7 +31,8 @@ Three things people get wrong:
 Reusable venues are the `fe_venue` taxonomy (term name + term meta). An event picks one through
 the term relationship and keeps a copy of its fields in `meta` (`venue`, `address`, `city`,
 `zip_code`, `country`, `map_url`); editing the venue rewrites the copies, deleting it leaves
-them as a one-off venue. A one-off venue is only `venue` + `address`.
+them as a one-off venue, which has the same fields typed in by hand. "Save as a venue" turns a
+typed one-off into a saved venue and links it (`write_venues` only).
 
 Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going)
 or `open` (view-only: members can't register, every viewer sees the whole event,

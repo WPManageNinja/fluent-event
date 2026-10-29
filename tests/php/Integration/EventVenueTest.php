@@ -59,19 +59,115 @@ class EventVenueTest extends IntegrationTestCase
         $this->assertSame($this->venue['id'], $this->rest('GET', "events/{$event->id}")['data']['event']['venue_id']);
     }
 
-    public function test_switching_to_a_one_off_venue_unlinks_it_and_clears_the_saved_fields()
+    public function test_switching_to_a_one_off_venue_unlinks_it_and_keeps_what_was_typed()
     {
         $event = $this->createEvent();
         $this->pick($event);
 
-        $this->pick($event, ['venue_id' => null, 'venue' => 'Corner Café', 'address' => '1 High Street']);
+        $this->pick($event, [
+            'venue_id' => null,
+            'venue'    => 'Corner Café',
+            'address'  => '1 High Street',
+            'city'     => 'Leeds',
+            'zip_code' => '',
+            'country'  => 'United Kingdom',
+            'map_url'  => '',
+        ]);
 
         $meta = $this->meta($event);
         $this->assertSame('Corner Café', $meta['venue']);
         $this->assertSame('1 High Street', $meta['address']);
-        $this->assertSame('', $meta['city']);
+        $this->assertSame('Leeds', $meta['city']);
+        $this->assertSame('', $meta['zip_code']);
         $this->assertSame('', $meta['map_url']);
         $this->assertNull(VenueService::eventVenueId($event->post_id));
+    }
+
+    public function test_saved_venue_chosen_but_none_picked_asks_for_one()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->pick($event, ['venue_source' => 'saved', 'venue_id' => null]);
+
+        $this->assertSame(422, $response['status']);
+        $this->assertStringContainsString('Choose a saved venue.', wp_json_encode($response['data']));
+    }
+
+    public function test_a_one_off_venue_without_a_name_or_address_is_refused()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->pick($event, ['venue_id' => null, 'venue' => '', 'address' => '']);
+
+        $this->assertSame(422, $response['status']);
+        $this->assertStringContainsString('Venue name is required.', wp_json_encode($response['data']));
+        $this->assertStringContainsString('Address is required.', wp_json_encode($response['data']));
+    }
+
+    private function typedVenue($name, array $overrides = [])
+    {
+        return array_merge([
+            'venue_id'      => null,
+            'venue'         => $name,
+            'address'       => '7 Mill Lane',
+            'city'          => 'Bristol',
+            'zip_code'      => 'BS1 4ST',
+            'country'       => 'United Kingdom',
+            'map_url'       => 'https://maps.example.com/mill',
+            'save_as_venue' => 'yes',
+        ], $overrides);
+    }
+
+    public function test_save_as_a_venue_creates_the_venue_and_links_the_event_to_it()
+    {
+        $event = $this->createEvent();
+        $name = 'Mill Hall ' . wp_generate_password(6, false, false);
+
+        $response = $this->pick($event, $this->typedVenue($name));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $venueId = VenueService::eventVenueId($event->post_id);
+        $this->assertNotNull($venueId);
+
+        $venue = VenueService::format(VenueService::find($venueId));
+        $this->assertSame($name, $venue['name']);
+        $this->assertSame('BS1 4ST', $venue['zip_code']);
+        $this->assertSame('https://maps.example.com/mill', $venue['map_url']);
+        $this->assertSame('Bristol', $this->meta($event)['city']);
+    }
+
+    public function test_save_as_a_venue_needs_the_venue_key_and_otherwise_stays_a_one_off()
+    {
+        $event = $this->createEvent();
+        $name = 'Unsaved Hall ' . wp_generate_password(6, false, false);
+        $this->actAs($this->createUser('editor', ['write_events']));
+
+        $response = $this->pick($event, $this->typedVenue($name));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull(VenueService::eventVenueId($event->post_id));
+        $this->assertFalse(get_term_by('name', $name, 'fe_venue'));
+        $this->assertSame($name, $this->meta($event)['venue']);
+    }
+
+    public function test_save_as_a_venue_refuses_a_name_that_is_already_saved()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->pick($event, $this->typedVenue($this->venue['name']));
+
+        $this->assertSame(422, $response['status']);
+        $this->assertStringContainsString('A venue with this name already exists.', wp_json_encode($response['data']));
+    }
+
+    public function test_a_one_off_venue_gets_the_same_map_link_check()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->pick($event, ['venue_id' => null, 'map_url' => 'http://testinglink']);
+
+        $this->assertSame(422, $response['status']);
+        $this->assertStringContainsString('Please provide a valid URL.', wp_json_encode($response['data']));
     }
 
     public function test_an_online_event_drops_its_venue()

@@ -75,6 +75,7 @@ class EventController extends Controller
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
         EventRequest::validateDateWindow($data);
         EventRequest::validateVenue($data);
+        $data = $this->saveNewVenue($data);
 
         $event = EventService::createEvent(EventRequest::format($data));
 
@@ -94,6 +95,7 @@ class EventController extends Controller
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
         EventRequest::validateDateWindow($data, $event->meta);
         EventRequest::validateVenue($data);
+        $data = $this->saveNewVenue($data);
 
         $data     = EventRequest::format($data, $event->meta);
         $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));
@@ -152,5 +154,21 @@ class EventController extends Controller
         return [
             'message' => __('Event has been successfully deleted', 'fluent-event')
         ];
+    }
+
+    // "Save as a venue" on a typed one-off: the new venue becomes the event's saved venue.
+    protected function saveNewVenue($data)
+    {
+        if (!EventRequest::wantsNewVenue($data)) {
+            return $data;
+        }
+
+        $venue = VenueService::createFromEvent($data);
+
+        do_action('fluent_event/venue/created', $venue);
+
+        $data['venue_id'] = $venue->term_id;
+
+        return $data;
     }
 }

@@ -150,6 +150,22 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertInstanceOf(\WP_Error::class, $this->validate(['space_id' => $spaceId], $gone));
     }
 
+    public function test_a_venue_writer_can_save_a_typed_venue_from_the_portal()
+    {
+        $this->actAs($this->createUser('editor', ['write_events', 'write_venues']));
+        $spaceId = $this->createSpace();
+        $name = 'Portal Saved Hall ' . wp_generate_password(6, false, false);
+        $request = $this->postRequest(['venue' => $name, 'address' => '3 Quay Street', 'save_as_venue' => 'yes']);
+
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+
+        $event = Event::query()->find((int) FcomFeed::query()->find($feed->id)->meta['event_id']);
+        $venueId = VenueService::eventVenueId($event->post_id);
+        $this->assertNotNull($venueId);
+        $this->assertSame($name, VenueService::format(VenueService::find($venueId))['name']);
+    }
+
     public function test_fcom_still_fires_the_hooks_event_creation_hangs_on()
     {
         $store = new \ReflectionMethod(FcomFeedsController::class, 'store');
@@ -189,7 +205,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
                 'timezone'         => 'UTC',
                 'venue_type'       => 'offline',
                 'venue'            => 'Hall A',
-                'address'          => '',
+                'address'          => '12 Road',
                 'entry_type'       => 'rsvp',
                 'show_guest_count' => 'yes',
             ], $event),
