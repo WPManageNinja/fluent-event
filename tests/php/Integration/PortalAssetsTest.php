@@ -7,8 +7,7 @@ use FluentEvent\Modules\FluentCommunity\PortalHandler;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * How the portal script and stylesheet reach fcom's page: fcom's add-on module runtime loads
- * them when it has one; on older fcom, printAssets() prints them.
+ * fcom's add-on module runtime loads the portal script and stylesheet; we print only the vars.
  */
 class PortalAssetsTest extends IntegrationTestCase
 {
@@ -27,10 +26,6 @@ class PortalAssetsTest extends IntegrationTestCase
 
     public function test_fcom_places_our_script_after_its_start_and_before_its_app()
     {
-        if (!method_exists(\FluentCommunity\App\Vite::class, 'insertModuleScripts')) {
-            $this->markTestSkipped('This FluentCommunity has no add-on module runtime.');
-        }
-
         $vars = \FluentCommunity\App\Vite::insertModuleScripts([
             'js_files' => [
                 'fcom_start' => ['url' => 'start.js', 'deps' => []],
@@ -47,54 +42,22 @@ class PortalAssetsTest extends IntegrationTestCase
         $this->assertSame(Enqueue::url('fcom-portal/fcom-portal.js'), $vars['js_files']['fluent_event_fcom_portal']['url']);
     }
 
-    public function test_with_the_module_runtime_fcom_loads_the_files_and_we_print_only_the_vars()
+    public function test_our_stylesheet_comes_after_fcoms()
     {
-        $handler = $this->handler(true);
+        $vars = (new PortalHandler())->addStylesheet(['css_files' => ['fcom_global' => ['url' => 'global.css']]]);
 
-        $vars = $handler->addStylesheet(['css_files' => ['fcom_global' => ['url' => 'global.css']]]);
         $this->assertSame('fluent_event_fcom_portal', array_key_last($vars['css_files']));
+        $this->assertSame(Enqueue::url('fcom-portal/fcom-portal.scss'), $vars['css_files']['fluent_event_fcom_portal']['url']);
+    }
 
-        $html = $this->printed($handler);
+    public function test_we_print_only_the_vars()
+    {
+        ob_start();
+        (new PortalHandler())->printVars();
+        $html = ob_get_clean();
+
         $this->assertStringContainsString('window.fluentEventFcomPortal', $html);
         $this->assertStringNotContainsString('<script type="module"', $html);
         $this->assertStringNotContainsString('<link', $html);
-    }
-
-    public function test_without_the_module_runtime_we_print_the_script_and_stylesheet()
-    {
-        $handler = $this->handler(false);
-
-        $vars = ['css_files' => ['fcom_global' => ['url' => 'global.css']]];
-        $this->assertSame($vars, $handler->addStylesheet($vars));
-
-        $html = $this->printed($handler);
-        $this->assertStringContainsString('window.fluentEventFcomPortal', $html);
-        $this->assertStringContainsString('<script type="module"', $html);
-        $this->assertStringContainsString('id="fluent_event_fcom_portal_css"', $html);
-    }
-
-    private function handler($fcomLoadsAssets)
-    {
-        return new class($fcomLoadsAssets) extends PortalHandler {
-            private $loads;
-
-            public function __construct($loads)
-            {
-                $this->loads = $loads;
-            }
-
-            protected function fcomLoadsAssets()
-            {
-                return $this->loads;
-            }
-        };
-    }
-
-    private function printed(PortalHandler $handler)
-    {
-        ob_start();
-        $handler->printAssets();
-
-        return ob_get_clean();
     }
 }

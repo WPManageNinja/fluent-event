@@ -3,7 +3,7 @@ import { t, portalVars } from './utils';
 
 /*
  * Plugs FluentEvent into the FluentCommunity portal through fcom's JS hooks.
- * Printed before fcom's own modules, so it waits for FluentCommunityUtil.
+ * fcom loads it after its start.js and before its app (module_scripts), so the hooks are there and the router is not built yet.
  */
 
 // Lazy, so our own Vue, Element Plus and the pages download only when an events page opens, not on every portal view.
@@ -227,8 +227,4 @@ function register() {
     });
 }
 
-if (window.FluentCommunityUtil) {
-    register();
-} else {
-    document.addEventListener('fluentCommunityUtilReady', register, { once: true });
-}
+register();

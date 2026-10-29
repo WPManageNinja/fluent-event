@@ -21,7 +21,7 @@ class PortalHandler
 
     public function register()
     {
-        add_action('fluent_community/before_js_loaded', [$this, 'printAssets']);
+        add_action('fluent_community/before_js_loaded', [$this, 'printVars']);
         add_filter('fluent_community/module_scripts', [$this, 'addModuleScript']);
         // After fcom's own (10) adds the admin app's stylesheet, so ours still comes last.
         add_filter('fluent_community/portal_data_vars', [$this, 'addStylesheet'], 20);
@@ -116,7 +116,7 @@ class PortalHandler
         return $links;
     }
 
-    // fcom with the add-on module runtime places the script after its start.js and before its app.
+    // fcom places it after its start.js and before its app, so the routes are in place before the router is built.
     public function addModuleScript($scripts)
     {
         $script = Enqueue::url('fcom-portal/fcom-portal.js');
@@ -130,10 +130,6 @@ class PortalHandler
 
     public function addStylesheet($vars)
     {
-        if (!$this->fcomLoadsAssets()) {
-            return $vars;
-        }
-
         $style = Enqueue::url('fcom-portal/fcom-portal.scss');
 
         if ($style) {
@@ -143,14 +139,8 @@ class PortalHandler
         return $vars;
     }
 
-    public function printAssets()
+    public function printVars()
     {
-        $script = Enqueue::url('fcom-portal/fcom-portal.js');
-
-        if (!$script) {
-            return;
-        }
-
         $userId = get_current_user_id();
         $settings = Settings::get();
 
@@ -166,26 +156,6 @@ class PortalHandler
         ];
 
         echo '<script>window.fluentEventFcomPortal = ' . wp_json_encode($vars, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' . "\n";
-
-        if ($this->fcomLoadsAssets()) {
-            return;
-        }
-
-        $style = Enqueue::url('fcom-portal/fcom-portal.scss');
-        $version = rawurlencode(FLUENT_EVENT_PLUGIN_VERSION);
-
-        if ($style) {
-            echo '<link rel="stylesheet" id="fluent_event_fcom_portal_css" href="' . esc_url($style . '?ver=' . $version) . '" />' . "\n";
-        }
-
-        // Printed before fcom's own modules, so its routes are in place before the router is built.
-        echo '<script type="module" src="' . esc_url($script . '?ver=' . $version) . '"></script>' . "\n";
-    }
-
-    // fcom with the add-on module runtime loads our script and stylesheet itself; older fcom gets them from printAssets().
-    protected function fcomLoadsAssets()
-    {
-        return defined('FLUENT_COMMUNITY_MODULE_API');
     }
 
     // Keyed by the English text, the same contract as the admin app's $t().
