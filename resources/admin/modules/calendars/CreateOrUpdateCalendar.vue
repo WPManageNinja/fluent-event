@@ -119,6 +119,7 @@
                             </div>
                         </section>
 
+                        <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                         <section class="fe-form__section">
                             <div class="fe-form__section-rail">
                                 <h2 class="fe-form__section-title">{{ $t('Visibility') }}</h2>
@@ -144,6 +145,7 @@
                                 </el-radio-group>
                             </div>
                         </section>
+                        -->
 
                         <div class="fe-form__actions fe-form__actions--bar">
                             <el-button native-type="button" :disabled="saving" @click="resetForm">
