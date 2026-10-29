@@ -96,10 +96,10 @@ community add-on into a standalone event tool, and makes events shareable anywhe
 | Feature | Seen in | Notes |
 |---|---|---|
 | Public event page: cover, date/time, venue or online, host, description, guest count, add to calendar, share | FluentBooking, Luma, Eventbrite | own full-page template, not the theme. `fe_event` CPT stays non-public |
-| Calendar page: upcoming + past events of one calendar, with its branding | FluentBooking host page, Luma calendars | schema ready: `calendars.meta` logo / cover / theme_color |
+| Calendar page: upcoming + past events of one calendar, with its branding | FluentBooking host page, Luma calendars | schema ready: `calendars.meta` logo / cover / theme_color. Bring back the calendar description in the admin form and calendar page, hidden in v1 ("v1 has no calendar page outside the admin") |
 | Register on the page without an account (name + email) | Luma, Eventbrite | schema ready: guest rows allow no `user_id`. Public endpoint needs nonce + rate limit + honeypot. Capacity, waitlist, deadline and approval from v1.1–v1.3 apply here too |
 | Confirmation page + "manage my RSVP" link (change / cancel) | FluentBooking, Luma | signed per-guest link in the confirmation email |
-| Visibility: public / unlisted (link only) / private | Luma | FR-6.5 — only meaningful once a public page exists |
+| Visibility: public / unlisted (link only) / private | Luma | FR-6.5 — only meaningful once a public page exists. Until then the status is hidden in the admin and every fcom-created event and calendar is `private`; this release brings back the status picker in the event and calendar forms and the status pills and filters (commented out with "v1 neither shows nor lets anyone change the status") |
 | Reveal the meeting link only X minutes before start | — | until then going guests see "Link available 15 min before start"; stops the link spreading early. Applies to the community post too |
 | SEO + sharing: schema.org Event, Open Graph / social card, custom slug | TEC, Eventbrite | was out of scope for the fcom-only release |
 | Embed: `?embedded` iframe mode, Gutenberg block, shortcode | FluentBooking, TEC | FR-6.12 |
