@@ -56,7 +56,8 @@ export default defineConfig(({ mode }) => {
                 // Chunks import each other without the entries' ?ver=, so their names carry a content hash.
                 output: {
                     chunkFileNames: '[name]-[hash].js',
-                    entryFileNames: '[name].js',
+                    // fcom stamps the add-on scripts it loads with its own ?ver=, so the portal entry's name carries the hash.
+                    entryFileNames: (chunk) => (chunk.name === 'fcom-portal' ? '[name]-[hash].js' : '[name].js'),
                     assetFileNames: 'admin/[name]-[hash][extname]'
                 }
             }

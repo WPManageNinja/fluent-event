@@ -17,6 +17,14 @@ describe('vite build config', () => {
 
         expect(output.chunkFileNames).toContain('[hash]');
         expect(output.assetFileNames).toContain('[hash]');
-        expect(output.entryFileNames).not.toContain('[hash]');
+        expect(output.entryFileNames({ name: 'app' })).not.toContain('[hash]');
+        expect(output.entryFileNames({ name: 'start' })).not.toContain('[hash]');
+    });
+
+    // fcom loads it with fcom's own ?ver=, which does not change when only FluentEvent updates.
+    it('hashes the fcom portal entry', () => {
+        const { output } = viteConfig({ mode: 'production', command: 'build' }).build.rollupOptions;
+
+        expect(output.entryFileNames({ name: 'fcom-portal' })).toContain('[hash]');
     });
 });
