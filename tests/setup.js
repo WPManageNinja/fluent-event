@@ -9,7 +9,7 @@ import updateLocale from 'dayjs/plugin/updateLocale';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 
-// Shapes mirror AdminMenuHandler::localizeScript(), PortalHandler::printAssets() and fcom's portal vars.
+// Shapes mirror AdminMenuHandler::localizeScript(), PortalHandler::printVars() and fcom's portal vars.
 export const adminVars = () => ({
     env: 'dev',
     slug: 'fluent-event',

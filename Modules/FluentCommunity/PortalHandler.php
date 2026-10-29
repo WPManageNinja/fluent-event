@@ -21,7 +21,9 @@ class PortalHandler
 
     public function register()
     {
-        add_action('fluent_community/before_js_loaded', [$this, 'printAssets']);
+        add_action('fluent_community/before_js_loaded', [$this, 'printVars']);
+        add_filter('fluent_community/module_scripts', [$this, 'addModuleScript']);
+        add_filter('fluent_community/portal_data_vars', [$this, 'addStylesheet'], 20);
         add_filter('fluent_community/menu_settings_api_response', [$this, 'addMenuSetting']);
         add_filter('fluent_community/main_menu_items', [$this, 'refreshMenuItem']);
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
@@ -113,14 +115,31 @@ class PortalHandler
         return $links;
     }
 
-    public function printAssets()
+    // fcom places it after its start.js and before its app, so the routes are in place before the router is built.
+    public function addModuleScript($scripts)
     {
         $script = Enqueue::url('fcom-portal/fcom-portal.js');
 
-        if (!$script) {
-            return;
+        if ($script) {
+            $scripts['fluent_event_fcom_portal'] = ['url' => $script];
         }
 
+        return $scripts;
+    }
+
+    public function addStylesheet($vars)
+    {
+        $style = Enqueue::url('fcom-portal/fcom-portal.scss');
+
+        if ($style) {
+            $vars['css_files']['fluent_event_fcom_portal'] = ['url' => $style];
+        }
+
+        return $vars;
+    }
+
+    public function printVars()
+    {
         $userId = get_current_user_id();
         $settings = Settings::get();
 
@@ -135,16 +154,7 @@ class PortalHandler
             'i18n'                => $this->strings(),
         ];
 
-        $style = Enqueue::url('fcom-portal/fcom-portal.scss');
-        $version = rawurlencode(FLUENT_EVENT_PLUGIN_VERSION);
-
-        if ($style) {
-            echo '<link rel="stylesheet" id="fluent_event_fcom_portal_css" href="' . esc_url($style . '?ver=' . $version) . '" />' . "\n";
-        }
-
         echo '<script>window.fluentEventFcomPortal = ' . wp_json_encode($vars, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' . "\n";
-        // Printed before fcom's own modules, so its routes are in place before the router is built.
-        echo '<script type="module" src="' . esc_url($script . '?ver=' . $version) . '"></script>' . "\n";
     }
 
     // Keyed by the English text, the same contract as the admin app's $t().

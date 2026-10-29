@@ -6,14 +6,12 @@ import { expectKnownIssue } from '../known-issue';
 const spaceRoute = () => ({ path: '/space/:space/', children: [{ path: 'home', name: 'space_feeds' }] });
 
 // Imports a fresh copy of the entry, which registers its filters on fcom's hooks at load.
-const loadPortal = async ({ utilReady = true } = {}) => {
+const loadPortal = async () => {
     vi.resetModules();
     const filters = {};
     const util = { hooks: { addFilter: vi.fn((name, namespace, callback) => { filters[name] = callback; }) } };
 
-    if (utilReady) {
-        window.FluentCommunityUtil = util;
-    }
+    window.FluentCommunityUtil = util;
 
     await import('../../../resources/fcom-portal/fcom-portal.js');
 
@@ -25,7 +23,7 @@ afterEach(() => {
 });
 
 describe('fcom-portal entry', () => {
-    it("registers on fcom's hooks straight away when fcom is ready", async () => {
+    it("registers on fcom's hooks as it loads", async () => {
         const { util } = await loadPortal();
 
         expect(util.hooks.addFilter.mock.calls.map(([name, namespace]) => [name, namespace])).toEqual([
@@ -34,16 +32,6 @@ describe('fcom-portal entry', () => {
             ['fluent_com_space_actions', 'fluent-event'],
             ['fluent_com_composer_config', 'fluent-event']
         ]);
-    });
-
-    it('waits for fcom when it loads first', async () => {
-        const { util } = await loadPortal({ utilReady: false });
-        expect(util.hooks.addFilter).not.toHaveBeenCalled();
-
-        window.FluentCommunityUtil = util;
-        document.dispatchEvent(new Event('fluentCommunityUtilReady'));
-
-        expect(util.hooks.addFilter).toHaveBeenCalledTimes(4);
     });
 
     describe('routes', () => {
