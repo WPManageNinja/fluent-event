@@ -56,6 +56,10 @@ export default {
         hasEventPage() {
             return this.$router.hasRoute('fe_event_view');
         },
+        // There the title links to the portal page by URL, as fcom's own post title does.
+        portalUrl() {
+            return (window.fluentComAdmin || {}).portal_url || '';
+        },
     },
     methods: {
         t,
@@ -106,6 +110,7 @@ export default {
                                     class="fe-event-card__title-link"
                                     :to="{ name: 'fe_event_view', params: { feed_slug: feed.slug } }"
                                 >{{ event.title }}</router-link>
+                                <a v-else-if="feed.slug && portalUrl" class="fe-event-card__title-link" :href="portalUrl + 'post/' + feed.slug + '/event'">{{ event.title }}</a>
                                 <template v-else>{{ event.title }}</template>
                             </h3>
                             <event-menu v-if="!is_child" class="fe-event-card__menu" :event="event"></event-menu>

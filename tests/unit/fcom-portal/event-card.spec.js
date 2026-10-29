@@ -43,11 +43,13 @@ describe('EventCard', () => {
         expect(wrapper.find('.fe-event-card__title').text()).toBe('Community meetup');
     });
 
-    it("shows a plain title in fcom's admin app, which has no event page route", () => {
+    it("links the title to the portal page by URL in fcom's admin app, which has no event page route", () => {
         const wrapper = card(undefined, {}, false);
+        const link = wrapper.find('a.fe-event-card__title-link');
 
         expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false);
-        expect(wrapper.find('.fe-event-card__title').text()).toBe('Community meetup');
+        expect(link.attributes('href')).toBe('https://example.test/portal/post/community-meetup/event');
+        expect(link.text()).toBe('Community meetup');
     });
 
     describe('a post handed over without its event (fcom moderation reports)', () => {
