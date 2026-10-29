@@ -1,4 +1,4 @@
-import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions } from './utils';
+import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions, communityApi } from './utils';
 import { MAP_LOCATION, VIDEO_CAMERA } from './icons';
 import EventActions from './EventActions';
 import EventMenu from './EventMenu';
@@ -18,6 +18,8 @@ export default {
     data() {
         return {
             event: this.feed.fluent_event || null,
+            // fcom's moderation reports hand over the post without the event the feed views attach.
+            loading: !('fluent_event' in this.feed),
             error: '',
         };
     },
@@ -25,6 +27,11 @@ export default {
         'feed.fluent_event'(value) {
             this.event = value || null;
         },
+    },
+    mounted() {
+        if (this.loading) {
+            this.loadEvent();
+        }
     },
     computed: {
         startDate() {
@@ -45,16 +52,49 @@ export default {
         hasActions() {
             return !this.is_child && hasEventActions(this.event);
         },
+        // fcom's admin app (moderation reports) renders the card too, without the portal's event route.
+        hasEventPage() {
+            return this.$router.hasRoute('fe_event_view');
+        },
+        // There the title links to the portal page by URL, as fcom's own post title does.
+        portalUrl() {
+            return (window.fluentComAdmin || {}).portal_url || '';
+        },
     },
     methods: {
         t,
         apply(response) {
             this.event = response.event;
         },
+        async loadEvent() {
+            try {
+                const response = await communityApi.get(`feeds/${this.feed.id}/by-id`);
+                this.event = response.feed.fluent_event || null;
+            } catch (error) {
+                this.event = null;
+            } finally {
+                this.loading = false;
+            }
+        },
     },
     template: `
         <div class="fe-event-card" :class="{ 'fe-event-card--single': is_single, 'fe-event-card--child': is_child }">
-            <p v-if="!event" class="fe-event-card__unavailable">{{ t('This event is not available.') }}</p>
+            <div v-if="loading" class="fe-event-card__skeleton" role="status" :aria-label="t('Loading event')">
+                <span class="fe-event-card__skeleton-cover"></span>
+                <span class="fe-event-card__body">
+                    <span class="fe-event-card__skeleton-chip"></span>
+                    <span class="fe-event-card__skeleton-lines">
+                        <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--title"></span>
+                        <span class="fe-event-card__skeleton-line"></span>
+                        <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--short"></span>
+                    </span>
+                </span>
+                <span class="fe-event-card__actions">
+                    <span class="fe-event-card__skeleton-line fe-event-card__skeleton-line--count"></span>
+                    <span class="fe-event-card__skeleton-button"></span>
+                </span>
+            </div>
+            <p v-else-if="!event" class="fe-event-card__unavailable">{{ t('This event is not available.') }}</p>
             <template v-else>
                 <img v-if="event.cover_url" class="fe-event-card__cover" :src="event.cover_url" alt="" />
                 <div class="fe-event-card__body">
@@ -66,10 +106,11 @@ export default {
                         <div class="fe-event-card__head">
                             <h3 class="fe-event-card__title" :class="{ 'fe-event-card__title--truncated': !is_single }" :title="is_single ? null : event.title">
                                 <router-link
-                                    v-if="feed.slug"
+                                    v-if="feed.slug && hasEventPage"
                                     class="fe-event-card__title-link"
                                     :to="{ name: 'fe_event_view', params: { feed_slug: feed.slug } }"
                                 >{{ event.title }}</router-link>
+                                <a v-else-if="feed.slug && portalUrl" class="fe-event-card__title-link" :href="portalUrl + 'post/' + feed.slug + '/event'">{{ event.title }}</a>
                                 <template v-else>{{ event.title }}</template>
                             </h3>
                             <event-menu v-if="!is_child" class="fe-event-card__menu" :event="event"></event-menu>

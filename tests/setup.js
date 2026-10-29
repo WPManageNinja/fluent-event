@@ -70,7 +70,8 @@ export const fcomVars = () => ({
         nonce: 'test-fcom-nonce'
     },
     time_formatter: 'h:mm A',
-    auth_url: 'https://example.test/portal/?fcom_action=auth'
+    auth_url: 'https://example.test/portal/?fcom_action=auth',
+    portal_url: 'https://example.test/portal/'
 });
 
 // main.js and CreateOrUpdateEvent.vue capture this object at import, so it is reset in place, never replaced.
