@@ -81,6 +81,11 @@ class DateTimeHelperTest extends TestCase
             '24 hour'        => ['H:i', 'HH:mm'],
             'escaped letter' => ['\\a\\t g A', '[a][t] h A'],
             'unsupported'    => ['L', ''],
+            'ordinal j'      => ['jS F Y', 'Do MMMM YYYY'],
+            'ordinal d'      => ['dS F Y', 'Do MMMM YYYY'],
+            'escaped j'      => ['\\jS F', '[j] MMMM'],
+            'escaped slash'  => ['\\\\jS', '[\\]Do'],
+            'iso weekday'    => ['N j', ' D'],
         ];
     }
 }
