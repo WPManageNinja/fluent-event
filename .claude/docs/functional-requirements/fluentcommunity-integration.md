@@ -57,10 +57,12 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 ## Portal UI (`resources/fcom-portal/`)
 
 - `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`: `/events`,
-  `/post/:feed_slug/event`, `/space/:space/events` and `/space/:space/create-event`. It also
-  registers the event card for `content_type = 'event'`, a **Create new event** item in the space
-  "…" menu (for `write_events` holders who may post in that space), and turns the post composer's
-  attachment apps off for event posts.
+  `/post/:feed_slug/event`, `/space/:space/events` and `/create-new-event`. The create page
+  takes an optional `?space=slug`: with it the post goes to that space, without it the composer
+  asks which discussion space. It also registers the event card for `content_type = 'event'`, and
+  a **Create new event** item in two "…" menus, both for `write_events` holders: the space header
+  (spaces they may post in, opening with `?space=`) and the portal feed home (no space). For event
+  posts it turns the composer's attachment apps off and drops its "On my profile" option.
 - The pages are a separate Vue + Element Plus app loaded on first visit (fcom exposes neither
   to add-ons). The card is a string template on fcom's own Vue.
 - REST, `fluent-event/v2/community/*`:

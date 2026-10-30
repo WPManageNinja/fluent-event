@@ -23,7 +23,7 @@ const freshPage = async () => {
 };
 
 const createPage = async (Page = CreateEventPage) => {
-    const props = { spaceSlug: 'design', router: { push: vi.fn() }, onChange: vi.fn(), submitPost: vi.fn() };
+    const props = { router: { push: vi.fn(), back: vi.fn() }, onChange: vi.fn(), submitPost: vi.fn() };
     const wrapper = mount(Page, {
         props,
         global: {
@@ -159,11 +159,12 @@ describe('CreateEventPage', () => {
         expect(vm.event.cover_url).toBe('');
     });
 
-    it("returns to the space's events", async () => {
+    it('goes back to wherever the page was opened from', async () => {
         const { vm, props } = await createPage();
 
         vm.goBack();
 
-        expect(props.router.push).toHaveBeenCalledWith({ name: 'fe_space_events', params: { space: 'design' } });
+        expect(props.router.back).toHaveBeenCalled();
+        expect(props.router.push).not.toHaveBeenCalled();
     });
 });

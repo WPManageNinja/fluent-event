@@ -82,6 +82,7 @@ const createEventShell = {
     data() {
         return {
             onPosting: null,
+            space: '',
             feed: {
                 title: '',
                 message: '',
@@ -98,7 +99,6 @@ const createEventShell = {
         t,
         pageProps() {
             return {
-                spaceSlug: this.$route.params.space,
                 router: this.$router,
                 onChange: (event) => {
                     this.feed.event = event;
@@ -109,6 +109,7 @@ const createEventShell = {
         // Our header button submits fcom's composer, which reports back while it posts.
         submitPost(onPosting) {
             this.onPosting = onPosting;
+            this.space = this.$refs.composer.currentSpaceSlug;
             this.$refs.composer.post();
         },
         watchPosting() {
@@ -118,7 +119,7 @@ const createEventShell = {
         posted(feed) {
             const route = feed.status === 'published'
                 ? { name: 'single_feed', params: { feed_slug: feed.slug } }
-                : { name: 'fe_space_events', params: { space: this.$route.params.space } };
+                : { name: 'fe_space_events', params: { space: this.space } };
 
             this.$router.push(route);
         },
@@ -135,8 +136,7 @@ const createEventShell = {
                     <create-status-form
                         ref="composer"
                         default-state="active"
-                        :space="$route.params.space"
-                        :disableSpace="true"
+                        :space="$route.query.space || ''"
                         :hideSubmit="true"
                         :editing_feed="feed"
                         @vue:mounted="watchPosting"
@@ -169,25 +169,24 @@ function register() {
             meta: { active_menu: 'fe_events' },
         });
 
+        // ?space=slug posts into that space; without it, the composer asks which space.
+        routes.push({
+            path: '/create-new-event',
+            name: 'fe_create_event',
+            component: createEventShell,
+            meta: { active_menu: 'fe_events' },
+        });
+
         const spaceRoute = routes.find((route) => route.path === '/space/:space/');
 
         if (spaceRoute && spaceRoute.children) {
-            spaceRoute.children.push(
-                {
-                    path: 'events',
-                    name: 'fe_space_events',
-                    component: pageShell('space_events'),
-                    props: true,
-                    meta: { in_space: true, show_sidebar: false },
-                },
-                {
-                    path: 'create-event',
-                    name: 'fe_space_create_event',
-                    component: createEventShell,
-                    props: true,
-                    meta: { in_space: true, show_sidebar: false },
-                }
-            );
+            spaceRoute.children.push({
+                path: 'events',
+                name: 'fe_space_events',
+                component: pageShell('space_events'),
+                props: true,
+                meta: { in_space: true, show_sidebar: false },
+            });
         }
 
         return routes;
@@ -203,7 +202,19 @@ function register() {
             actions.push({
                 key: 'fe_create_event',
                 title: t('Create new event'),
-                route: { name: 'fe_space_create_event', params: { space: space.slug } },
+                route: { name: 'fe_create_event', query: { space: space.slug } },
+            });
+        }
+
+        return actions;
+    });
+
+    addFilter('fluent_com_feed_actions', 'fluent-event', (actions) => {
+        if (portalVars().can_create_events) {
+            actions.push({
+                key: 'fe_create_event',
+                title: t('Create new event'),
+                route: { name: 'fe_create_event' },
             });
         }
 
@@ -211,6 +222,7 @@ function register() {
     });
 
     // Event posts carry the event instead of attachments; images inside the message stay allowed.
+    // They also need a discussion space, so "On my profile" is not offered.
     addFilter('fluent_com_composer_config', 'fluent-event', (config, feed) => {
         if (!feed || feed.content_type !== 'event') {
             return config;
@@ -223,6 +235,7 @@ function register() {
             videoApp: false,
             mediaApp: false,
             giphyApp: false,
+            selfPost: false,
         };
     });
 }
