@@ -108,6 +108,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Visibility:** lists show published posts in discussion spaces the viewer can see (joined +
   public; public only for logged-out visitors on a publicly accessible portal). Registration also
   accepts an unlisted post the viewer can open. Draft events and events with no post are not found.
+  As in fcom, a post whose author's community profile isn't active (blocked, pending or
+  deactivated) hides its event until the profile is active again. The admin still lists all of them.
 - **Email:** a confirmation when a member becomes *going* and a cancellation when they move from
   *going* to *not going* (each toggled in Email Notifications, default on), plus the event
   reminders. "New event" notifications are fcom's own new-post notifications.

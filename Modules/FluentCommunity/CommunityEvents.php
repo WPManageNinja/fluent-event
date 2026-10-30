@@ -69,6 +69,11 @@ class CommunityEvents
             return false;
         }
 
+        // fcom hides posts whose author is blocked, pending or deactivated.
+        if (!$feed->xprofile || $feed->xprofile->status !== 'active') {
+            return false;
+        }
+
         $space = $feed->space;
 
         if (!self::isDiscussionSpace($space)) {
