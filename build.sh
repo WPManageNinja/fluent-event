@@ -14,11 +14,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SLUG="fluent-events"
+SLUG="fluent-event"
 BUILD_DIR="$ROOT/builds"
 STAGE="$BUILD_DIR/$SLUG"
 
-PAYLOAD=(fluent-event.php README.md composer.json app assets boot config database language Modules)
+# resources/, package.json and vite.config.js are the source of assets/. WordPress.org
+# requires the human-readable source of compiled code, and this repo is not public.
+PAYLOAD=(fluent-event.php readme.txt composer.json app assets boot config database language Modules resources package.json vite.config.js)
 VENDOR_PACKAGES=(autoload.php composer wpfluent woocommerce)
 
 die() { echo "Error: $*" >&2; exit 1; }
