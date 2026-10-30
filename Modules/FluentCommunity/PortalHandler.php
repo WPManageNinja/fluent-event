@@ -93,6 +93,7 @@ class PortalHandler
     public function addRoutePath($paths)
     {
         $paths[] = 'events';
+        $paths[] = 'create-new-event';
 
         return $paths;
     }

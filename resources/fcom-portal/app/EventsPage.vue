@@ -178,7 +178,7 @@ export default {
     },
     computed: {
         canCreate() {
-            return !!this.spaceSlug && !!portalVars().can_create_events;
+            return !!portalVars().can_create_events;
         },
         views() {
             return [
@@ -294,7 +294,7 @@ export default {
             }
         },
         createEvent() {
-            this.router.push({ name: 'fe_space_create_event', params: { space: this.spaceSlug } });
+            this.router.push({ name: 'fe_create_event', query: this.spaceSlug ? { space: this.spaceSlug } : {} });
         },
         // The register response carries the event payload only; keep the post link the list already has.
         applyResponse(event, response) {

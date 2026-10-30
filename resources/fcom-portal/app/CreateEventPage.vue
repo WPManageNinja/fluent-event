@@ -289,7 +289,6 @@ export default {
     name: 'CreateEventPage',
     components: { ArrowLeft, Delete, Picture, SegmentedSwitch, WpEditor },
     props: {
-        spaceSlug: { type: String, required: true },
         router: { type: Object, required: true },
         onChange: { type: Function, required: true },
         submitPost: { type: Function, required: true },
@@ -447,7 +446,7 @@ export default {
             ElNotification({ type: 'error', title: this.$t('Error'), message: errorMessage(error) });
         },
         goBack() {
-            this.router.push({ name: 'fe_space_events', params: { space: this.spaceSlug } });
+            this.router.back();
         },
         async uploadImage(changeEvent) {
             const file = changeEvent.target.files[0];

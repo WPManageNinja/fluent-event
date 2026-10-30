@@ -30,28 +30,30 @@ describe('fcom-portal entry', () => {
             ['fluent_com_portal_routes', 'fluent-event'],
             ['fluent_com_feed_content_components', 'fluent-event'],
             ['fluent_com_space_actions', 'fluent-event'],
+            ['fluent_com_feed_actions', 'fluent-event'],
             ['fluent_com_composer_config', 'fluent-event']
         ]);
     });
 
     describe('routes', () => {
-        it('adds the community events page and the single event page', async () => {
+        it('adds the community events page, the single event page and the create page', async () => {
             const { filters } = await loadPortal();
 
             const routes = filters.fluent_com_portal_routes([spaceRoute()]);
 
             expect(routes.slice(1).map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
                 { path: '/events', name: 'fe_events', meta: { active_menu: 'fe_events' } },
-                { path: '/post/:feed_slug/event', name: 'fe_event_view', meta: { active_menu: 'fe_events' } }
+                { path: '/post/:feed_slug/event', name: 'fe_event_view', meta: { active_menu: 'fe_events' } },
+                { path: '/create-new-event', name: 'fe_create_event', meta: { active_menu: 'fe_events' } }
             ]);
         });
 
-        it("adds the Events and Create event tabs inside fcom's space route", async () => {
+        it("adds the Events tab inside fcom's space route", async () => {
             const { filters } = await loadPortal();
 
             const [space] = filters.fluent_com_portal_routes([spaceRoute()]);
 
-            expect(space.children.map(child => child.name)).toEqual(['space_feeds', 'fe_space_events', 'fe_space_create_event']);
+            expect(space.children.map(child => child.name)).toEqual(['space_feeds', 'fe_space_events']);
             expect(space.children[1].meta).toEqual({ in_space: true, show_sidebar: false });
         });
 
@@ -60,7 +62,7 @@ describe('fcom-portal entry', () => {
 
             const routes = filters.fluent_com_portal_routes([{ path: '/', name: 'all_feeds' }]);
 
-            expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_event_view']);
+            expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_event_view', 'fe_create_event']);
         });
     });
 
@@ -82,7 +84,7 @@ describe('fcom-portal entry', () => {
             expect(filters.fluent_com_space_actions([], space())).toEqual([{
                 key: 'fe_create_event',
                 title: 'Create new event',
-                route: { name: 'fe_space_create_event', params: { space: 'design' } }
+                route: { name: 'fe_create_event', query: { space: 'design' } }
             }]);
         });
 
@@ -97,10 +99,29 @@ describe('fcom-portal entry', () => {
         });
     });
 
+    describe('feed actions', () => {
+        it('offers Create new event, without a space, to an event creator', async () => {
+            const { filters } = await loadPortal();
+
+            expect(filters.fluent_com_feed_actions([])).toEqual([{
+                key: 'fe_create_event',
+                title: 'Create new event',
+                route: { name: 'fe_create_event' }
+            }]);
+        });
+
+        it('offers nothing without the event permission', async () => {
+            const { filters } = await loadPortal();
+
+            window.fluentEventFcomPortal.can_create_events = false;
+            expect(filters.fluent_com_feed_actions([])).toEqual([]);
+        });
+    });
+
     describe('composer', () => {
         const config = { surveyApp: true, documentsApp: true, videoApp: true, mediaApp: true, giphyApp: true, emojiApp: true };
 
-        it('turns off attachment apps for an event post', async () => {
+        it('turns off attachment apps and profile posting for an event post', async () => {
             const { filters } = await loadPortal();
 
             expect(filters.fluent_com_composer_config(config, { content_type: 'event' })).toEqual({
@@ -109,7 +130,8 @@ describe('fcom-portal entry', () => {
                 videoApp: false,
                 mediaApp: false,
                 giphyApp: false,
-                emojiApp: true
+                emojiApp: true,
+                selfPost: false
             });
         });
 
@@ -121,11 +143,11 @@ describe('fcom-portal entry', () => {
         });
     });
 
-    it('opens a published event post but returns a scheduled one to the space', async () => {
+    it('opens a published event post but returns a scheduled one to the space it was posted in', async () => {
         const { filters } = await loadPortal();
-        const [space] = filters.fluent_com_portal_routes([spaceRoute()]);
-        const createShell = space.children.find(child => child.name === 'fe_space_create_event').component;
-        const shell = { $route: { params: { space: 'design' } }, $router: { push: vi.fn() } };
+        const createShell = filters.fluent_com_portal_routes([spaceRoute()])
+            .find(route => route.name === 'fe_create_event').component;
+        const shell = { space: 'design', $router: { push: vi.fn() } };
 
         createShell.methods.posted.call(shell, { status: 'published', slug: 'meetup' });
         createShell.methods.posted.call(shell, { status: 'scheduled', slug: 'meetup' });

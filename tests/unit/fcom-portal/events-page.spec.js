@@ -221,12 +221,23 @@ describe('EventsPage', () => {
             expect(router.push).toHaveBeenCalledWith({ name: 'fe_event_view', params: { feed_slug: 'meetup' } });
         });
 
-        it('offers Create new event only inside a space to members who may create', async () => {
+        it('offers Create new event, in a space or on all events, to members who may create', async () => {
             expect((await eventsPage({ spaceSlug: 'design' })).vm.canCreate).toBe(true);
-            expect((await eventsPage()).vm.canCreate).toBe(false);
+            expect((await eventsPage()).vm.canCreate).toBe(true);
 
             window.fluentEventFcomPortal.can_create_events = false;
             expect((await eventsPage({ spaceSlug: 'design' })).vm.canCreate).toBe(false);
+            expect((await eventsPage()).vm.canCreate).toBe(false);
+        });
+
+        it('creates in the current space, or lets the composer ask on all events', async () => {
+            const inSpace = await eventsPage({ spaceSlug: 'design' });
+            inSpace.vm.createEvent();
+            expect(inSpace.router.push).toHaveBeenCalledWith({ name: 'fe_create_event', query: { space: 'design' } });
+
+            const allEvents = await eventsPage();
+            allEvents.vm.createEvent();
+            expect(allEvents.router.push).toHaveBeenCalledWith({ name: 'fe_create_event', query: {} });
         });
 
         it('explains an empty list by the search, or by the tab', async () => {
