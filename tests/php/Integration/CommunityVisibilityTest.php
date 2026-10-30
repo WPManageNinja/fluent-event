@@ -92,6 +92,18 @@ class CommunityVisibilityTest extends IntegrationTestCase
         $this->assertNotContains($draft->id, $this->listedEventIds());
     }
 
+    public function test_an_event_whose_author_is_not_active_in_the_community_is_hidden_until_reactivated()
+    {
+        $hidden = $this->spaceEvent($this->spaces['public'], 'blocked-author', [], 'blocked');
+
+        $this->assertNotContains($hidden->id, $this->listedEventIds());
+        $this->assertSame(404, $this->rest('POST', "community/events/{$hidden->id}/register", ['status' => 'going'])['status']);
+
+        $this->wpdb->update($this->table('fcom_xprofile'), ['status' => 'active'], ['user_id' => FcomFeed::query()->find(CommunityEvents::feedIdOf($hidden))->user_id]);
+
+        $this->assertContains($hidden->id, $this->listedEventIds());
+    }
+
     public function test_a_logged_out_visitor_on_a_public_portal_lists_public_space_events_only()
     {
         $this->setPortalAccess('public');
@@ -145,12 +157,19 @@ class CommunityVisibilityTest extends IntegrationTestCase
     /**
      * An event posted in the space, linked both ways as FeedHandler::createEvent() leaves it.
      */
-    private function spaceEvent($spaceId, $label, array $overrides = [])
+    private function spaceEvent($spaceId, $label, array $overrides = [], $authorStatus = 'active')
     {
         $event = $this->createEvent(array_merge(['title' => "{$this->token} {$label}"], $overrides));
+        $authorId = $this->createUser('editor');
+
+        $this->wpdb->insert($this->table('fcom_xprofile'), [
+            'user_id'  => $authorId,
+            'username' => 'fe-test-' . $authorId,
+            'status'   => $authorStatus,
+        ]);
 
         $feed = FcomFeed::create([
-            'user_id'          => $this->createUser('editor'),
+            'user_id'          => $authorId,
             'title'            => 'Integration event post',
             'slug'             => 'fe-test-' . strtolower(wp_generate_password(10, false, false)),
             'message'          => 'Rolled back.',

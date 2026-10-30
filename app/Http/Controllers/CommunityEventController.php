@@ -37,10 +37,13 @@ class CommunityEventController extends Controller
                 $query->select('fe_meta.object_id')
                     ->from('fe_meta')
                     ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
+                    // fcom hides posts whose author is blocked, pending or deactivated.
+                    ->join('fcom_xprofile', 'fcom_xprofile.user_id', '=', 'fcom_posts.user_id')
                     ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
                     ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
                     ->where('fcom_posts.content_type', CommunityEvents::CONTENT_TYPE)
                     ->where('fcom_posts.status', 'published')
+                    ->where('fcom_xprofile.status', 'active')
                     ->whereIn('fcom_posts.space_id', $spaceIds);
             })
             ->byStatus(['public', 'private'])
