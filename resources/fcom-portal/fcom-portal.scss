@@ -1406,12 +1406,13 @@
         color: var(--fcom-secondary-text, #525866);
     }
 
+    // Element Plus sizes date editors from this variable, in a width rule that loads after ours.
     &__date.el-date-editor {
-        width: 220px;
+        --el-date-editor-width: 220px;
     }
 
     &__time.el-date-editor {
-        width: 130px;
+        --el-date-editor-width: 130px;
     }
 
     // Spans the date and time inputs above it.
@@ -1424,6 +1425,7 @@
         &__date.el-date-editor,
         &__time.el-date-editor,
         &__timezone.el-select {
+            --el-date-editor-width: auto;
             flex: 1 1 0;
             width: auto;
             min-width: 0;

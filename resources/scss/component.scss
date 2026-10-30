@@ -1069,21 +1069,22 @@
         color: var(--fe-secondary-text, #525866);
     }
 
+    // Element Plus sizes date editors from this variable, in a width rule that loads after ours.
     &__date.el-date-editor {
-        width: 220px;
+        --el-date-editor-width: 220px;
 
         @media screen and (max-width: 782px) {
-            width: auto;
+            --el-date-editor-width: auto;
             flex: 1 1 0;
             min-width: 0;
         }
     }
 
     &__time.el-date-editor {
-        width: 130px;
+        --el-date-editor-width: 130px;
 
         @media screen and (max-width: 782px) {
-            width: auto;
+            --el-date-editor-width: auto;
             flex: 1 1 0;
             min-width: 0;
         }
