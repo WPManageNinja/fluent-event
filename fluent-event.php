@@ -15,7 +15,6 @@ defined('ABSPATH') or die;
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: fluent-event
  * Domain Path: /language
- * Update URI: false
  */
 
 define('FLUENT_EVENT_PLUGIN_VERSION', '1.0.0');
