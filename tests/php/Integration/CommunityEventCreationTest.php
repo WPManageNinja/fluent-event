@@ -92,6 +92,29 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')));
     }
 
+    public function test_deleting_the_post_parks_the_event_as_a_draft_with_its_guests()
+    {
+        Settings::update(Settings::EMAIL_NOTIFICATIONS, Settings::DEFAULTS[Settings::EMAIL_NOTIFICATIONS]);
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+
+        $event = Event::query()->find((int) FcomFeed::query()->find($feed->id)->meta['event_id']);
+        $this->createGuest($event);
+        $reminder = [(int) $event->id, DAY_IN_SECONDS];
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_event_reminders_to_guests', $reminder));
+
+        do_action('fluent_community/feed/before_deleted', $feed);
+
+        $event = Event::query()->find($event->id);
+        $this->assertNotNull($event, 'Deleting the post must not delete the event.');
+        $this->assertSame('draft', $event->status);
+        $this->assertSame('draft', get_post($event->post_id)->post_status);
+        $this->assertSame(1, $event->guests()->count());
+        $this->assertSame(0, CommunityEvents::feedIdOf($event), 'The event still points at the deleted post.');
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_event_reminders_to_guests', $reminder));
+    }
+
     public function test_an_event_post_is_refused_without_event_access_outside_a_discussion_space_or_with_bad_dates()
     {
         $spaceId = $this->createSpace();

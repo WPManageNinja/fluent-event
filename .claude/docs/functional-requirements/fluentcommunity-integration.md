@@ -45,7 +45,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   - `fluent_event/event/calendar_changed`: an event moved to another calendar in the admin moves
     its post to that calendar's space; if the calendar has no discussion space, the post lets go
     of the event and becomes a plain post.
-  - `feed/before_deleted`: deleting the post deletes the event and its guests.
+  - `feed/before_deleted`: deleting the post keeps the event. It drops the post link and parks
+    the event as a `draft` with its guests, so its reminders stop and an event manager decides
+    whether to delete it.
   - `fluent_event/event/before_deleted` (priority 5, before cleanup): deleting the event in the
     admin turns the post back into a plain post.
   - `feed_general_config` + `rendering_feed_model`: batch-load events and attach the portal
