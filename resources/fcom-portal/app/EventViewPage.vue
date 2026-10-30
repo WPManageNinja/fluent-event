@@ -109,7 +109,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
+import { communityApi, eventPhase, guestCountLabel, isSeated, portalVars, timeFormat } from '../utils';
 import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -187,8 +187,9 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
+        // The status above already says Ended, so an ended event gets no RSVP slot of its own here.
         hasActions() {
-            return hasEventActions(this.event);
+            return this.event.entry_type === 'rsvp' && this.phase !== 'ended';
         },
         // Once someone is going, or for open events anyone can attend.
         canAddToCalendar() {
