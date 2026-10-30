@@ -148,6 +148,24 @@ describe('EventViewPage', () => {
         });
     });
 
+    describe('ended', () => {
+        const over = { start_at: '2026-10-10 12:00:00', end_at: '2026-10-10 14:00:00', is_past: true };
+
+        it('says Ended once, in the status, with no RSVP slot repeating it', async () => {
+            const { wrapper } = await page(meetup({ ...over, guest_count: 12 }));
+
+            expect(wrapper.find('.fe-event-view__status--ended').text()).toBe('Ended');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+            expect(wrapper.find('.fe-event-view__count').text()).toBe('12 going');
+        });
+
+        it('shows an open event no RSVP slot either', async () => {
+            const { wrapper } = await page(meetup({ ...over, entry_type: 'open' }));
+
+            expect(wrapper.find('.fe-event-view__rsvp').exists()).toBe(false);
+        });
+    });
+
     describe('getting there', () => {
         it('offers a join button only for an http(s) meeting link', async () => {
             const online = (url) => meetup({ venue_type: 'online', online_meeting_url: url });

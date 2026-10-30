@@ -96,6 +96,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Guest count:** shown only for `rsvp` events whose **Show guest count** switch is on, and then
   to everyone, staff included. The switch alone decides; nobody gets an override. It counts
   `going` and `checked_in` guests.
+- **Ended:** the event page says Ended once, in its status; the RSVP slot is dropped on an ended
+  event (RSVP or open), and the guest count stays.
 - **Meeting link:** an online `rsvp` event shows it to its registered guests (`going` or
   `checked_in`) and to staff (any `read_`/`write_` events or guests key); an online `open` event
   shows it to everyone who can see the post.
