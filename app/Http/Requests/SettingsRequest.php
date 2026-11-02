@@ -60,7 +60,13 @@ class SettingsRequest extends BaseRequest
 
     public static function generalRules()
     {
-        return self::GENERAL_RULES;
+        $rules = self::GENERAL_RULES;
+
+        if (defined('FLUENT_EVENT_PORTAL_SLUG')) {
+            unset($rules['portal_slug']);
+        }
+
+        return $rules;
     }
 
     public static function emailRules()

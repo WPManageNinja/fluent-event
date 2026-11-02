@@ -25,20 +25,26 @@ class SettingsController extends Controller
     {
         $data = SettingsRequest::sanitize($request->all());
 
+        // The constant owns the slug, and its value needn't pass the rules for the field it locks.
+        if (defined('FLUENT_EVENT_PORTAL_SLUG')) {
+            unset($data['portal_slug']);
+        }
+
         $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());
 
         $previousSlug = Settings::portalSlug();
 
-        if ($data['portal_slug'] !== $previousSlug && !current_user_can('manage_options')) {
+        if (isset($data['portal_slug']) && $data['portal_slug'] !== $previousSlug && !current_user_can('manage_options')) {
             return $this->sendError([
                 'message' => __('Only a site administrator can change the portal slug.', 'fluent-event'),
             ], 403);
         }
 
         $settings = Settings::update(Settings::GENERAL, $data);
+        $settings['portal_slug'] = Settings::portalSlug();
 
         // `init` already registered the old slug, so flushing here would keep it. WordPress rebuilds on the next request.
-        if (Settings::portalSlug() !== $previousSlug) {
+        if ($settings['portal_slug'] !== $previousSlug) {
             delete_option('rewrite_rules');
         }
 
