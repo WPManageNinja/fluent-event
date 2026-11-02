@@ -23,11 +23,6 @@ class LandingPageHandler
         add_action('template_redirect', [$this, 'renderPage'], 1);
     }
 
-    public static function url()
-    {
-        return home_url(user_trailingslashit(Settings::portalSlug()));
-    }
-
     // A rule only takes effect after a flush, which activation runs.
     public function addRewriteRules()
     {
@@ -65,7 +60,7 @@ class LandingPageHandler
             /* translators: %s: site name */
             'title'       => sprintf(__('Calendars – %s', 'fluent-event'), $siteName),
             'description' => $description,
-            'url'         => self::url(),
+            'url'         => home_url(user_trailingslashit(Settings::portalSlug())),
             'site_name'   => $siteName,
             'site_icon'   => get_site_icon_url(64),
             'style_url'   => Enqueue::url('portal/portal.scss'),
