@@ -14,13 +14,11 @@
                 :alt="$t('Cover image of %s', event.title)"
             />
 
-            <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
             <div class="fe-event-detail__tags">
                 <el-tag class="capitalize" :type="$eventStatusType(event.status)" size="small">
                     {{ $eventStatusLabel(event.status) }}
                 </el-tag>
             </div>
-            -->
 
             <h2 class="fe-event-detail__title">{{ event.title }}</h2>
 

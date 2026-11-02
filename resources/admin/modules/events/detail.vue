@@ -48,7 +48,6 @@
                                 <h2 class="fe-event-overview__title">{{ $t('Overview') }}</h2>
 
                                 <div class="fe-event-overview__badges">
-                                    <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                                     <div class="fe-event-overview__badge">
                                         <span class="fe-event-overview__badge-label">{{ $t('Status') }}</span>
 
@@ -56,7 +55,6 @@
                                             {{ $eventStatusLabel(event.status) }}
                                         </el-tag>
                                     </div>
-                                    -->
 
                                     <div v-if="event.meta?.entry_type" class="fe-event-overview__badge">
                                         <span class="fe-event-overview__badge-label">{{ $t('Registration Type') }}</span>

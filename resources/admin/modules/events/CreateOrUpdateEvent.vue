@@ -75,7 +75,7 @@
                         <div class="fe-form__section-rail">
                             <h2 class="fe-form__section-title">{{ $t('Basics') }}</h2>
                             <p class="fe-form__section-desc">
-                                {{ $t('What the event is called, which calendar it belongs to and who can see it.') }}
+                                {{ $t('What the event is called and which calendar it belongs to.') }}
                             </p>
                         </div>
 
@@ -130,25 +130,33 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
+                        </div>
+                    </section>
 
-                            <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
-                            <el-form-item :label="$t('Visibility')" data-field="status">
-                                <el-radio-group
-                                    v-model="event.status"
-                                    class="fe-form__state"
-                                    :aria-label="$t('Visibility')"
+                    <section class="fe-form__section" data-field="status">
+                        <div class="fe-form__section-rail">
+                            <h2 class="fe-form__section-title">{{ $t('Visibility') }}</h2>
+                            <p class="fe-form__section-desc">
+                                {{ $t('Choose who can find this event.') }}
+                            </p>
+                        </div>
+
+                        <div class="fe-form__section-fields">
+                            <el-radio-group
+                                v-model="event.status"
+                                class="fe-form__choices"
+                                :aria-label="$t('Visibility')"
+                            >
+                                <el-radio
+                                    v-for="option in statuses"
+                                    :key="option.value"
+                                    :value="option.value"
+                                    border
                                 >
-                                    <el-radio
-                                        v-for="option in statuses"
-                                        :key="option.value"
-                                        :value="option.value"
-                                        border
-                                    >
-                                        {{ option.label }}
-                                    </el-radio>
-                                </el-radio-group>
-                            </el-form-item>
-                            -->
+                                    <span class="fe-form__choice-title">{{ option.label }}</span>
+                                    <span class="fe-form__hint">{{ option.hint }}</span>
+                                </el-radio>
+                            </el-radio-group>
                         </div>
                     </section>
 

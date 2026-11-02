@@ -85,10 +85,10 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Who creates events:** FluentEvent staff with `write_events` who may also post in the space.
 - **Calendars:** created lazily on the first event, named and slugged after the space, status
   `private` (no public page). Admins may change the status later.
-- **Statuses:** events are `public | private | draft`; calendars also have `unlisted`. fcom-created events start
-  `private`, like their calendars. A calendar's status shows in the admin and can be changed
-  there; v1 neither shows nor lets anyone change an event's status. The portal shows `public` and
-  `private` events; `draft` events are never returned.
+- **Statuses:** events and calendars are `public | unlisted | private | draft`. fcom-created events
+  start `private`, like their calendars. Both statuses show in the admin and can be changed there.
+  The portal shows every status except `draft`, which is never returned. `unlisted` only takes
+  effect on the upcoming landing page.
 - **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit) and `open`
   (view-only: members can't register; admins can still add guests, who get the usual emails).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and

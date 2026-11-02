@@ -28,7 +28,6 @@
                 <template #default="{ hide }">
                     <div class="fe-events-view__filters">
                         <el-form label-position="top">
-                            <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                             <el-form-item :label="$t('Status')">
                                 <el-radio-group
                                     v-model="pendingFilters.status"
@@ -43,7 +42,6 @@
                                     </el-radio>
                                 </el-radio-group>
                             </el-form-item>
-                            -->
 
                             <el-form-item v-if="showCalendarFilter" :label="$t('Calendar')">
                                 <el-select v-model="pendingFilters.calendar_id" filterable>

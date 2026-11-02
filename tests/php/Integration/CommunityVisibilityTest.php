@@ -92,6 +92,13 @@ class CommunityVisibilityTest extends IntegrationTestCase
         $this->assertNotContains($draft->id, $this->listedEventIds());
     }
 
+    public function test_an_unlisted_event_stays_in_the_portal_list()
+    {
+        $unlisted = $this->spaceEvent($this->spaces['public'], 'unlisted', ['status' => 'unlisted']);
+
+        $this->assertContains($unlisted->id, $this->listedEventIds());
+    }
+
     public function test_an_event_whose_author_is_not_active_in_the_community_is_hidden_until_reactivated()
     {
         $hidden = $this->spaceEvent($this->spaces['public'], 'blocked-author', [], 'blocked');
