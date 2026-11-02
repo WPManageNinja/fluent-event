@@ -103,11 +103,11 @@ community add-on into a standalone event tool, and makes events shareable anywhe
 | Reveal the meeting link only X minutes before start | — | until then going guests see "Link available 15 min before start"; stops the link spreading early. Applies to the community post too |
 | SEO + sharing: schema.org Event, Open Graph / social card, custom slug | TEC, Eventbrite | was out of scope for the fcom-only release |
 | Embed: `?embedded` iframe mode, Gutenberg block, shortcode | FluentBooking, TEC | FR-6.12 |
-| Landing page settings: on/off, URL slug, branding | FluentBooking | global, overridable per calendar |
+| Landing page settings: on/off, branding | FluentBooking | global, overridable per calendar. The URL slug is already in General Settings |
 
-URLs, matching FluentBooking: query params by default
-(`/?fluent-event=event&calendar={slug}&event={slug}`), pretty URLs when a slug constant is
-defined (`/{slug}/{calendar}/{event}`).
+URLs, matching FluentCommunity: pretty by default under the portal slug
+(`/calendars/{calendar}/{event}`). The slug is set in General Settings, and
+`FLUENT_EVENT_PORTAL_SLUG` overrides it.
 
 Standalone creation (D-7) is already in: the admin creates calendars and events, so events can
 exist without FluentCommunity. Events from a public FluentCommunity space get a landing page too.

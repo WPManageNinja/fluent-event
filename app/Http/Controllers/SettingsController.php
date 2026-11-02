@@ -12,9 +12,12 @@ class SettingsController extends Controller
     public function getGeneral(Request $request)
     {
         $settings = Settings::get();
+        $settings['portal_slug'] = Settings::portalSlug();
 
         return [
-            'settings' => $settings,
+            'settings'        => $settings,
+            'home_url'        => home_url('/'),
+            'is_slug_defined' => defined('FLUENT_EVENT_PORTAL_SLUG'),
         ];
     }
 
@@ -24,7 +27,13 @@ class SettingsController extends Controller
 
         $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());
 
+        $previousSlug = Settings::portalSlug();
         $settings = Settings::update(Settings::GENERAL, $data);
+
+        // `init` already registered the old slug, so flushing here would keep it. WordPress rebuilds on the next request.
+        if (Settings::portalSlug() !== $previousSlug) {
+            delete_option('rewrite_rules');
+        }
 
         do_action('fluent_event/settings/general_updated', $settings);
 

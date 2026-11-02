@@ -45,6 +45,21 @@
                     </span>
                 </el-form-item>
 
+                <el-form-item :label="$t('Portal slug')" required>
+                    <el-input
+                        v-model="general.portal_slug"
+                        :disabled="!$userCan('write_settings') || isSlugDefined"
+                    >
+                        <template #prepend>{{ homeUrl }}</template>
+                    </el-input>
+
+                    <span class="fe-form__hint">
+                        {{ isSlugDefined
+                            ? $t('Set by FLUENT_EVENT_PORTAL_SLUG in wp-config.php.')
+                            : $t('Where your public calendars page lives. Changing it breaks existing links.') }}
+                    </span>
+                </el-form-item>
+
                 <div v-if="$userCan('write_settings')" class="fe-form__actions">
                     <el-button
                         type="primary"
@@ -176,7 +191,10 @@
                 general: {
                     default_events_view: 'timeline',
                     disable_event_view_switch: 'no',
+                    portal_slug: '',
                 },
+                homeUrl: '',
+                isSlugDefined: false,
                 emailLoading: true,
                 emailSaving: false,
                 emailError: '',
@@ -206,6 +224,8 @@
                     errorState: 'generalError',
                     onSuccess: response => {
                         this.general = response.settings;
+                        this.homeUrl = response.home_url;
+                        this.isSlugDefined = response.is_slug_defined;
                     },
                 });
             },
