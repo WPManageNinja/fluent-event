@@ -37,6 +37,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_changing_the_portal_slug_sanitises_it_and_drops_the_rewrite_rules()
     {
+        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
         update_option('rewrite_rules', ['^calendars/?$' => 'index.php?fe_route=calendars']);
 
         $saved = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'Our Events']);
@@ -49,6 +50,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
     public function test_saving_the_same_portal_slug_keeps_the_rewrite_rules()
     {
         $rules = ['^calendars/?$' => 'index.php?fe_route=calendars'];
+        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
         update_option('rewrite_rules', $rules);
 
         $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'calendars']);
