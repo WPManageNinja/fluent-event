@@ -59,10 +59,10 @@ class ModelContractTest extends TestCase
         $this->assertSame('fe_meta', (new Meta())->getTable());
     }
 
-    public function test_events_and_calendars_share_one_status_vocabulary()
+    public function test_unlisted_is_a_calendar_status_only()
     {
         $this->assertSame('public,private,draft', Event::STATUSES);
-        $this->assertSame(Event::STATUSES, Calendar::STATUSES);
+        $this->assertSame('public,unlisted,private,draft', Calendar::STATUSES);
         $this->assertSame(explode(',', Event::STATUSES), array_keys(Event::POST_STATUSES));
     }
 

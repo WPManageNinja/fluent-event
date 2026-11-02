@@ -198,8 +198,8 @@ be a taxonomy (`fe_sponsor`, like organizer), not a custom table.
 
 ### FR-6.5 — Visibility & discovery
 
-- `public` (listed, anyone can find), `unlisted` (only people with the link), `private` (invite-only).
-- **v1 ships `public` + `draft` only.** `unlisted` and `private` wait for the public event page and invites — with no front-end, they would behave exactly like `public`.
+- `public` (listed, anyone can find), `private` (no public page; people reach it through its space or its guest emails), `draft` (not ready).
+- `unlisted` is a calendar status only: only accessible via direct link on the upcoming landing page. Events don't have it.
 - Public events show in listings; they still follow calendar + space access rules. (unfiltered #12)
 
 ### FR-6.6 — Dynamic registration form

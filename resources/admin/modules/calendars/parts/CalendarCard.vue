@@ -27,11 +27,9 @@
             <p class="fe-calendars__card-slug" :title="calendar.slug">{{ calendar.slug }}</p>
 
             <div class="fe-calendars__card-meta">
-                <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                 <span class="fe-calendars__card-stat">
                     {{ $calendarStatusLabel(calendar.status) }}
                 </span>
-                -->
                 <span class="fe-calendars__card-stat">
                     {{ $_n('%d event', '%d events', calendar.events_count) }}
                 </span>

@@ -33,8 +33,9 @@ or `open` (view-only: members can't register, every viewer sees the whole event,
 meeting link included; admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp`. RSVP has no seat limit. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.
 
-Statuses: events and calendars are both `public | private | draft`. `private` means no
-public page; space calendars start `private`. FluentCommunity integration (events as posts
+Statuses: events are `public | private | draft`; calendars are `public | unlisted | private | draft`.
+`unlisted` is calendar-only: only accessible via direct link on the upcoming landing page.
+`private` means no public page; space calendars start `private`. FluentCommunity integration (events as posts
 in discussion spaces): [.claude/docs/functional-requirements/fluentcommunity-integration.md](.claude/docs/functional-requirements/fluentcommunity-integration.md).
 
 Schema: [docs/db/fe_db_schema.sql](.claude/docs/db/fe_db_schema.sql).

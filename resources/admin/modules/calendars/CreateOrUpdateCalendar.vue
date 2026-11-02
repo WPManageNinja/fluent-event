@@ -119,19 +119,18 @@
                             </div>
                         </section>
 
-                        <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                         <section class="fe-form__section">
                             <div class="fe-form__section-rail">
                                 <h2 class="fe-form__section-title">{{ $t('Visibility') }}</h2>
                                 <p class="fe-form__section-desc">
-                                    {{ $t('Draft calendars stay hidden from visitors and cannot take new events.') }}
+                                    {{ $t('Choose who can find this calendar.') }}
                                 </p>
                             </div>
 
                             <div class="fe-form__section-fields">
                                 <el-radio-group
                                     v-model="calendar.status"
-                                    class="fe-form__state"
+                                    class="fe-form__choices"
                                     :aria-label="$t('Status')"
                                 >
                                     <el-radio
@@ -140,12 +139,12 @@
                                         :value="option.value"
                                         border
                                     >
-                                        {{ option.label }}
+                                        <span class="fe-form__choice-title">{{ option.label }}</span>
+                                        <span class="fe-form__hint">{{ option.hint }}</span>
                                     </el-radio>
                                 </el-radio-group>
                             </div>
                         </section>
-                        -->
 
                         <div class="fe-form__actions fe-form__actions--bar">
                             <el-button native-type="button" :disabled="saving" @click="resetForm">
