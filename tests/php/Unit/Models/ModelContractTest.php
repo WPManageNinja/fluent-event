@@ -61,7 +61,7 @@ class ModelContractTest extends TestCase
 
     public function test_events_and_calendars_share_one_status_vocabulary()
     {
-        $this->assertSame('public,private,draft', Event::STATUSES);
+        $this->assertSame('public,unlisted,private,draft', Event::STATUSES);
         $this->assertSame(Event::STATUSES, Calendar::STATUSES);
         $this->assertSame(explode(',', Event::STATUSES), array_keys(Event::POST_STATUSES));
     }
@@ -77,12 +77,13 @@ class ModelContractTest extends TestCase
     public function postStatuses()
     {
         return [
-            'public'  => ['public', 'publish'],
-            'private' => ['private', 'private'],
-            'draft'   => ['draft', 'draft'],
+            'public'   => ['public', 'publish'],
+            'unlisted' => ['unlisted', 'publish'],
+            'private'  => ['private', 'private'],
+            'draft'    => ['draft', 'draft'],
             // An unknown status must never publish.
-            'unknown' => ['archived', 'draft'],
-            'empty'   => ['', 'draft'],
+            'unknown'  => ['archived', 'draft'],
+            'empty'    => ['', 'draft'],
         ];
     }
 

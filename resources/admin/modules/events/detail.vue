@@ -139,14 +139,12 @@
                                             </el-icon>
                                         </router-link>
 
-                                        <!-- v1 neither shows nor lets anyone change the status; kept for when it returns.
                                         <p
                                             v-if="calendarStatus"
                                             class="fe-event-overview__row-text capitalize"
                                         >
                                             {{ $t('Status: %s', $calendarStatusLabel(calendarStatus)) }}
                                         </p>
-                                        -->
                                     </div>
                                 </div>
                             </div>

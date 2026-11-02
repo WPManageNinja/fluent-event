@@ -92,6 +92,17 @@ class CommunityVisibilityTest extends IntegrationTestCase
         $this->assertNotContains($draft->id, $this->listedEventIds());
     }
 
+    public function test_an_unlisted_event_is_left_out_of_the_list_but_opens_by_direct_url()
+    {
+        $unlisted = $this->spaceEvent($this->spaces['public'], 'unlisted', ['status' => 'unlisted']);
+
+        $this->assertNotContains($unlisted->id, $this->listedEventIds());
+
+        list($event) = CommunityEvents::visibleEvent($unlisted->id);
+
+        $this->assertSame((int) $unlisted->id, (int) $event->id);
+    }
+
     public function test_an_event_whose_author_is_not_active_in_the_community_is_hidden_until_reactivated()
     {
         $hidden = $this->spaceEvent($this->spaces['public'], 'blocked-author', [], 'blocked');

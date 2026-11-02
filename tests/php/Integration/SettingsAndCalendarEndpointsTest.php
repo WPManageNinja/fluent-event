@@ -111,6 +111,29 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertStringNotContainsString('<script', $description);
     }
 
+    public function test_the_status_filter_narrows_the_list_but_not_the_tab_counts()
+    {
+        $private = $this->createCalendar(['status' => 'private']);
+        $public = $this->createCalendar(['status' => 'public']);
+
+        $data = $this->rest('GET', 'calendars', ['status' => 'private'])['data'];
+        $ids = array_map('intval', array_column($data['calendars'], 'id'));
+
+        $this->assertContains((int) $private->id, $ids);
+        $this->assertNotContains((int) $public->id, $ids);
+        $this->assertGreaterThanOrEqual(1, $data['counts']['public']);
+    }
+
+    public function test_a_calendar_can_be_unlisted()
+    {
+        $calendar = $this->createCalendar();
+
+        $response = $this->rest('PATCH', "calendars/{$calendar->id}", ['title' => 'Link only', 'slug' => $calendar->slug, 'status' => 'unlisted']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('unlisted', Calendar::query()->find($calendar->id)->status);
+    }
+
     public function test_a_calendar_slug_already_in_use_is_rejected()
     {
         $taken = $this->createCalendar();

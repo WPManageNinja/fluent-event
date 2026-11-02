@@ -46,6 +46,7 @@ class CommunityEventController extends Controller
                     ->where('fcom_xprofile.status', 'active')
                     ->whereIn('fcom_posts.space_id', $spaceIds);
             })
+            // Unlisted events stay out of the list: they open by direct URL only.
             ->byStatus(['public', 'private'])
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->inDateRange($from, $to)

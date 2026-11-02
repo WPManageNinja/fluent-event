@@ -52,6 +52,15 @@ class ReminderEmailTest extends IntegrationTestCase
         $this->assertSame('scheduled', $this->reminderMeta($event->id, self::DAY)->value['status']);
     }
 
+    public function test_an_unlisted_event_still_queues_its_reminders()
+    {
+        $event = $this->createEvent(['status' => 'unlisted']);
+
+        EventReminderService::scheduleReminders($event);
+
+        $this->assertTrue($this->hasQueuedAction(self::SEND_HOOK, [(int) $event->id, self::DAY]));
+    }
+
     public function test_scheduling_twice_does_not_queue_a_duplicate()
     {
         $event = $this->createEvent();
