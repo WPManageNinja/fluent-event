@@ -58,6 +58,17 @@
         }
     }
 
+    // wp-admin sizes every native checkbox and radio, and sets 0.7 opacity on disabled ones,
+    // which revives the input Element Plus hides behind its own box. `input.` matches WP's specificity.
+    input.el-checkbox__original,
+    input.el-radio__original {
+        width: 0;
+        min-width: 0;
+        height: 0;
+        border: 0;
+        opacity: 0;
+    }
+
     // Utils
     .capitalize {
         text-transform: capitalize;
@@ -163,6 +174,7 @@
         background-color: var(--fe-primary-bg, #ffffff);
 
         .wp-editor-tools {
+            background-color: var(--fe-hover-bg, #f9fafb);
             display: flex;
             flex-wrap: wrap;
             align-items: center;
@@ -199,7 +211,7 @@
             line-height: 1;
 
             &:hover {
-                background: var(--fe-hover-bg, #f9fafb);
+                background: var(--fe-primary-bg, #ffffff);
                 color: var(--fe-primary-text, #19283a);
             }
         }
@@ -215,12 +227,12 @@
             flex-basis: 100%;
             border: 0;
             box-shadow: none;
-            background: transparent;
+            background: var(--fe-primary-bg, #ffffff);
         }
 
         .quicktags-toolbar {
             border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
-            background: var(--fe-primary-bg, #ffffff);
+            background: var(--fe-hover-bg, #f9fafb);
 
             input.button {
                 border-color: var(--fe-primary-border, #eaecf0);
@@ -247,11 +259,11 @@
 
         div.mce-toolbar-grp,
         div.mce-statusbar {
-            background-color: var(--fe-primary-bg, #ffffff);
+            background-color: var(--fe-hover-bg, #f9fafb);
         }
 
         div.mce-toolbar-grp {
-            border-bottom: 0;
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
         }
 
         .mce-toolbar .mce-btn-group .mce-btn {

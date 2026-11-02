@@ -22,10 +22,6 @@
 
             <h2 class="fe-event-detail__title">{{ event.title }}</h2>
 
-            <p v-if="event.author" class="fe-event-detail__host">
-                {{ $t('Created by %s', event.author.name) }}
-            </p>
-
             <div v-if="event.calendar" class="fe-event-detail__row">
                 <span class="fe-event-detail__row-icon">
                     <span
@@ -60,7 +56,8 @@
 
                 <div>
                     <p class="fe-event-detail__row-title">{{ fullDate }}</p>
-                    <p class="fe-event-detail__row-text">{{ timeRange }}</p>
+                    <p class="fe-event-detail__row-text">{{ $formatTimeRange(event) }}</p>
+                    <p v-if="showSiteTime" class="fe-event-detail__row-text fe-event-detail__row-text--muted">{{ $formatTimeRange(event, 'site') }}</p>
                 </div>
             </div>
 
@@ -103,10 +100,11 @@
                 {{ $t('View Full Details') }}
             </el-button>
 
-            <div v-if="event.description" class="fe-event-detail__section">
+            <div v-if="loadingDescription || description" class="fe-event-detail__section">
                 <h3 class="fe-event-detail__section-title">{{ $t('Description') }}</h3>
 
-                <div class="fe-event-detail__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
+                <Skeleton v-if="loadingDescription" :rows="3" />
+                <div v-else class="fe-rich-text fe-event-detail__description" v-html="description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
             </div>
         </div>
     </Drawer>
@@ -116,11 +114,13 @@
     import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
+    import Skeleton from '@/components/Skeleton.vue';
 
     export default {
         name: 'EventDrawer',
         components: {
             Drawer,
+            Skeleton,
             LocationInformation,
             TopRight,
             VideoCamera,
@@ -136,6 +136,33 @@
             },
         },
         emits: ['update:modelValue'],
+        data() {
+            return {
+                description: '',
+                loadingDescription: false,
+            };
+        },
+        watch: {
+            // The event list leaves descriptions out, so the drawer loads the one it shows.
+            event: {
+                immediate: true,
+                handler(event) {
+                    this.description = '';
+
+                    if (!event) return;
+
+                    // One loading state, so a slow answer for an event opened earlier is dropped.
+                    this.$requestServer({
+                        path: `events/${event.id}`,
+                        loadingState: 'loadingDescription',
+                        errorState: null,
+                        onSuccess: response => {
+                            this.description = response.event.description;
+                        },
+                    });
+                },
+            },
+        },
         computed: {
             isOnline() {
                 return this.event?.venue_type === 'online';
@@ -159,15 +186,8 @@
 
                 return `${start} – ${end}`;
             },
-            timeRange() {
-                const format = date => this.isMultiDay
-                    ? this.$formatDateTime(date)
-                    : this.$formatTime(date);
-
-                const start = format(this.event.start_at_local);
-                const end = format(this.event.end_at_local);
-
-                return `${start} – ${end} (${this.event.timezone})`;
+            showSiteTime() {
+                return this.event.start_at_site !== this.event.start_at_local || this.event.end_at_site !== this.event.end_at_local;
             },
             meetingUrl() {
                 return this.$httpUrl(this.event.meta?.online_meeting_url);

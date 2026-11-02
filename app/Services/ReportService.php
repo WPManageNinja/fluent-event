@@ -8,7 +8,6 @@ use FluentEvent\App\Utils\DateTimeHelper;
 
 class ReportService
 {
-    const LIVE_EVENT_STATUSES = ['public', 'private'];
     const DAILY_SPAN_LIMIT = 92;
 
     public static function getStats()
@@ -16,7 +15,7 @@ class ReportService
         $now = gmdate(DateTimeHelper::FORMAT);
 
         $events = Event::query()
-            ->whereIn('status', self::LIVE_EVENT_STATUSES)
+            ->whereIn('status', Event::LIVE_STATUSES)
             ->toBase()
             ->selectRaw(
                 'COUNT(*) AS total,'
@@ -85,7 +84,7 @@ class ReportService
 
         $liveEvents = function () use ($calendarId) {
             return Event::query()
-                ->whereIn('status', self::LIVE_EVENT_STATUSES)
+                ->whereIn('status', Event::LIVE_STATUSES)
                 ->where('calendar_id', $calendarId);
         };
 
@@ -207,10 +206,7 @@ class ReportService
             ->limit($limit)
             ->with([
                 'event.post' => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content', 'post_author']);
-                },
-                'event.post.author' => function ($query) {
-                    $query->select(['ID', 'display_name']);
+                    $query->select(['ID', 'post_title']);
                 },
                 'event.calendar' => function ($query) {
                     $query->select(['id', 'title', 'meta']);
@@ -231,7 +227,7 @@ class ReportService
     private static function guestQuery($calendarId = 0)
     {
         $query = Guest::query()->whereHas('event', function ($query) {
-            $query->whereIn('status', self::LIVE_EVENT_STATUSES);
+            $query->whereIn('status', Event::LIVE_STATUSES);
         });
 
         if ($calendarId) {
@@ -244,13 +240,10 @@ class ReportService
     private static function eventQuery($calendarId = 0)
     {
         $query = Event::query()
-            ->whereIn('status', self::LIVE_EVENT_STATUSES)
+            ->whereIn('status', Event::LIVE_STATUSES)
             ->with([
                 'post' => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content', 'post_author']);
-                },
-                'post.author' => function ($query) {
-                    $query->select(['ID', 'display_name']);
+                    $query->select(['ID', 'post_title']);
                 },
                 'calendar' => function ($query) {
                     $query->select(['id', 'title', 'meta']);

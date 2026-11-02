@@ -46,8 +46,10 @@ class GuestRequest extends BaseRequest
 
     public static function updateRules($eventId, $currentGuestId)
     {
+        // Updates are partial, so name and email are required only when sent.
         return array_merge(self::RULES, [
-            'email'   => 'required|email|max:192|unique:fe_guests,email,' . $currentGuestId . ',id,event_id,' . $eventId,
+            'name'    => 'sometimes|required|string|max:255',
+            'email'   => 'sometimes|required|email|max:192|unique:fe_guests,email,' . $currentGuestId . ',id,event_id,' . $eventId,
             'user_id' => 'nullable|integer|exists:users,ID|unique:fe_guests,user_id,' . $currentGuestId . ',id,event_id,' . $eventId,
         ]);
     }

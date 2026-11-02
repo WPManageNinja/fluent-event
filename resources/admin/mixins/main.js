@@ -1,12 +1,18 @@
 import { capitalize } from 'vue';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import Rest from '@/utils/http/Rest.js';
+import { applyWeekStart } from '@/utils/date';
 import { ElNotification, ElMessageBox } from 'element-plus';
 
 dayjs.extend(advancedFormat);
+// advancedFormat's week tokens ("W", "GGGG") call isoWeek() and throw without it.
+dayjs.extend(isoWeek);
 
 const config = window.fluentEventAdmin;
+
+applyWeekStart(config.start_of_week);
 
 // Per-component request counters, so only the newest read writes state back.
 const requestSeq = new WeakMap();
@@ -51,14 +57,9 @@ const slugify = function (text) {
         .replace(/^-+|-+$/g, '');
 };
 
-const eventStatuses = [
+const statusTypes = [
     { value: 'public', type: 'success' },
-    { value: 'private', type: 'primary' },
-    { value: 'draft', type: 'info' },
-];
-
-const calendarStatuses = [
-    { value: 'public', type: 'success' },
+    { value: 'unlisted', type: 'warning' },
     { value: 'private', type: 'primary' },
     { value: 'draft', type: 'info' },
 ];
@@ -98,14 +99,10 @@ export default {
         $convertToText: convertToText,
         $titleCase: titleCase,
         $eventStatusType(status) {
-            return eventStatuses.find(item => item.value === status)?.type || 'info';
+            return statusTypes.find(item => item.value === status)?.type || 'info';
         },
         $eventStatuses() {
-            return [
-                { value: 'public', label: this.$t('Public') },
-                { value: 'private', label: this.$t('Private') },
-                { value: 'draft', label: this.$t('Draft') },
-            ];
+            return this.$calendarStatuses();
         },
         $eventStatusLabel(status) {
             return this.$eventStatuses().find(item => item.value === status)?.label || status;
@@ -128,13 +125,14 @@ export default {
             return this.$entryTypes().find(item => item.value === type)?.label || type;
         },
         $calendarStatusType(status) {
-            return calendarStatuses.find(item => item.value === status)?.type || 'info';
+            return statusTypes.find(item => item.value === status)?.type || 'info';
         },
         $calendarStatuses() {
             return [
-                { value: 'public', label: this.$t('Public') },
-                { value: 'private', label: this.$t('Private') },
-                { value: 'draft', label: this.$t('Draft') },
+                { value: 'public', label: this.$t('Public'), hint: this.$t('Anyone can find it.') },
+                { value: 'unlisted', label: this.$t('Unlisted'), hint: this.$t('Only accessible via direct link.') },
+                { value: 'private', label: this.$t('Private'), hint: this.$t('No public page.') },
+                { value: 'draft', label: this.$t('Draft'), hint: this.$t('Not ready yet.') },
             ];
         },
         $calendarStatusLabel(status) {
@@ -195,6 +193,17 @@ export default {
         },
         $formatDateTime(date) {
             return `${this.$formatDate(date)} ${this.$formatTime(date)}`;
+        },
+        // clock: 'local' or 'site'.
+        $formatTimeRange(event, clock = 'local') {
+            const start = event[`start_at_${clock}`];
+            const end = event[`end_at_${clock}`];
+            const zone = clock === 'site' ? config.timezone : event.timezone;
+
+            const startText = dayjs(start).isSame(event.start_at_local, 'day') ? this.$formatTime(start) : this.$formatDateTime(start);
+            const endText = dayjs(end).isSame(start, 'day') ? this.$formatTime(end) : this.$formatDateTime(end);
+
+            return `${startText} – ${endText} (${zone})`;
         },
         $changeTitle(title) {
             document.querySelector(

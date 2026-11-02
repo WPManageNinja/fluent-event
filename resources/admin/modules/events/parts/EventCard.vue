@@ -1,7 +1,7 @@
 <template>
     <div class="fe-event-card" @click="$emit('open', event)">
         <div class="fe-event-card__main">
-            <div class="fe-event-card__badges">
+            <div v-if="showDate || dayCount || (showCalendar && event.calendar)" class="fe-event-card__badges">
                 <span v-if="showDate" class="fe-event-card__badge">
                     <el-icon aria-hidden="true"><Calendar /></el-icon>
                     {{ date }}
@@ -10,10 +10,6 @@
                 <span v-if="dayCount" class="fe-event-card__badge">
                     {{ $t('%d days', dayCount) }}
                 </span>
-
-                <el-tag class="capitalize" :type="$eventStatusType(event.status)" size="small">
-                    {{ $eventStatusLabel(event.status) }}
-                </el-tag>
 
                 <span
                     v-if="showCalendar && event.calendar"
@@ -37,10 +33,19 @@
 
             <p class="fe-event-card__time">{{ timeRange }}</p>
 
-            <p class="fe-event-card__meta">
-                <span v-if="event.author">{{ $t('by %s', event.author.name) }}</span>
-                <span>{{ location }}</span>
-            </p>
+            <div class="fe-event-card__meta">
+                <el-tag class="capitalize" :type="$eventStatusType(event.status)" size="small">
+                    {{ $eventStatusLabel(event.status) }}
+                </el-tag>
+
+                <span class="fe-event-card__venue">
+                    <el-icon aria-hidden="true">
+                        <VideoCamera v-if="isOnline" />
+                        <MapLocation v-else />
+                    </el-icon>
+                    {{ isOnline ? $t('Online') : $t('In person') }}
+                </span>
+            </div>
 
             <router-link
                 class="fe-event-card__manage"
@@ -66,14 +71,16 @@
 </template>
 
 <script type="text/javascript">
-    import { Calendar, TopRight } from '@element-plus/icons-vue';
+    import { Calendar, MapLocation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
 
     export default {
         name: 'EventCard',
         components: {
             Calendar,
+            MapLocation,
             TopRight,
+            VideoCamera,
         },
         props: {
             event: {
@@ -95,29 +102,20 @@
                 return this.event.venue_type === 'online';
             },
             date() {
-                return this.$formatDate(this.event.start_at_local);
+                return this.$formatDate(this.event.start_at_site);
             },
             timeRange() {
-                const start = this.$formatTime(this.event.start_at_local);
-                const end = this.event.end_at_local
-                    ? this.$formatTime(this.event.end_at_local)
+                const start = this.$formatTime(this.event.start_at_site);
+                const end = this.event.end_at_site
+                    ? this.$formatTime(this.event.end_at_site)
                     : '';
 
                 return end && end !== start ? `${start} – ${end}` : start;
             },
             dayCount() {
-                const span = daySpan(this.event.start_at_local, this.event.end_at_local);
+                const span = daySpan(this.event.start_at_site, this.event.end_at_site);
 
                 return span > 1 ? span : 0;
-            },
-            location() {
-                if (this.isOnline) {
-                    return this.$t('Online event');
-                }
-
-                return this.event.meta?.venue
-                    || this.event.meta?.address
-                    || this.$t('No venue yet');
             },
             calendarColor() {
                 return this.$calendarColor(this.event.calendar);

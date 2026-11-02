@@ -38,7 +38,7 @@ class FeedHandler
         add_filter('fluent_community/feed/update_data', [$this, 'keepEventLink'], 10, 2);
         add_action('fluent_community/feed/updated', [$this, 'followSpaceMove'], 10, 2);
         add_action('fluent_event/event/calendar_changed', [$this, 'followCalendarChange']);
-        add_action('fluent_community/feed/before_deleted', [$this, 'deleteEvent']);
+        add_action('fluent_community/feed/before_deleted', [$this, 'parkEvent']);
         // Before CleanupHandler (priority 10) wipes the event's fe_meta, which holds the post link.
         add_action('fluent_event/event/before_deleted', [$this, 'unlinkPost'], 5);
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
@@ -215,7 +215,8 @@ class FeedHandler
         });
     }
 
-    public function deleteEvent($feed)
+    // Deleting a post is a moderation call, not an event one: the event keeps its guests as a draft.
+    public function parkEvent($feed)
     {
         $event = Event::query()->find(CommunityEvents::eventIdOf($feed));
 
@@ -224,12 +225,19 @@ class FeedHandler
         }
 
         DB::transaction(function () use ($event) {
-            do_action('fluent_event/event/before_deleted', $event);
+            Meta::query()
+                ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+                ->where('object_id', $event->id)
+                ->where('meta_key', CommunityEvents::FEED_META_KEY)
+                ->delete();
 
-            $event->delete();
+            $event->status = 'draft';
+            $event->save();
+
+            wp_update_post(['ID' => $event->post_id, 'post_status' => Event::postStatusFor('draft')]);
         });
 
-        do_action('fluent_event/event/deleted', $event);
+        do_action('fluent_event/event/updated', $event);
     }
 
     // An event deleted from the admin or with its calendar leaves the post as a plain one.
@@ -248,7 +256,10 @@ class FeedHandler
 
     public function preloadEvents($config, $feeds)
     {
-        $feeds = Arr::get($config, 'is_collection') ? $feeds : [$feeds];
+        if (!Arr::get($config, 'is_collection')) {
+            return $config;
+        }
+
         $eventIds = [];
 
         foreach ($feeds as $feed) {
@@ -271,11 +282,17 @@ class FeedHandler
 
         $eventId = CommunityEvents::eventIdOf($feed);
 
-        if (!array_key_exists($eventId, $this->formattedEvents)) {
-            $this->preload([$eventId]);
-        }
+        if (Arr::get($config, 'is_collection')) {
+            if (!array_key_exists($eventId, $this->formattedEvents)) {
+                $this->preload([$eventId]);
+            }
 
-        $formatted = $this->formattedEvents[$eventId] ?? null;
+            $formatted = $this->formattedEvents[$eventId] ?? null;
+        } else {
+            // A single post is the event page, the one view that shows the description.
+            $event = Event::query()->with(['post'])->find($eventId);
+            $formatted = CommunityEvents::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
+        }
 
         if ($formatted && !in_array($feed->status, ['published', 'unlisted'], true)) {
             $formatted['registration_open'] = false;
@@ -327,7 +344,7 @@ class FeedHandler
     protected function eventInput($requestData)
     {
         $input = EventRequest::sanitize((array) Arr::get($requestData, 'event', []));
-        $input['status'] = 'public';
+        $input['status'] = 'private';
 
         return $input;
     }

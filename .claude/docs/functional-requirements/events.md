@@ -44,7 +44,7 @@ place (address/map) is `fe_venue` term meta, not an event column. See
 | `post_id` | BIGINT **NOT NULL** UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **Every** details row has its own post — including each recurrence occurrence |
 | `calendar_id` | BIGINT **NOT NULL** FK | → calendar (`RESTRICT`) |
 | `parent_event_id` | BIGINT NULL FK→self | NULL = master/standalone; set = a recurrence **occurrence** of that master (`ON DELETE CASCADE`) |
-| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `private` \| `draft` |
+| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `unlisted` \| `private` \| `draft` |
 | `start_at` / `end_at` | DATETIME **NOT NULL** (**UTC**) | stored in UTC; the indexed date window |
 | `timezone` | VARCHAR **NULL** | IANA tz (e.g. `Asia/Dhaka`) — to display the organizer's local time; also DST, ICS, reminders |
 | `venue_type` | VARCHAR **NULL**, default `'offline'` | event **mode**: `offline` \| `online` \| `hybrid`. Place = `fe_venue` term (address/map in term meta) |
@@ -78,7 +78,7 @@ occurrence owns its **own** `wp_posts` row and its own complete values. There is
 *(Venue place data → `fe_venue` term meta; the online link is per-event in `settings`,
 never term meta.)*
 
-> **Note on `status`:** it carries visibility semantics (`public`/`private`/`draft`; `private` = no public page)
+> **Note on `status`:** it carries visibility semantics (`public`/`unlisted`/`private`/`draft`; `private` = no public page)
 > which overlap `wp_posts.post_status`. Pick one as authoritative in the service layer —
 > `event_details.status` is the queryable one, so keep `post_status` in step with it on write.
 
@@ -198,8 +198,8 @@ be a taxonomy (`fe_sponsor`, like organizer), not a custom table.
 
 ### FR-6.5 — Visibility & discovery
 
-- `public` (listed, anyone can find), `unlisted` (only people with the link), `private` (invite-only).
-- **v1 ships `public` + `draft` only.** `unlisted` and `private` wait for the public event page and invites — with no front-end, they would behave exactly like `public`.
+- `public` (listed, anyone can find), `unlisted` (left off the upcoming landing page, opens by direct link), `private` (no public page; people reach it through its space or its guest emails), `draft` (not ready). Events and calendars share these.
+- `unlisted` only takes effect on the landing page: the portal, reminders and reports treat it like any live event.
 - Public events show in listings; they still follow calendar + space access rules. (unfiltered #12)
 
 ### FR-6.6 — Dynamic registration form

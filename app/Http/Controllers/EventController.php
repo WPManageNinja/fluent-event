@@ -16,13 +16,13 @@ class EventController extends Controller
 {
     public function getAllEvents(Request $request)
     {
+        $from = $request->getSafe('start_date', 'sanitize_text_field');
+        $to = $request->getSafe('end_date', 'sanitize_text_field');
+
         $events = Event::query()
             ->with([
                 'post'        => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content', 'post_author']);
-                },
-                'post.author' => function ($query) {
-                    $query->select(['ID', 'display_name']);
+                    $query->select(['ID', 'post_title']);
                 },
                 'calendar'    => function ($query) {
                     $query->select(['id', 'title', 'meta']);
@@ -31,13 +31,15 @@ class EventController extends Controller
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->byCalendar($request->getSafe('calendar_id', 'intval'))
             ->byStatus($request->getSafe('status', 'sanitize_text_field'))
-            ->inDateRange(
-                $request->getSafe('start_date', 'sanitize_text_field'),
-                $request->getSafe('end_date', 'sanitize_text_field')
-            )
+            ->inDateRange($from, $to)
             ->byPeriod($request->getSafe('period', 'sanitize_text_field'));
 
-        $paginate = $request->getSafe('paginate', 'rest_sanitize_boolean', true);
+        // As in the community calendar: only a real window of at most two months skips paging.
+        $fromTime = DateTimeHelper::isDate($from) ? strtotime($from) : false;
+        $toTime = DateTimeHelper::isDate($to) ? strtotime($to) : false;
+        $isWindow = $fromTime && $toTime && $toTime >= $fromTime && $toTime - $fromTime <= 62 * DAY_IN_SECONDS;
+
+        $paginate = !$isWindow || $request->getSafe('paginate', 'rest_sanitize_boolean', true);
 
         return [
             'events' => $paginate
@@ -51,10 +53,7 @@ class EventController extends Controller
         $event = Event::query()
             ->with([
                 'post'        => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content', 'post_author']);
-                },
-                'post.author' => function ($query) {
-                    $query->select(['ID', 'display_name']);
+                    $query->select(['ID', 'post_title', 'post_content']);
                 },
                 'calendar'    => function ($query) {
                     $query->select(['id', 'title', 'status', 'meta']);
@@ -63,7 +62,7 @@ class EventController extends Controller
             ->findOrFail($id);
 
         return [
-            'event' => $event
+            'event' => $event->append('description')
         ];
     }
 

@@ -154,7 +154,7 @@
                         @click="$emit('open', block.entry.event)"
                     >
                         <span class="fe-events-grid__event-time">
-                            {{ $formatTime(block.entry.event.start_at_local) }}
+                            {{ $formatTime(block.entry.event.start_at_site) }}
                         </span>
                         <span class="fe-events-grid__event-title">
                             {{ block.entry.event.title }}
@@ -270,8 +270,8 @@
                 const days = {};
 
                 this.events.forEach(event => {
-                    const start = toUtcDay(event.start_at_local);
-                    const end = toUtcDay(event.end_at_local);
+                    const start = toUtcDay(event.start_at_site);
+                    const end = toUtcDay(event.end_at_site);
 
                     for (
                         let day = Math.max(start, first);
@@ -289,7 +289,7 @@
                 });
 
                 Object.values(days).forEach(entries => entries.sort(
-                    (a, b) => a.event.start_at_local.localeCompare(b.event.start_at_local)
+                    (a, b) => a.event.start_at_site.localeCompare(b.event.start_at_site)
                 ));
 
                 return days;
@@ -313,7 +313,7 @@
             },
             entryTime(entry) {
                 if (entry.dayIndex > 1) return this.$t('Day %d', entry.dayIndex);
-                return this.$formatTime(entry.event.start_at_local);
+                return this.$formatTime(entry.event.start_at_site);
             },
             entryColor(entry) {
                 return entry.event.calendar?.meta?.theme_color || null;
@@ -329,8 +329,8 @@
                 const dayEnd = dayStart.add(1, 'day');
 
                 return this.entriesFor(day.format('YYYY-MM-DD')).map(entry => {
-                    const start = dayjs(entry.event.start_at_local);
-                    const end = dayjs(entry.event.end_at_local);
+                    const start = dayjs(entry.event.start_at_site);
+                    const end = dayjs(entry.event.end_at_site);
 
                     const from = start.isBefore(dayStart) ? 0 : start.diff(dayStart, 'minute');
                     const until = end.isAfter(dayEnd)

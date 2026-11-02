@@ -332,10 +332,8 @@
                         ...params,
                         paginate: false,
                         period: this.period,
-                        start_date: month.startOf('month').startOf('week')
-                            .subtract(1, 'day').format('YYYY-MM-DD'),
-                        end_date: month.endOf('month').endOf('week')
-                            .add(1, 'day').format('YYYY-MM-DD'),
+                        start_date: month.startOf('month').startOf('week').format('YYYY-MM-DD'),
+                        end_date: month.endOf('month').endOf('week').format('YYYY-MM-DD'),
                     };
                 }
 
@@ -371,8 +369,7 @@
             },
             fetchCalendars() {
                 this.$requestServer({
-                    path: 'calendars',
-                    payload: { view: 'options' },
+                    path: 'calendars/options',
                     loadingState: null,
                     errorState: null,
                     errorNotify: true,

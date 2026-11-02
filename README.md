@@ -1,20 +1,36 @@
-=== FluentEvent ===
-Contributors: authorname
-Donate link: https://wpfluent.com
-Requires at least: 6.0
-Tested up to: 7.1
-Requires PHP: 7.4
-Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+### FluentEvent WordPress Plugin
 
-A WordPress plugin built with the WPFluent framework.
+How to build the assets:
 
-== Description ==
+```bash
+npm install ## to install the dependencies
+npm run dev ## for development (Vite dev server)
+npm run build ## for production
+```
 
-Describe what this plugin does for your users — features, the problem it solves, and any setup requirements.
+**Note:** `npm run build` sets `'env'` in `config/app.php` to production. Set it back to `'dev'` to use the dev server again. `./build.sh --node-build` restores the file for you.
 
-== Changelog ==
+Then go to https://siteurl/wp-admin/admin.php?page=fluent-event
 
-= 1.0.0 =
-* Initial release.
+#### Tests
+
+```bash
+composer install -d tests ## PHP test tooling, once
+npm test ## JS (Vitest)
+npm run test:php ## PHP unit
+npm run test:integration ## PHP integration, writes to this site's DB and rolls back
+```
+
+More in [tests/README.md](tests/README.md).
+
+#### Release Plugin
+
+```bash
+./build.sh --node-build
+```
+
+The zip goes to `builds/fluent-event-<version>.zip`. Only the paths in `PAYLOAD` in `build.sh` ship. `readme.txt` is the WordPress.org readme. This file does not ship.
+
+#### DB Changelogs
+
+- None yet.

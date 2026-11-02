@@ -13,12 +13,14 @@ class Event extends Model
 {
     protected $table = 'fe_event_details';
 
-    const STATUSES = 'public,private,draft';
+    const STATUSES = 'public,unlisted,private,draft';
+    const LIVE_STATUSES = ['public', 'unlisted', 'private'];
     const VENUE_TYPES = 'offline,online';
     const ENTRY_TYPES = 'rsvp,open';
     const SEAT_STATUSES = ['going', 'checked_in'];
     const POST_STATUSES = [
         'public'   => 'publish',
+        'unlisted' => 'publish',
         'private'  => 'private',
         'draft'    => 'draft',
     ];
@@ -45,10 +47,10 @@ class Event extends Model
 
     protected $appends = [
         'title',
-        'description',
-        'author',
         'start_at_local',
         'end_at_local',
+        'start_at_site',
+        'end_at_site',
     ];
 
     public static function defaultMeta()
@@ -85,23 +87,13 @@ class Event extends Model
 
     public function getTitleAttribute()
     {
-        return $this->post->post_title ?? '';
+        // Plain text with "<" and ">" restored — every sink must escape it, never print it as HTML.
+        return strtr($this->post->post_title ?? '', ['&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', '&#039;' => "'"]);
     }
 
     public function getDescriptionAttribute()
     {
         return wp_kses_post($this->post->post_content ?? '');
-    }
-
-    public function getAuthorAttribute()
-    {
-        $author = $this->post->author ?? null;
-        if (!$author) return null;
-
-        return [
-            'name'   => $author->display_name,
-            'avatar' => get_avatar_url($author->ID),
-        ];
     }
 
     public function getStartAtLocalAttribute()
@@ -112,6 +104,17 @@ class Event extends Model
     public function getEndAtLocalAttribute()
     {
         return DateTimeHelper::convertFromUtc($this->end_at, $this->timezone);
+    }
+
+    // *_local is the event's own clock, for its page and its guests; lists and the date filter read the site's.
+    public function getStartAtSiteAttribute()
+    {
+        return DateTimeHelper::convertFromUtc($this->start_at, wp_timezone_string());
+    }
+
+    public function getEndAtSiteAttribute()
+    {
+        return DateTimeHelper::convertFromUtc($this->end_at, wp_timezone_string());
     }
 
     public function scopeSearchBy($query, $search)
@@ -146,14 +149,15 @@ class Event extends Model
         return $query;
     }
 
+    // Days are the site's days, the clock every list shows (start_at_site).
     public function scopeInDateRange($query, $from, $to)
     {
         if (DateTimeHelper::isDate($from)) {
-            $query->where('end_at', '>=', $from . ' 00:00:00');
+            $query->where('end_at', '>=', DateTimeHelper::convertToUtc($from . ' 00:00:00', wp_timezone_string()));
         }
 
         if (DateTimeHelper::isDate($to)) {
-            $query->where('start_at', '<=', $to . ' 23:59:59');
+            $query->where('start_at', '<=', DateTimeHelper::convertToUtc($to . ' 23:59:59', wp_timezone_string()));
         }
 
         return $query;

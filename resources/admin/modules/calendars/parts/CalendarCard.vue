@@ -1,15 +1,6 @@
 <template>
     <div class="fe-calendars__card">
         <div class="fe-calendars__card-cover" :style="{ color: themeColor }">
-            <el-tag
-                v-if="calendar.status !== 'public'"
-                class="capitalize fe-calendars__card-status"
-                :type="$calendarStatusType(calendar.status)"
-                size="small"
-            >
-                {{ $calendarStatusLabel(calendar.status) }}
-            </el-tag>
-
             <span class="fe-calendars__card-mark" aria-hidden="true">{{ initials }}</span>
         </div>
 
@@ -37,10 +28,13 @@
 
             <div class="fe-calendars__card-meta">
                 <span class="fe-calendars__card-stat">
-                    {{ $t('%d events', calendar.events_count) }}
+                    {{ $calendarStatusLabel(calendar.status) }}
                 </span>
                 <span class="fe-calendars__card-stat">
-                    {{ $t('%d guests', calendar.guests_count) }}
+                    {{ $_n('%d event', '%d events', calendar.events_count) }}
+                </span>
+                <span class="fe-calendars__card-stat">
+                    {{ $_n('%d guest', '%d guests', calendar.guests_count) }}
                 </span>
             </div>
         </div>

@@ -77,6 +77,17 @@ export function errorMessage(error) {
 }
 
 const dayjs = (value) => window.dayjs(value);
+const utc = (value) => window.dayjs.utc(value);
+
+export function eventPhase(event) {
+    const now = Date.now();
+
+    if (event.is_past || now >= utc(event.end_at).valueOf()) {
+        return 'ended';
+    }
+
+    return now >= utc(event.start_at).valueOf() ? 'live' : 'upcoming';
+}
 
 // fcom's time format: the site's WordPress setting as a dayjs pattern, so 24-hour sites read 18:00.
 export function timeFormat() {
@@ -84,22 +95,23 @@ export function timeFormat() {
 }
 
 export function eventStart(event) {
-    const start = dayjs(event.start_at_local);
+    const start = dayjs(event.start_at_site);
 
     return `${start.format('ddd, MMM D, YYYY')} · ${start.format(timeFormat())}`;
 }
 
 export function eventMonth(event) {
-    return dayjs(event.start_at_local).format('MMM');
+    return dayjs(event.start_at_site).format('MMM');
 }
 
 export function eventDay(event) {
-    return dayjs(event.start_at_local).format('D');
+    return dayjs(event.start_at_site).format('D');
 }
 
-export function timezoneOffset(zone) {
+// Pass the event's date to label the offset it will have then, not today's (daylight saving).
+export function timezoneOffset(zone, date = new Date()) {
     try {
-        const parts = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' }).formatToParts(new Date());
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' }).formatToParts(date);
         return (parts.find((part) => part.type === 'timeZoneName') || {}).value || '';
     } catch (e) {
         return '';

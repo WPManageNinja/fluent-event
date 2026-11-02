@@ -14,7 +14,7 @@
             <span class="fe-dashboard__event-meta">{{ meta }}</span>
         </span>
 
-        <span v-if="count" class="fe-dashboard__event-count">{{ count }}</span>
+        <span v-if="count" class="fe-badge fe-dashboard__event-count">{{ count }}</span>
     </router-link>
 </template>
 

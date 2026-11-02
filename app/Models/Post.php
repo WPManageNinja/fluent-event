@@ -23,11 +23,6 @@ class Post extends Model
         });
     }
 
-    public function author()
-    {
-        return $this->belongsTo(User::class, 'post_author', 'ID');
-    }
-
     /** @param string|string[] $status */
     public function scopeByStatus($query, $status)
     {

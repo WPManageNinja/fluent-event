@@ -4,7 +4,7 @@
             <div class="fe-page__header">
                 <h1 class="fe-page__title">{{ $t('Calendars') }}</h1>
 
-                <!-- <div class="fe-page__actions">
+                <div class="fe-page__actions">
                     <el-button
                         v-if="$userCan('write_calendars')"
                         type="primary"
@@ -13,7 +13,7 @@
                         <el-icon><Plus /></el-icon>
                         <span>{{ $t('Create Calendar') }}</span>
                     </el-button>
-                </div> -->
+                </div>
             </div>
 
             <div v-if="!isOnboarding" class="fe-calendars__toolbar">
@@ -59,10 +59,10 @@
 
             <EmptyState
                 v-else
-                :title="$t('No calendars yet')"
-                :message="$t('A space gets its calendar when its first event is posted in FluentCommunity.')"
+                :title="$t('Create your first calendar')"
+                :message="$t('A calendar holds your events. You need one before you can add an event.')"
             >
-                <!-- <template #action>
+                <template #action>
                     <el-button
                         v-if="$userCan('write_calendars')"
                         type="primary"
@@ -70,14 +70,14 @@
                     >
                         {{ $t('Create Calendar') }}
                     </el-button>
-                </template> -->
+                </template>
             </EmptyState>
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
-    // import { Plus } from '@element-plus/icons-vue';
+    import { Plus } from '@element-plus/icons-vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import EmptyState from '@/components/EmptyState.vue';
@@ -88,7 +88,7 @@
     export default {
         name: 'Calendars',
         components: {
-            // Plus,
+            Plus,
             SearchInput,
             ErrorState,
             EmptyState,
@@ -144,9 +144,9 @@
                     },
                 });
             },
-            // goToCreate() {
-            //     this.$router.push({ name: 'calendar_create' });
-            // },
+            goToCreate() {
+                this.$router.push({ name: 'calendar_create' });
+            },
         },
         mounted() {
             this.$changeTitle(this.$t('Calendars'));

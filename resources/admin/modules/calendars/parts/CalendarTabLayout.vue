@@ -16,7 +16,7 @@
                         v-for="event in upcomingEvents"
                         :key="`upcoming-${event.id}`"
                         :event="event"
-                        :meta="$formatDateTime(event.start_at_local)"
+                        :meta="$formatDateTime(event.start_at_site)"
                     />
                 </template>
 

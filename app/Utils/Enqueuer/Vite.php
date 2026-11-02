@@ -50,14 +50,8 @@ class Vite extends Enqueuer
             );
         }
 
-        global $wp_filesystem;
-
-        if ( ! $wp_filesystem ) {
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-            WP_Filesystem();
-        }
-
-        $this->manifestData = json_decode($wp_filesystem->get_contents($manifestPath), true);
+        // Not WP_Filesystem: on FTP/SSH hosts it can't connect without credentials, and this is a local read.
+        $this->manifestData = wp_json_file_decode($manifestPath, ['associative' => true]);
     }
 
     /**
@@ -115,8 +109,7 @@ class Vite extends Enqueuer
     private function enqueueStyle(string $handle, string $src, array $dependency = [], ?string $version = null): void
     {
         if (static::isOnDevMode()) {
-            $devSrc = $src === 'admin/admin.css' ? 'scss/admin.scss' : $src;
-            $srcPath = static::getVitePath() . ltrim($devSrc, '/');
+            $srcPath = static::getVitePath() . ltrim($src, '/');
         } else {
             $manifestEntry = $this->getFileFromManifest($src);
             $srcPath = static::getProductionFilePath($manifestEntry);

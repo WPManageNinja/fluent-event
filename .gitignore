@@ -51,6 +51,8 @@ test-results
 tests/e2e/playwright-report/
 tests/e2e/test-results.json
 tests/php/.phpunit.cache
+tests/php/coverage/
+tests/vendor/
 
 # Vite auto-generated type shims
 components.d.ts

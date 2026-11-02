@@ -33,6 +33,7 @@
             </el-input>
 
             <segmented-switch
+                v-if="!viewLocked"
                 v-model="view"
                 :options="views"
                 :label="$t('Switch between card, timeline and calendar view')"
@@ -91,9 +92,11 @@
                         <el-icon><Calendar/></el-icon>
                     </span>
 
-                    <span v-if="view === 'cards'" class="fe-event-item__date" aria-hidden="true">
-                        <span class="fe-event-item__month">{{ month(event) }}</span>
-                        <span class="fe-event-item__day">{{ day(event) }}</span>
+                    <span v-if="view === 'cards' && isLive(event)" class="fe-event-item__live fe-live-badge">{{ $t('Happening now') }}</span>
+
+                    <span v-if="view === 'cards'" class="fe-event-item__date fe-date-chip" aria-hidden="true">
+                        <span class="fe-date-chip__month">{{ month(event) }}</span>
+                        <span class="fe-date-chip__day">{{ day(event) }}</span>
                     </span>
 
                     <div class="fe-event-item__info">
@@ -136,7 +139,7 @@
 import { Calendar, Grid, MapLocation, Search, Tickets, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventMonth, eventDay, guestCountLabel, portalVars, hasEventActions, eventStart } from '../utils';
+import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 import EventsCalendar from './EventsCalendar.vue';
@@ -151,13 +154,16 @@ export default {
         router: { type: Object, required: true },
     },
     data() {
+        // The admin's view setting applies here as in the admin list; locked, it overrides the member's choice.
+        const viewLocked = !!portalVars().disable_view_switch;
         const savedTab = Storage.get('portal_events_tab');
-        const savedView = Storage.get('portal_events_view');
+        const savedView = viewLocked ? null : Storage.get('portal_events_view');
         const savedMode = Storage.get('portal_events_calendar_mode');
 
         return {
+            viewLocked,
             tab: ['all', 'upcoming', 'past'].includes(savedTab) ? savedTab : 'upcoming',
-            view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : 'timeline',
+            view: ['cards', 'timeline', 'calendar'].includes(savedView) ? savedView : (portalVars().default_view || 'timeline'),
             search: '',
             calendarDate: dayjs().format('YYYY-MM-DD'),
             calendarMode: ['month', 'week', 'day'].includes(savedMode) ? savedMode : 'month',
@@ -172,7 +178,7 @@ export default {
     },
     computed: {
         canCreate() {
-            return !!this.spaceSlug && !!portalVars().can_create_events;
+            return !!portalVars().can_create_events;
         },
         views() {
             return [
@@ -222,13 +228,16 @@ export default {
     methods: {
         month: eventMonth,
         day: eventDay,
+        isLive(event) {
+            return eventPhase(event) === 'live';
+        },
         countLabel: guestCountLabel,
         startDate: eventStart,
         timelineDate(event) {
-            return dayjs(event.start_at_local).format('MMM D, YYYY');
+            return dayjs(event.start_at_site).format('MMM D, YYYY');
         },
         weekday(event) {
-            return dayjs(event.start_at_local).format('dddd');
+            return dayjs(event.start_at_site).format('dddd');
         },
         hasActions: hasEventActions,
         reload() {
@@ -248,12 +257,12 @@ export default {
                 per_page: 20,
             };
 
-            // The whole visible grid, padded a day each side so events crossing a timezone edge still land.
+            // The whole visible grid; the server reads these as site days, the clock the grid places by.
             if (this.view === 'calendar') {
                 const month = dayjs(this.calendarDate);
 
-                params.from = month.startOf('month').startOf('week').subtract(1, 'day').format('YYYY-MM-DD');
-                params.to = month.endOf('month').endOf('week').add(1, 'day').format('YYYY-MM-DD');
+                params.from = month.startOf('month').startOf('week').format('YYYY-MM-DD');
+                params.to = month.endOf('month').endOf('week').format('YYYY-MM-DD');
                 params.paginate = false;
             }
 
@@ -285,7 +294,7 @@ export default {
             }
         },
         createEvent() {
-            this.router.push({ name: 'fe_space_create_event', params: { space: this.spaceSlug } });
+            this.router.push({ name: 'fe_create_event', query: this.spaceSlug ? { space: this.spaceSlug } : {} });
         },
         // The register response carries the event payload only; keep the post link the list already has.
         applyResponse(event, response) {

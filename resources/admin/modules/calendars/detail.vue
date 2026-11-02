@@ -65,7 +65,7 @@
                                     <div class="fe-rich-text" v-html="calendar.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in CalendarController::getCalendar() -->
                                 </template>
 
-                                <el-empty v-else :description="$t('No description yet.')" />
+                                <el-empty v-else :description="$t('No description yet')" />
                             </div>
                         </CalendarTabLayout>
                     </template>
@@ -82,13 +82,13 @@
                                         :label="$t('Filter events by period')"
                                     />
 
-                                    <!-- <el-button
+                                    <el-button
                                         v-if="$userCan('write_events')"
                                         type="primary"
                                         @click="goToEventCreate"
                                     >
                                         {{ $t('Add Event') }}
-                                    </el-button> -->
+                                    </el-button>
                                 </div>
                             </div>
 
@@ -133,7 +133,7 @@
         },
         data() {
             return {
-                loading: false,
+                loading: true,
                 error: '',
                 tab: 'overview',
                 period: 'upcoming',
@@ -230,12 +230,12 @@
                     params: { id: this.$route.params.id },
                 });
             },
-            // goToEventCreate() {
-            //     this.$router.push({
-            //         name: 'event_create',
-            //         query: { calendar_id: this.calendarId },
-            //     });
-            // },
+            goToEventCreate() {
+                this.$router.push({
+                    name: 'event_create',
+                    query: { calendar_id: this.calendarId },
+                });
+            },
             goToList() {
                 this.$router.push({ name: 'calendars' });
             },

@@ -25,27 +25,15 @@ return function($file) {
             }
         });
 
-        // Multisite new-site coverage: when a super-admin creates a new blog
-        // in the network, run activation against it for plugins activated
-        // network-wide. Without this, the new site has the plugin "active"
-        // but un-activated (no DB tables, no seeded options).
-        add_action('wp_insert_site', function($newSite) use ($app, $file) {
-            if (!is_plugin_active_for_network(plugin_basename($file))) {
-                return;
-            }
-
-            switch_to_blog((int) $newSite->blog_id);
-
+        // A site added after network activation needs its own setup. Priority 11: core's
+        // wp_initialize_site (10) creates the new site's tables first.
+        add_action('wp_initialize_site', function($newSite) use ($app, $file) {
             try {
-                ($app->make(ActivationHandler::class))->handle(false);
+                ($app->make(ActivationHandler::class))->handleNewSite($newSite, plugin_basename($file));
             } catch (Throwable $e) {
                 do_action('fluent_exception', $e);
-            } finally {
-                // Always restore — even if activation throws, we must not
-                // leave the request stuck in the new blog's context.
-                restore_current_blog();
             }
-        });
+        }, 11);
 
         add_action('plugins_loaded', function() use ($app) {
             do_action('fluent_event/loaded', $app);
