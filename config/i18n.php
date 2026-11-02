@@ -271,8 +271,6 @@ return [
             'Previous' => __('Previous', 'fluent-event'),
             'Private' => __('Private', 'fluent-event'),
             'Public' => __('Public', 'fluent-event'),
-            'No calendars yet' => __('No calendars yet', 'fluent-event'),
-            'A space gets its calendar when its first event is posted in FluentCommunity.' => __('A space gets its calendar when its first event is posted in FluentCommunity.', 'fluent-event'),
             'Purple' => __('Purple', 'fluent-event'),
             'Red-Orange' => __('Red-Orange', 'fluent-event'),
             'Registration' => __('Registration', 'fluent-event'),

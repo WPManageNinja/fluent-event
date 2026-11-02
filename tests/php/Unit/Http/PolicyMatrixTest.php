@@ -72,6 +72,8 @@ class PolicyMatrixTest extends TestCase
             'guests: guest key may not open events'  => [EventPolicy::class, 'verifyRequest', ['read_guests'], false],
             'calendars: read key may list'           => [CalendarPolicy::class, 'verifyRequest', ['read_calendars'], true],
             'calendars: read key may not delete'     => [CalendarPolicy::class, 'deleteCalendar', ['read_calendars'], false],
+            'calendars: read key may not create'     => [CalendarPolicy::class, 'createCalendar', ['read_calendars'], false],
+            'calendars: write key may create'        => [CalendarPolicy::class, 'createCalendar', ['write_calendars'], true],
             'calendars: write key may update'        => [CalendarPolicy::class, 'updateCalendar', ['write_calendars'], true],
             'calendars: event key may load options'  => [CalendarPolicy::class, 'getCalendarOptions', ['write_events'], true],
             'calendars: event key may not list'      => [CalendarPolicy::class, 'verifyRequest', ['read_events'], false],
