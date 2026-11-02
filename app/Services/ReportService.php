@@ -8,6 +8,7 @@ use FluentEvent\App\Utils\DateTimeHelper;
 
 class ReportService
 {
+    const LIVE_EVENT_STATUSES = ['public', 'private'];
     const DAILY_SPAN_LIMIT = 92;
 
     public static function getStats()
@@ -15,7 +16,7 @@ class ReportService
         $now = gmdate(DateTimeHelper::FORMAT);
 
         $events = Event::query()
-            ->whereIn('status', Event::LIVE_STATUSES)
+            ->whereIn('status', self::LIVE_EVENT_STATUSES)
             ->toBase()
             ->selectRaw(
                 'COUNT(*) AS total,'
@@ -84,7 +85,7 @@ class ReportService
 
         $liveEvents = function () use ($calendarId) {
             return Event::query()
-                ->whereIn('status', Event::LIVE_STATUSES)
+                ->whereIn('status', self::LIVE_EVENT_STATUSES)
                 ->where('calendar_id', $calendarId);
         };
 
@@ -227,7 +228,7 @@ class ReportService
     private static function guestQuery($calendarId = 0)
     {
         $query = Guest::query()->whereHas('event', function ($query) {
-            $query->whereIn('status', Event::LIVE_STATUSES);
+            $query->whereIn('status', self::LIVE_EVENT_STATUSES);
         });
 
         if ($calendarId) {
@@ -240,7 +241,7 @@ class ReportService
     private static function eventQuery($calendarId = 0)
     {
         $query = Event::query()
-            ->whereIn('status', Event::LIVE_STATUSES)
+            ->whereIn('status', self::LIVE_EVENT_STATUSES)
             ->with([
                 'post' => function ($query) {
                     $query->select(['ID', 'post_title']);

@@ -74,7 +74,6 @@ describe('status and entry type labels', () => {
         const vm = component();
 
         expect(vm.$eventStatusType('public')).toBe('success');
-        expect(vm.$eventStatusType('unlisted')).toBe('warning');
         expect(vm.$eventStatusType('private')).toBe('primary');
         expect(vm.$eventStatusType('draft')).toBe('info');
         expect(vm.$eventStatusType('archived')).toBe('info');

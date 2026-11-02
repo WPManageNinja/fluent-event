@@ -23,7 +23,7 @@ class EventReminderService
         $startsAt = strtotime($event->start_at . ' UTC');
         $leadTimes = [];
 
-        if (in_array($event->status, Event::LIVE_STATUSES, true)) {
+        if (in_array($event->status, ['public', 'private'], true)) {
             foreach (self::leadTimes(self::reminderFor($eventId)) as $leadTime) {
                 if ($startsAt - $leadTime > time()) {
                     $leadTimes[] = $leadTime;
@@ -106,7 +106,7 @@ class EventReminderService
     {
         $events = Event::query()
             ->select(['id', 'status', 'start_at'])
-            ->whereIn('status', Event::LIVE_STATUSES)
+            ->whereIn('status', ['public', 'private'])
             ->where('start_at', '>', gmdate(DateTimeHelper::FORMAT))
             ->where('id', '>', (int) $afterId)
             ->orderBy('id', 'ASC')
@@ -136,7 +136,7 @@ class EventReminderService
 
         if (
             !$event
-            || !in_array($event->status, Event::LIVE_STATUSES, true)
+            || !in_array($event->status, ['public', 'private'], true)
             || $event->start_at <= gmdate(DateTimeHelper::FORMAT)
             || !in_array((int) $leadTime, self::leadTimes(self::reminderFor($eventId)), true)
         ) {
