@@ -20,13 +20,13 @@
 
             <div v-else-if="!loadingCalendars && !calendars.length" class="fe-card">
                 <el-empty :description="$t('An event needs a calendar to live in, and there are none yet.')">
-                    <!-- <el-button
+                    <el-button
                         v-if="$userCan('write_calendars')"
                         type="primary"
                         @click="goToCalendarCreate"
                     >
                         {{ $t('Create a Calendar') }}
-                    </el-button> -->
+                    </el-button>
                 </el-empty>
             </div>
 
@@ -608,9 +608,9 @@
                     },
                 });
             },
-            // goToCalendarCreate() {
-            //     this.$router.push({ name: 'calendar_create' });
-            // },
+            goToCalendarCreate() {
+                this.$router.push({ name: 'calendar_create' });
+            },
         },
         mounted() {
             this.$changeTitle(this.pageTitle);

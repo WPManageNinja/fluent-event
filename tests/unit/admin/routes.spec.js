@@ -95,6 +95,10 @@ describe('admin routes', () => {
         });
     });
 
+    it('closes the create calendar page to read-only members', () => {
+        expect(router.resolve('/calendars/new').meta.permissions).toEqual(['write_calendars']);
+    });
+
     it('keeps the Team tab behind manage_all_data alone', () => {
         expect(router.resolve('/settings/team').meta.permissions).toEqual(['manage_all_data']);
     });

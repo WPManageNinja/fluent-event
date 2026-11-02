@@ -77,6 +77,40 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertTrue($this->hasQueuedAction('fluent_event/reschedule_event_reminders', [0]));
     }
 
+    public function test_a_calendar_can_be_created_without_a_space()
+    {
+        $response = $this->rest('POST', 'calendars', [
+            'title'       => 'Team Meetups',
+            'slug'        => 'team-meetups',
+            'status'      => 'public',
+            'theme_color' => '#0099ff',
+        ]);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $calendar = Calendar::query()->find($response['data']['calendar']['id']);
+
+        $this->assertSame('team-meetups', $calendar->slug);
+        $this->assertSame('#0099ff', $calendar->meta['theme_color']);
+    }
+
+    public function test_a_calendar_description_comes_back_without_scripts()
+    {
+        $created = $this->rest('POST', 'calendars', [
+            'title'       => 'Book Club',
+            'slug'        => 'book-club',
+            'status'      => 'public',
+            'description' => '<p>Monthly</p><script>alert(1)</script>',
+        ]);
+
+        $this->assertSame(200, $created['status'], wp_json_encode($created['data']));
+
+        $description = $this->rest('GET', "calendars/{$created['data']['calendar']['id']}")['data']['calendar']['description'];
+
+        $this->assertStringContainsString('<p>Monthly</p>', $description);
+        $this->assertStringNotContainsString('<script', $description);
+    }
+
     public function test_a_calendar_slug_already_in_use_is_rejected()
     {
         $taken = $this->createCalendar();

@@ -115,9 +115,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Email:** a confirmation when a member becomes *going* and a cancellation when they move from
   *going* to *not going* (each toggled in Email Notifications, default on), plus the event
   reminders. "New event" notifications are fcom's own new-post notifications.
-- **FluentEvent admin:** no "Add New Event" menu, no create-event or create-calendar buttons,
-  no `/events/new` or `/calendars/new` routes. Editing and deleting stay. The create forms
-  (`CreateOrUpdateEvent`, `CreateOrUpdateCalendar`) and REST create endpoints stay in the code.
+- **FluentEvent admin:** no "Add New Event" menu, no create-event buttons, no `/events/new`
+  route. Calendars can be created here too, with no space linked. Editing and deleting stay.
+  The create-event form (`CreateOrUpdateEvent`) and its controller action stay in the code.
 
 ## Tests
 

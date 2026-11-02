@@ -38,7 +38,7 @@ $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($rou
     $router->get('/options', [CalendarController::class, 'getCalendarOptions']);
     $router->get('/{id}', [CalendarController::class, 'getCalendar'])->int('id');
 
-    // $router->post('/', [CalendarController::class, 'createCalendar']);
+    $router->post('/', [CalendarController::class, 'createCalendar']);
     $router->patch('/{id}', [CalendarController::class, 'updateCalendar'])->int('id');
     $router->delete('/{id}', [CalendarController::class, 'deleteCalendar'])->int('id');
 });

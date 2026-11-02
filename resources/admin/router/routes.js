@@ -16,16 +16,16 @@ export default [
             match_type: 'any',
         },
     },
-    // {
-    //     path: '/calendars/new',
-    //     name: 'calendar_create',
-    //     component: () => import('@/modules/calendars/CreateOrUpdateCalendar.vue'),
-    //     meta: {
-    //         active_menu: 'calendars',
-    //         middleware: 'permission',
-    //         permissions: ['write_calendars'],
-    //     },
-    // },
+    {
+        path: '/calendars/new',
+        name: 'calendar_create',
+        component: () => import('@/modules/calendars/CreateOrUpdateCalendar.vue'),
+        meta: {
+            active_menu: 'calendars',
+            middleware: 'permission',
+            permissions: ['write_calendars'],
+        },
+    },
     {
         path: '/calendars/:id(\\d+)/edit',
         name: 'calendar_edit',
