@@ -82,13 +82,13 @@
                                         :label="$t('Filter events by period')"
                                     />
 
-                                    <!-- <el-button
+                                    <el-button
                                         v-if="$userCan('write_events')"
                                         type="primary"
                                         @click="goToEventCreate"
                                     >
                                         {{ $t('Add Event') }}
-                                    </el-button> -->
+                                    </el-button>
                                 </div>
                             </div>
 
@@ -230,12 +230,12 @@
                     params: { id: this.$route.params.id },
                 });
             },
-            // goToEventCreate() {
-            //     this.$router.push({
-            //         name: 'event_create',
-            //         query: { calendar_id: this.calendarId },
-            //     });
-            // },
+            goToEventCreate() {
+                this.$router.push({
+                    name: 'event_create',
+                    query: { calendar_id: this.calendarId },
+                });
+            },
             goToList() {
                 this.$router.push({ name: 'calendars' });
             },

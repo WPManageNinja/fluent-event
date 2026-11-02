@@ -58,16 +58,16 @@ export default [
             match_type: 'any',
         },
     },
-    // {
-    //     path: '/events/new',
-    //     name: 'event_create',
-    //     component: () => import('@/modules/events/CreateOrUpdateEvent.vue'),
-    //     meta: {
-    //         active_menu: 'events',
-    //         middleware: 'permission',
-    //         permissions: ['write_events'],
-    //     },
-    // },
+    {
+        path: '/events/new',
+        name: 'event_create',
+        component: () => import('@/modules/events/CreateOrUpdateEvent.vue'),
+        meta: {
+            active_menu: 'events',
+            middleware: 'permission',
+            permissions: ['write_events'],
+        },
+    },
     {
         path: '/events/:id(\\d+)/edit',
         name: 'event_edit',

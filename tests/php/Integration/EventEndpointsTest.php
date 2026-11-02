@@ -20,6 +20,19 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->actAs($this->createAdmin());
     }
 
+    public function test_creating_an_event_writes_its_post_and_details_together()
+    {
+        $payload = $this->eventPayload($this->createEvent(), ['title' => 'Launch', 'status' => 'private']);
+
+        $response = $this->rest('POST', 'events', $payload);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $event = Event::query()->find($response['data']['event']['id']);
+        $this->assertSame('Launch', get_post($event->post_id)->post_title);
+        $this->assertSame('private', $event->status);
+    }
+
     public function test_updating_an_event_keeps_its_post_in_step()
     {
         $event = $this->createEvent();

@@ -99,12 +99,15 @@ describe('admin routes', () => {
         expect(router.resolve('/calendars/new').meta.permissions).toEqual(['write_calendars']);
     });
 
+    it('closes the create event page to read-only members', () => {
+        expect(router.resolve('/events/new').meta.permissions).toEqual(['write_events']);
+    });
+
     it('keeps the Team tab behind manage_all_data alone', () => {
         expect(router.resolve('/settings/team').meta.permissions).toEqual(['manage_all_data']);
     });
 
     it('sends an unknown path to the not-found page', () => {
         expect(router.resolve('/no-such-page').name).toBe('notfound');
-        expect(router.resolve('/events/new').name).toBe('notfound');
     });
 });
