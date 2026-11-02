@@ -46,7 +46,7 @@ class CommunityEventController extends Controller
                     ->where('fcom_xprofile.status', 'active')
                     ->whereIn('fcom_posts.space_id', $spaceIds);
             })
-            ->byStatus(['public', 'private'])
+            ->byStatus(Event::LIVE_STATUSES)
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->inDateRange($from, $to)
             ->byPeriod($request->getSafe('scope', 'sanitize_text_field', 'upcoming'));

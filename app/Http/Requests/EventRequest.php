@@ -95,7 +95,7 @@ class EventRequest extends BaseRequest
             'title.max'                   => __('Event title cannot exceed 255 characters.', 'fluent-event'),
             'description.string'          => __('Event Description must be text.', 'fluent-event'),
             'status.required'             => __('Status is required.', 'fluent-event'),
-            'status.in'                   => __('Status must be public, private or draft.', 'fluent-event'),
+            'status.in'                   => __('Status must be public, unlisted, private or draft.', 'fluent-event'),
             'start_at.required'           => __('Start date and time are required.', 'fluent-event'),
             'start_at.date'               => __('Start must be a valid date and time.', 'fluent-event'),
             'end_at.required'             => __('End date and time are required.', 'fluent-event'),

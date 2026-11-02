@@ -57,13 +57,7 @@ const slugify = function (text) {
         .replace(/^-+|-+$/g, '');
 };
 
-const eventStatuses = [
-    { value: 'public', type: 'success' },
-    { value: 'private', type: 'primary' },
-    { value: 'draft', type: 'info' },
-];
-
-const calendarStatuses = [
+const statusTypes = [
     { value: 'public', type: 'success' },
     { value: 'unlisted', type: 'warning' },
     { value: 'private', type: 'primary' },
@@ -105,14 +99,10 @@ export default {
         $convertToText: convertToText,
         $titleCase: titleCase,
         $eventStatusType(status) {
-            return eventStatuses.find(item => item.value === status)?.type || 'info';
+            return statusTypes.find(item => item.value === status)?.type || 'info';
         },
         $eventStatuses() {
-            return [
-                { value: 'public', label: this.$t('Public') },
-                { value: 'private', label: this.$t('Private') },
-                { value: 'draft', label: this.$t('Draft') },
-            ];
+            return this.$calendarStatuses();
         },
         $eventStatusLabel(status) {
             return this.$eventStatuses().find(item => item.value === status)?.label || status;
@@ -135,7 +125,7 @@ export default {
             return this.$entryTypes().find(item => item.value === type)?.label || type;
         },
         $calendarStatusType(status) {
-            return calendarStatuses.find(item => item.value === status)?.type || 'info';
+            return statusTypes.find(item => item.value === status)?.type || 'info';
         },
         $calendarStatuses() {
             return [
