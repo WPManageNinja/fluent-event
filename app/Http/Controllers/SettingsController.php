@@ -28,6 +28,13 @@ class SettingsController extends Controller
         $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());
 
         $previousSlug = Settings::portalSlug();
+
+        if ($data['portal_slug'] !== $previousSlug && !current_user_can('manage_options')) {
+            return $this->sendError([
+                'message' => __('Only a site administrator can change the portal slug.', 'fluent-event'),
+            ], 403);
+        }
+
         $settings = Settings::update(Settings::GENERAL, $data);
 
         // `init` already registered the old slug, so flushing here would keep it. WordPress rebuilds on the next request.

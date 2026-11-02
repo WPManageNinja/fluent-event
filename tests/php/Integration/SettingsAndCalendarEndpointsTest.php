@@ -58,6 +58,19 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame($rules, get_option('rewrite_rules'));
     }
 
+    public function test_only_a_site_administrator_can_change_the_portal_slug()
+    {
+        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
+        $this->actAs($this->createUser('editor', ['write_settings']));
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'our-events'];
+
+        $this->assertSame(403, $this->rest('POST', 'settings/general', $settings)['status']);
+        $this->assertSame('calendars', Settings::portalSlug());
+
+        // The rest of the form still saves for them.
+        $this->assertSame(200, $this->rest('POST', 'settings/general', ['portal_slug' => 'calendars'] + $settings)['status']);
+    }
+
     public function test_a_portal_slug_with_no_ascii_characters_is_rejected()
     {
         foreach (['!!!', 'ক্যালেন্ডার'] as $slug) {
