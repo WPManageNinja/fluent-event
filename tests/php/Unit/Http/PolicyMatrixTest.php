@@ -61,6 +61,8 @@ class PolicyMatrixTest extends TestCase
     {
         return [
             'events: read key may list'              => [EventPolicy::class, 'verifyRequest', ['read_events'], true],
+            'events: read key may not create'        => [EventPolicy::class, 'createEvent', ['read_events'], false],
+            'events: write key may create'           => [EventPolicy::class, 'createEvent', ['write_events'], true],
             'events: read key may not update'        => [EventPolicy::class, 'updateEvent', ['read_events'], false],
             'events: read key may not delete'        => [EventPolicy::class, 'deleteEvent', ['read_events'], false],
             'events: write key may update'           => [EventPolicy::class, 'updateEvent', ['write_events'], true],

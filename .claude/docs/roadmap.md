@@ -109,9 +109,8 @@ URLs, matching FluentBooking: query params by default
 (`/?fluent-event=event&calendar={slug}&event={slug}`), pretty URLs when a slug constant is
 defined (`/{slug}/{calendar}/{event}`).
 
-Needs first — standalone creation (D-7): restore the admin "create event" routes and add a
-calendar management screen, so events can exist without FluentCommunity. Events from a
-public FluentCommunity space get a landing page too.
+Standalone creation (D-7) is already in: the admin creates calendars and events, so events can
+exist without FluentCommunity. Events from a public FluentCommunity space get a landing page too.
 
 ---
 

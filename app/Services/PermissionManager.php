@@ -94,7 +94,7 @@ class PermissionManager
             'dashboard' => static::hasAnyPermission(),
             'calendars' => static::userCan(['read_calendars', 'write_calendars']),
             'events'    => static::userCan(['read_events', 'write_events']),
-            // 'add_event' => static::userCan('write_events'),
+            'add_event' => static::userCan('write_events'),
             'settings'  => static::userCan(['read_settings', 'write_settings']),
         ];
 
