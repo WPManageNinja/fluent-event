@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import dayjs from 'dayjs';
 import { DAY_MS, toUtcDay, toDayKey, daySpan, icsStamp, buildIcs, downloadIcs } from '@/utils/date';
 
 const encoder = new TextEncoder();
@@ -40,6 +41,13 @@ describe('day arithmetic', () => {
 
     it('spans a leap day correctly', () => {
         expect(daySpan('2028-02-28', '2028-03-01')).toBe(3);
+    });
+});
+
+describe('site date format tokens', () => {
+    // The portal's date picker formats with our dayjs, which only this file extends with isoWeek there.
+    it('formats ISO week numbers', () => {
+        expect(dayjs('2026-10-15').format('GGGG-[W]W')).toBe('2026-W42');
     });
 });
 

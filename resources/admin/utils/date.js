@@ -1,7 +1,12 @@
 import dayjs from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import isoWeek from 'dayjs/plugin/isoWeek';
 
 dayjs.extend(updateLocale);
+dayjs.extend(advancedFormat);
+// advancedFormat's week tokens ("W", "GGGG") call isoWeek() and throw without it.
+dayjs.extend(isoWeek);
 
 /** One day in milliseconds. */
 export const DAY_MS = 86400000;

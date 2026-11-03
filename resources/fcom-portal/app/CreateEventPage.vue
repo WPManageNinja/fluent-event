@@ -136,7 +136,7 @@
                                 v-model="event[bound.dateKey]"
                                 class="fe-create-event__date"
                                 type="date"
-                                format="MMM D, YYYY"
+                                :format="dateFormat"
                                 value-format="YYYY-MM-DD"
                                 :clearable="false"
                                 :aria-label="bound.dateLabel"
@@ -280,7 +280,7 @@ import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import WpEditor from '@/components/WpEditor.vue';
-import { communityApi, errorMessage, eventsApi, timeFormat, timezoneOffset } from '../utils';
+import { communityApi, dateFormat, errorMessage, eventsApi, timeFormat, timezoneOffset } from '../utils';
 
 // Module scope, not data(): leaving the page and coming back reuses the first load instead of re-running WordPress's scripts.
 let wpEditorLoad = null;
@@ -300,6 +300,7 @@ export default {
         const zones = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [];
 
         return {
+            dateFormat: dateFormat(),
             timeFormat: timeFormat(),
             // Built timezone options once per visit
             timezones: Object.freeze((zones.includes(timezone) ? zones : [timezone, ...zones]).map((zone) => ({

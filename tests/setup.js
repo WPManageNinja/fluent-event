@@ -69,6 +69,7 @@ export const fcomVars = () => ({
         url: 'https://example.test/wp-json/fluent-community/v2',
         nonce: 'test-fcom-nonce'
     },
+    date_formatter: 'MMMM D, YYYY',
     time_formatter: 'h:mm A',
     auth_url: 'https://example.test/portal/?fcom_action=auth',
     portal_url: 'https://example.test/portal/'

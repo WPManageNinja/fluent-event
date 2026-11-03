@@ -94,10 +94,15 @@ export function timeFormat() {
     return (window.fluentComAdmin && window.fluentComAdmin.time_formatter) || 'h:mm A';
 }
 
+// fcom's date format: the site's WordPress setting as a dayjs pattern.
+export function dateFormat() {
+    return (window.fluentComAdmin && window.fluentComAdmin.date_formatter) || 'MMM D, YYYY';
+}
+
 export function eventStart(event) {
     const start = dayjs(event.start_at_site);
 
-    return `${start.format('ddd, MMM D, YYYY')} · ${start.format(timeFormat())}`;
+    return `${start.format(dateFormat())} · ${start.format(timeFormat())}`;
 }
 
 export function eventMonth(event) {

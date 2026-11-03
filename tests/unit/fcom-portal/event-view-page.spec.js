@@ -108,12 +108,12 @@ describe('EventViewPage', () => {
             }));
 
             const heading = wrapper.find('.fe-event-view__meta').text();
-            expect(heading).toContain('Tuesday, October 20, 2026');
+            expect(heading).toContain('October 20, 2026');
             expect(heading).toContain('3:00 AM – 4:00 AM (Asia/Dhaka)');
             expect(heading).not.toContain('10:00 PM');
 
             expect(vm.day).toBe('19');
-            expect(vm.dateLabel).toBe('Monday, October 19, 2026');
+            expect(vm.dateLabel).toBe('October 19, 2026');
             expect(vm.localTimeLabel).toBe('Oct 20, 3:00 AM – 4:00 AM (Asia/Dhaka)');
         });
 
