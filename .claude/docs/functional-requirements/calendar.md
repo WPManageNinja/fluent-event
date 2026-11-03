@@ -29,7 +29,7 @@
 | `id`             | BIGINT PK   |                                                  |
 | `title`          | VARCHAR     | calendar name                                    |
 | `slug`           | VARCHAR     | unique; the shareable URL                        |
-| `description`    | TEXT NULL   |                                                  |
+| `description`    | TEXT NULL   | plain text, up to 160 characters, line breaks kept |
 | `status`         | VARCHAR     | `public` \| `private` \| `draft`; default `public` |
 | `meta`           | JSON NULL   | open-ended. v1 stores `theme_color`. Planned: `logo_url`, `cover_url`, who-can-manage (caps), notification prefs |
 | `created_by`     | BIGINT      | host/manager user id                             |

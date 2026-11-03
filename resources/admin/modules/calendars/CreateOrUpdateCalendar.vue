@@ -42,7 +42,7 @@
                                     />
                                 </el-form-item>
 
-                                <el-form-item :label="$t('Slug')">
+                                <el-form-item :label="$t('Slug')" required>
                                     <el-input
                                         ref="slug"
                                         v-model="calendar.slug"
@@ -104,16 +104,17 @@
                                     {{ $t('Description') }}
                                 </h2>
                                 <p class="fe-form__section-desc">
-                                    {{ $t('Optional. Shown on the calendar page, above its events.') }}
+                                    {{ $t('Optional. A short calendar description.') }}
                                 </p>
                             </div>
 
                             <div class="fe-form__section-fields">
-                                <WpEditor
+                                <el-input
                                     v-model="calendar.description"
-                                    :height="280"
-                                    media-buttons
-                                    quick-tags
+                                    type="textarea"
+                                    :rows="3"
+                                    :maxlength="160"
+                                    show-word-limit
                                     aria-labelledby="fe-calendar-description-label"
                                 />
                             </div>
@@ -168,14 +169,12 @@
 
 <script type="text/javascript">
     import en from 'element-plus/dist/locale/en.mjs';
-    import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     export default {
         name: 'CreateOrUpdateCalendar',
         components: {
-            WpEditor,
             ErrorState,
             Skeleton,
         },

@@ -137,21 +137,32 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('#0099ff', $calendar->meta['theme_color']);
     }
 
-    public function test_a_calendar_description_comes_back_without_scripts()
+    public function test_a_calendar_description_is_saved_as_plain_text_with_its_line_breaks()
     {
         $created = $this->rest('POST', 'calendars', [
             'title'       => 'Book Club',
             'slug'        => 'book-club',
             'status'      => 'public',
-            'description' => '<p>Monthly</p><script>alert(1)</script>',
+            'description' => "<p>Monthly <b>meetups</b></p><script>alert(1)</script>\nBring a book.",
         ]);
 
         $this->assertSame(200, $created['status'], wp_json_encode($created['data']));
 
         $description = $this->rest('GET', "calendars/{$created['data']['calendar']['id']}")['data']['calendar']['description'];
 
-        $this->assertStringContainsString('<p>Monthly</p>', $description);
-        $this->assertStringNotContainsString('<script', $description);
+        $this->assertSame("Monthly meetups\nBring a book.", $description);
+    }
+
+    public function test_a_calendar_description_over_160_characters_is_rejected()
+    {
+        $response = $this->rest('POST', 'calendars', [
+            'title'       => 'Long Club',
+            'slug'        => 'long-club',
+            'status'      => 'public',
+            'description' => str_repeat('a', 161),
+        ]);
+
+        $this->assertSame(422, $response['status']);
     }
 
     public function test_the_status_filter_narrows_the_list_but_not_the_tab_counts()

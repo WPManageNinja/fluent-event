@@ -197,6 +197,7 @@ html.dark {
         overflow: hidden;
         color: var(--fe-secondary-text, #525866);
         font-size: var(--fe-text-sm, 14px);
+        white-space: pre-line;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
     }
