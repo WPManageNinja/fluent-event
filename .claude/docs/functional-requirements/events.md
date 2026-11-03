@@ -17,7 +17,7 @@
 - **Mode** via `event_details.venue_type` (online / offline / hybrid); **policy** via `event_details.settings.join_policy` (open / approval / invite_only).
 - **Entry mode** via `event_details.meta.entry_type` (built: `rsvp`, `open`, `none`; `ticketed` is future):
   - **`rsvp`** — logged-in "I'm coming". Guest rows with **`ticket_type_id` = NULL**; going / not going via `status` (`going` / `not_going`).
-  - **`open`** — guest entry. Visitors register with a name and email, no login; the meeting link is for registered guests and staff. The guest form is not built yet.
+  - **`open`** — a Register button. It opens a name + email popover: prefilled for members (email locked to the account), blank for visitors, no login needed. A static Registered badge follows, with no undo; the meeting link is for registered guests and staff.
   - **`none`** — view-only. Nobody registers; anyone who can see the event sees all of it, the online meeting link included. Admins can still add guests.
   - **No seat limit** — RSVP takes anyone. `meta.show_guest_count` (`yes` / `no`, `rsvp` and `open`) shows viewers how many are `going` + `checked_in`.
   - **`ticketed`** (future) — buy tickets. Guest rows **require** `ticket_type_id`, payment on the `is_buyer=1` row; the service layer enforces it.

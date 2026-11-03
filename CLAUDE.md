@@ -29,7 +29,7 @@ Three things people get wrong:
   holds whatever per-record config accrues, and is documented by the model's `defaultMeta()`.
 
 Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going),
-`open` (guests register with name and email, no login; the guest form is not built yet) or
+`open` (a Register button opening a name + email popover — prefilled for members, email locked; a static Registered badge after, no undo) or
 `none` (view-only: nobody registers, every viewer sees the whole event, meeting link included;
 admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp` and `open`. RSVP has no seat limit. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.

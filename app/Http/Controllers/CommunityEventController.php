@@ -4,6 +4,7 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentEvent\App\Http\Requests\EventRequest;
+use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
@@ -91,7 +92,7 @@ class CommunityEventController extends Controller
         return array_merge(['events' => $items], $pages);
     }
 
-    // RSVP only: an open event is view-only and takes no registration.
+    // Members answer an RSVP either way; an open event only registers them (from its form), with no undo.
     public function register(Request $request, $id)
     {
         [$event, $feed] = CommunityEvents::visibleEvent($id);
@@ -100,7 +101,9 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
         }
 
-        if (Arr::get((array) $event->meta, 'entry_type') !== 'rsvp') {
+        $entryType = Arr::get((array) $event->meta, 'entry_type');
+
+        if (!in_array($entryType, ['rsvp', 'open'], true)) {
             return $this->sendError(['message' => __('This event does not take registrations.', 'fluent-event')], 422);
         }
 
@@ -110,11 +113,15 @@ class CommunityEventController extends Controller
 
         $status = $request->getSafe('status', 'sanitize_text_field');
 
-        if (!in_array($status, ['going', 'not_going'], true)) {
+        if (!in_array($status, $entryType === 'open' ? ['going'] : ['going', 'not_going'], true)) {
             return $this->sendError(['message' => __('Please choose going or not going.', 'fluent-event')], 422);
         }
 
         $user = wp_get_current_user();
+
+        // An open event's form lets the member change their name; their email is the account's.
+        $name = $entryType === 'open' ? $request->getSafe('name', 'sanitize_text_field') : '';
+        $this->validate(['name' => $name], ['name' => 'nullable|string|max:255'], GuestRequest::messages());
 
         // The member's own row first, else one an admin added under their email.
         $guest = Guest::query()->where('event_id', $event->id)->where('user_id', $user->ID)->first()
@@ -132,7 +139,7 @@ class CommunityEventController extends Controller
                 'calendar_id' => $event->calendar_id,
                 'group_id'    => wp_generate_password(32, false, false),
                 'is_buyer'    => 1,
-                'name'        => $user->display_name,
+                'name'        => $name ?: $user->display_name,
                 'email'       => $user->user_email,
                 'user_id'     => $user->ID,
                 'status'      => $status,
@@ -168,6 +175,68 @@ class CommunityEventController extends Controller
                 : __('You are registered.', 'fluent-event'),
             'status'  => $guest->status,
             'event'   => CommunityEvents::formatEvents([$event])[(int) $event->id],
+        ];
+    }
+
+    // A logged-out visitor registers for an open event by name and email; members use register().
+    public function registerGuest(Request $request, $id)
+    {
+        [$event, $feed] = CommunityEvents::visibleEvent($id);
+
+        if (!$event) {
+            return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
+        }
+
+        if (!wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fe_guest_register_' . $event->id)) {
+            return $this->sendError(['message' => __('This form has expired. Please reload the page and try again.', 'fluent-event')], 403);
+        }
+
+        if (Arr::get((array) $event->meta, 'entry_type') !== 'open') {
+            return $this->sendError(['message' => __('This event does not take registrations.', 'fluent-event')], 422);
+        }
+
+        if ($event->end_at < gmdate(DateTimeHelper::FORMAT)) {
+            return $this->sendError(['message' => __('This event has already ended.', 'fluent-event')], 422);
+        }
+
+        // Bots fill the hidden field; they are told nothing and nothing is saved.
+        if ($request->getSafe('website', 'sanitize_text_field')) {
+            return ['message' => __('You are registered.', 'fluent-event')];
+        }
+
+        $data = GuestRequest::sanitize(Arr::only($request->all(), ['name', 'email']));
+        $this->validate(
+            $data,
+            Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
+            GuestRequest::messages()
+        );
+
+        $guest = Guest::create([
+            'event_id'    => $event->id,
+            'calendar_id' => $event->calendar_id,
+            'group_id'    => wp_generate_password(32, false, false),
+            'is_buyer'    => 1,
+            'name'        => $data['name'],
+            'email'       => $data['email'],
+            'status'      => 'going',
+            'source'      => 'community',
+            'source_id'   => (int) $feed->id,
+        ]);
+
+        do_action('fluent_event/guest/created', $guest);
+
+        $emails = Settings::get(Settings::EMAIL_NOTIFICATIONS);
+
+        if (!empty($emails['registration_confirmation']['enabled'])) {
+            as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
+        }
+
+        $seats = CommunityEvents::seatCounts([$event->id]);
+
+        return [
+            'message' => __('You are registered.', 'fluent-event'),
+            'status'  => $guest->status,
+            'event'   => CommunityEvents::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false),
         ];
     }
 

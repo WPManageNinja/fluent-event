@@ -197,7 +197,7 @@ class CommunityEvents
     public static function formatEvent($event, $seats, $myStatus, $isStaff, $canEdit)
     {
         $meta = array_merge(Event::defaultMeta(), (array) $event->meta);
-        $isRsvp = $meta['entry_type'] === 'rsvp';
+        $takesRegistrations = in_array($meta['entry_type'], ['rsvp', 'open'], true);
         $isRegistered = in_array($myStatus, Event::SEAT_STATUSES, true);
         $isPast = $event->end_at < gmdate(DateTimeHelper::FORMAT);
         $hasMeetingUrl = $event->venue_type === 'online' && !empty($meta['online_meeting_url']);
@@ -221,10 +221,12 @@ class CommunityEvents
             // Only a no-entry event shows its link to every viewer; otherwise it is for guests and staff.
             'online_meeting_url' => $hasMeetingUrl && ($meta['entry_type'] === 'none' || $isRegistered || $isStaff) ? $meta['online_meeting_url'] : '',
             'entry_type'         => $meta['entry_type'],
-            'guest_count'        => in_array($meta['entry_type'], ['rsvp', 'open'], true) && $meta['show_guest_count'] === 'yes' ? $seats : null,
+            'guest_count'        => $takesRegistrations && $meta['show_guest_count'] === 'yes' ? $seats : null,
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
-            'registration_open'  => $isRsvp && !$isPast,
+            'registration_open'  => $takesRegistrations && !$isPast,
+            // Bound to the event: a visitor's open registration sends it back.
+            'register_nonce'     => $meta['entry_type'] === 'open' && !$isPast ? wp_create_nonce('fe_guest_register_' . $event->id) : '',
             'edit_url'           => $canEdit ? self::editUrl($event->id) : '',
         ];
     }

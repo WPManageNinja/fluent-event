@@ -121,6 +121,7 @@ class CommunityEventFormatTest extends TestCase
         $this->assertTrue($formatted['is_past']);
         $this->assertFalse($formatted['registration_open']);
         $this->assertTrue($this->format($this->event())['registration_open']);
+        $this->assertTrue($this->format($this->event([], ['entry_type' => 'open']))['registration_open']);
     }
 
     public function test_only_an_editor_gets_the_edit_link()

@@ -109,8 +109,8 @@ describe('EventCard', () => {
         expect(wrapper.find('.fe-event-card__count').text()).toBe('8 going');
     });
 
-    it('offers no actions on an open event or a nested card', () => {
-        expect(card({ fluent_event: meetup({ entry_type: 'open' }) }).find('.fe-event-card__actions').exists()).toBe(false);
+    it('offers no actions on a no-entry event or a nested card', () => {
+        expect(card({ fluent_event: meetup({ entry_type: 'none' }) }).find('.fe-event-card__actions').exists()).toBe(false);
         expect(card(undefined, { is_child: true }).find('.fe-event-card__actions').exists()).toBe(false);
     });
 

@@ -264,11 +264,82 @@
     &__badge {
         display: inline-flex;
         align-items: center;
+        gap: 6px;
         padding: 4px 10px;
         border-radius: 999px;
         font-size: 13px;
         background: var(--fcom-active-bg, #f0f3f5);
         color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__badge-icon {
+        display: inline-flex;
+        color: var(--el-color-success, #67c23a);
+    }
+}
+
+// A visitor's open registration: the popover wears fcom's classes, this places it and lays out the form.
+.fe-guest-register {
+    position: relative;
+
+    // Three classes: Element Plus's `.el-popover.el-popper` min-width loads after this sheet.
+    &__pop.el-popover.el-popper {
+        top: calc(100% + 4px);
+        right: 0;
+        display: grid;
+        gap: 6px;
+        box-sizing: border-box;
+        width: 260px;
+
+        .el-button {
+            width: 100%;
+            margin-top: 6px;
+        }
+    }
+
+    &__label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__input {
+        box-sizing: border-box;
+        width: 100%;
+        height: 34px;
+        padding: 0 10px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 6px;
+        background: var(--fcom-primary-bg, #ffffff);
+        font: inherit;
+        font-size: 14px;
+        color: var(--fcom-primary-text, #19283a);
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 1px;
+        }
+
+        // A member's email is the account's; it shows but can't change.
+        &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    }
+
+    // The honeypot: off-screen for people, still filled in by bots.
+    &__trap {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+    }
+
+    &__error {
+        margin: 0;
+        font-size: 13px;
+        color: var(--el-color-danger, #f56c6c);
     }
 }
 
@@ -2071,6 +2142,12 @@ body {
         .fe-event-actions {
             flex: 1;
             min-width: 0;
+            justify-content: flex-start;
+        }
+
+        .fe-guest-register__pop.el-popover.el-popper {
+            right: auto;
+            left: 0;
         }
     }
 

@@ -88,6 +88,25 @@ class CommunityEndpointsTest extends IntegrationTestCase
         return Guest::query()->where('event_id', $event->id)->get();
     }
 
+    private function registerGuest(Event $event, array $params = [])
+    {
+        return $this->rest('POST', "community/events/{$event->id}/register-guest", array_merge([
+            'name'  => 'Walk-in Visitor',
+            'email' => 'visitor@example.test',
+            'nonce' => wp_create_nonce('fe_guest_register_' . $event->id),
+        ], $params));
+    }
+
+    private function asVisitorOnAPublicPortal()
+    {
+        $this->addTestFilter('pre_option_fluent_community_settings', function () {
+            return ['access' => ['acess_level' => 'public', 'access_roles' => []]];
+        });
+
+        FcomHelper::generalSettings(false);
+        $this->actAs(0);
+    }
+
     public function test_a_member_saying_going_becomes_one_guest_row()
     {
         [$event, $feed] = $this->communityEvent();
@@ -156,15 +175,95 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $this->rsvp($event, 'going')['status']);
     }
 
-    // Open takes guests through its own form, not the member RSVP.
-    public function test_only_an_rsvp_event_takes_member_registrations()
+    public function test_a_member_registers_for_an_open_event_and_gets_the_email()
     {
-        foreach (['open', 'none'] as $type) {
-            [$event] = $this->communityEvent([], ['entry_type' => $type]);
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
 
-            $this->assertSame(422, $this->rsvp($event, 'going')['status'], $type);
-            $this->assertCount(0, $this->guestsOf($event), $type);
-        }
+        $response = $this->rest('POST', "community/events/{$event->id}/register", ['status' => 'going', 'name' => 'Edited Name', 'email' => 'ignored@example.test']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $guests = $this->guestsOf($event);
+        $this->assertCount(1, $guests);
+        $this->assertSame('going', $guests[0]->status);
+        $this->assertSame('Edited Name', $guests[0]->name);
+        $this->assertSame(get_userdata($this->member)->user_email, $guests[0]->email, 'A member registers with the account email');
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guests[0]->id]));
+    }
+
+    // Open has no undo in the portal; only an admin removes its guests.
+    public function test_an_open_event_takes_no_not_going()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->rsvp($event, 'going');
+
+        $this->assertSame(422, $this->rsvp($event, 'not_going')['status']);
+        $this->assertSame('going', $this->guestsOf($event)[0]->status);
+    }
+
+    public function test_a_visitor_registers_for_an_open_event_by_name_and_email()
+    {
+        [$event] = $this->communityEvent(['venue_type' => 'online'], ['entry_type' => 'open', 'online_meeting_url' => 'https://meet.example.test/open']);
+        $this->asVisitorOnAPublicPortal();
+
+        $response = $this->registerGuest($event);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $guests = $this->guestsOf($event);
+        $this->assertCount(1, $guests);
+        $this->assertSame('visitor@example.test', $guests[0]->email);
+        $this->assertEmpty($guests[0]->user_id);
+        $this->assertSame('going', $guests[0]->status);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guests[0]->id]));
+        $this->assertSame('https://meet.example.test/open', $response['data']['event']['online_meeting_url'], 'The visitor just registered, so the link is theirs');
+    }
+
+    public function test_a_visitor_needs_the_events_own_nonce()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        [$other] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->asVisitorOnAPublicPortal();
+
+        $this->assertSame(403, $this->registerGuest($event, ['nonce' => wp_create_nonce('fe_guest_register_' . $other->id)])['status']);
+        $this->assertCount(0, $this->guestsOf($event));
+    }
+
+    public function test_a_bot_filling_the_hidden_field_saves_nothing()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->asVisitorOnAPublicPortal();
+
+        $this->assertSame(200, $this->registerGuest($event, ['website' => 'https://spam.example.test'])['status']);
+        $this->assertCount(0, $this->guestsOf($event));
+    }
+
+    public function test_a_visitor_cannot_register_one_email_twice()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->asVisitorOnAPublicPortal();
+        $this->registerGuest($event);
+
+        $this->assertSame(422, $this->registerGuest($event, ['name' => 'Someone else'])['status']);
+        $this->assertCount(1, $this->guestsOf($event));
+    }
+
+    public function test_the_visitor_form_is_for_visitors_on_open_events_only()
+    {
+        [$open] = $this->communityEvent([], ['entry_type' => 'open']);
+        [$rsvp] = $this->communityEvent();
+
+        $this->assertSame(403, $this->registerGuest($open)['status'], 'A member registers in one click instead');
+
+        $this->asVisitorOnAPublicPortal();
+        $this->assertSame(422, $this->registerGuest($rsvp)['status']);
+        $this->assertCount(0, $this->guestsOf($rsvp));
+    }
+
+    public function test_a_no_entry_event_takes_no_registrations()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'none']);
+
+        $this->assertSame(422, $this->rsvp($event, 'going')['status']);
+        $this->assertCount(0, $this->guestsOf($event));
     }
 
     public function test_an_event_that_has_ended_takes_no_registrations()

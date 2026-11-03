@@ -18,12 +18,18 @@ class CommunityPolicy extends Policy
         return $this->portalAllows(get_current_user_id());
     }
 
-    // RSVP is for logged-in members only; their REST cookie nonce is already checked.
+    // Member registration (RSVP or open) is for logged-in members only; their REST cookie nonce is already checked.
     public function register(Request $request, ...$args)
     {
         $userId = get_current_user_id();
 
         return $userId > 0 && $this->portalAllows($userId);
+    }
+
+    // A logged-out visitor on a portal open to visitors; the handler checks the event's nonce.
+    public function registerGuest(Request $request, ...$args)
+    {
+        return !get_current_user_id() && $this->portalAllows(0);
     }
 
     // Only the create-event page asks for the editor, and only event creators reach it.

@@ -122,9 +122,9 @@ export function isSeated(event) {
     return ['going', 'checked_in'].includes(event.my_status);
 }
 
-// Only RSVP registers here; open has no guest form yet and none is view-only.
+// RSVP and open events take registrations here; none takes nobody.
 export function hasEventActions(event) {
-    return event.is_past || event.entry_type === 'rsvp';
+    return event.is_past || ['rsvp', 'open'].includes(event.entry_type);
 }
 
 export function guestCountLabel(event) {

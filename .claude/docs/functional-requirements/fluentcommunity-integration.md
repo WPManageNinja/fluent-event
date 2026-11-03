@@ -90,9 +90,10 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
   effect on the upcoming landing page.
 - **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit), `open`
-  (guests register with name and email, no login; the guest form is not built yet, so the portal
-  offers no registration) and `none` (view-only: members can't register; admins can still add
-  guests, who get the usual emails).
+  (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
+  from the account, name editable, email locked. After registering, a static **✓ Registered** badge replaces it, with no
+  undo; a visitor sees it only until they reload) and `none` (no registration UI for anyone;
+  admins can still add guests, who get the usual emails).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
   the `from`/`to` filter means site days. The event page shows the event's own clock with its
   offset, plus the site's clock when that reads differently.
@@ -106,7 +107,11 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   shows it to everyone who can see the post.
   An offline event never exposes one.
 - **Registration:**
-  - Logged-in members only; `rsvp` events only; refused once the event has ended.
+  - Members: logged in; `rsvp` and `open` events only (`open` accepts *going* only); refused
+    once the event has ended.
+  - Visitors (`open` only, `register-guest`): logged out, on a portal open to visitors. Guarded by
+    a nonce bound to the event, a 5-per-minute IP rate limit and a hidden honeypot field; the
+    email must be new to the event. The guest row has no `user_id`.
   - One guest row per member per event. A row an admin added under the member's email is
     claimed, not duplicated; an email already registered to another member is refused.
   - Saying *going* again keeps a checked-in guest checked in.

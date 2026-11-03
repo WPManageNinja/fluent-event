@@ -143,10 +143,13 @@ class PortalHandler
     {
         $userId = get_current_user_id();
         $settings = Settings::get();
+        $user = $userId ? wp_get_current_user() : null;
 
         $vars = [
             'rest_url'            => esc_url_raw(rest_url('fluent-event/v2')),
             'is_logged_in'        => (bool) $userId,
+            // Fills an open event's Register form for the member.
+            'user'                => $user ? ['name' => $user->display_name, 'email' => $user->user_email] : null,
             'can_create_events'   => $userId && PermissionManager::userCan('write_events', $userId),
             'default_view'        => $settings['default_events_view'],
             'disable_view_switch' => $settings['disable_event_view_switch'] === 'yes',
@@ -189,6 +192,7 @@ class PortalHandler
             'Day %d' => __('Day %d', 'fluent-event'),
             'Description' => __('Description', 'fluent-event'),
             'Edit event' => __('Edit event', 'fluent-event'),
+            'Email' => __('Email', 'fluent-event'),
             'End' => __('End', 'fluent-event'),
             'End date' => __('End date', 'fluent-event'),
             'End time' => __('End time', 'fluent-event'),
@@ -217,6 +221,7 @@ class PortalHandler
             'Meeting link' => __('Meeting link', 'fluent-event'),
             'Month' => __('Month', 'fluent-event'),
             'More actions' => __('More actions', 'fluent-event'),
+            'Name' => __('Name', 'fluent-event'),
             'Next' => __('Next', 'fluent-event'),
             'No events found' => __('No events found', 'fluent-event'),
             'No events yet' => __('No events yet', 'fluent-event'),
@@ -233,6 +238,8 @@ class PortalHandler
             'Please register for the event to see the meeting link.' => __('Please register for the event to see the meeting link.', 'fluent-event'),
             'Previous' => __('Previous', 'fluent-event'),
             'RSVP' => __('RSVP', 'fluent-event'),
+            'Register' => __('Register', 'fluent-event'),
+            'Registered' => __('Registered', 'fluent-event'),
             'Registration' => __('Registration', 'fluent-event'),
             'Remove cover image' => __('Remove cover image', 'fluent-event'),
             'Search events' => __('Search events', 'fluent-event'),

@@ -166,6 +166,13 @@ describe('EventViewPage', () => {
         });
     });
 
+    describe('open', () => {
+        it('offers a member the Register button, then marks them registered', async () => {
+            expect((await page(meetup({ entry_type: 'open' }))).wrapper.find('.fe-event-view__rsvp button').text()).toBe('Register');
+            expect((await page(meetup({ entry_type: 'open', my_status: 'going' }))).wrapper.find('.fe-event-actions__badge').text()).toBe('Registered');
+        });
+    });
+
     describe('getting there', () => {
         it('offers a join button only for an http(s) meeting link', async () => {
             const online = (url) => meetup({ venue_type: 'online', online_meeting_url: url });
