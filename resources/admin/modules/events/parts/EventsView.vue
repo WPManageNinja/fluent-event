@@ -9,6 +9,8 @@
                 @search="refetch"
             />
 
+            <slot name="toolbar" />
+
             <SegmentedSwitch
                 v-if="!viewLocked"
                 v-model="view"

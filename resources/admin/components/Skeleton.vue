@@ -104,57 +104,30 @@
         <template #template>
             <el-skeleton-item variant="text" class="fe-skeleton__breadcrumb" />
 
-            <div class="fe-skeleton__mast">
-                <el-skeleton-item variant="rect" class="fe-skeleton__cover" />
+            <!-- Mirrors the real header, stat strip and tabs so nothing shifts on load. -->
+            <div class="fe-calendar-detail__head">
                 <el-skeleton-item variant="rect" class="fe-skeleton__mark" />
 
-                <div class="fe-skeleton__identity">
+                <div class="fe-calendar-detail__identity">
                     <el-skeleton-item variant="h1" class="fe-skeleton__title" />
                     <el-skeleton-item variant="text" class="fe-skeleton__slug" />
                 </div>
+
+                <el-skeleton-item variant="rect" class="fe-skeleton__button" />
             </div>
+
+            <el-skeleton-item variant="rect" class="fe-skeleton__strip" />
 
             <div class="fe-skeleton__tabs">
                 <el-skeleton-item
-                    v-for="tab in 3"
+                    v-for="tab in 2"
                     :key="tab"
                     variant="rect"
                     class="fe-skeleton__tab"
                 />
             </div>
 
-            <!-- Mirrors the real two-column tab layout so nothing shifts on load. -->
-            <div class="fe-calendar-tab">
-                <div class="fe-calendar-tab__main">
-                    <div class="fe-skeleton__tiles">
-                        <el-skeleton-item
-                            v-for="tile in 4"
-                            :key="`stat-${tile}`"
-                            variant="rect"
-                            class="fe-skeleton__tile"
-                        />
-                    </div>
-
-                    <div class="fe-card">
-                        <el-skeleton-item
-                            v-for="line in 6"
-                            :key="line"
-                            variant="text"
-                            class="fe-skeleton__line"
-                        />
-                        <el-skeleton-item variant="text" class="fe-skeleton__line fe-skeleton__line--short" />
-                    </div>
-                </div>
-
-                <div class="fe-calendar-tab__aside">
-                    <el-skeleton-item
-                        v-for="panel in 2"
-                        :key="`panel-${panel}`"
-                        variant="rect"
-                        class="fe-skeleton__panel fe-skeleton__panel--short"
-                    />
-                </div>
-            </div>
+            <el-skeleton-item variant="rect" class="fe-skeleton__panel" />
         </template>
     </el-skeleton>
 
