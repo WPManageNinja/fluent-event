@@ -38,10 +38,28 @@ class LandingPageHandler
 
     public function renderPage()
     {
-        if (get_query_var(self::QUERY_VAR) !== 'calendars') {
-            return;
+        switch (get_query_var(self::QUERY_VAR)) {
+            case 'calendars':
+                $page = $this->calendarsPage();
+                break;
+            default:
+                return;
         }
 
+        status_header(200);
+
+        App::make('view')->render('portal.layout', $page + [
+            'site_name' => get_bloginfo('name'),
+            'site_icon' => get_site_icon_url(64),
+            'style_url' => Enqueue::url('portal/portal.scss'),
+        ]);
+
+        exit;
+    }
+
+    // A page returns its layout title, description, canonical url and rendered body.
+    protected function calendarsPage()
+    {
         $calendars = Calendar::query()
             ->byStatus('public')
             ->withCount(['events as upcoming_events_count' => function ($query) {
@@ -50,27 +68,18 @@ class LandingPageHandler
             ->orderBy('title', 'ASC')
             ->get();
 
-        $siteName = get_bloginfo('name');
         $description = __('Browse our calendars and their upcoming events.', 'fluent-event');
-        $view = App::make('view');
 
-        status_header(200);
-
-        $view->render('portal.layout', [
+        return [
             /* translators: %s: site name */
-            'title'       => sprintf(__('Calendars – %s', 'fluent-event'), $siteName),
+            'title'       => sprintf(__('Calendars – %s', 'fluent-event'), get_bloginfo('name')),
             'description' => $description,
             'url'         => home_url(user_trailingslashit(Settings::portalSlug())),
-            'site_name'   => $siteName,
-            'site_icon'   => get_site_icon_url(64),
-            'style_url'   => Enqueue::url('portal/portal.scss'),
             // make() returns the shared View, not HTML: left uncast, it renders the layout inside itself.
-            'body'        => (string) $view->make('portal.calendars', [
+            'body'        => (string) App::make('view')->make('portal.calendars', [
                 'calendars'   => $calendars,
                 'description' => $description,
             ]),
-        ]);
-
-        exit;
+        ];
     }
 }
