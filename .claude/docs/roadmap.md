@@ -96,7 +96,7 @@ community add-on into a standalone event tool, and makes events shareable anywhe
 | Feature | Seen in | Notes |
 |---|---|---|
 | Public event page: cover, date/time, venue or online, host, description, guest count, add to calendar, share | FluentBooking, Luma, Eventbrite | own full-page template, not the theme. `fe_event` CPT stays non-public |
-| Calendar page: upcoming + past events of one calendar, with its branding | FluentBooking host page, Luma calendars | schema ready: `calendars.meta` logo / cover / theme_color. |
+| Calendar page: upcoming + past events of one calendar, with its branding | FluentBooking host page, Luma calendars | built at `/{slug}/{calendar}/`: Luma-style header, search, All / Upcoming / Past, Cards / Timeline / Calendar views (default and lock from General Settings, last choice kept per browser), 10 per page. Public and unlisted calendars open; only public events list. Events don't link anywhere until the event page lands. Logo / cover uploads are still to come; the page uses `theme_color`. |
 | Register on the page without an account (name + email) | Luma, Eventbrite | schema ready: guest rows allow no `user_id`. Public endpoint needs nonce + rate limit + honeypot. Capacity, waitlist, deadline and approval from v1.1–v1.3 apply here too |
 | Confirmation page + "manage my RSVP" link (change / cancel) | FluentBooking, Luma | signed per-guest link in the confirmation email |
 | Visibility: public / unlisted (link only) / private | Luma | FR-6.5 — only takes effect here: `public` is listed, `unlisted` stays off the page but opens by direct link, `private` has no public page. The admin already sets status; fcom-created events and calendars start `private` |
