@@ -191,9 +191,9 @@ export default {
         hasActions() {
             return this.event.entry_type === 'rsvp' && this.phase !== 'ended';
         },
-        // Once someone is going, or for open events anyone can attend.
+        // Once someone is going, or for a no-entry event anyone can attend.
         canAddToCalendar() {
-            return this.phase !== 'ended' && (this.event.entry_type === 'open' || isSeated(this.event));
+            return this.phase !== 'ended' && (this.event.entry_type === 'none' || isSeated(this.event));
         },
         place() {
             if (this.isOnline) {

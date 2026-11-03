@@ -7,8 +7,8 @@ use FluentEvent\Tests\TestCase;
 
 /**
  * What the portal shows a member about an event. The meeting-link rule is the
- * one that leaks if it slips: an RSVP event's link is for its guests and staff,
- * an open event shows it to every viewer (CLAUDE.md, entry modes).
+ * one that leaks if it slips: only a `none` event shows it to every viewer;
+ * RSVP and open keep it for their guests and staff (CLAUDE.md, entry modes).
  */
 class CommunityEventFormatTest extends TestCase
 {
@@ -71,27 +71,38 @@ class CommunityEventFormatTest extends TestCase
         $this->assertSame('https://meet.example.com/launch', $this->format($this->event(), 0, null, true)['online_meeting_url']);
     }
 
-    public function test_an_open_event_shows_its_link_to_every_viewer()
+    public function test_a_no_entry_event_shows_its_link_to_every_viewer()
     {
-        $formatted = $this->format($this->event([], ['entry_type' => 'open']));
+        $formatted = $this->format($this->event([], ['entry_type' => 'none']));
 
         $this->assertSame('https://meet.example.com/launch', $formatted['online_meeting_url']);
-        $this->assertFalse($formatted['registration_open'], 'An open event takes no registrations');
+        $this->assertFalse($formatted['registration_open'], 'A no-entry event takes no registrations');
+    }
+
+    public function test_an_open_event_keeps_its_link_for_guests_and_staff()
+    {
+        $open = $this->event([], ['entry_type' => 'open']);
+
+        $this->assertSame('', $this->format($open)['online_meeting_url']);
+        $this->assertSame('https://meet.example.com/launch', $this->format($open, 1, 'going')['online_meeting_url']);
+        $this->assertSame('https://meet.example.com/launch', $this->format($open, 0, null, true)['online_meeting_url']);
     }
 
     public function test_an_offline_event_never_exposes_a_stale_meeting_link()
     {
-        $formatted = $this->format($this->event(['venue_type' => 'offline'], ['entry_type' => 'open']));
+        $formatted = $this->format($this->event(['venue_type' => 'offline'], ['entry_type' => 'none']));
 
         $this->assertFalse($formatted['has_meeting_url']);
         $this->assertSame('', $formatted['online_meeting_url']);
     }
 
-    public function test_the_guest_count_shows_only_for_rsvp_events_that_allow_it()
+    public function test_the_guest_count_shows_for_rsvp_and_open_events_that_allow_it()
     {
         $this->assertSame(5, $this->format($this->event(), 5)['guest_count']);
+        $this->assertSame(5, $this->format($this->event([], ['entry_type' => 'open']), 5)['guest_count']);
         $this->assertNull($this->format($this->event([], ['show_guest_count' => 'no']), 5)['guest_count']);
-        $this->assertNull($this->format($this->event([], ['entry_type' => 'open']), 5)['guest_count']);
+        $this->assertNull($this->format($this->event([], ['entry_type' => 'open', 'show_guest_count' => 'no']), 5)['guest_count']);
+        $this->assertNull($this->format($this->event([], ['entry_type' => 'none']), 5)['guest_count']);
     }
 
     public function test_staff_follow_the_events_guest_count_setting_too()

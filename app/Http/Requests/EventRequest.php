@@ -109,7 +109,7 @@ class EventRequest extends BaseRequest
             'venue.max'                   => __('Venue name cannot exceed 255 characters.', 'fluent-event'),
             'address.max'                 => __('Address cannot exceed 500 characters.', 'fluent-event'),
             'entry_type.required'         => __('Registration type is required.', 'fluent-event'),
-            'entry_type.in'               => __('Registration must be RSVP or open.', 'fluent-event'),
+            'entry_type.in'               => __('Registration must be RSVP, open or none.', 'fluent-event'),
             'show_guest_count.in'         => __('Show guest count must be yes or no.', 'fluent-event'),
         ];
     }

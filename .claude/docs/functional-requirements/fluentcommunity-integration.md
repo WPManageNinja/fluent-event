@@ -89,18 +89,20 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   start `private`, like their calendars. Both statuses show in the admin and can be changed there.
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
   effect on the upcoming landing page.
-- **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit) and `open`
-  (view-only: members can't register; admins can still add guests, who get the usual emails).
+- **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit), `open`
+  (guests register with name and email, no login; the guest form is not built yet, so the portal
+  offers no registration) and `none` (view-only: members can't register; admins can still add
+  guests, who get the usual emails).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
   the `from`/`to` filter means site days. The event page shows the event's own clock with its
   offset, plus the site's clock when that reads differently.
-- **Guest count:** shown only for `rsvp` events whose **Show guest count** switch is on, and then
+- **Guest count:** shown only for `rsvp` and `open` events whose **Show guest count** switch is on, and then
   to everyone, staff included. The switch alone decides; nobody gets an override. It counts
   `going` and `checked_in` guests.
 - **Ended:** the event page says Ended once, in its status; the RSVP slot is dropped on an ended
-  event (RSVP or open), and the guest count stays.
-- **Meeting link:** an online `rsvp` event shows it to its registered guests (`going` or
-  `checked_in`) and to staff (any `read_`/`write_` events or guests key); an online `open` event
+  event (any entry type), and the guest count stays.
+- **Meeting link:** an online `rsvp` or `open` event shows it to its registered guests (`going` or
+  `checked_in`) and to staff (any `read_`/`write_` events or guests key); an online `none` event
   shows it to everyone who can see the post.
   An offline event never exposes one.
 - **Registration:**

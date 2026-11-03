@@ -218,10 +218,10 @@ class CommunityEvents
             'address'            => $meta['address'],
             'cover_url'          => $meta['cover_url'],
             'has_meeting_url'    => $hasMeetingUrl,
-            // An RSVP's link is for its guests and staff; an open event shows it to every viewer.
-            'online_meeting_url' => $hasMeetingUrl && (!$isRsvp || $isRegistered || $isStaff) ? $meta['online_meeting_url'] : '',
+            // Only a no-entry event shows its link to every viewer; otherwise it is for guests and staff.
+            'online_meeting_url' => $hasMeetingUrl && ($meta['entry_type'] === 'none' || $isRegistered || $isStaff) ? $meta['online_meeting_url'] : '',
             'entry_type'         => $meta['entry_type'],
-            'guest_count'        => $isRsvp && $meta['show_guest_count'] === 'yes' ? $seats : null,
+            'guest_count'        => in_array($meta['entry_type'], ['rsvp', 'open'], true) && $meta['show_guest_count'] === 'yes' ? $seats : null,
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
             'registration_open'  => $isRsvp && !$isPast,

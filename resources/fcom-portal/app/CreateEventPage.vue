@@ -242,7 +242,7 @@
                         </el-radio>
                     </el-radio-group>
 
-                    <div v-if="event.entry_type === 'rsvp'" class="fe-create-event__switch-row">
+                    <div v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-create-event__switch-row">
                         <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
                             {{ $t('Show how many guests are going') }}
                         </label>
@@ -376,7 +376,8 @@ export default {
         entryTypes() {
             return [
                 { value: 'rsvp', label: this.$t('RSVP'), hint: this.$t('Logged-in members say whether they are going.') },
-                { value: 'open', label: this.$t('Open'), hint: this.$t('Nobody registers. Anyone who can see the event sees all of it, meeting link included.') },
+                { value: 'open', label: this.$t('Open'), hint: this.$t('Guests register with their name and email, no login needed.') },
+                { value: 'none', label: this.$t('None'), hint: this.$t('Nobody registers. Anyone who can see the event sees all of it, meeting link included.') },
             ];
         },
     },

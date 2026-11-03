@@ -190,10 +190,11 @@ describe('EventViewPage', () => {
     });
 
     describe('add to calendar', () => {
-        it('is offered once the member is going, or on any open event', async () => {
+        it('is offered once the member is going, or on any no-entry event', async () => {
             expect((await page(meetup())).vm.canAddToCalendar).toBe(false);
             expect((await page(meetup({ my_status: 'going' }))).vm.canAddToCalendar).toBe(true);
-            expect((await page(meetup({ entry_type: 'open' }))).vm.canAddToCalendar).toBe(true);
+            expect((await page(meetup({ entry_type: 'none' }))).vm.canAddToCalendar).toBe(true);
+            expect((await page(meetup({ entry_type: 'open' }))).vm.canAddToCalendar).toBe(false);
         });
 
         it('is withdrawn once the event has ended', async () => {
@@ -246,7 +247,7 @@ describe('EventViewPage', () => {
             vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
                 link = this;
             });
-            const { wrapper } = await page(meetup({ entry_type: 'open' }));
+            const { wrapper } = await page(meetup({ entry_type: 'none' }));
 
             await wrapper.find('button.fe-event-view__calendar-link').trigger('click');
 

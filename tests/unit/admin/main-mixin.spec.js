@@ -93,9 +93,10 @@ describe('status and entry type labels', () => {
         expect(component().$entryTypeLabel('ticketed')).toBe('ticketed');
     });
 
-    it('labels both entry modes', () => {
+    it('labels every entry mode', () => {
         expect(component().$entryTypeLabel('rsvp')).toBe('RSVP');
         expect(component().$entryTypeLabel('open')).toBe('Open');
+        expect(component().$entryTypeLabel('none')).toBe('None');
     });
 });
 

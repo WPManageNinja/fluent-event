@@ -156,12 +156,15 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $this->rsvp($event, 'going')['status']);
     }
 
-    public function test_an_open_event_takes_no_registrations()
+    // Open takes guests through its own form, not the member RSVP.
+    public function test_only_an_rsvp_event_takes_member_registrations()
     {
-        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        foreach (['open', 'none'] as $type) {
+            [$event] = $this->communityEvent([], ['entry_type' => $type]);
 
-        $this->assertSame(422, $this->rsvp($event, 'going')['status']);
-        $this->assertCount(0, $this->guestsOf($event));
+            $this->assertSame(422, $this->rsvp($event, 'going')['status'], $type);
+            $this->assertCount(0, $this->guestsOf($event), $type);
+        }
     }
 
     public function test_an_event_that_has_ended_takes_no_registrations()
