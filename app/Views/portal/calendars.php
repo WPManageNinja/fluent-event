@@ -8,6 +8,7 @@
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
 use FluentEvent\App\Services\Icon;
+use FluentEvent\App\Services\Settings;
 use FluentEvent\Framework\Support\Arr;
 ?>
 <div class="fe-portal__header">
@@ -27,7 +28,11 @@ use FluentEvent\Framework\Support\Arr;
                 </div>
 
                 <div class="fe-calendar-card__body">
-                    <h2 class="fe-calendar-card__title"><?php echo esc_html( $fluentEventCalendar->title ); ?></h2>
+                    <h2 class="fe-calendar-card__title">
+                        <a class="fe-calendar-card__link" href="<?php echo esc_url( home_url( user_trailingslashit( Settings::portalSlug() . '/' . $fluentEventCalendar->slug ) ) ); ?>">
+                            <?php echo esc_html( $fluentEventCalendar->title ); ?>
+                        </a>
+                    </h2>
 
                     <?php if ( $fluentEventCalendar->description ) : ?>
                         <p class="fe-calendar-card__description"><?php echo esc_html( $fluentEventCalendar->description ); ?></p>
