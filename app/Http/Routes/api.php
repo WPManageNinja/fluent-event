@@ -68,5 +68,7 @@ $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($ro
     $router->get('/events', [CommunityEventController::class, 'getEvents']);
     $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])
         ->int('id')->rateLimitPerMinute(10);
+    $router->post('/events/{id}/register-guest', [CommunityEventController::class, 'registerGuest'])
+        ->int('id')->rateLimitPerMinute(5);
     $router->get('/editor-assets', [CommunityEventController::class, 'getEditorAssets']);
 });

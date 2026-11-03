@@ -47,6 +47,22 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('private', Event::query()->find($event->id)->status);
     }
 
+    public function test_an_event_saves_each_entry_type_and_refuses_any_other()
+    {
+        $event = $this->createEvent();
+
+        foreach (['open', 'none', 'rsvp'] as $type) {
+            $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['entry_type' => $type]));
+
+            $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+            $this->assertSame($type, Event::query()->find($event->id)->meta['entry_type']);
+        }
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['entry_type' => 'ticketed']));
+
+        $this->assertSame(422, $response['status']);
+    }
+
     public function test_deleting_a_wordpress_user_keeps_the_events_they_created()
     {
         require_once ABSPATH . 'wp-admin/includes/user.php';

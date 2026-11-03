@@ -333,7 +333,7 @@
                                 </el-radio-group>
                             </el-form-item>
 
-                            <div v-if="event.entry_type === 'rsvp'" class="fe-form__switch-row" data-field="show_guest_count">
+                            <div v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-form__switch-row" data-field="show_guest_count">
                                 <label class="fe-form__switch-text" for="fe-event-show-guest-count">
                                     {{ $t('Show how many guests are going') }}
                                 </label>

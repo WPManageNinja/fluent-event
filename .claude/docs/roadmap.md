@@ -24,7 +24,7 @@ v2.x to v3.0 (e.g. tickets) if it should be marketed as major.
 
 Already built:
 - Events created as FluentCommunity posts; a calendar per space
-- Entry modes: RSVP (going / not going) and open (view-only)
+- Entry modes: RSVP (going / not going), open (guest name + email, no login; form pending) and none (view-only)
 - Guest management: add, edit, remove, check-in status, guest emails
 - Reminder emails (scheduled per event)
 - Add to calendar (.ics + Google Calendar link)
@@ -173,8 +173,6 @@ Design:
 - Sold out + waitlist (v1.1): a waitlisted guest gets a time-limited offer to buy, not an
   automatic seat.
 - Partial refund: the admin chooses which tickets in the order to cancel.
-- Meeting link visibility (`CommunityEvents.php`, `!$isRsvp || …`) shows the link for any
-  non-RSVP entry type — switch it to an allowlist so `ticketed` shows it only to buyers.
 - The spec (FR-6.4) still says Paymattic — update it to FluentCart.
 
 ---

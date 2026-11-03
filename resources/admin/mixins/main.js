@@ -117,6 +117,11 @@ export default {
                 {
                     value: 'open',
                     label: this.$t('Open'),
+                    hint: this.$t('Guests register with their name and email, no login needed.'),
+                },
+                {
+                    value: 'none',
+                    label: this.$t('None'),
                     hint: this.$t('Nobody registers. Anyone who can see the event sees all of it, meeting link included.'),
                 },
             ];
