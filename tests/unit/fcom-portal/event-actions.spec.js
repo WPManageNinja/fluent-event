@@ -34,6 +34,71 @@ describe('EventActions', () => {
         expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
     });
 
+    it("opens a member's Register form filled in, email locked, and registers on submit", async () => {
+        window.fluentEventFcomPortal.user = { name: 'Rafi', email: 'rafi@example.test' };
+        wrapper = actions(rsvp({ entry_type: 'open' }));
+
+        await wrapper.find('button').trigger('click');
+        expect(fetch).not.toHaveBeenCalled();
+
+        const email = wrapper.find('#fe-guest-email-5');
+        expect(wrapper.find('#fe-guest-name-5').element.value).toBe('Rafi');
+        expect(email.element.value).toBe('rafi@example.test');
+        expect(email.attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.fe-guest-register__trap').exists()).toBe(false);
+
+        await wrapper.find('#fe-guest-name-5').setValue('Rafi Ahmed');
+        await wrapper.find('form').trigger('submit');
+        await flushPromises();
+
+        const [url, options] = fetch.mock.calls[0];
+        expect(url).toBe('https://example.test/wp-json/fluent-event/v2/community/events/5/register');
+        expect(JSON.parse(options.body)).toEqual({ status: 'going', name: 'Rafi Ahmed' });
+        expect(wrapper.emitted('done')).toHaveLength(1);
+    });
+
+    it('registers a visitor for an open event by name and email', async () => {
+        window.fluentEventFcomPortal.is_logged_in = false;
+        wrapper = actions(rsvp({ entry_type: 'open', register_nonce: 'n0nce' }));
+
+        await wrapper.find('button').trigger('click');
+        await wrapper.vm.$nextTick();
+        expect(document.activeElement).toBe(wrapper.find('#fe-guest-name-5').element);
+
+        await wrapper.find('#fe-guest-name-5').setValue('Rafi');
+        await wrapper.find('#fe-guest-email-5').setValue('rafi@example.test');
+        await wrapper.find('form').trigger('submit');
+        await flushPromises();
+
+        const [url, options] = fetch.mock.calls[0];
+        expect(url).toBe('https://example.test/wp-json/fluent-event/v2/community/events/5/register-guest');
+        expect(JSON.parse(options.body)).toEqual({ name: 'Rafi', email: 'rafi@example.test', website: '', nonce: 'n0nce' });
+        expect(wrapper.find('form').exists()).toBe(false);
+        expect(wrapper.emitted('done')).toHaveLength(1);
+    });
+
+    it("keeps a visitor's form open with the server's reason when refused", async () => {
+        window.fluentEventFcomPortal.is_logged_in = false;
+        fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'A guest with this email is already on this event.' }), { status: 422 }));
+        wrapper = actions(rsvp({ entry_type: 'open' }));
+
+        await wrapper.find('button').trigger('click');
+        await wrapper.find('form').trigger('submit');
+        await flushPromises();
+
+        expect(wrapper.find('.fe-guest-register__error').text()).toBe('A guest with this email is already on this event.');
+        expect(wrapper.emitted('done')).toBeUndefined();
+    });
+
+    it("marks an open event's guest registered, with nothing to undo", () => {
+        for (const status of ['going', 'checked_in']) {
+            const registered = mount(EventActions, { props: { event: rsvp({ entry_type: 'open', my_status: status }) } });
+
+            expect(registered.find('.fe-event-actions__badge').text()).toBe('Registered');
+            expect(registered.find('button').exists()).toBe(false);
+        }
+    });
+
     it("sends a logged-out visitor to fcom's login page", () => {
         window.fluentEventFcomPortal.is_logged_in = false;
         wrapper = actions();

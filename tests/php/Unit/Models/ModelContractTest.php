@@ -87,9 +87,9 @@ class ModelContractTest extends TestCase
         ];
     }
 
-    public function test_the_entry_modes_are_rsvp_and_open()
+    public function test_the_entry_modes_are_rsvp_open_and_none()
     {
-        $this->assertSame('rsvp,open', Event::ENTRY_TYPES);
+        $this->assertSame('rsvp,open,none', Event::ENTRY_TYPES);
     }
 
     public function test_every_event_meta_key_the_request_accepts_has_a_default()

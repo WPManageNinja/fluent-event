@@ -16,7 +16,7 @@ class Event extends Model
     const STATUSES = 'public,unlisted,private,draft';
     const LIVE_STATUSES = ['public', 'unlisted', 'private'];
     const VENUE_TYPES = 'offline,online';
-    const ENTRY_TYPES = 'rsvp,open';
+    const ENTRY_TYPES = 'rsvp,open,none';
     const SEAT_STATUSES = ['going', 'checked_in'];
     const POST_STATUSES = [
         'public'   => 'publish',

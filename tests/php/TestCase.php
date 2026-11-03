@@ -71,6 +71,7 @@ abstract class TestCase extends BaseTestCase
         Monkey\Functions\when('esc_attr')->returnArg();
         Monkey\Functions\when('esc_url')->returnArg();
         Monkey\Functions\when('wp_kses_post')->returnArg();
+        Monkey\Functions\when('wp_create_nonce')->justReturn('nonce');
 
         // Filters pass their value through, actions do nothing.
         Monkey\Functions\when('apply_filters')->alias(function ($hook, $value = null, ...$args) {
