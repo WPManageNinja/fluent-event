@@ -161,6 +161,13 @@ class HookRegistrationTest extends TestCase
         return $hooks;
     }
 
+    public function test_a_plugin_update_is_picked_up_on_the_next_request()
+    {
+        $callbacks = array_column($this->load('actions.php')->on('init'), 'callback');
+
+        $this->assertContains('ActivationHandler@maybeUpgrade', $callbacks);
+    }
+
     private function priorityOf(array $entries, array $callback)
     {
         foreach ($entries as $entry) {

@@ -26,6 +26,8 @@ class Settings
         self::GENERAL => [
             'default_events_view'       => 'timeline',
             'disable_event_view_switch' => 'no',
+            // Not `events`: with FluentCommunity mounted at the site root, `/events` is its Events page.
+            'portal_slug'               => 'calendars',
         ],
         self::EMAIL => [
             'from_name'      => '',
@@ -74,6 +76,11 @@ class Settings
         }
 
         return is_array($stored) ? $stored : [];
+    }
+
+    public static function portalSlug()
+    {
+        return trim(defined('FLUENT_EVENT_PORTAL_SLUG') ? FLUENT_EVENT_PORTAL_SLUG : self::get()['portal_slug'], '/');
     }
 
     public static function reminderInSeconds($reminder)
