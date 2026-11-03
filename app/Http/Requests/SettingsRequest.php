@@ -11,6 +11,7 @@ class SettingsRequest extends BaseRequest
         'permissions.*'            => 'sanitize_text_field',
         'default_events_view'      => 'sanitize_text_field',
         'disable_event_view_switch' => 'sanitize_text_field',
+        'portal_slug'              => 'sanitize_title',
         'from_name'                => 'sanitize_text_field',
         'from_email'               => 'sanitize_email',
         'reply_to_name'            => 'sanitize_text_field',
@@ -31,6 +32,7 @@ class SettingsRequest extends BaseRequest
     const GENERAL_RULES = [
         'default_events_view'       => 'required|string|in:cards,timeline,calendar',
         'disable_event_view_switch' => 'required|string|in:yes,no',
+        'portal_slug'               => 'required|string|max:100|regex:/^[a-z0-9_-]+$/',
     ];
 
     const EMAIL_RULES = [
@@ -58,7 +60,13 @@ class SettingsRequest extends BaseRequest
 
     public static function generalRules()
     {
-        return self::GENERAL_RULES;
+        $rules = self::GENERAL_RULES;
+
+        if (defined('FLUENT_EVENT_PORTAL_SLUG')) {
+            unset($rules['portal_slug']);
+        }
+
+        return $rules;
     }
 
     public static function emailRules()
@@ -105,6 +113,9 @@ class SettingsRequest extends BaseRequest
             'default_events_view.required' => __('Choose a default events view.', 'fluent-event'),
             'default_events_view.in'       => __('The default events view must be cards, timeline or calendar.', 'fluent-event'),
             'disable_event_view_switch.in' => __('The view switch option must be yes or no.', 'fluent-event'),
+            'portal_slug.required'         => __('The portal slug is required.', 'fluent-event'),
+            'portal_slug.max'              => __('The portal slug cannot exceed 100 characters.', 'fluent-event'),
+            'portal_slug.regex'            => __('The portal slug can only use letters, numbers, hyphens and underscores.', 'fluent-event'),
         ];
     }
 }

@@ -28,13 +28,56 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_general_settings_round_trip()
     {
-        $saved = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes']);
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'portal_slug' => 'calendars'];
+        $saved = $this->rest('POST', 'settings/general', $settings);
 
         $this->assertSame(200, $saved['status'], wp_json_encode($saved['data']));
-        $this->assertSame(
-            ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes'],
-            $this->rest('GET', 'settings/general')['data']['settings']
-        );
+        $this->assertSame($settings, $this->rest('GET', 'settings/general')['data']['settings']);
+    }
+
+    public function test_changing_the_portal_slug_sanitises_it_and_drops_the_rewrite_rules()
+    {
+        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
+        update_option('rewrite_rules', ['^calendars/?$' => 'index.php?fe_route=calendars']);
+
+        $saved = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'Our Events']);
+
+        $this->assertSame(200, $saved['status'], wp_json_encode($saved['data']));
+        $this->assertSame('our-events', Settings::portalSlug());
+        $this->assertFalse(get_option('rewrite_rules'));
+    }
+
+    public function test_saving_the_same_portal_slug_keeps_the_rewrite_rules()
+    {
+        $rules = ['^calendars/?$' => 'index.php?fe_route=calendars'];
+        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
+        update_option('rewrite_rules', $rules);
+
+        $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'calendars']);
+
+        $this->assertSame($rules, get_option('rewrite_rules'));
+    }
+
+    public function test_only_a_site_administrator_can_change_the_portal_slug()
+    {
+        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
+        $this->actAs($this->createUser('editor', ['write_settings']));
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'our-events'];
+
+        $this->assertSame(403, $this->rest('POST', 'settings/general', $settings)['status']);
+        $this->assertSame('calendars', Settings::portalSlug());
+
+        // The rest of the form still saves for them.
+        $this->assertSame(200, $this->rest('POST', 'settings/general', ['portal_slug' => 'calendars'] + $settings)['status']);
+    }
+
+    public function test_a_portal_slug_with_no_ascii_characters_is_rejected()
+    {
+        foreach (['!!!', 'ক্যালেন্ডার'] as $slug) {
+            $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => $slug]);
+
+            $this->assertSame(422, $response['status'], $slug);
+        }
     }
 
     public function test_a_bad_from_address_is_rejected()
