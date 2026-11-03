@@ -76,10 +76,6 @@ class CalendarController extends Controller
             $response['stats'] = $stats;
         }
 
-        if ($canReadEvents) {
-            $response['upcoming_events'] = ReportService::getUpcomingEvents(3, $calendar->id);
-        }
-
         return $response;
     }
 

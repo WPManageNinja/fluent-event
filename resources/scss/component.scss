@@ -847,194 +847,119 @@
 }
 
 .fe-calendar-detail {
-    &__mast {
-        margin-bottom: var(--fe-space-5, 20px);
-    }
+    // Identity, meta and actions on one row; the actions drop below on narrow screens.
+    &__head {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: start;
+        gap: var(--fe-space-4, 16px);
+        margin-bottom: var(--fe-space-4, 16px);
 
-    &__cover {
-        position: relative;
-        height: 150px;
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-active-bg, #f0f0f1);
-        background-position: center;
-        background-size: cover;
-        overflow: hidden;
+        @media screen and (max-width: 782px) {
+            grid-template-columns: auto minmax(0, 1fr);
 
-        // Same tint as fe-calendars__card-cover — `color` carries the theme hue.
-        &::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(150deg, currentColor 0%, transparent 118%);
-            opacity: var(--fe-cover-tint, 0.36);
+            .fe-calendar-detail__actions {
+                grid-column: 1 / -1;
+            }
         }
     }
 
-    &__edit.el-button {
-        position: absolute;
-        top: var(--fe-space-3, 12px);
-        right: var(--fe-space-3, 12px);
-        z-index: 1;
-    }
-
     &__mark {
-        position: relative;
-        z-index: 1;
         display: grid;
         place-items: center;
-        width: 72px;
-        height: 72px;
-        border: 4px solid var(--fe-secondary-bg, #f3f5fa);
+        width: 48px;
+        height: 48px;
         border-radius: var(--fe-radius-lg, 12px);
-        background-color: var(--fe-primary-bg, #ffffff);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+        background-color: var(--fe-active-bg, #f0f0f1);
         color: var(--fe-secondary-text, #525866);
-        font-size: var(--fe-text-2xl, 24px);
+        font-size: var(--fe-text-lg, 18px);
         font-weight: 700;
         line-height: 1;
         text-transform: capitalize;
-
-        // Straddles the cover's bottom-left corner, ringed in the page canvas.
-        margin: -36px 0 0 var(--fe-space-5, 20px);
     }
 
     &__identity {
+        display: grid;
+        gap: var(--fe-space-1, 4px);
         min-width: 0;
-        padding: var(--fe-space-3, 12px) var(--fe-space-5, 20px) 0;
     }
 
     &__title-row {
         display: flex;
         align-items: center;
-        gap: var(--fe-space-3, 12px);
+        gap: var(--fe-space-2, 8px);
         flex-wrap: wrap;
+
+        .fe-page__title {
+            margin: 0;
+        }
+    }
+
+    // Plain text; keep the author's line breaks. Sets its own colour, or wp-admin's grey paragraph colour wins.
+    &__description {
+        margin: 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.5;
+        white-space: pre-line;
+        overflow-wrap: break-word;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-1, 4px) var(--fe-space-4, 16px);
+        margin: 0;
+        color: var(--fe-text-mid, #565865);
+        font-size: var(--fe-text-xs, 12px);
     }
 
     &__slug {
-        margin: var(--fe-space-1, 4px) 0 0;
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: var(--fe-text-xs, 12px);
-        color: var(--fe-secondary-text, #525866);
     }
 
-    &__about {
-        margin: 0 0 var(--fe-space-3, 12px);
-        font-size: var(--fe-text-xs, 12px);
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    // Plain text; keep the author's line breaks.
-    &__description {
-        margin: 0;
-        white-space: pre-line;
-    }
-
-    .fe-dashboard__tiles,
-    .fe-skeleton__tiles {
-        margin-bottom: var(--fe-space-3, 12px);
-    }
-
-    &__events-bar {
+    &__actions {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: var(--fe-space-3, 12px);
-        margin-bottom: var(--fe-space-5, 20px);
-
-        @media screen and (max-width: 782px) {
-            flex-direction: column;
-            align-items: stretch;
-        }
-    }
-
-    &__events-title {
-        margin: 0;
-        font-size: var(--fe-text-xl, 20px);
-        font-weight: 600;
-        line-height: 1.3;
-        color: var(--fe-primary-text, #19283a);
-    }
-
-    &__events-actions {
-        display: flex;
-        align-items: center;
         flex-wrap: wrap;
         gap: var(--fe-space-2, 8px);
 
-        @media screen and (max-width: 782px) {
-            justify-content: space-between;
-        }
-    }
-}
-
-.fe-calendar-tab {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 280px;
-    gap: var(--fe-space-5, 20px);
-    align-items: start;
-
-    @media screen and (max-width: 991px) {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    &__main {
-        min-width: 0;
-    }
-
-    &__aside {
-        position: sticky;
-        top: var(--fe-space-5, 20px);
-
-        .fe-skeleton__panel.el-skeleton__rect {
-            margin-bottom: var(--fe-space-3, 12px);
+        .el-button + .el-button {
+            margin-left: 0;
         }
     }
 
-    &__panel {
-        padding: var(--fe-space-4, 16px);
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-primary-bg, #ffffff);
-
-        & + & {
-            margin-top: var(--fe-space-3, 12px);
-        }
-    }
-
-    &__panel-title {
-        margin: 0 0 var(--fe-space-3, 12px);
-        font-size: var(--fe-text-xs, 12px);
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    &__panel-empty {
-        margin: 0;
-        font-size: var(--fe-text-sm, 14px);
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    &__facts {
+    // 1px gaps over the border colour draw the dividers, so wrapped rows stay lined.
+    &__stats {
         display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
-        gap: var(--fe-space-2, 8px) var(--fe-space-4, 16px);
-        margin: 0;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1px;
+        margin: 0 0 var(--fe-space-5, 20px);
+        overflow: hidden;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-border, #eaecf0);
+    }
+
+    &__stat {
+        display: grid;
+        align-content: start;
+        gap: var(--fe-space-1, 4px);
+        padding: var(--fe-space-4, 16px) var(--fe-space-5, 20px);
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__stat-label {
+        color: var(--fe-secondary-text, #525866);
         font-size: var(--fe-text-xs, 12px);
+    }
 
-        dt {
-            color: var(--fe-secondary-text, #525866);
-        }
-
-        dd {
-            margin: 0;
-            text-align: right;
-            color: var(--fe-primary-text, #19283a);
-        }
+    &__stat-value {
+        margin: 0;
+        color: var(--fe-primary-text, #19283a);
+        font-size: var(--fe-text-xl, 20px);
+        font-weight: 600;
+        line-height: 1.3;
+        font-variant-numeric: tabular-nums;
     }
 }
 
@@ -1483,26 +1408,16 @@
         border-radius: var(--fe-radius, 8px);
     }
 
-    &__mast {
-        position: relative;
-        margin-bottom: var(--fe-space-5, 20px);
-    }
-
-    &__cover.el-skeleton__rect {
-        height: 150px;
-        border-radius: var(--fe-radius, 8px);
-    }
-
     &__mark.el-skeleton__rect {
-        width: 72px;
-        height: 72px;
-        margin: -36px 0 0 var(--fe-space-5, 20px);
-        border: 4px solid var(--fe-secondary-bg, #f3f5fa);
+        width: 48px;
+        height: 48px;
         border-radius: var(--fe-radius-lg, 12px);
     }
 
-    &__identity {
-        padding: var(--fe-space-3, 12px) var(--fe-space-5, 20px) 0;
+    &__strip.el-skeleton__rect {
+        height: 86px;
+        margin-bottom: var(--fe-space-5, 20px);
+        border-radius: var(--fe-radius, 8px);
     }
 
     &__slug.el-skeleton__text {

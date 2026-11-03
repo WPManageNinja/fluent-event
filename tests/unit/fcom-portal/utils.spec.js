@@ -210,19 +210,20 @@ describe('RSVP helpers', () => {
         expect(isSeated({ my_status: null })).toBe(false);
     });
 
-    it('offers actions on RSVP events and on any past event', () => {
+    it('offers actions on RSVP and open events, and on any past event', () => {
         expect(hasEventActions({ entry_type: 'rsvp' })).toBe(true);
-        expect(hasEventActions({ entry_type: 'open' })).toBe(false);
-        expect(hasEventActions({ entry_type: 'open', is_past: true })).toBe(true);
+        expect(hasEventActions({ entry_type: 'open' })).toBe(true);
+        expect(hasEventActions({ entry_type: 'none' })).toBe(false);
+        expect(hasEventActions({ entry_type: 'none', is_past: true })).toBe(true);
     });
 
-    it('shows a going count for RSVP events, zero included', () => {
+    it('shows the going count the server sends, zero included', () => {
         expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 0 })).toBe('0 going');
-        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 12 })).toBe('12 going');
+        expect(guestCountLabel({ entry_type: 'open', guest_count: 12 })).toBe('12 going');
     });
 
-    it('hides the count when the host hid it or the event is open', () => {
+    it('hides the count when the server withholds it', () => {
         expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null })).toBe('');
-        expect(guestCountLabel({ entry_type: 'open', guest_count: 12 })).toBe('');
+        expect(guestCountLabel({ entry_type: 'none' })).toBe('');
     });
 });

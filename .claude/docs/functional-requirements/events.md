@@ -15,10 +15,11 @@
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `event_details.form_fields` (JSON column); each attendee's answers save to `guests.form_response` (JSON).
 - **Mode** via `event_details.venue_type` (online / offline / hybrid); **policy** via `event_details.settings.join_policy` (open / approval / invite_only).
-- **Entry mode** via `event_details.meta.entry_type` (built: `rsvp`, `open`; `ticketed` is future):
+- **Entry mode** via `event_details.meta.entry_type` (built: `rsvp`, `open`, `none`; `ticketed` is future):
   - **`rsvp`** — logged-in "I'm coming". Guest rows with **`ticket_type_id` = NULL**; going / not going via `status` (`going` / `not_going`).
-  - **`open`** — view-only. Nobody registers and there are no guest rows; anyone who can see the event sees all of it, the online meeting link included.
-  - **No seat limit** — RSVP takes anyone. `meta.show_guest_count` (`yes` / `no`) shows viewers how many are `going` + `checked_in`.
+  - **`open`** — a Register button. It opens a name + email popover: prefilled for members (email locked to the account), blank for visitors, no login needed. A static Registered badge follows, with no undo; the meeting link is for registered guests and staff.
+  - **`none`** — view-only. Nobody registers; anyone who can see the event sees all of it, the online meeting link included. Admins can still add guests.
+  - **No seat limit** — RSVP takes anyone. `meta.show_guest_count` (`yes` / `no`, `rsvp` and `open`) shows viewers how many are `going` + `checked_in`.
   - **`ticketed`** (future) — buy tickets. Guest rows **require** `ticket_type_id`, payment on the `is_buyer=1` row; the service layer enforces it.
   - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.slot IS NULL`).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
@@ -150,7 +151,7 @@ Deliberately **not** unique on `email` — a buyer commonly uses their own addre
 | `cancelled`  | Was in, then pulled out (or was removed).                      |
 | `checked_in` | Showed up and checked in at the event.                         |
 
-**Per entry mode:** `ticketed` uses the payment-driven flow (`approved` → `attending` after pay, `waitlisted` when full). `rsvp` reuses the **same column, no new values** — `attending` = "going", `declined` = "not going", `waitlisted` = capped-RSVP overflow. `open` writes no guest rows at all, so `status` never applies. Keep one vocabulary; the mode decides which subset is in play.
+**Per entry mode:** `ticketed` uses the payment-driven flow (`approved` → `attending` after pay, `waitlisted` when full). `rsvp` reuses the **same column, no new values** — `attending` = "going", `declined` = "not going", `waitlisted` = capped-RSVP overflow. `none` takes no registrations, so `status` applies only to guests an admin adds. Keep one vocabulary; the mode decides which subset is in play.
 
 ### Classification + roster
 
