@@ -87,6 +87,29 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertStringNotContainsString('fe-switch__option--icon', $body);
     }
 
+    public function test_a_busy_day_lists_every_event_in_its_more_popover()
+    {
+        $calendar = $this->createCalendar();
+
+        for ($i = 1; $i <= 4; $i++) {
+            $this->createEvent([
+                'calendar_id' => $calendar->id,
+                'title'       => "Popover event {$i}",
+                'start_at'    => "2027-03-10 12:0{$i}:00",
+                'end_at'      => "2027-03-10 13:0{$i}:00",
+            ]);
+        }
+
+        $body = $this->page($calendar->slug, ['view' => 'calendar', 'month' => '2027-03'])['body'];
+
+        $this->assertStringContainsString('popovertarget="fe-month-day-10"', $body);
+        $this->assertStringContainsString('+1 more', $body);
+        $this->assertStringContainsString('Wednesday, Mar 10', $body);
+        // The grid shows three chips; the fourth appears only in the popover.
+        $this->assertSame(1, substr_count($body, 'Popover event 4'));
+        $this->assertSame(2, substr_count($body, 'Popover event 1'));
+    }
+
     public function test_upcoming_events_are_paged_ten_at_a_time()
     {
         $calendar = $this->createCalendar();

@@ -787,9 +787,60 @@ html.dark {
         font-weight: 600;
     }
 
+    // Full cell width, so the popover's anchor edge is the cell's and it opens beside the day.
     &__more {
+        align-self: stretch;
+        padding: 0;
+        border: 0;
+        background: none;
         color: var(--fe-secondary-text, #525866);
+        font: inherit;
         font-size: 11px;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    // A native popover: click opens it, a click outside or Escape closes it, and the top layer
+    // keeps the grid from clipping it. Without anchor positioning it opens centred instead.
+    &__popover {
+        width: 260px;
+        max-height: 320px;
+        padding: var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+        &:popover-open {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        // Beside the cell, like the admin's right placement; flips left at the screen edge.
+        @supports (position-area: right) {
+            // Both sides, so a left fallback keeps the same gap; 12px clears the cell's 6px padding.
+            margin: 0 12px;
+            position-area: right center;
+            position-try-fallbacks: right span-bottom, right span-top, left center, left span-bottom, left span-top;
+        }
+    }
+
+    &__popover-title {
+        margin: 0 0 4px;
+        font-size: var(--fe-text-sm, 13px);
+        font-weight: 600;
     }
 
     &__dot {

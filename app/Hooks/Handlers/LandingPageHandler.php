@@ -232,6 +232,12 @@ class LandingPageHandler
             $byDay[(int) wp_date('j', max($row['start'], $firstDay))][] = $row;
         }
 
+        // Titles the "+N more" popover; built in the site's timezone so the label names the right day.
+        $dayLabels = [];
+        foreach (array_keys($byDay) as $day) {
+            $dayLabels[$day] = wp_date('l, M j', $start->setDate((int) $start->format('Y'), (int) $start->format('n'), $day)->getTimestamp());
+        }
+
         $weekdays = [];
         for ($i = 0; $i < 7; $i++) {
             $weekdays[] = $wp_locale->get_weekday_abbrev($wp_locale->get_weekday(($startOfWeek + $i) % 7));
@@ -246,7 +252,8 @@ class LandingPageHandler
             'lead'     => ((int) $start->format('w') - $startOfWeek + 7) % 7,
             'days'     => (int) $start->format('t'),
             'today'    => wp_date('Y-m') === $start->format('Y-m') ? (int) wp_date('j') : 0,
-            'by_day'   => $byDay,
+            'by_day'     => $byDay,
+            'day_labels' => $dayLabels,
         ];
     }
 
