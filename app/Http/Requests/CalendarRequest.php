@@ -13,14 +13,14 @@ class CalendarRequest extends BaseRequest
     const SANITIZERS = [
         'title'       => 'sanitize_text_field',
         'slug'        => 'sanitize_title',
-        'description' => 'wp_kses_post',
+        'description' => 'sanitize_textarea_field',
         'status'      => 'sanitize_text_field',
         'theme_color' => 'sanitize_hex_color',
     ];
     const RULES = [
         'title'       => 'required|string|max:255',
         'slug'        => 'required|string|max:255|unique:fe_calendars,slug',
-        'description' => 'nullable|string',
+        'description' => 'nullable|string|max:160',
         'status'      => 'required|string|in:' . Calendar::STATUSES,
         'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{3}([A-Fa-f0-9]{3})?$/',
     ];
@@ -48,6 +48,7 @@ class CalendarRequest extends BaseRequest
             'slug.max'            => __('Slug cannot exceed 255 characters.', 'fluent-event'),
             'slug.unique'         => __('This slug is already taken.', 'fluent-event'),
             'description.string'  => __('Description must be text.', 'fluent-event'),
+            'description.max'     => __('Description cannot exceed 160 characters.', 'fluent-event'),
             'status.required'     => __('Status is required.', 'fluent-event'),
             'status.string'       => __('Status must be text.', 'fluent-event'),
             'status.in'           => __('Status must be public, unlisted, private or draft.', 'fluent-event'),

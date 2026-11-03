@@ -54,8 +54,6 @@ class CalendarController extends Controller
     {
         $calendar = Calendar::query()->findOrFail($id);
 
-        $calendar->description = wp_kses_post($calendar->description);
-
         $creator = get_userdata($calendar->created_by);
         $calendar->creator_name = $creator ? $creator->display_name : '';
 

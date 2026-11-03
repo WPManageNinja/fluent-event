@@ -926,6 +926,16 @@
         color: var(--fe-secondary-text, #525866);
     }
 
+    // Plain text; keep the author's line breaks. Sets its own colour, or wp-admin's grey paragraph colour wins.
+    &__description {
+        margin: 0;
+        color: var(--fe-primary-text, #19283a);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.7;
+        white-space: pre-line;
+        overflow-wrap: break-word;
+    }
+
     .fe-dashboard__tiles,
     .fe-skeleton__tiles {
         margin-bottom: var(--fe-space-3, 12px);
