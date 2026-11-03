@@ -35,9 +35,7 @@ use FluentEvent\Framework\Support\Arr;
                     </h2>
 
                     <?php if ( $fluentEventCalendar->description ) : ?>
-                        <p class="fe-calendar-card__description">
-                            <?php echo esc_html( wp_trim_words( wp_strip_all_tags( $fluentEventCalendar->description ), 24 ) ); ?>
-                        </p>
+                        <p class="fe-calendar-card__description"><?php echo esc_html( $fluentEventCalendar->description ); ?></p>
                     <?php endif; ?>
 
                     <p class="fe-calendar-card__meta">

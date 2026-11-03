@@ -184,7 +184,7 @@ class LandingPageHandler
 
         $this->rememberChoices($viewLocked ? '' : $settings['default_events_view']);
 
-        $description = wp_trim_words(wp_strip_all_tags((string) $calendar->description), 30);
+        $description = wp_trim_words((string) $calendar->description, 30);
 
         return [
             /* translators: 1: calendar title, 2: site name */

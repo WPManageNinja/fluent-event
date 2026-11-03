@@ -64,7 +64,7 @@ $fluentEventEmpty = [
             <h1 class="fe-calendar-page__title"><?php echo esc_html( $calendar->title ); ?></h1>
 
             <?php if ( $calendar->description ) : ?>
-                <div class="fe-calendar-page__description"><?php echo wp_kses_post( $calendar->description ); ?></div>
+                <p class="fe-calendar-page__description"><?php echo esc_html( $calendar->description ); ?></p>
             <?php endif; ?>
 
             <p class="fe-calendar-page__meta">

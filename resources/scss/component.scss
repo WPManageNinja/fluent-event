@@ -926,6 +926,12 @@
         color: var(--fe-secondary-text, #525866);
     }
 
+    // Plain text; keep the author's line breaks.
+    &__description {
+        margin: 0;
+        white-space: pre-line;
+    }
+
     .fe-dashboard__tiles,
     .fe-skeleton__tiles {
         margin-bottom: var(--fe-space-3, 12px);

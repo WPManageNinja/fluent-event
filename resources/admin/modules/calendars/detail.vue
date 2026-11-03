@@ -62,7 +62,7 @@
                                 <template v-if="calendar.description">
                                     <p class="fe-calendar-detail__about">{{ $t('About this calendar') }}</p>
 
-                                    <div class="fe-rich-text" v-html="calendar.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in CalendarController::getCalendar() -->
+                                    <p class="fe-calendar-detail__description">{{ calendar.description }}</p>
                                 </template>
 
                                 <el-empty v-else :description="$t('No description yet')" />

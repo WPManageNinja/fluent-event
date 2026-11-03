@@ -264,7 +264,7 @@ return [
             'Only http and https links are accepted.' => __('Only http and https links are accepted.', 'fluent-event'),
             /* translators: %s is the calendar title */
             'Open %s' => __('Open %s', 'fluent-event'),
-            'Optional. Shown on the calendar page, above its events.' => __('Optional. Shown on the calendar page, above its events.', 'fluent-event'),
+            'Optional. A short calendar description.' => __('Optional. A short calendar description.', 'fluent-event'),
             'Optional. Shown on the event page.' => __('Optional. Shown on the event page.', 'fluent-event'),
             'Overview' => __('Overview', 'fluent-event'),
             'Page Not Found' => __('Page Not Found', 'fluent-event'),
