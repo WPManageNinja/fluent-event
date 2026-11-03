@@ -52,12 +52,26 @@ class ActivationHandler
         }
     }
 
+    // A plugin update never fires the activation hook, so new tables and URL rules land here once per version.
+    public function maybeUpgrade()
+    {
+        if (get_option('fe_version') === FLUENT_EVENT_PLUGIN_VERSION) {
+            return;
+        }
+
+        DBMigrator::run();
+        flush_rewrite_rules(false);
+
+        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION, true);
+    }
+
     protected function activateSite()
     {
         DBMigrator::run();
 
         (new LandingPageHandler())->addRewriteRules();
         flush_rewrite_rules();
+        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION, true);
 
         // Deactivation unschedules every queued action, reminder sends included.
         if (function_exists('as_enqueue_async_action')) {
