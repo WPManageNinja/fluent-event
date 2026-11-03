@@ -48,48 +48,4 @@ class Icon
     const CALENDAR = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">'
         . '<path d="M6.66667 1.66699V4.16699M13.3333 1.66699V4.16699M2.5 7.50033H17.5M4.16667 3.33366H15.8333C16.7538 3.33366 17.5 4.07985 17.5 5.00033V16.667C17.5 17.5875 16.7538 18.3337 15.8333 18.3337H4.16667C3.24619 18.3337 2.5 17.5875 2.5 16.667V5.00033C2.5 4.07985 3.24619 3.33366 4.16667 3.33366Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
         . '</svg>';
-
-    /**
-     * Four squares — the Cards view.
-     */
-    const GRID = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">'
-        . '<path d="M3.33 3.33H8.33V8.33H3.33V3.33ZM11.67 3.33H16.67V8.33H11.67V3.33ZM3.33 11.67H8.33V16.67H3.33V11.67ZM11.67 11.67H16.67V16.67H11.67V11.67Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>'
-        . '</svg>';
-
-    /**
-     * Bulleted list — the Timeline view.
-     */
-    const TIMELINE = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">'
-        . '<path d="M7.5 5H16.67M7.5 10H16.67M7.5 15H16.67M3.75 5H3.76M3.75 10H3.76M3.75 15H3.76" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
-        . '</svg>';
-
-    /**
-     * Video camera — an online event.
-     */
-    const VIDEO = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">'
-        . '<path d="M13.33 8.33L17.5 5.83V14.17L13.33 11.67M4.17 15H11.67C12.59 15 13.33 14.25 13.33 13.33V6.67C13.33 5.75 12.59 5 11.67 5H4.17C3.25 5 2.5 5.75 2.5 6.67V13.33C2.5 14.25 3.25 15 4.17 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
-        . '</svg>';
-
-    /**
-     * Map pin — an in-person event.
-     */
-    const MAP_PIN = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">'
-        . '<path d="M16.67 8.33C16.67 13.33 10 17.5 10 17.5C10 17.5 3.33 13.33 3.33 8.33C3.33 4.65 6.32 1.67 10 1.67C13.68 1.67 16.67 4.65 16.67 8.33Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
-        . '<path d="M10 10.83C11.38 10.83 12.5 9.71 12.5 8.33C12.5 6.95 11.38 5.83 10 5.83C8.62 5.83 7.5 6.95 7.5 8.33C7.5 9.71 8.62 10.83 10 10.83Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
-        . '</svg>';
-
-    /**
-     * Arrow left — back links.
-     */
-    const ARROW_LEFT = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">'
-        . '<path d="M15.83 10H4.17M4.17 10L9.17 15M4.17 10L9.17 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
-        . '</svg>';
-
-    const CHEVRON_LEFT = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">'
-        . '<path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
-        . '</svg>';
-
-    const CHEVRON_RIGHT = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">'
-        . '<path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
-        . '</svg>';
 }

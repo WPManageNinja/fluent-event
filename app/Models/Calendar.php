@@ -71,11 +71,10 @@ class Calendar extends Model
         return $query;
     }
 
-    /** @param string|string[] $status */
     public function scopeByStatus($query, $status)
     {
         if ($status) {
-            $query->whereIn('status', (array) $status);
+            $query->where('status', $status);
         }
 
         return $query;
