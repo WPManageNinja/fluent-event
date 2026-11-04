@@ -1,9 +1,10 @@
 <?php
 /**
- * The event page's side card. Rendered with the page and again by each registration endpoint, whose
+ * The event page's side card. Rendered with the page and again by the registration endpoint, whose
  * answer portal.js swaps in, so every state — Register, the RSVP menu, the final mark — is drawn here.
+ * Every viewer gets the visitor's card, logged in or not.
  *
- * @var array      $event            EventService::formatEvent() shape, for this viewer.
+ * @var array      $event            EventService::formatEvent() shape, as a visitor sees it.
  * @var bool       $is_online
  * @var string     $chip_month
  * @var string     $chip_day
@@ -23,17 +24,8 @@ use FluentEvent\App\Services\Icon;
 
 $fluentEventId = (int) $event['id'];
 $fluentEventOpen = 'open' === $event['entry_type'];
-$fluentEventMember = $registration && $registration['is_member'];
-$fluentEventStatus = $registration ? $registration['status'] : '';
-// A visitor's ✓ Going is final, like ✓ Registered; a member can still change their RSVP.
-$fluentEventDone = 'going' === $fluentEventStatus && ( $fluentEventOpen || ! $fluentEventMember );
-// The name and email form: open events, and a visitor's RSVP.
-$fluentEventForm = $registration && ! $fluentEventDone && ( $fluentEventOpen || ! $fluentEventMember );
-$fluentEventRsvpLabels = [
-    'going'     => __( 'Going', 'fluent-event' ),
-    'not_going' => __( 'Not going', 'fluent-event' ),
-    ''          => __( 'Interested?', 'fluent-event' ),
-];
+// ✓ Going and ✓ Registered are final: there is no account to change them from.
+$fluentEventDone = $registration && $registration['is_going'];
 ?>
 <aside
     class="fe-event-page__card fe-event-page__side"
@@ -42,10 +34,9 @@ $fluentEventRsvpLabels = [
     data-error="<?php esc_attr_e( 'Something went wrong. Please try again.', 'fluent-event' ); ?>"
     <?php if ( $registration ) : ?>
         data-event-nonce="<?php echo esc_attr( $registration['event_nonce'] ); ?>"
-    <?php endif; ?>
-    <?php if ( $fluentEventMember ) : ?>
-        data-url="<?php echo esc_url( $registration['member_url'] ); ?>"
-        data-nonce="<?php echo esc_attr( $registration['rest_nonce'] ); ?>"
+        <?php if ( $registration['rest_nonce'] ) : ?>
+            data-nonce="<?php echo esc_attr( $registration['rest_nonce'] ); ?>"
+        <?php endif; ?>
     <?php endif; ?>
 >
     <div class="fe-event-page__when">
@@ -82,32 +73,16 @@ $fluentEventRsvpLabels = [
                 </button>
             <?php elseif ( $registration ) : ?>
                 <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
-                    <?php if ( 'going' === $fluentEventStatus ) : ?>
-                        <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-                    <?php elseif ( 'not_going' === $fluentEventStatus ) : ?>
-                        <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-                    <?php endif; ?>
-                    <span class="fe-rsvp__label"><?php echo esc_html( $fluentEventRsvpLabels[ $fluentEventStatus ] ); ?></span>
+                    <span class="fe-rsvp__label"><?php esc_html_e( 'Interested?', 'fluent-event' ); ?></span>
                     <span class="fe-rsvp__chevron"><?php echo Icon::CHEVRON_DOWN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                 </button>
 
                 <div id="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-rsvp__menu" popover role="menu" aria-label="<?php esc_attr_e( 'RSVP', 'fluent-event' ); ?>">
-                    <?php if ( $fluentEventMember ) : ?>
-                        <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'going' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="going">
-                            <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-                            <?php esc_html_e( 'Going', 'fluent-event' ); ?>
-                        </button>
-                        <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'not_going' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="not_going">
-                            <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-                            <?php esc_html_e( 'Not going', 'fluent-event' ); ?>
-                        </button>
-                    <?php else : ?>
-                        <?php // Visitors only say Going: a not-going row by email would block that email from Going later. ?>
-                        <button type="button" class="fe-rsvp__option" role="menuitem" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>">
-                            <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-                            <?php esc_html_e( 'Going', 'fluent-event' ); ?>
-                        </button>
-                    <?php endif; ?>
+                    <?php // Only Going: a not-going row by email would block that email from Going later. ?>
+                    <button type="button" class="fe-rsvp__option" role="menuitem" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>">
+                        <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        <?php esc_html_e( 'Going', 'fluent-event' ); ?>
+                    </button>
                 </div>
             <?php endif; ?>
 
@@ -121,13 +96,13 @@ $fluentEventRsvpLabels = [
         <?php endif; ?>
     <?php endif; ?>
 
-    <?php if ( $fluentEventForm ) : ?>
+    <?php if ( $registration && ! $fluentEventDone ) : ?>
         <form
             id="fe-register-<?php echo esc_attr( $fluentEventId ); ?>"
             class="fe-register"
             popover
             method="post"
-            action="<?php echo esc_url( $fluentEventMember ? $registration['member_url'] : $registration['visitor_url'] ); ?>"
+            action="<?php echo esc_url( $registration['url'] ); ?>"
             aria-labelledby="fe-register-title-<?php echo esc_attr( $fluentEventId ); ?>"
             data-fe-register
         >
@@ -142,17 +117,12 @@ $fluentEventRsvpLabels = [
             </div>
 
             <label class="fe-register__label" for="fe-register-name-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( 'Name', 'fluent-event' ); ?></label>
-            <input id="fe-register-name-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-register__input" type="text" name="name" autocomplete="name" required autofocus value="<?php echo esc_attr( $registration['name'] ); ?>">
+            <input id="fe-register-name-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-register__input" type="text" name="name" autocomplete="name" required autofocus>
 
             <label class="fe-register__label" for="fe-register-email-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( 'Email', 'fluent-event' ); ?></label>
-            <?php // A member's email is the account's: shown, locked, and left out of the post. ?>
-            <input id="fe-register-email-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-register__input" type="email" name="email" autocomplete="email" required value="<?php echo esc_attr( $registration['email'] ); ?>"<?php disabled( $fluentEventMember ); ?>>
+            <input id="fe-register-email-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-register__input" type="email" name="email" autocomplete="email" required>
 
-            <?php if ( $fluentEventMember ) : ?>
-                <input type="hidden" name="status" value="going">
-            <?php else : ?>
-                <input class="fe-register__trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-            <?php endif; ?>
+            <input class="fe-register__trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 
             <p class="fe-register__error" role="alert"></p>
 

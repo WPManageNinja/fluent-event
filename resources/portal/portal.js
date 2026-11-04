@@ -1,5 +1,5 @@
-// Registration on the public event page. The server draws every state into the side card; this posts
-// the form or the RSVP choice and swaps in the card the endpoint renders back.
+// Registration on the public event page. Everyone registers as a visitor, by name and email; the
+// server draws every state into the side card, and this posts the form and swaps in the card it gets back.
 
 const card = () => document.querySelector('[data-fe-card]');
 
@@ -21,7 +21,8 @@ export function errorMessage(data, fallback) {
     return fallback;
 }
 
-// Every post carries the event's own nonce; a member's also carries their REST cookie nonce.
+// Every post carries the event's own nonce; a logged-in viewer's also carries the REST cookie nonce
+// WordPress needs to verify it, since it binds the event's nonce to their session.
 async function send(url, body) {
     const { nonce, eventNonce, error } = card().dataset;
     const response = await fetch(url, {
@@ -55,32 +56,10 @@ export async function submitForm(form) {
     message.textContent = '';
 
     try {
-        // A disabled field (a member's locked email) stays out of the post.
         swap((await send(form.action, Object.fromEntries(new FormData(form)))).html);
     } catch (error) {
         message.textContent = error.message;
         button.disabled = false;
-    }
-}
-
-export async function chooseStatus(option) {
-    const current = card();
-    const message = current.querySelector('.fe-event-page__error');
-
-    option.closest('[popover]').hidePopover();
-
-    if (option.getAttribute('aria-checked') === 'true') {
-        return;
-    }
-
-    message.textContent = '';
-    current.querySelectorAll('[data-fe-status]').forEach((button) => { button.disabled = true; });
-
-    try {
-        swap((await send(current.dataset.url, { status: option.dataset.feStatus })).html);
-    } catch (error) {
-        message.textContent = error.message;
-        current.querySelectorAll('[data-fe-status]').forEach((button) => { button.disabled = false; });
     }
 }
 
@@ -90,13 +69,5 @@ document.addEventListener('submit', (event) => {
     if (form) {
         event.preventDefault();
         submitForm(form);
-    }
-});
-
-document.addEventListener('click', (event) => {
-    const option = event.target.closest('[data-fe-status]');
-
-    if (option) {
-        chooseStatus(option);
     }
 });

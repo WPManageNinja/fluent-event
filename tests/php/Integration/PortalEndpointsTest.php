@@ -8,8 +8,8 @@ use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * Registration from the public event page: a visitor by name and email on RSVP and open events,
- * a member like the community page, and only on events that page opens.
+ * Registration from the public event page: anyone, logged in or not, as a visitor by name and email
+ * on RSVP and open events, and only on events that page opens.
  */
 class PortalEndpointsTest extends IntegrationTestCase
 {
@@ -26,13 +26,6 @@ class PortalEndpointsTest extends IntegrationTestCase
         return $this->rest('POST', "portal/events/{$event->id}/register-guest", array_merge([
             'name'  => 'Walk-in Visitor',
             'email' => 'visitor@example.test',
-            'nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
-        ], $params));
-    }
-
-    private function register(Event $event, array $params)
-    {
-        return $this->rest('POST', "portal/events/{$event->id}/register", array_merge([
             'nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
         ], $params));
     }
@@ -107,59 +100,36 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $this->registerGuest($ended)['status']);
     }
 
-    public function test_a_member_switches_their_rsvp_like_on_the_community_page()
+    // The page doesn't know its viewers: a logged-in user registers by the name and email they type, unlinked to their account.
+    public function test_a_logged_in_user_registers_as_a_visitor()
     {
         $event = $this->onlineEvent('rsvp');
         $this->actAs($this->createUser('subscriber'));
 
-        $going = $this->register($event, ['status' => 'going']);
-        $this->assertSame(200, $going['status'], wp_json_encode($going['data']));
-        $this->assertStringContainsString('https://meet.example.test/fe-room', $going['data']['html']);
-        $this->assertStringContainsString('data-fe-status="not_going"', $going['data']['html'], 'A member keeps the menu to change their mind');
+        $response = $this->registerGuest($event, ['name' => 'Stage Name', 'email' => 'stage@example.test']);
 
-        $notGoing = $this->register($event, ['status' => 'not_going']);
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
         $guest = $this->guestsOf($event)[0];
-        $this->assertSame('not_going', $guest->status);
-        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
-        $this->assertStringNotContainsString('https://meet.example.test/fe-room', $notGoing['data']['html']);
-    }
-
-    public function test_a_member_registers_for_an_open_event_under_the_name_they_give()
-    {
-        $event = $this->createEvent([], ['entry_type' => 'open']);
-        $this->actAs($this->createUser('subscriber'));
-
-        $this->assertSame(422, $this->register($event, ['status' => 'not_going'])['status']);
-        $this->assertSame(200, $this->register($event, ['status' => 'going', 'name' => 'Stage Name'])['status']);
-        $this->assertSame('Stage Name', $this->guestsOf($event)[0]->name);
-    }
-
-    public function test_members_and_visitors_each_have_their_own_endpoint()
-    {
-        $event = $this->createEvent();
-
-        $this->assertNotSame(200, $this->register($event, ['status' => 'going'])['status']);
-
-        $this->actAs($this->createUser('subscriber'));
-        $this->assertNotSame(200, $this->registerGuest($event)['status']);
-        $this->assertCount(0, $this->guestsOf($event));
+        $this->assertSame(['Stage Name', 'stage@example.test', 'going'], [$guest->name, $guest->email, $guest->status]);
+        $this->assertEmpty($guest->user_id);
+        $this->assertStringContainsString('fe-event-page__badge', $response['data']['html']);
+        $this->assertStringNotContainsString('data-fe-status', $response['data']['html']);
     }
 
     // An unlisted event opens only by its link, so walking ids without its page's nonce finds nothing.
-    public function test_a_member_cannot_register_by_event_id_alone()
+    public function test_an_event_cannot_be_registered_for_by_id_alone()
     {
         $event = $this->createEvent(['status' => 'unlisted']);
-        $this->actAs($this->createUser('subscriber'));
 
-        $response = $this->rest('POST', "portal/events/{$event->id}/register", ['status' => 'going']);
+        $response = $this->registerGuest($event, ['nonce' => '']);
 
         $this->assertSame(403, $response['status']);
         $this->assertArrayNotHasKey('html', $response['data']);
         $this->assertCount(0, $this->guestsOf($event));
     }
 
-    // With landing pages off there is no event page, so its endpoints refuse members and visitors alike.
-    public function test_neither_endpoint_answers_when_landing_pages_are_off()
+    // With landing pages off there is no event page, so its endpoint refuses everyone.
+    public function test_the_endpoint_does_not_answer_when_landing_pages_are_off()
     {
         Settings::update(Settings::GENERAL, ['enable_landing_pages' => 'no']);
         $event = $this->createEvent();
@@ -167,7 +137,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertNotSame(200, $this->registerGuest($event)['status']);
 
         $this->actAs($this->createUser('subscriber'));
-        $this->assertNotSame(200, $this->register($event, ['status' => 'going'])['status']);
+        $this->assertNotSame(200, $this->registerGuest($event)['status']);
         $this->assertCount(0, $this->guestsOf($event));
     }
 }
