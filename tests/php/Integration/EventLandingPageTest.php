@@ -29,35 +29,33 @@ class EventLandingPageTest extends IntegrationTestCase
     private function handler()
     {
         return new class extends LandingPageHandler {
-            public function event($calendarSlug, $eventSlug)
+            public function event($eventSlug)
             {
-                return $this->eventPage($calendarSlug, $eventSlug);
+                return $this->eventPage($eventSlug);
             }
 
             public function calendar($slug)
             {
-                return $this->calendarPage($slug);
+                return $this->eventsPage($slug);
             }
         };
     }
 
-    private function page($event, $calendarSlug = null)
+    private function page($event)
     {
-        return $this->handler()->event($calendarSlug ?: $event->calendar->slug, $event->post->post_name);
+        return $this->handler()->event($event->post->post_name);
     }
 
     public function test_an_event_opens_when_it_and_its_calendar_are_public_or_unlisted()
     {
         $calendar = $this->createCalendar(['status' => 'unlisted']);
-        $other = $this->createCalendar();
 
         $public = $this->createEvent(['calendar_id' => $calendar->id, 'title' => 'Opening night']);
         $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'unlisted']);
 
         $this->assertStringContainsString('Opening night', $this->page($public)['body']);
         $this->assertNotNull($this->page($unlisted));
-        // Only under its own calendar's slug.
-        $this->assertNull($this->page($public, $other->slug));
+        $this->assertNull($this->handler()->event('fe-test-no-such-event'));
 
         foreach (['private', 'draft'] as $status) {
             $this->assertNull($this->page($this->createEvent(['calendar_id' => $calendar->id, 'status' => $status])));
@@ -130,13 +128,14 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertNotEmpty(preg_grep('/^ /', $lines), 'The long description folds onto continuation lines.');
     }
 
-    public function test_calendar_page_events_link_to_their_page()
+    // Straight under the portal slug: the calendar is a filter on the list, not part of an event's address.
+    public function test_listed_events_link_to_their_page_by_slug_alone()
     {
         Settings::update(Settings::GENERAL, ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no']);
         $calendar = $this->createCalendar();
         $event = $this->createEvent(['calendar_id' => $calendar->id]);
 
-        $url = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $calendar->slug . '/' . $event->post->post_name));
+        $url = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->post->post_name));
 
         $this->assertStringContainsString('href="' . esc_url($url) . '"', $this->handler()->calendar($calendar->slug)['body']);
     }

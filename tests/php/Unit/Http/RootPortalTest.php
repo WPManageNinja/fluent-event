@@ -35,13 +35,12 @@ class RootPortalTest extends TestCase
     public function rootRequests()
     {
         return [
-            'home page'            => ['', false, true, ['calendars', '', '']],
-            'home page feed'       => ['', false, true, ['', '', ''], true],
-            'search at the root'   => ['', false, false, ['', '', '']],
-            'a page keeps its url' => ['about', false, false, ['', '', '']],
-            'unresolved calendar'  => ['team', true, false, ['calendar', 'team', '']],
-            'unresolved event'     => ['team/launch', true, false, ['event', 'team', 'launch']],
-            'deeper than an event' => ['team/launch/more', true, false, ['', '', '']],
+            'home page'            => ['', false, true, ['calendars', '']],
+            'home page feed'       => ['', false, true, ['', ''], true],
+            'search at the root'   => ['', false, false, ['', '']],
+            'a page keeps its url' => ['about', false, false, ['', '']],
+            'unresolved event'     => ['launch', true, false, ['event', 'launch']],
+            'deeper than an event' => ['team/launch', true, false, ['', '']],
         ];
     }
 

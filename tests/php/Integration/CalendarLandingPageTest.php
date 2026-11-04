@@ -7,8 +7,9 @@ use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * The public calendar page: who can open it, which events it lists, and how the
- * view settings and paging shape it. The page reads its state from the query string.
+ * The public events list behind the landing home and each calendar's page: which calendars and
+ * events it shows, its calendar chips, and how the view settings and paging shape it. The page
+ * reads its state from the query string.
  */
 class CalendarLandingPageTest extends IntegrationTestCase
 {
@@ -34,11 +35,77 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $handler = new class extends LandingPageHandler {
             public function open($slug)
             {
-                return $this->calendarPage($slug);
+                return $this->eventsPage($slug);
             }
         };
 
         return $handler->open($slug);
+    }
+
+    public function test_the_home_lists_public_events_from_every_public_calendar_and_names_each_ones_calendar()
+    {
+        $first = $this->createCalendar(['title' => 'Zebra First Club']);
+        $second = $this->createCalendar(['title' => 'Zebra Second Club']);
+        $unlisted = $this->createCalendar(['title' => 'Zebra Unlisted Club', 'status' => 'unlisted']);
+        $private = $this->createCalendar(['title' => 'Zebra Private Club', 'status' => 'private']);
+
+        $event = $this->createEvent(['calendar_id' => $first->id, 'title' => 'Zebra first night']);
+        $this->createEvent(['calendar_id' => $second->id, 'title' => 'Zebra second night']);
+        $this->createEvent(['calendar_id' => $unlisted->id, 'title' => 'Zebra unlisted night']);
+        $this->createEvent(['calendar_id' => $private->id, 'title' => 'Zebra private night']);
+
+        $body = $this->page('', ['view' => 'cards', 'search' => 'Zebra'])['body'];
+
+        $this->assertStringContainsString('Zebra first night', $body);
+        $this->assertStringContainsString('Zebra second night', $body);
+        $this->assertStringNotContainsString('Zebra unlisted night', $body);
+        $this->assertStringNotContainsString('Zebra private night', $body);
+        // Chips for the public calendars only; each event links to its own page and is labelled with its calendar.
+        $this->assertStringContainsString('Zebra Second Club', $body);
+        $this->assertStringNotContainsString('Zebra Unlisted Club', $body);
+        $this->assertStringContainsString('/' . Settings::portalSlug() . '/' . $event->post->post_name . '/', $body);
+        $this->assertStringContainsString('fe-event-tile__calendar"', $body);
+    }
+
+    public function test_a_calendar_page_lists_only_its_events_under_its_selected_chip()
+    {
+        $calendar = $this->createCalendar(['title' => 'Zebra Own Club']);
+        $other = $this->createCalendar(['title' => 'Zebra Other Club']);
+        $this->createEvent(['calendar_id' => $calendar->id, 'title' => 'Zebra own night']);
+        $this->createEvent(['calendar_id' => $other->id, 'title' => 'Zebra other night']);
+
+        $body = $this->page($calendar->slug, ['view' => 'cards', 'search' => 'Zebra'])['body'];
+
+        $this->assertStringContainsString('Zebra own night', $body);
+        $this->assertStringNotContainsString('Zebra other night', $body);
+        $this->assertMatchesRegularExpression('/fe-calendar-chips__chip--active"(?:(?!<\/a>).)*Zebra Own Club/s', $body);
+        $this->assertStringContainsString('fe-event-tile__calendar"', $body, 'The label stays, so picking a chip does not reflow the cards');
+        // The calendar is a query arg the other controls carry: chips switch it and keep the view, search keeps it.
+        $this->assertStringContainsString('/' . Settings::portalSlug() . '/?calendar=' . $other->slug . '&#038;view=cards', $body);
+        $this->assertStringContainsString('name="calendar" value="' . $calendar->slug . '"', $body);
+    }
+
+    // Picking a calendar, or searching, while looking at another month stays on that month.
+    public function test_the_month_view_keeps_its_month_across_calendar_chips_and_search()
+    {
+        $calendar = $this->createCalendar(['title' => 'Zebra Month Club']);
+
+        $body = $this->page('', ['view' => 'calendar', 'month' => '2027-03'])['body'];
+
+        preg_match('/href="([^"]*[?&;]calendar=' . preg_quote($calendar->slug, '/') . '[^"]*)"/', $body, $chip);
+        $this->assertNotEmpty($chip, 'The calendar has a chip');
+        parse_str(parse_url(html_entity_decode($chip[1]), PHP_URL_QUERY), $args);
+        $this->assertSame(['view' => 'calendar', 'filter' => 'upcoming', 'calendar' => $calendar->slug, 'month' => '2027-03'], $args);
+        $this->assertStringContainsString('name="month" value="2027-03"', $body);
+        $this->assertStringNotContainsString('No events this month.', $body, 'The empty grid says so itself');
+    }
+
+    public function test_an_unlisted_calendar_gets_its_chip_only_on_its_own_page()
+    {
+        $calendar = $this->createCalendar(['title' => 'Zebra Quiet Club', 'status' => 'unlisted']);
+
+        $this->assertStringNotContainsString('Zebra Quiet Club', $this->page('')['body']);
+        $this->assertMatchesRegularExpression('/fe-calendar-chips__chip--active"(?:(?!<\/a>).)*Zebra Quiet Club/s', $this->page($calendar->slug)['body']);
     }
 
     public function test_a_private_or_draft_calendar_has_no_page()
