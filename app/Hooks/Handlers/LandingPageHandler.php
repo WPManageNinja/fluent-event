@@ -286,7 +286,15 @@ class LandingPageHandler
                     'details'  => $summary,
                     'location' => $place,
                 ], '', '&', PHP_QUERY_RFC3986),
-                'ics'      => 'data:text/calendar;charset=utf-8,' . rawurlencode($this->icsFile($event, $dates, $summary, $place, $url)),
+                'ics'      => 'data:text/calendar;charset=utf-8,' . rawurlencode(DateTimeHelper::icsFile([
+                    'id'          => $event->id,
+                    'title'       => $event->title,
+                    'start_at'    => $event->start_at,
+                    'end_at'      => $event->end_at,
+                    'description' => $summary,
+                    'location'    => $place,
+                    'url'         => $url,
+                ])),
                 'filename' => $event->post->post_name . '.ics',
             ];
         }
@@ -317,55 +325,6 @@ class LandingPageHandler
         /* translators: 1: start date and time, 2: end time or end date and time */
         return sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), DateTimeHelper::wallClock($start, 'M j, ' . get_option('time_format')), DateTimeHelper::wallClock($end, $endFormat))
             . ' (' . $siteZone . ')';
-    }
-
-    // The same file the community page builds; its UID matches, so a re-import updates the entry instead of duplicating it.
-    protected function icsFile(Event $event, array $dates, $summary, $place, $url)
-    {
-        // Commas, semicolons, backslashes and newlines carry meaning in a calendar line.
-        $text = function ($value) {
-            return str_replace(["\r\n", "\n", "\r"], '\n', addcslashes((string) $value, '\\,;'));
-        };
-
-        // Lines are capped at 75 bytes, not characters; fold between whole characters so accents, CJK and emoji survive.
-        $fold = function ($line) {
-            $lines = [];
-            $current = '';
-
-            foreach (preg_split('//u', $line, -1, PREG_SPLIT_NO_EMPTY) as $char) {
-                // A continuation line starts with a space, which counts toward its 75.
-                if (strlen($current) + strlen($char) > ($lines ? 74 : 75)) {
-                    $lines[] = $current;
-                    $current = '';
-                }
-
-                $current .= $char;
-            }
-
-            $lines[] = $current;
-
-            return implode("\r\n ", $lines);
-        };
-
-        $lines = [
-            'BEGIN:VCALENDAR',
-            'VERSION:2.0',
-            'PRODID:-//Fluent Events//EN',
-            'CALSCALE:GREGORIAN',
-            'BEGIN:VEVENT',
-            'UID:fluent-event-' . $event->id . '@' . wp_parse_url(home_url(), PHP_URL_HOST),
-            'DTSTAMP:' . gmdate('Ymd\THis\Z'),
-            'DTSTART:' . $dates[0],
-            'DTEND:' . $dates[1],
-            'SUMMARY:' . $text($event->title),
-            'DESCRIPTION:' . $text($summary),
-            'LOCATION:' . $text($place),
-            'URL:' . $url,
-            'END:VEVENT',
-            'END:VCALENDAR',
-        ];
-
-        return implode("\r\n", array_map($fold, $lines));
     }
 
     // Dates and times in the site's timezone and formats, as in the admin lists.

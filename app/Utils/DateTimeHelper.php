@@ -151,4 +151,62 @@ class DateTimeHelper
 
         return $zone ? $range . ' (' . $zone . ')' : $range;
     }
+
+    /**
+     * One event as calendar file text, the same file the community page's buildIcs() makes: the UID
+     * matches, so a re-import updates the entry instead of duplicating it.
+     *
+     * @param array $event id, title, start_at and end_at (stored UTC), description, location, url.
+     */
+    public static function icsFile(array $event)
+    {
+        $stamp = function ($value) {
+            return gmdate('Ymd\THis\Z', strtotime($value . ' UTC'));
+        };
+
+        // Commas, semicolons, backslashes and newlines carry meaning in a calendar line.
+        $text = function ($value) {
+            return str_replace(["\r\n", "\n", "\r"], '\n', addcslashes((string) $value, '\\,;'));
+        };
+
+        // Lines are capped at 75 bytes, not characters; fold between whole characters so accents, CJK and emoji survive.
+        $fold = function ($line) {
+            $lines = [];
+            $current = '';
+
+            foreach (preg_split('//u', $line, -1, PREG_SPLIT_NO_EMPTY) as $char) {
+                // A continuation line starts with a space, which counts toward its 75.
+                if (strlen($current) + strlen($char) > ($lines ? 74 : 75)) {
+                    $lines[] = $current;
+                    $current = '';
+                }
+
+                $current .= $char;
+            }
+
+            $lines[] = $current;
+
+            return implode("\r\n ", $lines);
+        };
+
+        $lines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Fluent Events//EN',
+            'CALSCALE:GREGORIAN',
+            'BEGIN:VEVENT',
+            'UID:fluent-event-' . (int) $event['id'] . '@' . wp_parse_url(home_url(), PHP_URL_HOST),
+            'DTSTAMP:' . gmdate('Ymd\THis\Z'),
+            'DTSTART:' . $stamp($event['start_at']),
+            'DTEND:' . $stamp($event['end_at']),
+            'SUMMARY:' . $text($event['title']),
+            'DESCRIPTION:' . $text($event['description']),
+            'LOCATION:' . $text($event['location']),
+            'URL:' . $event['url'],
+            'END:VEVENT',
+            'END:VCALENDAR',
+        ];
+
+        return implode("\r\n", array_map($fold, $lines));
+    }
 }
