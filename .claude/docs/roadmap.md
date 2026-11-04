@@ -70,6 +70,7 @@ on `fe_event` with extra fields in term meta (FR-6.17) — not registered yet.
 | Speakers: name, photo, designation, social links; one or more per event | Eventin, MEC | `fe_performer`; thin by design — no profile page |
 | Categories: Workshop, Meetup, Webinar, Conference… with a color and icon; one or more per event, optional parent | TEC, MEC, Eventin | `fe_event_type` (the spec calls it "event type"; shown as Categories so it isn't confused with `entry_type` or `venue_type`) |
 | Shown on the event (community post + admin), filter events by venue / organizer / speaker / category | TEC | v2.0 adds public venue / organizer / category pages |
+| Host on the public event page | Luma, FluentBooking | the event's organizers, shown on the landing event page. Left out of v2.0 so the page matches the community event page |
 
 ---
 
@@ -95,15 +96,12 @@ community add-on into a standalone event tool, and makes events shareable anywhe
 
 | Feature | Seen in | Notes |
 |---|---|---|
-| Public event page: cover, date/time, venue or online, host, description, guest count, add to calendar, share | FluentBooking, Luma, Eventbrite | built at `/{slug}/{calendar}/{event}/` as the community event page server-rendered: cover, date/time in the event's and the site's clock, venue or online, description, guest count, add to calendar (Google + .ics). Public and unlisted events in a public or unlisted calendar open. Meeting link and guest count follow the community rules (`EventService::formatEvent`). Registration in the next row; host and share still to come. `fe_event` CPT stays non-public |
-| Calendar page: upcoming + past events of one calendar, with its branding | FluentBooking host page, Luma calendars | built at `/{slug}/{calendar}/`: Luma-style header, search, All / Upcoming / Past, Cards / Timeline / Calendar views (default and lock from General Settings, last choice kept per browser), 10 per page. Public and unlisted calendars open; only public events list. Each event links to its page. Logo / cover uploads are still to come; the page uses `theme_color`. |
+| Public event page: cover, date/time, venue or online, host, description, guest count, add to calendar, share | FluentBooking, Luma, Eventbrite | built at `/{slug}/{calendar}/{event}/` as the community event page server-rendered: cover, date/time in the event's and the site's clock, venue or online, description, guest count, add to calendar (Google + .ics). Public and unlisted events in a public or unlisted calendar open. Meeting link and guest count follow the community rules (`EventService::formatEvent`). Registration in the next row. Host moves to v1.2 organizers, share to v2.7. `fe_event` CPT stays non-public |
+| Calendar page: upcoming + past events of one calendar | FluentBooking host page, Luma calendars | built at `/{slug}/{calendar}/`: Luma-style header, search, All / Upcoming / Past, Cards / Timeline / Calendar views (default and lock from General Settings, last choice kept per browser), 10 per page. Public and unlisted calendars open; only public events list. Each event links to its page. The page uses `theme_color`; logo / cover uploads are branding, under Later |
 | Register on the page without an account (name + email) | Luma, Eventbrite | built: `portal/events/{id}/register` (members, like the community page) and `register-guest` (visitors on rsvp or open: name + email, nonce + rate limit + honeypot, always going, no undo; rsvp visitors see only Going). Guests get source `website`. Capacity, waitlist, deadline and approval from v1.1–v1.3 apply here too |
-| Confirmation page + "manage my RSVP" link (change / cancel) | FluentBooking, Luma | signed per-guest link in the confirmation email |
-| Visibility: public / unlisted (link only) / private | Luma | FR-6.5 — only takes effect here: `public` is listed, `unlisted` stays off the page but opens by direct link, `private` has no public page. The admin already sets status; fcom-created events and calendars start `private` |
-| Reveal the meeting link only X minutes before start | — | until then going guests see "Link available 15 min before start"; stops the link spreading early. Applies to the community post too |
-| SEO + sharing: schema.org Event, Open Graph / social card, custom slug | TEC, Eventbrite | was out of scope for the fcom-only release |
-| Embed: `?embedded` iframe mode, Gutenberg block, shortcode | FluentBooking, TEC | FR-6.12 |
-| Landing page settings: on/off, branding | FluentBooking | global, overridable per calendar. The URL slug is already in General Settings |
+| Not found page | — | built: an unknown, private or draft calendar or event gets one 404 page in the landing layout, with a link back to the calendars, instead of the theme's. The same page for all three, so a hidden one can't be told apart |
+| Visibility: public / unlisted (link only) / private | Luma | built (FR-6.5) — only takes effect here: `public` is listed, `unlisted` stays off the page but opens by direct link, `private` has no public page. fcom-created events and calendars start `private` |
+| Landing page settings: on/off | FluentBooking | built: "Enable landing pages" in General Settings, off by default; off means no landing URL and no public registration. The URL slug is set there too. No branding in this release (see Later) |
 
 URLs, matching FluentCommunity: pretty by default under the portal slug
 (`/calendars/{calendar}/{event}`). The slug is set in General Settings, and
@@ -183,6 +181,7 @@ Design:
 |---|---|---|
 | ⭐ Recurring events | TEC Pro, MEC | FR-6.16 designed: RRULE on master, each occurrence owns its row |
 | ⭐ Zoom / Google Meet auto-create links | Eventin, Amelia | FR-6.3; today hosts paste a link |
+| Reveal the meeting link only X minutes before start | — | until then going guests see "Link available 15 min before start"; stops the link spreading early. Applies to the community post and the landing event page |
 | Sponsors (name, logo, URL, level) | MEC, TEC | a taxonomy like organizers (`fe_sponsor`), deferred in the spec |
 
 ---
@@ -228,6 +227,10 @@ FluentBooking keeps Twilio SMS in Pro too (`fluent-booking-pro/app/Services/Inte
 | Per-event insights (page views, sign-ups, conversion) | Luma | FR-6.11; landing pages give the view count |
 | Outgoing webhooks | Eventbrite | for Zapier-style automation |
 | Post-event feedback survey | Luma | |
+| Social card + search: `og:image` from the event cover, schema.org Event (JSON-LD), custom slug | TEC, Eventbrite | the landing layout already sends `og:title` / `og:description` / `og:url`; without `og:image` a shared link shows no picture |
+| Share buttons on the landing event page | Luma, Eventbrite | left out of v2.0 so the page matches the community event page |
+| Shortcodes, like FluentBooking's | FluentBooking | FluentBooking ships `[fluent_booking]` (one event's booking form), `[fluent_booking_calendar]` (a host's events) and `[fluent_booking_team]`. Ours, names to settle: one event with its registration card, one calendar's events, the calendars list. Reuse the landing views and `portal.js` |
+| Embed: `?embedded` iframe mode, Gutenberg block | FluentBooking, TEC | FR-6.12. The block wraps the shortcodes |
 
 ---
 
@@ -249,6 +252,7 @@ per-user preferences in one table). Guests and community members get email only,
 
 Not scheduled yet:
 - Calendar subscribe feed (iCal URL per calendar) — we already build `.ics` for single events
+- Landing page branding: calendar logo / cover uploads, colors; global, overridable per calendar (FluentBooking). The first landing release ships without customization
 
 Big or niche — only on clear demand:
 - Seat maps (TEC Elite, MEC add-on)
@@ -260,4 +264,5 @@ Big or niche — only on clear demand:
 
 - Per-event currency — one global currency setting
 - A separate registrations table — a guest row is the ticket; an order is a `group_id`
+- A landing confirmation page or "manage my RSVP" link — registering updates the event page in place, and visitors have no logged-in experience to manage it from
 - A separate "limited seats" entry type — capacity, waitlist, deadline and approval are RSVP settings

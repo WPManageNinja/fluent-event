@@ -134,6 +134,56 @@ html.dark {
     }
 }
 
+.fe-not-found {
+    max-width: 480px;
+    margin: var(--fe-space-12, 48px) auto;
+    text-align: center;
+
+    &__code {
+        margin: 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: clamp(96px, 22vw, 160px);
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.04em;
+    }
+
+    &__title {
+        margin: var(--fe-space-2, 8px) 0;
+        font-size: var(--fe-text-2xl, 24px);
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    &__text {
+        margin: 0 0 var(--fe-space-6, 24px);
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    &__button {
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--fe-control-height, 36px);
+        padding: 0 var(--fe-space-4, 16px);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-button, #2b2e33);
+        color: var(--fe-primary-bg, #ffffff);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        text-decoration: none;
+
+        &:hover {
+            opacity: 0.9;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+}
+
 .fe-calendar-card {
     position: relative;
     border: 1px solid var(--fe-primary-border, #eaecf0);

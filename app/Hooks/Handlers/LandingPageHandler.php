@@ -77,27 +77,44 @@ class LandingPageHandler
                 return;
         }
 
-        // An unknown, private or draft calendar or event falls through to the theme's 404 page.
-        if (!$page) {
-            global $wp_query;
-            $wp_query->set_404();
+        $portalUrl = home_url(user_trailingslashit(Settings::portalSlug()));
+
+        // An unknown, private or draft calendar or event gets the same page, so a hidden one can't be told apart.
+        if ($page) {
+            status_header(200);
+        } else {
+            $page = $this->notFoundPage($portalUrl);
             status_header(404);
             nocache_headers();
-
-            return;
         }
-
-        status_header(200);
 
         App::make('view')->render('portal.layout', $page + [
             'site_name'  => get_bloginfo('name'),
             'site_icon'  => get_site_icon_url(64),
-            'portal_url' => home_url(user_trailingslashit(Settings::portalSlug())),
+            'portal_url' => $portalUrl,
             'style_url'  => Enqueue::url('portal/portal.scss'),
             'script_url' => '',
         ]);
 
         exit;
+    }
+
+    protected function notFoundPage($portalUrl)
+    {
+        global $wp;
+
+        $description = __('This calendar or event doesn’t exist, or it isn’t open to the public.', 'fluent-event');
+
+        return [
+            /* translators: %s: site name */
+            'title'       => sprintf(__('Page not found – %s', 'fluent-event'), get_bloginfo('name')),
+            'description' => $description,
+            'url'         => home_url(user_trailingslashit($wp->request)),
+            'body'        => (string) App::make('view')->make('portal.not-found', [
+                'description' => $description,
+                'portal_url'  => $portalUrl,
+            ]),
+        ];
     }
 
     // A page returns its layout title, description, canonical url and rendered body.
