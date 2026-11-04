@@ -1,5 +1,6 @@
-// Registration on the public event page. Everyone registers as a visitor, by name and email; the
-// server draws every state into the side card, and this posts the form and swaps in the card it gets back.
+// The landing pages' script. On the events list, a calendar chip swaps the list in place. On an event
+// page, everyone registers as a visitor, by name and email; the server draws every state into the side
+// card, and this posts the form and swaps in the card it gets back.
 
 const card = () => document.querySelector('[data-fe-card]');
 
@@ -71,3 +72,140 @@ document.addEventListener('submit', (event) => {
         submitForm(form);
     }
 });
+
+// On wide screens the chips keep to one row: those that don't fit move into the "More" panel, from the
+// end, and "All" and the selected chip always stay. Phones scroll the row instead; without JS every chip wraps.
+export function fitChips(root = document.querySelector('[data-fe-chips]')) {
+    if (!root) {
+        return;
+    }
+
+    const row = root.querySelector('[data-fe-chips-row]');
+    const more = root.querySelector('[data-fe-chips-more]');
+    const panel = root.querySelector('[data-fe-chips-panel]');
+    // The order they were rendered in, kept on the element so every refit starts from it.
+    root.chips = root.chips || [...root.querySelectorAll('[data-fe-chip]')];
+
+    row.replaceChildren(...root.chips, more);
+    panel.replaceChildren();
+    more.hidden = true;
+
+    const wide = window.matchMedia('(min-width: 768px)').matches;
+    root.classList.toggle('fe-calendar-chips--fitted', wide);
+
+    if (!wide || row.scrollWidth <= row.clientWidth) {
+        return;
+    }
+
+    // Measured at its widest label, so the count it ends on can't push the row over again.
+    more.hidden = false;
+    more.textContent = more.dataset.label.replace('%d', root.chips.length);
+
+    const moved = [];
+
+    for (let i = root.chips.length - 1; i > 0 && row.scrollWidth > row.clientWidth; i--) {
+        if (!root.chips[i].hasAttribute('aria-current')) {
+            moved.unshift(root.chips[i]);
+            root.chips[i].remove();
+        }
+    }
+
+    more.textContent = more.dataset.label.replace('%d', moved.length);
+    panel.replaceChildren(...moved);
+}
+
+// On a phone the chips scroll sideways; bring the selected one into view.
+function revealActiveChip() {
+    const chip = document.querySelector('[data-fe-chip][aria-current]');
+    chip && chip.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
+
+// Only the latest pick may land: a slower answer to an earlier chip would otherwise overwrite it.
+let loading = null;
+
+// The server renders the list for the chip's link, as for a normal load; this takes its [data-fe-events]
+// and moves the address bar there, so the link stays shareable and Back returns to the previous calendar.
+export async function showEvents(url, push = true) {
+    const list = document.querySelector('[data-fe-events]');
+    const results = list.querySelector('[data-fe-results]');
+    const skeleton = list.querySelector('template[data-fe-skeleton]');
+    let page;
+    let next;
+
+    // The results go grey in the current view's shape until the new list is in.
+    results.setAttribute('aria-busy', 'true');
+    skeleton && results.replaceChildren(skeleton.content.cloneNode(true));
+
+    loading && loading.abort();
+    loading = new AbortController();
+
+    try {
+        const response = await fetch(url, { credentials: 'same-origin', signal: loading.signal });
+        page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        next = page.querySelector('[data-fe-events]');
+
+        if (!response.ok || !next) {
+            throw new Error(response.statusText);
+        }
+    } catch (error) {
+        // Superseded by a later pick, which is loading now.
+        if (error.name === 'AbortError') {
+            return;
+        }
+
+        // A normal load shows whatever the server answers, the 404 page included.
+        location.assign(url);
+        return;
+    }
+
+    list.replaceWith(next);
+    document.title = page.title;
+    fitChips();
+
+    if (push) {
+        history.pushState(null, '', url);
+
+        // The clicked chip was replaced with the list; keep keyboard focus on its successor.
+        const chip = next.querySelector('[data-fe-chip][aria-current]');
+        chip && chip.focus({ preventScroll: true });
+    }
+
+    revealActiveChip();
+}
+
+document.addEventListener('click', (event) => {
+    const chip = event.target.closest('[data-fe-chip]');
+
+    // A modified click opens the link the way the browser normally would.
+    if (!chip || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+    }
+
+    event.preventDefault();
+
+    // Selected at once, before the list it filters to arrives; a pick from the "More" panel closes it.
+    chip.closest('[data-fe-chips]').querySelectorAll('[data-fe-chip]').forEach((other) => {
+        other.classList.toggle('fe-calendar-chips__chip--active', other === chip);
+        other.toggleAttribute('aria-current', other === chip);
+    });
+    chip.setAttribute('aria-current', 'page');
+    chip.closest('[popover]') && chip.closest('[popover]').hidePopover();
+
+    showEvents(chip.href);
+});
+
+window.addEventListener('popstate', () => {
+    if (document.querySelector('[data-fe-events]')) {
+        showEvents(location.href, false);
+    }
+});
+
+let fitting = 0;
+
+window.addEventListener('resize', () => {
+    cancelAnimationFrame(fitting);
+    fitting = requestAnimationFrame(() => fitChips());
+});
+
+fitChips();
+revealActiveChip();
