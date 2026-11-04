@@ -142,7 +142,7 @@ class LandingPageHandler
 
         $events = Event::query()
             ->with(['post' => function ($query) {
-                $query->select(['ID', 'post_title']);
+                $query->select(['ID', 'post_title', 'post_name']);
             }])
             ->byCalendar($calendar->id)
             ->byStatus('public')
@@ -177,14 +177,17 @@ class LandingPageHandler
 
             $data['month'] = $this->monthGrid(
                 $start,
-                $events->inDateRange($start->format('Y-m-01'), $start->format('Y-m-t'))->orderBy('start_at', 'ASC')->get()
+                $events->inDateRange($start->format('Y-m-01'), $start->format('Y-m-t'))->orderBy('start_at', 'ASC')->get(),
+                $url
             );
         } else {
             $paginator = $events
                 ->byPeriod($filter === 'all' ? '' : $filter)
                 ->paginate(self::PER_PAGE, ['*'], 'page', $pageNumber);
 
-            $data['rows'] = array_map([$this, 'eventRow'], $paginator->items());
+            $data['rows'] = array_map(function ($event) use ($url) {
+                return $this->eventRow($event, $url);
+            }, $paginator->items());
             $data['current_page'] = $paginator->currentPage();
             $data['last_page'] = $paginator->lastPage();
         }
@@ -390,7 +393,7 @@ class LandingPageHandler
     }
 
     // Dates and times in the site's timezone and formats, as in the admin lists.
-    protected function eventRow(Event $event)
+    protected function eventRow(Event $event, $calendarUrl)
     {
         $start = strtotime($event->start_at . ' UTC');
         $end = strtotime($event->end_at . ' UTC');
@@ -408,11 +411,12 @@ class LandingPageHandler
             'is_online'  => $isOnline,
             'location'   => $isOnline ? __('Online', 'fluent-event') : (Arr::get($event->meta, 'venue') ?: __('In person', 'fluent-event')),
             'cover_url'  => Arr::get($event->meta, 'cover_url', ''),
+            'url'        => trailingslashit($calendarUrl) . user_trailingslashit($event->post->post_name),
             'start'      => $start,
         ];
     }
 
-    protected function monthGrid(\DateTimeImmutable $start, $events)
+    protected function monthGrid(\DateTimeImmutable $start, $events, $calendarUrl)
     {
         global $wp_locale;
 
@@ -421,7 +425,7 @@ class LandingPageHandler
         $byDay = [];
 
         foreach ($events as $event) {
-            $row = $this->eventRow($event);
+            $row = $this->eventRow($event, $calendarUrl);
             // An event that began last month shows on the 1st.
             $byDay[(int) wp_date('j', max($row['start'], $firstDay))][] = $row;
         }

@@ -3,6 +3,7 @@
 namespace FluentEvent\Tests\Integration;
 
 use FluentEvent\App\Hooks\Handlers\LandingPageHandler;
+use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -31,6 +32,11 @@ class EventLandingPageTest extends IntegrationTestCase
             public function event($calendarSlug, $eventSlug)
             {
                 return $this->eventPage($calendarSlug, $eventSlug);
+            }
+
+            public function calendar($slug)
+            {
+                return $this->calendarPage($slug);
             }
         };
     }
@@ -92,5 +98,16 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringContainsString('• Café', str_replace("\r\n ", '', $file));
         $this->assertLessThanOrEqual(75, max(array_map('strlen', $lines)));
         $this->assertNotEmpty(preg_grep('/^ /', $lines), 'The long description folds onto continuation lines.');
+    }
+
+    public function test_calendar_page_events_link_to_their_page()
+    {
+        Settings::update(Settings::GENERAL, ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no']);
+        $calendar = $this->createCalendar();
+        $event = $this->createEvent(['calendar_id' => $calendar->id]);
+
+        $url = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $calendar->slug . '/' . $event->post->post_name));
+
+        $this->assertStringContainsString('href="' . esc_url($url) . '"', $this->handler()->calendar($calendar->slug)['body']);
     }
 }
