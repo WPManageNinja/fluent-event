@@ -826,6 +826,12 @@ html.dark {
             display: flex;
             flex-direction: column;
             gap: 4px;
+            overflow-y: auto;
+        }
+
+        // Rows keep their height and the popover scrolls; a chip clips its overflow, so it would otherwise shrink.
+        > * {
+            flex-shrink: 0;
         }
 
         // Beside the cell, like the admin's right placement; flips left at the screen edge.
