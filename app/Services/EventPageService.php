@@ -4,10 +4,12 @@ namespace FluentEvent\App\Services;
 
 use FluentEvent\App\App;
 use FluentEvent\App\Models\Event;
+use FluentEvent\App\Utils\DateTimeHelper;
 
 /**
  * The public event page's side card — when, status, registration, where, how to join, add to
  * calendar — rendered for the page and again by the registration endpoints after each change.
+ * Its date labels and calendar file come from DateTimeHelper.
  */
 class EventPageService
 {
@@ -34,11 +36,14 @@ class EventPageService
         $data = [
             'event'            => $formatted,
             'is_online'        => $isOnline,
-            'chip_month'       => self::wallClock($event->start_at_local, 'M'),
-            'chip_day'         => self::wallClock($event->start_at_local, 'j'),
-            'date_label'       => self::dateRange($event->start_at_local, $event->end_at_local),
-            'time_label'       => self::timeRange($event->start_at_local, $event->end_at_local, $event->timezone),
-            'local_time_label' => self::localTimeLabel($event, $siteZone),
+            'chip_month'       => DateTimeHelper::wallClock($event->start_at_local, 'M'),
+            'chip_day'         => DateTimeHelper::wallClock($event->start_at_local, 'j'),
+            'date_label'       => DateTimeHelper::dateRange($event->start_at_local, $event->end_at_local),
+            'time_label'       => DateTimeHelper::timeRange($event->start_at_local, $event->end_at_local, $event->timezone),
+            // The site's clock under the event's own, only when the two read differently.
+            'local_time_label' => $event->start_at_site === $event->start_at_local && $event->end_at_site === $event->end_at_local
+                ? ''
+                : DateTimeHelper::dateTimeRange($event->start_at_site, $event->end_at_site, $siteZone),
             'phase'            => $phase,
             /* translators: %s: time until the event starts, e.g. "3 days" */
             'status_label'     => $phase === 'ended' ? __('Ended', 'fluent-event') : sprintf(__('Starts in %s', 'fluent-event'), human_time_diff(time(), $start)),
@@ -71,7 +76,15 @@ class EventPageService
                     'details'  => $summary,
                     'location' => $place,
                 ], '', '&', PHP_QUERY_RFC3986),
-                'ics'      => 'data:text/calendar;charset=utf-8,' . rawurlencode(self::icsFile($event, $dates, $summary, $place, $url)),
+                'ics'      => 'data:text/calendar;charset=utf-8,' . rawurlencode(DateTimeHelper::icsFile([
+                    'id'          => $event->id,
+                    'title'       => $event->title,
+                    'start_at'    => $event->start_at,
+                    'end_at'      => $event->end_at,
+                    'description' => $summary,
+                    'location'    => $place,
+                    'url'         => $url,
+                ])),
                 'filename' => $event->post->post_name . '.ics',
             ];
         }
@@ -96,97 +109,5 @@ class EventPageService
             'rest_nonce'    => $user->exists() ? wp_create_nonce('wp_rest') : '',
             'event_nonce'   => wp_create_nonce('fe_portal_register_' . $event->id),
         ];
-    }
-
-    // *_local and *_site are wall-clock strings; read and printed as UTC, they come out as written.
-    protected static function wallClock($value, $format)
-    {
-        return wp_date($format, strtotime($value . ' UTC'), new \DateTimeZone('UTC'));
-    }
-
-    public static function dateRange($start, $end)
-    {
-        // A single day follows the site's date setting, as the community event page does.
-        if (substr($start, 0, 10) === substr($end, 0, 10)) {
-            return self::wallClock($start, get_option('date_format'));
-        }
-
-        /* translators: 1: start date, 2: end date */
-        return sprintf(_x('%1$s – %2$s', 'date range', 'fluent-event'), self::wallClock($start, 'M j'), self::wallClock($end, 'M j, Y'));
-    }
-
-    public static function timeRange($start, $end, $zone)
-    {
-        $format = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
-        /* translators: 1: start time, 2: end time */
-        $range = sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), self::wallClock($start, $format), self::wallClock($end, $format));
-
-        return $zone ? $range . ' (' . $zone . ')' : $range;
-    }
-
-    // The site's clock, which the lists use; only when it reads differently from the event's.
-    protected static function localTimeLabel(Event $event, $siteZone)
-    {
-        $start = $event->start_at_site;
-        $end = $event->end_at_site;
-
-        if ($start === $event->start_at_local && $end === $event->end_at_local) {
-            return '';
-        }
-
-        $endFormat = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
-
-        /* translators: 1: start date and time, 2: end time or end date and time */
-        return sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), self::wallClock($start, 'M j, ' . get_option('time_format')), self::wallClock($end, $endFormat))
-            . ' (' . $siteZone . ')';
-    }
-
-    // The same file the community page builds; its UID matches, so a re-import updates the entry instead of duplicating it.
-    protected static function icsFile(Event $event, array $dates, $summary, $place, $url)
-    {
-        // Commas, semicolons, backslashes and newlines carry meaning in a calendar line.
-        $text = function ($value) {
-            return str_replace(["\r\n", "\n", "\r"], '\n', addcslashes((string) $value, '\\,;'));
-        };
-
-        // Lines are capped at 75 bytes, not characters; fold between whole characters so accents, CJK and emoji survive.
-        $fold = function ($line) {
-            $lines = [];
-            $current = '';
-
-            foreach (preg_split('//u', $line, -1, PREG_SPLIT_NO_EMPTY) as $char) {
-                // A continuation line starts with a space, which counts toward its 75.
-                if (strlen($current) + strlen($char) > ($lines ? 74 : 75)) {
-                    $lines[] = $current;
-                    $current = '';
-                }
-
-                $current .= $char;
-            }
-
-            $lines[] = $current;
-
-            return implode("\r\n ", $lines);
-        };
-
-        $lines = [
-            'BEGIN:VCALENDAR',
-            'VERSION:2.0',
-            'PRODID:-//Fluent Events//EN',
-            'CALSCALE:GREGORIAN',
-            'BEGIN:VEVENT',
-            'UID:fluent-event-' . $event->id . '@' . wp_parse_url(home_url(), PHP_URL_HOST),
-            'DTSTAMP:' . gmdate('Ymd\THis\Z'),
-            'DTSTART:' . $dates[0],
-            'DTEND:' . $dates[1],
-            'SUMMARY:' . $text($event->title),
-            'DESCRIPTION:' . $text($summary),
-            'LOCATION:' . $text($place),
-            'URL:' . $url,
-            'END:VEVENT',
-            'END:VCALENDAR',
-        ];
-
-        return implode("\r\n", array_map($fold, $lines));
     }
 }

@@ -249,8 +249,8 @@ class LandingPageHandler
             'is_online'      => $isOnline,
             'location'       => $isOnline ? __('Online', 'fluent-event') : ($formatted['venue'] ?: __('In person', 'fluent-event')),
             // The heading reads the site's clock, like every list; the side card leads with the event's own.
-            'site_date'      => EventPageService::dateRange($event->start_at_site, $event->end_at_site),
-            'site_time'      => EventPageService::timeRange($event->start_at_site, $event->end_at_site, wp_timezone_string()),
+            'site_date'      => DateTimeHelper::dateRange($event->start_at_site, $event->end_at_site),
+            'site_time'      => DateTimeHelper::timeRange($event->start_at_site, $event->end_at_site, wp_timezone_string()),
             'side'           => EventPageService::sideCard($event, $formatted, $url),
         ];
 
