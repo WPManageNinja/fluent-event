@@ -28,7 +28,7 @@ Three things people get wrong:
   attachment FK. The column is `meta` on both `event_details` and `calendars` — open-ended,
   holds whatever per-record config accrues, and is documented by the model's `defaultMeta()`.
 
-Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going),
+Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going; on the public event page a visitor can also say Going by name + email, final),
 `open` (a Register button opening a name + email popover — prefilled for members, email locked; a static Registered badge after, no undo) or
 `none` (view-only: nobody registers, every viewer sees the whole event, meeting link included;
 admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp` and `open`. RSVP has no seat limit. `ticketed` is a documented future

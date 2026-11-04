@@ -572,12 +572,23 @@ html.dark {
 }
 
 .fe-event-tile {
+    position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--fe-primary-border, #eaecf0);
     border-radius: var(--fe-radius-lg, 12px);
     background-color: var(--fe-primary-bg, #ffffff);
+
+    &:hover {
+        border-color: var(--fe-secondary-border, #9ca3af);
+    }
+
+    // The title link covers the tile, so the tile shows its focus.
+    &:focus-within {
+        outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+        outline-offset: 2px;
+    }
 
     &__cover {
         display: block;
@@ -627,6 +638,22 @@ html.dark {
         font-weight: 600;
         line-height: 1.35;
         overflow-wrap: anywhere;
+    }
+
+    // One link per tile for screen readers; its ::after makes the whole tile clickable.
+    &__link {
+        color: inherit;
+        text-decoration: none;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+        }
+
+        &:focus-visible {
+            outline: none;
+        }
     }
 
     &__location {
@@ -777,10 +804,21 @@ html.dark {
         padding: 2px 6px;
         border-radius: var(--fe-radius-sm, 4px);
         background-color: var(--fe-active-bg, #f0f0f1);
+        color: inherit;
         font-size: 11px;
         line-height: 1.4;
+        text-decoration: none;
         white-space: nowrap;
         text-overflow: ellipsis;
+
+        &:hover {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
     }
 
     &__chip-time {
@@ -914,5 +952,715 @@ html.dark {
     &__status {
         color: var(--fe-secondary-text, #525866);
         font-size: var(--fe-text-sm, 14px);
+    }
+}
+
+.fe-event-page {
+    &__back {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        margin-bottom: var(--fe-space-4, 16px);
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+        text-decoration: none;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+
+    // Wide and short, so the title and the side card still show without scrolling.
+    &__cover {
+        display: block;
+        width: 100%;
+        margin-bottom: var(--fe-space-5, 20px);
+        aspect-ratio: 21 / 8;
+        border-radius: var(--fe-radius-lg, 12px);
+        object-fit: cover;
+    }
+
+    // The side card sits beside the content, but before it on narrow screens.
+    &__grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        grid-template-areas: "main side";
+        gap: var(--fe-space-5, 20px) 28px;
+        align-items: start;
+
+        @media (max-width: 900px) {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas:
+                "intro"
+                "side"
+                "body";
+        }
+    }
+
+    // Its own column, so a card taller than the title and description can't open a gap between them.
+    &__main {
+        grid-area: main;
+        display: flex;
+        flex-direction: column;
+        gap: var(--fe-space-5, 20px);
+
+        // Hands its children to the grid, which puts the card between them.
+        @media (max-width: 900px) {
+            display: contents;
+        }
+    }
+
+    &__intro {
+        grid-area: intro;
+    }
+
+    &__body {
+        grid-area: body;
+    }
+
+    &__title {
+        margin: 0 0 var(--fe-space-3, 12px);
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px) var(--fe-space-5, 20px);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+
+        svg {
+            flex: none;
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    &__card {
+        padding: var(--fe-space-5, 20px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius-lg, 12px);
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__section-title {
+        margin: 0 0 var(--fe-space-3, 12px);
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    &__description {
+        font-size: 15px;
+        line-height: 1.65;
+        overflow-wrap: anywhere;
+
+        p:first-child {
+            margin-top: 0;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        // Organizer headings stay below the section title above them.
+        h1,
+        h2,
+        h3 {
+            margin: 18px 0 8px;
+            font-size: var(--fe-text-base, 16px);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        h4,
+        h5,
+        h6 {
+            margin: 14px 0 6px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        a {
+            color: var(--fe-accent-blue, #0e7ff1);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    }
+
+    // Stays in view beside a long description; scrolls with the page on narrow screens.
+    &__side {
+        grid-area: side;
+        display: grid;
+        gap: 14px;
+        position: sticky;
+        top: var(--fe-space-6, 24px);
+
+        @media (max-width: 900px) {
+            position: static;
+        }
+    }
+
+    &__when {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--fe-space-3, 12px);
+    }
+
+    &__when-text {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+        font-size: var(--fe-text-sm, 14px);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__when-date {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    &__when-local {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+    }
+
+    &__status {
+        justify-self: start;
+        padding: 2px 10px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+
+        &.fe-event-page__status--ended {
+            border-color: var(--fe-primary-border, #eaecf0);
+            background-color: transparent;
+            color: var(--fe-secondary-text, #525866);
+        }
+    }
+
+    &__count {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    // Sits where online events show Join online, so "where" has one place in the card.
+    &__place {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+
+        svg {
+            flex: none;
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            color: var(--fe-secondary-text, #525866);
+        }
+    }
+
+    &__place-text {
+        min-width: 0;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+    }
+
+    &__venue {
+        display: block;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+    }
+
+    &__address {
+        display: block;
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+    }
+
+    &__join {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--fe-space-2, 8px);
+        min-height: var(--fe-control-height, 36px);
+        padding: 6px var(--fe-space-4, 16px);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-button, #2b2e33);
+        color: var(--fe-primary-bg, #ffffff);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        text-decoration: none;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            opacity: 0.9;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+
+    &__note {
+        margin: 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+    }
+
+    &__calendar {
+        display: grid;
+        gap: var(--fe-space-2, 8px);
+        padding-top: 14px;
+        border-top: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__calendar-label {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    // Stacked: side by side, the labels wrap beside their icons in the narrow card.
+    &__calendar-links {
+        display: grid;
+        gap: var(--fe-space-2, 8px);
+    }
+
+    &__calendar-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: var(--fe-control-height, 36px);
+        padding: 6px 10px;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        color: var(--fe-primary-text, #19283a);
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+
+        svg {
+            flex: none;
+            width: 15px;
+            height: 15px;
+        }
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+}
+
+// Registration on the event page: the Register button, the RSVP menu and the final mark sit beside the count.
+.fe-event-page {
+    &__rsvp {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--fe-space-3, 12px);
+    }
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+
+        // Focused from script after registering, so screen readers land on it; it is not a control.
+        &:focus {
+            outline: none;
+        }
+    }
+
+    &__badge-icon {
+        display: inline-flex;
+        color: var(--fe-accent-green, #1a7f37);
+    }
+
+    &__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: var(--fe-control-height, 36px);
+        padding: 0 var(--fe-space-4, 16px);
+        border: 0;
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-button, #2b2e33);
+        color: var(--fe-primary-bg, #ffffff);
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 0.9;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+    }
+
+    &__error {
+        margin: 0;
+        color: var(--fe-danger-text, #cf222e);
+        font-size: 13px;
+
+        &:empty {
+            display: none;
+        }
+    }
+}
+
+.fe-rsvp {
+    &__trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        min-width: 150px;
+        height: var(--fe-control-height, 36px);
+        padding: 0 var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+
+    &__chevron {
+        display: flex;
+        margin-left: auto;
+        color: var(--fe-secondary-text, #525866);
+        transition: transform 0.15s ease;
+    }
+
+    &__trigger:has(+ .fe-rsvp__menu:popover-open) &__chevron {
+        transform: rotate(180deg);
+    }
+
+    &__icon {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        color: var(--fe-primary-bg, #ffffff);
+
+        &.fe-rsvp__icon--going {
+            background-color: var(--fe-accent-green, #1a7f37);
+        }
+
+        &.fe-rsvp__icon--not-going {
+            background-color: var(--fe-danger-text, #cf222e);
+        }
+    }
+
+    // A native popover: a click outside or Escape closes it. Below the trigger where anchor positioning works.
+    &__menu {
+        min-width: 180px;
+        padding: 6px;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+        &:popover-open {
+            display: grid;
+            gap: 2px;
+        }
+
+        @supports (position-area: bottom) {
+            margin: 4px 0;
+            position-area: bottom span-right;
+            position-try-fallbacks: top span-right;
+        }
+    }
+
+    // A visitor's Going opens the register form from inside the menu, so the menu stays open beneath it.
+    .fe-event-page__side:has(.fe-register:popover-open) &__menu {
+        visibility: hidden;
+    }
+
+    &__option {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        width: 100%;
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 6px;
+        background: none;
+        color: inherit;
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+        text-align: left;
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: -2px;
+        }
+
+        &[aria-checked="true"] {
+            font-weight: 600;
+        }
+    }
+}
+
+// The name and email form, a native popover centred over a dimmed page; Escape or the backdrop closes it.
+.fe-register {
+    width: min(400px, calc(100vw - 32px));
+    padding: var(--fe-space-5, 20px);
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius-lg, 12px);
+    background-color: var(--fe-primary-bg, #ffffff);
+    color: var(--fe-primary-text, #19283a);
+    box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+    &:popover-open {
+        display: grid;
+        gap: 6px;
+    }
+
+    &::backdrop {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    &__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--fe-space-3, 12px);
+        margin-bottom: var(--fe-space-2, 8px);
+    }
+
+    &__title {
+        margin: 0;
+        font-size: var(--fe-text-lg, 18px);
+        font-weight: 600;
+    }
+
+    &__event {
+        margin: 2px 0 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+    }
+
+    &__close {
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 6px;
+        background: none;
+        color: var(--fe-secondary-text, #525866);
+        cursor: pointer;
+
+        svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__label {
+        margin-top: 6px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    &__input {
+        width: 100%;
+        height: 38px;
+        padding: 0 10px;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: 6px;
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+
+        // A member's email is the account's: shown, but it can't change.
+        &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    }
+
+    // The honeypot: off-screen for people, still filled in by bots.
+    &__trap {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+    }
+
+    &__error {
+        margin: 0;
+        color: var(--fe-danger-text, #cf222e);
+        font-size: 13px;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    [type="submit"] {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+.fe-date-chip {
+    flex: none;
+    width: 52px;
+    overflow: hidden;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: 10px;
+    text-align: center;
+
+    &__month {
+        display: block;
+        padding: 2px 0;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        color: var(--fe-secondary-text, #525866);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    &__day {
+        display: block;
+        padding: 3px 0 5px;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+}
+
+.fe-live-badge {
+    display: flex;
+    align-items: center;
+    justify-self: start;
+    gap: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--fe-danger-text, #cf222e) 14%, transparent);
+    color: var(--fe-danger-text, #cf222e);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+
+    &::before {
+        content: '';
+        flex: none;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+        animation: fe-radar 1.6s ease-out infinite;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+    }
+}
+
+@keyframes fe-radar {
+    from {
+        box-shadow: 0 0 0 0 currentColor;
+    }
+
+    to {
+        box-shadow: 0 0 0 6px transparent;
     }
 }
