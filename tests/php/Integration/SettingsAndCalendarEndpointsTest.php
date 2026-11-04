@@ -14,6 +14,8 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
     {
         parent::setUp();
 
+        // The suite runs on the site's real options; a switch flipped in the browser would read as a toggle here.
+        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars', 'enable_landing_pages' => 'no']);
         $this->actAs($this->createAdmin());
     }
 
