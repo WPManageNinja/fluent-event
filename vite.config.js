@@ -52,8 +52,9 @@ export default defineConfig(({ mode }) => {
                     // FluentCommunity portal: the route/card loader and its stylesheet.
                     'resources/fcom-portal/fcom-portal.js',
                     'resources/fcom-portal/fcom-portal.scss',
-                    // Public landing pages under the portal slug.
-                    'resources/portal/portal.scss'
+                    // Public landing pages under the portal slug, and the event page's registration.
+                    'resources/portal/portal.scss',
+                    'resources/portal/portal.js'
                 ],
                 // Chunks import each other without the entries' ?ver=, so their names carry a content hash.
                 output: {

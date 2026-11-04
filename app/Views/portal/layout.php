@@ -10,6 +10,7 @@
  * @var string $site_icon
  * @var string $portal_url
  * @var string $style_url
+ * @var string $script_url  The event page's registration script; empty elsewhere.
  * @var string $body        Rendered page view, escaped where it was built.
  */
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
@@ -71,6 +72,11 @@ use FluentEvent\App\Services\Icon;
     <main class="fe-portal__main">
         <?php echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in its own view ?>
     </main>
+
+    <?php if ( $script_url ) : ?>
+        <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
+        <script type="module" src="<?php echo esc_url( $script_url . '?ver=' . rawurlencode( FLUENT_EVENT_PLUGIN_VERSION ) ); ?>"></script>
+    <?php endif; ?>
 
     <?php do_action( 'fluent_event/portal/footer' ); ?>
 </body>

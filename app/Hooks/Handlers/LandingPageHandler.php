@@ -84,6 +84,7 @@ class LandingPageHandler
             'site_icon'  => get_site_icon_url(64),
             'portal_url' => home_url(user_trailingslashit(Settings::portalSlug())),
             'style_url'  => Enqueue::url('portal/portal.scss'),
+            'script_url' => '',
         ]);
 
         exit;
@@ -261,6 +262,7 @@ class LandingPageHandler
             'description' => $description ?: $data['site_date'],
             'url'         => $url,
             'body'        => (string) App::make('view')->make('portal.event', $data),
+            'script_url'  => Enqueue::url('portal/portal.js'),
         ];
     }
 

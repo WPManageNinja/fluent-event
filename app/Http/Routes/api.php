@@ -9,6 +9,7 @@ use FluentEvent\App\Http\Controllers\ReportController;
 use FluentEvent\App\Http\Controllers\CalendarController;
 use FluentEvent\App\Http\Controllers\SettingsController;
 use FluentEvent\App\Http\Controllers\CommunityEventController;
+use FluentEvent\App\Http\Controllers\PortalEventController;
 
 $router->withPolicy('ReportPolicy')->group(function ($router) {
     $router->get('/dashboard', 'DashboardController@get');
@@ -71,4 +72,12 @@ $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($ro
     $router->post('/events/{id}/register-guest', [CommunityEventController::class, 'registerGuest'])
         ->int('id')->rateLimitPerMinute(5);
     $router->get('/editor-assets', [CommunityEventController::class, 'getEditorAssets']);
+});
+
+// The public event page under the portal slug.
+$router->prefix('portal')->withPolicy('PortalPolicy')->group(function ($router) {
+    $router->post('/events/{id}/register', [PortalEventController::class, 'register'])
+        ->int('id')->rateLimitPerMinute(10);
+    $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])
+        ->int('id')->rateLimitPerMinute(5);
 });

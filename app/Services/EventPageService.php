@@ -6,7 +6,8 @@ use FluentEvent\App\App;
 use FluentEvent\App\Models\Event;
 
 /**
- * The public event page's side card — when, status, where, how to join, add to calendar.
+ * The public event page's side card — when, status, registration, where, how to join, add to
+ * calendar — rendered for the page and again by the registration endpoints after each change.
  */
 class EventPageService
 {
@@ -44,8 +45,13 @@ class EventPageService
             /* translators: %s: number of guests going */
             'count_label'      => $formatted['guest_count'] === null ? '' : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
             'meeting_link'     => $meetingLink,
+            'registration'     => null,
             'add_to_calendar'  => null,
         ];
+
+        if ($phase !== 'ended' && in_array($formatted['entry_type'], ['rsvp', 'open'], true)) {
+            $data['registration'] = self::registration($event, $formatted, $isSeated);
+        }
 
         // Once someone is going, or for a no-entry event anyone can attend.
         if ($phase !== 'ended' && ($formatted['entry_type'] === 'none' || $isSeated)) {
@@ -71,6 +77,25 @@ class EventPageService
         }
 
         return (string) App::make('view')->make('portal.event-side', $data);
+    }
+
+    // Members post with their REST cookie nonce; visitors with the event's own, as on the community page.
+    protected static function registration(Event $event, array $formatted, $isSeated)
+    {
+        $user = wp_get_current_user();
+        $config = App::make('config');
+        $base = rest_url($config->get('app.rest_namespace') . '/' . $config->get('app.rest_version') . '/portal/events/' . (int) $event->id);
+
+        return [
+            'is_member'     => $user->exists(),
+            'status'        => $isSeated ? 'going' : ($formatted['my_status'] === 'not_going' ? 'not_going' : ''),
+            'name'          => $user->exists() ? $user->display_name : '',
+            'email'         => $user->exists() ? $user->user_email : '',
+            'member_url'    => $base . '/register',
+            'visitor_url'   => $base . '/register-guest',
+            'rest_nonce'    => $user->exists() ? wp_create_nonce('wp_rest') : '',
+            'visitor_nonce' => $user->exists() ? '' : wp_create_nonce('fe_guest_register_' . $event->id),
+        ];
     }
 
     // *_local and *_site are wall-clock strings; read and printed as UTC, they come out as written.
