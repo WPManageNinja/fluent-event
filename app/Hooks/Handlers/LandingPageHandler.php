@@ -261,8 +261,9 @@ class LandingPageHandler
             return null;
         }
 
-        // The community page's shape, so the meeting link and guest count follow the same rules on both.
-        $formatted = EventService::formatEvents([$event])[$event->id];
+        // The community page's shape, drawn for a visitor whoever is viewing: the landing pages don't know their viewers.
+        $seats = EventService::seatCounts([$event->id]);
+        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, null, false, false);
         $calendarUrl = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $calendar->slug));
         $event->setRelation('calendar', $calendar);
         $url = EventPageService::url($event);

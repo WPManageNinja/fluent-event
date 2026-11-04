@@ -11,65 +11,12 @@ use FluentEvent\Framework\Http\Request\Request;
 use FluentEvent\Framework\Support\Arr;
 
 /**
- * Registration from the public event page. An event takes it while that page shows it; each answer
+ * Registration from the public event page. An event takes it while that page shows it; the answer
  * carries the side card, re-rendered for the new state, which the page swaps in.
  */
 class PortalEventController extends Controller
 {
-    // A logged-in member: RSVP going / not going, or an open event's registration.
-    public function register(Request $request, $id)
-    {
-        if (!$this->cameFromThePage($request, $id)) {
-            return $this->expired();
-        }
-
-        $event = $this->pageEvent($id);
-
-        if (!$event) {
-            return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
-        }
-
-        if ($refusal = RegistrationService::refusal($event, ['rsvp', 'open'])) {
-            return $this->sendError(['message' => $refusal], 422);
-        }
-
-        $entryType = Arr::get((array) $event->meta, 'entry_type');
-        $status = $request->getSafe('status', 'sanitize_text_field');
-
-        if (!in_array($status, $entryType === 'open' ? ['going'] : ['going', 'not_going'], true)) {
-            return $this->sendError(['message' => __('Please choose going or not going.', 'fluent-event')], 422);
-        }
-
-        // An open event's form lets the member change their name; their email is the account's.
-        $name = $entryType === 'open' ? $request->getSafe('name', 'sanitize_text_field') : '';
-        $this->validate(['name' => $name], ['name' => 'nullable|string|max:255'], GuestRequest::messages());
-
-        $registered = RegistrationService::registerMember($event, wp_get_current_user(), $status, $name, ['source' => 'website']);
-
-        if (!$registered) {
-            return $this->sendError(['message' => __('This email is already registered for this event.', 'fluent-event')], 422);
-        }
-
-        [$guest, $previousStatus, $created] = $registered;
-
-        if ($created) {
-            do_action('fluent_event/guest/created', $guest);
-        } else {
-            do_action('fluent_event/guest/updated', $guest, $previousStatus);
-        }
-
-        RegistrationService::queueEmail($guest, $previousStatus);
-
-        return [
-            'message' => $guest->status === 'not_going'
-                ? __('Your RSVP has been updated.', 'fluent-event')
-                : __('You are registered.', 'fluent-event'),
-            'status'  => $guest->status,
-            'html'    => EventPageService::sideCard($event, EventService::formatEvents([$event])[(int) $event->id], EventPageService::url($event)),
-        ];
-    }
-
-    // A logged-out visitor, by name and email, on an RSVP or open event. Always going, with no undo.
+    // Anyone, logged in or not, as a visitor: by name and email, on an RSVP or open event. Always going, with no undo.
     public function registerGuest(Request $request, $id)
     {
         if (!$this->cameFromThePage($request, $id)) {

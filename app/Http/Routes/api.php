@@ -76,8 +76,6 @@ $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($ro
 
 // The public event page under the portal slug.
 $router->prefix('portal')->withPolicy('PortalPolicy')->group(function ($router) {
-    $router->post('/events/{id}/register', [PortalEventController::class, 'register'])
-        ->int('id')->rateLimitPerMinute(10);
     $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])
         ->int('id')->rateLimitPerMinute(5);
 });

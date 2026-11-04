@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { errorMessage, submitForm, chooseStatus } from '../../../resources/portal/portal';
+import { errorMessage, submitForm } from '../../../resources/portal/portal';
 
 const respond = (body, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -55,22 +55,22 @@ describe('registration', () => {
         expect(document.activeElement).toBe(document.querySelector('.fe-event-page__badge'));
     });
 
-    it("leaves a member's locked email out and sends their REST nonce", async () => {
+    it('posts a logged-in viewer the same form, with the REST nonce their event nonce needs', async () => {
         document.body.innerHTML = card(`
-            <form data-fe-register action="https://site.test/register">
+            <form data-fe-register action="https://site.test/register-guest">
                 <input name="name" value="Zane">
-                <input name="email" value="zane@example.test" disabled>
-                <input name="status" value="going">
+                <input name="email" value="zane@example.test">
                 <p class="fe-register__error"></p>
                 <button type="submit">Register</button>
-            </form>`, 'data-nonce="rest-nonce" data-url="https://site.test/register"');
+            </form>`, 'data-nonce="rest-nonce"');
         fetch.mockResolvedValue(respond({ html: card('') }));
 
         await submitForm(document.querySelector('form'));
 
-        const [, options] = fetch.mock.calls[0];
+        const [url, options] = fetch.mock.calls[0];
+        expect(url).toBe('https://site.test/register-guest');
         expect(options.headers['X-WP-Nonce']).toBe('rest-nonce');
-        expect(JSON.parse(options.body)).toEqual({ name: 'Zane', status: 'going', nonce: 'event-nonce' });
+        expect(JSON.parse(options.body)).toEqual({ name: 'Zane', email: 'zane@example.test', nonce: 'event-nonce' });
     });
 
     it('shows a refusal in the form and lets the visitor try again', async () => {
@@ -86,22 +86,5 @@ describe('registration', () => {
 
         expect(document.querySelector('.fe-register__error').textContent).toBe('A guest with this email is already on this event.');
         expect(document.querySelector('[type="submit"]').disabled).toBe(false);
-    });
-
-    it('posts a member RSVP choice, but not the one already chosen', async () => {
-        document.body.innerHTML = card(`
-            <div popover>
-                <button data-fe-status="going" aria-checked="true">Going</button>
-                <button data-fe-status="not_going" aria-checked="false">Not going</button>
-            </div>`, 'data-nonce="rest-nonce" data-url="https://site.test/register"');
-        document.querySelector('[popover]').hidePopover = vi.fn();
-        fetch.mockResolvedValue(respond({ html: card('') }));
-
-        await chooseStatus(document.querySelector('[data-fe-status="going"]'));
-        expect(fetch).not.toHaveBeenCalled();
-
-        await chooseStatus(document.querySelector('[data-fe-status="not_going"]'));
-        expect(fetch.mock.calls[0][0]).toBe('https://site.test/register');
-        expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ status: 'not_going', nonce: 'event-nonce' });
     });
 });

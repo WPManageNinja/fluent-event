@@ -83,6 +83,36 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringContainsString('Add to calendar', $none);
     }
 
+    // The page doesn't know its viewers: a going member and staff get the visitor's card, with nothing prefilled.
+    public function test_logged_in_viewers_see_the_page_as_a_visitor()
+    {
+        $online = ['venue_type' => 'online'];
+        $link = ['online_meeting_url' => 'https://meet.example.test/fe-room'];
+        $rsvp = $this->createEvent($online, $link + ['entry_type' => 'rsvp']);
+        $open = $this->createEvent($online, $link + ['entry_type' => 'open']);
+
+        $memberId = $this->createUser('subscriber');
+        $member = get_userdata($memberId);
+        $this->createGuest($rsvp, ['user_id' => $memberId, 'email' => $member->user_email]);
+        $this->createGuest($open, ['user_id' => $memberId, 'email' => $member->user_email]);
+
+        foreach ([$memberId, $this->createAdmin()] as $userId) {
+            $this->actAs($userId);
+            $email = get_userdata($userId)->user_email;
+
+            foreach ([$rsvp, $open] as $event) {
+                $body = $this->page($event)['body'];
+
+                $this->assertStringNotContainsString('fe-room', $body);
+                $this->assertStringNotContainsString('fe-event-page__badge', $body);
+                $this->assertStringNotContainsString($email, $body);
+                $this->assertStringContainsString('name="website"', $body, 'The visitor form, honeypot and all');
+            }
+
+            $this->assertStringContainsString('Interested?', $this->page($rsvp)['body']);
+        }
+    }
+
     public function test_the_calendar_file_escapes_text_and_folds_long_lines()
     {
         $event = $this->createEvent([
