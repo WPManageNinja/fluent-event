@@ -109,7 +109,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
+import { communityApi, dateFormat, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
 import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -236,7 +236,7 @@ export default {
             const from = dayjs(start);
 
             if (from.isSame(dayjs(end), 'day')) {
-                return from.format('dddd, MMMM D, YYYY');
+                return from.format(dateFormat());
             }
 
             return `${from.format('MMM D')} – ${dayjs(end).format('MMM D, YYYY')}`;

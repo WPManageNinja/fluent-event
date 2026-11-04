@@ -94,7 +94,7 @@ describe('EventCard', () => {
 
         expect(wrapper.find('.fe-date-chip__month').text()).toBe('Oct');
         expect(wrapper.find('.fe-date-chip__day').text()).toBe('20');
-        expect(wrapper.find('.fe-event-card__meta').text()).toBe('Tue, Oct 20, 2026 · 6:00 PM');
+        expect(wrapper.find('.fe-event-card__meta').text()).toBe('October 20, 2026 · 6:00 PM');
     });
 
     it('says whether the event is online or in person', () => {
