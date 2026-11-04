@@ -5,10 +5,10 @@ namespace FluentEvent\App\Http\Controllers;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\EventPageService;
+use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\Framework\Http\Request\Request;
 use FluentEvent\Framework\Support\Arr;
-use FluentEvent\Modules\FluentCommunity\CommunityEvents;
 
 /**
  * Registration from the public event page. An event takes it while that page shows it; each answer
@@ -65,7 +65,7 @@ class PortalEventController extends Controller
                 ? __('Your RSVP has been updated.', 'fluent-event')
                 : __('You are registered.', 'fluent-event'),
             'status'  => $guest->status,
-            'html'    => EventPageService::sideCard($event, CommunityEvents::formatEvents([$event])[(int) $event->id], EventPageService::url($event)),
+            'html'    => EventPageService::sideCard($event, EventService::formatEvents([$event])[(int) $event->id], EventPageService::url($event)),
         ];
     }
 
@@ -104,9 +104,9 @@ class PortalEventController extends Controller
 
         RegistrationService::queueEmail($guest, null);
 
-        $seats = CommunityEvents::seatCounts([$event->id]);
+        $seats = EventService::seatCounts([$event->id]);
         // A visitor has no account to read their row back by, so the card is drawn as going.
-        $formatted = CommunityEvents::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false);
+        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false);
 
         return [
             'message' => __('You are registered.', 'fluent-event'),

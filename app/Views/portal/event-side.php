@@ -3,7 +3,7 @@
  * The event page's side card. Rendered with the page and again by each registration endpoint, whose
  * answer portal.js swaps in, so every state — Register, the RSVP menu, the final mark — is drawn here.
  *
- * @var array      $event            CommunityEvents::formatEvent() shape, for this viewer.
+ * @var array      $event            EventService::formatEvent() shape, for this viewer.
  * @var bool       $is_online
  * @var string     $chip_month
  * @var string     $chip_day

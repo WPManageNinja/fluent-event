@@ -6,11 +6,11 @@ use FluentEvent\App\App;
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\EventPageService;
+use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
 use FluentEvent\Framework\Support\Arr;
-use FluentEvent\Modules\FluentCommunity\CommunityEvents;
 
 /**
  * Public landing pages under the portal slug, served as standalone documents
@@ -235,7 +235,7 @@ class LandingPageHandler
         }
 
         // The community page's shape, so the meeting link and guest count follow the same rules on both.
-        $formatted = CommunityEvents::formatEvents([$event])[$event->id];
+        $formatted = EventService::formatEvents([$event])[$event->id];
         $calendarUrl = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $calendar->slug));
         $event->setRelation('calendar', $calendar);
         $url = EventPageService::url($event);

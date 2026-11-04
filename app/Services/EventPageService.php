@@ -18,7 +18,7 @@ class EventPageService
     }
 
     /**
-     * @param array  $formatted CommunityEvents::formatEvent() shape, for this viewer.
+     * @param array  $formatted EventService::formatEvent() shape, for this viewer.
      * @param string $url       The event page.
      */
     public static function sideCard(Event $event, array $formatted, $url)

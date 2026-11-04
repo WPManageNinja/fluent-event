@@ -291,7 +291,7 @@ class FeedHandler
         } else {
             // A single post is the event page, the one view that shows the description.
             $event = Event::query()->with(['post'])->find($eventId);
-            $formatted = CommunityEvents::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
+            $formatted = EventService::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
         }
 
         if ($formatted && !in_array($feed->status, ['published', 'unlisted'], true)) {
@@ -312,7 +312,7 @@ class FeedHandler
         }
 
         $events = Event::query()->with(['post'])->whereIn('id', $eventIds)->get()->all();
-        $formatted = CommunityEvents::formatEvents($events);
+        $formatted = EventService::formatEvents($events);
 
         foreach ($eventIds as $eventId) {
             $this->formattedEvents[$eventId] = $formatted[$eventId] ?? null;
