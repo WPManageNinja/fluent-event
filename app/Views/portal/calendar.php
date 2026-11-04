@@ -148,10 +148,10 @@ $fluentEventEmpty = [
                         <span class="fe-month__day"><?php echo esc_html( number_format_i18n( $fluentEventDay ) ); ?></span>
 
                         <?php foreach ( array_slice( $fluentEventDayRows, 0, 3 ) as $fluentEventRow ) : ?>
-                            <span class="fe-month__chip">
+                            <a class="fe-month__chip" href="<?php echo esc_url( $fluentEventRow['url'] ); ?>">
                                 <span class="fe-month__chip-time"><?php echo esc_html( $fluentEventRow['time'] ); ?></span>
                                 <?php echo esc_html( $fluentEventRow['title'] ); ?>
-                            </span>
+                            </a>
                         <?php endforeach; ?>
 
                         <?php if ( count( $fluentEventDayRows ) > 3 ) : ?>
@@ -167,10 +167,10 @@ $fluentEventEmpty = [
                                 <p class="fe-month__popover-title"><?php echo esc_html( $month['day_labels'][ $fluentEventDay ] ); ?></p>
 
                                 <?php foreach ( $fluentEventDayRows as $fluentEventRow ) : ?>
-                                    <span class="fe-month__chip">
+                                    <a class="fe-month__chip" href="<?php echo esc_url( $fluentEventRow['url'] ); ?>">
                                         <span class="fe-month__chip-time"><?php echo esc_html( $fluentEventRow['time'] ); ?></span>
                                         <?php echo esc_html( $fluentEventRow['title'] ); ?>
-                                    </span>
+                                    </a>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
@@ -208,7 +208,7 @@ $fluentEventEmpty = [
                     <div class="fe-event-tile fe-event-tile--row">
                         <div class="fe-event-tile__body">
                             <span class="fe-event-tile__time"><?php echo esc_html( $fluentEventRow['time_range'] ); ?></span>
-                            <h3 class="fe-event-tile__title"><?php echo esc_html( $fluentEventRow['title'] ); ?></h3>
+                            <h3 class="fe-event-tile__title"><a class="fe-event-tile__link" href="<?php echo esc_url( $fluentEventRow['url'] ); ?>"><?php echo esc_html( $fluentEventRow['title'] ); ?></a></h3>
                             <span class="fe-event-tile__location">
                                 <?php echo $fluentEventRow['is_online'] ? Icon::VIDEO : Icon::MAP_PIN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constants ?>
                                 <?php echo esc_html( $fluentEventRow['location'] ); ?>
@@ -238,7 +238,7 @@ $fluentEventEmpty = [
                     <div class="fe-event-tile__body">
                         <span class="fe-event-tile__date"><?php echo esc_html( $fluentEventRow['date'] ); ?></span>
                         <span class="fe-event-tile__time"><?php echo esc_html( $fluentEventRow['time_range'] ); ?></span>
-                        <h3 class="fe-event-tile__title"><?php echo esc_html( $fluentEventRow['title'] ); ?></h3>
+                        <h3 class="fe-event-tile__title"><a class="fe-event-tile__link" href="<?php echo esc_url( $fluentEventRow['url'] ); ?>"><?php echo esc_html( $fluentEventRow['title'] ); ?></a></h3>
                         <span class="fe-event-tile__location">
                             <?php echo $fluentEventRow['is_online'] ? Icon::VIDEO : Icon::MAP_PIN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constants ?>
                             <?php echo esc_html( $fluentEventRow['location'] ); ?>

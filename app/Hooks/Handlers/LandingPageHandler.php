@@ -5,6 +5,8 @@ namespace FluentEvent\App\Hooks\Handlers;
 use FluentEvent\App\App;
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
+use FluentEvent\App\Services\EventPageService;
+use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -18,6 +20,7 @@ class LandingPageHandler
 {
     const QUERY_VAR = 'fe_route';
     const CALENDAR_VAR = 'fe_calendar';
+    const EVENT_VAR = 'fe_event_slug';
     const VIEWS = ['cards', 'timeline', 'calendar'];
     const FILTERS = ['upcoming', 'all', 'past'];
     const PER_PAGE = 10;
@@ -36,12 +39,14 @@ class LandingPageHandler
 
         add_rewrite_rule('^' . $slug . '/?$', 'index.php?' . self::QUERY_VAR . '=calendars', 'top');
         add_rewrite_rule('^' . $slug . '/([^/]+)/?$', 'index.php?' . self::QUERY_VAR . '=calendar&' . self::CALENDAR_VAR . '=$matches[1]', 'top');
+        add_rewrite_rule('^' . $slug . '/([^/]+)/([^/]+)/?$', 'index.php?' . self::QUERY_VAR . '=event&' . self::CALENDAR_VAR . '=$matches[1]&' . self::EVENT_VAR . '=$matches[2]', 'top');
     }
 
     public function addQueryVar($vars)
     {
         $vars[] = self::QUERY_VAR;
         $vars[] = self::CALENDAR_VAR;
+        $vars[] = self::EVENT_VAR;
 
         return $vars;
     }
@@ -55,11 +60,14 @@ class LandingPageHandler
             case 'calendar':
                 $page = $this->calendarPage(get_query_var(self::CALENDAR_VAR));
                 break;
+            case 'event':
+                $page = $this->eventPage(get_query_var(self::CALENDAR_VAR), get_query_var(self::EVENT_VAR));
+                break;
             default:
                 return;
         }
 
-        // An unknown, private or draft calendar falls through to the theme's 404 page.
+        // An unknown, private or draft calendar or event falls through to the theme's 404 page.
         if (!$page) {
             global $wp_query;
             $wp_query->set_404();
@@ -76,6 +84,7 @@ class LandingPageHandler
             'site_icon'  => get_site_icon_url(64),
             'portal_url' => home_url(user_trailingslashit(Settings::portalSlug())),
             'style_url'  => Enqueue::url('portal/portal.scss'),
+            'script_url' => '',
         ]);
 
         exit;
@@ -136,7 +145,7 @@ class LandingPageHandler
 
         $events = Event::query()
             ->with(['post' => function ($query) {
-                $query->select(['ID', 'post_title']);
+                $query->select(['ID', 'post_title', 'post_name']);
             }])
             ->byCalendar($calendar->id)
             ->byStatus('public')
@@ -171,14 +180,17 @@ class LandingPageHandler
 
             $data['month'] = $this->monthGrid(
                 $start,
-                $events->inDateRange($start->format('Y-m-01'), $start->format('Y-m-t'))->orderBy('start_at', 'ASC')->get()
+                $events->inDateRange($start->format('Y-m-01'), $start->format('Y-m-t'))->orderBy('start_at', 'ASC')->get(),
+                $url
             );
         } else {
             $paginator = $events
                 ->byPeriod($filter === 'all' ? '' : $filter)
                 ->paginate(self::PER_PAGE, ['*'], 'page', $pageNumber);
 
-            $data['rows'] = array_map([$this, 'eventRow'], $paginator->items());
+            $data['rows'] = array_map(function ($event) use ($url) {
+                return $this->eventRow($event, $url);
+            }, $paginator->items());
             $data['current_page'] = $paginator->currentPage();
             $data['last_page'] = $paginator->lastPage();
         }
@@ -196,8 +208,66 @@ class LandingPageHandler
         ];
     }
 
+    // The community event page, server-rendered. Opens like the calendar page: a public or unlisted
+    // event in a public or unlisted calendar.
+    protected function eventPage($calendarSlug, $eventSlug)
+    {
+        $calendar = Calendar::query()
+            ->where('slug', sanitize_title($calendarSlug))
+            ->byStatus(['public', 'unlisted'])
+            ->first();
+
+        if (!$calendar) {
+            return null;
+        }
+
+        $event = Event::query()
+            ->with(['post'])
+            ->byCalendar($calendar->id)
+            ->byStatus(['public', 'unlisted'])
+            ->whereHas('post', function ($query) use ($eventSlug) {
+                $query->where('post_name', sanitize_title($eventSlug));
+            })
+            ->first();
+
+        if (!$event) {
+            return null;
+        }
+
+        // The community page's shape, so the meeting link and guest count follow the same rules on both.
+        $formatted = EventService::formatEvents([$event])[$event->id];
+        $calendarUrl = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $calendar->slug));
+        $event->setRelation('calendar', $calendar);
+        $url = EventPageService::url($event);
+        $isOnline = $event->venue_type === 'online';
+
+        $data = [
+            'event'          => $formatted,
+            'description'    => $event->description,
+            'calendar_title' => $calendar->title,
+            'calendar_url'   => $calendarUrl,
+            'is_online'      => $isOnline,
+            'location'       => $isOnline ? __('Online', 'fluent-event') : ($formatted['venue'] ?: __('In person', 'fluent-event')),
+            // The heading reads the site's clock, like every list; the side card leads with the event's own.
+            'site_date'      => DateTimeHelper::dateRange($event->start_at_site, $event->end_at_site),
+            'site_time'      => DateTimeHelper::timeRange($event->start_at_site, $event->end_at_site, wp_timezone_string()),
+            'side'           => EventPageService::sideCard($event, $formatted, $url),
+        ];
+
+        $description = wp_trim_words(wp_strip_all_tags($event->description), 30);
+
+        return [
+            /* translators: 1: event title, 2: site name */
+            'title'       => sprintf(_x('%1$s – %2$s', 'page title', 'fluent-event'), $event->title, get_bloginfo('name')),
+            'description' => $description ?: $data['site_date'],
+            'url'         => $url,
+            'body'        => (string) App::make('view')->make('portal.event', $data),
+            'script_url'  => Enqueue::url('portal/portal.js'),
+        ];
+    }
+
     // Dates and times in the site's timezone and formats, as in the admin lists.
-    protected function eventRow(Event $event)
+    protected function eventRow(Event $event, $calendarUrl)
     {
         $start = strtotime($event->start_at . ' UTC');
         $end = strtotime($event->end_at . ' UTC');
@@ -215,11 +285,12 @@ class LandingPageHandler
             'is_online'  => $isOnline,
             'location'   => $isOnline ? __('Online', 'fluent-event') : (Arr::get($event->meta, 'venue') ?: __('In person', 'fluent-event')),
             'cover_url'  => Arr::get($event->meta, 'cover_url', ''),
+            'url'        => trailingslashit($calendarUrl) . user_trailingslashit($event->post->post_name),
             'start'      => $start,
         ];
     }
 
-    protected function monthGrid(\DateTimeImmutable $start, $events)
+    protected function monthGrid(\DateTimeImmutable $start, $events, $calendarUrl)
     {
         global $wp_locale;
 
@@ -228,7 +299,7 @@ class LandingPageHandler
         $byDay = [];
 
         foreach ($events as $event) {
-            $row = $this->eventRow($event);
+            $row = $this->eventRow($event, $calendarUrl);
             // An event that began last month shows on the 1st.
             $byDay[(int) wp_date('j', max($row['start'], $firstDay))][] = $row;
         }
