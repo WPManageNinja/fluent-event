@@ -125,4 +125,30 @@ class DateTimeHelper
 
         return $dateTime->format($format);
     }
+
+    // *_local and *_site are wall-clock strings; read and printed as UTC, they come out as written.
+    public static function wallClock($value, $format)
+    {
+        return wp_date($format, strtotime($value . ' UTC'), new DateTimeZone('UTC'));
+    }
+
+    public static function dateRange($start, $end)
+    {
+        // A single day follows the site's date setting, as the community event page does.
+        if (substr($start, 0, 10) === substr($end, 0, 10)) {
+            return self::wallClock($start, get_option('date_format'));
+        }
+
+        /* translators: 1: start date, 2: end date */
+        return sprintf(_x('%1$s – %2$s', 'date range', 'fluent-event'), self::wallClock($start, 'M j'), self::wallClock($end, 'M j, Y'));
+    }
+
+    public static function timeRange($start, $end, $zone)
+    {
+        $format = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
+        /* translators: 1: start time, 2: end time */
+        $range = sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), self::wallClock($start, $format), self::wallClock($end, $format));
+
+        return $zone ? $range . ' (' . $zone . ')' : $range;
+    }
 }

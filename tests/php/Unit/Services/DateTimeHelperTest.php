@@ -2,6 +2,7 @@
 
 namespace FluentEvent\Tests\Unit\Services;
 
+use Brain\Monkey\Functions;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Tests\TestCase;
 
@@ -87,5 +88,21 @@ class DateTimeHelperTest extends TestCase
             'escaped slash'  => ['\\\\jS', '[\\]Do'],
             'iso weekday'    => ['N j', ' D'],
         ];
+    }
+
+    // The event page's labels: one day reads the site's date setting, a span names both ends.
+    public function test_date_and_time_ranges_read_one_day_and_a_span_differently()
+    {
+        Functions\when('get_option')->alias(function ($key) {
+            return ['date_format' => 'jS F, Y', 'time_format' => 'g:i A'][$key] ?? '';
+        });
+        Functions\when('wp_date')->alias(function ($format, $timestamp, $zone) {
+            return (new \DateTime('@' . $timestamp))->setTimezone($zone)->format($format);
+        });
+
+        $this->assertSame('10th November, 2026', DateTimeHelper::dateRange('2026-11-10 09:00:00', '2026-11-10 10:00:00'));
+        $this->assertSame('Nov 3 – Nov 6, 2026', DateTimeHelper::dateRange('2026-11-03 10:00:00', '2026-11-06 17:00:00'));
+        $this->assertSame('9:00 AM – 10:00 AM (America/New_York)', DateTimeHelper::timeRange('2026-11-10 09:00:00', '2026-11-10 10:00:00', 'America/New_York'));
+        $this->assertSame('Nov 3, 10:00 AM – Nov 6, 5:00 PM', DateTimeHelper::timeRange('2026-11-03 10:00:00', '2026-11-06 17:00:00', ''));
     }
 }

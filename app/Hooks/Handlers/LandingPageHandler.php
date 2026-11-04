@@ -252,12 +252,12 @@ class LandingPageHandler
             'is_online'        => $isOnline,
             'location'         => $isOnline ? __('Online', 'fluent-event') : ($formatted['venue'] ?: __('In person', 'fluent-event')),
             // The heading reads the site's clock, like every list; the side card leads with the event's own.
-            'site_date'        => $this->dateRange($event->start_at_site, $event->end_at_site),
-            'site_time'        => $this->timeRange($event->start_at_site, $event->end_at_site, $siteZone),
-            'chip_month'       => $this->wallClock($event->start_at_local, 'M'),
-            'chip_day'         => $this->wallClock($event->start_at_local, 'j'),
-            'date_label'       => $this->dateRange($event->start_at_local, $event->end_at_local),
-            'time_label'       => $this->timeRange($event->start_at_local, $event->end_at_local, $event->timezone),
+            'site_date'        => DateTimeHelper::dateRange($event->start_at_site, $event->end_at_site),
+            'site_time'        => DateTimeHelper::timeRange($event->start_at_site, $event->end_at_site, $siteZone),
+            'chip_month'       => DateTimeHelper::wallClock($event->start_at_local, 'M'),
+            'chip_day'         => DateTimeHelper::wallClock($event->start_at_local, 'j'),
+            'date_label'       => DateTimeHelper::dateRange($event->start_at_local, $event->end_at_local),
+            'time_label'       => DateTimeHelper::timeRange($event->start_at_local, $event->end_at_local, $event->timezone),
             'local_time_label' => $this->localTimeLabel($event, $siteZone),
             'phase'            => $phase,
             /* translators: %s: time until the event starts, e.g. "3 days" */
@@ -302,32 +302,6 @@ class LandingPageHandler
         ];
     }
 
-    // *_local and *_site are wall-clock strings; read and printed as UTC, they come out as written.
-    protected function wallClock($value, $format)
-    {
-        return wp_date($format, strtotime($value . ' UTC'), new \DateTimeZone('UTC'));
-    }
-
-    protected function dateRange($start, $end)
-    {
-        // A single day follows the site's date setting, as the community event page does.
-        if (substr($start, 0, 10) === substr($end, 0, 10)) {
-            return $this->wallClock($start, get_option('date_format'));
-        }
-
-        /* translators: 1: start date, 2: end date */
-        return sprintf(_x('%1$s – %2$s', 'date range', 'fluent-event'), $this->wallClock($start, 'M j'), $this->wallClock($end, 'M j, Y'));
-    }
-
-    protected function timeRange($start, $end, $zone)
-    {
-        $format = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
-        /* translators: 1: start time, 2: end time */
-        $range = sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), $this->wallClock($start, $format), $this->wallClock($end, $format));
-
-        return $zone ? $range . ' (' . $zone . ')' : $range;
-    }
-
     // The site's clock, which the lists use; only when it reads differently from the event's.
     protected function localTimeLabel(Event $event, $siteZone)
     {
@@ -341,7 +315,7 @@ class LandingPageHandler
         $endFormat = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
 
         /* translators: 1: start date and time, 2: end time or end date and time */
-        return sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), $this->wallClock($start, 'M j, ' . get_option('time_format')), $this->wallClock($end, $endFormat))
+        return sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), DateTimeHelper::wallClock($start, 'M j, ' . get_option('time_format')), DateTimeHelper::wallClock($end, $endFormat))
             . ' (' . $siteZone . ')';
     }
 
