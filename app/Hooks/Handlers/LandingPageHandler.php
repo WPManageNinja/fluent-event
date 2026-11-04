@@ -310,8 +310,9 @@ class LandingPageHandler
 
     protected function dateRange($start, $end)
     {
+        // A single day follows the site's date setting, as the community event page does.
         if (substr($start, 0, 10) === substr($end, 0, 10)) {
-            return $this->wallClock($start, 'l, F j, Y');
+            return $this->wallClock($start, get_option('date_format'));
         }
 
         /* translators: 1: start date, 2: end date */
