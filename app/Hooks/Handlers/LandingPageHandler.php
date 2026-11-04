@@ -79,9 +79,10 @@ class LandingPageHandler
         status_header(200);
 
         App::make('view')->render('portal.layout', $page + [
-            'site_name' => get_bloginfo('name'),
-            'site_icon' => get_site_icon_url(64),
-            'style_url' => Enqueue::url('portal/portal.scss'),
+            'site_name'  => get_bloginfo('name'),
+            'site_icon'  => get_site_icon_url(64),
+            'portal_url' => home_url(user_trailingslashit(Settings::portalSlug())),
+            'style_url'  => Enqueue::url('portal/portal.scss'),
         ]);
 
         exit;

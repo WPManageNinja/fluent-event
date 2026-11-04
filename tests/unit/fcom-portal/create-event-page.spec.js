@@ -77,6 +77,15 @@ describe('CreateEventPage', () => {
         expect(props.onChange.mock.calls.at(-1)[0].title).toBe('Design review');
     });
 
+    it("shows both date pickers in fcom's date format", async () => {
+        window.fluentComAdmin.date_formatter = 'DD/MM/YYYY';
+        const { wrapper } = await createPage();
+
+        const formats = wrapper.findAllComponents({ name: 'ElDatePicker' }).map(picker => picker.props('format'));
+
+        expect(formats).toEqual(['DD/MM/YYYY', 'DD/MM/YYYY']);
+    });
+
     it('pulls the end date forward when the start moves past it', async () => {
         const { vm } = await createPage();
         vm.event.start_date = '2026-10-20';

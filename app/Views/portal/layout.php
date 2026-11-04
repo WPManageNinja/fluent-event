@@ -8,6 +8,7 @@
  * @var string $url
  * @var string $site_name
  * @var string $site_icon
+ * @var string $portal_url
  * @var string $style_url
  * @var string $body        Rendered page view, escaped where it was built.
  */
@@ -51,7 +52,7 @@ use FluentEvent\App\Services\Icon;
 </head>
 <body class="fe-portal">
     <header class="fe-portal__topbar">
-        <a class="fe-portal__brand" href="<?php echo esc_url( home_url( '/' ) ); ?>">
+        <a class="fe-portal__brand" href="<?php echo esc_url( $portal_url ); ?>">
             <?php if ( $site_icon ) : ?>
                 <img class="fe-portal__brand-icon" src="<?php echo esc_url( $site_icon ); ?>" alt="">
             <?php endif; ?>

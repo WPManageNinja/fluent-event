@@ -6,6 +6,7 @@ import {
     errorMessage,
     eventPhase,
     timeFormat,
+    dateFormat,
     eventStart,
     eventMonth,
     eventDay,
@@ -172,18 +173,21 @@ describe('event time helpers', () => {
         expect(eventPhase({ ...meetup, is_past: true })).toBe('ended');
     });
 
-    it("formats the start in fcom's time format", () => {
-        expect(eventStart(meetup)).toBe('Tue, Oct 20, 2026 · 6:00 PM');
+    it("formats the start in fcom's date and time format", () => {
+        expect(eventStart(meetup)).toBe('October 20, 2026 · 6:00 PM');
 
+        window.fluentComAdmin.date_formatter = 'DD/MM/YYYY';
         window.fluentComAdmin.time_formatter = 'HH:mm';
+        expect(dateFormat()).toBe('DD/MM/YYYY');
         expect(timeFormat()).toBe('HH:mm');
-        expect(eventStart(meetup)).toBe('Tue, Oct 20, 2026 · 18:00');
+        expect(eventStart(meetup)).toBe('20/10/2026 · 18:00');
     });
 
-    it('falls back to a 12-hour clock without fcom vars', () => {
+    it('falls back to a 12-hour clock and a short date without fcom vars', () => {
         delete window.fluentComAdmin;
 
         expect(timeFormat()).toBe('h:mm A');
+        expect(dateFormat()).toBe('MMM D, YYYY');
     });
 
     it('splits the start into a month and unpadded day for the date chip', () => {

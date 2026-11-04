@@ -1,14 +1,8 @@
 import { capitalize } from 'vue';
 import dayjs from 'dayjs';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
-import isoWeek from 'dayjs/plugin/isoWeek';
 import Rest from '@/utils/http/Rest.js';
 import { applyWeekStart } from '@/utils/date';
 import { ElNotification, ElMessageBox } from 'element-plus';
-
-dayjs.extend(advancedFormat);
-// advancedFormat's week tokens ("W", "GGGG") call isoWeek() and throw without it.
-dayjs.extend(isoWeek);
 
 const config = window.fluentEventAdmin;
 
