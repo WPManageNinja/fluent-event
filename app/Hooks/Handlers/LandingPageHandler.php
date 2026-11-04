@@ -33,7 +33,6 @@ class LandingPageHandler
 
         add_action('init', [$this, 'addRewriteRules']);
         add_filter('query_vars', [$this, 'addQueryVar']);
-        // Before FluentCommunity's own priority-1 render: mounted at the site root, it claims `/events` too.
         add_action('template_redirect', [$this, 'renderPage'], 0);
     }
 
