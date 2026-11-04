@@ -33,10 +33,6 @@
                             </el-tag>
                         </div>
 
-                        <p v-if="calendar.description" class="fe-calendar-detail__description">
-                            {{ calendar.description }}
-                        </p>
-
                         <p class="fe-calendar-detail__meta">
                             <span class="fe-calendar-detail__slug">{{ calendar.slug }}</span>
                             <span v-if="createdLine">{{ createdLine }}</span>
