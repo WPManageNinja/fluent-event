@@ -28,7 +28,7 @@ Three things people get wrong:
   attachment FK. The column is `meta` on both `event_details` and `calendars` — open-ended,
   holds whatever per-record config accrues, and is documented by the model's `defaultMeta()`.
 
-Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going; on the public event page a visitor can also say Going by name + email, final),
+Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going; on the public event page anyone can also say Going by name + email, final),
 `open` (a Register button opening a name + email popover — prefilled for members, email locked; a static Registered badge after, no undo) or
 `none` (view-only: nobody registers, every viewer sees the whole event, meeting link included;
 admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp` and `open`. RSVP has no seat limit. `ticketed` is a documented future
@@ -36,7 +36,8 @@ mode; `guests.ticket_type_id` stays nullable for it.
 
 Statuses: events and calendars are `public | unlisted | private | draft`.
 `unlisted` is left off the upcoming landing page but opens by direct link.
-`private` means no public page; space calendars start `private`. FluentCommunity integration (events as posts
+`private` means no public page; space calendars start `private`. The public (landing) pages don't know their viewers:
+everyone, logged in or not, sees and registers as a visitor — nothing prefilled, no member state, the meeting link only after registering. FluentCommunity integration (events as posts
 in discussion spaces): [.claude/docs/functional-requirements/fluentcommunity-integration.md](.claude/docs/functional-requirements/fluentcommunity-integration.md).
 
 Schema: [docs/db/fe_db_schema.sql](.claude/docs/db/fe_db_schema.sql).
