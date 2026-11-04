@@ -14,6 +14,8 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
     {
         parent::setUp();
 
+        // The suite runs on the site's real options; a switch flipped in the browser would read as a toggle here.
+        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars', 'enable_landing_pages' => 'no']);
         $this->actAs($this->createAdmin());
     }
 
@@ -28,7 +30,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_general_settings_round_trip()
     {
-        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'portal_slug' => 'calendars'];
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'enable_landing_pages' => 'no', 'portal_slug' => 'calendars'];
         $saved = $this->rest('POST', 'settings/general', $settings);
 
         $this->assertSame(200, $saved['status'], wp_json_encode($saved['data']));
@@ -40,7 +42,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
         update_option('rewrite_rules', ['^calendars/?$' => 'index.php?fe_route=calendars']);
 
-        $saved = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'Our Events']);
+        $saved = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => 'Our Events']);
 
         $this->assertSame(200, $saved['status'], wp_json_encode($saved['data']));
         $this->assertSame('our-events', Settings::portalSlug());
@@ -53,7 +55,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
         update_option('rewrite_rules', $rules);
 
-        $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'calendars']);
+        $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => 'calendars']);
 
         $this->assertSame($rules, get_option('rewrite_rules'));
     }
@@ -62,7 +64,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
     {
         Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
         $this->actAs($this->createUser('editor', ['write_settings']));
-        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => 'our-events'];
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => 'our-events'];
 
         $this->assertSame(403, $this->rest('POST', 'settings/general', $settings)['status']);
         $this->assertSame('calendars', Settings::portalSlug());
@@ -74,7 +76,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
     public function test_a_portal_slug_with_no_ascii_characters_is_rejected()
     {
         foreach (['!!!', 'ক্যালেন্ডার'] as $slug) {
-            $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'portal_slug' => $slug]);
+            $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => $slug]);
 
             $this->assertSame(422, $response['status'], $slug);
         }

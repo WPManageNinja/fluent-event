@@ -33,18 +33,22 @@ class SettingsController extends Controller
         $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());
 
         $previousSlug = Settings::portalSlug();
+        $previousLanding = Settings::get()['enable_landing_pages'];
 
-        if (isset($data['portal_slug']) && $data['portal_slug'] !== $previousSlug && !current_user_can('manage_options')) {
+        $slugChanged = isset($data['portal_slug']) && $data['portal_slug'] !== $previousSlug;
+        $landingToggled = isset($data['enable_landing_pages']) && $data['enable_landing_pages'] !== $previousLanding;
+
+        if (($slugChanged || $landingToggled) && !current_user_can('manage_options')) {
             return $this->sendError([
-                'message' => __('Only a site administrator can change the portal slug.', 'fluent-event'),
+                'message' => __('Only a site administrator can change the landing pages or the portal slug.', 'fluent-event'),
             ], 403);
         }
 
         $settings = Settings::update(Settings::GENERAL, $data);
         $settings['portal_slug'] = Settings::portalSlug();
 
-        // `init` already registered the old slug, so flushing here would keep it. WordPress rebuilds on the next request.
-        if ($settings['portal_slug'] !== $previousSlug) {
+        // `init` already registered the old rules, so flushing here would keep them. WordPress rebuilds on the next request.
+        if ($settings['portal_slug'] !== $previousSlug || $settings['enable_landing_pages'] !== $previousLanding) {
             delete_option('rewrite_rules');
         }
 

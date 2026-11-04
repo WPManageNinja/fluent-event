@@ -45,7 +45,24 @@
                     </span>
                 </el-form-item>
 
-                <el-form-item :label="$t('Portal slug')" required>
+                <el-form-item>
+                    <el-checkbox
+                        v-model="general.enable_landing_pages"
+                        true-value="yes"
+                        false-value="no"
+                        :disabled="!$userCan('write_settings')"
+                    >
+                        {{ $t('Enable landing pages') }}
+                    </el-checkbox>
+
+                    <span class="fe-form__hint">
+                        {{ general.enable_landing_pages === 'yes'
+                            ? $t('Visitors can browse your public calendars and their events.')
+                            : $t('Calendars have no public pages, and their links show a not-found page.') }}
+                    </span>
+                </el-form-item>
+
+                <el-form-item v-if="general.enable_landing_pages === 'yes'" :label="$t('Portal slug')" required>
                     <el-input
                         v-model="general.portal_slug"
                         :disabled="!$userCan('write_settings') || isSlugDefined"
@@ -191,6 +208,7 @@
                 general: {
                     default_events_view: 'timeline',
                     disable_event_view_switch: 'no',
+                    enable_landing_pages: 'no',
                     portal_slug: '',
                 },
                 homeUrl: '',
