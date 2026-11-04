@@ -208,7 +208,7 @@
                 general: {
                     default_events_view: 'timeline',
                     disable_event_view_switch: 'no',
-                    enable_landing_pages: 'yes',
+                    enable_landing_pages: 'no',
                     portal_slug: '',
                 },
                 homeUrl: '',

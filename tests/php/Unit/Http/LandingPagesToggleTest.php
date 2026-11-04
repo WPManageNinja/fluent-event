@@ -60,14 +60,8 @@ class LandingPagesToggleTest extends TestCase
         return $hooks;
     }
 
-    public function test_landing_pages_register_their_routes_by_default()
+    public function test_landing_pages_register_no_routes_by_default()
     {
-        $this->assertSame(['init', 'query_vars', 'template_redirect'], $this->registeredHooks());
-    }
-
-    public function test_turned_off_landing_pages_register_no_routes()
-    {
-        Settings::update(Settings::GENERAL, ['enable_landing_pages' => 'no']);
         Functions\expect('add_rewrite_rule')->never();
 
         $this->assertSame([], $this->registeredHooks());
@@ -75,17 +69,24 @@ class LandingPagesToggleTest extends TestCase
         (new LandingPageHandler())->addRewriteRules();
     }
 
+    public function test_turned_on_landing_pages_register_their_routes()
+    {
+        Settings::update(Settings::GENERAL, ['enable_landing_pages' => 'yes']);
+
+        $this->assertSame(['init', 'query_vars', 'template_redirect'], $this->registeredHooks());
+    }
+
     public function test_only_a_site_administrator_can_toggle_landing_pages()
     {
         update_option('rewrite_rules', ['^calendars/?$' => 'index.php?fe_route=calendars']);
 
-        $this->assertSame(403, $this->save('no')['status']);
-        $this->assertTrue(Settings::landingPagesEnabled());
+        $this->assertSame(403, $this->save('yes')['status']);
+        $this->assertFalse(Settings::landingPagesEnabled());
 
         Functions\when('current_user_can')->justReturn(true);
-        $this->save('no');
+        $this->save('yes');
 
-        $this->assertFalse(Settings::landingPagesEnabled());
+        $this->assertTrue(Settings::landingPagesEnabled());
         $this->assertFalse(get_option('rewrite_rules'));
     }
 
@@ -93,7 +94,7 @@ class LandingPagesToggleTest extends TestCase
     {
         update_option('rewrite_rules', $rules = ['^calendars/?$' => 'index.php?fe_route=calendars']);
 
-        $this->save('yes');
+        $this->save('no');
 
         $this->assertSame($rules, get_option('rewrite_rules'));
     }
