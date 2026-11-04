@@ -155,12 +155,24 @@ $fluentEventEmpty = [
                         <?php endforeach; ?>
 
                         <?php if ( count( $fluentEventDayRows ) > 3 ) : ?>
-                            <span class="fe-month__more">
+                            <?php $fluentEventPopover = 'fe-month-day-' . $fluentEventDay; ?>
+                            <button type="button" class="fe-month__more" popovertarget="<?php echo esc_attr( $fluentEventPopover ); ?>">
                                 <?php
                                 /* translators: %d: number of further events that day */
                                 echo esc_html( sprintf( __( '+%d more', 'fluent-event' ), count( $fluentEventDayRows ) - 3 ) );
                                 ?>
-                            </span>
+                            </button>
+
+                            <div id="<?php echo esc_attr( $fluentEventPopover ); ?>" class="fe-month__popover" popover aria-label="<?php echo esc_attr( $month['day_labels'][ $fluentEventDay ] ); ?>">
+                                <p class="fe-month__popover-title"><?php echo esc_html( $month['day_labels'][ $fluentEventDay ] ); ?></p>
+
+                                <?php foreach ( $fluentEventDayRows as $fluentEventRow ) : ?>
+                                    <span class="fe-month__chip">
+                                        <span class="fe-month__chip-time"><?php echo esc_html( $fluentEventRow['time'] ); ?></span>
+                                        <?php echo esc_html( $fluentEventRow['title'] ); ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
                         <?php endif; ?>
 
                         <?php if ( $fluentEventDayRows ) : ?>
