@@ -23,7 +23,7 @@ class LandingPagesToggleTest extends TestCase
 
             public function all()
             {
-                return ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => $this->landing, 'portal_slug' => 'calendars'];
+                return ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => $this->landing, 'portal_slug' => 'events'];
             }
         };
 

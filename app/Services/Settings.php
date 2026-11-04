@@ -27,8 +27,8 @@ class Settings
             'default_events_view'       => 'timeline',
             'disable_event_view_switch' => 'no',
             'enable_landing_pages'      => 'no',
-            // Not `events`: with FluentCommunity mounted at the site root, `/events` is its Events page.
-            'portal_slug'               => 'calendars',
+            // With FluentCommunity mounted at the site root, this shadows its `/events` tab once landing pages are on.
+            'portal_slug'               => 'events',
         ],
         self::EMAIL => [
             'from_name'      => '',
