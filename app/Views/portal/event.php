@@ -3,7 +3,7 @@
  * One event's page, laid out like the community event page: details on the left, and a card
  * with when, where and how to join on the right (above the details on narrow screens).
  *
- * @var array      $event            CommunityEvents::formatEvent() shape.
+ * @var array      $event            EventFormatter::formatEvent() shape.
  * @var string     $description      kses'd in Event::getDescriptionAttribute().
  * @var string     $calendar_title
  * @var string     $calendar_url
