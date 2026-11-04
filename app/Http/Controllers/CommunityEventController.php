@@ -8,7 +8,7 @@ use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
-use FluentEvent\App\Services\EventFormatter;
+use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Framework\Http\Request\Request;
@@ -72,7 +72,7 @@ class CommunityEventController extends Controller
             ];
         }
 
-        $formatted = EventFormatter::formatEvents($events);
+        $formatted = EventService::formatEvents($events);
 
         $slugs = Meta::query()
             ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
@@ -175,7 +175,7 @@ class CommunityEventController extends Controller
                 ? __('Your RSVP has been updated.', 'fluent-event')
                 : __('You are registered.', 'fluent-event'),
             'status'  => $guest->status,
-            'event'   => EventFormatter::formatEvents([$event])[(int) $event->id],
+            'event'   => EventService::formatEvents([$event])[(int) $event->id],
         ];
     }
 
@@ -232,12 +232,12 @@ class CommunityEventController extends Controller
             as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
         }
 
-        $seats = EventFormatter::seatCounts([$event->id]);
+        $seats = EventService::seatCounts([$event->id]);
 
         return [
             'message' => __('You are registered.', 'fluent-event'),
             'status'  => $guest->status,
-            'event'   => EventFormatter::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false),
+            'event'   => EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false),
         ];
     }
 

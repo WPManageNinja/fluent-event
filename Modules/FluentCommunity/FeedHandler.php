@@ -12,7 +12,6 @@ use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
-use FluentEvent\App\Services\EventFormatter;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\Facade\DB;
@@ -292,7 +291,7 @@ class FeedHandler
         } else {
             // A single post is the event page, the one view that shows the description.
             $event = Event::query()->with(['post'])->find($eventId);
-            $formatted = EventFormatter::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
+            $formatted = EventService::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
         }
 
         if ($formatted && !in_array($feed->status, ['published', 'unlisted'], true)) {
@@ -313,7 +312,7 @@ class FeedHandler
         }
 
         $events = Event::query()->with(['post'])->whereIn('id', $eventIds)->get()->all();
-        $formatted = EventFormatter::formatEvents($events);
+        $formatted = EventService::formatEvents($events);
 
         foreach ($eventIds as $eventId) {
             $this->formattedEvents[$eventId] = $formatted[$eventId] ?? null;

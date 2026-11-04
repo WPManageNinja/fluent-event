@@ -2,7 +2,7 @@
 
 namespace FluentEvent\Tests\Unit\Services;
 
-use FluentEvent\App\Services\EventFormatter;
+use FluentEvent\App\Services\EventService;
 use FluentEvent\Tests\TestCase;
 
 /**
@@ -10,7 +10,7 @@ use FluentEvent\Tests\TestCase;
  * The meeting-link rule is the one that leaks if it slips: only a `none` event shows
  * it to every viewer; RSVP and open keep it for their guests and staff (CLAUDE.md, entry modes).
  */
-class EventFormatterTest extends TestCase
+class EventFormatTest extends TestCase
 {
     private function event(array $overrides = [], array $meta = [])
     {
@@ -37,7 +37,7 @@ class EventFormatterTest extends TestCase
 
     private function format($event, $seats = 0, $myStatus = null, $isStaff = false, $canEdit = false)
     {
-        return EventFormatter::formatEvent($event, $seats, $myStatus, $isStaff, $canEdit);
+        return EventService::formatEvent($event, $seats, $myStatus, $isStaff, $canEdit);
     }
 
     public function test_an_rsvp_link_is_hidden_from_a_member_who_has_not_registered()
@@ -140,6 +140,6 @@ class EventFormatterTest extends TestCase
 
     public function test_drafts_never_reach_the_portal()
     {
-        $this->assertSame([], EventFormatter::formatEvents([$this->event(['status' => 'draft']), null]));
+        $this->assertSame([], EventService::formatEvents([$this->event(['status' => 'draft']), null]));
     }
 }

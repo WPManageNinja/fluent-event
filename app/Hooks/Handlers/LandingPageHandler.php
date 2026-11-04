@@ -5,7 +5,7 @@ namespace FluentEvent\App\Hooks\Handlers;
 use FluentEvent\App\App;
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
-use FluentEvent\App\Services\EventFormatter;
+use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -233,7 +233,7 @@ class LandingPageHandler
         }
 
         // The community page's shape, so the meeting link and guest count follow the same rules on both.
-        $formatted = EventFormatter::formatEvents([$event])[$event->id];
+        $formatted = EventService::formatEvents([$event])[$event->id];
         $calendarUrl = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $calendar->slug));
         $url = trailingslashit($calendarUrl) . user_trailingslashit($event->post->post_name);
         $siteZone = wp_timezone_string();
