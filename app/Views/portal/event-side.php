@@ -40,6 +40,9 @@ $fluentEventRsvpLabels = [
     aria-label="<?php esc_attr_e( 'Registration', 'fluent-event' ); ?>"
     data-fe-card
     data-error="<?php esc_attr_e( 'Something went wrong. Please try again.', 'fluent-event' ); ?>"
+    <?php if ( $registration ) : ?>
+        data-event-nonce="<?php echo esc_attr( $registration['event_nonce'] ); ?>"
+    <?php endif; ?>
     <?php if ( $fluentEventMember ) : ?>
         data-url="<?php echo esc_url( $registration['member_url'] ); ?>"
         data-nonce="<?php echo esc_attr( $registration['rest_nonce'] ); ?>"
@@ -148,7 +151,6 @@ $fluentEventRsvpLabels = [
             <?php if ( $fluentEventMember ) : ?>
                 <input type="hidden" name="status" value="going">
             <?php else : ?>
-                <input type="hidden" name="nonce" value="<?php echo esc_attr( $registration['visitor_nonce'] ); ?>">
                 <input class="fe-register__trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
             <?php endif; ?>
 

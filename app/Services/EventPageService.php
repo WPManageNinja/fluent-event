@@ -79,7 +79,7 @@ class EventPageService
         return (string) App::make('view')->make('portal.event-side', $data);
     }
 
-    // Members post with their REST cookie nonce; visitors with the event's own, as on the community page.
+    // Everyone posts the event's own nonce, so only its page can register; members add their REST cookie nonce.
     protected static function registration(Event $event, array $formatted, $isSeated)
     {
         $user = wp_get_current_user();
@@ -94,7 +94,7 @@ class EventPageService
             'member_url'    => $base . '/register',
             'visitor_url'   => $base . '/register-guest',
             'rest_nonce'    => $user->exists() ? wp_create_nonce('wp_rest') : '',
-            'visitor_nonce' => $user->exists() ? '' : wp_create_nonce('fe_guest_register_' . $event->id),
+            'event_nonce'   => wp_create_nonce('fe_portal_register_' . $event->id),
         ];
     }
 

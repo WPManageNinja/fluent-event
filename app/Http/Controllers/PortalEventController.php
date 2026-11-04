@@ -19,6 +19,10 @@ class PortalEventController extends Controller
     // A logged-in member: RSVP going / not going, or an open event's registration.
     public function register(Request $request, $id)
     {
+        if (!$this->cameFromThePage($request, $id)) {
+            return $this->expired();
+        }
+
         $event = $this->pageEvent($id);
 
         if (!$event) {
@@ -68,14 +72,14 @@ class PortalEventController extends Controller
     // A logged-out visitor, by name and email, on an RSVP or open event. Always going, with no undo.
     public function registerGuest(Request $request, $id)
     {
+        if (!$this->cameFromThePage($request, $id)) {
+            return $this->expired();
+        }
+
         $event = $this->pageEvent($id);
 
         if (!$event) {
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
-        }
-
-        if (!wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fe_guest_register_' . $event->id)) {
-            return $this->sendError(['message' => __('This form has expired. Please reload the page and try again.', 'fluent-event')], 403);
         }
 
         if ($refusal = RegistrationService::refusal($event, ['rsvp', 'open'])) {
@@ -109,6 +113,18 @@ class PortalEventController extends Controller
             'status'  => $guest->status,
             'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event)),
         ];
+    }
+
+    // The event's own nonce, which only its page hands out, checked before the event is looked up:
+    // otherwise walking ids would find unlisted events, which open only by their link.
+    private function cameFromThePage(Request $request, $id)
+    {
+        return (bool) wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fe_portal_register_' . (int) $id);
+    }
+
+    private function expired()
+    {
+        return $this->sendError(['message' => __('This form has expired. Please reload the page and try again.', 'fluent-event')], 403);
     }
 
     // What the event page opens: a public or unlisted event in a public or unlisted calendar.

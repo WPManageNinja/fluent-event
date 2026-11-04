@@ -24,7 +24,14 @@ class PortalEndpointsTest extends IntegrationTestCase
         return $this->rest('POST', "portal/events/{$event->id}/register-guest", array_merge([
             'name'  => 'Walk-in Visitor',
             'email' => 'visitor@example.test',
-            'nonce' => wp_create_nonce('fe_guest_register_' . $event->id),
+            'nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
+        ], $params));
+    }
+
+    private function register(Event $event, array $params)
+    {
+        return $this->rest('POST', "portal/events/{$event->id}/register", array_merge([
+            'nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
         ], $params));
     }
 
@@ -73,7 +80,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $event = $this->createEvent();
         $other = $this->createEvent();
 
-        $this->assertSame(403, $this->registerGuest($event, ['nonce' => wp_create_nonce('fe_guest_register_' . $other->id)])['status']);
+        $this->assertSame(403, $this->registerGuest($event, ['nonce' => wp_create_nonce('fe_portal_register_' . $other->id)])['status']);
         $this->assertSame(200, $this->registerGuest($event, ['website' => 'https://spam.example.test'])['status']);
         $this->assertCount(0, $this->guestsOf($event));
 
@@ -103,12 +110,12 @@ class PortalEndpointsTest extends IntegrationTestCase
         $event = $this->onlineEvent('rsvp');
         $this->actAs($this->createUser('subscriber'));
 
-        $going = $this->rest('POST', "portal/events/{$event->id}/register", ['status' => 'going']);
+        $going = $this->register($event, ['status' => 'going']);
         $this->assertSame(200, $going['status'], wp_json_encode($going['data']));
         $this->assertStringContainsString('https://meet.example.test/fe-room', $going['data']['html']);
         $this->assertStringContainsString('data-fe-status="not_going"', $going['data']['html'], 'A member keeps the menu to change their mind');
 
-        $notGoing = $this->rest('POST', "portal/events/{$event->id}/register", ['status' => 'not_going']);
+        $notGoing = $this->register($event, ['status' => 'not_going']);
         $guest = $this->guestsOf($event)[0];
         $this->assertSame('not_going', $guest->status);
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
@@ -120,8 +127,8 @@ class PortalEndpointsTest extends IntegrationTestCase
         $event = $this->createEvent([], ['entry_type' => 'open']);
         $this->actAs($this->createUser('subscriber'));
 
-        $this->assertSame(422, $this->rest('POST', "portal/events/{$event->id}/register", ['status' => 'not_going'])['status']);
-        $this->assertSame(200, $this->rest('POST', "portal/events/{$event->id}/register", ['status' => 'going', 'name' => 'Stage Name'])['status']);
+        $this->assertSame(422, $this->register($event, ['status' => 'not_going'])['status']);
+        $this->assertSame(200, $this->register($event, ['status' => 'going', 'name' => 'Stage Name'])['status']);
         $this->assertSame('Stage Name', $this->guestsOf($event)[0]->name);
     }
 
@@ -129,10 +136,23 @@ class PortalEndpointsTest extends IntegrationTestCase
     {
         $event = $this->createEvent();
 
-        $this->assertNotSame(200, $this->rest('POST', "portal/events/{$event->id}/register", ['status' => 'going'])['status']);
+        $this->assertNotSame(200, $this->register($event, ['status' => 'going'])['status']);
 
         $this->actAs($this->createUser('subscriber'));
         $this->assertNotSame(200, $this->registerGuest($event)['status']);
+        $this->assertCount(0, $this->guestsOf($event));
+    }
+
+    // An unlisted event opens only by its link, so walking ids without its page's nonce finds nothing.
+    public function test_a_member_cannot_register_by_event_id_alone()
+    {
+        $event = $this->createEvent(['status' => 'unlisted']);
+        $this->actAs($this->createUser('subscriber'));
+
+        $response = $this->rest('POST', "portal/events/{$event->id}/register", ['status' => 'going']);
+
+        $this->assertSame(403, $response['status']);
+        $this->assertArrayNotHasKey('html', $response['data']);
         $this->assertCount(0, $this->guestsOf($event));
     }
 }

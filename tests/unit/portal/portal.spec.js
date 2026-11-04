@@ -4,7 +4,7 @@ import { errorMessage, submitForm, chooseStatus } from '../../../resources/porta
 const respond = (body, status = 200) => new Response(JSON.stringify(body), { status });
 
 const card = (inner, attrs = '') => `
-    <aside data-fe-card data-error="Something went wrong." ${attrs}>
+    <aside data-fe-card data-error="Something went wrong." data-event-nonce="event-nonce" ${attrs}>
         ${inner}
         <p class="fe-event-page__error"></p>
     </aside>`;
@@ -35,12 +35,11 @@ describe('registration', () => {
         document.body.innerHTML = '';
     });
 
-    it('posts a visitor form without the REST nonce and swaps in the card it gets back', async () => {
+    it("posts a visitor form with the event's nonce, no REST nonce, and swaps in the card it gets back", async () => {
         document.body.innerHTML = card(`
             <form data-fe-register action="https://site.test/register-guest">
                 <input name="name" value="Ada">
                 <input name="email" value="ada@example.test">
-                <input name="nonce" value="abc">
                 <p class="fe-register__error"></p>
                 <button type="submit">Register</button>
             </form>`);
@@ -51,7 +50,7 @@ describe('registration', () => {
         const [url, options] = fetch.mock.calls[0];
         expect(url).toBe('https://site.test/register-guest');
         expect(options.headers['X-WP-Nonce']).toBeUndefined();
-        expect(JSON.parse(options.body)).toEqual({ name: 'Ada', email: 'ada@example.test', nonce: 'abc' });
+        expect(JSON.parse(options.body)).toEqual({ name: 'Ada', email: 'ada@example.test', nonce: 'event-nonce' });
         expect(document.querySelector('.fe-event-page__badge').textContent).toBe('Going');
         expect(document.activeElement).toBe(document.querySelector('.fe-event-page__badge'));
     });
@@ -71,7 +70,7 @@ describe('registration', () => {
 
         const [, options] = fetch.mock.calls[0];
         expect(options.headers['X-WP-Nonce']).toBe('rest-nonce');
-        expect(JSON.parse(options.body)).toEqual({ name: 'Zane', status: 'going' });
+        expect(JSON.parse(options.body)).toEqual({ name: 'Zane', status: 'going', nonce: 'event-nonce' });
     });
 
     it('shows a refusal in the form and lets the visitor try again', async () => {
@@ -103,6 +102,6 @@ describe('registration', () => {
 
         await chooseStatus(document.querySelector('[data-fe-status="not_going"]'));
         expect(fetch.mock.calls[0][0]).toBe('https://site.test/register');
-        expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ status: 'not_going' });
+        expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ status: 'not_going', nonce: 'event-nonce' });
     });
 });

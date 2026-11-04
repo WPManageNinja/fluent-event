@@ -21,13 +21,14 @@ export function errorMessage(data, fallback) {
     return fallback;
 }
 
+// Every post carries the event's own nonce; a member's also carries their REST cookie nonce.
 async function send(url, body) {
-    const { nonce, error } = card().dataset;
+    const { nonce, eventNonce, error } = card().dataset;
     const response = await fetch(url, {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json', ...(nonce ? { 'X-WP-Nonce': nonce } : {}) },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, nonce: eventNonce }),
     });
     const data = await response.json().catch(() => ({}));
 
