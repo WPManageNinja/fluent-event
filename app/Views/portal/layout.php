@@ -7,8 +7,6 @@
  * @var string $description
  * @var string $url
  * @var string $site_name
- * @var string $site_icon
- * @var string $portal_url
  * @var string $style_url
  * @var string $script_url  The event page's registration script; empty elsewhere.
  * @var string $body        Rendered page view, escaped where it was built.
@@ -52,26 +50,18 @@ use FluentEvent\App\Services\Icon;
     <?php do_action( 'fluent_event/portal/head' ); ?>
 </head>
 <body class="fe-portal">
-    <header class="fe-portal__topbar">
-        <a class="fe-portal__brand" href="<?php echo esc_url( $portal_url ); ?>">
-            <?php if ( $site_icon ) : ?>
-                <img class="fe-portal__brand-icon" src="<?php echo esc_url( $site_icon ); ?>" alt="">
-            <?php endif; ?>
-            <span><?php echo esc_html( $site_name ); ?></span>
-        </a>
-
-        <button type="button"
-                class="fe-portal__mode-toggle"
-                aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
-                onclick="toggleColorMode()">
-            <span class="fe-portal__mode-icon fe-portal__mode-icon--light"><?php echo Icon::MOON; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-            <span class="fe-portal__mode-icon fe-portal__mode-icon--dark"><?php echo Icon::SUN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-        </button>
-    </header>
-
     <main class="fe-portal__main">
         <?php echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in its own view ?>
     </main>
+
+    <?php // No top bar: each page leads with its own content, and the theme switch floats in a corner. ?>
+    <button type="button"
+            class="fe-portal__mode-toggle"
+            aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
+            onclick="toggleColorMode()">
+        <span class="fe-portal__mode-icon fe-portal__mode-icon--light"><?php echo Icon::MOON; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+        <span class="fe-portal__mode-icon fe-portal__mode-icon--dark"><?php echo Icon::SUN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+    </button>
 
     <?php if ( $script_url ) : ?>
         <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
