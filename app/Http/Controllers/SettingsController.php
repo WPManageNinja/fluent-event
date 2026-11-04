@@ -23,11 +23,17 @@ class SettingsController extends Controller
 
     public function updateGeneral(Request $request)
     {
-        $data = SettingsRequest::sanitize($request->all());
+        $raw = $request->all();
+        $data = SettingsRequest::sanitize($raw);
 
         // The constant owns the slug, and its value needn't pass the rules for the field it locks.
         if (defined('FLUENT_EVENT_PORTAL_SLUG')) {
             unset($data['portal_slug']);
+        }
+
+        // Blank means the site root, but text that sanitizes to nothing (`!!!`) stays raw so the rules reject it.
+        if (isset($data['portal_slug']) && $data['portal_slug'] === '') {
+            $data['portal_slug'] = trim((string) ($raw['portal_slug'] ?? ''));
         }
 
         $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());

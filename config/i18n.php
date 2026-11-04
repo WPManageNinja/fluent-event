@@ -374,7 +374,7 @@ return [
             'What the event is called and which calendar it belongs to.' => __('What the event is called and which calendar it belongs to.', 'fluent-event'),
             'What the reply-to email is for' => __('What the reply-to email is for', 'fluent-event'),
             'When the event starts and ends.' => __('When the event starts and ends.', 'fluent-event'),
-            'Where your public calendars page lives. Changing it breaks existing links.' => __('Where your public calendars page lives. Changing it breaks existing links.', 'fluent-event'),
+            'Where your public calendars page lives. Leave it empty to use the site root. Changing it breaks existing links.' => __('Where your public calendars page lives. Leave it empty to use the site root. Changing it breaks existing links.', 'fluent-event'),
             'WordPress user' => __('WordPress user', 'fluent-event'),
             'WordPress user *' => __('WordPress user *', 'fluent-event'),
             'WP User' => __('WP User', 'fluent-event'),

@@ -43,7 +43,7 @@ In `wp_fe_meta`:
 - **Logo** — separate **light** and **dark** variants.
 - **Logo permalink** — where clicking the logo goes (default / custom URL).
 - **Enable landing pages** — off by default. Off registers no landing routes, so every portal URL 404s, and hides the portal slug field. Only site administrators can change it.
-- **Portal slug** — where the public calendars page lives, default `events`. With FluentCommunity mounted at the site root, `/events` is its Events tab, so pick another slug there. Only site administrators can change it. `FLUENT_EVENT_PORTAL_SLUG` overrides it and locks the field, like FluentCommunity's constant.
+- **Portal slug** — where the public calendars page lives, default `events`. With FluentCommunity mounted at the site root, `/events` is its Events tab, so pick another slug there. Left empty, the portal sits at the site root: the home page becomes the events list, and `/{event}/` opens only where no page or post already has that address. Only site administrators can change it. `FLUENT_EVENT_PORTAL_SLUG` overrides it and locks the field, like FluentCommunity's constant.
 - **Access level** — who can access the portal: `public`, `logged-in only`, or `role-based` (pick roles).
 - _(Expandable — more general keys added later.)_
 

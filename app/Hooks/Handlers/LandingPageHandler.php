@@ -46,6 +46,11 @@ class LandingPageHandler
 
         $slug = Settings::portalSlug();
 
+        // At the site root, rules would claim every page's address; renderPage() matches those requests itself.
+        if ($slug === '') {
+            return;
+        }
+
         add_rewrite_rule('^' . $slug . '/?$', 'index.php?' . self::QUERY_VAR . '=calendars', 'top');
         // An event under the portal by its own slug; its calendar is a filter on the list, not part of the path.
         add_rewrite_rule('^' . $slug . '/([^/]+)/?$', 'index.php?' . self::QUERY_VAR . '=event&' . self::EVENT_VAR . '=$matches[1]', 'top');
@@ -61,16 +66,29 @@ class LandingPageHandler
 
     public function renderPage()
     {
-        switch (get_query_var(self::QUERY_VAR)) {
+        $route = get_query_var(self::QUERY_VAR);
+        $eventSlug = get_query_var(self::EVENT_VAR);
+        $atRoot = !$route && Settings::portalSlug() === '';
+
+        if ($atRoot) {
+            [$route, $eventSlug] = $this->rootRoute();
+        }
+
+        switch ($route) {
             case 'calendars':
                 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
                 $page = $this->eventsPage(sanitize_title(wp_unslash($_GET['calendar'] ?? '')));
                 break;
             case 'event':
-                $page = $this->eventPage(get_query_var(self::EVENT_VAR));
+                $page = $this->eventPage($eventSlug);
                 break;
             default:
                 return;
+        }
+
+        // At the root, a URL that is no event keeps the theme's own 404.
+        if (!$page && $atRoot && $route === 'event') {
+            return;
         }
 
         $portalUrl = home_url(user_trailingslashit(Settings::portalSlug()));
@@ -91,6 +109,20 @@ class LandingPageHandler
         ]);
 
         exit;
+    }
+
+    // The home page, or a URL WordPress couldn't resolve, so a page or post always keeps its address.
+    protected function rootRoute()
+    {
+        global $wp;
+
+        $request = trim((string) $wp->request, '/');
+
+        if ($request === '') {
+            return [is_front_page() && !is_feed() ? 'calendars' : '', ''];
+        }
+
+        return is_404() && strpos($request, '/') === false ? ['event', $request] : ['', ''];
     }
 
     protected function notFoundPage($portalUrl)
