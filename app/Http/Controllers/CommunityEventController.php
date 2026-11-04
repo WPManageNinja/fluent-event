@@ -6,9 +6,8 @@ use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
-use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
-use FluentEvent\App\Services\Settings;
+use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Framework\Http\Request\Request;
 use FluentEvent\Framework\Support\Arr;
@@ -101,73 +100,39 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
         }
 
+        if ($refusal = RegistrationService::refusal($event, ['rsvp', 'open'])) {
+            return $this->sendError(['message' => $refusal], 422);
+        }
+
         $entryType = Arr::get((array) $event->meta, 'entry_type');
-
-        if (!in_array($entryType, ['rsvp', 'open'], true)) {
-            return $this->sendError(['message' => __('This event does not take registrations.', 'fluent-event')], 422);
-        }
-
-        if ($event->end_at < gmdate(DateTimeHelper::FORMAT)) {
-            return $this->sendError(['message' => __('This event has already ended.', 'fluent-event')], 422);
-        }
-
         $status = $request->getSafe('status', 'sanitize_text_field');
 
         if (!in_array($status, $entryType === 'open' ? ['going'] : ['going', 'not_going'], true)) {
             return $this->sendError(['message' => __('Please choose going or not going.', 'fluent-event')], 422);
         }
 
-        $user = wp_get_current_user();
-
         // An open event's form lets the member change their name; their email is the account's.
         $name = $entryType === 'open' ? $request->getSafe('name', 'sanitize_text_field') : '';
         $this->validate(['name' => $name], ['name' => 'nullable|string|max:255'], GuestRequest::messages());
 
-        // The member's own row first, else one an admin added under their email.
-        $guest = Guest::query()->where('event_id', $event->id)->where('user_id', $user->ID)->first()
-            ?: Guest::query()->where('event_id', $event->id)->where('email', $user->user_email)->first();
+        $registered = RegistrationService::registerMember($event, wp_get_current_user(), $status, $name, [
+            'source'    => 'community',
+            'source_id' => (int) $feed->id,
+        ]);
 
-        if ($guest && $guest->user_id && (int) $guest->user_id !== (int) $user->ID) {
+        if (!$registered) {
             return $this->sendError(['message' => __('This email is already registered for this event.', 'fluent-event')], 422);
         }
 
-        $previousStatus = $guest ? $guest->status : null;
+        [$guest, $previousStatus, $created] = $registered;
 
-        if (!$guest) {
-            $guest = Guest::create([
-                'event_id'    => $event->id,
-                'calendar_id' => $event->calendar_id,
-                'group_id'    => wp_generate_password(32, false, false),
-                'is_buyer'    => 1,
-                'name'        => $name ?: $user->display_name,
-                'email'       => $user->user_email,
-                'user_id'     => $user->ID,
-                'status'      => $status,
-                'source'      => 'community',
-                'source_id'   => (int) $feed->id,
-            ]);
-
+        if ($created) {
             do_action('fluent_event/guest/created', $guest);
         } else {
-            // Going again keeps a checked-in guest checked in.
-            if ($status === 'not_going' || !in_array($guest->status, Event::SEAT_STATUSES, true)) {
-                $guest->status = $status;
-            }
-
-            $guest->user_id = $user->ID;
-            $guest->save();
-
             do_action('fluent_event/guest/updated', $guest, $previousStatus);
         }
 
-        $emails = Settings::get(Settings::EMAIL_NOTIFICATIONS);
-        $wasGoing = $previousStatus === 'going';
-
-        if ($guest->status === 'going' && !$wasGoing && !empty($emails['registration_confirmation']['enabled'])) {
-            as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
-        } elseif ($guest->status === 'not_going' && $wasGoing && !empty($emails['registration_cancellation']['enabled'])) {
-            as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
-        }
+        RegistrationService::queueEmail($guest, $previousStatus);
 
         return [
             'message' => $guest->status === 'not_going'
@@ -191,12 +156,8 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('This form has expired. Please reload the page and try again.', 'fluent-event')], 403);
         }
 
-        if (Arr::get((array) $event->meta, 'entry_type') !== 'open') {
-            return $this->sendError(['message' => __('This event does not take registrations.', 'fluent-event')], 422);
-        }
-
-        if ($event->end_at < gmdate(DateTimeHelper::FORMAT)) {
-            return $this->sendError(['message' => __('This event has already ended.', 'fluent-event')], 422);
+        if ($refusal = RegistrationService::refusal($event, ['open'])) {
+            return $this->sendError(['message' => $refusal], 422);
         }
 
         // Bots fill the hidden field; they are told nothing and nothing is saved.
@@ -211,25 +172,11 @@ class CommunityEventController extends Controller
             GuestRequest::messages()
         );
 
-        $guest = Guest::create([
-            'event_id'    => $event->id,
-            'calendar_id' => $event->calendar_id,
-            'group_id'    => wp_generate_password(32, false, false),
-            'is_buyer'    => 1,
-            'name'        => $data['name'],
-            'email'       => $data['email'],
-            'status'      => 'going',
-            'source'      => 'community',
-            'source_id'   => (int) $feed->id,
-        ]);
+        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'community', 'source_id' => (int) $feed->id]);
 
         do_action('fluent_event/guest/created', $guest);
 
-        $emails = Settings::get(Settings::EMAIL_NOTIFICATIONS);
-
-        if (!empty($emails['registration_confirmation']['enabled'])) {
-            as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
-        }
+        RegistrationService::queueEmail($guest, null);
 
         $seats = CommunityEvents::seatCounts([$event->id]);
 
