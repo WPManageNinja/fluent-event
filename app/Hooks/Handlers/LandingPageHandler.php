@@ -24,6 +24,11 @@ class LandingPageHandler
 
     public function register()
     {
+        // Off means no rules and no query var, so `?fe_route=` can't reach renderPage() either.
+        if (!Settings::landingPagesEnabled()) {
+            return;
+        }
+
         add_action('init', [$this, 'addRewriteRules']);
         add_filter('query_vars', [$this, 'addQueryVar']);
         add_action('template_redirect', [$this, 'renderPage'], 1);
@@ -32,6 +37,11 @@ class LandingPageHandler
     // A rule only takes effect after a flush, which activation runs.
     public function addRewriteRules()
     {
+        // Activation calls this directly, past the check in register().
+        if (!Settings::landingPagesEnabled()) {
+            return;
+        }
+
         $slug = Settings::portalSlug();
 
         add_rewrite_rule('^' . $slug . '/?$', 'index.php?' . self::QUERY_VAR . '=calendars', 'top');
