@@ -31,6 +31,9 @@ $fluentEventLink = function ( array $args ) use ( $state, $url ) {
     return add_query_arg( array_map( 'rawurlencode', array_filter( array_merge( $state, $args ), 'strlen' ) ), $url );
 };
 
+// The month being viewed isn't in $state, so picking a calendar or searching keeps it only through this.
+$fluentEventMonth = 'calendar' === $view ? [ 'month' => $month['value'] ] : [];
+
 $fluentEventFilters = [
     'all'      => __( 'All', 'fluent-event' ),
     'upcoming' => __( 'Upcoming', 'fluent-event' ),
@@ -62,7 +65,7 @@ $fluentEventEmpty = [
                 <?php foreach ( $chips as $fluentEventChip ) : ?>
                     <a
                         class="fe-calendar-chips__chip<?php echo $fluentEventChip['active'] ? ' fe-calendar-chips__chip--active' : ''; ?>"
-                        href="<?php echo esc_url( $fluentEventLink( [ 'calendar' => $fluentEventChip['slug'] ] ) ); ?>"
+                        href="<?php echo esc_url( $fluentEventLink( [ 'calendar' => $fluentEventChip['slug'] ] + $fluentEventMonth ) ); ?>"
                         <?php echo $fluentEventChip['active'] ? 'aria-current="page"' : ''; ?>
                         data-fe-chip
                     >
@@ -97,7 +100,7 @@ $fluentEventEmpty = [
                 placeholder="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
                 aria-label="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
             >
-            <?php foreach ( array_diff_key( $state, [ 'search' => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
+            <?php foreach ( array_diff_key( $state, [ 'search' => '' ] ) + $fluentEventMonth as $fluentEventKey => $fluentEventValue ) : ?>
                 <input type="hidden" name="<?php echo esc_attr( $fluentEventKey ); ?>" value="<?php echo esc_attr( $fluentEventValue ); ?>">
             <?php endforeach; ?>
         </form>
@@ -235,10 +238,6 @@ $fluentEventEmpty = [
                         <span class="fe-month__cell fe-month__cell--blank"></span>
                     <?php endfor; ?>
                 </div>
-
-                <?php if ( ! $month['by_day'] ) : ?>
-                    <p class="fe-events-page__empty"><?php esc_html_e( 'No events this month.', 'fluent-event' ); ?></p>
-                <?php endif; ?>
             </section>
 
         <?php elseif ( ! $rows ) : ?>

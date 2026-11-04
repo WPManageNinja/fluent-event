@@ -85,6 +85,21 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertStringContainsString('name="calendar" value="' . $calendar->slug . '"', $body);
     }
 
+    // Picking a calendar, or searching, while looking at another month stays on that month.
+    public function test_the_month_view_keeps_its_month_across_calendar_chips_and_search()
+    {
+        $calendar = $this->createCalendar(['title' => 'Zebra Month Club']);
+
+        $body = $this->page('', ['view' => 'calendar', 'month' => '2027-03'])['body'];
+
+        preg_match('/href="([^"]*[?&;]calendar=' . preg_quote($calendar->slug, '/') . '[^"]*)"/', $body, $chip);
+        $this->assertNotEmpty($chip, 'The calendar has a chip');
+        parse_str(parse_url(html_entity_decode($chip[1]), PHP_URL_QUERY), $args);
+        $this->assertSame(['view' => 'calendar', 'filter' => 'upcoming', 'calendar' => $calendar->slug, 'month' => '2027-03'], $args);
+        $this->assertStringContainsString('name="month" value="2027-03"', $body);
+        $this->assertStringNotContainsString('No events this month.', $body, 'The empty grid says so itself');
+    }
+
     public function test_an_unlisted_calendar_gets_its_chip_only_on_its_own_page()
     {
         $calendar = $this->createCalendar(['title' => 'Zebra Quiet Club', 'status' => 'unlisted']);
