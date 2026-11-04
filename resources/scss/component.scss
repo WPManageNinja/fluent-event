@@ -895,16 +895,6 @@
         }
     }
 
-    // Plain text; keep the author's line breaks. Sets its own colour, or wp-admin's grey paragraph colour wins.
-    &__description {
-        margin: 0;
-        color: var(--fe-secondary-text, #525866);
-        font-size: var(--fe-text-sm, 14px);
-        line-height: 1.5;
-        white-space: pre-line;
-        overflow-wrap: break-word;
-    }
-
     &__meta {
         display: flex;
         flex-wrap: wrap;

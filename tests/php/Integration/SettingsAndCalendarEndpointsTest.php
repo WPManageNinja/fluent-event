@@ -139,32 +139,27 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('#0099ff', $calendar->meta['theme_color']);
     }
 
-    public function test_a_calendar_description_is_saved_as_plain_text_with_its_line_breaks()
+    // The column stays in the schema, but nothing writes it: the sanitizer keeps unknown keys, so $fillable is the guard.
+    public function test_a_calendar_description_sent_to_the_api_is_not_saved()
     {
         $created = $this->rest('POST', 'calendars', [
             'title'       => 'Book Club',
             'slug'        => 'book-club',
             'status'      => 'public',
-            'description' => "<p>Monthly <b>meetups</b></p><script>alert(1)</script>\nBring a book.",
+            'description' => '<script>alert(1)</script>',
         ]);
 
         $this->assertSame(200, $created['status'], wp_json_encode($created['data']));
+        $id = $created['data']['calendar']['id'];
 
-        $description = $this->rest('GET', "calendars/{$created['data']['calendar']['id']}")['data']['calendar']['description'];
-
-        $this->assertSame("Monthly meetups\nBring a book.", $description);
-    }
-
-    public function test_a_calendar_description_over_160_characters_is_rejected()
-    {
-        $response = $this->rest('POST', 'calendars', [
-            'title'       => 'Long Club',
-            'slug'        => 'long-club',
+        $this->rest('PATCH', "calendars/{$id}", [
+            'title'       => 'Book Club',
+            'slug'        => 'book-club',
             'status'      => 'public',
-            'description' => str_repeat('a', 161),
+            'description' => '<script>alert(2)</script>',
         ]);
 
-        $this->assertSame(422, $response['status']);
+        $this->assertNull(Calendar::query()->find($id)->description);
     }
 
     public function test_the_status_filter_narrows_the_list_but_not_the_tab_counts()

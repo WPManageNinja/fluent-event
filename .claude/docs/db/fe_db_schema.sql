@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_calendars` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(255) NOT NULL,
   `slug` VARCHAR(255) NOT NULL,
-  `description` TEXT NULL DEFAULT NULL,
+  `description` TEXT NULL DEFAULT NULL COMMENT 'optional; no UI or endpoint sets it',
   `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | unlisted | private | draft',
   `meta` LONGTEXT NULL DEFAULT NULL COMMENT 'logo_url, cover_url, managers, preferences',
   `created_by` BIGINT UNSIGNED NOT NULL COMMENT 'wp_users.ID of the creator',

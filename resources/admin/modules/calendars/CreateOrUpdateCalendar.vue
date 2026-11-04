@@ -97,31 +97,6 @@
 
                         <section class="fe-form__section">
                             <div class="fe-form__section-rail">
-                                <h2
-                                    id="fe-calendar-description-label"
-                                    class="fe-form__section-title"
-                                >
-                                    {{ $t('Description') }}
-                                </h2>
-                                <p class="fe-form__section-desc">
-                                    {{ $t('Optional. A short calendar description.') }}
-                                </p>
-                            </div>
-
-                            <div class="fe-form__section-fields">
-                                <el-input
-                                    v-model="calendar.description"
-                                    type="textarea"
-                                    :rows="3"
-                                    :maxlength="160"
-                                    show-word-limit
-                                    aria-labelledby="fe-calendar-description-label"
-                                />
-                            </div>
-                        </section>
-
-                        <section class="fe-form__section">
-                            <div class="fe-form__section-rail">
                                 <h2 class="fe-form__section-title">{{ $t('Visibility') }}</h2>
                                 <p class="fe-form__section-desc">
                                     {{ $t('Choose who can find this calendar.') }}
@@ -241,7 +216,6 @@
                 return {
                     title: '',
                     slug: '',
-                    description: '',
                     status: this.$calendarStatuses()[0].value,
                     theme_color: this.themeColors[0].value,
                 };
@@ -256,7 +230,6 @@
                         this.calendar = {
                             title: response.calendar.title,
                             slug: response.calendar.slug,
-                            description: response.calendar.description,
                             status: response.calendar.status,
                             theme_color: response.calendar.meta?.theme_color?.toLowerCase()
                                 || this.themeColors[0].value,
@@ -309,7 +282,6 @@
                     payload: {
                         title: this.calendar.title,
                         slug: this.$slugify(this.calendar.slug),
-                        description: this.calendar.description,
                         status: this.calendar.status,
                         theme_color: this.calendar.theme_color,
                     },
