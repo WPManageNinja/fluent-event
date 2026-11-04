@@ -152,6 +152,16 @@ class DateTimeHelper
         return $zone ? $range . ' (' . $zone . ')' : $range;
     }
 
+    // A span that names its date, e.g. "Nov 6, 3:52 PM – 5:52 PM (Asia/Dhaka)"; the end's date only when it differs.
+    public static function dateTimeRange($start, $end, $zone)
+    {
+        $endFormat = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
+
+        /* translators: 1: start date and time, 2: end time or end date and time */
+        return sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), self::wallClock($start, 'M j, ' . get_option('time_format')), self::wallClock($end, $endFormat))
+            . ' (' . $zone . ')';
+    }
+
     /**
      * One event as calendar file text, the same file the community page's buildIcs() makes: the UID
      * matches, so a re-import updates the entry instead of duplicating it.

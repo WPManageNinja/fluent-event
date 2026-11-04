@@ -104,5 +104,7 @@ class DateTimeHelperTest extends TestCase
         $this->assertSame('Nov 3 – Nov 6, 2026', DateTimeHelper::dateRange('2026-11-03 10:00:00', '2026-11-06 17:00:00'));
         $this->assertSame('9:00 AM – 10:00 AM (America/New_York)', DateTimeHelper::timeRange('2026-11-10 09:00:00', '2026-11-10 10:00:00', 'America/New_York'));
         $this->assertSame('Nov 3, 10:00 AM – Nov 6, 5:00 PM', DateTimeHelper::timeRange('2026-11-03 10:00:00', '2026-11-06 17:00:00', ''));
+        $this->assertSame('Nov 6, 3:52 PM – 5:52 PM (Asia/Dhaka)', DateTimeHelper::dateTimeRange('2026-11-06 15:52:00', '2026-11-06 17:52:00', 'Asia/Dhaka'));
+        $this->assertSame('Nov 3, 10:00 AM – Nov 6, 5:00 PM (Asia/Dhaka)', DateTimeHelper::dateTimeRange('2026-11-03 10:00:00', '2026-11-06 17:00:00', 'Asia/Dhaka'));
     }
 }

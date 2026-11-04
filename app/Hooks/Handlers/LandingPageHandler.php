@@ -258,7 +258,10 @@ class LandingPageHandler
             'chip_day'         => DateTimeHelper::wallClock($event->start_at_local, 'j'),
             'date_label'       => DateTimeHelper::dateRange($event->start_at_local, $event->end_at_local),
             'time_label'       => DateTimeHelper::timeRange($event->start_at_local, $event->end_at_local, $event->timezone),
-            'local_time_label' => $this->localTimeLabel($event, $siteZone),
+            // The site's clock under the event's own, only when the two read differently.
+            'local_time_label' => $event->start_at_site === $event->start_at_local && $event->end_at_site === $event->end_at_local
+                ? ''
+                : DateTimeHelper::dateTimeRange($event->start_at_site, $event->end_at_site, $siteZone),
             'phase'            => $phase,
             /* translators: %s: time until the event starts, e.g. "3 days" */
             'status_label'     => $phase === 'ended' ? __('Ended', 'fluent-event') : sprintf(__('Starts in %s', 'fluent-event'), human_time_diff(time(), $start)),
@@ -308,23 +311,6 @@ class LandingPageHandler
             'url'         => $url,
             'body'        => (string) App::make('view')->make('portal.event', $data),
         ];
-    }
-
-    // The site's clock, which the lists use; only when it reads differently from the event's.
-    protected function localTimeLabel(Event $event, $siteZone)
-    {
-        $start = $event->start_at_site;
-        $end = $event->end_at_site;
-
-        if ($start === $event->start_at_local && $end === $event->end_at_local) {
-            return '';
-        }
-
-        $endFormat = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
-
-        /* translators: 1: start date and time, 2: end time or end date and time */
-        return sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), DateTimeHelper::wallClock($start, 'M j, ' . get_option('time_format')), DateTimeHelper::wallClock($end, $endFormat))
-            . ' (' . $siteZone . ')';
     }
 
     // Dates and times in the site's timezone and formats, as in the admin lists.
