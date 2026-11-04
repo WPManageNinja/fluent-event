@@ -47,6 +47,11 @@ class LandingPageHandler
 
         $slug = Settings::portalSlug();
 
+        // At the site root, rules would claim every page's address; renderPage() matches those requests itself.
+        if ($slug === '') {
+            return;
+        }
+
         add_rewrite_rule('^' . $slug . '/?$', 'index.php?' . self::QUERY_VAR . '=calendars', 'top');
         add_rewrite_rule('^' . $slug . '/([^/]+)/?$', 'index.php?' . self::QUERY_VAR . '=calendar&' . self::CALENDAR_VAR . '=$matches[1]', 'top');
         add_rewrite_rule('^' . $slug . '/([^/]+)/([^/]+)/?$', 'index.php?' . self::QUERY_VAR . '=event&' . self::CALENDAR_VAR . '=$matches[1]&' . self::EVENT_VAR . '=$matches[2]', 'top');
@@ -63,18 +68,32 @@ class LandingPageHandler
 
     public function renderPage()
     {
-        switch (get_query_var(self::QUERY_VAR)) {
+        $route = get_query_var(self::QUERY_VAR);
+        $calendarSlug = get_query_var(self::CALENDAR_VAR);
+        $eventSlug = get_query_var(self::EVENT_VAR);
+        $atRoot = !$route && Settings::portalSlug() === '';
+
+        if ($atRoot) {
+            [$route, $calendarSlug, $eventSlug] = $this->rootRoute();
+        }
+
+        switch ($route) {
             case 'calendars':
                 $page = $this->calendarsPage();
                 break;
             case 'calendar':
-                $page = $this->calendarPage(get_query_var(self::CALENDAR_VAR));
+                $page = $this->calendarPage($calendarSlug);
                 break;
             case 'event':
-                $page = $this->eventPage(get_query_var(self::CALENDAR_VAR), get_query_var(self::EVENT_VAR));
+                $page = $this->eventPage($calendarSlug, $eventSlug);
                 break;
             default:
                 return;
+        }
+
+        // At the root, a URL that is no calendar or event keeps the theme's own 404.
+        if (!$page && $atRoot) {
+            return;
         }
 
         $portalUrl = home_url(user_trailingslashit(Settings::portalSlug()));
@@ -97,6 +116,26 @@ class LandingPageHandler
         ]);
 
         exit;
+    }
+
+    // The home page, or a URL WordPress couldn't resolve, so a page or post always keeps its address.
+    protected function rootRoute()
+    {
+        global $wp;
+
+        $request = trim((string) $wp->request, '/');
+
+        if ($request === '') {
+            return [is_front_page() && !is_feed() ? 'calendars' : '', '', ''];
+        }
+
+        $parts = explode('/', $request);
+
+        if (!is_404() || count($parts) > 2) {
+            return ['', '', ''];
+        }
+
+        return count($parts) === 1 ? ['calendar', $parts[0], ''] : ['event', $parts[0], $parts[1]];
     }
 
     protected function notFoundPage($portalUrl)
