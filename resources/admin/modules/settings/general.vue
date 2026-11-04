@@ -62,7 +62,7 @@
                     </span>
                 </el-form-item>
 
-                <el-form-item v-if="general.enable_landing_pages === 'yes'" :label="$t('Portal slug')" required>
+                <el-form-item v-if="general.enable_landing_pages === 'yes'" :label="$t('Portal slug')">
                     <el-input
                         v-model="general.portal_slug"
                         :disabled="!$userCan('write_settings') || isSlugDefined"
@@ -73,7 +73,7 @@
                     <span class="fe-form__hint">
                         {{ isSlugDefined
                             ? $t('Set by FLUENT_EVENT_PORTAL_SLUG in wp-config.php.')
-                            : $t('Where your public calendars page lives. Changing it breaks existing links.') }}
+                            : $t('Where your public calendars page lives. Leave it empty to use the site root. Changing it breaks existing links.') }}
                     </span>
                 </el-form-item>
 
