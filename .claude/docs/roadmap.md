@@ -104,7 +104,7 @@ community add-on into a standalone event tool, and makes events shareable anywhe
 | Landing page settings: on/off | FluentBooking | built: "Enable landing pages" in General Settings, off by default; off means no landing URL and no public registration. The URL slug is set there too. No branding in this release (see Later) |
 
 URLs, matching FluentCommunity: pretty by default under the portal slug
-(`/calendars/{calendar}/{event}`). The slug is set in General Settings, and
+(`/events/{calendar}/{event}`). The slug is set in General Settings, and
 `FLUENT_EVENT_PORTAL_SLUG` overrides it.
 
 Standalone creation (D-7) is already in: the admin creates calendars and events, so events can
