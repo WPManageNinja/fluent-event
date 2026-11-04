@@ -13,10 +13,10 @@ use FluentEvent\App\Utils\DateTimeHelper;
  */
 class EventPageService
 {
-    // Under its calendar; the calendar relation must be loaded.
+    // Straight under the portal slug: an event's post slug is unique among events.
     public static function url(Event $event)
     {
-        return home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->calendar->slug . '/' . $event->post->post_name));
+        return home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->post->post_name));
     }
 
     /**

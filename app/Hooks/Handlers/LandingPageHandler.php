@@ -19,7 +19,6 @@ use FluentEvent\Framework\Support\Arr;
 class LandingPageHandler
 {
     const QUERY_VAR = 'fe_route';
-    const CALENDAR_VAR = 'fe_calendar';
     const EVENT_VAR = 'fe_event_slug';
     const VIEWS = ['cards', 'timeline', 'calendar'];
     const FILTERS = ['upcoming', 'all', 'past'];
@@ -34,7 +33,8 @@ class LandingPageHandler
 
         add_action('init', [$this, 'addRewriteRules']);
         add_filter('query_vars', [$this, 'addQueryVar']);
-        add_action('template_redirect', [$this, 'renderPage'], 1);
+        // Before FluentCommunity's own priority-1 render: mounted at the site root, it claims `/events` too.
+        add_action('template_redirect', [$this, 'renderPage'], 0);
     }
 
     // A rule only takes effect after a flush, which activation runs.
@@ -48,14 +48,13 @@ class LandingPageHandler
         $slug = Settings::portalSlug();
 
         add_rewrite_rule('^' . $slug . '/?$', 'index.php?' . self::QUERY_VAR . '=calendars', 'top');
-        add_rewrite_rule('^' . $slug . '/([^/]+)/?$', 'index.php?' . self::QUERY_VAR . '=calendar&' . self::CALENDAR_VAR . '=$matches[1]', 'top');
-        add_rewrite_rule('^' . $slug . '/([^/]+)/([^/]+)/?$', 'index.php?' . self::QUERY_VAR . '=event&' . self::CALENDAR_VAR . '=$matches[1]&' . self::EVENT_VAR . '=$matches[2]', 'top');
+        // An event under the portal by its own slug; its calendar is a filter on the list, not part of the path.
+        add_rewrite_rule('^' . $slug . '/([^/]+)/?$', 'index.php?' . self::QUERY_VAR . '=event&' . self::EVENT_VAR . '=$matches[1]', 'top');
     }
 
     public function addQueryVar($vars)
     {
         $vars[] = self::QUERY_VAR;
-        $vars[] = self::CALENDAR_VAR;
         $vars[] = self::EVENT_VAR;
 
         return $vars;
@@ -65,13 +64,11 @@ class LandingPageHandler
     {
         switch (get_query_var(self::QUERY_VAR)) {
             case 'calendars':
-                $page = $this->calendarsPage();
-                break;
-            case 'calendar':
-                $page = $this->calendarPage(get_query_var(self::CALENDAR_VAR));
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
+                $page = $this->eventsPage(sanitize_title(wp_unslash($_GET['calendar'] ?? '')));
                 break;
             case 'event':
-                $page = $this->eventPage(get_query_var(self::CALENDAR_VAR), get_query_var(self::EVENT_VAR));
+                $page = $this->eventPage(get_query_var(self::EVENT_VAR));
                 break;
             default:
                 return;
@@ -90,8 +87,6 @@ class LandingPageHandler
 
         App::make('view')->render('portal.layout', $page + [
             'site_name'  => get_bloginfo('name'),
-            'site_icon'  => get_site_icon_url(64),
-            'portal_url' => $portalUrl,
             'style_url'  => Enqueue::url('portal/portal.scss'),
             'script_url' => '',
         ]);
@@ -117,42 +112,27 @@ class LandingPageHandler
         ];
     }
 
-    // A page returns its layout title, description, canonical url and rendered body.
-    protected function calendarsPage()
+    // The landing home: every public calendar's events, or one calendar's under `?calendar=`, with a chip per
+    // calendar to switch. A page returns its layout title, description, canonical url and rendered body.
+    protected function eventsPage($calendarSlug = '')
     {
-        $calendars = Calendar::query()
-            ->byStatus('public')
-            ->withCount(['events as upcoming_events_count' => function ($query) {
-                $query->byStatus('public')->where('end_at', '>=', gmdate(DateTimeHelper::FORMAT));
-            }])
-            ->orderBy('title', 'ASC')
-            ->get();
+        $calendars = Calendar::query()->byStatus('public')->orderBy('title', 'ASC')->get();
+        $calendar = null;
 
-        $description = __('Browse our calendars and their upcoming events.', 'fluent-event');
+        if ($calendarSlug !== '') {
+            $calendar = Calendar::query()
+                ->where('slug', sanitize_title($calendarSlug))
+                ->byStatus(['public', 'unlisted'])
+                ->first();
 
-        return [
-            /* translators: %s: site name */
-            'title'       => sprintf(__('Calendars – %s', 'fluent-event'), get_bloginfo('name')),
-            'description' => $description,
-            'url'         => home_url(user_trailingslashit(Settings::portalSlug())),
-            // make() returns the shared View, not HTML: left uncast, it renders the layout inside itself.
-            'body'        => (string) App::make('view')->make('portal.calendars', [
-                'calendars'   => $calendars,
-                'description' => $description,
-            ]),
-        ];
-    }
+            if (!$calendar) {
+                return null;
+            }
 
-    // Unlisted calendars stay off the list above but open here by their link.
-    protected function calendarPage($slug)
-    {
-        $calendar = Calendar::query()
-            ->where('slug', sanitize_title($slug))
-            ->byStatus(['public', 'unlisted'])
-            ->first();
-
-        if (!$calendar) {
-            return null;
+            // An unlisted calendar stays off the chips unless it is the one being shown.
+            if (!$calendars->contains('id', $calendar->id)) {
+                $calendars->push($calendar);
+            }
         }
 
         $settings = Settings::get();
@@ -168,36 +148,54 @@ class LandingPageHandler
 
         $view = in_array($view, self::VIEWS, true) ? $view : $settings['default_events_view'];
         $filter = in_array($filter, self::FILTERS, true) ? $filter : 'upcoming';
-        $url = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $calendar->slug));
+        $url = home_url(user_trailingslashit(Settings::portalSlug()));
+        // Carried into every link, so switching one control keeps the others.
+        $state = array_filter([
+            'calendar' => $calendar ? $calendar->slug : '',
+            'view'     => $viewLocked ? '' : $view,
+            'filter'   => $filter,
+            'search'   => $search,
+        ]);
 
         $events = Event::query()
             ->with(['post' => function ($query) {
                 $query->select(['ID', 'post_title', 'post_name']);
             }])
-            ->byCalendar($calendar->id)
+            ->whereIn('calendar_id', $calendar ? [$calendar->id] : $calendars->pluck('id')->all())
             ->byStatus('public')
             ->searchBy($search);
 
+        $calendarsById = $calendars->keyBy('id');
+        $chips = [];
+
+        if ($calendars->count() > 1) {
+            $chips[] = ['title' => __('All', 'fluent-event'), 'slug' => '', 'color' => '', 'active' => !$calendar];
+
+            foreach ($calendars as $chipCalendar) {
+                $chips[] = [
+                    'title'  => $chipCalendar->title,
+                    'slug'   => $chipCalendar->slug,
+                    'color'  => $this->calendarColor($chipCalendar),
+                    'active' => $calendar && (int) $calendar->id === (int) $chipCalendar->id,
+                ];
+            }
+        }
+
+        $description = $calendar
+            /* translators: %s: calendar title */
+            ? sprintf(__('Events from %s.', 'fluent-event'), $calendar->title)
+            : __('Events from our calendars.', 'fluent-event');
+
         $data = [
-            'calendar'       => $calendar,
-            'color'          => sanitize_hex_color(Arr::get((array) $calendar->meta, 'theme_color', '')),
-            'upcoming_count' => Event::query()
-                ->byCalendar($calendar->id)
-                ->byStatus('public')
-                ->where('end_at', '>=', gmdate(DateTimeHelper::FORMAT))
-                ->count(),
-            'url'            => $url,
-            'list_url'       => home_url(user_trailingslashit(Settings::portalSlug())),
-            'view'           => $view,
-            'view_locked'    => $viewLocked,
-            'filter'         => $filter,
-            'search'         => $search,
-            // Carried into every link, so switching one control keeps the others.
-            'state'          => array_filter([
-                'view'   => $viewLocked ? '' : $view,
-                'filter' => $filter,
-                'search' => $search,
-            ]),
+            'chips'         => $chips,
+            // Kept on a single calendar's list too, so picking a chip doesn't reflow every card.
+            'show_calendar' => $calendars->count() > 1,
+            'url'           => $url,
+            'view'          => $view,
+            'view_locked'   => $viewLocked,
+            'filter'        => $filter,
+            'search'        => $search,
+            'state'         => $state,
         ];
 
         if ($view === 'calendar') {
@@ -208,15 +206,15 @@ class LandingPageHandler
             $data['month'] = $this->monthGrid(
                 $start,
                 $events->inDateRange($start->format('Y-m-01'), $start->format('Y-m-t'))->orderBy('start_at', 'ASC')->get(),
-                $url
+                $calendarsById
             );
         } else {
             $paginator = $events
                 ->byPeriod($filter === 'all' ? '' : $filter)
                 ->paginate(self::PER_PAGE, ['*'], 'page', $pageNumber);
 
-            $data['rows'] = array_map(function ($event) use ($url) {
-                return $this->eventRow($event, $url);
+            $data['rows'] = array_map(function ($event) use ($calendarsById) {
+                return $this->eventRow($event, $calendarsById->get($event->calendar_id));
             }, $paginator->items());
             $data['current_page'] = $paginator->currentPage();
             $data['last_page'] = $paginator->lastPage();
@@ -224,34 +222,38 @@ class LandingPageHandler
 
         $this->rememberChoices($viewLocked ? '' : $settings['default_events_view']);
 
-        $description = wp_trim_words((string) $calendar->description, 30);
-
         return [
-            /* translators: 1: calendar title, 2: site name */
-            'title'       => sprintf(_x('%1$s – %2$s', 'page title', 'fluent-event'), $calendar->title, get_bloginfo('name')),
-            'description' => $description ?: __('Browse our calendars and their upcoming events.', 'fluent-event'),
-            'url'         => $url,
-            'body'        => (string) App::make('view')->make('portal.calendar', $data),
+            /* translators: 1: calendar title, or "Events" on the landing home, 2: site name */
+            'title'       => sprintf(_x('%1$s – %2$s', 'page title', 'fluent-event'), $calendar ? $calendar->title : __('Events', 'fluent-event'), get_bloginfo('name')),
+            'description' => $description,
+            'url'         => $calendar ? $this->calendarUrl($calendar->slug) : $url,
+            // make() returns the shared View, not HTML: left uncast, it renders the layout inside itself.
+            'body'        => (string) App::make('view')->make('portal.events', $data),
+            'script_url'  => Enqueue::url('portal/portal.js'),
         ];
+    }
+
+    // The events list filtered to one calendar.
+    protected function calendarUrl($slug)
+    {
+        return add_query_arg('calendar', rawurlencode($slug), home_url(user_trailingslashit(Settings::portalSlug())));
+    }
+
+    protected function calendarColor(Calendar $calendar)
+    {
+        return (string) sanitize_hex_color(Arr::get((array) $calendar->meta, 'theme_color', ''));
     }
 
     // The community event page, server-rendered. Opens like the calendar page: a public or unlisted
     // event in a public or unlisted calendar.
-    protected function eventPage($calendarSlug, $eventSlug)
+    protected function eventPage($eventSlug)
     {
-        $calendar = Calendar::query()
-            ->where('slug', sanitize_title($calendarSlug))
-            ->byStatus(['public', 'unlisted'])
-            ->first();
-
-        if (!$calendar) {
-            return null;
-        }
-
         $event = Event::query()
-            ->with(['post'])
-            ->byCalendar($calendar->id)
+            ->with(['post', 'calendar'])
             ->byStatus(['public', 'unlisted'])
+            ->whereHas('calendar', function ($query) {
+                $query->byStatus(['public', 'unlisted']);
+            })
             ->whereHas('post', function ($query) use ($eventSlug) {
                 $query->where('post_name', sanitize_title($eventSlug));
             })
@@ -261,11 +263,12 @@ class LandingPageHandler
             return null;
         }
 
+        $calendar = $event->calendar;
+
         // The community page's shape, drawn for a visitor whoever is viewing: the landing pages don't know their viewers.
         $seats = EventService::seatCounts([$event->id]);
         $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, null, false, false);
-        $calendarUrl = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $calendar->slug));
-        $event->setRelation('calendar', $calendar);
+        $calendarUrl = $this->calendarUrl($calendar->slug);
         $url = EventPageService::url($event);
         $isOnline = $event->venue_type === 'online';
 
@@ -295,7 +298,7 @@ class LandingPageHandler
     }
 
     // Dates and times in the site's timezone and formats, as in the admin lists.
-    protected function eventRow(Event $event, $calendarUrl)
+    protected function eventRow(Event $event, Calendar $calendar)
     {
         $start = strtotime($event->start_at . ' UTC');
         $end = strtotime($event->end_at . ' UTC');
@@ -313,12 +316,14 @@ class LandingPageHandler
             'is_online'  => $isOnline,
             'location'   => $isOnline ? __('Online', 'fluent-event') : (Arr::get($event->meta, 'venue') ?: __('In person', 'fluent-event')),
             'cover_url'  => Arr::get($event->meta, 'cover_url', ''),
-            'url'        => trailingslashit($calendarUrl) . user_trailingslashit($event->post->post_name),
+            'url'        => home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->post->post_name)),
+            'calendar'   => $calendar->title,
+            'color'      => $this->calendarColor($calendar),
             'start'      => $start,
         ];
     }
 
-    protected function monthGrid(\DateTimeImmutable $start, $events, $calendarUrl)
+    protected function monthGrid(\DateTimeImmutable $start, $events, $calendarsById)
     {
         global $wp_locale;
 
@@ -327,7 +332,7 @@ class LandingPageHandler
         $byDay = [];
 
         foreach ($events as $event) {
-            $row = $this->eventRow($event, $calendarUrl);
+            $row = $this->eventRow($event, $calendarsById->get($event->calendar_id));
             // An event that began last month shows on the 1st.
             $byDay[(int) wp_date('j', max($row['start'], $firstDay))][] = $row;
         }
