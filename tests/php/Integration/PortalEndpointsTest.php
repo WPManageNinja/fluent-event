@@ -4,6 +4,7 @@ namespace FluentEvent\Tests\Integration;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -16,6 +17,7 @@ class PortalEndpointsTest extends IntegrationTestCase
     {
         parent::setUp();
 
+        Settings::update(Settings::GENERAL, ['enable_landing_pages' => 'yes']);
         $this->actAs(0);
     }
 
@@ -153,6 +155,19 @@ class PortalEndpointsTest extends IntegrationTestCase
 
         $this->assertSame(403, $response['status']);
         $this->assertArrayNotHasKey('html', $response['data']);
+        $this->assertCount(0, $this->guestsOf($event));
+    }
+
+    // With landing pages off there is no event page, so its endpoints refuse members and visitors alike.
+    public function test_neither_endpoint_answers_when_landing_pages_are_off()
+    {
+        Settings::update(Settings::GENERAL, ['enable_landing_pages' => 'no']);
+        $event = $this->createEvent();
+
+        $this->assertNotSame(200, $this->registerGuest($event)['status']);
+
+        $this->actAs($this->createUser('subscriber'));
+        $this->assertNotSame(200, $this->register($event, ['status' => 'going'])['status']);
         $this->assertCount(0, $this->guestsOf($event));
     }
 }
