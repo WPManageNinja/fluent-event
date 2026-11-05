@@ -117,7 +117,7 @@ class CommunityEventController extends Controller
         $this->validate(['name' => $name], ['name' => 'nullable|string|max:255'], GuestRequest::messages());
 
         $registered = RegistrationService::registerMember($event, wp_get_current_user(), $status, $name, [
-            'source'    => 'community',
+            'source'    => 'fluent_community',
             'source_id' => (int) $feed->id,
         ]);
 
@@ -173,7 +173,7 @@ class CommunityEventController extends Controller
             GuestRequest::messages()
         );
 
-        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'community', 'source_id' => (int) $feed->id]);
+        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id]);
 
         do_action('fluent_event/guest/created', $guest);
 

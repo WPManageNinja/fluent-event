@@ -50,7 +50,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $guests = $this->guestsOf($event);
         $this->assertCount(1, $guests);
         $this->assertSame('going', $guests[0]->status);
-        $this->assertSame('website', $guests[0]->source);
+        $this->assertSame('portal', $guests[0]->source);
         $this->assertEmpty($guests[0]->user_id);
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guests[0]->id]));
         // The card comes back final: a fixed ✓ Going, the link, no menu to change it.

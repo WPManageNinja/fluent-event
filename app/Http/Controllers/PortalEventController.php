@@ -45,7 +45,7 @@ class PortalEventController extends Controller
             GuestRequest::messages()
         );
 
-        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'website']);
+        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'portal']);
 
         do_action('fluent_event/guest/created', $guest);
 

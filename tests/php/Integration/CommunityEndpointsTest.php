@@ -119,6 +119,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertCount(1, $guests);
         $this->assertSame($this->member, $guests[0]->user_id);
         $this->assertSame('going', $guests[0]->status);
+        $this->assertSame('fluent_community', $guests[0]->source);
         $this->assertSame((int) $feed->id, (int) $guests[0]->source_id);
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guests[0]->id]));
     }
@@ -213,6 +214,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('visitor@example.test', $guests[0]->email);
         $this->assertEmpty($guests[0]->user_id);
         $this->assertSame('going', $guests[0]->status);
+        $this->assertSame('fluent_community', $guests[0]->source);
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guests[0]->id]));
         $this->assertSame('https://meet.example.test/open', $response['data']['event']['online_meeting_url'], 'The visitor just registered, so the link is theirs');
     }
