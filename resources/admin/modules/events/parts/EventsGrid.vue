@@ -81,23 +81,25 @@
                                     {{ $formatDate(data.day, 'dddd, MMM D') }}
                                 </p>
 
-                                <button
-                                    v-for="entry in entriesFor(data.day)"
-                                    :key="entry.event.id"
-                                    type="button"
-                                    class="fe-events-grid__event"
-                                    :style="{ '--fe-event-color': entryColor(entry) }"
-                                    :title="entry.event.title"
-                                    :aria-label="$t('View %s', entry.event.title)"
-                                    @click="$emit('open', entry.event)"
-                                >
-                                    <span class="fe-events-grid__event-time">
-                                        {{ entryTime(entry) }}
-                                    </span>
-                                    <span class="fe-events-grid__event-title">
-                                        {{ entry.event.title }}
-                                    </span>
-                                </button>
+                                <div class="fe-events-grid__entries">
+                                    <button
+                                        v-for="entry in entriesFor(data.day)"
+                                        :key="entry.event.id"
+                                        type="button"
+                                        class="fe-events-grid__event"
+                                        :style="{ '--fe-event-color': entryColor(entry) }"
+                                        :title="entry.event.title"
+                                        :aria-label="$t('View %s', entry.event.title)"
+                                        @click="$emit('open', entry.event)"
+                                    >
+                                        <span class="fe-events-grid__event-time">
+                                            {{ entryTime(entry) }}
+                                        </span>
+                                        <span class="fe-events-grid__event-title">
+                                            {{ entry.event.title }}
+                                        </span>
+                                    </button>
+                                </div>
                             </template>
                         </el-popover>
                     </div>
