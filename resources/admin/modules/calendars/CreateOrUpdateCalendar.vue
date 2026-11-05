@@ -217,7 +217,7 @@
                     title: '',
                     slug: '',
                     status: this.$calendarStatuses()[0].value,
-                    theme_color: this.themeColors[0].value,
+                    theme_color: this.appVars.calendar_default_color,
                 };
             },
             fetchCalendar() {
@@ -233,7 +233,7 @@
                             slug: response.calendar.slug,
                             status: response.calendar.status,
                             theme_color: response.calendar.meta?.theme_color?.toLowerCase()
-                                || this.themeColors[0].value,
+                                || this.appVars.calendar_default_color,
                         };
                         this.selectColor(this.calendar.theme_color);
                         this.original = { ...this.calendar };
