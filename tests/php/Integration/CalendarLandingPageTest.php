@@ -42,6 +42,16 @@ class CalendarLandingPageTest extends IntegrationTestCase
         return $handler->open($slug);
     }
 
+    // The query args of the calendar header link marked data-fe-nav="$key".
+    private function navArgs($body, $key)
+    {
+        preg_match('/<a\b[^>]*?href="([^"]*)"[^>]*?data-fe-nav="' . $key . '"/', $body, $link);
+        $this->assertNotEmpty($link, "The {$key} link is there");
+        parse_str((string) parse_url(html_entity_decode($link[1]), PHP_URL_QUERY), $args);
+
+        return $args;
+    }
+
     public function test_the_home_lists_public_events_from_every_public_calendar_and_names_each_ones_calendar()
     {
         $first = $this->createCalendar(['title' => 'Zebra First Club']);
@@ -85,19 +95,101 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertStringContainsString('name="calendar" value="' . $calendar->slug . '"', $body);
     }
 
-    // Picking a calendar, or searching, while looking at another month stays on that month.
-    public function test_the_month_view_keeps_its_month_across_calendar_chips_and_search()
+    // Picking a calendar, or searching, while looking at another week stays on that week.
+    public function test_the_calendar_view_keeps_its_span_and_date_across_calendar_chips_and_search()
     {
         $calendar = $this->createCalendar(['title' => 'Zebra Month Club']);
 
-        $body = $this->page('', ['view' => 'calendar', 'month' => '2027-03'])['body'];
+        $body = $this->page('', ['view' => 'calendar', 'span' => 'week', 'date' => '2027-03-10'])['body'];
 
         preg_match('/href="([^"]*[?&;]calendar=' . preg_quote($calendar->slug, '/') . '[^"]*)"/', $body, $chip);
         $this->assertNotEmpty($chip, 'The calendar has a chip');
         parse_str(parse_url(html_entity_decode($chip[1]), PHP_URL_QUERY), $args);
-        $this->assertSame(['view' => 'calendar', 'filter' => 'upcoming', 'calendar' => $calendar->slug, 'month' => '2027-03'], $args);
-        $this->assertStringContainsString('name="month" value="2027-03"', $body);
-        $this->assertStringNotContainsString('No events this month.', $body, 'The empty grid says so itself');
+        ksort($args);
+        $this->assertSame(['calendar' => $calendar->slug, 'date' => '2027-03-10', 'filter' => 'upcoming', 'span' => 'week', 'view' => 'calendar'], $args);
+        $this->assertStringContainsString('name="span" value="week"', $body);
+        $this->assertStringContainsString('name="date" value="2027-03-10"', $body);
+        $this->assertStringNotContainsString('No upcoming events.', $body, 'The empty grid says so itself');
+    }
+
+    public function test_the_calendar_header_steps_by_its_span_and_today_drops_the_date()
+    {
+        $body = $this->page('', ['view' => 'calendar', 'date' => '2027-03-10'])['body'];
+
+        // A month steps from its 1st, so the 31st of one can't skip the shorter month after it.
+        $this->assertSame('2027-02-01', $this->navArgs($body, 'prev')['date']);
+        $this->assertSame('2027-04-01', $this->navArgs($body, 'next')['date']);
+        $this->assertSame(['view' => 'calendar', 'filter' => 'upcoming'], $this->navArgs($body, 'today'));
+        $this->assertSame(['view' => 'calendar', 'filter' => 'upcoming', 'date' => '2027-03-10', 'span' => 'week'], $this->navArgs($body, 'span-week'));
+        $this->assertArrayNotHasKey('span', $this->navArgs($body, 'span-month'), 'Month is the default, left out of the link');
+
+        $week = $this->page('', ['view' => 'calendar', 'span' => 'week', 'date' => '2027-03-10'])['body'];
+        $this->assertSame(['2027-03-03', 'week'], [$this->navArgs($week, 'prev')['date'], $this->navArgs($week, 'prev')['span']]);
+        $this->assertSame('2027-03-17', $this->navArgs($week, 'next')['date']);
+        $this->assertSame('week', $this->navArgs($week, 'today')['span']);
+
+        $day = $this->page('', ['view' => 'calendar', 'span' => 'day', 'date' => '2027-03-10'])['body'];
+        $this->assertSame('2027-03-09', $this->navArgs($day, 'prev')['date']);
+        $this->assertSame('2027-03-11', $this->navArgs($day, 'next')['date']);
+    }
+
+    public function test_an_unknown_span_or_date_falls_back_to_this_month()
+    {
+        $body = $this->page('', ['view' => 'calendar', 'span' => 'year', 'date' => 'soon'])['body'];
+
+        $this->assertStringContainsString('fe-month__grid', $body);
+        $this->assertStringContainsString(esc_html(wp_date('F Y')), $body);
+    }
+
+    public function test_the_month_shows_whole_weeks_and_a_multi_day_event_on_each_of_its_days_in_its_calendar_colour()
+    {
+        $calendar = $this->createCalendar(['meta' => ['theme_color' => '#0099ff']]);
+        $this->createEvent([
+            'calendar_id' => $calendar->id,
+            'title'       => 'Three day summit',
+            'start_at'    => get_gmt_from_date('2027-03-10 18:00:00'),
+            'end_at'      => get_gmt_from_date('2027-03-12 20:00:00'),
+        ]);
+
+        $body = $this->page($calendar->slug, ['view' => 'calendar', 'date' => '2027-03-10'])['body'];
+
+        $cells = substr_count($body, 'class="fe-month__cell');
+        $this->assertSame(0, $cells % 7, 'Whole weeks');
+        $this->assertSame(31, $cells - substr_count($body, 'fe-month__cell--outside'), 'The neighbouring months\' days are marked outside');
+
+        $this->assertSame(3, substr_count($body, '>Three day summit<'));
+        $this->assertStringContainsString('Day 2', $body);
+        $this->assertStringContainsString('Day 3', $body);
+        $this->assertSame(3, substr_count($body, '--fe-event-color: #0099ff;'));
+    }
+
+    public function test_the_week_and_day_views_place_an_event_from_its_start_to_its_end()
+    {
+        $calendar = $this->createCalendar(['meta' => ['theme_color' => '#0099ff']]);
+        $this->createEvent([
+            'calendar_id' => $calendar->id,
+            'title'       => 'Morning standup',
+            'start_at'    => get_gmt_from_date('2027-03-10 09:00:00'),
+            'end_at'      => get_gmt_from_date('2027-03-10 10:30:00'),
+        ]);
+
+        $week = $this->page($calendar->slug, ['view' => 'calendar', 'span' => 'week', 'date' => '2027-03-10'])['body'];
+
+        $this->assertSame(7, substr_count($week, 'class="fe-week__col"'));
+        $this->assertSame(24, substr_count($week, 'class="fe-week__time"'));
+        // 48px an hour: from 9:00, an hour and a half tall less the 2px gap.
+        $this->assertStringContainsString('style="top: 432px; height: 70px; --fe-lane: 0; --fe-lanes: 1;--fe-event-color: #0099ff;"', $week);
+        $this->assertStringContainsString('Morning standup', $week);
+
+        $day = $this->page($calendar->slug, ['view' => 'calendar', 'span' => 'day', 'date' => '2027-03-10'])['body'];
+
+        $this->assertStringContainsString('fe-week--day', $day);
+        $this->assertSame(1, substr_count($day, 'class="fe-week__col"'));
+        $this->assertStringContainsString('top: 432px; height: 70px;', $day);
+        $this->assertStringContainsString(esc_html(wp_date(get_option('date_format'), strtotime('2027-03-10 12:00:00 UTC'))), $day);
+
+        $nextDay = $this->page($calendar->slug, ['view' => 'calendar', 'span' => 'day', 'date' => '2027-03-11'])['body'];
+        $this->assertStringNotContainsString('Morning standup', $nextDay);
     }
 
     public function test_an_unlisted_calendar_gets_its_chip_only_on_its_own_page()
@@ -154,6 +246,38 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertStringNotContainsString('fe-switch__option--icon', $body);
     }
 
+    // Events on at the same time sit side by side; one that starts after them all are over gets the full width again.
+    public function test_overlapping_events_share_the_day_in_lanes()
+    {
+        $calendar = $this->createCalendar();
+        $times = [
+            'Lane long'  => ['09:00', '12:00'],
+            'Lane short' => ['09:30', '10:00'],
+            'Lane later' => ['10:30', '11:00'],
+            'Lane alone' => ['14:00', '15:00'],
+        ];
+
+        foreach ($times as $title => [$start, $end]) {
+            $this->createEvent([
+                'calendar_id' => $calendar->id,
+                'title'       => $title,
+                'start_at'    => get_gmt_from_date("2027-03-10 {$start}:00"),
+                'end_at'      => get_gmt_from_date("2027-03-10 {$end}:00"),
+            ]);
+        }
+
+        $body = $this->page($calendar->slug, ['view' => 'calendar', 'span' => 'day', 'date' => '2027-03-10'])['body'];
+
+        $lanes = [];
+        preg_match_all('/title="([^"]+)" style="[^"]*--fe-lane: (\d+); --fe-lanes: (\d+);/', $body, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $lanes[$match[1]] = [(int) $match[2], (int) $match[3]];
+        }
+
+        // The later one reuses the lane the short one left free.
+        $this->assertSame(['Lane long' => [0, 2], 'Lane short' => [1, 2], 'Lane later' => [1, 2], 'Lane alone' => [0, 1]], $lanes);
+    }
+
     public function test_a_busy_day_lists_every_event_in_its_more_popover()
     {
         $calendar = $this->createCalendar();
@@ -167,14 +291,14 @@ class CalendarLandingPageTest extends IntegrationTestCase
             ]);
         }
 
-        $body = $this->page($calendar->slug, ['view' => 'calendar', 'month' => '2027-03'])['body'];
+        $body = $this->page($calendar->slug, ['view' => 'calendar', 'date' => '2027-03-10'])['body'];
 
-        $this->assertStringContainsString('popovertarget="fe-month-day-10"', $body);
+        $this->assertStringContainsString('popovertarget="fe-month-day-2027-03-10"', $body);
         $this->assertStringContainsString('+1 more', $body);
         $this->assertStringContainsString('Wednesday, Mar 10', $body);
         // The grid shows three chips; the fourth appears only in the popover.
-        $this->assertSame(1, substr_count($body, 'Popover event 4'));
-        $this->assertSame(2, substr_count($body, 'Popover event 1'));
+        $this->assertSame(1, substr_count($body, '>Popover event 4<'));
+        $this->assertSame(2, substr_count($body, '>Popover event 1<'));
     }
 
     public function test_upcoming_events_are_paged_ten_at_a_time()
