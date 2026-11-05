@@ -33,21 +33,37 @@
                 />
             </div>
 
-            <Skeleton v-if="loading && !fetched" type="calendar-grid" />
+            <Skeleton v-if="loading && !fetched" type="calendar-list" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
 
             <div
                 v-else-if="calendars.length"
-                class="fe-calendars__grid"
                 :class="{ 'fe-is-loading': loading }"
                 :aria-busy="loading"
             >
-                <CalendarCard
-                    v-for="calendar in calendars"
-                    :key="calendar.id"
-                    :calendar="calendar"
-                />
+                <section v-for="group in groups" :key="group.key" class="fe-calendars__group">
+                    <div class="fe-calendars__group-head">
+                        <img
+                            v-if="group.key === 'community'"
+                            class="fe-calendars__group-logo"
+                            :src="appVars.fcom_logo"
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        <h2 class="fe-calendars__group-title">{{ group.title }}</h2>
+                        <span class="fe-calendars__group-count">{{ group.calendars.length }}</span>
+                    </div>
+
+                    <ul class="fe-calendars__list">
+                        <CalendarRow
+                            v-for="calendar in group.calendars"
+                            :key="calendar.id"
+                            :calendar="calendar"
+                        />
+                    </ul>
+                </section>
             </div>
 
             <EmptyState
@@ -81,7 +97,7 @@
     import EmptyState from '@/components/EmptyState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-    import CalendarCard from './parts/CalendarCard.vue';
+    import CalendarRow from './parts/CalendarRow.vue';
 
     export default {
         name: 'Calendars',
@@ -92,7 +108,7 @@
             EmptyState,
             Skeleton,
             SegmentedSwitch,
-            CalendarCard,
+            CalendarRow,
         },
         data() {
             return {
@@ -116,6 +132,20 @@
                     value,
                     label: this.$t('%s (%d)', label, this.counts[value || 'all'] || 0),
                 }));
+            },
+            groups() {
+                return [
+                    {
+                        key: 'site',
+                        title: this.$t('Site calendars'),
+                        calendars: this.calendars.filter(calendar => !calendar.meta?.fcom_space_id),
+                    },
+                    {
+                        key: 'community',
+                        title: this.$t('FluentCommunity Spaces'),
+                        calendars: this.calendars.filter(calendar => calendar.meta?.fcom_space_id),
+                    },
+                ].filter(group => group.calendars.length);
             },
             isFiltered() {
                 return !!this.query.search || !!this.query.status;
