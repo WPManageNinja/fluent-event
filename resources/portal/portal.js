@@ -125,7 +125,7 @@ let loading = null;
 
 // The server renders the list for the chip's link, as for a normal load; this takes its [data-fe-events]
 // and moves the address bar there, so the link stays shareable and Back returns to the previous calendar.
-export async function showEvents(url, push = true) {
+export async function showEvents(url, push = true, focus = '[data-fe-chip][aria-current]') {
     const list = document.querySelector('[data-fe-events]');
     const results = list.querySelector('[data-fe-results]');
     const skeleton = list.querySelector('template[data-fe-skeleton]');
@@ -165,33 +165,39 @@ export async function showEvents(url, push = true) {
     if (push) {
         history.pushState(null, '', url);
 
-        // The clicked chip was replaced with the list; keep keyboard focus on its successor.
-        const chip = next.querySelector('[data-fe-chip][aria-current]');
-        chip && chip.focus({ preventScroll: true });
+        // The clicked link was replaced with the list; keep keyboard focus on its successor.
+        const link = next.querySelector(focus);
+        link && link.focus({ preventScroll: true });
     }
 
     revealActiveChip();
 }
 
 document.addEventListener('click', (event) => {
-    const chip = event.target.closest('[data-fe-chip]');
+    const link = event.target.closest('[data-fe-chip], [data-fe-nav]');
 
     // A modified click opens the link the way the browser normally would.
-    if (!chip || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
         return;
     }
 
     event.preventDefault();
 
-    // Selected at once, before the list it filters to arrives; a pick from the "More" panel closes it.
-    chip.closest('[data-fe-chips]').querySelectorAll('[data-fe-chip]').forEach((other) => {
-        other.classList.toggle('fe-calendar-chips__chip--active', other === chip);
-        other.toggleAttribute('aria-current', other === chip);
-    });
-    chip.setAttribute('aria-current', 'page');
-    chip.closest('[popover]') && chip.closest('[popover]').hidePopover();
+    // The calendar's Month / Week / Day and ‹ Today › links.
+    if (link.dataset.feNav) {
+        showEvents(link.href, true, `[data-fe-nav="${link.dataset.feNav}"]`);
+        return;
+    }
 
-    showEvents(chip.href);
+    // Selected at once, before the list it filters to arrives; a pick from the "More" panel closes it.
+    link.closest('[data-fe-chips]').querySelectorAll('[data-fe-chip]').forEach((other) => {
+        other.classList.toggle('fe-calendar-chips__chip--active', other === link);
+        other.toggleAttribute('aria-current', other === link);
+    });
+    link.setAttribute('aria-current', 'page');
+    link.closest('[popover]') && link.closest('[popover]').hidePopover();
+
+    showEvents(link.href);
 });
 
 window.addEventListener('popstate', () => {

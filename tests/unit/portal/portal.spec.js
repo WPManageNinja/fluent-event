@@ -186,6 +186,67 @@ describe('calendar chips', () => {
     });
 });
 
+describe('calendar navigation', () => {
+    const calendar = (title) => `
+        <div data-fe-events>
+            <div data-fe-chips>
+                <nav data-fe-chips-row>
+                    <a data-fe-chip href="https://site.test/events/" aria-current="page">All</a>
+                    <button data-fe-chips-more data-label="More (%d)" hidden></button>
+                </nav>
+                <div data-fe-chips-panel popover></div>
+            </div>
+            <div class="fe-calendar-head">
+                <h2>${title}</h2>
+                <a data-fe-nav="span-week" href="https://site.test/events/?view=calendar&span=week">Week</a>
+                <a data-fe-nav="prev" href="https://site.test/events/?view=calendar&date=2027-02-01">Previous</a>
+                <a data-fe-nav="today" href="https://site.test/events/?view=calendar">Today</a>
+                <a data-fe-nav="next" href="https://site.test/events/?view=calendar&date=2027-04-01">Next</a>
+            </div>
+            <template data-fe-skeleton><span class="fe-skeleton"></span></template>
+            <div data-fe-results><p class="events">${title}</p></div>
+        </div>`;
+
+    beforeEach(() => {
+        vi.stubGlobal('fetch', vi.fn());
+        Element.prototype.scrollIntoView = vi.fn();
+        window.matchMedia = vi.fn(() => ({ matches: false }));
+        vi.spyOn(history, 'pushState').mockImplementation(() => {});
+        document.body.innerHTML = calendar('March 2027');
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+        document.body.innerHTML = '';
+    });
+
+    it('swaps in the next month in place, keeps the chip selection and focus on the arrow', async () => {
+        fetch.mockResolvedValue(new Response(`<html><body>${calendar('April 2027')}</body></html>`));
+        const next = document.querySelector('[data-fe-nav="next"]');
+        const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+        next.dispatchEvent(click);
+        await vi.waitFor(() => expect(document.querySelector('h2').textContent).toBe('April 2027'));
+
+        expect(click.defaultPrevented).toBe(true);
+        expect(fetch.mock.calls[0][0]).toBe('https://site.test/events/?view=calendar&date=2027-04-01');
+        expect(history.pushState).toHaveBeenCalledWith(null, '', 'https://site.test/events/?view=calendar&date=2027-04-01');
+        expect(document.querySelector('[data-fe-chip]').getAttribute('aria-current')).toBe('page');
+        expect(document.activeElement.dataset.feNav).toBe('next');
+    });
+
+    it('keeps the header up while the skeleton stands in for the grid', () => {
+        fetch.mockReturnValue(new Promise(() => {}));
+
+        document.querySelector('[data-fe-nav="today"]').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+        expect(document.querySelector('h2').textContent).toBe('March 2027');
+        expect(document.querySelector('[data-fe-results] .fe-skeleton')).not.toBeNull();
+        expect(fetch.mock.calls[0][0]).toBe('https://site.test/events/?view=calendar');
+    });
+});
+
 describe('fitting the chips into one row', () => {
     const row = (selected) => {
         document.body.innerHTML = `
