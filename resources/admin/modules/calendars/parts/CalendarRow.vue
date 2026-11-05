@@ -2,7 +2,7 @@
     <li class="fe-calendars__row">
         <div class="fe-calendars__row-main">
             <div class="fe-calendars__row-name">
-                <span class="fe-calendars__swatch" :style="{ backgroundColor: themeColor }" aria-hidden="true"></span>
+                <span class="fe-calendars__swatch" :style="{ backgroundColor: $calendarColor(calendar) }" aria-hidden="true"></span>
                 <router-link
                     class="fe-calendars__row-link"
                     :title="calendar.title"
@@ -16,9 +16,38 @@
 
         <div class="fe-calendars__row-stats">
             <span class="fe-calendars__row-status">
-                <el-tag :type="$calendarStatusType(calendar.status)" size="small">
-                    {{ $calendarStatusLabel(calendar.status) }}
-                </el-tag>
+                <ActionPopover :width="160" placement="bottom-start">
+                    <template #trigger>
+                        <el-tag
+                            class="fe-calendars__status-tag"
+                            :type="$calendarStatusType(calendar.status)"
+                            size="small"
+                            :aria-label="$t('Change status of %s', calendar.title)"
+                        >
+                            {{ $calendarStatusLabel(calendar.status) }}
+                            <el-icon class="fe-calendars__status-arrow" aria-hidden="true">
+                                <ArrowDown />
+                            </el-icon>
+                        </el-tag>
+                    </template>
+
+                    <template #default="{ hide }">
+                        <ul class="fe-action-popover__menu" role="menu">
+                            <li
+                                v-for="option in $calendarStatuses()"
+                                :key="option.value"
+                                class="fe-action-popover__item fe-calendars__status-option"
+                                :class="{ 'fe-calendars__status-option--active': option.value === calendar.status }"
+                                role="menuitem"
+                                tabindex="0"
+                                @click="changeStatus(option.value, hide)"
+                                @keydown.enter.prevent="changeStatus(option.value, hide)"
+                            >
+                                {{ option.label }}
+                            </li>
+                        </ul>
+                    </template>
+                </ActionPopover>
             </span>
             <span class="fe-calendars__row-stat">
                 <el-icon aria-hidden="true"><Calendar /></el-icon>
@@ -46,12 +75,13 @@
 </template>
 
 <script type="text/javascript">
-    import { Calendar, Plus, User } from '@element-plus/icons-vue';
+    import { ArrowDown, Calendar, Plus, User } from '@element-plus/icons-vue';
     import ActionPopover from '@/components/ActionPopover.vue';
 
     export default {
         name: 'CalendarRow',
         components: {
+            ArrowDown,
             Calendar,
             Plus,
             User,
@@ -63,17 +93,41 @@
                 required: true,
             },
         },
+        emits: ['updated'],
+        data() {
+            return {
+                saving: false,
+            };
+        },
         computed: {
             actions() {
                 return [
                     { label: this.$t('Edit'), action: () => this.goToEdit() },
                 ];
             },
-            themeColor() {
-                return this.calendar.meta?.theme_color || 'var(--fe-secondary-border, #9ca3af)';
-            },
         },
         methods: {
+            // The update endpoint validates the whole calendar, so the unchanged fields go along.
+            changeStatus(status, hide) {
+                hide();
+                if (status === this.calendar.status) return;
+
+                this.$requestServer({
+                    method: 'patch',
+                    path: `calendars/${this.calendar.id}`,
+                    payload: {
+                        title: this.calendar.title,
+                        slug: this.calendar.slug,
+                        status,
+                        theme_color: this.calendar.meta?.theme_color,
+                    },
+                    loadingState: 'saving',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: () => this.$emit('updated'),
+                });
+            },
             goToEventCreate() {
                 this.$router.push({
                     name: 'event_create',

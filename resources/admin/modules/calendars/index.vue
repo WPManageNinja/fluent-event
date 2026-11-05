@@ -71,6 +71,7 @@
                             v-for="calendar in group.calendars"
                             :key="calendar.id"
                             :calendar="calendar"
+                            @updated="fetchCalendars"
                         />
                     </ul>
                 </section>
