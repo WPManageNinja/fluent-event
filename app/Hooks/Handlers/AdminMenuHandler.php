@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
+use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -323,6 +324,7 @@ class AdminMenuHandler
             'user_locale'   => get_locale(),
             'timezone'      => wp_timezone_string(),
             'start_of_week' => (int) get_option('start_of_week', 0),
+            'calendar_default_color' => Calendar::DEFAULT_THEME_COLOR,
             'general_settings' => Settings::get(),
             'email_notifications' => Settings::get(Settings::EMAIL_NOTIFICATIONS),
             'date_format'      => DateTimeHelper::convertToDayJsFormat(get_option('date_format')),
