@@ -992,9 +992,7 @@ html.dark {
         position: absolute;
         left: calc(4px + (100% - 8px) * var(--fe-lane, 0) / var(--fe-lanes, 1));
         width: calc((100% - 8px) / var(--fe-lanes, 1) - 2px);
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+        container-type: size;
         overflow: hidden;
         padding: 4px 8px;
         border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
@@ -1005,6 +1003,8 @@ html.dark {
         font-size: 12px;
         line-height: 1.4;
         text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
         &:hover {
             background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 28%, var(--fe-primary-bg, #ffffff));
@@ -1018,14 +1018,27 @@ html.dark {
 
     &__event-time,
     &__event-title {
+        display: block;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     &__event-time {
+        margin-bottom: 2px;
         color: var(--fe-secondary-text, #525866);
         font-weight: 600;
+    }
+
+    // Two lines need 36px inside the padding; a shorter event, under an hour, puts its time and title on one.
+    @container (max-height: 35px) {
+        &__event-time,
+        &__event-title {
+            display: inline;
+        }
+
+        &__event-time {
+            margin: 0 4px 0 0;
+        }
     }
 }
 
