@@ -67,7 +67,7 @@ class EventEndpointsTest extends IntegrationTestCase
     {
         require_once ABSPATH . 'wp-admin/includes/user.php';
 
-        $authorId = $this->createUser('editor', ['write_events']);
+        $authorId = $this->createUser('editor');
         $this->actAs($authorId);
         $event = $this->createEvent();
         $this->actAs($this->createAdmin());
@@ -124,10 +124,10 @@ class EventEndpointsTest extends IntegrationTestCase
     }
 
     // Without unfiltered_html, WordPress stores "&" in a post title as "&amp;".
-    public function test_an_ampersand_in_a_title_reads_back_as_typed_for_staff_without_unfiltered_html()
+    public function test_an_ampersand_in_a_title_reads_back_as_typed_for_an_admin_without_unfiltered_html()
     {
         $event = $this->createEvent();
-        $this->actAs($this->createUser('author', ['write_events']));
+        $this->actAs($this->adminWithoutUnfilteredHtml());
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Wine & Cheese']));
 
@@ -143,12 +143,21 @@ class EventEndpointsTest extends IntegrationTestCase
     public function test_a_less_than_sign_in_a_title_reads_back_as_typed($title)
     {
         $event = $this->createEvent();
-        $this->actAs($this->createUser('author', ['write_events']));
+        $this->actAs($this->adminWithoutUnfilteredHtml());
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => $title]));
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
         $this->assertSame($title, $this->rest('GET', "events/{$event->id}")['data']['event']['title']);
+    }
+
+    // A multisite admin, or a site with DISALLOW_UNFILTERED_HTML, works without unfiltered_html.
+    private function adminWithoutUnfilteredHtml()
+    {
+        $userId = $this->createAdmin();
+        (new \WP_User($userId))->add_cap('unfiltered_html', false);
+
+        return $userId;
     }
 
     public function titlesWithLessThan()

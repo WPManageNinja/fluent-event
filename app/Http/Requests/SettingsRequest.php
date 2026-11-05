@@ -7,8 +7,6 @@ use FluentEvent\App\Services\Settings;
 class SettingsRequest extends BaseRequest
 {
     const SANITIZERS = [
-        'user_id'                  => 'absint',
-        'permissions.*'            => 'sanitize_text_field',
         'default_events_view'      => 'sanitize_text_field',
         'disable_event_view_switch' => 'sanitize_text_field',
         'enable_landing_pages'     => 'sanitize_text_field',
@@ -23,11 +21,6 @@ class SettingsRequest extends BaseRequest
         'reminder_to_guest.enabled'       => 'rest_sanitize_boolean',
         'reminder_to_guest.times.*.value' => 'absint',
         'reminder_to_guest.times.*.unit'  => 'sanitize_key',
-    ];
-
-    const TEAM_RULES = [
-        'user_id'     => 'required|integer|exists:users,ID',
-        'permissions' => 'required|array',
     ];
 
     const GENERAL_RULES = [
@@ -54,11 +47,6 @@ class SettingsRequest extends BaseRequest
         'reminder_to_guest.times.*.value' => 'required|integer|min:1',
         'reminder_to_guest.times.*.unit'  => 'required|string|in:minutes,hours,days',
     ];
-
-    public static function teamRules()
-    {
-        return self::TEAM_RULES;
-    }
 
     public static function generalRules()
     {
@@ -92,11 +80,6 @@ class SettingsRequest extends BaseRequest
     public static function messages()
     {
         return [
-            'user_id.required'        => __('Pick a user first.', 'fluent-event'),
-            'user_id.integer'         => __('User must be a valid id.', 'fluent-event'),
-            'user_id.exists'          => __('The selected user does not exist.', 'fluent-event'),
-            'permissions.required'    => __('Select at least one permission.', 'fluent-event'),
-            'permissions.array'       => __('Permissions must be a list.', 'fluent-event'),
             'from_name.required'      => __('The from name is required.', 'fluent-event'),
             'from_email.required'     => __('The from email address is required.', 'fluent-event'),
             'from_email.email'        => __('The from email must be a valid email address.', 'fluent-event'),

@@ -39,6 +39,11 @@ class RouteRecorder
         return new self($this->prefix, $policy, $this->collected);
     }
 
+    public function withDefaultPolicy()
+    {
+        return $this->withPolicy('Policy');
+    }
+
     public function group($callback)
     {
         $callback($this);

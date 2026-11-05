@@ -8,7 +8,7 @@ use FluentEvent\Tests\TestCase;
 
 /**
  * Loads app/Http/Routes/api.php and checks every endpoint resolves, is policied,
- * and that no write relies on a policy's verifyRequest() fallback (routes.md).
+ * and that no write on a public-facing policy relies on its verifyRequest() fallback (routes.md).
  */
 class RouteSmokeTest extends TestCase
 {
@@ -65,15 +65,16 @@ class RouteSmokeTest extends TestCase
             $class = self::POLICY_NS . $route['policy'];
 
             $this->assertTrue(class_exists($class), "{$route['policy']} is referenced by a route but does not exist");
-            $this->assertTrue(is_subclass_of($class, Policy::class), "{$route['policy']} does not extend the plugin's base Policy");
+            $this->assertTrue($class === Policy::class || is_subclass_of($class, Policy::class), "{$route['policy']} does not extend the plugin's base Policy");
         }
     }
 
     public function test_every_write_route_has_its_own_policy_method()
     {
-        // Without one the framework falls back to verifyRequest(), which is the read-level check.
+        // Without one the framework falls back to verifyRequest(). The base Policy's is manage_options,
+        // the admin routes' only check; a public-facing policy's is looser, so its writes name their own.
         foreach (self::$routes as $route) {
-            if ($route['method'] === 'GET') {
+            if ($route['method'] === 'GET' || $route['policy'] === 'Policy') {
                 continue;
             }
 
