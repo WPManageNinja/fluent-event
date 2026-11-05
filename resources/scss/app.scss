@@ -14,8 +14,6 @@
     z-index: 1;
     
     &__body {
-        // One pixel taller than the app, so it always scrolls: browsers ignore overscroll-behavior on a box that can't.
-        min-height: calc(100% + 1px);
         padding-top: var(--fe-navbar-height, 65px);
         width: 100%;
         position: relative;
