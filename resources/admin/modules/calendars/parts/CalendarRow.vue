@@ -16,38 +16,33 @@
 
         <div class="fe-calendars__row-stats">
             <span class="fe-calendars__row-status">
-                <ActionPopover :width="160" placement="bottom-start">
-                    <template #trigger>
-                        <el-tag
-                            class="fe-calendars__status-tag"
-                            :type="$calendarStatusType(calendar.status)"
-                            size="small"
-                            :aria-label="$t('Change status of %s', calendar.title)"
-                        >
-                            {{ $calendarStatusLabel(calendar.status) }}
-                            <el-icon class="fe-calendars__status-arrow" aria-hidden="true">
-                                <ArrowDown />
-                            </el-icon>
-                        </el-tag>
-                    </template>
+                <el-dropdown trigger="click" placement="bottom-start" @command="changeStatus">
+                    <el-tag
+                        class="fe-calendars__status-tag"
+                        :type="$calendarStatusType(calendar.status)"
+                        size="small"
+                        :aria-label="$t('Change status of %s', calendar.title)"
+                    >
+                        {{ $calendarStatusLabel(calendar.status) }}
+                        <el-icon class="fe-calendars__status-arrow" aria-hidden="true">
+                            <ArrowDown />
+                        </el-icon>
+                    </el-tag>
 
-                    <template #default="{ hide }">
-                        <ul class="fe-action-popover__menu" role="menu">
-                            <li
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item
                                 v-for="option in $calendarStatuses()"
                                 :key="option.value"
-                                class="fe-action-popover__item fe-calendars__status-option"
+                                :command="option.value"
+                                class="fe-calendars__status-option"
                                 :class="{ 'fe-calendars__status-option--active': option.value === calendar.status }"
-                                role="menuitem"
-                                tabindex="0"
-                                @click="changeStatus(option.value, hide)"
-                                @keydown.enter.prevent="changeStatus(option.value, hide)"
                             >
                                 {{ option.label }}
-                            </li>
-                        </ul>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
                     </template>
-                </ActionPopover>
+                </el-dropdown>
             </span>
             <span class="fe-calendars__row-stat">
                 <el-icon aria-hidden="true"><Calendar /></el-icon>
@@ -108,8 +103,7 @@
         },
         methods: {
             // The update endpoint validates the whole calendar, so the unchanged fields go along.
-            changeStatus(status, hide) {
-                hide();
+            changeStatus(status) {
                 if (status === this.calendar.status) return;
 
                 this.$requestServer({

@@ -13,19 +13,18 @@ const row = () => {
         }
     });
 
-    return { wrapper, requestServer, hide: vi.fn() };
+    return { wrapper, requestServer };
 };
 
 // The update endpoint validates the whole calendar, so a status change resends the fields it keeps.
 describe('CalendarRow status change', () => {
     it('saves the new status with the rest of the calendar and asks the list to reload', () => {
-        const { wrapper, requestServer, hide } = row();
+        const { wrapper, requestServer } = row();
 
-        wrapper.vm.changeStatus('draft', hide);
+        wrapper.vm.changeStatus('draft');
         const request = requestServer.mock.calls[0][0];
         request.onSuccess({});
 
-        expect(hide).toHaveBeenCalled();
         expect(request.method).toBe('patch');
         expect(request.path).toBe('calendars/4');
         expect(request.payload).toEqual({ title: 'Meetups', slug: 'meetups', status: 'draft', theme_color: '#0099ff' });
@@ -34,11 +33,10 @@ describe('CalendarRow status change', () => {
     });
 
     it('sends nothing when the status is unchanged', () => {
-        const { wrapper, requestServer, hide } = row();
+        const { wrapper, requestServer } = row();
 
-        wrapper.vm.changeStatus('public', hide);
+        wrapper.vm.changeStatus('public');
 
-        expect(hide).toHaveBeenCalled();
         expect(requestServer).not.toHaveBeenCalled();
     });
 });

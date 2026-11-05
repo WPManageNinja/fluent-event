@@ -729,7 +729,8 @@
         vertical-align: -1px;
     }
 
-    &__status-option--active {
+    // Element Plus loads after us, so the modifier repeats its base to outrank `.el-dropdown-menu__item`.
+    &__status-option.fe-calendars__status-option--active {
         font-weight: 600;
         color: var(--fe-primary-text, #19283a);
     }
