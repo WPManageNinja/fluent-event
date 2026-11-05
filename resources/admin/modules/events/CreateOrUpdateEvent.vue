@@ -538,6 +538,7 @@
                     path: `events/${this.eventId}`,
                     loadingState: 'loadingEvent',
                     errorState: 'eventError',
+                    notFoundPage: true,
                     onSuccess: response => {
                         this.event = this.initForm(response.event);
                     },

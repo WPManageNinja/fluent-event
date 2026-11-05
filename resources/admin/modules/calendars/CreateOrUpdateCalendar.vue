@@ -225,6 +225,7 @@
 
                 this.$requestServer({
                     path: `calendars/${this.calendarId}`,
+                    notFoundPage: true,
                     onSuccess: response => {
                         this.error = '';
                         this.calendar = {
