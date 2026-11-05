@@ -6,7 +6,8 @@
  * @var array  $event          EventService::formatEvent() shape.
  * @var string $description    kses'd in Event::getDescriptionAttribute().
  * @var string $calendar_title
- * @var string $calendar_url
+ * @var string $calendar_url   The events home filtered to this calendar.
+ * @var string $calendar_color Sanitized hex or ''.
  * @var string $events_url     The events home.
  * @var bool   $is_online
  * @var string $location
@@ -45,6 +46,14 @@ use FluentEvent\App\Services\Icon;
                     <li class="fe-event-page__meta-item">
                         <?php echo $is_online ? Icon::VIDEO : Icon::MAP_PIN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constants ?>
                         <span><?php echo esc_html( $location ); ?></span>
+                    </li>
+                    <li class="fe-event-page__meta-item fe-calendar-chips">
+                        <a class="fe-calendar-chips__chip" href="<?php echo esc_url( $calendar_url ); ?>">
+                            <?php if ( $calendar_color ) : ?>
+                                <span class="fe-calendar-chips__dot" style="color: <?php echo esc_attr( $calendar_color ); ?>" aria-hidden="true"></span>
+                            <?php endif; ?>
+                            <span class="fe-calendar-chips__label" title="<?php echo esc_attr( $calendar_title ); ?>"><?php echo esc_html( $calendar_title ); ?></span>
+                        </a>
                     </li>
                 </ul>
             </div>

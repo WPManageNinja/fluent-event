@@ -308,7 +308,8 @@ class LandingPageHandler
             'description'    => $event->description,
             'calendar_title' => $calendar->title,
             'calendar_url'   => $calendarUrl,
-            'events_url'     => home_url(user_trailingslashit(Settings::portalSlug())),
+            'calendar_color' => $this->calendarColor($calendar),
+            'events_url'     =>home_url(user_trailingslashit(Settings::portalSlug())),
             'is_online'      => $isOnline,
             'location'       => $isOnline ? __('Online', 'fluent-event') : ($formatted['venue'] ?: __('In person', 'fluent-event')),
             // The heading reads the site's clock, like every list; the side card leads with the event's own.
