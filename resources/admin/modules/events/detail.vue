@@ -262,6 +262,7 @@
             fetchEvent() {
                 this.$requestServer({
                     path: `events/${this.$route.params.id}`,
+                    notFoundPage: true,
                     onSuccess: response => {
                         this.event = response.event;
                         this.$changeTitle(this.event.title);

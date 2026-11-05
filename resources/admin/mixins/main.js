@@ -256,7 +256,7 @@ export default {
         },
         $requestServer(req) {
             // destructure object
-            const { method = 'get', path, payload, onSuccess, onError, onFinally, successNotify = false, fallbackSuccessMessage, errorNotify = false, fallbackErrorMessage, loadingState = 'loading', errorState = 'error' } = req;
+            const { method = 'get', path, payload, onSuccess, onError, onFinally, successNotify = false, fallbackSuccessMessage, errorNotify = false, fallbackErrorMessage, loadingState = 'loading', errorState = 'error', notFoundPage = false } = req;
 
             // state safety check if available
             if ((loadingState && this[loadingState] === undefined) || 
@@ -280,6 +280,7 @@ export default {
             if (!counters) requestSeq.set(this, counters = {});
             const seq = counters[key] = (counters[key] || 0) + 1;
             const isLatest = () => counters[key] === seq;
+            const fromPage = notFoundPage ? this.$route.fullPath : null;
 
             Rest[method](path, payload)
                 .then(response => {
@@ -293,6 +294,14 @@ export default {
                 })
                 .catch(error => {
                     if (!isLatest()) return;
+                    // A record that is gone gets the 404 page at its own address; retrying can't bring it back.
+                    if (notFoundPage && error?.status === 404) {
+                        // Only while the page that asked is still open: the admin may have moved on before the answer came.
+                        if (this.$route.fullPath === fromPage) {
+                            this.$router.replace({ name: 'notfound', params: { pathMatch: this.$route.path.slice(1).split('/') }, query: this.$route.query });
+                        }
+                        return;
+                    }
                     if(errorState) {
                         this[errorState] = error?.message || this.$t('Something went wrong');
                     }

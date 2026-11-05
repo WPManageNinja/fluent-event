@@ -170,6 +170,7 @@
             fetchCalendar() {
                 this.$requestServer({
                     path: `calendars/${this.$route.params.id}`,
+                    notFoundPage: true,
                     onSuccess: response => {
                         this.calendar = response.calendar;
                         this.stats = response.stats || {};

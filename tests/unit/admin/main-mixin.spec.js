@@ -215,3 +215,55 @@ describe('number and date formatting', () => {
         expect(document.title).toBe('Events - Fluent Event');
     });
 });
+
+describe('$requestServer', () => {
+    const missingRecord = () => Promise.reject(new ResponseProxyItr({
+        status: 404,
+        responseJSON: { message: 'No query results for model [FluentEvent\\App\\Models\\Calendar] 999' },
+    }));
+
+    it('shows the 404 page at the same address when the record a page loads is gone', async () => {
+        Rest.get.mockReturnValue(missingRecord());
+        const vm = component({
+            loading: false,
+            error: '',
+            $route: { path: '/calendars/999/edit', fullPath: '/calendars/999/edit', query: {} },
+            $router: { replace: vi.fn() },
+        });
+
+        vm.$requestServer({ path: 'calendars/999', notFoundPage: true });
+        await flush();
+
+        expect(vm.$router.replace).toHaveBeenCalledWith({ name: 'notfound', params: { pathMatch: ['calendars', '999', 'edit'] }, query: {} });
+        expect(vm.error).toBe('');
+    });
+
+    it('leaves the page alone when the admin moved on before the 404 came back', async () => {
+        const request = deferred();
+        Rest.get.mockReturnValue(request.promise);
+        const vm = component({
+            loading: false,
+            error: '',
+            $route: { path: '/events/999', fullPath: '/events/999', query: {} },
+            $router: { replace: vi.fn() },
+        });
+
+        vm.$requestServer({ path: 'events/999', notFoundPage: true });
+        vm.$route = { path: '/calendars', fullPath: '/calendars', query: {} };
+        request.reject(new ResponseProxyItr({ status: 404, responseJSON: { message: 'No query results' } }));
+        await flush();
+
+        expect(vm.$router.replace).not.toHaveBeenCalled();
+    });
+
+    it('keeps the retry state for a 404 the page did not ask to handle', async () => {
+        Rest.get.mockReturnValue(missingRecord());
+        const vm = component({ loading: false, error: '', $router: { replace: vi.fn() } });
+
+        vm.$requestServer({ path: 'events/1/guests' });
+        await flush();
+
+        expect(vm.$router.replace).not.toHaveBeenCalled();
+        expect(vm.error).toContain('No query results');
+    });
+});
