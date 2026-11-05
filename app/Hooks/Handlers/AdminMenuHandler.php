@@ -337,6 +337,7 @@ class AdminMenuHandler
             'name'          => $this->config->get('app.name'),
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
             'logoUrl'       => Enqueue::getStaticFilePath('images/logo.svg'),
+            'fcom_logo'     => Enqueue::getStaticFilePath('images/fluent-community.svg'),
             'me'            => [
                 'id'          => $authUser->ID ?? null,
                 'email'       => $authUser->user_email ?? null,

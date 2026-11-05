@@ -31,6 +31,21 @@
                             >
                                 {{ $calendarStatusLabel(calendar.status) }}
                             </el-tag>
+                            <el-tooltip
+                                v-if="calendar.meta?.fcom_space_id"
+                                :content="$t('This calendar belongs to a FluentCommunity space.')"
+                                :trigger="['hover', 'focus']"
+                                placement="top"
+                            >
+                                <span
+                                    class="fe-community-mark"
+                                    role="img"
+                                    tabindex="0"
+                                    :aria-label="$t('This calendar belongs to a FluentCommunity space.')"
+                                >
+                                    <img class="fe-community-mark__logo" :src="appVars.fcom_logo" alt="" />
+                                </span>
+                            </el-tooltip>
                         </div>
 
                         <p class="fe-calendar-detail__meta">

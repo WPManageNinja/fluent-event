@@ -316,6 +316,7 @@ return [
             'The selected view is used for everyone. They cannot switch to a different view.' => __('The selected view is used for everyone. They cannot switch to a different view.', 'fluent-event'),
             'The WordPress media library is unavailable.' => __('The WordPress media library is unavailable.', 'fluent-event'),
             'Theme color' => __('Theme color', 'fluent-event'),
+            'This calendar belongs to a FluentCommunity space.' => __('This calendar belongs to a FluentCommunity space.', 'fluent-event'),
             'This event and all of its data will be permanently deleted.' => __('This event and all of its data will be permanently deleted.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),

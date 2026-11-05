@@ -361,6 +361,24 @@
     border-radius: 50%;
 }
 
+.fe-community-mark {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--fe-radius-sm, 4px);
+
+    &:focus-visible {
+        outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+        outline-offset: 2px;
+    }
+
+    &__logo {
+        width: 100%;
+        height: 100%;
+    }
+}
+
 .fe-pagination {
     display: flex;
     align-items: center;
