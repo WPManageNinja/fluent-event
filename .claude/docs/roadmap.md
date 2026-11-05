@@ -236,7 +236,7 @@ FluentBooking keeps Twilio SMS in Pro too (`fluent-booking-pro/app/Services/Inte
 
 ## Release 13 — v2.8 "Notifications"
 
-In-app notifications for admins only (site admins and team members who manage events), plus
+In-app notifications for admins only (site admins), plus
 admin-to-guest messages. Schema ready: `notifications` (the record) + `notification_users` (delivery and
 per-user preferences in one table). Guests and community members get email only, as today.
 

@@ -11,15 +11,15 @@ use FluentEvent\App\Http\Controllers\SettingsController;
 use FluentEvent\App\Http\Controllers\CommunityEventController;
 use FluentEvent\App\Http\Controllers\PortalEventController;
 
-$router->withPolicy('ReportPolicy')->group(function ($router) {
+$router->withDefaultPolicy()->group(function ($router) {
     $router->get('/dashboard', 'DashboardController@get');
 });
 
-$router->prefix('users')->withPolicy('UserPolicy')->group(function ($router) {
+$router->prefix('users')->withDefaultPolicy()->group(function ($router) {
     $router->get('/', [UserController::class, 'getUsers']);
 });
 
-$router->prefix('settings')->withPolicy('SettingsPolicy')->group(function ($router) {
+$router->prefix('settings')->withDefaultPolicy()->group(function ($router) {
     $router->get('/general', [SettingsController::class, 'getGeneral']);
     $router->post('/general', [SettingsController::class, 'updateGeneral']);
 
@@ -28,13 +28,9 @@ $router->prefix('settings')->withPolicy('SettingsPolicy')->group(function ($rout
 
     $router->get('/email-notifications', [SettingsController::class, 'getEmailNotifications']);
     $router->post('/email-notifications', [SettingsController::class, 'updateEmailNotifications']);
-
-    $router->get('/team', [SettingsController::class, 'getTeam']);
-    $router->post('/team', [SettingsController::class, 'upsertTeamMember']);
-    $router->delete('/team/{userId}', [SettingsController::class, 'removeTeamMember'])->int('userId');
 });
 
-$router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($router) {
+$router->prefix('calendars')->withDefaultPolicy()->group(function ($router) {
     $router->get('/', [CalendarController::class, 'getAllCalendars']);
     $router->get('/options', [CalendarController::class, 'getCalendarOptions']);
     $router->get('/{id}', [CalendarController::class, 'getCalendar'])->int('id');
@@ -44,12 +40,12 @@ $router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($rou
     $router->delete('/{id}', [CalendarController::class, 'deleteCalendar'])->int('id');
 });
 
-$router->prefix('reports')->withPolicy('ReportPolicy')->group(function ($router) {
+$router->prefix('reports')->withDefaultPolicy()->group(function ($router) {
     $router->get('/', [ReportController::class, 'getReports']);
     $router->get('/guest-trends', [ReportController::class, 'getGuestTrends']);
 });
 
-$router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
+$router->prefix('events')->withDefaultPolicy()->group(function ($router) {
     $router->get('/', [EventController::class, 'getAllEvents']);
     $router->get('/{id}', [EventController::class, 'getEvent'])->int('id');
 

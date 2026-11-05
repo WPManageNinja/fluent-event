@@ -374,12 +374,12 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertNull($this->rsvp($hidden, 'going')['data']['event']['guest_count']);
     }
 
-    public function test_staff_see_no_guest_count_when_the_event_hides_it()
+    public function test_an_admin_sees_no_guest_count_when_the_event_hides_it()
     {
         [$event] = $this->communityEvent([], ['show_guest_count' => 'no']);
-        $staff = $this->createUser('editor', ['read_guests', 'read_events']);
-        FcomHelper::addToSpace($this->spaceId, $staff, 'member', 'by_admin');
-        $this->actAs($staff);
+        $admin = $this->createAdmin();
+        FcomHelper::addToSpace($this->spaceId, $admin, 'member', 'by_admin');
+        $this->actAs($admin);
 
         $this->assertNull($this->rsvp($event, 'going')['data']['event']['guest_count']);
     }

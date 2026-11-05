@@ -18,7 +18,7 @@ FluentEvent adds events to [FluentCommunity](https://wordpress.org/plugins/fluen
 
 = Events in your community =
 
-* **Post events in discussion spaces** — admins and team members with event access create an event from the FluentCommunity post composer.
+* **Post events in discussion spaces** — site administrators create an event from the FluentCommunity post composer.
 * **A calendar per space** — every space gets its own events calendar automatically.
 * **In person or online** — add a venue and address, or an online meeting link.
 * **Cover image, date, time and timezone** for every event.
@@ -70,11 +70,11 @@ Not yet. Events are created as FluentCommunity posts, so FluentCommunity must be
 
 = Who can create events? =
 
-Site administrators, and team members you have given event access under FluentEvent → Settings → Team.
+Site administrators. The whole FluentEvent admin is for administrators only.
 
 = Can community members create events? =
 
-No. Members see events and RSVP; creating events is limited to administrators and team members with event access.
+No. Members see events and RSVP; creating events is limited to site administrators.
 
 = Who can see the online meeting link? =
 

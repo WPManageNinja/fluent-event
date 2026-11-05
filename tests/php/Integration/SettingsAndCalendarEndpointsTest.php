@@ -60,17 +60,14 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame($rules, get_option('rewrite_rules'));
     }
 
-    public function test_only_a_site_administrator_can_change_the_portal_slug()
+    public function test_only_a_site_administrator_can_change_the_settings()
     {
         Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
-        $this->actAs($this->createUser('editor', ['write_settings']));
+        $this->actAs($this->createUser('editor'));
         $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => 'our-events'];
 
         $this->assertSame(403, $this->rest('POST', 'settings/general', $settings)['status']);
         $this->assertSame('calendars', Settings::portalSlug());
-
-        // The rest of the form still saves for them.
-        $this->assertSame(200, $this->rest('POST', 'settings/general', ['portal_slug' => 'calendars'] + $settings)['status']);
     }
 
     public function test_a_portal_slug_with_no_ascii_characters_is_rejected()
@@ -240,18 +237,5 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertNull(Event::query()->find($event->id));
         $this->assertNull(get_post($event->post_id));
         $this->assertSame(0, Guest::query()->where('event_id', $event->id)->count());
-    }
-
-    public function test_calendar_stats_hide_guest_numbers_from_an_events_only_reader()
-    {
-        $calendar = $this->createCalendar();
-        $this->actAs($this->createUser('editor', ['read_calendars', 'read_events']));
-
-        $response = $this->rest('GET', "calendars/{$calendar->id}");
-
-        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
-        $this->assertArrayHasKey('total_events', $response['data']['stats']);
-        $this->assertArrayNotHasKey('total_guests', $response['data']['stats']);
-        $this->assertArrayNotHasKey('checked_in_guests', $response['data']['stats']);
     }
 }

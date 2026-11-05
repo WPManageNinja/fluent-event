@@ -5,7 +5,6 @@ namespace FluentEvent\Modules\FluentCommunity;
 use FluentCommunity\App\Services\CustomSanitizer;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Services\Icon;
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
 use FluentEvent\Framework\Support\Arr;
@@ -150,7 +149,7 @@ class PortalHandler
             'is_logged_in'        => (bool) $userId,
             // Fills an open event's Register form for the member.
             'user'                => $user ? ['name' => $user->display_name, 'email' => $user->user_email] : null,
-            'can_create_events'   => $userId && PermissionManager::userCan('write_events', $userId),
+            'can_create_events'   => current_user_can('manage_options'),
             'default_view'        => $settings['default_events_view'],
             'disable_view_switch' => $settings['disable_event_view_switch'] === 'yes',
             'timezone'            => wp_timezone_string(),

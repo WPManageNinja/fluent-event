@@ -6,7 +6,6 @@
 
                 <div class="fe-page__actions">
                     <el-button
-                        v-if="$userCan('write_calendars')"
                         type="primary"
                         @click="goToCreate"
                     >
@@ -64,7 +63,6 @@
             >
                 <template #action>
                     <el-button
-                        v-if="$userCan('write_calendars')"
                         type="primary"
                         @click="goToCreate"
                     >

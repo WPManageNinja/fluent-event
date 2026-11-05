@@ -36,11 +36,6 @@ class LandingPagesToggleTest extends TestCase
             {
                 return $data;
             }
-
-            public function sendError($data = [], $code = 422)
-            {
-                return ['status' => $code];
-            }
         };
 
         return $controller->updateGeneral($request);
@@ -76,14 +71,11 @@ class LandingPagesToggleTest extends TestCase
         $this->assertSame(['init', 'query_vars', 'template_redirect'], $this->registeredHooks());
     }
 
-    public function test_only_a_site_administrator_can_toggle_landing_pages()
+    // Who may save is the route's policy (site administrators); see AdminAccessTest.
+    public function test_turning_landing_pages_on_drops_the_rewrite_rules()
     {
         update_option('rewrite_rules', ['^calendars/?$' => 'index.php?fe_route=calendars']);
 
-        $this->assertSame(403, $this->save('yes')['status']);
-        $this->assertFalse(Settings::landingPagesEnabled());
-
-        Functions\when('current_user_can')->justReturn(true);
         $this->save('yes');
 
         $this->assertTrue(Settings::landingPagesEnabled());

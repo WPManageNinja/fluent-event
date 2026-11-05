@@ -32,7 +32,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
             $this->markTestSkipped('FluentCommunity is not active.');
         }
 
-        $this->host = $this->createUser('editor', ['write_events']);
+        $this->host = $this->createAdmin();
         $this->actAs($this->host);
     }
 
@@ -115,12 +115,15 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_event_reminders_to_guests', $reminder));
     }
 
-    public function test_an_event_post_is_refused_without_event_access_outside_a_discussion_space_or_with_bad_dates()
+    public function test_an_event_post_is_refused_to_a_non_admin_outside_a_discussion_space_or_with_bad_dates()
     {
         $spaceId = $this->createSpace();
 
-        $this->actAs($this->createUser('subscriber'));
-        $this->assertWPErrorCode('fluent_event_forbidden', $this->validate(['space_id' => $spaceId], $this->postRequest()));
+        // Creating events is for site administrators; an editor is a member like any other.
+        foreach (['subscriber', 'editor'] as $role) {
+            $this->actAs($this->createUser($role));
+            $this->assertWPErrorCode('fluent_event_forbidden', $this->validate(['space_id' => $spaceId], $this->postRequest()));
+        }
 
         $this->actAs($this->host);
         $courseSpaceId = $this->createSpace('course');
