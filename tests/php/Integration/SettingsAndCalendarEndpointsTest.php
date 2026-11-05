@@ -172,14 +172,15 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertGreaterThanOrEqual(1, $data['counts']['public']);
     }
 
-    public function test_a_calendar_can_be_unlisted()
+    // Unlisted is an event status only: a calendar has no page of its own to share by link.
+    public function test_a_calendar_cannot_be_unlisted()
     {
         $calendar = $this->createCalendar();
 
         $response = $this->rest('PATCH', "calendars/{$calendar->id}", ['title' => 'Link only', 'slug' => $calendar->slug, 'status' => 'unlisted']);
 
-        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
-        $this->assertSame('unlisted', Calendar::query()->find($calendar->id)->status);
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('public', Calendar::query()->find($calendar->id)->status);
     }
 
     public function test_a_calendar_slug_already_in_use_is_rejected()

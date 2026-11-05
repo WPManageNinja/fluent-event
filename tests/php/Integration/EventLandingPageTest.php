@@ -46,9 +46,9 @@ class EventLandingPageTest extends IntegrationTestCase
         return $this->handler()->event($event->post->post_name);
     }
 
-    public function test_an_event_opens_when_it_and_its_calendar_are_public_or_unlisted()
+    public function test_a_public_or_unlisted_event_in_a_public_calendar_opens()
     {
-        $calendar = $this->createCalendar(['status' => 'unlisted']);
+        $calendar = $this->createCalendar();
 
         $public = $this->createEvent(['calendar_id' => $calendar->id, 'title' => 'Opening night']);
         $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'unlisted']);

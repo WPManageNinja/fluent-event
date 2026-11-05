@@ -86,7 +86,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   has no team permissions; per-module access is planned for Pro (kept on the `backup/permissions` branch).
 - **Calendars:** created lazily on the first event, named and slugged after the space, status
   `private` (no public page). Admins may change the status later.
-- **Statuses:** events and calendars are `public | unlisted | private | draft`. fcom-created events
+- **Statuses:** events are `public | unlisted | private | draft`, calendars `public | private | draft`. fcom-created events
   start `private`, like their calendars. Both statuses show in the admin and can be changed there.
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
   effect on the upcoming landing page.

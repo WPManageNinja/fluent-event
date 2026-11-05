@@ -154,18 +154,10 @@ class LandingPageHandler
         $calendar = null;
 
         if ($calendarSlug !== '') {
-            $calendar = Calendar::query()
-                ->where('slug', sanitize_title($calendarSlug))
-                ->byStatus(['public', 'unlisted'])
-                ->first();
+            $calendar = $calendars->firstWhere('slug', sanitize_title($calendarSlug));
 
             if (!$calendar) {
                 return null;
-            }
-
-            // An unlisted calendar stays off the chips unless it is the one being shown.
-            if (!$calendars->contains('id', $calendar->id)) {
-                $calendars->push($calendar);
             }
         }
 
@@ -275,15 +267,14 @@ class LandingPageHandler
         return (string) sanitize_hex_color(Arr::get((array) $calendar->meta, 'theme_color', ''));
     }
 
-    // The community event page, server-rendered. Opens like the calendar page: a public or unlisted
-    // event in a public or unlisted calendar.
+    // The community event page, server-rendered: a public or unlisted event in a public calendar.
     protected function eventPage($eventSlug)
     {
         $event = Event::query()
             ->with(['post', 'calendar'])
             ->byStatus(['public', 'unlisted'])
             ->whereHas('calendar', function ($query) {
-                $query->byStatus(['public', 'unlisted']);
+                $query->byStatus('public');
             })
             ->whereHas('post', function ($query) use ($eventSlug) {
                 $query->where('post_name', sanitize_title($eventSlug));

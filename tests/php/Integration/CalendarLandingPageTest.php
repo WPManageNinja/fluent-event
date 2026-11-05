@@ -56,23 +56,20 @@ class CalendarLandingPageTest extends IntegrationTestCase
     {
         $first = $this->createCalendar(['title' => 'Zebra First Club']);
         $second = $this->createCalendar(['title' => 'Zebra Second Club']);
-        $unlisted = $this->createCalendar(['title' => 'Zebra Unlisted Club', 'status' => 'unlisted']);
         $private = $this->createCalendar(['title' => 'Zebra Private Club', 'status' => 'private']);
 
         $event = $this->createEvent(['calendar_id' => $first->id, 'title' => 'Zebra first night']);
         $this->createEvent(['calendar_id' => $second->id, 'title' => 'Zebra second night']);
-        $this->createEvent(['calendar_id' => $unlisted->id, 'title' => 'Zebra unlisted night']);
         $this->createEvent(['calendar_id' => $private->id, 'title' => 'Zebra private night']);
 
         $body = $this->page('', ['view' => 'cards', 'search' => 'Zebra'])['body'];
 
         $this->assertStringContainsString('Zebra first night', $body);
         $this->assertStringContainsString('Zebra second night', $body);
-        $this->assertStringNotContainsString('Zebra unlisted night', $body);
         $this->assertStringNotContainsString('Zebra private night', $body);
         // Chips for the public calendars only; each event links to its own page and is labelled with its calendar.
         $this->assertStringContainsString('Zebra Second Club', $body);
-        $this->assertStringNotContainsString('Zebra Unlisted Club', $body);
+        $this->assertStringNotContainsString('Zebra Private Club', $body);
         $this->assertStringContainsString('/' . Settings::portalSlug() . '/' . $event->post->post_name . '/', $body);
         $this->assertStringContainsString('fe-event-tile__calendar"', $body);
     }
@@ -241,29 +238,11 @@ class CalendarLandingPageTest extends IntegrationTestCase
         }
     }
 
-    public function test_an_unlisted_calendar_gets_its_chip_only_on_its_own_page()
-    {
-        $calendar = $this->createCalendar(['title' => 'Zebra Quiet Club', 'status' => 'unlisted']);
-
-        $this->assertStringNotContainsString('Zebra Quiet Club', $this->page('')['body']);
-        $this->assertMatchesRegularExpression('/fe-calendar-chips__chip--active"(?:(?!<\/a>).)*Zebra Quiet Club/s', $this->page($calendar->slug)['body']);
-    }
-
     public function test_a_private_or_draft_calendar_has_no_page()
     {
         $this->assertNull($this->page($this->createCalendar(['status' => 'private'])->slug));
         $this->assertNull($this->page($this->createCalendar(['status' => 'draft'])->slug));
         $this->assertNull($this->page('fe-test-no-such-calendar'));
-    }
-
-    public function test_an_unlisted_calendar_opens_by_its_link()
-    {
-        $calendar = $this->createCalendar(['status' => 'unlisted', 'title' => 'Hidden Ledger Club']);
-
-        $page = $this->page($calendar->slug);
-
-        $this->assertNotNull($page);
-        $this->assertStringContainsString('Hidden Ledger Club', $page['body']);
     }
 
     public function test_only_public_events_are_listed()

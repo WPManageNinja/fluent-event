@@ -34,8 +34,9 @@ Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going 
 admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp` and `open`. RSVP has no seat limit. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.
 
-Statuses: events and calendars are `public | unlisted | private | draft`.
-`unlisted` is left off the upcoming landing page but opens by direct link.
+Statuses: events are `public | unlisted | private | draft`, calendars `public | private | draft`.
+An `unlisted` event is left off the upcoming landing page but opens by direct link; a calendar has no
+page of its own to share, so it has no `unlisted`.
 `private` means no public page; space calendars start `private`. The public (landing) pages don't know their viewers:
 everyone, logged in or not, sees and registers as a visitor — nothing prefilled, no member state, the meeting link only after registering. FluentCommunity integration (events as posts
 in discussion spaces): [.claude/docs/functional-requirements/fluentcommunity-integration.md](.claude/docs/functional-requirements/fluentcommunity-integration.md).

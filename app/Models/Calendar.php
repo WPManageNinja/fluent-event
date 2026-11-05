@@ -11,7 +11,7 @@ class Calendar extends Model
 {
     protected $table = 'fe_calendars';
 
-    const STATUSES = 'public,unlisted,private,draft';
+    const STATUSES = 'public,private,draft';
     const DEFAULT_THEME_COLOR = '#0099ff';
 
     protected $fillable = [
