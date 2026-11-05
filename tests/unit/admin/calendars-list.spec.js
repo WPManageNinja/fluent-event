@@ -2,13 +2,15 @@ import { describe, it, expect, vi } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import Calendars from '@/modules/calendars/index.vue';
 
+const mountList = () => shallowMount(Calendars, {
+    global: {
+        mixins: [{ methods: { $requestServer: vi.fn(), $changeTitle: vi.fn() } }],
+        mocks: { $calendarStatuses: () => [], $router: { push: vi.fn() } }
+    }
+});
+
 const list = calendars => {
-    const wrapper = shallowMount(Calendars, {
-        global: {
-            mixins: [{ methods: { $requestServer: vi.fn(), $changeTitle: vi.fn() } }],
-            mocks: { $calendarStatuses: () => [], $router: { push: vi.fn() } }
-        }
-    });
+    const wrapper = mountList();
     wrapper.vm.calendars = calendars;
 
     return wrapper.vm.groups.map(group => [group.key, group.calendars.map(calendar => calendar.id)]);
@@ -26,5 +28,19 @@ describe('Calendars groups', () => {
 
     it('leaves out a group with no calendars', () => {
         expect(list([{ id: 2, meta: { fcom_space_id: 26 } }])).toEqual([['community', [2]]]);
+    });
+});
+
+// The list is the default; a saved choice wins, and anything else falls back to it.
+describe('Calendars view', () => {
+    it.each([
+        [null, 'list'],
+        ['cards', 'cards'],
+        ['timeline', 'list'],
+    ])('opens in %s view as %s', (saved, view) => {
+        localStorage.clear();
+        if (saved) localStorage.setItem('fe_calendars_view', JSON.stringify(saved));
+
+        expect(mountList().vm.view).toBe(view);
     });
 });

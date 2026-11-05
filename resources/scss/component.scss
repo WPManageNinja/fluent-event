@@ -509,6 +509,20 @@
         margin-bottom: var(--fe-space-4, 16px);
     }
 
+    &__toolbar-end {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+
+        @media screen and (max-width: 782px) {
+            width: 100%;
+
+            .fe-calendars__search {
+                flex: 1;
+            }
+        }
+    }
+
     &__search {
         max-width: 300px;
 
@@ -616,6 +630,37 @@
                 > * {
                     width: auto;
                 }
+            }
+        }
+    }
+
+    &__list--cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+        gap: var(--fe-space-4, 16px);
+        border: 0;
+        background-color: transparent;
+
+        .fe-calendars__row {
+            grid-template-columns: minmax(0, 1fr) auto;
+            row-gap: var(--fe-space-5, 20px);
+            padding: var(--fe-space-5, 20px);
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius, 8px);
+            background-color: var(--fe-primary-bg, #ffffff);
+
+            &:last-child {
+                border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+            }
+        }
+
+        .fe-calendars__row-stats {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            gap: var(--fe-space-3, 12px);
+
+            > * {
+                width: auto;
             }
         }
     }

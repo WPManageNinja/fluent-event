@@ -24,13 +24,23 @@
                     @change="fetchCalendars"
                 />
 
-                <SearchInput
-                    v-model="query.search"
-                    class="fe-calendars__search"
-                    :placeholder="$t('Search calendars')"
-                    type="search_on_enter"
-                    @search="fetchCalendars"
-                />
+                <div class="fe-calendars__toolbar-end">
+                    <SearchInput
+                        v-model="query.search"
+                        class="fe-calendars__search"
+                        :placeholder="$t('Search calendars')"
+                        type="search_on_enter"
+                        @search="fetchCalendars"
+                    />
+
+                    <SegmentedSwitch
+                        v-model="view"
+                        class="fe-switch--compact"
+                        :options="views"
+                        :label="$t('Switch between list and card view')"
+                        @change="rememberView"
+                    />
+                </div>
             </div>
 
             <Skeleton v-if="loading && !fetched" type="calendar-list" />
@@ -56,7 +66,7 @@
                         <span class="fe-calendars__group-count">{{ group.calendars.length }}</span>
                     </div>
 
-                    <ul class="fe-calendars__list">
+                    <ul class="fe-calendars__list" :class="{ 'fe-calendars__list--cards': view === 'cards' }">
                         <CalendarRow
                             v-for="calendar in group.calendars"
                             :key="calendar.id"
@@ -91,12 +101,13 @@
 </template>
 
 <script type="text/javascript">
-    import { Plus } from '@element-plus/icons-vue';
+    import { Grid, List, Plus } from '@element-plus/icons-vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import EmptyState from '@/components/EmptyState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import Storage from '@/utils/Storage';
     import CalendarRow from './parts/CalendarRow.vue';
 
     export default {
@@ -117,6 +128,7 @@
                 error: '',
                 calendars: [],
                 counts: {},
+                view: Storage.get('calendars_view') === 'cards' ? 'cards' : 'list',
                 query: {
                     search: '',
                     status: '',
@@ -132,6 +144,12 @@
                     value,
                     label: this.$t('%s (%d)', label, this.counts[value || 'all'] || 0),
                 }));
+            },
+            views() {
+                return [
+                    { value: 'list', label: this.$t('List'), icon: List },
+                    { value: 'cards', label: this.$t('Cards'), icon: Grid },
+                ];
             },
             groups() {
                 return [
@@ -171,6 +189,9 @@
                         this.calendars = [];
                     },
                 });
+            },
+            rememberView(view) {
+                Storage.set('calendars_view', view);
             },
             goToCreate() {
                 this.$router.push({ name: 'calendar_create' });
