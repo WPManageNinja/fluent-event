@@ -1,5 +1,6 @@
 import app from '@/bootstrap';
 import { capitalize } from 'vue';
+import { containWheel } from '@/utils/scroll';
 
 const globals = app.vue.config.globalProperties;
 
@@ -22,6 +23,13 @@ const applyColorMode = (mode) => {
     document.documentElement.classList.toggle('light', !isDark);
 };
 applyColorMode(localStorage.getItem('fe_color_mode') === 'dark' ? 'dark' : 'light');
+
+
+// -------------------------------------
+// Keep wheel scrolling inside the app
+// -------------------------------------
+const appRoot = document.querySelector('.fe-app');
+appRoot && containWheel(appRoot);
 
 
 // -------------------------------------
