@@ -9,6 +9,8 @@
     );
     overflow-y: auto;
     overflow-x: hidden;
+    // A long wp-admin menu makes the page scrollable; a wheel over the app must not move it.
+    overscroll-behavior: contain;
     z-index: 1;
     
     &__body {
