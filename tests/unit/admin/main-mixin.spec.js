@@ -80,6 +80,13 @@ describe('status and entry type labels', () => {
         expect(vm.$eventStatusType('archived')).toBe('info');
     });
 
+    it('offers every event status for events and all but unlisted for calendars', () => {
+        const vm = component();
+
+        expect(vm.$eventStatuses().map(item => item.value)).toEqual(['public', 'unlisted', 'private', 'draft']);
+        expect(vm.$calendarStatuses().map(item => item.value)).toEqual(['public', 'private', 'draft']);
+    });
+
     it('translates a status label', () => {
         window.fluentEventAdmin.i18n = { Private: 'Privat' };
 

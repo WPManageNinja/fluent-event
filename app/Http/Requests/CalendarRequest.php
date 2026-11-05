@@ -47,7 +47,7 @@ class CalendarRequest extends BaseRequest
             'slug.unique'         => __('This slug is already taken.', 'fluent-event'),
             'status.required'     => __('Status is required.', 'fluent-event'),
             'status.string'       => __('Status must be text.', 'fluent-event'),
-            'status.in'           => __('Status must be public, unlisted, private or draft.', 'fluent-event'),
+            'status.in'           => __('Status must be public, private or draft.', 'fluent-event'),
             'theme_color.regex'   => __('Theme color must be a hex value like #0099ff.', 'fluent-event'),
         ];
     }

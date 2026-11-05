@@ -74,14 +74,14 @@ class PortalEventController extends Controller
         return $this->sendError(['message' => __('This form has expired. Please reload the page and try again.', 'fluent-event')], 403);
     }
 
-    // What the event page opens: a public or unlisted event in a public or unlisted calendar.
+    // What the event page opens: a public or unlisted event in a public calendar.
     private function pageEvent($id)
     {
         return Event::query()
             ->with(['post', 'calendar'])
             ->byStatus(['public', 'unlisted'])
             ->whereHas('calendar', function ($query) {
-                $query->byStatus(['public', 'unlisted']);
+                $query->byStatus('public');
             })
             ->find((int) $id);
     }

@@ -96,7 +96,12 @@ export default {
             return statusTypes.find(item => item.value === status)?.type || 'info';
         },
         $eventStatuses() {
-            return this.$calendarStatuses();
+            return [
+                { value: 'public', label: this.$t('Public'), hint: this.$t('Anyone can find it.') },
+                { value: 'unlisted', label: this.$t('Unlisted'), hint: this.$t('Only accessible via direct link.') },
+                { value: 'private', label: this.$t('Private'), hint: this.$t('No public page.') },
+                { value: 'draft', label: this.$t('Draft'), hint: this.$t('Not ready yet.') },
+            ];
         },
         $eventStatusLabel(status) {
             return this.$eventStatuses().find(item => item.value === status)?.label || status;
@@ -126,13 +131,9 @@ export default {
         $calendarStatusType(status) {
             return statusTypes.find(item => item.value === status)?.type || 'info';
         },
+        // Unlisted is for events only: a calendar has no page of its own to share by link.
         $calendarStatuses() {
-            return [
-                { value: 'public', label: this.$t('Public'), hint: this.$t('Anyone can find it.') },
-                { value: 'unlisted', label: this.$t('Unlisted'), hint: this.$t('Only accessible via direct link.') },
-                { value: 'private', label: this.$t('Private'), hint: this.$t('No public page.') },
-                { value: 'draft', label: this.$t('Draft'), hint: this.$t('Not ready yet.') },
-            ];
+            return this.$eventStatuses().filter(item => item.value !== 'unlisted');
         },
         $calendarStatusLabel(status) {
             return this.$calendarStatuses().find(item => item.value === status)?.label || status;
