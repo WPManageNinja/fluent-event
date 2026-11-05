@@ -47,9 +47,7 @@ export const adminVars = () => ({
         id: 1,
         email: 'admin@example.test',
         full_name: 'Site Admin',
-        avatar: '',
-        is_admin: true,
-        permissions: ['manage_all_data']
+        avatar: ''
     },
     i18n: {}
 });

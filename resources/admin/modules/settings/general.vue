@@ -14,7 +14,6 @@
                     <el-radio-group
                         v-model="general.default_events_view"
                         class="fe-view-picker"
-                        :disabled="!$userCan('write_settings')"
                     >
                         <el-radio
                             v-for="option in viewOptions"
@@ -33,7 +32,6 @@
                         v-model="general.disable_event_view_switch"
                         true-value="yes"
                         false-value="no"
-                        :disabled="!$userCan('write_settings')"
                     >
                         {{ $t('Disable view change option') }}
                     </el-checkbox>
@@ -50,7 +48,6 @@
                         v-model="general.enable_landing_pages"
                         true-value="yes"
                         false-value="no"
-                        :disabled="!$userCan('write_settings')"
                     >
                         {{ $t('Enable landing pages') }}
                     </el-checkbox>
@@ -65,7 +62,7 @@
                 <el-form-item v-if="general.enable_landing_pages === 'yes'" :label="$t('Portal slug')">
                     <el-input
                         v-model="general.portal_slug"
-                        :disabled="!$userCan('write_settings') || isSlugDefined"
+                        :disabled="isSlugDefined"
                     >
                         <template #prepend>{{ homeUrl }}</template>
                     </el-input>
@@ -77,7 +74,7 @@
                     </span>
                 </el-form-item>
 
-                <div v-if="$userCan('write_settings')" class="fe-form__actions">
+                <div class="fe-form__actions">
                     <el-button
                         type="primary"
                         native-type="submit"
@@ -105,7 +102,6 @@
                         <el-input
                             v-model="email.from_name"
                             :placeholder="$t('e.g. your business name')"
-                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
 
@@ -114,14 +110,13 @@
                             v-model="email.from_email"
                             type="email"
                             placeholder="events@example.com"
-                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
                 </div>
 
                 <div class="fe-form__pair">
                     <el-form-item :label="$t('Reply-to name (optional)')">
-                        <el-input v-model="email.reply_to_name" :disabled="!$userCan('write_settings')" />
+                        <el-input v-model="email.reply_to_name" />
                     </el-form-item>
 
                     <el-form-item>
@@ -147,7 +142,6 @@
                         <el-input
                             v-model="email.reply_to_email"
                             type="email"
-                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
                 </div>
@@ -169,7 +163,7 @@
                     </span>
                 </el-form-item>
 
-                <div v-if="$userCan('write_settings')" class="fe-form__actions">
+                <div class="fe-form__actions">
                     <el-button
                         type="primary"
                         native-type="submit"

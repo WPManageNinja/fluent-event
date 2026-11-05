@@ -26,7 +26,6 @@
 
                     <div class="fe-page__actions">
                         <el-button
-                            v-if="$userCan('write_events')"
                             @click="goToEdit"
                         >
                             {{ $t('Edit Event') }}
@@ -159,7 +158,7 @@
                             :title="$t('No description yet')"
                             :message="$t('The description tells guests what this event is about.')"
                         >
-                            <template v-if="$userCan('write_events')" #action>
+                            <template #action>
                                 <el-button @click="goToEdit">{{ $t('Add Description') }}</el-button>
                             </template>
                         </EmptyState>
@@ -214,20 +213,12 @@
         },
         computed: {
             tabs() {
-                const tabs = [
+                return [
                     { value: 'overview', label: this.$t('Overview') },
                     { value: 'description', label: this.$t('Description') },
+                    { value: 'guests', label: this.$t('Guests') },
+                    { value: 'settings', label: this.$t('Settings') },
                 ];
-
-                if (this.$userCan(['read_guests', 'write_guests'], { match_type: 'any' })) {
-                    tabs.push({ value: 'guests', label: this.$t('Guests') });
-                }
-
-                if (this.$userCan('write_events')) {
-                    tabs.push({ value: 'settings', label: this.$t('Settings') });
-                }
-
-                return tabs;
             },
             isOnline() {
                 return this.event.venue_type === 'online';

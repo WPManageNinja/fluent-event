@@ -3,7 +3,6 @@
 namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -61,24 +60,21 @@ class AdminMenuHandler
      */
     public function add()
     {
-        if (!PermissionManager::hasAnyPermission()) return;
-        $capabilities = PermissionManager::getMenuCapabilities();
-
         add_menu_page(
             __('FluentEvent', 'fluent-event'),
             __('FluentEvent', 'fluent-event'),
-            $capabilities['dashboard'],
+            'manage_options',
             $this->slug,
             [$this, 'render'],
             $this->getMenuIcon(),
             $this->position
         );
 
-        $this->addSubmenu(__('Dashboard', 'fluent-event'), '', $capabilities['dashboard']);
-        $this->addSubmenu(__('Add New Event', 'fluent-event'), 'events/new', $capabilities['add_event']);
-        $this->addSubmenu(__('Calendars', 'fluent-event'), 'calendars', $capabilities['calendars']);
-        $this->addSubmenu(__('Events', 'fluent-event'), 'events', $capabilities['events']);
-        $this->addSubmenu(__('Settings', 'fluent-event'), 'settings', $capabilities['settings']);
+        $this->addSubmenu(__('Dashboard', 'fluent-event'), '');
+        $this->addSubmenu(__('Add New Event', 'fluent-event'), 'events/new');
+        $this->addSubmenu(__('Calendars', 'fluent-event'), 'calendars');
+        $this->addSubmenu(__('Events', 'fluent-event'), 'events');
+        $this->addSubmenu(__('Settings', 'fluent-event'), 'settings');
     }
 
     /**
@@ -87,19 +83,16 @@ class AdminMenuHandler
      * @param  string $label       Translated menu label.
      * @param  string $route       SPA route appended to the base URL, or '' for
      *                             the parent page itself.
-     * @param  string $capability  Capability required to see this entry.
-     *                             WordPress filters each submenu on its own
-     *                             capability, so entries can differ.
      *
      * @return null
      */
-    protected function addSubmenu($label, $route, $capability)
+    protected function addSubmenu($label, $route)
     {
         add_submenu_page(
             $this->slug,
             $label,
             $label,
-            $capability,
+            'manage_options',
             $route ? esc_url($this->baseUrl . $route) : $this->slug,
             $route ? '' : [$this, 'render']
         );
@@ -144,31 +137,23 @@ class AdminMenuHandler
      */
     protected function getMenuItemsList()
     {
-        $items = [
+        return [
             [
                 'key'       => 'dashboard',
                 'label'     => __('Dashboard', 'fluent-event'),
                 'permalink' => $this->baseUrl,
             ],
-        ];
-
-        if (PermissionManager::userCan(['read_calendars', 'write_calendars'])) {
-            $items[] = [
+            [
                 'key'       => 'calendars',
                 'label'     => __('Calendars', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'calendars',
-            ];
-        }
-
-        if (PermissionManager::userCan(['read_events', 'write_events'])) {
-            $items[] = [
+            ],
+            [
                 'key'       => 'events',
                 'label'     => __('Events', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'events',
-            ];
-        }
-
-        return $items;
+            ],
+        ];
     }
 
     /**
@@ -178,10 +163,6 @@ class AdminMenuHandler
      */
     protected function getRightMenuItemsList()
     {
-        if (!PermissionManager::userCan(['read_settings', 'write_settings'])) {
-            return [];
-        }
-
         $children = [
             [
                 'key'       => 'settings_general',
@@ -194,14 +175,6 @@ class AdminMenuHandler
                 'permalink' => $this->baseUrl . 'settings/email-notifications',
             ],
         ];
-
-        if (PermissionManager::userCan(PermissionManager::ALL_DATA)) {
-            $children[] = [
-                'key'       => 'settings_team',
-                'label'     => __('Team', 'fluent-event'),
-                'permalink' => $this->baseUrl . 'settings/team',
-            ];
-        }
 
         return [
             [
@@ -367,8 +340,6 @@ class AdminMenuHandler
                 'email'       => $authUser->user_email ?? null,
                 'full_name'   => $authUser->display_name ?? null,
                 'avatar'      => get_avatar_url($authUser->ID ?? 0),
-                'is_admin'    => current_user_can('manage_options'),
-                'permissions' => PermissionManager::getUserPermissions(),
             ],
             'i18n'          => $this->getTranslationLabels($context),
         ]);
