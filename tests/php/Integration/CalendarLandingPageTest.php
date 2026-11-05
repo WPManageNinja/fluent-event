@@ -192,6 +192,28 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertStringNotContainsString('Morning standup', $nextDay);
     }
 
+    // Ending at 00:00 is ending the day before: the next day gets no "Day 2" and no empty block at midnight.
+    public function test_an_event_ending_at_midnight_stays_on_its_own_day()
+    {
+        $calendar = $this->createCalendar();
+        $this->createEvent([
+            'calendar_id' => $calendar->id,
+            'title'       => 'Midnight end party',
+            'start_at'    => get_gmt_from_date('2027-03-20 22:00:00'),
+            'end_at'      => get_gmt_from_date('2027-03-21 00:00:00'),
+        ]);
+
+        $month = $this->page($calendar->slug, ['view' => 'calendar', 'date' => '2027-03-20'])['body'];
+        $this->assertSame(1, substr_count($month, '>Midnight end party<'));
+        $this->assertStringNotContainsString('Day 2', $month);
+
+        $day = $this->page($calendar->slug, ['view' => 'calendar', 'span' => 'day', 'date' => '2027-03-20'])['body'];
+        $this->assertStringContainsString('title="Midnight end party" style="top: 1056px; height: 94px;', $day, 'From 10 PM to the bottom of the grid');
+
+        $nextDay = $this->page($calendar->slug, ['view' => 'calendar', 'span' => 'day', 'date' => '2027-03-21'])['body'];
+        $this->assertStringNotContainsString('Midnight end party', $nextDay);
+    }
+
     // A daylight-saving day is 23 or 25 hours long, but the grid draws 24 hour labels: events sit by the clock.
     public function test_a_daylight_saving_day_places_events_by_the_clock()
     {

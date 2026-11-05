@@ -390,7 +390,8 @@ class LandingPageHandler
         foreach ($rows as $event) {
             $row = $this->eventRow($event, $calendarsById->get($event->calendar_id));
             $firstDay = date_create_immutable(wp_date('Y-m-d', $row['start']), $zone);
-            $lastDay = date_create_immutable(wp_date('Y-m-d', $row['end']), $zone);
+            // An event ending at midnight ends the day before.
+            $lastDay = date_create_immutable(wp_date('Y-m-d', max($row['start'], $row['end'] - 1)), $zone);
 
             for ($day = max($firstDay, $from); $day <= min($lastDay, $to); $day = $day->modify('+1 day')) {
                 $byDay[$day->format('Y-m-d')][] = $row + ['day_index' => $firstDay->diff($day)->days + 1];
