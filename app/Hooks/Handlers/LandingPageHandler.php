@@ -444,10 +444,14 @@ class LandingPageHandler
     {
         $dayStart = $day->getTimestamp();
         $dayEnd = $day->modify('+1 day')->getTimestamp();
+        // Clock minutes, not minutes elapsed: a daylight-saving day still lines up with the 24 hour labels.
+        $clock = function ($timestamp) {
+            return (int) wp_date('G', $timestamp) * 60 + (int) wp_date('i', $timestamp);
+        };
 
         foreach ($entries as &$entry) {
-            $entry['from'] = $entry['start'] <= $dayStart ? 0 : ($entry['start'] - $dayStart) / 60;
-            $entry['until'] = $entry['end'] >= $dayEnd ? 1440 : min(1440, max(($entry['end'] - $dayStart) / 60, $entry['from'] + 30));
+            $entry['from'] = $entry['start'] <= $dayStart ? 0 : $clock($entry['start']);
+            $entry['until'] = $entry['end'] >= $dayEnd ? 1440 : min(1440, max($clock($entry['end']), $entry['from'] + 30));
             $entry['top'] = (int) round($entry['from'] / 60 * self::HOUR_PX);
             $entry['height'] = (int) round(($entry['until'] - $entry['from']) / 60 * self::HOUR_PX) - 2;
         }

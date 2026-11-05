@@ -192,6 +192,33 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertStringNotContainsString('Morning standup', $nextDay);
     }
 
+    // A daylight-saving day is 23 or 25 hours long, but the grid draws 24 hour labels: events sit by the clock.
+    public function test_a_daylight_saving_day_places_events_by_the_clock()
+    {
+        $zone = get_option('timezone_string');
+        update_option('timezone_string', 'America/New_York');
+
+        try {
+            $calendar = $this->createCalendar();
+            $times = [
+                'Spring standup' => ['2027-03-14 09:00:00', '2027-03-14 10:30:00'],
+                'Fall late talk' => ['2027-11-07 23:00:00', '2027-11-07 23:30:00'],
+            ];
+
+            foreach ($times as $title => [$start, $end]) {
+                $this->createEvent(['calendar_id' => $calendar->id, 'title' => $title, 'start_at' => get_gmt_from_date($start), 'end_at' => get_gmt_from_date($end)]);
+            }
+
+            $spring = $this->page($calendar->slug, ['view' => 'calendar', 'span' => 'day', 'date' => '2027-03-14'])['body'];
+            $this->assertStringContainsString('title="Spring standup" style="top: 432px; height: 70px;', $spring, 'On the 9 AM line, after the skipped hour');
+
+            $fall = $this->page($calendar->slug, ['view' => 'calendar', 'span' => 'day', 'date' => '2027-11-07'])['body'];
+            $this->assertStringContainsString('title="Fall late talk" style="top: 1104px; height: 22px;', $fall, 'On the 11 PM line, inside the grid, after the repeated hour');
+        } finally {
+            update_option('timezone_string', $zone);
+        }
+    }
+
     public function test_an_unlisted_calendar_gets_its_chip_only_on_its_own_page()
     {
         $calendar = $this->createCalendar(['title' => 'Zebra Quiet Club', 'status' => 'unlisted']);
