@@ -22,6 +22,9 @@ class LandingPageHandler
     const EVENT_VAR = 'fe_event_slug';
     const VIEWS = ['cards', 'timeline', 'calendar'];
     const FILTERS = ['upcoming', 'all', 'past'];
+    const SPANS = ['month', 'week', 'day'];
+    // The week and day views draw an hour this tall, as the admin calendar does.
+    const HOUR_PX = 48;
     const PER_PAGE = 10;
 
     public function register()
@@ -173,19 +176,24 @@ class LandingPageHandler
         $view = $viewLocked ? '' : sanitize_key(wp_unslash($_GET['view'] ?? ''));
         $filter = sanitize_key(wp_unslash($_GET['filter'] ?? ''));
         $search = sanitize_text_field(wp_unslash($_GET['search'] ?? ''));
-        $month = sanitize_text_field(wp_unslash($_GET['month'] ?? ''));
+        $span = sanitize_key(wp_unslash($_GET['span'] ?? ''));
+        $date = sanitize_text_field(wp_unslash($_GET['date'] ?? ''));
         $pageNumber = max(1, absint($_GET['page'] ?? 1));
         // phpcs:enable
 
         $view = in_array($view, self::VIEWS, true) ? $view : $settings['default_events_view'];
         $filter = in_array($filter, self::FILTERS, true) ? $filter : 'upcoming';
+        $span = in_array($span, self::SPANS, true) ? $span : 'month';
+        $date = DateTimeHelper::isDate($date) ? $date : '';
         $url = home_url(user_trailingslashit(Settings::portalSlug()));
-        // Carried into every link, so switching one control keeps the others.
+        // Carried into every link, so switching one control keeps the others, the calendar's place included.
         $state = array_filter([
             'calendar' => $calendar ? $calendar->slug : '',
             'view'     => $viewLocked ? '' : $view,
             'filter'   => $filter,
             'search'   => $search,
+            'span'     => $view === 'calendar' && $span !== 'month' ? $span : '',
+            'date'     => $view === 'calendar' ? $date : '',
         ]);
 
         $events = Event::query()
@@ -230,15 +238,7 @@ class LandingPageHandler
         ];
 
         if ($view === 'calendar') {
-            $start = preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month)
-                ? date_create_immutable($month . '-01', wp_timezone())
-                : date_create_immutable('midnight first day of this month', wp_timezone());
-
-            $data['month'] = $this->monthGrid(
-                $start,
-                $events->inDateRange($start->format('Y-m-01'), $start->format('Y-m-t'))->orderBy('start_at', 'ASC')->get(),
-                $calendarsById
-            );
+            $data['grid'] = $this->calendarGrid($span, $date ?: wp_date('Y-m-d'), $events, $calendarsById);
         } else {
             $paginator = $events
                 ->byPeriod($filter === 'all' ? '' : $filter)
@@ -353,46 +353,147 @@ class LandingPageHandler
             'calendar'   => $calendar->title,
             'color'      => $this->calendarColor($calendar),
             'start'      => $start,
+            'end'        => $end,
         ];
     }
 
-    protected function monthGrid(\DateTimeImmutable $start, $events, $calendarsById)
+    // The calendar view, laid out like the admin's: a month of whole weeks, or a week or a day of hours. An event
+    // shows on every day it covers, in its calendar's colour; days are the site's days, as in every list.
+    protected function calendarGrid($span, $date, $events, $calendarsById)
     {
         global $wp_locale;
 
+        $zone = wp_timezone();
+        $anchor = date_create_immutable($date, $zone);
         $startOfWeek = (int) get_option('start_of_week');
-        $firstDay = $start->getTimestamp();
+        $weekStart = function (\DateTimeImmutable $day) use ($startOfWeek) {
+            return $day->modify('-' . (((int) $day->format('w') - $startOfWeek + 7) % 7) . ' days');
+        };
+
+        if ($span === 'month') {
+            // Stepping from the 1st, so a 31st can't skip the shorter month after it.
+            $anchor = $anchor->modify('first day of this month');
+            $from = $weekStart($anchor);
+            $to = $weekStart($anchor->modify('last day of this month'))->modify('+6 days');
+            $label = wp_date('F Y', $anchor->getTimestamp());
+        } elseif ($span === 'week') {
+            $from = $weekStart($anchor);
+            $to = $from->modify('+6 days');
+            /* translators: 1: first day of the week, 2: last day of the week with its year */
+            $label = sprintf(_x('%1$s – %2$s', 'date range', 'fluent-event'), wp_date('M j', $from->getTimestamp()), wp_date('M j, Y', $to->getTimestamp()));
+        } else {
+            $from = $to = $anchor;
+            $label = wp_date(get_option('date_format'), $anchor->getTimestamp());
+        }
+
         $byDay = [];
+        $rows = $events->inDateRange($from->format('Y-m-d'), $to->format('Y-m-d'))->orderBy('start_at', 'ASC')->get();
 
-        foreach ($events as $event) {
+        foreach ($rows as $event) {
             $row = $this->eventRow($event, $calendarsById->get($event->calendar_id));
-            // An event that began last month shows on the 1st.
-            $byDay[(int) wp_date('j', max($row['start'], $firstDay))][] = $row;
+            $firstDay = date_create_immutable(wp_date('Y-m-d', $row['start']), $zone);
+            // An event ending at midnight ends the day before.
+            $lastDay = date_create_immutable(wp_date('Y-m-d', max($row['start'], $row['end'] - 1)), $zone);
+
+            for ($day = max($firstDay, $from); $day <= min($lastDay, $to); $day = $day->modify('+1 day')) {
+                $byDay[$day->format('Y-m-d')][] = $row + ['day_index' => $firstDay->diff($day)->days + 1];
+            }
         }
 
-        // Titles the "+N more" popover; built in the site's timezone so the label names the right day.
-        $dayLabels = [];
-        foreach (array_keys($byDay) as $day) {
-            $dayLabels[$day] = wp_date('l, M j', $start->setDate((int) $start->format('Y'), (int) $start->format('n'), $day)->getTimestamp());
+        $today = wp_date('Y-m-d');
+        $days = [];
+
+        for ($day = $from; $day <= $to; $day = $day->modify('+1 day')) {
+            $key = $day->format('Y-m-d');
+            $entries = $byDay[$key] ?? [];
+
+            if ($span !== 'month') {
+                $entries = $this->placeOnDay($entries, $day);
+            }
+
+            $days[] = [
+                'date'    => $key,
+                'number'  => (int) $day->format('j'),
+                'name'    => $wp_locale->get_weekday_abbrev($wp_locale->get_weekday((int) $day->format('w'))),
+                // Titles the "+N more" popover.
+                'label'   => wp_date('l, M j', $day->getTimestamp()),
+                'today'   => $key === $today,
+                'outside' => $span === 'month' && $day->format('n') !== $anchor->format('n'),
+                'entries' => $entries,
+            ];
         }
 
-        $weekdays = [];
-        for ($i = 0; $i < 7; $i++) {
-            $weekdays[] = $wp_locale->get_weekday_abbrev($wp_locale->get_weekday(($startOfWeek + $i) % 7));
+        $hourFormat = preg_match('/[GH]/', get_option('time_format')) ? 'H:00' : 'g A';
+        $hours = [];
+
+        for ($hour = 0; $hour < 24; $hour++) {
+            // A fixed UTC day, so a DST change can't shift the labels.
+            $hours[] = $hour ? wp_date($hourFormat, gmmktime($hour, 0, 0, 1, 1, 2000), new \DateTimeZone('UTC')) : '';
         }
 
         return [
-            'label'    => wp_date('F Y', $firstDay),
-            'value'    => $start->format('Y-m'),
-            'prev'     => $start->modify('-1 month')->format('Y-m'),
-            'next'     => $start->modify('+1 month')->format('Y-m'),
-            'weekdays' => $weekdays,
-            'lead'     => ((int) $start->format('w') - $startOfWeek + 7) % 7,
-            'days'     => (int) $start->format('t'),
-            'today'    => wp_date('Y-m') === $start->format('Y-m') ? (int) wp_date('j') : 0,
-            'by_day'     => $byDay,
-            'day_labels' => $dayLabels,
+            'span'  => $span,
+            'label' => $label,
+            'prev'  => $anchor->modify('-1 ' . $span)->format('Y-m-d'),
+            'next'  => $anchor->modify('+1 ' . $span)->format('Y-m-d'),
+            'days'  => $days,
+            'hours' => $span === 'month' ? [] : $hours,
         ];
+    }
+
+    // Week and day views: each event as a block from its start to its end within the day, at least half an hour tall.
+    // Events that overlap share the column side by side, each in the first lane free when it starts.
+    protected function placeOnDay(array $entries, \DateTimeImmutable $day)
+    {
+        $dayStart = $day->getTimestamp();
+        $dayEnd = $day->modify('+1 day')->getTimestamp();
+        // Clock minutes, not minutes elapsed: a daylight-saving day still lines up with the 24 hour labels.
+        $clock = function ($timestamp) {
+            return (int) wp_date('G', $timestamp) * 60 + (int) wp_date('i', $timestamp);
+        };
+
+        foreach ($entries as &$entry) {
+            $entry['from'] = $entry['start'] <= $dayStart ? 0 : $clock($entry['start']);
+            $entry['until'] = $entry['end'] >= $dayEnd ? 1440 : min(1440, max($clock($entry['end']), $entry['from'] + 30));
+            $entry['top'] = (int) round($entry['from'] / 60 * self::HOUR_PX);
+            $entry['height'] = (int) round(($entry['until'] - $entry['from']) / 60 * self::HOUR_PX) - 2;
+        }
+        unset($entry);
+
+        usort($entries, function ($a, $b) {
+            return $a['from'] <=> $b['from'];
+        });
+
+        // A group runs until no event in it is still on; its lanes split the column's width.
+        $group = [];
+        $laneEnds = [];
+        $groupEnd = 0;
+
+        foreach ($entries as $index => &$entry) {
+            if ($entry['from'] >= $groupEnd) {
+                foreach ($group as $member) {
+                    $entries[$member]['lanes'] = count($laneEnds);
+                }
+                $group = $laneEnds = [];
+            }
+
+            $lane = 0;
+            while (isset($laneEnds[$lane]) && $laneEnds[$lane] > $entry['from']) {
+                $lane++;
+            }
+
+            $laneEnds[$lane] = $entry['until'];
+            $entry['lane'] = $lane;
+            $group[] = $index;
+            $groupEnd = max($groupEnd, $entry['until']);
+        }
+        unset($entry);
+
+        foreach ($group as $member) {
+            $entries[$member]['lanes'] = count($laneEnds);
+        }
+
+        return $entries;
     }
 
     // Like the admin's events list, the last view and tab are kept per browser. A link that names them wins

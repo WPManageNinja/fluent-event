@@ -343,8 +343,8 @@ html.dark {
         width: 40%;
     }
 
-    &--month {
-        height: 560px;
+    &--calendar {
+        height: 640px;
         border-radius: var(--fe-radius, 8px);
     }
 }
@@ -653,50 +653,64 @@ html.dark {
     }
 }
 
-.fe-month {
-    &__head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: var(--fe-space-3, 12px);
-    }
+// Title, Month / Week / Day and ‹ Today ›, above whichever calendar view is showing, as in the admin.
+.fe-calendar-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--fe-space-3, 12px);
 
     &__title {
+        min-width: 180px;
         margin: 0;
         font-size: var(--fe-text-lg, 18px);
         font-weight: 600;
     }
 
     &__nav {
-        display: flex;
-        gap: var(--fe-space-1, 4px);
-    }
-
-    &__nav-link {
-        display: grid;
-        place-items: center;
-        width: 32px;
-        height: 32px;
+        display: inline-flex;
+        overflow: hidden;
         border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-primary-bg, #ffffff);
-        color: var(--fe-secondary-text, #525866);
+    }
 
-        svg {
-            width: 16px;
-            height: 16px;
-        }
+    &__step,
+    &__today {
+        display: grid;
+        place-items: center;
+        min-width: 34px;
+        height: 34px;
+        color: var(--fe-secondary-text, #525866);
+        text-decoration: none;
 
         &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
             color: var(--fe-primary-text, #19283a);
         }
 
         &:focus-visible {
             outline: 2px solid var(--fe-accent-blue, #0e7ff1);
-            outline-offset: 1px;
+            outline-offset: -2px;
+        }
+
+        svg {
+            width: 16px;
+            height: 16px;
         }
     }
 
+    &__today {
+        padding: 0 var(--fe-space-3, 12px);
+        border-right: 1px solid var(--fe-primary-border, #eaecf0);
+        border-left: 1px solid var(--fe-primary-border, #eaecf0);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+    }
+}
+
+.fe-month {
     // 1px gaps over the border colour draw the grid lines.
     &__grid {
         display: grid;
@@ -709,30 +723,34 @@ html.dark {
     }
 
     &__weekday {
-        padding: 6px 0;
+        padding: 8px 0;
         background-color: var(--fe-active-bg, #f0f0f1);
         color: var(--fe-secondary-text, #525866);
         font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
         text-align: center;
+        text-transform: uppercase;
     }
 
     &__cell {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 4px;
         min-width: 0;
-        min-height: 96px;
-        padding: 6px;
+        min-height: 112px;
+        padding: 8px;
         background-color: var(--fe-primary-bg, #ffffff);
     }
 
-    &__cell--blank {
-        background-color: var(--fe-secondary-bg, #f3f5fa);
+    // The neighbouring months' days, faded like the admin's.
+    &__cell--outside > * {
+        opacity: 0.5;
     }
 
     &__day {
-        color: var(--fe-secondary-text, #525866);
-        font-size: var(--fe-text-xs, 12px);
+        color: var(--fe-primary-text, #19283a);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
         font-variant-numeric: tabular-nums;
     }
 
@@ -741,20 +759,24 @@ html.dark {
         font-weight: 700;
     }
 
+    // The calendar's colour as a left bar over a tint of it, as in the admin; grey without one.
     &__chip {
-        overflow: hidden;
-        padding: 2px 6px;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        min-width: 0;
+        padding: 4px 8px;
+        border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
         border-radius: var(--fe-radius-sm, 4px);
         background-color: var(--fe-active-bg, #f0f0f1);
-        color: inherit;
-        font-size: 11px;
-        line-height: 1.4;
+        background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 16%, transparent);
+        color: var(--fe-primary-text, #19283a);
+        font-size: 12px;
+        line-height: 1.5;
         text-decoration: none;
-        white-space: nowrap;
-        text-overflow: ellipsis;
 
         &:hover {
-            text-decoration: underline;
+            background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 28%, transparent);
         }
 
         &:focus-visible {
@@ -764,7 +786,16 @@ html.dark {
     }
 
     &__chip-time {
+        flex-shrink: 0;
+        color: var(--fe-secondary-text, #525866);
         font-weight: 600;
+    }
+
+    &__chip-title {
+        overflow: hidden;
+        min-width: 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     // Full cell width, so the popover's anchor edge is the cell's and it opens beside the day.
@@ -775,7 +806,8 @@ html.dark {
         background: none;
         color: var(--fe-secondary-text, #525866);
         font: inherit;
-        font-size: 11px;
+        font-size: 12px;
+        font-weight: 600;
         text-align: left;
         cursor: pointer;
 
@@ -852,6 +884,160 @@ html.dark {
 
         &__dot {
             display: block;
+        }
+    }
+}
+
+// The week and day views, after the admin's: an hour per 48px row, each event placed from its start to its end.
+.fe-week {
+    overflow-x: auto;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius-lg, 12px);
+    background-color: var(--fe-primary-bg, #ffffff);
+
+    // A week stays readable on a phone by scrolling sideways; a day fits as it is.
+    &__frame {
+        min-width: 640px;
+    }
+
+    &.fe-week--day &__frame {
+        min-width: 0;
+    }
+
+    &__head,
+    &__body {
+        display: grid;
+        grid-template-columns: 64px repeat(7, minmax(0, 1fr));
+    }
+
+    &.fe-week--day &__head,
+    &.fe-week--day &__body {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    &__head {
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__day {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--fe-space-2, 8px);
+        padding: var(--fe-space-3, 12px) var(--fe-space-2, 8px);
+        border-left: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__day-name {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    &__day-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-weight: 600;
+    }
+
+    &__day.fe-week__day--today &__day-number {
+        background-color: var(--fe-primary-button, #2b2e33);
+        color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__body {
+        max-height: 640px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    &__times {
+        display: flex;
+        flex-direction: column;
+    }
+
+    // Each label sits on the line that starts its hour.
+    &__time {
+        flex-shrink: 0;
+        height: 48px;
+        padding-right: var(--fe-space-2, 8px);
+        transform: translateY(-7px);
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+        text-align: right;
+    }
+
+    &__col {
+        position: relative;
+        border-left: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__cell {
+        display: block;
+        height: 48px;
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+
+        &:last-of-type {
+            border-bottom: 0;
+        }
+    }
+
+    // Overlapping events split the column into lanes, set per event by the server.
+    &__event {
+        position: absolute;
+        left: calc(4px + (100% - 8px) * var(--fe-lane, 0) / var(--fe-lanes, 1));
+        width: calc((100% - 8px) / var(--fe-lanes, 1) - 2px);
+        container-type: size;
+        overflow: hidden;
+        padding: 4px 8px;
+        border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 16%, var(--fe-primary-bg, #ffffff));
+        color: var(--fe-primary-text, #19283a);
+        font-size: 12px;
+        line-height: 1.4;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 28%, var(--fe-primary-bg, #ffffff));
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__event-time,
+    &__event-title {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__event-time {
+        margin-bottom: 2px;
+        color: var(--fe-secondary-text, #525866);
+        font-weight: 600;
+    }
+
+    // Two lines need 36px inside the padding; a shorter event, under an hour, puts its time and title on one.
+    @container (max-height: 35px) {
+        &__event-time,
+        &__event-title {
+            display: inline;
+        }
+
+        &__event-time {
+            margin: 0 4px 0 0;
         }
     }
 }

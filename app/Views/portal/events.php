@@ -15,7 +15,7 @@
  * @var array  $rows           List views: one eventRow() per event.
  * @var int    $current_page
  * @var int    $last_page
- * @var array  $month          Calendar view.
+ * @var array  $grid           Calendar view: LandingPageHandler::calendarGrid().
  */
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
@@ -31,8 +31,27 @@ $fluentEventLink = function ( array $args ) use ( $state, $url ) {
     return add_query_arg( array_map( 'rawurlencode', array_filter( array_merge( $state, $args ), 'strlen' ) ), $url );
 };
 
-// The month being viewed isn't in $state, so picking a calendar or searching keeps it only through this.
-$fluentEventMonth = 'calendar' === $view ? [ 'month' => $month['value'] ] : [];
+$fluentEventSpans = [
+    'month' => __( 'Month', 'fluent-event' ),
+    'week'  => __( 'Week', 'fluent-event' ),
+    'day'   => __( 'Day', 'fluent-event' ),
+];
+
+// A calendar entry: its start time, or "Day N" on the later days of a multi-day event; the colour is its calendar's.
+$fluentEventEntry = function ( array $entry, $class, $style = '' ) {
+    $style .= $entry['color'] ? '--fe-event-color: ' . $entry['color'] . ';' : '';
+    ?>
+    <a class="<?php echo esc_attr( $class ); ?>" href="<?php echo esc_url( $entry['url'] ); ?>" title="<?php echo esc_attr( $entry['title'] ); ?>"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?>>
+        <span class="<?php echo esc_attr( $class ); ?>-time">
+            <?php
+            /* translators: %d: which day of a multi-day event this is */
+            echo esc_html( $entry['day_index'] > 1 ? sprintf( __( 'Day %d', 'fluent-event' ), $entry['day_index'] ) : $entry['time'] );
+            ?>
+        </span>
+        <span class="<?php echo esc_attr( $class ); ?>-title"><?php echo esc_html( $entry['title'] ); ?></span>
+    </a>
+    <?php
+};
 
 $fluentEventFilters = [
     'all'      => __( 'All', 'fluent-event' ),
@@ -65,7 +84,7 @@ $fluentEventEmpty = [
                 <?php foreach ( $chips as $fluentEventChip ) : ?>
                     <a
                         class="fe-calendar-chips__chip<?php echo $fluentEventChip['active'] ? ' fe-calendar-chips__chip--active' : ''; ?>"
-                        href="<?php echo esc_url( $fluentEventLink( [ 'calendar' => $fluentEventChip['slug'] ] + $fluentEventMonth ) ); ?>"
+                        href="<?php echo esc_url( $fluentEventLink( [ 'calendar' => $fluentEventChip['slug'] ] ) ); ?>"
                         <?php echo $fluentEventChip['active'] ? 'aria-current="page"' : ''; ?>
                         data-fe-chip
                     >
@@ -100,7 +119,7 @@ $fluentEventEmpty = [
                 placeholder="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
                 aria-label="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
             >
-            <?php foreach ( array_diff_key( $state, [ 'search' => '' ] ) + $fluentEventMonth as $fluentEventKey => $fluentEventValue ) : ?>
+            <?php foreach ( array_diff_key( $state, [ 'search' => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
                 <input type="hidden" name="<?php echo esc_attr( $fluentEventKey ); ?>" value="<?php echo esc_attr( $fluentEventValue ); ?>">
             <?php endforeach; ?>
         </form>
@@ -132,10 +151,38 @@ $fluentEventEmpty = [
         <?php endif; ?>
     </div>
 
+    <?php if ( 'calendar' === $view ) : ?>
+        <?php // Outside the results, so it stays put while a new range loads in place. ?>
+        <div class="fe-calendar-head">
+            <h2 class="fe-calendar-head__title"><?php echo esc_html( $grid['label'] ); ?></h2>
+
+            <nav class="fe-switch" aria-label="<?php esc_attr_e( 'Switch between month, week and day view', 'fluent-event' ); ?>">
+                <?php foreach ( $fluentEventSpans as $fluentEventKey => $fluentEventLabel ) : ?>
+                    <a
+                        class="fe-switch__option<?php echo $fluentEventKey === $grid['span'] ? ' fe-switch__option--active' : ''; ?>"
+                        href="<?php echo esc_url( $fluentEventLink( [ 'span' => 'month' === $fluentEventKey ? '' : $fluentEventKey ] ) ); ?>"
+                        <?php echo $fluentEventKey === $grid['span'] ? 'aria-current="true"' : ''; ?>
+                        data-fe-nav="span-<?php echo esc_attr( $fluentEventKey ); ?>"
+                    ><?php echo esc_html( $fluentEventLabel ); ?></a>
+                <?php endforeach; ?>
+            </nav>
+
+            <nav class="fe-calendar-head__nav" aria-label="<?php esc_attr_e( 'Change dates', 'fluent-event' ); ?>">
+                <a class="fe-calendar-head__step" href="<?php echo esc_url( $fluentEventLink( [ 'date' => $grid['prev'] ] ) ); ?>" aria-label="<?php esc_attr_e( 'Previous', 'fluent-event' ); ?>" title="<?php esc_attr_e( 'Previous', 'fluent-event' ); ?>" data-fe-nav="prev">
+                    <?php echo Icon::CHEVRON_LEFT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+                </a>
+                <a class="fe-calendar-head__today" href="<?php echo esc_url( $fluentEventLink( [ 'date' => '' ] ) ); ?>" data-fe-nav="today"><?php esc_html_e( 'Today', 'fluent-event' ); ?></a>
+                <a class="fe-calendar-head__step" href="<?php echo esc_url( $fluentEventLink( [ 'date' => $grid['next'] ] ) ); ?>" aria-label="<?php esc_attr_e( 'Next', 'fluent-event' ); ?>" title="<?php esc_attr_e( 'Next', 'fluent-event' ); ?>" data-fe-nav="next">
+                    <?php echo Icon::CHEVRON_RIGHT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+                </a>
+            </nav>
+        </div>
+    <?php endif; ?>
+
     <?php // What portal.js shows in the results while a chip's list loads: the current view's shape, in grey. ?>
     <template data-fe-skeleton>
         <?php if ( 'calendar' === $view ) : ?>
-            <span class="fe-skeleton fe-skeleton--month" aria-hidden="true"></span>
+            <span class="fe-skeleton fe-skeleton--calendar" aria-hidden="true"></span>
         <?php elseif ( 'timeline' === $view ) : ?>
             <ol class="fe-timeline" aria-hidden="true">
                 <?php for ( $fluentEventIndex = 0; $fluentEventIndex < 3; $fluentEventIndex++ ) : ?>
@@ -172,71 +219,81 @@ $fluentEventEmpty = [
     </template>
 
     <div class="fe-events-page__results" data-fe-results>
-        <?php if ( 'calendar' === $view ) : ?>
-            <section class="fe-month" aria-label="<?php echo esc_attr( $month['label'] ); ?>">
-                <div class="fe-month__head">
-                    <h2 class="fe-month__title"><?php echo esc_html( $month['label'] ); ?></h2>
-                    <nav class="fe-month__nav" aria-label="<?php esc_attr_e( 'Change month', 'fluent-event' ); ?>">
-                        <a class="fe-month__nav-link" href="<?php echo esc_url( $fluentEventLink( [ 'month' => $month['prev'] ] ) ); ?>" aria-label="<?php esc_attr_e( 'Previous month', 'fluent-event' ); ?>">
-                            <?php echo Icon::CHEVRON_LEFT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
-                        </a>
-                        <a class="fe-month__nav-link" href="<?php echo esc_url( $fluentEventLink( [ 'month' => $month['next'] ] ) ); ?>" aria-label="<?php esc_attr_e( 'Next month', 'fluent-event' ); ?>">
-                            <?php echo Icon::CHEVRON_RIGHT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
-                        </a>
-                    </nav>
-                </div>
-
+        <?php if ( 'calendar' === $view && 'month' === $grid['span'] ) : ?>
+            <section class="fe-month" aria-label="<?php echo esc_attr( $grid['label'] ); ?>">
                 <div class="fe-month__grid">
-                    <?php foreach ( $month['weekdays'] as $fluentEventWeekday ) : ?>
-                        <span class="fe-month__weekday"><?php echo esc_html( $fluentEventWeekday ); ?></span>
+                    <?php foreach ( array_slice( $grid['days'], 0, 7 ) as $fluentEventDay ) : ?>
+                        <span class="fe-month__weekday"><?php echo esc_html( $fluentEventDay['name'] ); ?></span>
                     <?php endforeach; ?>
 
-                    <?php for ( $fluentEventCell = 0; $fluentEventCell < $month['lead']; $fluentEventCell++ ) : ?>
-                        <span class="fe-month__cell fe-month__cell--blank"></span>
-                    <?php endfor; ?>
+                    <?php foreach ( $grid['days'] as $fluentEventDay ) : ?>
+                        <div class="fe-month__cell<?php echo $fluentEventDay['outside'] ? ' fe-month__cell--outside' : ''; ?><?php echo $fluentEventDay['today'] ? ' fe-month__cell--today' : ''; ?>">
+                            <span class="fe-month__day"><?php echo esc_html( number_format_i18n( $fluentEventDay['number'] ) ); ?></span>
 
-                    <?php for ( $fluentEventDay = 1; $fluentEventDay <= $month['days']; $fluentEventDay++ ) : ?>
-                        <?php $fluentEventDayRows = $month['by_day'][ $fluentEventDay ] ?? []; ?>
-                        <div class="fe-month__cell<?php echo $fluentEventDay === $month['today'] ? ' fe-month__cell--today' : ''; ?>">
-                            <span class="fe-month__day"><?php echo esc_html( number_format_i18n( $fluentEventDay ) ); ?></span>
-
-                            <?php foreach ( array_slice( $fluentEventDayRows, 0, 3 ) as $fluentEventRow ) : ?>
-                                <a class="fe-month__chip" href="<?php echo esc_url( $fluentEventRow['url'] ); ?>">
-                                    <span class="fe-month__chip-time"><?php echo esc_html( $fluentEventRow['time'] ); ?></span>
-                                    <?php echo esc_html( $fluentEventRow['title'] ); ?>
-                                </a>
+                            <?php foreach ( array_slice( $fluentEventDay['entries'], 0, 3 ) as $fluentEventItem ) : ?>
+                                <?php $fluentEventEntry( $fluentEventItem, 'fe-month__chip' ); ?>
                             <?php endforeach; ?>
 
-                            <?php if ( count( $fluentEventDayRows ) > 3 ) : ?>
-                                <?php $fluentEventPopover = 'fe-month-day-' . $fluentEventDay; ?>
+                            <?php if ( count( $fluentEventDay['entries'] ) > 3 ) : ?>
+                                <?php $fluentEventPopover = 'fe-month-day-' . $fluentEventDay['date']; ?>
                                 <button type="button" class="fe-month__more" popovertarget="<?php echo esc_attr( $fluentEventPopover ); ?>">
                                     <?php
                                     /* translators: %d: number of further events that day */
-                                    echo esc_html( sprintf( __( '+%d more', 'fluent-event' ), count( $fluentEventDayRows ) - 3 ) );
+                                    echo esc_html( sprintf( __( '+%d more', 'fluent-event' ), count( $fluentEventDay['entries'] ) - 3 ) );
                                     ?>
                                 </button>
 
-                                <div id="<?php echo esc_attr( $fluentEventPopover ); ?>" class="fe-month__popover" popover aria-label="<?php echo esc_attr( $month['day_labels'][ $fluentEventDay ] ); ?>">
-                                    <p class="fe-month__popover-title"><?php echo esc_html( $month['day_labels'][ $fluentEventDay ] ); ?></p>
+                                <div id="<?php echo esc_attr( $fluentEventPopover ); ?>" class="fe-month__popover" popover aria-label="<?php echo esc_attr( $fluentEventDay['label'] ); ?>">
+                                    <p class="fe-month__popover-title"><?php echo esc_html( $fluentEventDay['label'] ); ?></p>
 
-                                    <?php foreach ( $fluentEventDayRows as $fluentEventRow ) : ?>
-                                        <a class="fe-month__chip" href="<?php echo esc_url( $fluentEventRow['url'] ); ?>">
-                                            <span class="fe-month__chip-time"><?php echo esc_html( $fluentEventRow['time'] ); ?></span>
-                                            <?php echo esc_html( $fluentEventRow['title'] ); ?>
-                                        </a>
+                                    <?php foreach ( $fluentEventDay['entries'] as $fluentEventItem ) : ?>
+                                        <?php $fluentEventEntry( $fluentEventItem, 'fe-month__chip' ); ?>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
 
-                            <?php if ( $fluentEventDayRows ) : ?>
+                            <?php if ( $fluentEventDay['entries'] ) : ?>
                                 <span class="fe-month__dot" aria-hidden="true"></span>
                             <?php endif; ?>
                         </div>
-                    <?php endfor; ?>
+                    <?php endforeach; ?>
+                </div>
+            </section>
 
-                    <?php for ( $fluentEventCell = ( $month['lead'] + $month['days'] ) % 7; $fluentEventCell && $fluentEventCell < 7; $fluentEventCell++ ) : ?>
-                        <span class="fe-month__cell fe-month__cell--blank"></span>
-                    <?php endfor; ?>
+        <?php elseif ( 'calendar' === $view ) : ?>
+            <?php // The admin's week and day views: a column per day, an hour per row, each event a block from start to end. ?>
+            <section class="fe-week<?php echo 'day' === $grid['span'] ? ' fe-week--day' : ''; ?>" aria-label="<?php echo esc_attr( $grid['label'] ); ?>">
+                <div class="fe-week__frame">
+                    <div class="fe-week__head">
+                        <span aria-hidden="true"></span>
+
+                        <?php foreach ( $grid['days'] as $fluentEventDay ) : ?>
+                            <div class="fe-week__day<?php echo $fluentEventDay['today'] ? ' fe-week__day--today' : ''; ?>">
+                                <span class="fe-week__day-name"><?php echo esc_html( $fluentEventDay['name'] ); ?></span>
+                                <span class="fe-week__day-number"><?php echo esc_html( number_format_i18n( $fluentEventDay['number'] ) ); ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="fe-week__body">
+                        <div class="fe-week__times" aria-hidden="true">
+                            <?php foreach ( $grid['hours'] as $fluentEventHour ) : ?>
+                                <span class="fe-week__time"><?php echo esc_html( $fluentEventHour ); ?></span>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <?php foreach ( $grid['days'] as $fluentEventDay ) : ?>
+                            <div class="fe-week__col">
+                                <?php foreach ( $grid['hours'] as $fluentEventHour ) : ?>
+                                    <span class="fe-week__cell" aria-hidden="true"></span>
+                                <?php endforeach; ?>
+
+                                <?php foreach ( $fluentEventDay['entries'] as $fluentEventItem ) : ?>
+                                    <?php $fluentEventEntry( $fluentEventItem, 'fe-week__event', 'top: ' . $fluentEventItem['top'] . 'px; height: ' . $fluentEventItem['height'] . 'px; --fe-lane: ' . $fluentEventItem['lane'] . '; --fe-lanes: ' . $fluentEventItem['lanes'] . ';' ); ?>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </section>
 
