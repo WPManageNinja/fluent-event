@@ -217,7 +217,7 @@ abstract class IntegrationTestCase extends BaseTestCase
             'name'        => 'Guest ' . $unique,
             'email'       => 'guest_' . $unique . '@example.test',
             'status'      => 'going',
-            'source'      => 'admin',
+            'source'      => 'manual',
         ], $overrides));
     }
 

@@ -51,7 +51,7 @@ class GuestController extends Controller
             'checked_in_at' => $status === 'checked_in' ? current_time('mysql') : null,
             'group_id'      => wp_generate_password(32, false, false),
             'is_buyer'      => 1,
-            'source'        => Arr::get($data, 'source', 'community'),
+            'source'        => 'manual',
         ]);
 
         do_action('fluent_event/guest/created', $guest);
