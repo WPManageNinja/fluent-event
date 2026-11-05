@@ -239,31 +239,18 @@
         </template>
     </el-skeleton>
 
-    <div v-else-if="type === 'calendar-grid'" class="fe-calendars__grid">
-        <div v-for="card in rowCount" :key="card" class="fe-calendars__card">
+    <ul v-else-if="type === 'calendar-list'" class="fe-calendars__list">
+        <li v-for="row in rowCount" :key="row" class="fe-calendars__row">
             <el-skeleton animated>
                 <template #template>
-                    <div class="fe-calendars__card-cover">
-                        <el-skeleton-item variant="rect" class="fe-skeleton__card-mark" />
-                    </div>
-
-                    <div class="fe-calendars__card-body">
-                        <el-skeleton-item variant="text" class="fe-skeleton__card-title" />
-                        <el-skeleton-item variant="text" class="fe-skeleton__card-slug" />
-
-                        <div class="fe-calendars__card-meta">
-                            <el-skeleton-item
-                                v-for="tag in 3"
-                                :key="tag"
-                                variant="text"
-                                class="fe-skeleton__tag"
-                            />
-                        </div>
+                    <div class="fe-calendars__row-main">
+                        <el-skeleton-item variant="text" class="fe-skeleton__row-title" />
+                        <el-skeleton-item variant="text" class="fe-skeleton__row-slug" />
                     </div>
                 </template>
             </el-skeleton>
-        </div>
-    </div>
+        </li>
+    </ul>
 
     <el-skeleton v-else-if="type === 'calendar-form'" animated>
         <template #template>
@@ -383,7 +370,7 @@ export default {
                 'event-calendar': 6,
                 'event-cards': 6,
                 'event-form': 4,
-                'calendar-grid': 6,
+                'calendar-list': 6,
                 'calendar-form': 2,
                 plain: 4
             }
