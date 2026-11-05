@@ -256,7 +256,7 @@ export default {
         },
         $requestServer(req) {
             // destructure object
-            const { method = 'get', path, payload, onSuccess, onError, onFinally, successNotify = false, fallbackSuccessMessage, errorNotify = false, fallbackErrorMessage, loadingState = 'loading', errorState = 'error' } = req;
+            const { method = 'get', path, payload, onSuccess, onError, onFinally, successNotify = false, fallbackSuccessMessage, errorNotify = false, fallbackErrorMessage, loadingState = 'loading', errorState = 'error', notFoundPage = false } = req;
 
             // state safety check if available
             if ((loadingState && this[loadingState] === undefined) || 
@@ -293,6 +293,11 @@ export default {
                 })
                 .catch(error => {
                     if (!isLatest()) return;
+                    // A record that is gone gets the 404 page at its own address; retrying can't bring it back.
+                    if (notFoundPage && error?.status === 404) {
+                        this.$router.replace({ name: 'notfound', params: { pathMatch: this.$route.path.slice(1).split('/') }, query: this.$route.query });
+                        return;
+                    }
                     if(errorState) {
                         this[errorState] = error?.message || this.$t('Something went wrong');
                     }
