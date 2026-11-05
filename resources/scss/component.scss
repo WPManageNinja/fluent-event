@@ -536,7 +536,7 @@
 
         .el-form-item + .el-form-item {
             padding-top: var(--fe-space-3, 12px);
-            border-top: 1px solid var(--fe-secondary-bg, #f3f5fa);
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
         }
     }
 
@@ -1778,7 +1778,7 @@
 
         .el-form-item + .el-form-item {
             padding-top: var(--fe-space-3, 12px);
-            border-top: 1px solid var(--fe-secondary-bg, #f3f5fa);
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
         }
     }
 
