@@ -13,7 +13,6 @@ use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\EventService;
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\Facade\DB;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Validator\ValidationException;
@@ -51,7 +50,7 @@ class FeedHandler
             return $data;
         }
 
-        if (!PermissionManager::userCan('write_events', get_current_user_id())) {
+        if (!current_user_can('manage_options')) {
             return new \WP_Error('fluent_event_forbidden', __('You are not allowed to create events.', 'fluent-event'));
         }
 

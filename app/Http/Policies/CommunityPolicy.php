@@ -4,7 +4,6 @@ namespace FluentEvent\App\Http\Policies;
 
 use FluentCommunity\App\Models\XProfile;
 use FluentCommunity\App\Services\Helper as FcomHelper;
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\Framework\Http\Request\Request;
 
 /**
@@ -32,12 +31,12 @@ class CommunityPolicy extends Policy
         return !get_current_user_id() && $this->portalAllows(0);
     }
 
-    // Only the create-event page asks for the editor, and only event creators reach it.
+    // Only the create-event page asks for the editor, and only site administrators reach it.
     public function getEditorAssets(Request $request, ...$args)
     {
         $userId = get_current_user_id();
 
-        return $userId && PermissionManager::userCan('write_events', $userId) && $this->portalAllows($userId);
+        return $userId && user_can($userId, 'manage_options') && $this->portalAllows($userId);
     }
 
     private function portalAllows($userId)

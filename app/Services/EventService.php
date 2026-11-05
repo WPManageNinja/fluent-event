@@ -101,8 +101,7 @@ class EventService
             }
         }
 
-        $isStaff = $userId && PermissionManager::userCan(['read_guests', 'write_guests', 'read_events', 'write_events'], $userId);
-        $canEdit = $userId && PermissionManager::userCan('write_events', $userId);
+        $isAdmin = $userId && user_can($userId, 'manage_options');
 
         $formatted = [];
 
@@ -113,8 +112,8 @@ class EventService
                 $event,
                 $seats[$eventId] ?? 0,
                 $myStatuses[$eventId] ?? null,
-                $isStaff,
-                $canEdit
+                $isAdmin,
+                $isAdmin
             );
 
             if (Arr::get($options, 'withDescription')) {

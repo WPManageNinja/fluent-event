@@ -19,7 +19,7 @@ This is the record of intended behaviour. Keep it in step with `Modules/FluentCo
 | Guests | FluentEvent | `fe_guests` (`source = 'community'`, `source_id` = post id) |
 
 Post and event titles/descriptions are separate. Editing the post uses fcom's normal edit modal.
-The event card shows an **Edit event** link to `write_events` holders, which opens the FluentEvent
+The event card shows an **Edit event** link to site administrators, which opens the FluentEvent
 edit page.
 
 ## Bridge (`Modules/FluentCommunity/`)
@@ -33,7 +33,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   - `events` in fcom's route paths, and the portal script and styles printed at
     `fluent_community/before_js_loaded` (the portal is headless, so enqueues never print).
 - **FeedHandler** — the event-post lifecycle:
-  - `new_feed_data_type_event`: requires `write_events`, a discussion space, and valid event
+  - `new_feed_data_type_event`: requires a site administrator (`manage_options`), a discussion space, and valid event
     input; strips media. Vetoes return `WP_Error` (a thrown exception becomes a bare HTTP 500 in fcom).
   - `just_created_type_event`: finds or creates the space calendar, claims uploaded cover and
     description images, creates the event (status `private`, author = post author), writes
@@ -62,7 +62,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   `/post/:feed_slug/event`, `/space/:space/events` and `/create-new-event`. The create page
   takes an optional `?space=slug`: with it the post goes to that space, without it the composer
   asks which discussion space. It also registers the event card for `content_type = 'event'`, and
-  a **Create new event** item in two "…" menus, both for `write_events` holders: the space header
+  a **Create new event** item in two "…" menus, both for site administrators: the space header
   (spaces they may post in, opening with `?space=`) and the portal feed home (no space). For event
   posts it turns the composer's attachment apps off and drops its "On my profile" option.
 - The pages are a separate Vue + Element Plus app loaded on first visit (fcom exposes neither
@@ -70,7 +70,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - REST, `fluent-event/v2/community/*`:
   - `GET events` — the events list, filtered to visible posts in SQL.
   - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute.
-  - `GET editor-assets` — the WordPress editor markup for the create-event page; `write_events` only.
+  - `GET editor-assets` — the WordPress editor markup for the create-event page; site administrators only.
 
 ## fcom extension points (event-agnostic)
 
@@ -82,7 +82,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 
 ## Rules
 
-- **Who creates events:** FluentEvent staff with `write_events` who may also post in the space.
+- **Who creates events:** site administrators (`manage_options`) who may also post in the space. The free plugin
+  has no team permissions; per-module access is planned for Pro (kept on the `backup/permissions` branch).
 - **Calendars:** created lazily on the first event, named and slugged after the space, status
   `private` (no public page). Admins may change the status later.
 - **Statuses:** events and calendars are `public | unlisted | private | draft`. fcom-created events
@@ -98,12 +99,12 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   the `from`/`to` filter means site days. The event page shows the event's own clock with its
   offset, plus the site's clock when that reads differently.
 - **Guest count:** shown only for `rsvp` and `open` events whose **Show guest count** switch is on, and then
-  to everyone, staff included. The switch alone decides; nobody gets an override. It counts
+  to everyone, admins included. The switch alone decides; nobody gets an override. It counts
   `going` and `checked_in` guests.
 - **Ended:** the event page says Ended once, in its status; the RSVP slot is dropped on an ended
   event (any entry type), and the guest count stays.
 - **Meeting link:** an online `rsvp` or `open` event shows it to its registered guests (`going` or
-  `checked_in`) and to staff (any `read_`/`write_` events or guests key); an online `none` event
+  `checked_in`) and to site administrators; an online `none` event
   shows it to everyone who can see the post.
   An offline event never exposes one.
 - **Registration:**
