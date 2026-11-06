@@ -76,7 +76,15 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
             $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => $slug]);
 
             $this->assertSame(422, $response['status'], $slug);
+            $this->assertContains('The portal slug can only use letters, numbers, hyphens and underscores.', $response['data']['portal_slug'] ?? [], $slug);
         }
+    }
+
+    public function test_a_blank_portal_slug_is_accepted()
+    {
+        $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'yes', 'portal_slug' => '']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
     }
 
     public function test_a_bad_from_address_is_rejected()
