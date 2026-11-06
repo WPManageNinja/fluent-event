@@ -118,6 +118,17 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(['fluent_event/event/before_deleted', 'fluent_event/event/deleted'], $fired->hooks);
     }
 
+    // Deleting the post now deletes the event and its guests, so only an admin may delete or edit it.
+    public function test_only_an_admin_may_edit_or_delete_an_event_post()
+    {
+        $event = $this->createEvent();
+        $editor = $this->createUser('editor');
+
+        $this->assertFalse(user_can($editor, 'delete_post', $event->post_id));
+        $this->assertFalse(user_can($editor, 'edit_post', $event->post_id));
+        $this->assertTrue(user_can($this->createAdmin(), 'delete_post', $event->post_id));
+    }
+
     // A post row removed straight from the database fires no hook, and must not leave an undeletable event.
     public function test_an_event_whose_post_is_already_gone_can_still_be_deleted()
     {

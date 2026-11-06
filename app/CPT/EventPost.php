@@ -58,7 +58,13 @@ class EventPost
             // Events belong to the site, not their author: deleting a WP user must not delete them.
             'delete_with_user'    => false,
 
-'capability_type'     => 'post',
+            // Admins only, as the plugin's API is: an editor could otherwise delete an event over XML-RPC.
+            'capability_type'     => 'post',
+            'capabilities'        => array_fill_keys([
+                'edit_posts', 'edit_others_posts', 'edit_private_posts', 'edit_published_posts',
+                'delete_posts', 'delete_others_posts', 'delete_private_posts', 'delete_published_posts',
+                'publish_posts', 'read_private_posts', 'create_posts',
+            ], 'manage_options'),
             'map_meta_cap'        => true,
             'hierarchical'        => false,
         ]);
