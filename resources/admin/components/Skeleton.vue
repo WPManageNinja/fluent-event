@@ -92,13 +92,15 @@
                 <el-skeleton-item variant="rect" class="fe-skeleton__button" />
             </div>
 
-            <div class="fe-skeleton__tiles">
-                <el-skeleton-item
-                    v-for="tile in 4"
-                    :key="`tile-${tile}`"
-                    variant="rect"
-                    class="fe-skeleton__tile"
-                />
+            <div class="fe-calendar-detail__stats">
+                <div class="fe-skeleton__tiles">
+                    <el-skeleton-item
+                        v-for="tile in 4"
+                        :key="`tile-${tile}`"
+                        variant="rect"
+                        class="fe-skeleton__tile"
+                    />
+                </div>
             </div>
 
             <div class="fe-skeleton__tabs">

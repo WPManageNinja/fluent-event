@@ -65,7 +65,9 @@
                 </header>
 
                 <!-- The server drops the tiles a member may not read, so render whatever arrives. -->
-                <StatGroups v-if="hasStats" :stats="stats" />
+                <div v-if="hasStats" class="fe-calendar-detail__stats">
+                    <StatGroups :stats="stats" />
+                </div>
 
                 <Tabs v-if="tabs.length" v-model="tab" :tabs="tabs">
                     <template #events>

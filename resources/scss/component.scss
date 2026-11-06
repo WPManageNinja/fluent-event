@@ -1017,6 +1017,11 @@
             margin-left: 0;
         }
     }
+
+    // The tiles' own 12px bottom margin collapses into this; padding or a border here would add to it.
+    &__stats {
+        margin-bottom: var(--fe-space-10, 40px);
+    }
 }
 
 .fe-event-form {
