@@ -1801,7 +1801,8 @@
 .fe-events-timeline {
     &__row {
         display: grid;
-        grid-template-columns: 100px 16px minmax(0, 1fr);
+        // Fits the longest default date, "30th September, 2026" (153px); longer custom formats still wrap.
+        grid-template-columns: 160px 16px minmax(0, 1fr);
         column-gap: var(--fe-space-4, 16px);
 
         @media screen and (max-width: 575px) {
