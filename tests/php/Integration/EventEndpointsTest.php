@@ -204,6 +204,33 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame($title, $this->rest('GET', "events/{$event->id}")['data']['event']['title']);
     }
 
+    /**
+     * A link sent as a list must be rejected, not saved as http://Array.
+     *
+     * @dataProvider linkFields
+     */
+    public function test_a_link_sent_as_a_list_is_rejected($field, $venueType)
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'venue_type' => $venueType,
+            $field       => ['https://example.com/a.jpg'],
+        ]));
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertArrayHasKey($field, $response['data']);
+        $this->assertSame('', Event::query()->find($event->id)->meta[$field] ?? '');
+    }
+
+    public static function linkFields()
+    {
+        return [
+            'cover image'  => ['cover_url', 'offline'],
+            'meeting link' => ['online_meeting_url', 'online'],
+        ];
+    }
+
     // A multisite admin, or a site with DISALLOW_UNFILTERED_HTML, works without unfiltered_html.
     private function adminWithoutUnfilteredHtml()
     {
