@@ -33,15 +33,26 @@
                             </el-tag>
                             <el-tooltip
                                 v-if="calendar.meta?.fcom_space_id"
-                                :content="$t('This calendar belongs to a FluentCommunity space.')"
+                                :content="communityMarkLabel"
                                 :trigger="['hover', 'focus']"
                                 placement="top"
                             >
+                                <a
+                                    v-if="spaceHref"
+                                    class="fe-community-mark"
+                                    :href="spaceHref"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    :aria-label="communityMarkLabel"
+                                >
+                                    <img class="fe-community-mark__logo" :src="appVars.fcom_logo" alt="" />
+                                </a>
                                 <span
+                                    v-else
                                     class="fe-community-mark"
                                     role="img"
                                     tabindex="0"
-                                    :aria-label="$t('This calendar belongs to a FluentCommunity space.')"
+                                    :aria-label="communityMarkLabel"
                                 >
                                     <img class="fe-community-mark__logo" :src="appVars.fcom_logo" alt="" />
                                 </span>
@@ -121,6 +132,7 @@
                 period: 'upcoming',
                 calendar: {},
                 stats: {},
+                spaceUrl: '',
             };
         },
         computed: {
@@ -139,6 +151,14 @@
             },
             hasStats() {
                 return Object.keys(this.stats).length > 0;
+            },
+            spaceHref() {
+                return /^https?:\/\//.test(this.spaceUrl) ? this.spaceUrl : '';
+            },
+            communityMarkLabel() {
+                return this.spaceHref
+                    ? this.$t('Open the FluentCommunity space in a new tab')
+                    : this.$t('This calendar belongs to a FluentCommunity space.');
             },
             createdLine() {
                 if (!this.calendar.created_at) {
@@ -188,11 +208,13 @@
                     onSuccess: response => {
                         this.calendar = response.calendar;
                         this.stats = response.stats || {};
+                        this.spaceUrl = response.space_url || '';
                         this.$changeTitle(this.calendar.title);
                     },
                     onError: () => {
                         this.calendar = {};
                         this.stats = {};
+                        this.spaceUrl = '';
                     },
                 });
             },
