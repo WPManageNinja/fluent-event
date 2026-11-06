@@ -8,6 +8,11 @@ class CustomSanitizer extends Sanitizer
 {
     public static function webUrl($arg)
     {
+        // Cast to a string, a list reads "Array" and saves as http://Array; left as is, the url rule rejects it.
+        if (!is_scalar($arg)) {
+            return $arg;
+        }
+
         $url = esc_url_raw(trim((string) $arg), ['http', 'https']) ?: '';
 
         // esc_url_raw leaves non-ASCII as is (an upload named "Feature – 2"), and the url rule
