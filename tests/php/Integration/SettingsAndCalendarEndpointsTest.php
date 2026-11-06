@@ -233,6 +233,14 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('#abcdef', Calendar::query()->find($calendar->id)->meta['theme_color']);
     }
 
+    public function test_a_bad_theme_colour_gets_the_custom_message_not_the_generic_one()
+    {
+        $response = $this->rest('POST', 'calendars', ['title' => 'Red', 'slug' => 'fe-test-red-colour', 'status' => 'public', 'theme_color' => '#ff0']);
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('Theme color must be a hex value like #0099ff.', $response['data']['theme_color']['regex'] ?? null, wp_json_encode($response['data']));
+    }
+
     public function test_deleting_a_calendar_deletes_its_events_their_posts_and_guests()
     {
         $calendar = $this->createCalendar();
