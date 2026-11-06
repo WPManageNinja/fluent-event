@@ -368,6 +368,11 @@
     height: 18px;
     border-radius: var(--fe-radius-sm, 4px);
 
+    // wp-admin's `a:focus` adds a box-shadow ring on top of the outline below.
+    &:focus {
+        box-shadow: none;
+    }
+
     &:focus-visible {
         outline: 2px solid var(--fe-accent-blue, #0e7ff1);
         outline-offset: 2px;

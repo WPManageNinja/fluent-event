@@ -172,6 +172,21 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertNull(CalendarService::findBySpace($spaceId), 'The calendar still points at the deleted space.');
     }
 
+    public function test_a_space_calendar_links_to_its_space_only_while_the_space_exists()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        do_action('fluent_community/feed/just_created_type_event', $this->savePost($this->validate(['space_id' => $spaceId], $request)), $request);
+        $calendarId = CalendarService::findBySpace($spaceId)->id;
+
+        $response = $this->rest('GET', "calendars/{$calendarId}");
+        $this->assertSame(200, $response['status']);
+        $this->assertSame(FcomSpace::query()->find($spaceId)->getPermalink(), $response['data']['space_url']);
+
+        $this->wpdb->delete($this->table('fcom_spaces'), ['id' => $spaceId]);
+        $this->assertArrayNotHasKey('space_url', $this->rest('GET', "calendars/{$calendarId}")['data']);
+    }
+
     public function test_fcom_still_fires_the_hook_space_deletion_hangs_on()
     {
         $delete = new \ReflectionMethod(FcomSpaceController::class, 'deleteBySlug');
