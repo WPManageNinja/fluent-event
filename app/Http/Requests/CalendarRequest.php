@@ -20,7 +20,8 @@ class CalendarRequest extends BaseRequest
         'title'       => 'required|string|max:255',
         'slug'        => 'required|string|max:255|unique:fe_calendars,slug',
         'status'      => 'required|string|in:' . Calendar::STATUSES,
-        'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{3}([A-Fa-f0-9]{3})?$/',
+        // Six digits only: the admin works out a readable text colour from #rrggbb, and no picker sends #rgb.
+        'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{6}$/',
     ];
 
     public static function createRules()
