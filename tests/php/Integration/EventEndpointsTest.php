@@ -20,6 +20,21 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->actAs($this->createAdmin());
     }
 
+    private function recordDeleteHooks()
+    {
+        $fired = (object) ['hooks' => []];
+
+        foreach (['fluent_event/event/before_deleted', 'fluent_event/event/deleted'] as $hook) {
+            $this->addTestFilter($hook, function ($event) use ($hook, $fired) {
+                $fired->hooks[] = $hook;
+
+                return $event;
+            });
+        }
+
+        return $fired;
+    }
+
     public function test_creating_an_event_writes_its_post_and_details_together()
     {
         $payload = $this->eventPayload($this->createEvent(), ['title' => 'Launch', 'status' => 'private']);
@@ -78,12 +93,49 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertNotNull(get_post($event->post_id));
     }
 
-    // A post removed outside the plugin (XML-RPC, WP-CLI, another plugin) must not leave an undeletable event.
+    public function test_deleting_an_event_post_outside_the_plugin_deletes_the_event()
+    {
+        $event = $this->createEvent();
+        $this->createGuest($event);
+        Meta::query()->create(['object_type' => Meta::OBJECT_TYPE_EVENT, 'object_id' => $event->id, 'meta_key' => 'probe', 'value' => []]);
+        $fired = $this->recordDeleteHooks();
+
+        wp_delete_post($event->post_id, true);
+
+        $this->assertNull(Event::query()->find($event->id));
+        $this->assertSame(0, Guest::query()->where('event_id', $event->id)->count());
+        $this->assertSame(0, Meta::query()->where('object_type', Meta::OBJECT_TYPE_EVENT)->where('object_id', $event->id)->count());
+        $this->assertSame(['fluent_event/event/before_deleted', 'fluent_event/event/deleted'], $fired->hooks);
+    }
+
+    // The plugin's own delete removes the post too, which must not run the cleanup a second time.
+    public function test_deleting_an_event_fires_each_delete_hook_once()
+    {
+        $event = $this->createEvent();
+        $fired = $this->recordDeleteHooks();
+
+        $this->assertSame(200, $this->rest('DELETE', "events/{$event->id}")['status']);
+        $this->assertSame(['fluent_event/event/before_deleted', 'fluent_event/event/deleted'], $fired->hooks);
+    }
+
+    // Deleting the post now deletes the event and its guests, so only an admin may delete or edit it.
+    public function test_only_an_admin_may_edit_or_delete_an_event_post()
+    {
+        $event = $this->createEvent();
+        $editor = $this->createUser('editor');
+
+        $this->assertFalse(user_can($editor, 'delete_post', $event->post_id));
+        $this->assertFalse(user_can($editor, 'edit_post', $event->post_id));
+        $this->assertTrue(user_can($this->createAdmin(), 'delete_post', $event->post_id));
+    }
+
+    // A post row removed straight from the database fires no hook, and must not leave an undeletable event.
     public function test_an_event_whose_post_is_already_gone_can_still_be_deleted()
     {
         $event = $this->createEvent();
         $guest = $this->createGuest($event);
-        wp_delete_post($event->post_id, true);
+        $this->wpdb->delete($this->wpdb->posts, ['ID' => $event->post_id]);
+        clean_post_cache($event->post_id);
 
         $response = $this->rest('DELETE', "events/{$event->id}");
 
@@ -97,7 +149,8 @@ class EventEndpointsTest extends IntegrationTestCase
         $calendar = $this->createCalendar();
         $orphan = $this->createEvent(['calendar_id' => $calendar->id]);
         $sibling = $this->createEvent(['calendar_id' => $calendar->id]);
-        wp_delete_post($orphan->post_id, true);
+        $this->wpdb->delete($this->wpdb->posts, ['ID' => $orphan->post_id]);
+        clean_post_cache($orphan->post_id);
 
         $response = $this->rest('DELETE', "calendars/{$calendar->id}");
 
