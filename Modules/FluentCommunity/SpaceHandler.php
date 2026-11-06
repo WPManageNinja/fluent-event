@@ -3,16 +3,19 @@
 namespace FluentEvent\Modules\FluentCommunity;
 
 use FluentEvent\App\Services\CalendarService;
+use FluentEvent\Facade\DB;
+use FluentEvent\Framework\Support\Arr;
 
 class SpaceHandler
 {
     public function register()
     {
-        // before_delete, not deleted: fcom bulk-deletes the space's posts with no per-post hooks.
-        add_action('fluent_community/space/before_delete', [$this, 'deleteCalendar']);
+        // fcom bulk-deletes the space's posts with no per-post hooks, so the per-post park never runs.
+        add_action('fluent_community/space/before_delete', [$this, 'parkCalendar']);
     }
 
-    public function deleteCalendar($space)
+    // Like a deleted post: the events stay as drafts with their guests, and an admin decides what to delete.
+    public function parkCalendar($space)
     {
         $calendar = $space ? CalendarService::findBySpace($space->id) : null;
 
@@ -20,10 +23,22 @@ class SpaceHandler
             return;
         }
 
-        do_action('fluent_event/calendar/before_deleted', $calendar);
+        $events = $calendar->events()->get();
 
-        $calendar->delete();
+        DB::transaction(function () use ($calendar, $events) {
+            foreach ($events as $event) {
+                CommunityEvents::parkEvent($event);
+            }
 
-        do_action('fluent_event/calendar/deleted', $calendar);
+            $calendar->status = 'draft';
+            $calendar->meta = Arr::except((array) $calendar->meta, [CalendarService::SPACE_META_KEY]);
+            $calendar->save();
+        });
+
+        foreach ($events as $event) {
+            do_action('fluent_event/event/updated', $event);
+        }
+
+        do_action('fluent_event/calendar/updated', $calendar);
     }
 }

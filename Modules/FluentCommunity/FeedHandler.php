@@ -224,16 +224,7 @@ class FeedHandler
         }
 
         DB::transaction(function () use ($event) {
-            Meta::query()
-                ->where('object_type', Meta::OBJECT_TYPE_EVENT)
-                ->where('object_id', $event->id)
-                ->where('meta_key', CommunityEvents::FEED_META_KEY)
-                ->delete();
-
-            $event->status = 'draft';
-            $event->save();
-
-            wp_update_post(['ID' => $event->post_id, 'post_status' => Event::postStatusFor('draft')]);
+            CommunityEvents::parkEvent($event);
         });
 
         do_action('fluent_event/event/updated', $event);
