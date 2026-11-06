@@ -4,6 +4,7 @@ namespace FluentEvent\Tests\Integration;
 
 use FluentCommunity\App\Http\Controllers\FeedsController as FcomFeedsController;
 use FluentCommunity\App\Models\Feed as FcomFeed;
+use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Meta;
@@ -113,6 +114,26 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertSame(1, $event->guests()->count());
         $this->assertSame(0, CommunityEvents::feedIdOf($event), 'The event still points at the deleted post.');
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_event_reminders_to_guests', $reminder));
+    }
+
+    public function test_editing_the_space_leaves_its_calendar_title_and_slug_alone()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        do_action('fluent_community/feed/just_created_type_event', $this->savePost($this->validate(['space_id' => $spaceId], $request)), $request);
+        $calendar = CalendarService::findBySpace($spaceId);
+        $firedBefore = did_action('fluent_community/space/updated');
+
+        FcomSpace::query()->find($spaceId)->updateCustomData([
+            'title' => 'Renamed space',
+            'slug'  => 'fe-test-renamed-' . strtolower(wp_generate_password(6, false, false)),
+        ]);
+
+        $this->assertSame($firedBefore + 1, did_action('fluent_community/space/updated'), 'fcom no longer fires space/updated on an edit.');
+        $stored = Calendar::query()->find($calendar->id);
+        $this->assertSame($calendar->title, $stored->title);
+        $this->assertSame($calendar->slug, $stored->slug);
+        $this->assertSame($spaceId, (int) $stored->meta[CalendarService::SPACE_META_KEY]);
     }
 
     public function test_an_event_post_is_refused_to_a_non_admin_outside_a_discussion_space_or_with_bad_dates()
