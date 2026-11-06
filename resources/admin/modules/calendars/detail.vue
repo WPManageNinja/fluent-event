@@ -157,7 +157,7 @@
             },
             communityMarkLabel() {
                 return this.spaceHref
-                    ? this.$t('Open the FluentCommunity space in a new tab')
+                    ? this.$t('Open your community space in a new tab')
                     : this.$t('This calendar belongs to a FluentCommunity space.');
             },
             createdLine() {
