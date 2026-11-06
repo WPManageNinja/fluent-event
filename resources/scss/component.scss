@@ -2318,12 +2318,18 @@
         gap: var(--fe-space-1, 4px);
     }
 
-    &__manage {
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px);
+        margin-top: var(--fe-space-3, 12px);
+    }
+
+    &__link {
         display: inline-flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);
         height: 28px;
-        margin-top: var(--fe-space-3, 12px);
         padding: 0 var(--fe-space-3, 12px);
         border-radius: var(--fe-radius-sm, 4px);
         font-size: var(--fe-text-xs, 12px);
@@ -2389,8 +2395,7 @@
             margin-bottom: var(--fe-space-2, 8px);
         }
 
-        .fe-event-card__manage {
-            align-self: flex-start;
+        .fe-event-card__actions {
             margin-top: auto;
         }
 
