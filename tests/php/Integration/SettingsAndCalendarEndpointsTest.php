@@ -225,6 +225,16 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->markTestIncomplete('#177: an invalid theme colour is saved as success instead of 422.');
     }
 
+    public function test_a_three_digit_theme_colour_is_rejected()
+    {
+        $calendar = $this->createCalendar(['meta' => ['theme_color' => '#abcdef']]);
+
+        $response = $this->rest('PATCH', "calendars/{$calendar->id}", ['title' => 'X', 'slug' => $calendar->slug, 'status' => 'public', 'theme_color' => '#ff0']);
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('#abcdef', Calendar::query()->find($calendar->id)->meta['theme_color']);
+    }
+
     public function test_deleting_a_calendar_deletes_its_events_their_posts_and_guests()
     {
         $calendar = $this->createCalendar();
