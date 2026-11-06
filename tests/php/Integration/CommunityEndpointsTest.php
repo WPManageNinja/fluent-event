@@ -298,6 +298,49 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame(404, $this->rsvp($this->createEvent(), 'going')['status']);
     }
 
+    private function spaceSlug()
+    {
+        return $this->wpdb->get_var($this->wpdb->prepare("SELECT slug FROM {$this->table('fcom_spaces')} WHERE id = %d", $this->spaceId));
+    }
+
+    private function bySlug($space, $slug)
+    {
+        return $this->rest('GET', 'community/events/by-slug', ['space' => $space, 'slug' => $slug]);
+    }
+
+    // The event page's URL carries the space and the event's own slug; its post, which fcom reads, has another.
+    public function test_an_event_is_found_by_its_space_and_its_own_slug()
+    {
+        [$event, $feed] = $this->communityEvent();
+
+        $response = $this->bySlug($this->spaceSlug(), get_post($event->post_id)->post_name);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame($feed->slug, $response['data']['feed_slug']);
+    }
+
+    public function test_an_event_is_not_found_under_another_space_by_another_slug_or_as_a_draft()
+    {
+        [$event] = $this->communityEvent();
+        $slug = get_post($event->post_id)->post_name;
+
+        $this->assertSame(404, $this->bySlug('not-this-space', $slug)['status']);
+        $this->assertSame(404, $this->bySlug($this->spaceSlug(), 'no-such-event')['status']);
+
+        Event::query()->where('id', $event->id)->update(['status' => 'draft']);
+        $this->assertSame(404, $this->bySlug($this->spaceSlug(), $slug)['status']);
+    }
+
+    public function test_the_events_list_names_each_events_space_and_slug()
+    {
+        [$event] = $this->communityEvent();
+
+        $listed = array_column($this->rest('GET', 'community/events', ['per_page' => 100])['data']['events'], null, 'id');
+
+        $this->assertSame($this->spaceSlug(), $listed[$event->id]['space_slug']);
+        $this->assertSame(get_post($event->post_id)->post_name, $listed[$event->id]['slug']);
+    }
+
     // Only the event page shows the description; everything else skips the wp_kses_post it costs per event.
     public function test_only_the_event_page_gets_the_description()
     {

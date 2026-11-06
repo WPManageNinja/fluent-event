@@ -36,25 +36,27 @@ describe('fcom-portal entry', () => {
     });
 
     describe('routes', () => {
-        it('adds the community events page, the single event page and the create page', async () => {
+        it('adds the community events page and the create page', async () => {
             const { filters } = await loadPortal();
 
             const routes = filters.fluent_com_portal_routes([spaceRoute()]);
 
             expect(routes.slice(1).map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
                 { path: '/events', name: 'fe_events', meta: { active_menu: 'fe_events' } },
-                { path: '/post/:feed_slug/event', name: 'fe_event_view', meta: { active_menu: 'fe_events' } },
                 { path: '/create-new-event', name: 'fe_create_event', meta: { active_menu: 'fe_events' } }
             ]);
         });
 
-        it("adds the Events tab inside fcom's space route", async () => {
+        it("adds the Events tab and the single event page inside fcom's space route", async () => {
             const { filters } = await loadPortal();
 
             const [space] = filters.fluent_com_portal_routes([spaceRoute()]);
 
-            expect(space.children.map(child => child.name)).toEqual(['space_feeds', 'fe_space_events']);
-            expect(space.children[1].meta).toEqual({ in_space: true, show_sidebar: false });
+            expect(space.children.map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
+                expect.objectContaining({ name: 'space_feeds' }),
+                { path: 'events', name: 'fe_space_events', meta: { in_space: true, show_sidebar: false } },
+                { path: 'event/:event_slug', name: 'fe_event_view', meta: { in_space: true, show_sidebar: false } }
+            ]);
         });
 
         it('leaves spaces alone when fcom has no space route', async () => {
@@ -62,7 +64,7 @@ describe('fcom-portal entry', () => {
 
             const routes = filters.fluent_com_portal_routes([{ path: '/', name: 'all_feeds' }]);
 
-            expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_event_view', 'fe_create_event']);
+            expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_create_event']);
         });
     });
 

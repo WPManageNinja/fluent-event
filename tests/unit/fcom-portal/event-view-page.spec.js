@@ -25,13 +25,15 @@ const meetup = (overrides = {}) => ({
     ...overrides
 });
 
-const page = async (event, feed = {}) => {
+// The URL names the space and the event; its post, which fcom reads it by, has a slug of its own.
+const page = async (event) => {
+    fetch.mockResolvedValueOnce(new Response(JSON.stringify({ feed_slug: 'meetup-post' })));
     fetch.mockResolvedValueOnce(new Response(JSON.stringify({
-        feed: { slug: 'community-meetup', space: { slug: 'design' }, fluent_event: event, ...feed }
+        feed: { slug: 'meetup-post', space: { slug: 'design' }, fluent_event: event }
     })));
     const router = { push: vi.fn(), back: vi.fn() };
     const wrapper = mount(EventViewPage, {
-        props: { feedSlug: 'community-meetup', router },
+        props: { spaceSlug: 'design', eventSlug: 'community-meetup', router },
         global: { mocks: { $t: t } }
     });
     await flushPromises();
@@ -57,14 +59,15 @@ describe('EventViewPage', () => {
         it("reads the event through fcom's post endpoint, so it is visible exactly when its post is", async () => {
             const { wrapper } = await page(meetup());
 
-            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/community-meetup/by-slug');
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/community/events/by-slug?space=design&slug=community-meetup');
+            expect(fetch.mock.calls[1][0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/meetup-post/by-slug');
             expect(wrapper.find('.fe-event-view__title').text()).toBe('Community meetup');
         });
 
-        it('shows the unavailable state when the post is gone', async () => {
-            fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Not found' }), { status: 404 }));
+        it('shows the unavailable state when no visible event has that slug in that space', async () => {
+            fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'This event is not available.' }), { status: 404 }));
             const wrapper = mount(EventViewPage, {
-                props: { feedSlug: 'gone', router: {} },
+                props: { spaceSlug: 'design', eventSlug: 'gone', router: {} },
                 global: { mocks: { $t: t } }
             });
             await flushPromises();
@@ -247,7 +250,7 @@ describe('EventViewPage', () => {
             expect(vm.place).toBe(window.location.href);
         });
 
-        it('downloads an .ics file named after the post', async () => {
+        it('downloads an .ics file named after the event', async () => {
             vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:ics');
             vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
             let link = null;
@@ -273,15 +276,11 @@ describe('EventViewPage', () => {
             expect(router.push).not.toHaveBeenCalled();
         });
 
-        it("falls back to the space's events, or all events, on a direct visit", async () => {
-            const inSpace = await page(meetup());
-            await inSpace.wrapper.find('.fe-event-view__back').trigger('click');
+        it("falls back to the space's events on a direct visit", async () => {
+            const { wrapper, router } = await page(meetup());
+            await wrapper.find('.fe-event-view__back').trigger('click');
 
-            const global = await page(meetup(), { space: null });
-            await global.wrapper.find('.fe-event-view__back').trigger('click');
-
-            expect(inSpace.router.push).toHaveBeenCalledWith({ name: 'fe_space_events', params: { space: 'design' } });
-            expect(global.router.push).toHaveBeenCalledWith({ name: 'fe_events' });
+            expect(router.push).toHaveBeenCalledWith({ name: 'fe_space_events', params: { space: 'design' } });
         });
     });
 });

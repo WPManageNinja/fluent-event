@@ -296,7 +296,7 @@ export default {
         createEvent() {
             this.router.push({ name: 'fe_create_event', query: this.spaceSlug ? { space: this.spaceSlug } : {} });
         },
-        // The register response carries the event payload only; keep the post link the list already has.
+        // The register response carries the event payload only; keep the space the list already has.
         applyResponse(event, response) {
             const index = this.events.indexOf(event);
 
@@ -305,7 +305,7 @@ export default {
             }
         },
         openEvent(event) {
-            this.router.push({ name: 'fe_event_view', params: { feed_slug: event.post_slug } });
+            this.router.push({ name: 'fe_event_view', params: { space: event.space_slug, event_slug: event.slug } });
         },
     },
 };

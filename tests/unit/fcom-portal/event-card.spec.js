@@ -16,10 +16,11 @@ const meetup = (overrides = {}) => ({
     my_status: null,
     is_past: false,
     edit_url: '',
+    slug: 'community-meetup',
     ...overrides
 });
 
-const card = (feed = { slug: 'community-meetup', fluent_event: meetup() }, props = {}, hasEventPage = true) =>
+const card = (feed = { slug: 'meetup-post', space: { slug: 'design' }, fluent_event: meetup() }, props = {}, hasEventPage = true) =>
     mount(EventCard, { props: { feed, ...props }, global: { mocks: { $router: { hasRoute: () => hasEventPage } } } });
 
 describe('EventCard', () => {
@@ -32,11 +33,11 @@ describe('EventCard', () => {
     it("links the title to the event's own page", () => {
         const link = card().findComponent(RouterLinkStub);
 
-        expect(link.props('to')).toEqual({ name: 'fe_event_view', params: { feed_slug: 'community-meetup' } });
+        expect(link.props('to')).toEqual({ name: 'fe_event_view', params: { space: 'design', event_slug: 'community-meetup' } });
         expect(link.text()).toBe('Community meetup');
     });
 
-    it('shows a plain title when the post has no slug yet', () => {
+    it('shows a plain title when the post has no space to link under', () => {
         const wrapper = card({ fluent_event: meetup() });
 
         expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false);
@@ -48,7 +49,7 @@ describe('EventCard', () => {
         const link = wrapper.find('a.fe-event-card__title-link');
 
         expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false);
-        expect(link.attributes('href')).toBe('https://example.test/portal/post/community-meetup/event');
+        expect(link.attributes('href')).toBe('https://example.test/portal/space/design/event/community-meetup');
         expect(link.text()).toBe('Community meetup');
     });
 

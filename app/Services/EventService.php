@@ -135,6 +135,7 @@ class EventService
         return [
             'id'                 => (int) $event->id,
             'title'              => $event->title,
+            'slug'               => $event->post->post_name ?? '',
             'status'             => $event->status,
             'start_at'           => $event->start_at,
             'end_at'             => $event->end_at,

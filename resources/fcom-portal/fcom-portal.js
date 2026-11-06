@@ -27,7 +27,7 @@ function pageShell(page) {
             '$route.params.space'() {
                 this.remount();
             },
-            '$route.params.feed_slug'() {
+            '$route.params.event_slug'() {
                 this.remount();
             },
         },
@@ -42,7 +42,7 @@ function pageShell(page) {
             pageProps() {
                 return {
                     spaceSlug: this.$route.params.space,
-                    feedSlug: this.$route.params.feed_slug,
+                    eventSlug: this.$route.params.event_slug,
                     router: this.$router,
                 };
             },
@@ -161,14 +161,6 @@ function register() {
             meta: { active_menu: 'fe_events' },
         });
 
-        // Beside fcom's /post/:feed_slug, but outside its feed layout: the event alone.
-        routes.push({
-            path: '/post/:feed_slug/event',
-            name: 'fe_event_view',
-            component: pageShell('event_view'),
-            meta: { active_menu: 'fe_events' },
-        });
-
         // ?space=slug posts into that space; without it, the composer asks which space.
         routes.push({
             path: '/create-new-event',
@@ -184,6 +176,15 @@ function register() {
                 path: 'events',
                 name: 'fe_space_events',
                 component: pageShell('space_events'),
+                props: true,
+                meta: { in_space: true, show_sidebar: false },
+            });
+
+            // Beside fcom's space/:space/post/:feed_slug: one event, under its space's header and tabs.
+            spaceRoute.children.push({
+                path: 'event/:event_slug',
+                name: 'fe_event_view',
+                component: pageShell('event_view'),
                 props: true,
                 meta: { in_space: true, show_sidebar: false },
             });

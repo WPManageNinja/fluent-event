@@ -52,6 +52,11 @@ export default {
         hasActions() {
             return !this.is_child && hasEventActions(this.event);
         },
+        eventRoute() {
+            const space = this.feed.space && this.feed.space.slug;
+
+            return space && this.event.slug ? { name: 'fe_event_view', params: { space, event_slug: this.event.slug } } : null;
+        },
         // fcom's admin app (moderation reports) renders the card too, without the portal's event route.
         hasEventPage() {
             return this.$router.hasRoute('fe_event_view');
@@ -106,11 +111,11 @@ export default {
                         <div class="fe-event-card__head">
                             <h3 class="fe-event-card__title" :class="{ 'fe-event-card__title--truncated': !is_single }" :title="is_single ? null : event.title">
                                 <router-link
-                                    v-if="feed.slug && hasEventPage"
+                                    v-if="eventRoute && hasEventPage"
                                     class="fe-event-card__title-link"
-                                    :to="{ name: 'fe_event_view', params: { feed_slug: feed.slug } }"
+                                    :to="eventRoute"
                                 >{{ event.title }}</router-link>
-                                <a v-else-if="feed.slug && portalUrl" class="fe-event-card__title-link" :href="portalUrl + 'post/' + feed.slug + '/event'">{{ event.title }}</a>
+                                <a v-else-if="eventRoute && portalUrl" class="fe-event-card__title-link" :href="portalUrl + 'space/' + eventRoute.params.space + '/event/' + eventRoute.params.event_slug">{{ event.title }}</a>
                                 <template v-else>{{ event.title }}</template>
                             </h3>
                             <event-menu v-if="!is_child" class="fe-event-card__menu" :event="event"></event-menu>
