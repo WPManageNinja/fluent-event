@@ -27,7 +27,8 @@ class SettingsRequest extends BaseRequest
         'default_events_view'       => 'required|string|in:cards,timeline,calendar',
         'disable_event_view_switch' => 'required|string|in:yes,no',
         'enable_landing_pages'      => 'required|string|in:yes,no',
-        'portal_slug'               => 'string|max:100|regex:/^[a-z0-9_-]*$/',
+        // Not `regex`: the framework never shows a regex rule's custom message. sanitize_title() has already lowercased it.
+        'portal_slug'               => 'nullable|string|max:100|alphadash',
     ];
 
     const EMAIL_RULES = [
@@ -100,7 +101,7 @@ class SettingsRequest extends BaseRequest
             'disable_event_view_switch.in' => __('The view switch option must be yes or no.', 'fluent-event'),
             'enable_landing_pages.in'      => __('The landing pages option must be yes or no.', 'fluent-event'),
             'portal_slug.max'              => __('The portal slug cannot exceed 100 characters.', 'fluent-event'),
-            'portal_slug.regex'            => __('The portal slug can only use letters, numbers, hyphens and underscores.', 'fluent-event'),
+            'portal_slug.alphadash'        => __('The portal slug can only use letters, numbers, hyphens and underscores.', 'fluent-event'),
         ];
     }
 }
