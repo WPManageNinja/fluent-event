@@ -75,7 +75,7 @@
                                                 'fe-form__swatch--selected':
                                                     calendar.theme_color === color.value,
                                             }"
-                                            :style="{ backgroundColor: color.value }"
+                                            :style="{ '--fe-swatch-color': color.value }"
                                             :aria-label="color.label"
                                             :aria-pressed="calendar.theme_color === color.value"
                                             @click="calendar.theme_color = color.value"
