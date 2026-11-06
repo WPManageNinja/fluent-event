@@ -59,8 +59,8 @@ class CalendarRequest extends BaseRequest
         $data = parent::sanitize($data);
 
         // sanitize_hex_color() nulls a bad colour, which `nullable` then passes as "no change"; keep it so the rule rejects it.
-        if (is_string($color) && $color !== '' && empty($data['theme_color'])) {
-            $data['theme_color'] = sanitize_text_field($color);
+        if (is_scalar($color) && (string) $color !== '' && empty($data['theme_color'])) {
+            $data['theme_color'] = sanitize_text_field((string) $color);
         }
 
         if (empty($data['slug'])) {
