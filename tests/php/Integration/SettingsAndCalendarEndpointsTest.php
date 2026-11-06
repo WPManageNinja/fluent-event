@@ -191,6 +191,22 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('public', Calendar::query()->find($calendar->id)->status);
     }
 
+    // The event form's calendar picker marks draft and private calendars from this status.
+    public function test_the_calendar_picker_lists_every_calendar_with_its_status()
+    {
+        $public = $this->createCalendar();
+        $draft = $this->createCalendar(['status' => 'draft']);
+        $private = $this->createCalendar(['status' => 'private']);
+
+        $response = $this->rest('GET', 'calendars/options');
+        $statuses = array_column(json_decode(wp_json_encode($response['data']['calendars']), true), 'status', 'id');
+
+        $this->assertSame(200, $response['status']);
+        $this->assertSame('public', $statuses[$public->id]);
+        $this->assertSame('draft', $statuses[$draft->id]);
+        $this->assertSame('private', $statuses[$private->id]);
+    }
+
     public function test_a_calendar_slug_already_in_use_is_rejected()
     {
         $taken = $this->createCalendar();

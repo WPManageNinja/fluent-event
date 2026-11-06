@@ -41,7 +41,7 @@ class CalendarController extends Controller
 
         return [
             'calendars' => Calendar::query()
-                ->select(['id', 'title', 'meta'])
+                ->select(['id', 'title', 'status', 'meta'])
                 ->searchBy($request->getSafe('search', 'sanitize_text_field'))
                 ->byStatus($request->getSafe('status', 'sanitize_text_field'))
                 ->orderBy($orderBy, $orderType)

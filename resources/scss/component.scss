@@ -1043,6 +1043,10 @@
         gap: var(--fe-space-2, 8px);
     }
 
+    &__calendar-status {
+        margin-left: auto;
+    }
+
     // Sections are grids that stretch their children; keep the switch at its own width.
     &__venue-switch {
         justify-self: start;

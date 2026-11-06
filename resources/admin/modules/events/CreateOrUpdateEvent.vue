@@ -125,6 +125,14 @@
                                                 :style="{ background: calendar.meta?.theme_color }"
                                             ></span>
                                             {{ calendar.title }}
+                                            <el-tag
+                                                v-if="calendar.status !== 'public'"
+                                                class="fe-event-form__calendar-status"
+                                                :type="$calendarStatusType(calendar.status)"
+                                                size="small"
+                                            >
+                                                {{ $calendarStatusLabel(calendar.status) }}
+                                            </el-tag>
                                         </span>
                                     </el-option>
                                 </el-select>
