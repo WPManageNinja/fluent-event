@@ -56,10 +56,18 @@ class CalendarController extends Controller
         $creator = get_userdata($calendar->created_by);
         $calendar->creator_name = $creator ? $creator->display_name : '';
 
-        return [
+        $data = [
             'calendar' => $calendar,
             'stats'    => ReportService::getCalendarStats($calendar->id),
         ];
+
+        /**
+         * One calendar's admin payload, for add-ons to append fields to.
+         *
+         * @param array $data    ['calendar' => Calendar, 'stats' => array]
+         * @param array $request The request parameters.
+         */
+        return apply_filters('fluent_event/calendar_api_response', $data, $request->all());
     }
 
     public function createCalendar(Request $request)
