@@ -60,7 +60,12 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 ## Portal UI (`resources/fcom-portal/`)
 
 - `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`: `/events`,
-  `/post/:feed_slug/event`, `/space/:space/events` and `/create-new-event`. The create page
+  `/create-new-event`, and two children of fcom's space route, `/space/:space/events` and
+  `/space/:space/event/:event_slug`. The event page renders under the space's header and tabs and
+  is addressed by the event's own slug (`wp_posts.post_name`, as on the public page), not the
+  post's: `GET community/events/by-slug?space=&slug=` returns the post's slug, and the page then
+  reads the event through fcom's `feeds/{slug}/by-slug`, so it is visible exactly when its post
+  is. The create page
   takes an optional `?space=slug`: with it the post goes to that space, without it the composer
   asks which discussion space. It also registers the event card for `content_type = 'event'`, and
   a **Create new event** item in two "…" menus, both for site administrators: the space header

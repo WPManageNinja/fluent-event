@@ -18,8 +18,7 @@ class PortalRoutePathsTest extends TestCase
 
         $this->assertContains('create-new-event', $matches[1]);
 
-        // 'post' is fcom's own path; /post/:feed_slug/event rides on it.
-        $paths = (new PortalHandler())->addRoutePath(['post']);
+        $paths = (new PortalHandler())->addRoutePath([]);
 
         foreach ($matches[1] as $segment) {
             $this->assertContains($segment, $paths, "/$segment 404s on reload");

@@ -109,7 +109,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, dateFormat, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
+import { communityApi, eventsApi, dateFormat, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
 import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -118,19 +118,19 @@ import EventMenu from '../EventMenu';
 const dayjs = (value) => window.dayjs(value);
 const utc = (value) => window.dayjs.utc(value);
 
-// The event on its own page, read through fcom's post endpoint so it is visible exactly when its post is.
+// The event on its own page inside its space, read through fcom's post endpoint so it is visible exactly when its post is.
 export default {
     name: 'EventViewPage',
     components: { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera, EventActions, EventMenu },
     props: {
-        feedSlug: { type: String, required: true },
+        spaceSlug: { type: String, required: true },
+        eventSlug: { type: String, required: true },
         router: { type: Object, required: true },
     },
     data() {
         return {
             loading: true,
             event: null,
-            feed: null,
             error: '',
             icons: { APPLE, GOOGLE },
         };
@@ -249,9 +249,10 @@ export default {
         },
         async fetchEvent() {
             try {
-                const response = await communityApi.get(`feeds/${this.feedSlug}/by-slug`);
+                // The URL carries the event's own slug; its post's slug is what fcom reads it by.
+                const { feed_slug: feedSlug } = await eventsApi.get('community/events/by-slug', { space: this.spaceSlug, slug: this.eventSlug });
+                const response = await communityApi.get(`feeds/${feedSlug}/by-slug`);
 
-                this.feed = response.feed;
                 this.event = response.feed.fluent_event || null;
             } catch (error) {
                 this.event = null;
@@ -270,7 +271,7 @@ export default {
                 url: window.location.href,
             });
 
-            downloadIcs(text, `${this.feedSlug}.ics`);
+            downloadIcs(text, `${this.eventSlug}.ics`);
         },
         // Back to wherever the member came from; a direct visit falls back to the space's Events tab.
         goBack() {
@@ -279,9 +280,7 @@ export default {
                 return;
             }
 
-            const space = this.feed.space;
-
-            this.router.push(space ? { name: 'fe_space_events', params: { space: space.slug } } : { name: 'fe_events' });
+            this.router.push({ name: 'fe_space_events', params: { space: this.spaceSlug } });
         },
     },
 };

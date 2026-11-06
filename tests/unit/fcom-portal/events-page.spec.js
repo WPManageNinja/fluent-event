@@ -204,21 +204,21 @@ describe('EventsPage', () => {
     });
 
     describe('events in the list', () => {
-        it('keeps the post link when an RSVP hands back the event', async () => {
-            fetch.mockResolvedValueOnce(json(listResponse([{ id: 5, post_slug: 'meetup', my_status: null }])));
+        it('keeps the space when an RSVP hands back the event', async () => {
+            fetch.mockResolvedValueOnce(json(listResponse([{ id: 5, space_slug: 'design', my_status: null }])));
             const { vm } = await eventsPage();
 
             vm.applyResponse(vm.events[0], { event: { id: 5, my_status: 'going' } });
 
-            expect(vm.events[0]).toEqual({ id: 5, post_slug: 'meetup', my_status: 'going' });
+            expect(vm.events[0]).toEqual({ id: 5, space_slug: 'design', my_status: 'going' });
         });
 
-        it("opens an event on its post's event page", async () => {
+        it("opens an event on its page inside its space", async () => {
             const { vm, router } = await eventsPage();
 
-            vm.openEvent({ id: 5, post_slug: 'meetup' });
+            vm.openEvent({ id: 5, slug: 'community-meetup', space_slug: 'design' });
 
-            expect(router.push).toHaveBeenCalledWith({ name: 'fe_event_view', params: { feed_slug: 'meetup' } });
+            expect(router.push).toHaveBeenCalledWith({ name: 'fe_event_view', params: { space: 'design', event_slug: 'community-meetup' } });
         });
 
         it('offers Create new event, in a space or on all events, to members who may create', async () => {

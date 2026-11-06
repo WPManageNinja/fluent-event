@@ -73,23 +73,44 @@ class CommunityEventController extends Controller
 
         $formatted = EventService::formatEvents($events);
 
-        $slugs = Meta::query()
+        $spaceSlugs = Meta::query()
             ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
+            ->join('fcom_spaces', 'fcom_spaces.id', '=', 'fcom_posts.space_id')
             ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
             ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
             ->whereIn('fe_meta.object_id', array_keys($formatted))
-            ->pluck('fcom_posts.slug', 'fe_meta.object_id')
+            ->pluck('fcom_spaces.slug', 'fe_meta.object_id')
             ->toArray();
 
         $items = [];
 
         foreach ($events as $event) {
             $items[] = array_merge($formatted[$event->id], [
-                'post_slug' => $slugs[$event->id],
+                'space_slug' => $spaceSlugs[$event->id],
             ]);
         }
 
         return array_merge(['events' => $items], $pages);
+    }
+
+    // The event page's URL names the space and the event; the page then reads the event's post, so fcom still decides who sees it.
+    public function getEventBySlug(Request $request)
+    {
+        $slug = $request->getSafe('slug', 'sanitize_title');
+
+        $event = $slug ? Event::query()->whereHas('post', function ($query) use ($slug) {
+            $query->where('post_name', $slug);
+        })->first() : null;
+
+        list($event, $feed) = $event ? CommunityEvents::visibleEvent($event->id) : [null, null];
+
+        $space = $feed ? FcomSpace::query()->find($feed->space_id) : null;
+
+        if (!$event || !$space || $space->slug !== $request->getSafe('space', 'sanitize_title')) {
+            return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
+        }
+
+        return ['feed_slug' => $feed->slug];
     }
 
     // Members answer an RSVP either way; an open event only registers them (from its form), with no undo.
