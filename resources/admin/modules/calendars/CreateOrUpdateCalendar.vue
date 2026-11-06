@@ -13,7 +13,7 @@
                     </div>
 
                     <div class="fe-page__actions">
-                        <el-button @click="$goBack">
+                        <el-button @click="$goBack()">
                             {{ $t('Go Back') }}
                         </el-button>
                     </div>
@@ -291,7 +291,7 @@
                     successNotify: true,
                     errorNotify: true,
                     onSuccess: response => {
-                        this.$router.push({
+                        this.$goBack({
                             name: 'calendar_detail',
                             params: { id: this.calendarId || response.calendar.id },
                         });

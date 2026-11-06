@@ -169,6 +169,20 @@ describe('CreateOrUpdateEvent', () => {
             expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: '12' } });
         });
 
+        // Opened from the events list, saving returns there instead of the event's own page.
+        it('returns to the page the form was opened from', () => {
+            window.history.replaceState({ back: '/events' }, '');
+            const { vm, router, requestServer } = form({ params: { id: '12' } });
+            filled(vm);
+
+            vm.saveEvent();
+            requestServer.mock.calls.at(-1)[0].onSuccess({ event: { id: 12 } });
+            window.history.replaceState(null, '');
+
+            expect(router.back).toHaveBeenCalled();
+            expect(router.push).not.toHaveBeenCalled();
+        });
+
         it('leaves every check to the server', () => {
             const { vm, request } = form();
             filled(vm, { title: '', calendar_id: null, end_time: '17:00', venue_type: 'online' });
