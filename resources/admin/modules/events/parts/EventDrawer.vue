@@ -106,6 +106,19 @@
                 <Skeleton v-if="loadingDescription" :rows="3" />
                 <div v-else class="fe-rich-text fe-event-detail__description" v-html="description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
             </div>
+
+            <ErrorState
+                v-if="loadError === 'missing'"
+                :title="$t('This event no longer exists')"
+                :message="$t('It has been removed from the events list.')"
+            >
+                <template #action></template>
+            </ErrorState>
+            <ErrorState
+                v-else-if="loadError"
+                :message="$t('Could not load this event. Please try again.')"
+                @retry="loadEvent(event)"
+            />
         </div>
     </Drawer>
 </template>
@@ -114,12 +127,14 @@
     import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
+    import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     export default {
         name: 'EventDrawer',
         components: {
             Drawer,
+            ErrorState,
             Skeleton,
             LocationInformation,
             TopRight,
@@ -135,11 +150,12 @@
                 default: null,
             },
         },
-        emits: ['update:modelValue'],
+        emits: ['update:modelValue', 'missing'],
         data() {
             return {
                 description: '',
                 loadingDescription: false,
+                loadError: '',
             };
         },
         watch: {
@@ -147,19 +163,7 @@
             event: {
                 immediate: true,
                 handler(event) {
-                    this.description = '';
-
-                    if (!event) return;
-
-                    // One loading state, so a slow answer for an event opened earlier is dropped.
-                    this.$requestServer({
-                        path: `events/${event.id}`,
-                        loadingState: 'loadingDescription',
-                        errorState: null,
-                        onSuccess: response => {
-                            this.description = response.event.description;
-                        },
-                    });
+                    this.loadEvent(event);
                 },
             },
         },
@@ -200,6 +204,30 @@
             },
         },
         methods: {
+            loadEvent(event) {
+                this.description = '';
+                this.loadError = '';
+
+                if (!event) return;
+
+                // One loading state, so a slow answer for an event opened earlier is dropped.
+                this.$requestServer({
+                    path: `events/${event.id}`,
+                    loadingState: 'loadingDescription',
+                    errorState: null,
+                    onSuccess: response => {
+                        this.description = response.event.description;
+                    },
+                    onError: error => {
+                        // A deleted event can't come back, so the list drops it too; anything else is worth a retry.
+                        this.loadError = error?.status === 404 ? 'missing' : 'failed';
+
+                        if (this.loadError === 'missing') {
+                            this.$emit('missing');
+                        }
+                    },
+                });
+            },
             close() {
                 this.$emit('update:modelValue', false);
             },

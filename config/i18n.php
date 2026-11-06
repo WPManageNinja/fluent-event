@@ -110,6 +110,7 @@ return [
             'Close' => __('Close', 'fluent-event'),
             'Color' => __('Color', 'fluent-event'),
             'Confirm' => __('Confirm', 'fluent-event'),
+            'Could not load this event. Please try again.' => __('Could not load this event. Please try again.', 'fluent-event'),
             'Cover image' => __('Cover image', 'fluent-event'),
             /* translators: %s is the event title */
             'Cover image of %s' => __('Cover image of %s', 'fluent-event'),
@@ -219,6 +220,7 @@ return [
             'Identifies this calendar in links. Changing it later breaks existing ones.' => __('Identifies this calendar in links. Changing it later breaks existing ones.', 'fluent-event'),
             'Identity' => __('Identity', 'fluent-event'),
             'In person' => __('In person', 'fluent-event'),
+            'It has been removed from the events list.' => __('It has been removed from the events list.', 'fluent-event'),
             'Items per page' => __('Items per page', 'fluent-event'),
             'Last updated' => __('Last updated', 'fluent-event'),
             'Lime Green' => __('Lime Green', 'fluent-event'),
@@ -323,6 +325,7 @@ return [
             'Theme color' => __('Theme color', 'fluent-event'),
             'This calendar belongs to a FluentCommunity space.' => __('This calendar belongs to a FluentCommunity space.', 'fluent-event'),
             'This event and all of its data will be permanently deleted.' => __('This event and all of its data will be permanently deleted.', 'fluent-event'),
+            'This event no longer exists' => __('This event no longer exists', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
             'Title' => __('Title', 'fluent-event'),
