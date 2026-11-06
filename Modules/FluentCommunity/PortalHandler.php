@@ -23,11 +23,20 @@ class PortalHandler
         add_action('fluent_community/before_js_loaded', [$this, 'printVars']);
         add_filter('fluent_community/module_scripts', [$this, 'addModuleScript']);
         add_filter('fluent_community/portal_data_vars', [$this, 'addStylesheet'], 20);
+        add_filter('fluent_community/default_main_menu_items', [$this, 'addMenuItem']);
         add_filter('fluent_community/menu_settings_api_response', [$this, 'addMenuSetting']);
-        add_filter('fluent_community/main_menu_items', [$this, 'refreshMenuItem']);
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
         add_filter('fluent_community/app_route_paths', [$this, 'addRoutePath']);
         add_filter('fluent_community/space_header_links', [$this, 'addSpaceTab'], 10, 2);
+    }
+
+    // Supplied beside fcom's built-ins on every request: a saved row keeps the admin's label, icon and order,
+    // fcom takes the link from here, and with the plugin off nothing supplies it, so the row is dropped.
+    public function addMenuItem($items)
+    {
+        $items[self::MENU_SLUG] = $this->menuItem();
+
+        return $items;
     }
 
     // Listed in fcom's Menu Settings, off until an admin turns it on; fcom then stores it with its own items.
@@ -36,16 +45,7 @@ class PortalHandler
         $items = (array) Arr::get($data, 'menuSettings.mainMenuItems', []);
 
         if (!in_array(self::MENU_SLUG, array_column($items, 'slug'), true)) {
-            $items[] = [
-                'slug'         => self::MENU_SLUG,
-                'title'        => __('Events', 'fluent-event'),
-                'is_system'    => 'yes',
-                'is_locked'    => 'no',
-                'enabled'      => 'no',
-                'permalink'    => FcomHelper::baseUrl('events'),
-                'link_classes' => 'fcom_fe_events route_url',
-                'shape_svg'    => Icon::CALENDAR,
-            ];
+            $items[] = $this->menuItem();
 
             $data['menuSettings']['mainMenuItems'] = $items;
         }
@@ -53,15 +53,18 @@ class PortalHandler
         return $data;
     }
 
-    // The stored row keeps the admin's label, icon and order; the link itself stays ours, as fcom does for its built-ins.
-    public function refreshMenuItem($items)
+    protected function menuItem()
     {
-        if (isset($items[self::MENU_SLUG])) {
-            $items[self::MENU_SLUG]['permalink'] = FcomHelper::baseUrl('events');
-            $items[self::MENU_SLUG]['link_classes'] = 'fcom_fe_events route_url';
-        }
-
-        return $items;
+        return [
+            'slug'         => self::MENU_SLUG,
+            'title'        => __('Events', 'fluent-event'),
+            'is_system'    => 'yes',
+            'is_locked'    => 'no',
+            'enabled'      => 'no',
+            'permalink'    => FcomHelper::baseUrl('events'),
+            'link_classes' => 'fcom_fe_events route_url',
+            'shape_svg'    => Icon::CALENDAR,
+        ];
     }
 
     public function addMobileMenuItem($items)
