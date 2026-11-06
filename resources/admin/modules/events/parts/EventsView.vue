@@ -129,7 +129,7 @@
             />
         </div>
 
-        <EventDrawer v-model="drawerOpen" :event="activeEvent" />
+        <EventDrawer v-model="drawerOpen" :event="activeEvent" @missing="refetch" />
     </div>
 </template>
 

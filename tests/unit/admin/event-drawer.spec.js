@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils';
 import Rest from '@/utils/http/Rest.js';
 import main from '@/mixins/main';
 import Skeleton from '@/components/Skeleton.vue';
+import ErrorState from '@/components/ErrorState.vue';
 import EventDrawer from '@/modules/events/parts/EventDrawer.vue';
 
 vi.mock('@/utils/http/Rest.js', () => ({
@@ -31,7 +32,14 @@ const event = (id) => ({
 
 const drawer = () => mount(EventDrawer, {
     props: { modelValue: true, event: event(1) },
-    global: { mixins: [main], stubs: { Drawer: { template: '<div><slot /></div>' } } }
+    global: {
+        mixins: [main],
+        stubs: {
+            Drawer: { template: '<div><slot /></div>' },
+            ElResult: { template: '<div><slot name="extra" /></div>' },
+            ElButton: { emits: ['click'], template: '<button @click="$emit(\'click\')"><slot /></button>' }
+        }
+    }
 });
 
 beforeEach(() => {
@@ -71,5 +79,45 @@ describe('EventDrawer', () => {
 
         expect(wrapper.find('.fe-event-detail__description').html()).toContain('<p>New</p>');
         expect(wrapper.find('.fe-event-detail__description').html()).not.toContain('<p>Old</p>');
+    });
+
+    it('says a deleted event no longer exists and tells the list to drop it', async () => {
+        Rest.get.mockRejectedValue({ status: 404, message: 'No query results for model [FluentEvent\\App\\Models\\Event] 1' });
+
+        const wrapper = drawer();
+        await flushPromises();
+
+        const error = wrapper.findComponent(ErrorState);
+        expect(error.props('title')).toBe('This event no longer exists');
+        expect(wrapper.find('.fe-event-detail').exists()).toBe(false);
+        expect(wrapper.emitted('missing')).toHaveLength(1);
+        expect(wrapper.text()).not.toContain('No query results');
+
+        const action = error.find('button');
+        expect(action.text()).toBe('Close');
+        await action.trigger('click');
+        expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
+    });
+
+    it('offers a retry when the event fails to load for any other reason', async () => {
+        Rest.get
+            .mockRejectedValueOnce({ status: 500, message: 'Server error' })
+            .mockResolvedValueOnce({ event: { id: 1, description: '<p>Bring snacks</p>' } });
+
+        const wrapper = drawer();
+        await flushPromises();
+
+        const error = wrapper.findComponent(ErrorState);
+        expect(error.props('message')).toBe('Could not load this event. Please try again.');
+        expect(wrapper.find('.fe-event-detail').exists()).toBe(false);
+        expect(wrapper.emitted('missing')).toBeUndefined();
+
+        const action = error.find('button');
+        expect(action.text()).toBe('Try Again');
+        await action.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findComponent(ErrorState).exists()).toBe(false);
+        expect(wrapper.find('.fe-event-detail__description').html()).toContain('<p>Bring snacks</p>');
     });
 });

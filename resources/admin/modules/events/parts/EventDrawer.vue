@@ -6,7 +6,22 @@
         :title="$t('Event Details')"
         @update:model-value="$emit('update:modelValue', $event)"
     >
-        <div v-if="event" class="fe-event-detail">
+        <!-- On a failed load the list's copy may be stale, so the error replaces the whole body. -->
+        <ErrorState
+            v-if="loadError === 'missing'"
+            :title="$t('This event no longer exists')"
+            :message="$t('It has been removed from the events list.')"
+        >
+            <template #action>
+                <el-button type="primary" @click="close">{{ $t('Close') }}</el-button>
+            </template>
+        </ErrorState>
+        <ErrorState
+            v-else-if="loadError"
+            :message="$t('Could not load this event. Please try again.')"
+            @retry="loadEvent(event)"
+        />
+        <div v-else-if="event" class="fe-event-detail">
             <img
                 v-if="coverUrl"
                 class="fe-event-detail__cover"
@@ -114,12 +129,14 @@
     import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
+    import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     export default {
         name: 'EventDrawer',
         components: {
             Drawer,
+            ErrorState,
             Skeleton,
             LocationInformation,
             TopRight,
@@ -135,11 +152,12 @@
                 default: null,
             },
         },
-        emits: ['update:modelValue'],
+        emits: ['update:modelValue', 'missing'],
         data() {
             return {
                 description: '',
                 loadingDescription: false,
+                loadError: '',
             };
         },
         watch: {
@@ -147,19 +165,7 @@
             event: {
                 immediate: true,
                 handler(event) {
-                    this.description = '';
-
-                    if (!event) return;
-
-                    // One loading state, so a slow answer for an event opened earlier is dropped.
-                    this.$requestServer({
-                        path: `events/${event.id}`,
-                        loadingState: 'loadingDescription',
-                        errorState: null,
-                        onSuccess: response => {
-                            this.description = response.event.description;
-                        },
-                    });
+                    this.loadEvent(event);
                 },
             },
         },
@@ -200,6 +206,30 @@
             },
         },
         methods: {
+            loadEvent(event) {
+                this.description = '';
+                this.loadError = '';
+
+                if (!event) return;
+
+                // One loading state, so a slow answer for an event opened earlier is dropped.
+                this.$requestServer({
+                    path: `events/${event.id}`,
+                    loadingState: 'loadingDescription',
+                    errorState: null,
+                    onSuccess: response => {
+                        this.description = response.event.description;
+                    },
+                    onError: error => {
+                        // A deleted event can't come back, so the list drops it too; anything else is worth a retry.
+                        this.loadError = error?.status === 404 ? 'missing' : 'failed';
+
+                        if (this.loadError === 'missing') {
+                            this.$emit('missing');
+                        }
+                    },
+                });
+            },
             close() {
                 this.$emit('update:modelValue', false);
             },
