@@ -75,12 +75,11 @@
                     </div>
                 </header>
 
-                <!-- The server drops the tiles a member may not read, so render whatever arrives. -->
-                <div v-if="hasStats" class="fe-calendar-detail__stats">
+                <div class="fe-calendar-detail__stats">
                     <StatGroups :stats="stats" />
                 </div>
 
-                <Tabs v-if="tabs.length" v-model="tab" :tabs="tabs">
+                <Tabs v-model="tab" :tabs="tabs">
                     <template #events>
                         <EventsView :period="period" :calendar-id="calendarId">
                             <template #toolbar>
@@ -148,9 +147,6 @@
                     { value: 'upcoming', label: this.$t('Upcoming') },
                     { value: 'past', label: this.$t('Past') },
                 ];
-            },
-            hasStats() {
-                return Object.keys(this.stats).length > 0;
             },
             spaceHref() {
                 return /^https?:\/\//.test(this.spaceUrl) ? this.spaceUrl : '';
