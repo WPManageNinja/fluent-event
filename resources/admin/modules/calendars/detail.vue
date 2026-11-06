@@ -65,12 +65,7 @@
                 </header>
 
                 <!-- The server drops the tiles a member may not read, so render whatever arrives. -->
-                <dl v-if="hasStats" class="fe-calendar-detail__stats">
-                    <div v-for="(stat, key) in stats" :key="key" class="fe-calendar-detail__stat">
-                        <dt class="fe-calendar-detail__stat-label">{{ stat.title }}</dt>
-                        <dd class="fe-calendar-detail__stat-value">{{ $formatNumber(stat.amount) }}</dd>
-                    </div>
-                </dl>
+                <StatGroups v-if="hasStats" :stats="stats" />
 
                 <Tabs v-if="tabs.length" v-model="tab" :tabs="tabs">
                     <template #events>
@@ -101,6 +96,7 @@
     import ErrorState from '@/components/ErrorState.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import EventsView from '@/modules/events/parts/EventsView.vue';
+    import StatGroups from '@/modules/dashboard/parts/StatGroups.vue';
     import CalendarDangerZone from './parts/CalendarDangerZone.vue';
 
     export default {
@@ -112,6 +108,7 @@
             ErrorState,
             SegmentedSwitch,
             EventsView,
+            StatGroups,
             CalendarDangerZone,
         },
         data() {
