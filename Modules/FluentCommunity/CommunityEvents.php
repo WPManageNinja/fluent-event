@@ -32,6 +32,20 @@ class CommunityEvents
             ->value('value');
     }
 
+    public static function parkEvent($event)
+    {
+        Meta::query()
+            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+            ->where('object_id', $event->id)
+            ->where('meta_key', self::FEED_META_KEY)
+            ->delete();
+
+        $event->status = 'draft';
+        $event->save();
+
+        wp_update_post(['ID' => $event->post_id, 'post_status' => Event::postStatusFor('draft')]);
+    }
+
     public static function isDiscussionSpace($space)
     {
         return $space && $space->type === 'community';

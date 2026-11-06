@@ -3,6 +3,7 @@
 namespace FluentEvent\Tests\Integration;
 
 use FluentCommunity\App\Http\Controllers\FeedsController as FcomFeedsController;
+use FluentCommunity\App\Http\Controllers\SpaceController as FcomSpaceController;
 use FluentCommunity\App\Models\Feed as FcomFeed;
 use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentEvent\App\Models\Calendar;
@@ -134,6 +135,50 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertSame($calendar->title, $stored->title);
         $this->assertSame($calendar->slug, $stored->slug);
         $this->assertSame($spaceId, (int) $stored->meta[CalendarService::SPACE_META_KEY]);
+    }
+
+    public function test_deleting_the_space_parks_its_calendar_and_every_event_as_drafts_with_their_guests()
+    {
+        Settings::update(Settings::EMAIL_NOTIFICATIONS, Settings::DEFAULTS[Settings::EMAIL_NOTIFICATIONS]);
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+
+        $event = Event::query()->find((int) FcomFeed::query()->find($feed->id)->meta['event_id']);
+        $adminEvent = $this->createEvent(['calendar_id' => $event->calendar_id]);
+        $this->createGuest($event);
+        $reminder = [(int) $event->id, DAY_IN_SECONDS];
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_event_reminders_to_guests', $reminder));
+
+        // As SpaceController::deleteBySlug(): the hook, then a bulk post delete with no per-post hooks.
+        do_action('fluent_community/space/before_delete', FcomSpace::query()->find($spaceId));
+        FcomFeed::query()->where('space_id', $spaceId)->delete();
+
+        foreach ([$event, $adminEvent] as $parked) {
+            $parked = Event::query()->find($parked->id);
+            $this->assertNotNull($parked, 'Deleting the space must not delete its events.');
+            $this->assertSame('draft', $parked->status);
+            $this->assertSame('draft', get_post($parked->post_id)->post_status);
+        }
+
+        $this->assertSame(1, Event::query()->find($event->id)->guests()->count());
+        $this->assertSame(0, CommunityEvents::feedIdOf($event), 'The event still points at the deleted post.');
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_event_reminders_to_guests', $reminder));
+
+        $calendar = Calendar::query()->find($event->calendar_id);
+        $this->assertNotNull($calendar, 'Deleting the space must not delete its calendar.');
+        $this->assertSame('draft', $calendar->status);
+        $this->assertNull(CalendarService::findBySpace($spaceId), 'The calendar still points at the deleted space.');
+    }
+
+    public function test_fcom_still_fires_the_hook_space_deletion_hangs_on()
+    {
+        $delete = new \ReflectionMethod(FcomSpaceController::class, 'deleteBySlug');
+        $lines = file($delete->getFileName());
+        $body = implode('', array_slice($lines, $delete->getStartLine() - 1, $delete->getEndLine() - $delete->getStartLine() + 1));
+
+        $this->assertStringContainsString("'fluent_community/space/before_delete'", $body);
     }
 
     public function test_an_event_post_is_refused_to_a_non_admin_outside_a_discussion_space_or_with_bad_dates()
