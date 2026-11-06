@@ -489,7 +489,6 @@
 
     // Same frame as fcom's wide pages (the .fcom_max_layout body), so it matches the space Events tab.
     &.fe-fcom-portal-page--events,
-    &.fe-fcom-portal-page--event_view,
     &.fe-fcom-portal-page--create_event {
         box-sizing: border-box;
         max-width: 1080px;
@@ -499,7 +498,8 @@
 }
 
 // fcom uncaps its 680px .fcom_feed_box for wide space tabs (Members, Media, Documents) by route class.
-.fcom_route_fe_space_events .fcom_feed_box {
+.fcom_route_fe_space_events .fcom_feed_box,
+.fcom_route_fe_event_view .fcom_feed_box {
     width: 100%;
     max-width: 100%;
 }
