@@ -87,7 +87,13 @@ export default {
         $alert:ElMessageBox.alert,
         $confirm:ElMessageBox.confirm,
         $capitalize: capitalize,
-        $goBack() {
+        // A page opened straight from a link has nothing in the app behind it, so it goes to `fallback`.
+        $goBack(fallback) {
+            if (fallback && !window.history.state?.back) {
+                this.$router.push(fallback);
+                return;
+            }
+
             this.$router.back();
         },
         $convertToText: convertToText,
