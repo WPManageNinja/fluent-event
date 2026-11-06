@@ -52,8 +52,10 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
     admin turns the post back into a plain post.
   - `feed_general_config` + `rendering_feed_model`: batch-load events and attach the portal
     payload as `feed.fluent_event`; registration is closed on a post that isn't published or unlisted.
-- **SpaceHandler** — `space/before_delete` deletes the space calendar with its events and guests
-  (fcom bulk-deletes the posts without per-post hooks).
+- **SpaceHandler** — `space/before_delete` parks the space calendar the way a deleted post parks
+  its event: every event in it becomes a `draft` with its guests and loses its post link, and the
+  calendar becomes a `draft` with no space. Nothing is deleted; an admin decides that in FluentEvent.
+  (fcom bulk-deletes the posts without per-post hooks, so `feed/before_deleted` never runs here.)
 
 ## Portal UI (`resources/fcom-portal/`)
 
@@ -132,8 +134,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Covered:** registration, entry types, the guest count and meeting-link rules
   (`tests/php/Integration/CommunityEndpointsTest.php`, `tests/php/Unit/Modules/CommunityEventFormatTest.php`);
   hook wiring and ordering (`tests/php/Unit/Hooks/HookRegistrationTest.php`); portal routes, card
-  and composer filters (`tests/unit/fcom-portal/`).
-- **Not yet covered:** the `FeedHandler` post lifecycle, `SpaceHandler`, and list visibility for
+  and composer filters (`tests/unit/fcom-portal/`); `SpaceHandler` — space edits leave the calendar
+  alone, space deletion parks it (`tests/php/Integration/CommunityEventCreationTest.php`).
+- **Not yet covered:** the `FeedHandler` post lifecycle and list visibility for
   private and secret spaces. Until they are, this document is the only record of that behaviour.
 
 ## Out of scope
