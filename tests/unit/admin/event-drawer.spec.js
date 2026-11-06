@@ -32,7 +32,14 @@ const event = (id) => ({
 
 const drawer = () => mount(EventDrawer, {
     props: { modelValue: true, event: event(1) },
-    global: { mixins: [main], stubs: { Drawer: { template: '<div><slot /></div>' } } }
+    global: {
+        mixins: [main],
+        stubs: {
+            Drawer: { template: '<div><slot /></div>' },
+            ElResult: { template: '<div><slot name="extra" /></div>' },
+            ElButton: { emits: ['click'], template: '<button @click="$emit(\'click\')"><slot /></button>' }
+        }
+    }
 });
 
 beforeEach(() => {
@@ -80,9 +87,16 @@ describe('EventDrawer', () => {
         const wrapper = drawer();
         await flushPromises();
 
-        expect(wrapper.findComponent(ErrorState).props('title')).toBe('This event no longer exists');
+        const error = wrapper.findComponent(ErrorState);
+        expect(error.props('title')).toBe('This event no longer exists');
+        expect(wrapper.find('.fe-event-detail').exists()).toBe(false);
         expect(wrapper.emitted('missing')).toHaveLength(1);
         expect(wrapper.text()).not.toContain('No query results');
+
+        const action = error.find('button');
+        expect(action.text()).toBe('Close');
+        await action.trigger('click');
+        expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
     });
 
     it('offers a retry when the event fails to load for any other reason', async () => {
@@ -95,9 +109,12 @@ describe('EventDrawer', () => {
 
         const error = wrapper.findComponent(ErrorState);
         expect(error.props('message')).toBe('Could not load this event. Please try again.');
+        expect(wrapper.find('.fe-event-detail').exists()).toBe(false);
         expect(wrapper.emitted('missing')).toBeUndefined();
 
-        error.vm.$emit('retry');
+        const action = error.find('button');
+        expect(action.text()).toBe('Try Again');
+        await action.trigger('click');
         await flushPromises();
 
         expect(wrapper.findComponent(ErrorState).exists()).toBe(false);

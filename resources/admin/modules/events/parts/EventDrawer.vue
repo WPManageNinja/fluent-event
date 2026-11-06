@@ -6,7 +6,22 @@
         :title="$t('Event Details')"
         @update:model-value="$emit('update:modelValue', $event)"
     >
-        <div v-if="event" class="fe-event-detail">
+        <!-- On a failed load the list's copy may be stale, so the error replaces the whole body. -->
+        <ErrorState
+            v-if="loadError === 'missing'"
+            :title="$t('This event no longer exists')"
+            :message="$t('It has been removed from the events list.')"
+        >
+            <template #action>
+                <el-button type="primary" @click="close">{{ $t('Close') }}</el-button>
+            </template>
+        </ErrorState>
+        <ErrorState
+            v-else-if="loadError"
+            :message="$t('Could not load this event. Please try again.')"
+            @retry="loadEvent(event)"
+        />
+        <div v-else-if="event" class="fe-event-detail">
             <img
                 v-if="coverUrl"
                 class="fe-event-detail__cover"
@@ -106,19 +121,6 @@
                 <Skeleton v-if="loadingDescription" :rows="3" />
                 <div v-else class="fe-rich-text fe-event-detail__description" v-html="description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
             </div>
-
-            <ErrorState
-                v-if="loadError === 'missing'"
-                :title="$t('This event no longer exists')"
-                :message="$t('It has been removed from the events list.')"
-            >
-                <template #action></template>
-            </ErrorState>
-            <ErrorState
-                v-else-if="loadError"
-                :message="$t('Could not load this event. Please try again.')"
-                @retry="loadEvent(event)"
-            />
         </div>
     </Drawer>
 </template>
