@@ -2,7 +2,10 @@
 
 namespace FluentEvent\App\Hooks\Handlers\CleanupHandlers;
 
+use FluentEvent\App\CPT\EventPost;
+use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Meta;
+use FluentEvent\Facade\DB;
 use FluentEvent\Framework\Foundation\Exceptions\HttpException;
 
 class CleanupHandler
@@ -11,6 +14,33 @@ class CleanupHandler
     {
         add_action('fluent_event/calendar/before_deleted', [$this, 'cleanCalendar']);
         add_action('fluent_event/event/before_deleted', [$this, 'cleanEvent']);
+        add_action('deleted_post', [$this, 'cleanDeletedPost'], 10, 2);
+    }
+
+    // An event post deleted outside the plugin (WP-CLI, another plugin) takes the event down with it.
+    public function cleanDeletedPost($postId, $post)
+    {
+        // The plugin's own delete removes the post from inside this action and cleans up after itself.
+        if (!$post || $post->post_type !== EventPost::POST_TYPE || doing_action('fluent_event/event/before_deleted')) {
+            return;
+        }
+
+        $event = Event::query()->where('post_id', $postId)->first();
+
+        if (!$event) {
+            return;
+        }
+
+        // WordPress clears this cache only after the action; cleanEvent must not still see the post.
+        clean_post_cache($post);
+
+        DB::transaction(function () use ($event) {
+            do_action('fluent_event/event/before_deleted', $event);
+
+            $event->delete();
+        });
+
+        do_action('fluent_event/event/deleted', $event);
     }
 
     public function cleanCalendar($calendar)
@@ -28,7 +58,7 @@ class CleanupHandler
     {
         if (empty($event)) return;
 
-        // A post already deleted outside the plugin (XML-RPC, WP-CLI) leaves nothing to remove here.
+        // Gone already when cleanDeletedPost runs this, or when the row was removed straight from the database.
         if (get_post($event->post_id) && !wp_delete_post($event->post_id, true)) {
             throw new HttpException(
                 422,

@@ -126,6 +126,16 @@ class ReminderEmailTest extends IntegrationTestCase
         $this->assertFalse($this->hasQueuedAction(self::SEND_HOOK, [(int) $event->id, self::DAY]));
     }
 
+    public function test_deleting_an_event_post_outside_the_plugin_cancels_its_queued_reminders()
+    {
+        $event = $this->createEvent();
+        EventReminderService::scheduleReminders($event);
+
+        wp_delete_post($event->post_id, true);
+
+        $this->assertFalse($this->hasQueuedAction(self::SEND_HOOK, [(int) $event->id, self::DAY]));
+    }
+
     public function test_a_reminder_goes_to_going_and_checked_in_guests_only()
     {
         $this->skipIfSendWouldYield();
