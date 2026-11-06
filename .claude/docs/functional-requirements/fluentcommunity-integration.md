@@ -28,7 +28,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 
 - **PortalHandler**
   - An **Events** item in fcom's Menu Settings, off until an admin enables it; the mobile menu
-    places it before Profile.
+    places it before Profile. It is supplied on every request through the bridge's
+    `fluent_community/default_main_menu_items`; fcom keeps the admin's saved label and order and
+    drops the saved row when nothing supplies it, so the link leaves with the plugin.
   - A space **Events** tab for discussion spaces only, off until a space admin enables it.
   - `events` in fcom's route paths, and the portal script and styles printed at
     `fluent_community/before_js_loaded` (the portal is headless, so enqueues never print).
