@@ -53,8 +53,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   - `feed_general_config` + `rendering_feed_model`: batch-load events and attach the portal
     payload as `feed.fluent_event`; registration is closed on a post that isn't published or unlisted.
 - **SpaceHandler** — `space/before_delete` deletes the space calendar with its events and guests
-  (fcom bulk-deletes the posts without per-post hooks); `space/updated` keeps the calendar's title
-  and slug in step with the space.
+  (fcom bulk-deletes the posts without per-post hooks).
 
 ## Portal UI (`resources/fcom-portal/`)
 
@@ -85,7 +84,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 - **Who creates events:** site administrators (`manage_options`) who may also post in the space. The free plugin
   has no team permissions; per-module access is planned for Pro (kept on the `backup/permissions` branch).
 - **Calendars:** created lazily on the first event, named and slugged after the space, status
-  `private` (no public page). Admins may change the status later.
+  `private` (no public page). Admins may change the status later. After that the calendar's title
+  and slug are its own: editing the space leaves them alone.
 - **Statuses:** events are `public | unlisted | private | draft`, calendars `public | private | draft`. fcom-created events
   start `private`, like their calendars. Both statuses show in the admin and can be changed there.
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
