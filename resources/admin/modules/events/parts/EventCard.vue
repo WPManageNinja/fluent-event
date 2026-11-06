@@ -47,14 +47,25 @@
                 </span>
             </div>
 
-            <router-link
-                class="fe-event-card__manage"
-                :to="{ name: 'event_detail', params: { id: event.id } }"
-                @click.stop
-            >
-                {{ $t('Manage Event') }}
-                <el-icon aria-hidden="true"><TopRight /></el-icon>
-            </router-link>
+            <div class="fe-event-card__actions">
+                <router-link
+                    class="fe-event-card__link"
+                    :to="{ name: 'event_detail', params: { id: event.id } }"
+                    @click.stop
+                >
+                    {{ $t('Manage Event') }}
+                    <el-icon aria-hidden="true"><TopRight /></el-icon>
+                </router-link>
+
+                <router-link
+                    class="fe-event-card__link"
+                    :to="{ name: 'event_edit', params: { id: event.id } }"
+                    @click.stop
+                >
+                    <el-icon aria-hidden="true"><EditPen /></el-icon>
+                    {{ $t('Edit Event') }}
+                </router-link>
+            </div>
         </div>
 
         <img
@@ -71,13 +82,14 @@
 </template>
 
 <script type="text/javascript">
-    import { Calendar, MapLocation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { Calendar, EditPen, MapLocation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
 
     export default {
         name: 'EventCard',
         components: {
             Calendar,
+            EditPen,
             MapLocation,
             TopRight,
             VideoCamera,
