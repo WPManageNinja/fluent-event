@@ -64,6 +64,12 @@ body {
     --fe-wp-text: #1d2327;
     --fe-success-text: #1a7f37;
     --fe-danger-text: #cf222e;
+    // Element Plus tag text, dark enough on its pale fills (4.5:1 or more).
+    --fe-tag-success: #1a7f37;
+    --fe-tag-warning: #8a5a00;
+    --fe-tag-primary: #135e96;
+    --fe-tag-info: #525866;
+    --fe-tag-danger: #cf222e;
     --fe-chart-going: #0099ff;
     --fe-chart-checked-in: #1a7f37;
     --fe-chart-cancelled: #e06c75;
@@ -139,6 +145,12 @@ html.dark body {
     --fe-badge-color: #2C3C4E;
     --fe-success-text: #3fb950;
     --fe-danger-text: #f85149;
+    // Element Plus's own tag colours already read well on its dark fills.
+    --fe-tag-success: var(--el-color-success);
+    --fe-tag-warning: var(--el-color-warning);
+    --fe-tag-primary: var(--el-color-primary);
+    --fe-tag-info: var(--el-color-info);
+    --fe-tag-danger: var(--el-color-danger);
     --fe-chart-going: #339cff;
     --fe-chart-checked-in: #3fb950;
     --fe-chart-cancelled: #e8919a;
