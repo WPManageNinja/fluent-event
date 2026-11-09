@@ -23,7 +23,8 @@ class EventPageService
      * @param array  $formatted EventService::formatEvent() shape, as a visitor sees it.
      * @param string $url       The event page.
      */
-    public static function sideCard(Event $event, array $formatted, $url)
+    // $justRegistered draws the confirmation the page opens right after a registration.
+    public static function sideCard(Event $event, array $formatted, $url, $justRegistered = false)
     {
         $siteZone = wp_timezone_string();
         $isOnline = $event->venue_type === 'online';
@@ -52,6 +53,7 @@ class EventPageService
             'meeting_link'     => $meetingLink,
             'registration'     => null,
             'add_to_calendar'  => null,
+            'just_registered'  => $justRegistered,
         ];
 
         if ($phase !== 'ended' && in_array($formatted['entry_type'], ['rsvp', 'open'], true)) {
