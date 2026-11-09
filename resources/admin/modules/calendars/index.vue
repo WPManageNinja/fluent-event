@@ -157,12 +157,12 @@
                     {
                         key: 'site',
                         title: this.$t('Site calendars'),
-                        calendars: this.calendars.filter(calendar => !calendar.meta?.fcom_space_id),
+                        calendars: this.calendars.filter(calendar => !calendar.meta?.fcom_space_id && !calendar.meta?.fcom_global),
                     },
                     {
                         key: 'community',
                         title: this.$t('FluentCommunity Spaces'),
-                        calendars: this.calendars.filter(calendar => calendar.meta?.fcom_space_id),
+                        calendars: this.calendars.filter(calendar => calendar.meta?.fcom_space_id || calendar.meta?.fcom_global),
                     },
                 ].filter(group => group.calendars.length);
             },
