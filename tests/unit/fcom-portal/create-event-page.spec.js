@@ -22,8 +22,8 @@ const freshPage = async () => {
     return (await import('../../../resources/fcom-portal/app/CreateEventPage.vue')).default;
 };
 
-const createPage = async (Page = CreateEventPage) => {
-    const props = { router: { push: vi.fn(), back: vi.fn() }, onChange: vi.fn(), submitPost: vi.fn() };
+const createPage = async (Page = CreateEventPage, extraProps = {}, extraStubs = {}) => {
+    const props = { router: { push: vi.fn(), back: vi.fn() }, onChange: vi.fn(), submitPost: vi.fn(), onPlacement: vi.fn(), ...extraProps };
     const wrapper = mount(Page, {
         props,
         global: {
@@ -31,7 +31,8 @@ const createPage = async (Page = CreateEventPage) => {
             stubs: {
                 ElFormItem: { template: '<div><slot /></div>' },
                 ElInput: { template: '<input />', methods: { focus() {} } },
-                WpEditor: { template: '<div></div>', methods: { insertContent } }
+                WpEditor: { template: '<div></div>', methods: { insertContent } },
+                ...extraStubs
             },
             config: { warnHandler }
         }
@@ -56,6 +57,45 @@ afterEach(() => {
 });
 
 describe('CreateEventPage', () => {
+    describe('where to post', () => {
+        // The page's first section, so the first radio group; Element Plus is stubbed (tests/setup.js).
+        const placementGroup = (wrapper) => wrapper.findAllComponents({ name: 'ElRadioGroup' })[0];
+        const radio = (wrapper, value) => wrapper.findAllComponents({ name: 'ElRadio' }).find(r => r.props('value') === value);
+
+        it('starts on In a space and reports a change to the shell', async () => {
+            const { wrapper, props } = await createPage();
+
+            expect(placementGroup(wrapper).props('modelValue')).toBe('space');
+
+            placementGroup(wrapper).vm.$emit('change', 'global');
+
+            expect(props.onPlacement).toHaveBeenCalledWith('global');
+        });
+
+        // The group and the tooltip render their slots so the radios inside can be read.
+        const slotStubs = {
+            ElRadioGroup: { name: 'ElRadioGroup', template: '<div><slot /></div>', props: ['modelValue'] },
+            ElTooltip: { name: 'ElTooltip', template: '<div><slot /></div>', props: ['content', 'disabled'] },
+        };
+
+        it("disables Community-wide, with a tooltip on where to turn it on, when fcom's global posts are off", async () => {
+            const { wrapper } = await createPage(CreateEventPage, { globalPosts: false }, slotStubs);
+            const tooltip = wrapper.findAllComponents({ name: 'ElTooltip' })[0];
+
+            expect(placementGroup(wrapper).props('modelValue')).toBe('space');
+            expect(radio(wrapper, 'global').props('disabled')).toBe(true);
+            expect(radio(wrapper, 'space').props('disabled')).toBeFalsy();
+            expect(tooltip.props('disabled')).toBe(false);
+            expect(tooltip.props('content')).toContain('Global Post Status');
+        });
+
+        it('keeps the tooltip off while Community-wide can be picked', async () => {
+            const { wrapper } = await createPage(CreateEventPage, {}, slotStubs);
+
+            expect(wrapper.findAllComponents({ name: 'ElTooltip' })[0].props('disabled')).toBe(true);
+        });
+    });
+
     it('hands the composer a full event as soon as it opens', async () => {
         const { props } = await createPage();
 

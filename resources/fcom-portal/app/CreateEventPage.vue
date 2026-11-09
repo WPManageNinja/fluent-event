@@ -17,6 +17,49 @@
         <div class="fe-create-event__form">
             <section class="fe-create-event__section">
                 <div>
+                    <h2 class="fe-create-event__section-title">{{ $t('Where do you want to post this event?') }}</h2>
+                </div>
+
+                <div class="fe-create-event__section-fields">
+                    <el-radio-group
+                        v-model="placement"
+                        class="fe-create-event__choices"
+                        :aria-label="$t('Where do you want to post this event?')"
+                        @change="onPlacement"
+                    >
+                        <!-- The disabled card says why; the tooltip says where to turn it on. -->
+                        <el-tooltip
+                            :disabled="globalPosts"
+                            :content="$t('To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.')"
+                            placement="top"
+                        >
+                            <el-radio value="global" border :disabled="!globalPosts">
+                                <span class="fe-create-event__choice-title">{{ $t('Community-wide') }}</span>
+                                <span class="fe-create-event__hint">
+                                    {{ globalPosts ? $t('Posted on your profile, outside any space. Everyone in the community can see it.') : $t('Global posts are turned off in FluentCommunity settings.') }}
+                                </span>
+                            </el-radio>
+                        </el-tooltip>
+                        <el-radio value="space" border>
+                            <span class="fe-create-event__choice-title">{{ $t('In a space') }}</span>
+                            <span class="fe-create-event__hint">{{ $t('Only members of the space can see it.') }}</span>
+                        </el-radio>
+                    </el-radio-group>
+                </div>
+            </section>
+
+            <section class="fe-create-event__section">
+                <div>
+                    <h2 class="fe-create-event__section-title">{{ $t('Feed post') }}</h2>
+                    <p class="fe-create-event__section-desc">{{ $t('What members see in the feed, above the event.') }}</p>
+                </div>
+
+                <!-- fcom's composer runs on fcom's Vue; the page shell teleports it in here. -->
+                <div id="fe-create-event-composer" class="fe-create-event__section-fields"></div>
+            </section>
+
+            <section class="fe-create-event__section">
+                <div>
                     <h2 class="fe-create-event__section-title">{{ $t('Cover image') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('Shown at the top of the event page and on event cards.') }}</p>
                 </div>
@@ -258,19 +301,16 @@
             </section>
         </div>
 
-        <!-- After fcom's composer, which the shell renders below this page, so Create comes last. -->
-        <Teleport to="#fe-create-event-actions">
-            <div class="fe-create-event__actions">
-                <el-button
-                    class="fcom_primary_button"
-                    :loading="saving"
-                    :disabled="saving || uploading || imageUploading"
-                    @click="submit"
-                >
-                    {{ $t('Create Event') }}
-                </el-button>
-            </div>
-        </Teleport>
+        <div class="fe-create-event__actions">
+            <el-button
+                class="fcom_primary_button"
+                :loading="saving"
+                :disabled="saving || uploading || imageUploading"
+                @click="submit"
+            >
+                {{ $t('Create Event') }}
+            </el-button>
+        </div>
     </div>
 </template>
 
@@ -292,6 +332,9 @@ export default {
         router: { type: Object, required: true },
         onChange: { type: Function, required: true },
         submitPost: { type: Function, required: true },
+        // The composer belongs to fcom's Vue; it follows this choice through onPlacement.
+        globalPosts: { type: Boolean, default: true },
+        onPlacement: { type: Function, required: true },
     },
     data() {
         const start = dayjs().add(1, 'hour').startOf('hour');
@@ -300,6 +343,7 @@ export default {
         const zones = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [];
 
         return {
+            placement: 'space',
             dateFormat: dateFormat(),
             timeFormat: timeFormat(),
             // Built timezone options once per visit

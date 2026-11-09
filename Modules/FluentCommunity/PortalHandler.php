@@ -95,6 +95,7 @@ class PortalHandler
     public function addRoutePath($paths)
     {
         $paths[] = 'events';
+        $paths[] = 'event';
         $paths[] = 'create-new-event';
 
         return $paths;
@@ -153,6 +154,8 @@ class PortalHandler
             // Fills an open event's Register form for the member.
             'user'                => $user ? ['name' => $user->display_name, 'email' => $user->user_email] : null,
             'can_create_events'   => current_user_can('manage_options'),
+            // fcom's own switch for posts outside any space; community-wide events need it on.
+            'global_posts'        => FcomHelper::hasGlobalPost(),
             'default_view'        => $settings['default_events_view'],
             'disable_view_switch' => $settings['disable_event_view_switch'] === 'yes',
             'timezone'            => wp_timezone_string(),
@@ -185,6 +188,7 @@ class PortalHandler
             'Calendar' => __('Calendar', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
+            'Community-wide' => __('Community-wide', 'fluent-event'),
             'Cover image' => __('Cover image', 'fluent-event'),
             'Create Event' => __('Create Event', 'fluent-event'),
             'Create new event' => __('Create new event', 'fluent-event'),
@@ -208,11 +212,13 @@ class PortalHandler
             'Events posted in this space will show up here.' => __('Events posted in this space will show up here.', 'fluent-event'),
             'Events that have ended will show up here.' => __('Events that have ended will show up here.', 'fluent-event'),
             'Feed post' => __('Feed post', 'fluent-event'),
+            'Global posts are turned off in FluentCommunity settings.' => __('Global posts are turned off in FluentCommunity settings.', 'fluent-event'),
             'Going' => __('Going', 'fluent-event'),
             'Google Calendar' => __('Google Calendar', 'fluent-event'),
             'Guests register with their name and email, no login needed.' => __('Guests register with their name and email, no login needed.', 'fluent-event'),
             'Happening now' => __('Happening now', 'fluent-event'),
             'How guests join and what they see.' => __('How guests join and what they see.', 'fluent-event'),
+            'In a space' => __('In a space', 'fluent-event'),
             'In person' => __('In person', 'fluent-event'),
             'Interested?' => __('Interested?', 'fluent-event'),
             'Join online' => __('Join online', 'fluent-event'),
@@ -234,10 +240,12 @@ class PortalHandler
             'Not going' => __('Not going', 'fluent-event'),
             'Online' => __('Online', 'fluent-event'),
             'Only http and https links are accepted.' => __('Only http and https links are accepted.', 'fluent-event'),
+            'Only members of the space can see it.' => __('Only members of the space can see it.', 'fluent-event'),
             'Open' => __('Open', 'fluent-event'),
             'Optional. Shown on the event page.' => __('Optional. Shown on the event page.', 'fluent-event'),
             'Past' => __('Past', 'fluent-event'),
             'Please register for the event to see the meeting link.' => __('Please register for the event to see the meeting link.', 'fluent-event'),
+            'Posted on your profile, outside any space. Everyone in the community can see it.' => __('Posted on your profile, outside any space. Everyone in the community can see it.', 'fluent-event'),
             'Previous' => __('Previous', 'fluent-event'),
             'RSVP' => __('RSVP', 'fluent-event'),
             'Register' => __('Register', 'fluent-event'),
@@ -259,6 +267,8 @@ class PortalHandler
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
+            /* translators: a menu path in FluentCommunity's admin; keep the names as FluentCommunity shows them */
+            'To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.' => __('To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
             'Try a different search term.' => __('Try a different search term.', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
@@ -267,9 +277,10 @@ class PortalHandler
             /* translators: %s: event title */
             'View %s' => __('View %s', 'fluent-event'),
             'Week' => __('Week', 'fluent-event'),
-            'What members see in the space feed, above the event.' => __('What members see in the space feed, above the event.', 'fluent-event'),
+            'What members see in the feed, above the event.' => __('What members see in the feed, above the event.', 'fluent-event'),
             'What the event is called.' => __('What the event is called.', 'fluent-event'),
             'When the event starts and ends.' => __('When the event starts and ends.', 'fluent-event'),
+            'Where do you want to post this event?' => __('Where do you want to post this event?', 'fluent-event'),
             'e.g. Friday Q&A' => __('e.g. Friday Q&A', 'fluent-event'),
             'e.g. Kingsway Hall' => __('e.g. Kingsway Hall', 'fluent-event'),
         ];
