@@ -171,6 +171,35 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $notified]));
     }
 
+    /**
+     * The admin's "send email" follows the member flow: a confirmation on taking a seat, a cancellation only on giving one up.
+     *
+     * @dataProvider statusChanges
+     */
+    public function test_an_admin_status_change_sends_the_email_the_member_flow_would($from, $to, $expected)
+    {
+        $guest = $this->createGuest($this->event, ['status' => $from]);
+
+        $response = $this->rest('PATCH', "events/{$this->event->id}/guests/{$guest->id}", ['status' => $to, 'send_email' => 1]);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame($expected === 'confirmation', $this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guest->id]), "{$from} → {$to}: confirmation");
+        $this->assertSame($expected === 'cancellation', $this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]), "{$from} → {$to}: cancellation");
+    }
+
+    public function statusChanges()
+    {
+        return [
+            'not going → going'       => ['not_going', 'going', 'confirmation'],
+            'cancelled → going'       => ['cancelled', 'going', 'confirmation'],
+            'going → cancelled'       => ['going', 'cancelled', 'cancellation'],
+            'checked in → not going'  => ['checked_in', 'not_going', 'cancellation'],
+            'not going → cancelled'   => ['not_going', 'cancelled', null],
+            'checked in → going'      => ['checked_in', 'going', null],
+            'going → checked in'      => ['going', 'checked_in', null],
+        ];
+    }
+
     public function test_a_guest_cannot_be_edited_through_another_events_url()
     {
         $guest = $this->createGuest($this->event, ['name' => 'Original']);
