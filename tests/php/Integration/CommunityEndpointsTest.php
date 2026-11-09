@@ -230,6 +230,19 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $this->guestsOf($event)[0]->status);
     }
 
+    public function test_a_checked_in_member_who_cancels_gets_the_cancellation_email()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->rsvp($event, 'going');
+        Guest::query()->where('event_id', $event->id)->update(['status' => 'checked_in']);
+
+        $this->assertSame(200, $this->rsvp($event, 'cancelled')['status']);
+
+        $guest = $this->guestsOf($event)[0];
+        $this->assertSame('cancelled', $guest->status);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
+    }
+
     // A cancel with nothing to cancel would otherwise create a cancelled row; RSVP answers not going instead.
     public function test_only_a_held_open_registration_can_be_cancelled()
     {

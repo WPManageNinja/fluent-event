@@ -99,7 +99,8 @@ class RegistrationService
     public static function queueEmail(Guest $guest, $previousStatus)
     {
         $emails = Settings::get(Settings::EMAIL_NOTIFICATIONS);
-        $wasGoing = $previousStatus === 'going';
+        // A checked-in guest holds their seat too, so leaving from there is a cancellation as well.
+        $wasGoing = in_array($previousStatus, Event::SEAT_STATUSES, true);
 
         if ($guest->status === 'going' && !$wasGoing && !empty($emails['registration_confirmation']['enabled'])) {
             as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
