@@ -172,6 +172,10 @@ class CommunityEventController extends Controller
             'source_id' => (int) $feed->id,
         ]);
 
+        if ($registered === false) {
+            return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
+        }
+
         if (!$registered) {
             return $this->sendError(['message' => __('This email is already registered for this event.', 'fluent-event')], 422);
         }

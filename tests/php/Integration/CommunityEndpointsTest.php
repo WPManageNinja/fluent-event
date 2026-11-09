@@ -267,6 +267,31 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [$guestId]));
     }
 
+    // An admin checks the member in while their cancel is in flight: the cancel must say so, not report success.
+    public function test_a_cancel_overtaken_by_a_check_in_asks_to_try_again()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->rsvp($event, 'going');
+        $guestId = (int) $this->guestsOf($event)[0]->id;
+        $raced = false;
+
+        $this->addTestFilter('query', function ($query) use (&$raced, $guestId) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'going'") !== false) {
+                $raced = true;
+                $this->wpdb->update($this->table('fe_guests'), ['status' => 'checked_in'], ['id' => $guestId]);
+            }
+
+            return $query;
+        });
+
+        $response = $this->rsvp($event, 'cancelled');
+
+        $this->assertTrue($raced, 'The claim query never ran');
+        $this->assertSame(409, $response['status']);
+        $this->assertSame('checked_in', $this->guestsOf($event)[0]->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [$guestId]));
+    }
+
     // A cancel with nothing to cancel would otherwise create a cancelled row; RSVP answers not going instead.
     public function test_only_a_held_open_registration_can_be_cancelled()
     {

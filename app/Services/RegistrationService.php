@@ -36,7 +36,8 @@ class RegistrationService
      * under their email.
      *
      * @param array $source source and source_id for a new row.
-     * @return array|null [Guest, previous status, created]; null when another account holds the email.
+     * @return array|null|false [Guest, previous status, created]; null when another account holds the email; false
+     *                          when the row changed under this request to something other than what it asked for.
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
@@ -78,6 +79,10 @@ class RegistrationService
                 ->update(['status' => $newStatus, 'user_id' => $user->ID]);
 
             $guest = Guest::query()->find($guest->id);
+
+            if (!$claimed && $guest->status !== $newStatus) {
+                return false;
+            }
 
             return [$guest, $claimed ? $previousStatus : $guest->status, false];
         }
