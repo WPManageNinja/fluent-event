@@ -116,7 +116,22 @@ export default {
                 this.busy = false;
             }
         },
-        // Registering is a form with no undo, so it ends in a dialog: what it was for, and its calendar links.
+        async cancel() {
+            this.close();
+
+            try {
+                await ElMessageBox.confirm(
+                    t('You will lose your spot for %s. You can register again later.', this.event.title),
+                    t('Cancel your registration?'),
+                    { confirmButtonText: t('Cancel registration'), cancelButtonText: t('Keep it'), confirmButtonClass: 'el-button--danger' },
+                );
+            } catch (dismissed) {
+                return;
+            }
+
+            this.choose('cancelled');
+        },
+        // Registering is a form, so it ends in a dialog: what it was for, and its calendar links.
         showRegistered(event) {
             const online = event.venue_type === 'online';
             const location = online
@@ -159,7 +174,31 @@ export default {
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
 
             <template v-else-if="event.entry_type === 'open'">
-                <span v-if="status === 'going'" class="fe-event-actions__badge">
+                <!-- A visitor isn't recognised again after a reload, so only a member's badge opens a menu to cancel. -->
+                <div v-if="status === 'going' && isLoggedIn" class="fe-rsvp">
+                    <button
+                        ref="trigger"
+                        type="button"
+                        class="fe-rsvp__trigger"
+                        aria-haspopup="menu"
+                        :aria-expanded="open ? 'true' : 'false'"
+                        :disabled="busy"
+                        @click.stop="toggle"
+                    >
+                        <span class="fe-rsvp__icon fe-rsvp__icon--going" aria-hidden="true">${CHECK}</span>
+                        <span class="fe-rsvp__label">{{ t('Registered') }}</span>
+                        <span class="fe-rsvp__chevron" :class="{ 'fe-rsvp__chevron--open': open }" aria-hidden="true">${CHEVRON}</span>
+                    </button>
+
+                    <div v-if="open" class="el-popover el-popper fcom_menu_below_nav fe-rsvp__pop">
+                        <ul class="actions_items" role="menu">
+                            <li role="none">
+                                <button type="button" role="menuitem" class="fe-rsvp__option fe-rsvp__option--danger" @click.stop="cancel">{{ t('Cancel registration') }}</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <span v-else-if="status === 'going'" class="fe-event-actions__badge">
                     <span class="fe-event-actions__badge-icon" aria-hidden="true">${CHECK}</span>
                     {{ t('Registered') }}
                 </span>

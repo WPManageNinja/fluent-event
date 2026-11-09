@@ -440,6 +440,10 @@
             outline: 2px solid var(--fcom-primary-button, #2b2e33);
             outline-offset: 2px;
         }
+
+        &.fe-rsvp__option--danger {
+            color: var(--el-color-danger, #f56c6c);
+        }
     }
 }
 

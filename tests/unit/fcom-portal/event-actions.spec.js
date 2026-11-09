@@ -6,7 +6,7 @@ import EventActions from '../../../resources/fcom-portal/EventActions';
 vi.mock('element-plus', async (importOriginal) => ({
     ...(await importOriginal()),
     ElNotification: vi.fn(),
-    ElMessageBox: { alert: vi.fn() },
+    ElMessageBox: { alert: vi.fn(), confirm: vi.fn() },
 }));
 
 const rsvp = (overrides = {}) => ({ id: 5, entry_type: 'rsvp', is_past: false, my_status: null, ...overrides });
@@ -26,6 +26,7 @@ beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: 'RSVP updated. You\'re going!', event: rsvp({ my_status: 'going' }) }))));
     ElNotification.mockClear();
     ElMessageBox.alert.mockReset().mockResolvedValue();
+    ElMessageBox.confirm.mockReset().mockResolvedValue();
 });
 
 afterEach(() => {
@@ -105,13 +106,40 @@ describe('EventActions', () => {
         expect(wrapper.emitted('done')).toBeUndefined();
     });
 
-    it("marks an open event's guest registered, with nothing to undo", () => {
+    it("marks an open event's guest registered, with a menu to cancel for members only", () => {
         for (const status of ['going', 'checked_in']) {
             const registered = mount(EventActions, { props: { event: rsvp({ entry_type: 'open', my_status: status }) } });
 
-            expect(registered.find('.fe-event-actions__badge').text()).toBe('Registered');
-            expect(registered.find('button').exists()).toBe(false);
+            expect(registered.find('.fe-rsvp__trigger .fe-rsvp__label').text()).toBe('Registered');
         }
+
+        // A visitor isn't recognised again after a reload, so their registration stays final.
+        window.fluentEventFcomPortal.is_logged_in = false;
+        const visitor = mount(EventActions, { props: { event: rsvp({ entry_type: 'open', my_status: 'going' }) } });
+        expect(visitor.find('.fe-event-actions__badge').text()).toBe('Registered');
+        expect(visitor.find('button').exists()).toBe(false);
+    });
+
+    it('cancels a registration only once the member confirms', async () => {
+        fetch.mockResolvedValue(new Response(JSON.stringify({ message: 'Registration cancelled.', event: rsvp({ entry_type: 'open', my_status: 'cancelled' }) })));
+        wrapper = actions(rsvp({ entry_type: 'open', my_status: 'going' }));
+
+        const pick = async () => {
+            await wrapper.find('.fe-rsvp__trigger').trigger('click');
+            await wrapper.find('[role="menuitem"]').trigger('click');
+            await flushPromises();
+        };
+
+        ElMessageBox.confirm.mockRejectedValueOnce('cancel');
+        await pick();
+        expect(fetch).not.toHaveBeenCalled();
+
+        await pick();
+
+        expect(ElMessageBox.confirm.mock.calls[1][1]).toBe('Cancel your registration?');
+        expect(fetch.mock.calls[0][1].body).toBe('{"status":"cancelled"}');
+        expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'Registration cancelled.' });
+        expect(wrapper.emitted('done')[0][0].event.my_status).toBe('cancelled');
     });
 
     it("sends a logged-out visitor to fcom's login page", () => {
