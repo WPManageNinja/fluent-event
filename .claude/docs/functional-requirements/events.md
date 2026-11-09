@@ -19,6 +19,7 @@
   - **`rsvp`** — logged-in "I'm coming". Guest rows with **`ticket_type_id` = NULL**; going / not going via `status` (`going` / `not_going`).
   - **`open`** — a Register button. It opens a name + email popover: prefilled for members (email locked to the account), blank for visitors, no login needed. A Registered badge follows; in the portal a logged-in member can cancel it (after a confirm; status `cancelled`) and register again, while a visitor's is final; the meeting link is for registered guests and staff.
   - **`none`** — view-only. Nobody registers; anyone who can see the event sees all of it, the online meeting link included. Admins can still add guests.
+  - **Public event page:** after a visitor's Going (`rsvp`) or Register (`open`), a confirmation modal opens over the new card — "You're going" / "You're registered", the event (cover or date chip, date, place), **Join online** when it has a meeting link, Add to calendar, Done. No cancel there: a visitor has no account to change it from.
   - **No seat limit** — RSVP takes anyone. `meta.show_guest_count` (`yes` / `no`, `rsvp` and `open`) shows viewers how many are `going` + `checked_in`.
   - **`ticketed`** (future) — buy tickets. Guest rows **require** `ticket_type_id`, payment on the `is_buyer=1` row; the service layer enforces it.
   - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.slot IS NULL`).
