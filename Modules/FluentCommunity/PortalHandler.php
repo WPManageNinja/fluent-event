@@ -248,6 +248,10 @@ class PortalHandler
             'Optional. Shown on the event page.' => __('Optional. Shown on the event page.', 'fluent-event'),
             'Past' => __('Past', 'fluent-event'),
             'Please register for the event to see the meeting link.' => __('Please register for the event to see the meeting link.', 'fluent-event'),
+            /* translators: 1: member's name, 2: space name */
+            'Posted by %1$s in %2$s' => __('Posted by %1$s in %2$s', 'fluent-event'),
+            /* translators: %s: member's name */
+            'Posted by %s on their profile' => __('Posted by %s on their profile', 'fluent-event'),
             'Posted on your profile, outside any space. Everyone in the community can see it.' => __('Posted on your profile, outside any space. Everyone in the community can see it.', 'fluent-event'),
             'Previous' => __('Previous', 'fluent-event'),
             'RSVP' => __('RSVP', 'fluent-event'),
@@ -279,6 +283,7 @@ class PortalHandler
             'Venue type' => __('Venue type', 'fluent-event'),
             /* translators: %s: event title */
             'View %s' => __('View %s', 'fluent-event'),
+            'View post' => __('View post', 'fluent-event'),
             'Week' => __('Week', 'fluent-event'),
             'What members see in the feed, above the event.' => __('What members see in the feed, above the event.', 'fluent-event'),
             'What the event is called.' => __('What the event is called.', 'fluent-event'),
