@@ -67,8 +67,19 @@ class RegistrationService
         $previousStatus = $guest->status;
 
         // Going again keeps a checked-in guest checked in.
-        if (in_array($status, ['not_going', 'cancelled'], true) || !in_array($guest->status, Event::SEAT_STATUSES, true)) {
-            $guest->status = $status;
+        $newStatus = in_array($status, ['not_going', 'cancelled'], true) || !in_array($previousStatus, Event::SEAT_STATUSES, true)
+            ? $status
+            : $previousStatus;
+
+        // Claimed against the status read above: of two requests making the same change (two tabs), only one
+        // reports it, so only one sends the email; the other gets the row back unchanged.
+        if ($newStatus !== $previousStatus) {
+            $claimed = Guest::query()->where('id', $guest->id)->where('status', $previousStatus)
+                ->update(['status' => $newStatus, 'user_id' => $user->ID]);
+
+            $guest = Guest::query()->find($guest->id);
+
+            return [$guest, $claimed ? $previousStatus : $guest->status, false];
         }
 
         $guest->user_id = $user->ID;

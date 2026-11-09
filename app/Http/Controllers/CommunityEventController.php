@@ -177,7 +177,7 @@ class CommunityEventController extends Controller
 
         if ($created) {
             do_action('fluent_event/guest/created', $guest);
-        } else {
+        } elseif ($previousStatus !== $guest->status) {
             do_action('fluent_event/guest/updated', $guest, $previousStatus);
         }
 
