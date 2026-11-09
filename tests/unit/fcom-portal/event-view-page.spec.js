@@ -7,6 +7,7 @@ import EventActions from '../../../resources/fcom-portal/EventActions';
 const meetup = (overrides = {}) => ({
     id: 5,
     title: 'Community meetup',
+    slug: 'community-meetup',
     description: '',
     start_at: '2026-10-20 12:00:00',
     end_at: '2026-10-20 14:00:00',
@@ -252,8 +253,8 @@ describe('EventViewPage', () => {
         });
 
         it('builds a Google Calendar link in UTC with the venue as location', async () => {
-            const { vm } = await page(meetup({ my_status: 'going' }));
-            const params = new URL(vm.googleCalendarUrl).searchParams;
+            const { wrapper } = await page(meetup({ my_status: 'going' }));
+            const params = new URL(wrapper.find('a.fe-event-view__calendar-link').attributes('href')).searchParams;
 
             expect(params.get('text')).toBe('Community meetup');
             expect(params.get('dates')).toBe('20261020T120000Z/20261020T140000Z');

@@ -198,6 +198,7 @@ class PortalHandler
             /* translators: %d: day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
             'Description' => __('Description', 'fluent-event'),
+            'Done' => __('Done', 'fluent-event'),
             'Edit event' => __('Edit event', 'fluent-event'),
             'Email' => __('Email', 'fluent-event'),
             'End' => __('End', 'fluent-event'),
@@ -289,6 +290,7 @@ class PortalHandler
             'What the event is called.' => __('What the event is called.', 'fluent-event'),
             'When the event starts and ends.' => __('When the event starts and ends.', 'fluent-event'),
             'Where do you want to post this event?' => __('Where do you want to post this event?', 'fluent-event'),
+            "You're registered" => __("You're registered", 'fluent-event'),
             'e.g. Friday Q&A' => __('e.g. Friday Q&A', 'fluent-event'),
             'e.g. Kingsway Hall' => __('e.g. Kingsway Hall', 'fluent-event'),
         ];

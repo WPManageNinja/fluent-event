@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
+import { ElMessageBox, ElNotification } from 'element-plus';
 import EventActions from '../../../resources/fcom-portal/EventActions';
+
+vi.mock('element-plus', async (importOriginal) => ({
+    ...(await importOriginal()),
+    ElNotification: vi.fn(),
+    ElMessageBox: { alert: vi.fn() },
+}));
 
 const rsvp = (overrides = {}) => ({ id: 5, entry_type: 'rsvp', is_past: false, my_status: null, ...overrides });
 const actions = (event = rsvp()) => mount(EventActions, { props: { event }, attachTo: document.body });
@@ -16,7 +23,9 @@ const deferredResponse = () => {
 let wrapper;
 
 beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ event: rsvp({ my_status: 'going' }) }))));
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: 'RSVP updated. You\'re going!', event: rsvp({ my_status: 'going' }) }))));
+    ElNotification.mockClear();
+    ElMessageBox.alert.mockReset().mockResolvedValue();
 });
 
 afterEach(() => {
@@ -55,6 +64,12 @@ describe('EventActions', () => {
         expect(url).toBe('https://example.test/wp-json/fluent-event/v2/community/events/5/register');
         expect(JSON.parse(options.body)).toEqual({ status: 'going', name: 'Rafi Ahmed' });
         expect(wrapper.emitted('done')).toHaveLength(1);
+
+        // A form with no undo ends in a dialog, not a toast.
+        const [content, , settings] = ElMessageBox.alert.mock.calls[0];
+        expect(content.props.class).toBe('fe-registered');
+        expect(settings).toMatchObject({ customClass: 'fe-registered-box', confirmButtonText: 'Done' });
+        expect(ElNotification).not.toHaveBeenCalled();
     });
 
     it('registers a visitor for an open event by name and email', async () => {
@@ -169,6 +184,8 @@ describe('EventActions', () => {
         expect(options.body).toBe('{"status":"going"}');
         expect(wrapper.emitted('error')).toEqual([['']]);
         expect(wrapper.emitted('done')[0][0].event.my_status).toBe('going');
+        expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'RSVP updated. You\'re going!' });
+        expect(ElMessageBox.alert).not.toHaveBeenCalled();
     });
 
     it('disables the trigger while the answer is saving', async () => {

@@ -178,10 +178,17 @@ class CommunityEventController extends Controller
 
         RegistrationService::queueEmail($guest, $previousStatus);
 
+        // The portal shows an RSVP's message as a toast; an open event's registration gets its own dialog.
+        if ($guest->status === 'not_going') {
+            $message = __("RSVP updated. You're not going.", 'fluent-event');
+        } elseif ($entryType === 'rsvp') {
+            $message = __("RSVP updated. You're going!", 'fluent-event');
+        } else {
+            $message = __('You are registered.', 'fluent-event');
+        }
+
         return [
-            'message' => $guest->status === 'not_going'
-                ? __('Your RSVP has been updated.', 'fluent-event')
-                : __('You are registered.', 'fluent-event'),
+            'message' => $message,
             'status'  => $guest->status,
             'event'   => EventService::formatEvents([$event])[(int) $event->id],
         ];

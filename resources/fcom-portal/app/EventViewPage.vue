@@ -99,11 +99,11 @@
                     <div v-if="canAddToCalendar" class="fe-event-view__calendar">
                         <span class="fe-event-view__calendar-label">{{ $t('Add to calendar') }}</span>
                         <div class="fe-event-view__calendar-links">
-                            <a class="fe-event-view__calendar-link" :href="googleCalendarUrl" target="_blank" rel="noopener noreferrer">
+                            <a class="fe-event-view__calendar-link" :href="googleCalendarLink(event, summary, place)" target="_blank" rel="noopener noreferrer">
                                 <span class="fe-event-view__calendar-icon" aria-hidden="true" v-html="icons.GOOGLE"></span> <!-- coding-rules-scan:ignore — static SVG constant from icons.js -->
                                 {{ $t('Google Calendar') }}
                             </a>
-                            <button type="button" class="fe-event-view__calendar-link" @click="saveToCalendar">
+                            <button type="button" class="fe-event-view__calendar-link" @click="saveIcs(event, summary, place)">
                                 <span class="fe-event-view__calendar-icon" aria-hidden="true" v-html="icons.APPLE"></span> <!-- coding-rules-scan:ignore — static SVG constant from icons.js -->
                                 {{ $t('Apple / Outlook') }}
                             </button>
@@ -117,8 +117,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, dateFormat, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
-import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, timeFormat } from '../utils';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
@@ -230,22 +229,13 @@ export default {
 
             return `${text.slice(0, 600)}\n\n${window.location.href}`;
         },
-        googleCalendarUrl() {
-            const params = new URLSearchParams({
-                action: 'TEMPLATE',
-                text: this.event.title,
-                dates: `${icsStamp(this.event.start_at)}/${icsStamp(this.event.end_at)}`,
-                details: this.summary,
-                location: this.place,
-            });
-
-            return `https://calendar.google.com/calendar/render?${params.toString()}`;
-        },
     },
     mounted() {
         this.fetchEvent();
     },
     methods: {
+        googleCalendarLink,
+        saveIcs,
         applyResponse(response) {
             this.event = { ...this.event, ...response.event };
         },
@@ -277,19 +267,6 @@ export default {
             } finally {
                 this.loading = false;
             }
-        },
-        saveToCalendar() {
-            const text = buildIcs({
-                id: this.event.id,
-                title: this.event.title,
-                start_at: this.event.start_at,
-                end_at: this.event.end_at,
-                description: this.summary,
-                location: this.place,
-                url: window.location.href,
-            });
-
-            downloadIcs(text, `${this.eventSlug}.ics`);
         },
         goBack() {
             this.router.back();
