@@ -12,6 +12,8 @@ const pages = {
     space_events: () => import('./app/EventsPage.vue'),
     create_event: () => import('./app/CreateEventPage.vue'),
     event_view: () => import('./app/EventViewPage.vue'),
+    // The same page outside any space, where no space layout frames it.
+    global_event_view: () => import('./app/EventViewPage.vue'),
 };
 
 // A route shell on fcom's Vue; the page itself is a separate app loaded on first visit.
@@ -76,13 +78,16 @@ function pageShell(page) {
 }
 
 // fcom's own composer writes and submits the post; our page only fills in the event it carries.
-// The composer lives on fcom's Vue, so it is the page's last section from out here, shown once the page is in.
+// The composer lives on fcom's Vue, so it is teleported into the page's Feed post section once the page is in.
+// fcom's "On my profile" space value: a post outside any space.
+const PROFILE_POST = '__self__post__';
+
 const createEventShell = {
     extends: pageShell('create_event'),
     data() {
         return {
             onPosting: null,
-            space: '',
+            placement: 'space',
             feed: {
                 title: '',
                 message: '',
@@ -92,8 +97,17 @@ const createEventShell = {
                 topic_ids: [],
                 send_announcement_email: 'no',
                 status: 'published',
+                // The composer shares this object and posts to feed.space, so its picker opens on a space
+                // from the menu link. Community-wide sets PROFILE_POST here, never through the composer's
+                // space prop: the composer hides itself for a space it can't find, and PROFILE_POST isn't one.
+                space: this.$route.query.space || '',
             },
         };
+    },
+    watch: {
+        placement(placement) {
+            this.feed.space = placement === 'global' ? PROFILE_POST : (this.$route.query.space || '');
+        },
     },
     methods: {
         t,
@@ -104,48 +118,53 @@ const createEventShell = {
                     this.feed.event = event;
                 },
                 submitPost: (onPosting) => this.submitPost(onPosting),
+                globalPosts: !!portalVars().global_posts,
+                onPlacement: (placement) => {
+                    this.placement = placement;
+                },
             };
         },
-        // Our header button submits fcom's composer, which reports back while it posts.
+        // Our Create button submits fcom's composer, which reports back while it posts.
         submitPost(onPosting) {
+            const composer = this.$refs.composer;
             this.onPosting = onPosting;
-            this.space = this.$refs.composer.currentSpaceSlug;
-            this.$refs.composer.post();
+
+            // post() does nothing while the composer is folded; open it first, so an empty caption gets fcom's own error.
+            if (!composer.isStateActive) {
+                composer.makeActive();
+                composer.$nextTick(() => composer.post());
+                return;
+            }
+
+            composer.post();
         },
         watchPosting() {
             this.$refs.composer.$watch('posting', (posting) => this.onPosting && this.onPosting(posting));
         },
-        // A scheduled or held post has no page to open yet.
+        // A scheduled or held post has no page to open yet, so the admin goes back where they came from.
         posted(feed) {
-            const route = feed.status === 'published'
-                ? { name: 'single_feed', params: { feed_slug: feed.slug } }
-                : { name: 'fe_space_events', params: { space: this.space } };
+            if (feed.status === 'published') {
+                this.$router.push({ name: 'single_feed', params: { feed_slug: feed.slug } });
+                return;
+            }
 
-            this.$router.push(route);
+            this.$router.back();
         },
     },
     template: `
         <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event">
             <div ref="mount"></div>
-            <section v-if="ready" class="fe-create-event-post">
-                <div>
-                    <h2 class="fe-create-event-post__title">{{ t('Feed post') }}</h2>
-                    <p class="fe-create-event-post__hint">{{ t('What members see in the space feed, above the event.') }}</p>
-                </div>
-                <div class="fe-create-event-post__composer">
-                    <create-status-form
-                        ref="composer"
-                        default-state="active"
-                        :space="$route.query.space || ''"
-                        :hideSubmit="true"
-                        :editing_feed="feed"
-                        @vue:mounted="watchPosting"
-                        @added="posted"
-                        @scheduled="posted"
-                    />
-                </div>
-            </section>
-            <div id="fe-create-event-actions"></div>
+            <teleport v-if="ready" to="#fe-create-event-composer">
+                <create-status-form
+                    ref="composer"
+                    :disableSpace="placement === 'global'"
+                    :hideSubmit="true"
+                    :editing_feed="feed"
+                    @vue:mounted="watchPosting"
+                    @added="posted"
+                    @scheduled="posted"
+                />
+            </teleport>
         </div>
     `,
 };
@@ -161,11 +180,19 @@ function register() {
             meta: { active_menu: 'fe_events' },
         });
 
-        // ?space=slug posts into that space; without it, the composer asks which space.
+        // ?space=slug starts on that space; without it, on community-wide.
         routes.push({
             path: '/create-new-event',
             name: 'fe_create_event',
             component: createEventShell,
+            meta: { active_menu: 'fe_events' },
+        });
+
+        // A community-wide event, beside fcom's /post/:feed_slug as the space one sits beside space/:space/post.
+        routes.push({
+            path: '/event/:event_slug',
+            name: 'fe_global_event_view',
+            component: pageShell('global_event_view'),
             meta: { active_menu: 'fe_events' },
         });
 
@@ -223,7 +250,7 @@ function register() {
     });
 
     // Event posts carry the event instead of attachments; images inside the message stay allowed.
-    // They also need a discussion space, so "On my profile" is not offered.
+    // "On my profile" is the create page's Community-wide choice, so the space picker lists spaces only.
     addFilter('fluent_com_composer_config', 'fluent-event', (config, feed) => {
         if (!feed || feed.content_type !== 'event') {
             return config;

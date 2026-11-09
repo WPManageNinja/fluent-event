@@ -55,15 +55,29 @@ export default {
         eventRoute() {
             const space = this.feed.space && this.feed.space.slug;
 
-            return space && this.event.slug ? { name: 'fe_event_view', params: { space, event_slug: this.event.slug } } : null;
+            if (!this.event.slug) {
+                return null;
+            }
+
+            if (space) {
+                return { name: 'fe_event_view', params: { space, event_slug: this.event.slug } };
+            }
+
+            // A post outside any space is a community-wide event.
+            return this.feed.space_id ? null : { name: 'fe_global_event_view', params: { event_slug: this.event.slug } };
         },
-        // fcom's admin app (moderation reports) renders the card too, without the portal's event route.
+        // fcom's admin app (moderation reports) renders the card too, without the portal's event routes.
         hasEventPage() {
-            return this.$router.hasRoute('fe_event_view');
+            return !!this.eventRoute && this.$router.hasRoute(this.eventRoute.name);
         },
         // There the title links to the portal page by URL, as fcom's own post title does.
         portalUrl() {
             return (window.fluentComAdmin || {}).portal_url || '';
+        },
+        portalEventUrl() {
+            const { space, event_slug: slug } = this.eventRoute.params;
+
+            return this.portalUrl + (space ? `space/${space}/` : '') + `event/${slug}`;
         },
     },
     methods: {
@@ -115,7 +129,7 @@ export default {
                                     class="fe-event-card__title-link"
                                     :to="eventRoute"
                                 >{{ event.title }}</router-link>
-                                <a v-else-if="eventRoute && portalUrl" class="fe-event-card__title-link" :href="portalUrl + 'space/' + eventRoute.params.space + '/event/' + eventRoute.params.event_slug">{{ event.title }}</a>
+                                <a v-else-if="eventRoute && portalUrl" class="fe-event-card__title-link" :href="portalEventUrl">{{ event.title }}</a>
                                 <template v-else>{{ event.title }}</template>
                             </h3>
                             <event-menu v-if="!is_child" class="fe-event-card__menu" :event="event"></event-menu>

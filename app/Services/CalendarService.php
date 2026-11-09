@@ -6,12 +6,41 @@ use FluentEvent\App\Models\Calendar;
 use FluentEvent\Framework\Support\Arr;
 
 /**
- * Calendars that belong to a FluentCommunity space. The link is one key in
- * `calendars.meta` — no column, no join table.
+ * Calendars that belong to a FluentCommunity space, and the one Community calendar for events
+ * posted outside any space. Each link is one key in `calendars.meta` — no column, no join table.
  */
 class CalendarService
 {
     const SPACE_META_KEY = 'fcom_space_id';
+    const GLOBAL_META_KEY = 'fcom_global';
+
+    public static function findGlobal()
+    {
+        // The LIKE narrows on the stored JSON; the decoded meta decides.
+        $candidates = Calendar::query()
+            ->where('meta', 'LIKE', '%"' . self::GLOBAL_META_KEY . '"%')
+            ->get();
+
+        foreach ($candidates as $calendar) {
+            if (Arr::get((array) $calendar->meta, self::GLOBAL_META_KEY) === true) {
+                return $calendar;
+            }
+        }
+
+        return null;
+    }
+
+    public static function createGlobal()
+    {
+        return Calendar::create([
+            'title'  => __('Community', 'fluent-event'),
+            'slug'   => self::uniqueSlug('community'),
+            'status' => 'private',
+            'meta'   => array_merge(Calendar::defaultMeta(), [
+                self::GLOBAL_META_KEY => true,
+            ]),
+        ]);
+    }
 
     public static function findBySpace($spaceId)
     {

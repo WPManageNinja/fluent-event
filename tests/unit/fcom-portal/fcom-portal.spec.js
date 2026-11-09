@@ -36,14 +36,15 @@ describe('fcom-portal entry', () => {
     });
 
     describe('routes', () => {
-        it('adds the community events page and the create page', async () => {
+        it('adds the community events page, the create page and the community-wide event page', async () => {
             const { filters } = await loadPortal();
 
             const routes = filters.fluent_com_portal_routes([spaceRoute()]);
 
             expect(routes.slice(1).map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
                 { path: '/events', name: 'fe_events', meta: { active_menu: 'fe_events' } },
-                { path: '/create-new-event', name: 'fe_create_event', meta: { active_menu: 'fe_events' } }
+                { path: '/create-new-event', name: 'fe_create_event', meta: { active_menu: 'fe_events' } },
+                { path: '/event/:event_slug', name: 'fe_global_event_view', meta: { active_menu: 'fe_events' } }
             ]);
         });
 
@@ -59,12 +60,19 @@ describe('fcom-portal entry', () => {
             ]);
         });
 
+        it('frames the community-wide event page itself, since no space layout does', async () => {
+            const { filters } = await loadPortal();
+            const route = filters.fluent_com_portal_routes([spaceRoute()]).find(r => r.name === 'fe_global_event_view');
+
+            expect(route.component.template).toContain('fe-fcom-portal-page--global_event_view');
+        });
+
         it('leaves spaces alone when fcom has no space route', async () => {
             const { filters } = await loadPortal();
 
             const routes = filters.fluent_com_portal_routes([{ path: '/', name: 'all_feeds' }]);
 
-            expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_create_event']);
+            expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_create_event', 'fe_global_event_view']);
         });
     });
 
@@ -145,19 +153,98 @@ describe('fcom-portal entry', () => {
         });
     });
 
-    it('opens a published event post but returns a scheduled one to the space it was posted in', async () => {
+    it('opens a published event post but just goes back from a scheduled one', async () => {
         const { filters } = await loadPortal();
         const createShell = filters.fluent_com_portal_routes([spaceRoute()])
             .find(route => route.name === 'fe_create_event').component;
-        const shell = { space: 'design', $router: { push: vi.fn() } };
+        const shell = { $router: { push: vi.fn(), back: vi.fn() } };
 
         createShell.methods.posted.call(shell, { status: 'published', slug: 'meetup' });
         createShell.methods.posted.call(shell, { status: 'scheduled', slug: 'meetup' });
 
         expect(shell.$router.push.mock.calls).toEqual([
-            [{ name: 'single_feed', params: { feed_slug: 'meetup' } }],
-            [{ name: 'fe_space_events', params: { space: 'design' } }]
+            [{ name: 'single_feed', params: { feed_slug: 'meetup' } }]
         ]);
+        expect(shell.$router.back).toHaveBeenCalledTimes(1);
+    });
+
+    describe('create page placement', () => {
+        const createShell = async () => {
+            const { filters } = await loadPortal();
+
+            return filters.fluent_com_portal_routes([spaceRoute()]).find(route => route.name === 'fe_create_event').component;
+        };
+
+        const shellData = (shell, query, globalPosts) => {
+            window.fluentEventFcomPortal = { ...window.fluentEventFcomPortal, global_posts: globalPosts };
+
+            return shell.data.call({ $route: { query } });
+        };
+
+        it('starts in a space, with no space picked, when opened without one', async () => {
+            const data = shellData(await createShell(), {}, true);
+
+            expect(data.placement).toBe('space');
+            expect(data.feed.space).toBe('');
+        });
+
+        it("starts in the space, picked in the composer, when opened from a space's menu", async () => {
+            const data = shellData(await createShell(), { space: 'design' }, true);
+
+            expect(data.placement).toBe('space');
+            expect(data.feed.space).toBe('design');
+        });
+
+        it("starts in a space, with no space picked, when fcom's global posts are off", async () => {
+            const data = shellData(await createShell(), {}, false);
+
+            expect(data.placement).toBe('space');
+            expect(data.feed.space).toBe('');
+        });
+
+        it('points the composer at the profile post or back at the space as the choice changes', async () => {
+            const { placement } = (await createShell()).watch;
+            const shell = { $route: { query: { space: 'design' } }, feed: { space: 'design' } };
+
+            placement.call(shell, 'global');
+            expect(shell.feed.space).toBe('__self__post__');
+
+            placement.call(shell, 'space');
+            expect(shell.feed.space).toBe('design');
+        });
+
+        it('starts the composer folded, as fcom shows it in the feed', async () => {
+            expect((await createShell()).template).not.toContain('default-state');
+        });
+
+        it('opens a folded composer before posting, so an empty caption gets fcom\'s own error', async () => {
+            const { submitPost } = (await createShell()).methods;
+            const composer = { isStateActive: false, makeActive: vi.fn(), post: vi.fn(), $nextTick: (callback) => callback() };
+            const onPosting = vi.fn();
+
+            submitPost.call({ $refs: { composer } }, onPosting);
+
+            expect(composer.makeActive).toHaveBeenCalled();
+            expect(composer.post).toHaveBeenCalledTimes(1);
+        });
+
+        it('posts straight away from an open composer', async () => {
+            const { submitPost } = (await createShell()).methods;
+            const composer = { isStateActive: true, makeActive: vi.fn(), post: vi.fn() };
+
+            submitPost.call({ $refs: { composer } }, vi.fn());
+
+            expect(composer.makeActive).not.toHaveBeenCalled();
+            expect(composer.post).toHaveBeenCalledTimes(1);
+        });
+
+        // The composer hides itself when its space prop names no real space, as the profile post doesn't.
+        it("never hands the profile post to the composer's space prop, and hides its picker for community-wide", async () => {
+            const template = (await createShell()).template;
+
+            expect(template).not.toMatch(/:space=/);
+            expect(template).toContain(`:disableSpace="placement === 'global'"`);
+        });
     });
 
     // Mounts the real route shell, so the page goes through the same createApp() the portal uses.

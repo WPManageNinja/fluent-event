@@ -37,11 +37,23 @@ describe('EventCard', () => {
         expect(link.text()).toBe('Community meetup');
     });
 
-    it('shows a plain title when the post has no space to link under', () => {
-        const wrapper = card({ fluent_event: meetup() });
+    it("links a community-wide post's title to the event's top-level page", () => {
+        const link = card({ fluent_event: meetup() }).findComponent(RouterLinkStub);
+
+        expect(link.props('to')).toEqual({ name: 'fe_global_event_view', params: { event_slug: 'community-meetup' } });
+    });
+
+    it('shows a plain title when a space post arrives without its space', () => {
+        const wrapper = card({ space_id: 4, fluent_event: meetup() });
 
         expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false);
         expect(wrapper.find('.fe-event-card__title').text()).toBe('Community meetup');
+    });
+
+    it("links a community-wide title by URL in fcom's admin app", () => {
+        const link = card({ fluent_event: meetup() }, {}, false).find('a.fe-event-card__title-link');
+
+        expect(link.attributes('href')).toBe('https://example.test/portal/event/community-meetup');
     });
 
     it("links the title to the portal page by URL in fcom's admin app, which has no event page route", () => {

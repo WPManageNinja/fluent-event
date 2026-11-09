@@ -32,7 +32,7 @@
                                 {{ $calendarStatusLabel(calendar.status) }}
                             </el-tag>
                             <el-tooltip
-                                v-if="calendar.meta?.fcom_space_id"
+                                v-if="calendar.meta?.fcom_space_id || calendar.meta?.fcom_global"
                                 :content="communityMarkLabel"
                                 :trigger="['hover', 'focus']"
                                 placement="top"
@@ -152,6 +152,10 @@
                 return /^https?:\/\//.test(this.spaceUrl) ? this.spaceUrl : '';
             },
             communityMarkLabel() {
+                if (this.calendar.meta?.fcom_global) {
+                    return this.$t('This calendar holds community-wide events.');
+                }
+
                 return this.spaceHref
                     ? this.$t('Open your community space in a new tab')
                     : this.$t('This calendar belongs to a FluentCommunity space.');

@@ -14,7 +14,7 @@ This is the record of intended behaviour. Keep it in step with `Modules/FluentCo
 |---|---|---|
 | Post title, message, comments, reactions, topics, schedule | fcom | `fcom_posts` (`content_type = 'event'`, `meta.event_id`) |
 | Event title, description, dates, venue, cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
-| Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id` |
+| Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id`; the one Community calendar for community-wide events has `fcom_global = true` ([details](fcom-community-wide-events.md)) |
 | Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (the events list joins on it) |
 | Guests | FluentEvent | `fe_guests` (`source = 'community'`, `source_id` = post id) |
 
@@ -35,18 +35,21 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   - `events` in fcom's route paths, and the portal script and styles printed at
     `fluent_community/before_js_loaded` (the portal is headless, so enqueues never print).
 - **FeedHandler** — the event-post lifecycle:
-  - `new_feed_data_type_event`: requires a site administrator (`manage_options`), a discussion space, and valid event
+  - `new_feed_data_type_event`: requires a site administrator (`manage_options`), a discussion space
+    or no space at all (community-wide, only while fcom's global posts are on), and valid event
     input; strips media. Vetoes return `WP_Error` (a thrown exception becomes a bare HTTP 500 in fcom).
-  - `just_created_type_event`: finds or creates the space calendar, claims uploaded cover and
+  - `just_created_type_event`: finds or creates the space calendar (or the Community calendar for a
+    post with no space), claims uploaded cover and
     description images, creates the event (status `private`, author = post author), writes
     `meta.event_id` and the `fcom_feed_id` link. If the event can't be created, the post is deleted.
   - `update_feed_data_type_event` / `update_data`: keep the event link through edits (fcom
-    rebuilds post meta); block moves to the profile or to non-discussion spaces.
-  - `feed/updated`: a post moved to another space moves its event to that space's calendar, and
-    the guests follow.
+    rebuilds post meta); block moves to non-discussion spaces, and moves to the profile while
+    fcom's global posts are off.
+  - `feed/updated`: a post moved to another space, or out of any space, moves its event to that
+    space's calendar (or the Community calendar), and the guests follow.
   - `fluent_event/event/calendar_changed`: an event moved to another calendar in the admin moves
-    its post to that calendar's space; if the calendar has no discussion space, the post lets go
-    of the event and becomes a plain post.
+    its post to that calendar's space, or out of any space for the Community calendar; if the
+    calendar is a site calendar, the post lets go of the event and becomes a plain post.
   - `feed/before_deleted`: deleting the post keeps the event. It drops the post link and parks
     the event as a `draft` with its guests, so its reminders stop and an event manager decides
     whether to delete it.
@@ -62,17 +65,21 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 ## Portal UI (`resources/fcom-portal/`)
 
 - `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`: `/events`,
-  `/create-new-event`, and two children of fcom's space route, `/space/:space/events` and
-  `/space/:space/event/:event_slug`. The event page renders under the space's header and tabs and
+  `/create-new-event`, `/event/:event_slug` (a community-wide event), and two children of fcom's
+  space route, `/space/:space/events` and
+  `/space/:space/event/:event_slug`. The event page renders under the space's header and tabs (at
+  the top level when community-wide) and
   is addressed by the event's own slug (`wp_posts.post_name`, as on the public page), not the
   post's: `GET community/events/by-slug?space=&slug=` returns the post's slug, and the page then
   reads the event through fcom's `feeds/{slug}/by-slug`, so it is visible exactly when its post
-  is. The create page
-  takes an optional `?space=slug`: with it the post goes to that space, without it the composer
-  asks which discussion space. It also registers the event card for `content_type = 'event'`, and
+  is. Back buttons are `router.back()`. The create page starts with **Where do you want to post
+  this event?** — Community-wide (the composer posts to fcom's "On my profile") or In a space
+  (the composer's space picker, spaces only); In a space is preselected, with the space picked when
+  opened with `?space=slug`. Community-wide is disabled while fcom's global posts are off. It also registers the event card for `content_type = 'event'`, and
   a **Create new event** item in two "…" menus, both for site administrators: the space header
   (spaces they may post in, opening with `?space=`) and the portal feed home (no space). For event
-  posts it turns the composer's attachment apps off and drops its "On my profile" option.
+  posts it turns the composer's attachment apps off and removes "On my profile" from the picker.
+  On All Events, each space event shows its space's icon with the space name as tooltip.
 - The pages are a separate Vue + Element Plus app loaded on first visit (fcom exposes neither
   to add-ons). The card is a string template on fcom's own Vue.
 - REST, `fluent-event/v2/community/*`:
@@ -94,7 +101,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   has no team permissions; per-module access is planned for Pro (kept on the `backup/permissions` branch).
 - **Calendars:** created lazily on the first event, named and slugged after the space, status
   `private` (no public page). Admins may change the status later. After that the calendar's title
-  and slug are its own: editing the space leaves them alone.
+  and slug are its own: editing the space leaves them alone. Community-wide events share one
+  `Community` calendar, created the same way.
 - **Statuses:** events are `public | unlisted | private | draft`, calendars `public | private | draft`. fcom-created events
   start `private`, like their calendars. Both statuses show in the admin and can be changed there.
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
@@ -126,7 +134,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
     claimed, not duplicated; an email already registered to another member is refused.
   - Saying *going* again keeps a checked-in guest checked in.
 - **Visibility:** lists show published posts in discussion spaces the viewer can see (joined +
-  public; public only for logged-out visitors on a publicly accessible portal). Registration also
+  public; public only for logged-out visitors on a publicly accessible portal), plus community-wide
+  posts for anyone who can see the portal (not in a space's own list). Registration also
   accepts an unlisted post the viewer can open. Draft events and events with no post are not found.
   As in fcom, a post whose author's community profile isn't active (blocked, pending or
   deactivated) hides its event until the profile is active again. The admin still lists all of them.
