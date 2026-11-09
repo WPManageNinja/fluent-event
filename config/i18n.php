@@ -259,6 +259,7 @@ return [
             'Only http and https links are accepted.' => __('Only http and https links are accepted.', 'fluent-event'),
             /* translators: %s is the calendar title */
             'Open %s' => __('Open %s', 'fluent-event'),
+            'Open the community post in a new tab' => __('Open the community post in a new tab', 'fluent-event'),
             'Open your community space in a new tab' => __('Open your community space in a new tab', 'fluent-event'),
             'Optional. Shown on the event page.' => __('Optional. Shown on the event page.', 'fluent-event'),
             'Overview' => __('Overview', 'fluent-event'),
