@@ -2,6 +2,7 @@
 
 namespace FluentEvent\Tests\Unit\Http;
 
+use FluentEvent\App\Http\Middleware\Throttle;
 use FluentEvent\App\Http\Policies\Policy;
 use FluentEvent\Tests\Helpers\RouteRecorder;
 use FluentEvent\Tests\TestCase;
@@ -109,12 +110,15 @@ class RouteSmokeTest extends TestCase
         }
     }
 
-    public function test_the_member_rsvp_endpoint_is_rate_limited()
+    // The framework's own limiter lets every logged-in request through, so registration needs ours.
+    public function test_every_registration_endpoint_is_throttled_for_everyone()
     {
-        $register = $this->find('POST', 'community/events/{id}/register');
+        foreach (['community/events/{id}/register', 'community/events/{id}/register-guest', 'portal/events/{id}/register-guest'] as $uri) {
+            $route = $this->find('POST', $uri);
 
-        $this->assertNotNull($register, 'The community RSVP route is gone');
-        $this->assertArrayHasKey('rate_limit_per_minute', $register['meta']);
+            $this->assertNotNull($route, "POST {$uri} is gone");
+            $this->assertSame([Throttle::class], $route['meta']['before'] ?? null, "POST {$uri} is not throttled");
+        }
     }
 
     public function test_no_two_routes_share_a_verb_and_uri()
