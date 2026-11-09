@@ -100,21 +100,23 @@
                     </span>
 
                     <div class="fe-event-item__info">
-                        <div class="fe-event-item__head">
-                            <!-- All Events only: inside a space every event is that space's. Community-wide events have no space. -->
-                            <el-tooltip
-                                v-if="!spaceSlug && event.space"
-                                :content="event.space.title"
-                                :trigger="['hover', 'focus']"
-                                placement="top"
-                            >
-                                <span class="fe-event-item__space" role="img" tabindex="0" :aria-label="event.space.title">
+                        <!-- All Events only: inside a space every event is that space's. -->
+                        <span v-if="!spaceSlug" class="fe-event-item__space">
+                            <span class="fe-event-item__space-icon" aria-hidden="true">
+                                <template v-if="event.space">
                                     <img v-if="event.space.logo" class="fe-event-item__space-logo" :src="event.space.logo" alt=""/>
-                                    <span v-else-if="event.space.emoji" aria-hidden="true">{{ event.space.emoji }}</span>
-                                    <span v-else-if="event.space.shape_svg" class="fe-event-item__space-shape" aria-hidden="true" v-html="event.space.shape_svg"></span><!-- coding-rules-scan:ignore — fcom's space icon, run through fcom's CustomSanitizer::sanitizeSvg server-side, as fcom's sidebar renders it -->
-                                    <el-icon v-else aria-hidden="true"><UserFilled/></el-icon>
-                                </span>
-                            </el-tooltip>
+                                    <template v-else-if="event.space.emoji">{{ event.space.emoji }}</template>
+                                    <span v-else-if="event.space.shape_svg" class="fe-event-item__space-shape" v-html="event.space.shape_svg"></span><!-- coding-rules-scan:ignore — fcom's space icon, run through fcom's CustomSanitizer::sanitizeSvg server-side, as fcom's sidebar renders it -->
+                                    <el-icon v-else><UserFilled/></el-icon>
+                                </template>
+                                <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                                    <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" stroke="currentColor" stroke-width="1.8"/>
+                                </svg>
+                            </span>
+                            <span class="fe-event-item__space-name">{{ event.space ? event.space.title : $t('Community-wide') }}</span>
+                        </span>
+                        <div class="fe-event-item__head">
                             <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openEvent(event)">
                                 <span class="fe-event-item__title-text">{{ event.title }}</span>
                             </a>

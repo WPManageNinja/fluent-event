@@ -1004,25 +1004,37 @@
         margin-bottom: 2px;
     }
 
-    // The event's space as fcom's sidebar draws it: logo, emoji or SVG shape.
+    // A line above the title: the space's icon as fcom's sidebar draws it (logo, emoji or SVG shape) and its name.
     &__space {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        margin-bottom: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 16px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__space-icon {
         flex: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 20px;
-        height: 20px;
-        margin-top: 1px;
-        border-radius: 5px;
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
         overflow: hidden;
-        font-size: 14px;
+        font-size: 13px;
         line-height: 1;
-        color: var(--fcom-secondary-text, #525866);
+    }
 
-        &:focus-visible {
-            outline: 2px solid var(--fcom-primary-button, #2B2E33);
-            outline-offset: 2px;
-        }
+    &__space-name {
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     &__space-logo {
@@ -1032,8 +1044,8 @@
     }
 
     &__space-shape svg {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
     }
 
     // Own colours at rest and on hover, so a site-wide a:hover rule can't dim it; clamped like the FE timeline title.
