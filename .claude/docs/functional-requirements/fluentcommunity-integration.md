@@ -86,6 +86,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   - `GET events` — the events list, filtered to visible posts in SQL.
   - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute.
   - `GET editor-assets` — the WordPress editor markup for the create-event page; site administrators only.
+  - `POST events/validate` — checks the create page's event by the post's own rules before fcom's composer opens, so an error is only a toast; site administrators only.
 
 ## fcom extension points (event-agnostic)
 

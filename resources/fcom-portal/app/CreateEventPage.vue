@@ -479,7 +479,19 @@ export default {
                 });
             }
         },
-        submit() {
+        // The event is checked before fcom's composer is touched: opening it would move the focus to its title.
+        async submit() {
+            this.saving = true;
+
+            try {
+                await eventsApi.post('community/events/validate', { event: this.payload });
+            } catch (error) {
+                ElNotification({ type: 'error', title: this.$t('Error'), message: errorMessage(error) });
+                return;
+            } finally {
+                this.saving = false;
+            }
+
             this.submitPost((posting) => { this.saving = posting; });
         },
         syncEndDate() {

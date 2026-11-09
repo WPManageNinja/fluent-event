@@ -39,6 +39,12 @@ class CommunityPolicy extends Policy
         return $userId && user_can($userId, 'manage_options') && $this->portalAllows($userId);
     }
 
+    // Called by the same create-event page, so the same site administrators.
+    public function validateEvent(Request $request, ...$args)
+    {
+        return $this->getEditorAssets($request, ...$args);
+    }
+
     private function portalAllows($userId)
     {
         if (!defined('FLUENT_COMMUNITY_PLUGIN_VERSION')) {
