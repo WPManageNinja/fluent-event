@@ -99,11 +99,11 @@
                     <div v-if="canAddToCalendar" class="fe-event-view__calendar">
                         <span class="fe-event-view__calendar-label">{{ $t('Add to calendar') }}</span>
                         <div class="fe-event-view__calendar-links">
-                            <a class="fe-event-view__calendar-link" :href="googleCalendarUrl" target="_blank" rel="noopener noreferrer">
+                            <a class="fe-event-view__calendar-link" :href="googleCalendarLink(event, summary, place)" target="_blank" rel="noopener noreferrer">
                                 <span class="fe-event-view__calendar-icon" aria-hidden="true" v-html="icons.GOOGLE"></span> <!-- coding-rules-scan:ignore — static SVG constant from icons.js -->
                                 {{ $t('Google Calendar') }}
                             </a>
-                            <button type="button" class="fe-event-view__calendar-link" @click="saveToCalendar">
+                            <button type="button" class="fe-event-view__calendar-link" @click="saveIcs(event, summary, place)">
                                 <span class="fe-event-view__calendar-icon" aria-hidden="true" v-html="icons.APPLE"></span> <!-- coding-rules-scan:ignore — static SVG constant from icons.js -->
                                 {{ $t('Apple / Outlook') }}
                             </button>
@@ -229,14 +229,13 @@ export default {
 
             return `${text.slice(0, 600)}\n\n${window.location.href}`;
         },
-        googleCalendarUrl() {
-            return googleCalendarLink(this.event, this.summary, this.place);
-        },
     },
     mounted() {
         this.fetchEvent();
     },
     methods: {
+        googleCalendarLink,
+        saveIcs,
         applyResponse(response) {
             this.event = { ...this.event, ...response.event };
         },
@@ -268,9 +267,6 @@ export default {
             } finally {
                 this.loading = false;
             }
-        },
-        saveToCalendar() {
-            saveIcs(this.event, this.summary, this.place);
         },
         goBack() {
             this.router.back();
