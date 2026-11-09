@@ -132,20 +132,32 @@ class DateTimeHelper
         return wp_date($format, strtotime($value . ' UTC'), new DateTimeZone('UTC'));
     }
 
+    // The date an event ends on: one ending at exactly midnight ends the day before (22:00 → 00:00 is one evening).
+    public static function lastDate($start, $end)
+    {
+        if ($end > $start && substr($end, 11, 8) === '00:00:00') {
+            return gmdate('Y-m-d', strtotime(substr($end, 0, 10) . ' UTC') - DAY_IN_SECONDS);
+        }
+
+        return substr($end, 0, 10);
+    }
+
     public static function dateRange($start, $end)
     {
+        $lastDate = self::lastDate($start, $end);
+
         // A single day follows the site's date setting, as the community event page does.
-        if (substr($start, 0, 10) === substr($end, 0, 10)) {
+        if (substr($start, 0, 10) === $lastDate) {
             return self::wallClock($start, get_option('date_format'));
         }
 
         /* translators: 1: start date, 2: end date */
-        return sprintf(_x('%1$s – %2$s', 'date range', 'fluent-event'), self::wallClock($start, 'M j'), self::wallClock($end, 'M j, Y'));
+        return sprintf(_x('%1$s – %2$s', 'date range', 'fluent-event'), self::wallClock($start, 'M j'), self::wallClock($lastDate . ' 00:00:00', 'M j, Y'));
     }
 
     public static function timeRange($start, $end, $zone)
     {
-        $format = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
+        $format = substr($start, 0, 10) === self::lastDate($start, $end) ? get_option('time_format') : 'M j, ' . get_option('time_format');
         /* translators: 1: start time, 2: end time */
         $range = sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), self::wallClock($start, $format), self::wallClock($end, $format));
 
@@ -155,7 +167,7 @@ class DateTimeHelper
     // A span that names its date, e.g. "Nov 6, 3:52 PM – 5:52 PM (Asia/Dhaka)"; the end's date only when it differs.
     public static function dateTimeRange($start, $end, $zone)
     {
-        $endFormat = substr($start, 0, 10) === substr($end, 0, 10) ? get_option('time_format') : 'M j, ' . get_option('time_format');
+        $endFormat = substr($start, 0, 10) === self::lastDate($start, $end) ? get_option('time_format') : 'M j, ' . get_option('time_format');
 
         /* translators: 1: start date and time, 2: end time or end date and time */
         return sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), self::wallClock($start, 'M j, ' . get_option('time_format')), self::wallClock($end, $endFormat))
