@@ -137,6 +137,7 @@ describe('CreateEventPage', () => {
 
     it("submits through fcom's composer and mirrors its posting state on the button", async () => {
         const { vm, props } = await createPage();
+        vm.event.title = 'Friday Q&A';
 
         vm.submit();
         const onPosting = props.submitPost.mock.calls[0][0];
@@ -145,6 +146,30 @@ describe('CreateEventPage', () => {
         expect(vm.saving).toBe(true);
         onPosting(false);
         expect(vm.saving).toBe(false);
+    });
+
+    // Opening fcom's composer would move the focus to its title, so a bad event only shows its error.
+    it('shows an invalid event as a toast and leaves the composer alone', async () => {
+        const { vm, props } = await createPage();
+        const refused = (message) => {
+            ElNotification.mockClear();
+            vm.submit();
+            expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message });
+        };
+
+        vm.event.title = '  ';
+        refused('Event title is required.');
+
+        vm.event.title = 'Friday Q&A';
+        vm.event.end_date = vm.event.start_date;
+        vm.event.end_time = vm.event.start_time;
+        refused('End must be after the start.');
+
+        vm.event.end_date = '2026-12-31';
+        vm.event.venue_type = 'online';
+        refused('An online event needs a meeting link.');
+
+        expect(props.submitPost).not.toHaveBeenCalled();
     });
 
     it('fetches the WordPress editor assets once, not on every visit', async () => {

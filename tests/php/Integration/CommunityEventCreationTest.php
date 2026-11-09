@@ -6,6 +6,7 @@ use FluentCommunity\App\Http\Controllers\FeedsController as FcomFeedsController;
 use FluentCommunity\App\Http\Controllers\SpaceController as FcomSpaceController;
 use FluentCommunity\App\Models\Feed as FcomFeed;
 use FluentCommunity\App\Models\Space as FcomSpace;
+use FluentCommunity\App\Services\FeedsHelper as FcomFeedsHelper;
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Meta;
@@ -320,6 +321,32 @@ class CommunityEventCreationTest extends IntegrationTestCase
 
         $global = CalendarService::createGlobal();
         $this->assertSame((int) $global->id, (int) CalendarService::findGlobal()->id);
+    }
+
+    public function test_an_event_post_needs_no_caption_while_other_posts_still_do()
+    {
+        $required = function ($requestData, $existingFeed = null) {
+            return apply_filters('fluent_community/feed/message_required', true, $requestData, $existingFeed);
+        };
+
+        $this->assertFalse($required(['content_type' => CommunityEvents::CONTENT_TYPE, 'message' => '']));
+        $this->assertTrue($required(['message' => '']));
+
+        // Editing: the request may not repeat the content type, so the existing post decides.
+        $this->assertFalse($required(['message' => ''], (object) ['content_type' => CommunityEvents::CONTENT_TYPE]));
+        $this->assertTrue($required(['message' => ''], (object) ['content_type' => 'text']));
+
+        // fcom then accepts the empty message.
+        $this->assertSame('', FcomFeedsHelper::sanitizeAndValidateData(['message' => ''], false)['message']);
+    }
+
+    public function test_fcom_still_asks_whether_a_post_needs_its_message()
+    {
+        $sanitize = new \ReflectionMethod(FcomFeedsController::class, 'sanitizeAndValidateData');
+        $lines = file($sanitize->getFileName());
+        $body = implode('', array_slice($lines, $sanitize->getStartLine() - 1, $sanitize->getEndLine() - $sanitize->getStartLine() + 1));
+
+        $this->assertStringContainsString("'fluent_community/feed/message_required'", $body);
     }
 
     public function test_fcom_still_fires_the_hooks_event_creation_hangs_on()
