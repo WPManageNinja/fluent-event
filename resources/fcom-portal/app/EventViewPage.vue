@@ -41,12 +41,8 @@
 
                         <p class="fe-event-view__origin">
                             <img v-if="feed.xprofile && feed.xprofile.avatar" class="fe-event-view__origin-avatar" :src="feed.xprofile.avatar" alt=""/>
-                            <span>
-                                <template v-for="(part, index) in originParts" :key="index">
-                                    <strong v-if="part.strong" class="fe-event-view__origin-space">{{ part.text }}</strong>
-                                    <template v-else>{{ part.text }}</template>
-                                </template>
-                            </span>
+                            <span v-if="feed.space">{{ $t('Posted by %s in', author) }} <strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong></span>
+                            <span v-else>{{ $t('Posted by %s on their profile', author) }}</span>
                             <span aria-hidden="true">·</span>
                             <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
                         </p>
@@ -154,17 +150,8 @@ export default {
         isOnline() {
             return this.event.venue_type === 'online';
         },
-        // The space name is bold, so the sentence is split at its placeholders instead of rendered as HTML.
-        originParts() {
-            const author = (this.feed.xprofile || {}).display_name || '';
-
-            if (!this.feed.space) {
-                return [{ text: this.$t('Posted by %s on their profile', author) }];
-            }
-
-            const values = { '%1$s': { text: author }, '%2$s': { text: this.feed.space.title, strong: true } };
-
-            return this.$t('Posted by %1$s in %2$s').split(/(%[12]\$s)/).filter(Boolean).map((part) => values[part] || { text: part });
+        author() {
+            return (this.feed.xprofile || {}).display_name || '';
         },
         postRoute() {
             return { name: 'single_feed', params: { feed_slug: this.feed.slug } };
