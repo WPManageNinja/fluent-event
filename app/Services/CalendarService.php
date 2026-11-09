@@ -14,14 +14,17 @@ class CalendarService
     const SPACE_META_KEY = 'fcom_space_id';
     const GLOBAL_META_KEY = 'fcom_global';
 
-    public static function findGlobal()
+    // $latest: a locking read, which sees rows other requests committed after this transaction's snapshot.
+    public static function findGlobal($latest = false)
     {
         // The LIKE narrows on the stored JSON; the decoded meta decides.
-        $candidates = Calendar::query()
-            ->where('meta', 'LIKE', '%"' . self::GLOBAL_META_KEY . '"%')
-            ->get();
+        $query = Calendar::query()->where('meta', 'LIKE', '%"' . self::GLOBAL_META_KEY . '"%');
 
-        foreach ($candidates as $calendar) {
+        if ($latest) {
+            $query->sharedLock();
+        }
+
+        foreach ($query->get() as $calendar) {
             if (Arr::get((array) $calendar->meta, self::GLOBAL_META_KEY) === true) {
                 return $calendar;
             }
@@ -42,7 +45,8 @@ class CalendarService
         ]);
     }
 
-    public static function findBySpace($spaceId)
+    // $latest: as for findGlobal().
+    public static function findBySpace($spaceId, $latest = false)
     {
         $spaceId = (int) $spaceId;
 
@@ -51,11 +55,13 @@ class CalendarService
         }
 
         // The LIKE also matches ids that only start with this one, so confirm in PHP.
-        $candidates = Calendar::query()
-            ->where('meta', 'LIKE', '%"' . self::SPACE_META_KEY . '":' . $spaceId . '%')
-            ->get();
+        $query = Calendar::query()->where('meta', 'LIKE', '%"' . self::SPACE_META_KEY . '":' . $spaceId . '%');
 
-        foreach ($candidates as $calendar) {
+        if ($latest) {
+            $query->sharedLock();
+        }
+
+        foreach ($query->get() as $calendar) {
             if ((int) Arr::get((array) $calendar->meta, self::SPACE_META_KEY) === $spaceId) {
                 return $calendar;
             }

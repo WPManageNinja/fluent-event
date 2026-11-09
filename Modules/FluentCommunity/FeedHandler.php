@@ -425,8 +425,8 @@ class FeedHandler
     // The space's own calendar, or the Community calendar for a post outside any space.
     protected function calendarFor($spaceId)
     {
-        $find = function () use ($spaceId) {
-            return $spaceId ? CalendarService::findBySpace($spaceId) : CalendarService::findGlobal();
+        $find = function ($latest = false) use ($spaceId) {
+            return $spaceId ? CalendarService::findBySpace($spaceId, $latest) : CalendarService::findGlobal($latest);
         };
 
         if ($calendar = $find()) {
@@ -442,8 +442,9 @@ class FeedHandler
             }
         } catch (QueryException $e) {
             // Two first posts at once both picked the same free slug; the unique index let the other one
-            // through, so its calendar is the one to use.
-            if ($calendar = $find()) {
+            // through, so its calendar is the one to use. A locking read, since inside a REPEATABLE READ
+            // transaction a plain one keeps the old snapshot and misses it.
+            if ($calendar = $find(true)) {
                 return $calendar;
             }
 

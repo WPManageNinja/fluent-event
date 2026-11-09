@@ -30,6 +30,12 @@ class CommunityEventCreationTest extends IntegrationTestCase
     /** @var bool Set once raceCalendarInsert() has taken the slug. */
     private $raced = false;
 
+    /** @var \wpdb|null The concurrent request's own connection. */
+    private $rival;
+
+    /** @var int[] Calendars the rival committed. */
+    private $rivalCalendarIds = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -40,6 +46,16 @@ class CommunityEventCreationTest extends IntegrationTestCase
 
         $this->host = $this->createAdmin();
         $this->actAs($this->host);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        // Committed outside the test's transaction, so the rollback left them; the event rows pointing at them are gone by now.
+        foreach ($this->rivalCalendarIds as $id) {
+            $this->rival->delete($this->table('fe_calendars'), ['id' => $id]);
+        }
     }
 
     public function test_posting_an_event_creates_the_event_its_space_calendar_and_reminder()
@@ -113,9 +129,10 @@ class CommunityEventCreationTest extends IntegrationTestCase
             $this->wpdb->suppress_errors($suppress);
         }
 
+        // Read through the rival's connection: this test's own snapshot can't see the rival's row either.
         $this->assertTrue($this->raced, 'The race was not staged.');
-        $this->assertSame($slug, Calendar::query()->find($event->calendar_id)->slug);
-        $this->assertSame(1, Calendar::query()->where('slug', $slug)->count());
+        $this->assertSame($this->rivalCalendarIds[0], (int) $event->calendar_id);
+        $this->assertSame('1', $this->rival->get_var($this->rival->prepare("SELECT COUNT(*) FROM {$this->table('fe_calendars')} WHERE slug = %s", $slug)));
     }
 
     public function test_a_post_whose_calendar_cannot_be_made_is_deleted()
@@ -385,23 +402,26 @@ class CommunityEventCreationTest extends IntegrationTestCase
     }
 
     /**
-     * Stages two first posts at once: right before our calendar insert, another one takes the same slug.
+     * Stages two first posts at once: right before our calendar insert, another request takes the same
+     * slug and commits, on its own connection, after this test's transaction has its snapshot.
      * Returns that slug.
      */
     private function raceCalendarInsert(array $meta)
     {
         $slug = CalendarService::uniqueSlug('community');
         $table = $this->table('fe_calendars');
+        $this->rival = $this->rival ?: new \wpdb(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
 
         $this->addTestFilter('query', function ($query) use ($slug, $meta, $table) {
             if (!$this->raced && preg_match('/^\s*insert\s+into\s+`?' . preg_quote($table, '/') . '`?/i', $query)) {
                 $this->raced = true;
-                $this->wpdb->insert($table, [
+                $this->rival->insert($table, [
                     'title'  => 'Community',
                     'slug'   => $slug,
                     'status' => 'private',
                     'meta'   => wp_json_encode($meta),
                 ]);
+                $this->rivalCalendarIds[] = (int) $this->rival->insert_id;
             }
 
             return $query;
