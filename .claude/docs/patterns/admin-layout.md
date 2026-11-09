@@ -43,6 +43,8 @@ same shape as affiliate's. The cost is the one affiliate already pays: the menu 
 `AdminMenuHandler::getMenuItemsList()` / `getRightMenuItemsList()` and the route list in
 [routes.js](../../../resources/admin/router/routes.js) are maintained separately, joined
 only by `meta.active_menu` matching a `data-key`. Adding a nav item means touching both.
+The exception is **Frontend Portal**: a link out to the landing pages, listed only while they
+are enabled, with `new_tab` set so it opens in a new tab. It has no route.
 
 A screen that also belongs in the **wp-admin sidebar** takes a third edit — an
 `addSubmenu()` call. Pass a bare route (`'calendars'`, not `'#/calendars'`): the handler
