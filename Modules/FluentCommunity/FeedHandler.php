@@ -14,6 +14,7 @@ use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\Facade\DB;
+use FluentEvent\Framework\Database\QueryException;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Validator\ValidationException;
 use FluentEvent\Framework\Validator\Validator;
@@ -79,8 +80,6 @@ class FeedHandler
     public function createEvent($feed, $requestData)
     {
         $input = $this->eventInput($requestData);
-        $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
-
         $input['cover_url'] = $this->claimMedia(Arr::get($input, 'cover_url'), $feed, 'event_cover');
 
         // Images added to the description are fcom uploads too, and need the same claim.
@@ -90,10 +89,9 @@ class FeedHandler
             return $match[1] . $match[2] . esc_attr($url) . $match[2];
         }, (string) Arr::get($input, 'description', ''));
 
-        $data = EventRequest::format($input);
-
         try {
-            $event = EventService::createEvent($data, $feed->user_id);
+            $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
+            $event = EventService::createEvent(EventRequest::format($input), $feed->user_id);
         } catch (\Throwable $e) {
             // An event post without its event would only render a dead card.
             $feed->delete();
@@ -427,15 +425,30 @@ class FeedHandler
     // The space's own calendar, or the Community calendar for a post outside any space.
     protected function calendarFor($spaceId)
     {
-        if ($calendar = $spaceId ? CalendarService::findBySpace($spaceId) : CalendarService::findGlobal()) {
+        $find = function ($latest = false) use ($spaceId) {
+            return $spaceId ? CalendarService::findBySpace($spaceId, $latest) : CalendarService::findGlobal($latest);
+        };
+
+        if ($calendar = $find()) {
             return $calendar;
         }
 
-        if ($spaceId) {
-            $space = FcomBaseSpace::query()->find($spaceId);
-            $calendar = CalendarService::createForSpace($spaceId, $space->title, $space->slug);
-        } else {
-            $calendar = CalendarService::createGlobal();
+        try {
+            if ($spaceId) {
+                $space = FcomBaseSpace::query()->find($spaceId);
+                $calendar = CalendarService::createForSpace($spaceId, $space->title, $space->slug);
+            } else {
+                $calendar = CalendarService::createGlobal();
+            }
+        } catch (QueryException $e) {
+            // Two first posts at once both picked the same free slug; the unique index let the other one
+            // through, so its calendar is the one to use. A locking read, since inside a REPEATABLE READ
+            // transaction a plain one keeps the old snapshot and misses it.
+            if ($calendar = $find(true)) {
+                return $calendar;
+            }
+
+            throw $e;
         }
 
         do_action('fluent_event/calendar/created', $calendar);

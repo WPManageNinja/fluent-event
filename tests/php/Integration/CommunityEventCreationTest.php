@@ -11,6 +11,7 @@ use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\Settings;
+use FluentEvent\Framework\Database\QueryException;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
 use FluentEvent\Tests\IntegrationTestCase;
 
@@ -26,6 +27,15 @@ class CommunityEventCreationTest extends IntegrationTestCase
     /** @var int */
     private $host;
 
+    /** @var bool Set once raceCalendarInsert() has taken the slug. */
+    private $raced = false;
+
+    /** @var \wpdb|null The concurrent request's own connection. */
+    private $rival;
+
+    /** @var int[] Calendars the rival committed. */
+    private $rivalCalendarIds = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -36,6 +46,16 @@ class CommunityEventCreationTest extends IntegrationTestCase
 
         $this->host = $this->createAdmin();
         $this->actAs($this->host);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        // Committed outside the test's transaction, so the rollback left them; the event rows pointing at them are gone by now.
+        foreach ($this->rivalCalendarIds as $id) {
+            $this->rival->delete($this->table('fe_calendars'), ['id' => $id]);
+        }
     }
 
     public function test_posting_an_event_creates_the_event_its_space_calendar_and_reminder()
@@ -92,6 +112,49 @@ class CommunityEventCreationTest extends IntegrationTestCase
 
         $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
         $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')));
+    }
+
+    public function test_a_calendar_another_post_made_at_the_same_moment_is_used()
+    {
+        $this->setGlobalPosts(true);
+        $this->forgetSiteGlobalCalendar();
+        $slug = $this->raceCalendarInsert([CalendarService::GLOBAL_META_KEY => true]);
+
+        // Our insert's duplicate-key error is the point; keep wpdb from printing it.
+        $suppress = $this->wpdb->suppress_errors(true);
+
+        try {
+            $event = $this->postCommunityWide('Town hall');
+        } finally {
+            $this->wpdb->suppress_errors($suppress);
+        }
+
+        // Read through the rival's connection: this test's own snapshot can't see the rival's row either.
+        $this->assertTrue($this->raced, 'The race was not staged.');
+        $this->assertSame($this->rivalCalendarIds[0], (int) $event->calendar_id);
+        $this->assertSame('1', $this->rival->get_var($this->rival->prepare("SELECT COUNT(*) FROM {$this->table('fe_calendars')} WHERE slug = %s", $slug)));
+    }
+
+    public function test_a_post_whose_calendar_cannot_be_made_is_deleted()
+    {
+        $this->setGlobalPosts(true);
+        $this->forgetSiteGlobalCalendar();
+        // The row that takes the slug is not a Community calendar, so there is none to fall back on.
+        $this->raceCalendarInsert([]);
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => null], $request));
+        $suppress = $this->wpdb->suppress_errors(true);
+
+        try {
+            do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+            $this->fail('A failed calendar insert must not be swallowed.');
+        } catch (QueryException $e) {
+            $this->assertTrue($this->raced, 'The race was not staged.');
+        } finally {
+            $this->wpdb->suppress_errors($suppress);
+        }
+
+        $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
     }
 
     public function test_deleting_the_post_parks_the_event_as_a_draft_with_its_guests()
@@ -336,6 +399,35 @@ class CommunityEventCreationTest extends IntegrationTestCase
     private function setGlobalPosts($enabled)
     {
         $this->addTestFilter('fluent_community/has_global_post', $enabled ? '__return_true' : '__return_false');
+    }
+
+    /**
+     * Stages two first posts at once: right before our calendar insert, another request takes the same
+     * slug and commits, on its own connection, after this test's transaction has its snapshot.
+     * Returns that slug.
+     */
+    private function raceCalendarInsert(array $meta)
+    {
+        $slug = CalendarService::uniqueSlug('community');
+        $table = $this->table('fe_calendars');
+        $this->rival = $this->rival ?: new \wpdb(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+
+        $this->addTestFilter('query', function ($query) use ($slug, $meta, $table) {
+            if (!$this->raced && preg_match('/^\s*insert\s+into\s+`?' . preg_quote($table, '/') . '`?/i', $query)) {
+                $this->raced = true;
+                $this->rival->insert($table, [
+                    'title'  => 'Community',
+                    'slug'   => $slug,
+                    'status' => 'private',
+                    'meta'   => wp_json_encode($meta),
+                ]);
+                $this->rivalCalendarIds[] = (int) $this->rival->insert_id;
+            }
+
+            return $query;
+        });
+
+        return $slug;
     }
 
     // The dev site may already hold a real Community calendar; unflag it inside this test's rolled-back transaction.
