@@ -72,7 +72,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   is addressed by the event's own slug (`wp_posts.post_name`, as on the public page), not the
   post's: `GET community/events/by-slug?space=&slug=` returns the post's slug, and the page then
   reads the event through fcom's `feeds/{slug}/by-slug`, so it is visible exactly when its post
-  is. Back buttons are `router.back()`. The create page starts with **Where do you want to post
+  is. Under the title it says who posted it and where ("Posted by {name} in {space}", or "on their
+  profile" when community-wide) with a **View post** link to fcom's `single_feed`, from that same
+  response. Back buttons are `router.back()`. The create page starts with **Where do you want to post
   this event?** — Community-wide (the composer posts to fcom's "On my profile") or In a space
   (the composer's space picker, spaces only); In a space is preselected, with the space picked when
   opened with `?space=slug`. Community-wide is disabled while fcom's global posts are off. It also registers the event card for `content_type = 'event'`, and

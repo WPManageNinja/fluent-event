@@ -38,6 +38,14 @@
                                 <span>{{ isOnline ? $t('Online') : (event.venue || $t('In person')) }}</span>
                             </li>
                         </ul>
+
+                        <p class="fe-event-view__origin">
+                            <img v-if="feed.xprofile && feed.xprofile.avatar" class="fe-event-view__origin-avatar" :src="feed.xprofile.avatar" alt=""/>
+                            <span v-if="feed.space">{{ $t('Posted by %s in', author) }} <strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong></span>
+                            <span v-else>{{ $t('Posted by %s on their profile', author) }}</span>
+                            <span aria-hidden="true">·</span>
+                            <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
+                        </p>
                     </div>
 
                     <div class="fe-event-view__body">
@@ -133,6 +141,7 @@ export default {
         return {
             loading: true,
             event: null,
+            feed: null,
             error: '',
             icons: { APPLE, GOOGLE },
         };
@@ -140,6 +149,12 @@ export default {
     computed: {
         isOnline() {
             return this.event.venue_type === 'online';
+        },
+        author() {
+            return (this.feed.xprofile || {}).display_name || '';
+        },
+        postRoute() {
+            return { name: 'single_feed', params: { feed_slug: this.feed.slug } };
         },
         month() {
             return dayjs(this.event.start_at_local).format('MMM');
@@ -255,6 +270,7 @@ export default {
                 const { feed_slug: feedSlug } = await eventsApi.get('community/events/by-slug', { space: this.spaceSlug, slug: this.eventSlug });
                 const response = await communityApi.get(`feeds/${feedSlug}/by-slug`);
 
+                this.feed = response.feed;
                 this.event = response.feed.fluent_event || null;
             } catch (error) {
                 this.event = null;

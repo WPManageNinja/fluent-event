@@ -26,12 +26,12 @@ const meetup = (overrides = {}) => ({
 });
 
 // The URL names the space and the event; its post, which fcom reads it by, has a slug of its own.
-const page = async (event) => {
+const page = async (event, feed = {}) => {
     fetch.mockResolvedValueOnce(new Response(JSON.stringify({ feed_slug: 'meetup-post' })));
     fetch.mockResolvedValueOnce(new Response(JSON.stringify({
-        feed: { slug: 'meetup-post', space: { slug: 'design' }, fluent_event: event }
+        feed: { slug: 'meetup-post', space: { slug: 'design', title: 'Design' }, xprofile: { display_name: 'Jhon Doe', avatar: '' }, fluent_event: event, ...feed }
     })));
-    const router = { push: vi.fn(), back: vi.fn() };
+    const router = { push: vi.fn(), back: vi.fn(), resolve: (route) => ({ href: `/portal/post/${route.params.feed_slug}` }) };
     const wrapper = mount(EventViewPage, {
         props: { spaceSlug: 'design', eventSlug: 'community-meetup', router },
         global: { mocks: { $t: t } }
@@ -62,6 +62,22 @@ describe('EventViewPage', () => {
             expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/community/events/by-slug?space=design&slug=community-meetup');
             expect(fetch.mock.calls[1][0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/meetup-post/by-slug');
             expect(wrapper.find('.fe-event-view__title').text()).toBe('Community meetup');
+        });
+
+        // The event page has no other way back to its post, its author or its space.
+        it('names who posted the event and where, and links to the post', async () => {
+            const { wrapper, router } = await page(meetup());
+            const origin = wrapper.find('.fe-event-view__origin');
+
+            expect(origin.text()).toMatch(/Posted by Jhon Doe in\s+Design/);
+            expect(origin.find('.fe-event-view__origin-space').text()).toBe('Design');
+            expect(origin.find('a').attributes('href')).toBe('/portal/post/meetup-post');
+
+            await origin.find('a').trigger('click');
+            expect(router.push).toHaveBeenCalledWith({ name: 'single_feed', params: { feed_slug: 'meetup-post' } });
+
+            const { wrapper: global } = await page(meetup(), { space: null });
+            expect(global.find('.fe-event-view__origin').text()).toContain('Posted by Jhon Doe on their profile');
         });
 
         it('shows the unavailable state when no visible event has that slug in that space', async () => {

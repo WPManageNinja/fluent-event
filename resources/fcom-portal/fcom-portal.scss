@@ -1973,6 +1973,44 @@ body {
         }
     }
 
+    &__origin {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 8px;
+        margin: 12px 0 0;
+        font-size: 14px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__origin-space {
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__origin-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &__origin-link {
+        font-weight: 500;
+        color: var(--fcom-primary-button, #2b2e33);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+    }
+
     &__card {
         padding: 20px;
         border: 1px solid var(--fcom-primary-border, #e3e8ee);
