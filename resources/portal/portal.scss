@@ -1239,6 +1239,29 @@ html.dark {
             max-width: 100%;
             height: auto;
         }
+
+        // A long code line or a wide table scrolls inside the card, not the page.
+        pre {
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-wrap: normal;
+        }
+
+        table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+            overflow-wrap: normal;
+        }
+
+        th,
+        td {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+            text-align: left;
+            vertical-align: top;
+        }
     }
 
     // Stays in view beside a long description; scrolls with the page on narrow screens.

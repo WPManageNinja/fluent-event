@@ -2138,9 +2138,11 @@ body {
         grid-area: intro;
     }
 
+    // minmax(0, …): an auto track widens to the longest unbreakable line, pushing the card under the side card.
     &__body {
         grid-area: body;
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
         gap: 16px;
     }
 
@@ -2259,6 +2261,29 @@ body {
         img {
             max-width: 100%;
             height: auto;
+        }
+
+        // A long code line or a wide table scrolls inside the card, not the page.
+        pre {
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-wrap: normal;
+        }
+
+        table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+            overflow-wrap: normal;
+        }
+
+        th,
+        td {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+            text-align: left;
+            vertical-align: top;
         }
     }
 
