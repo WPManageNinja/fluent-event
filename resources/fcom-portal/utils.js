@@ -1,4 +1,5 @@
 // Shared by the event card (which runs on FluentCommunity's Vue) and the lazy page app.
+import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 
 export const portalVars = () => window.fluentEventFcomPortal || {};
 
@@ -121,6 +122,33 @@ export function timezoneOffset(zone, date = new Date()) {
     } catch (e) {
         return '';
     }
+}
+
+// The event page passes its description and place; the registration dialog has neither to hand.
+export function googleCalendarLink(event, details, location) {
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: event.title,
+        dates: `${icsStamp(event.start_at)}/${icsStamp(event.end_at)}`,
+        details,
+        location,
+    });
+
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+export function saveIcs(event, details, location) {
+    const text = buildIcs({
+        id: event.id,
+        title: event.title,
+        start_at: event.start_at,
+        end_at: event.end_at,
+        description: details,
+        location,
+        url: window.location.href,
+    });
+
+    downloadIcs(text, `${event.slug}.ics`);
 }
 
 export function isSeated(event) {

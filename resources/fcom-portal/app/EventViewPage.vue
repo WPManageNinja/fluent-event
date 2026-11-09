@@ -117,8 +117,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, dateFormat, eventPhase, guestCountLabel, hasEventActions, isSeated, portalVars, timeFormat } from '../utils';
-import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, timeFormat } from '../utils';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
@@ -231,15 +230,7 @@ export default {
             return `${text.slice(0, 600)}\n\n${window.location.href}`;
         },
         googleCalendarUrl() {
-            const params = new URLSearchParams({
-                action: 'TEMPLATE',
-                text: this.event.title,
-                dates: `${icsStamp(this.event.start_at)}/${icsStamp(this.event.end_at)}`,
-                details: this.summary,
-                location: this.place,
-            });
-
-            return `https://calendar.google.com/calendar/render?${params.toString()}`;
+            return googleCalendarLink(this.event, this.summary, this.place);
         },
     },
     mounted() {
@@ -279,17 +270,7 @@ export default {
             }
         },
         saveToCalendar() {
-            const text = buildIcs({
-                id: this.event.id,
-                title: this.event.title,
-                start_at: this.event.start_at,
-                end_at: this.event.end_at,
-                description: this.summary,
-                location: this.place,
-                url: window.location.href,
-            });
-
-            downloadIcs(text, `${this.eventSlug}.ics`);
+            saveIcs(this.event, this.summary, this.place);
         },
         goBack() {
             this.router.back();

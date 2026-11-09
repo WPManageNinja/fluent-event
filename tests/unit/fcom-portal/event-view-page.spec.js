@@ -7,6 +7,7 @@ import EventActions from '../../../resources/fcom-portal/EventActions';
 const meetup = (overrides = {}) => ({
     id: 5,
     title: 'Community meetup',
+    slug: 'community-meetup',
     description: '',
     start_at: '2026-10-20 12:00:00',
     end_at: '2026-10-20 14:00:00',
