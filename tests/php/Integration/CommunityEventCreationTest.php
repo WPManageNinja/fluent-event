@@ -187,6 +187,22 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertArrayNotHasKey('space_url', $this->rest('GET', "calendars/{$calendarId}")['data']);
     }
 
+    public function test_the_events_list_links_a_community_event_to_its_post()
+    {
+        $request = $this->postRequest(['title' => 'Feed link probe']);
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $feed = FcomFeed::query()->find($feed->id);
+        $plainEvent = $this->createEvent(['title' => 'Feed link probe, no post']);
+
+        $response = $this->rest('GET', 'events', ['search' => 'Feed link probe']);
+        $this->assertSame(200, $response['status']);
+        $events = array_column($response['data']['events']['data'], null, 'id');
+
+        $this->assertSame($feed->getPermalink(), $events[CommunityEvents::eventIdOf($feed)]['feed_url']);
+        $this->assertArrayNotHasKey('feed_url', $events[$plainEvent->id]);
+    }
+
     public function test_fcom_still_fires_the_hook_space_deletion_hangs_on()
     {
         $delete = new \ReflectionMethod(FcomSpaceController::class, 'deleteBySlug');

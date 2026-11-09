@@ -42,6 +42,7 @@ class FeedHandler
         add_action('fluent_event/event/before_deleted', [$this, 'unlinkPost'], 5);
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);
+        add_filter('fluent_event/events_api_response', [$this, 'addFeedUrls']);
     }
 
     public function validateNewPost($data, $requestData)
@@ -242,6 +243,42 @@ class FeedHandler
         $feed->content_type = 'text';
         $feed->meta = Arr::except((array) $feed->meta, ['event_id']);
         $feed->save();
+    }
+
+    public function addFeedUrls($data)
+    {
+        $eventIds = [];
+
+        foreach ($data['events'] as $event) {
+            $eventIds[] = $event->id;
+        }
+
+        if (!$eventIds) {
+            return $data;
+        }
+
+        $feedIds = Meta::query()
+            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+            ->whereIn('object_id', $eventIds)
+            ->where('meta_key', CommunityEvents::FEED_META_KEY)
+            ->pluck('value', 'object_id')
+            ->toArray();
+
+        if (!$feedIds) {
+            return $data;
+        }
+
+        $feeds = FcomFeed::query()->with(['space'])->whereIn('id', $feedIds)->get()->keyBy('id');
+
+        foreach ($data['events'] as $event) {
+            $feed = $feeds->get((int) Arr::get($feedIds, $event->id));
+
+            if ($feed && CommunityEvents::eventIdOf($feed) === (int) $event->id) {
+                $event->feed_url = esc_url_raw($feed->getPermalink());
+            }
+        }
+
+        return $data;
     }
 
     public function preloadEvents($config, $feeds)
