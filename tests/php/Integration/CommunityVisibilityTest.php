@@ -131,12 +131,52 @@ class CommunityVisibilityTest extends IntegrationTestCase
         $this->assertContains($this->rest('GET', 'community/events', ['search' => $this->token])['status'], [401, 403]);
     }
 
-    private function listedEventIds()
+    public function test_a_community_wide_event_is_listed_without_a_space_and_left_out_of_a_space_filter()
     {
-        $response = $this->rest('GET', 'community/events', ['search' => $this->token, 'per_page' => 50]);
+        $global = $this->spaceEvent(null, 'community-wide');
+
+        $items = array_column($this->listed(), null, 'id');
+        $this->assertArrayHasKey($global->id, $items);
+        $this->assertSame('', $items[$global->id]['space_slug']);
+        $this->assertNull($items[$global->id]['space'], 'A community-wide event must carry no space icon.');
+        $this->assertSame('Integration public space', $items[$this->events['public']->id]['space']['title']);
+
+        $publicSlug = $this->wpdb->get_var($this->wpdb->prepare("SELECT slug FROM {$this->table('fcom_spaces')} WHERE id = %d", $this->spaces['public']));
+        $this->assertNotContains($global->id, $this->listedEventIds(['space' => $publicSlug]));
+    }
+
+    public function test_a_logged_out_visitor_on_a_public_portal_sees_community_wide_events()
+    {
+        $global = $this->spaceEvent(null, 'community-wide');
+        $this->setPortalAccess('public');
+        $this->actAs(0);
+
+        $this->assertContains($global->id, $this->listedEventIds());
+    }
+
+    public function test_the_event_page_finds_a_community_wide_event_only_without_a_space_in_its_url()
+    {
+        $global = $this->spaceEvent(null, 'community-wide');
+        $slug = get_post($global->post_id)->post_name;
+        $spaceEventSlug = get_post($this->events['public']->post_id)->post_name;
+        $publicSlug = $this->wpdb->get_var($this->wpdb->prepare("SELECT slug FROM {$this->table('fcom_spaces')} WHERE id = %d", $this->spaces['public']));
+
+        $this->assertSame(200, $this->rest('GET', 'community/events/by-slug', ['slug' => $slug])['status']);
+        $this->assertSame(404, $this->rest('GET', 'community/events/by-slug', ['slug' => $slug, 'space' => $publicSlug])['status']);
+        $this->assertSame(404, $this->rest('GET', 'community/events/by-slug', ['slug' => $spaceEventSlug])['status'], 'A space event opened without its space must not be found.');
+    }
+
+    private function listed(array $params = [])
+    {
+        $response = $this->rest('GET', 'community/events', array_merge(['search' => $this->token, 'per_page' => 50], $params));
         $this->assertSame(200, $response['status']);
 
-        return array_map('intval', array_column($response['data']['events'], 'id'));
+        return $response['data']['events'];
+    }
+
+    private function listedEventIds(array $params = [])
+    {
+        return array_map('intval', array_column($this->listed($params), 'id'));
     }
 
     private function setPortalAccess($level)

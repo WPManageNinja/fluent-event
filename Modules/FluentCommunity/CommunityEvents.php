@@ -51,6 +51,12 @@ class CommunityEvents
         return $space && $space->type === 'community';
     }
 
+    // A post outside any space is open to everyone who can see the portal, as fcom's own feed shows it.
+    public static function canViewSpacelessPosts()
+    {
+        return FcomHelper::getCurrentUser() || FcomHelper::isPublicAccessible();
+    }
+
     // Discussion spaces whose posts the current viewer can read.
     public static function visibleSpaceIds()
     {
@@ -75,13 +81,17 @@ class CommunityEvents
 
     public static function canViewFeed($feed)
     {
-        if (!$feed || !in_array($feed->status, ['published', 'unlisted'], true) || !$feed->space_id) {
+        if (!$feed || !in_array($feed->status, ['published', 'unlisted'], true)) {
             return false;
         }
 
         // fcom hides posts whose author is blocked, pending or deactivated.
         if (!$feed->xprofile || $feed->xprofile->status !== 'active') {
             return false;
+        }
+
+        if (!$feed->space_id) {
+            return self::canViewSpacelessPosts();
         }
 
         $space = $feed->space;

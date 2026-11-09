@@ -233,6 +233,95 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertInstanceOf(\WP_Error::class, $this->validate(['space_id' => $spaceId], $endsBeforeItStarts));
     }
 
+    public function test_a_community_wide_post_files_its_event_in_the_one_private_community_calendar()
+    {
+        $this->setGlobalPosts(true);
+        $this->forgetSiteGlobalCalendar();
+
+        $first = $this->postCommunityWide('Town hall');
+        $second = $this->postCommunityWide('Town hall, part two');
+
+        $calendar = Calendar::query()->find($first->calendar_id);
+        $this->assertSame('Community', $calendar->title);
+        $this->assertSame('private', $calendar->status);
+        $this->assertTrue($calendar->meta[CalendarService::GLOBAL_META_KEY]);
+        $this->assertArrayNotHasKey(CalendarService::SPACE_META_KEY, $calendar->meta);
+        $this->assertSame((int) $first->calendar_id, (int) $second->calendar_id, 'A second community-wide event made another calendar.');
+        $this->assertSame('private', $first->status);
+    }
+
+    public function test_community_wide_events_are_refused_while_fcom_global_posts_are_off()
+    {
+        $this->setGlobalPosts(false);
+
+        $this->assertWPErrorCode('fluent_event_space', $this->validate(['space_id' => null], $this->postRequest()));
+
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $this->postRequest()));
+        $moved = apply_filters('fluent_community/feed/update_feed_data_type_event', [], ['move_to_profile' => 'yes'], $feed);
+        $this->assertWPErrorCode('fluent_event_space', $moved);
+    }
+
+    public function test_moving_an_event_post_between_a_space_and_community_wide_moves_its_event_and_guests()
+    {
+        $this->setGlobalPosts(true);
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $feed = FcomFeed::query()->find($feed->id);
+        $event = Event::query()->find(CommunityEvents::eventIdOf($feed));
+        $guest = $this->createGuest($event);
+
+        $this->assertNotWPError(apply_filters('fluent_community/feed/update_feed_data_type_event', [], ['move_to_profile' => 'yes'], $feed));
+        $feed->space_id = null;
+        $feed->save();
+        do_action('fluent_community/feed/updated', $feed, ['space_id' => null]);
+
+        $globalId = (int) CalendarService::findGlobal()->id;
+        $this->assertSame($globalId, (int) Event::query()->find($event->id)->calendar_id);
+        $this->assertSame($globalId, (int) $guest->fresh()->calendar_id);
+
+        $feed->space_id = $spaceId;
+        $feed->save();
+        do_action('fluent_community/feed/updated', $feed, ['space_id' => $spaceId]);
+
+        $this->assertSame((int) CalendarService::findBySpace($spaceId)->id, (int) Event::query()->find($event->id)->calendar_id);
+    }
+
+    public function test_moving_an_event_into_the_community_calendar_in_the_admin_makes_its_post_community_wide()
+    {
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $event = Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
+
+        $event->calendar_id = CalendarService::createGlobal()->id;
+        $event->save();
+        do_action('fluent_event/event/calendar_changed', $event);
+
+        $feed = FcomFeed::query()->find($feed->id);
+        $this->assertNull($feed->space_id);
+        $this->assertSame((int) $event->id, CommunityEvents::eventIdOf($feed), 'The post let go of its event.');
+    }
+
+    public function test_the_global_calendar_lookup_reads_the_decoded_meta()
+    {
+        $this->forgetSiteGlobalCalendar();
+
+        // A calendar whose meta only mentions the key, with any value but true, is not the global one.
+        $this->wpdb->insert($this->table('fe_calendars'), [
+            'title'  => 'Lookalike',
+            'slug'   => 'fe-test-' . strtolower(wp_generate_password(10, false, false)),
+            'status' => 'private',
+            'meta'   => wp_json_encode([CalendarService::GLOBAL_META_KEY => false]),
+        ]);
+
+        $this->assertNull(CalendarService::findGlobal());
+
+        $global = CalendarService::createGlobal();
+        $this->assertSame((int) $global->id, (int) CalendarService::findGlobal()->id);
+    }
+
     public function test_fcom_still_fires_the_hooks_event_creation_hangs_on()
     {
         $store = new \ReflectionMethod(FcomFeedsController::class, 'store');
@@ -241,6 +330,33 @@ class CommunityEventCreationTest extends IntegrationTestCase
 
         $this->assertStringContainsString("'fluent_community/feed/new_feed_data_type_'", $body);
         $this->assertStringContainsString("'fluent_community/feed/just_created_type_'", $body);
+    }
+
+    // fcom caches its settings statically, so its own filter is the switch a test can flip.
+    private function setGlobalPosts($enabled)
+    {
+        $this->addTestFilter('fluent_community/has_global_post', $enabled ? '__return_true' : '__return_false');
+    }
+
+    // The dev site may already hold a real Community calendar; unflag it inside this test's rolled-back transaction.
+    private function forgetSiteGlobalCalendar()
+    {
+        while ($calendar = CalendarService::findGlobal()) {
+            $calendar->meta = array_merge((array) $calendar->meta, [CalendarService::GLOBAL_META_KEY => false]);
+            $calendar->save();
+        }
+    }
+
+    private function postCommunityWide($title)
+    {
+        $request = $this->postRequest(['title' => $title]);
+        $data = $this->validate(['space_id' => null], $request);
+        $this->assertNotWPError($data);
+
+        $feed = $this->savePost($data);
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+
+        return Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
     }
 
     private function createSpace($type = 'community')

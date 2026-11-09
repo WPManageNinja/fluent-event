@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Controllers;
 
 use FluentCommunity\App\Models\Space as FcomSpace;
+use FluentCommunity\App\Services\CustomSanitizer;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
@@ -23,9 +24,11 @@ class CommunityEventController extends Controller
     public function getEvents(Request $request)
     {
         $spaceIds = CommunityEvents::visibleSpaceIds();
+        $withSpaceless = CommunityEvents::canViewSpacelessPosts();
 
         if ($spaceSlug = $request->getSafe('space', 'sanitize_title')) {
             $spaceIds = FcomSpace::query()->whereIn('id', $spaceIds)->where('slug', $spaceSlug)->pluck('id')->toArray();
+            $withSpaceless = false;
         }
 
         $from = $request->getSafe('from', 'sanitize_text_field');
@@ -34,7 +37,7 @@ class CommunityEventController extends Controller
         $query = Event::query()
             ->with(['post'])
             // Visibility is matched in SQL, so only what was asked for is ever loaded.
-            ->whereIn('id', function ($query) use ($spaceIds) {
+            ->whereIn('id', function ($query) use ($spaceIds, $withSpaceless) {
                 $query->select('fe_meta.object_id')
                     ->from('fe_meta')
                     ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
@@ -45,7 +48,13 @@ class CommunityEventController extends Controller
                     ->where('fcom_posts.content_type', CommunityEvents::CONTENT_TYPE)
                     ->where('fcom_posts.status', 'published')
                     ->where('fcom_xprofile.status', 'active')
-                    ->whereIn('fcom_posts.space_id', $spaceIds);
+                    ->where(function ($query) use ($spaceIds, $withSpaceless) {
+                        $query->whereIn('fcom_posts.space_id', $spaceIds);
+
+                        if ($withSpaceless) {
+                            $query->orWhereNull('fcom_posts.space_id');
+                        }
+                    });
             })
             ->byStatus(Event::LIVE_STATUSES)
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
@@ -73,20 +82,31 @@ class CommunityEventController extends Controller
 
         $formatted = EventService::formatEvents($events);
 
-        $spaceSlugs = Meta::query()
+        $spaceIds = Meta::query()
             ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
-            ->join('fcom_spaces', 'fcom_spaces.id', '=', 'fcom_posts.space_id')
             ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
             ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
             ->whereIn('fe_meta.object_id', array_keys($formatted))
-            ->pluck('fcom_spaces.slug', 'fe_meta.object_id')
+            ->pluck('fcom_posts.space_id', 'fe_meta.object_id')
             ->toArray();
+
+        $spaces = FcomSpace::query()->whereIn('id', array_filter($spaceIds))->get()->keyBy('id');
 
         $items = [];
 
         foreach ($events as $event) {
+            $space = $spaces->get((int) Arr::get($spaceIds, $event->id));
+
+            // A community-wide event has no space, so no slug and no icon. The icon is fcom's sidebar one:
+            // logo, else emoji, else SVG shape, sanitized the way fcom sanitizes it for its own menus.
             $items[] = array_merge($formatted[$event->id], [
-                'space_slug' => $spaceSlugs[$event->id],
+                'space_slug' => $space ? $space->slug : '',
+                'space'      => $space ? [
+                    'title'     => $space->title,
+                    'logo'      => esc_url_raw((string) $space->logo),
+                    'emoji'     => (string) Arr::get($space->settings, 'emoji', ''),
+                    'shape_svg' => CustomSanitizer::sanitizeSvg((string) Arr::get($space->settings, 'shape_svg', '')),
+                ] : null,
             ]);
         }
 
@@ -104,9 +124,11 @@ class CommunityEventController extends Controller
 
         list($event, $feed) = $event ? CommunityEvents::visibleEvent($event->id) : [null, null];
 
-        $space = $feed ? FcomSpace::query()->find($feed->space_id) : null;
+        // An event posted outside any space has no space in its URL.
+        $space = $feed && $feed->space_id ? FcomSpace::query()->find($feed->space_id) : null;
+        $spaceSlug = $space ? $space->slug : '';
 
-        if (!$event || !$space || $space->slug !== $request->getSafe('space', 'sanitize_title')) {
+        if (!$event || ($feed->space_id && !$space) || $spaceSlug !== $request->getSafe('space', 'sanitize_title', '')) {
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
         }
 
