@@ -151,8 +151,13 @@ class CommunityEventController extends Controller
         $entryType = Arr::get((array) $event->meta, 'entry_type');
         $status = $request->getSafe('status', 'sanitize_text_field');
 
-        if (!in_array($status, $entryType === 'open' ? ['going'] : ['going', 'not_going'], true)) {
+        if (!in_array($status, $entryType === 'open' ? ['going', 'cancelled'] : ['going', 'not_going'], true)) {
             return $this->sendError(['message' => __('Please choose going or not going.', 'fluent-event')], 422);
+        }
+
+        // Only a registration the member holds can be cancelled; otherwise a cancelled row would appear from nothing.
+        if ($status === 'cancelled' && !in_array(EventService::formatEvents([$event])[(int) $event->id]['my_status'], Event::SEAT_STATUSES, true)) {
+            return $this->sendError(['message' => __('You are not registered for this event.', 'fluent-event')], 422);
         }
 
         // An open event's form lets the member change their name; their email is the account's.
@@ -179,7 +184,9 @@ class CommunityEventController extends Controller
         RegistrationService::queueEmail($guest, $previousStatus);
 
         // The portal shows an RSVP's message as a toast; an open event's registration gets its own dialog.
-        if ($guest->status === 'not_going') {
+        if ($guest->status === 'cancelled') {
+            $message = __('Registration cancelled.', 'fluent-event');
+        } elseif ($guest->status === 'not_going') {
             $message = __("RSVP updated. You're not going.", 'fluent-event');
         } elseif ($entryType === 'rsvp') {
             $message = __("RSVP updated. You're going!", 'fluent-event');

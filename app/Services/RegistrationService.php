@@ -67,7 +67,7 @@ class RegistrationService
         $previousStatus = $guest->status;
 
         // Going again keeps a checked-in guest checked in.
-        if ($status === 'not_going' || !in_array($guest->status, Event::SEAT_STATUSES, true)) {
+        if (in_array($status, ['not_going', 'cancelled'], true) || !in_array($guest->status, Event::SEAT_STATUSES, true)) {
             $guest->status = $status;
         }
 
@@ -103,7 +103,7 @@ class RegistrationService
 
         if ($guest->status === 'going' && !$wasGoing && !empty($emails['registration_confirmation']['enabled'])) {
             as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
-        } elseif ($guest->status === 'not_going' && $wasGoing && !empty($emails['registration_cancellation']['enabled'])) {
+        } elseif (in_array($guest->status, ['not_going', 'cancelled'], true) && $wasGoing && !empty($emails['registration_cancellation']['enabled'])) {
             as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
         }
     }

@@ -212,6 +212,37 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $this->guestsOf($event)[0]->status);
     }
 
+    public function test_a_member_cancels_an_open_registration_and_can_register_again()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->rsvp($event, 'going');
+
+        $response = $this->rsvp($event, 'cancelled');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('Registration cancelled.', $response['data']['message']);
+        $guest = $this->guestsOf($event)[0];
+        $this->assertSame('cancelled', $guest->status);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
+
+        $this->assertSame(200, $this->rsvp($event, 'going')['status']);
+        $this->assertCount(1, $this->guestsOf($event));
+        $this->assertSame('going', $this->guestsOf($event)[0]->status);
+    }
+
+    // A cancel with nothing to cancel would otherwise create a cancelled row; RSVP answers not going instead.
+    public function test_only_a_held_open_registration_can_be_cancelled()
+    {
+        [$open] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->assertSame(422, $this->rsvp($open, 'cancelled')['status']);
+        $this->assertCount(0, $this->guestsOf($open));
+
+        [$rsvp] = $this->communityEvent();
+        $this->rsvp($rsvp, 'going');
+        $this->assertSame(422, $this->rsvp($rsvp, 'cancelled')['status']);
+        $this->assertSame('going', $this->guestsOf($rsvp)[0]->status);
+    }
+
     public function test_a_visitor_registers_for_an_open_event_by_name_and_email()
     {
         [$event] = $this->communityEvent(['venue_type' => 'online'], ['entry_type' => 'open', 'online_meeting_url' => 'https://meet.example.test/open']);
