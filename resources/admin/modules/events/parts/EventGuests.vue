@@ -132,7 +132,7 @@
             :event-id="eventId"
             :guest="activeGuest"
             :statuses="statuses"
-            @saved="onGuestSaved"
+            @saved="fetchGuests"
         />
 
         <GuestDetailsModal v-model="detailsOpen" :guest="activeGuest" />
@@ -295,19 +295,9 @@
                     errorState: null,
                     successNotify: true,
                     errorNotify: true,
-                    onSuccess: response => {
-                        this.onGuestSaved(response.guest);
-                    },
+                    // The tab counts, the total and the active filter all move with it, so the page is read again.
+                    onSuccess: () => this.fetchGuests(),
                 });
-            },
-            onGuestSaved(guest) {
-                const index = this.guests.findIndex(item => item.id === guest.id);
-
-                if (index !== -1) {
-                    this.guests.splice(index, 1, guest);
-                } else {
-                    this.guests.unshift(guest);
-                }
             },
             promptDelete(row) {
                 this.activeGuest = row;
