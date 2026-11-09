@@ -3,6 +3,7 @@
 namespace FluentEvent\Tests\Unit\Http;
 
 use Brain\Monkey\Functions;
+use FluentEvent\App\Hooks\Handlers\AdminMenuHandler;
 use FluentEvent\App\Hooks\Handlers\LandingPageHandler;
 use FluentEvent\App\Http\Controllers\SettingsController;
 use FluentEvent\App\Services\Settings;
@@ -89,5 +90,29 @@ class LandingPagesToggleTest extends TestCase
         $this->save('no');
 
         $this->assertSame($rules, get_option('rewrite_rules'));
+    }
+
+    public function test_the_admin_topbar_links_the_frontend_portal_only_while_landing_pages_are_on()
+    {
+        Functions\when('user_trailingslashit')->alias(function ($path) {
+            return rtrim($path, '/') . '/';
+        });
+        $menu = new class extends AdminMenuHandler {
+            public function __construct()
+            {
+                $this->baseUrl = 'admin.php?page=fluent-event#/';
+            }
+
+            public function items()
+            {
+                return array_column($this->getMenuItemsList(), 'permalink', 'key');
+            }
+        };
+
+        $this->assertArrayNotHasKey('frontend_portal', $menu->items());
+
+        Settings::update(Settings::GENERAL, ['enable_landing_pages' => 'yes']);
+
+        $this->assertSame('https://example.com/events/', $menu->items()['frontend_portal']);
     }
 }
