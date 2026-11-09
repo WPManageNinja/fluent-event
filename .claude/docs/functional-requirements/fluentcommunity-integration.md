@@ -61,6 +61,9 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   its event: every event in it becomes a `draft` with its guests and loses its post link, and the
   calendar becomes a `draft` with no space. Nothing is deleted; an admin decides that in FluentEvent.
   (fcom bulk-deletes the posts without per-post hooks, so `feed/before_deleted` never runs here.)
+  `space/user_left` (a member leaves or is removed) on a private or secret space cancels that
+  member's seats in the space calendar's events that haven't ended, with no email, so reminders
+  stop mailing them the meeting link. A public space's events stay visible, so its seats stay.
 
 ## Portal UI (`resources/fcom-portal/`)
 

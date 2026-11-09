@@ -3,7 +3,10 @@
 namespace FluentEvent\Modules\FluentCommunity;
 
 use FluentCommunity\App\Models\BaseSpace as FcomBaseSpace;
+use FluentEvent\App\Models\Event;
+use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Services\CalendarService;
+use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Facade\DB;
 use FluentEvent\Framework\Support\Arr;
 
@@ -13,7 +16,41 @@ class SpaceHandler
     {
         // fcom bulk-deletes the space's posts with no per-post hooks, so the per-post park never runs.
         add_action('fluent_community/space/before_delete', [$this, 'parkCalendar']);
+        add_action('fluent_community/space/user_left', [$this, 'releaseSeats'], 10, 2);
         add_filter('fluent_event/calendar_api_response', [$this, 'addSpaceUrl']);
+    }
+
+    // A member who leaves or is removed from a private or secret space can no longer see its events, so their
+    // seats in events not yet over are cancelled, quietly: otherwise the reminders keep mailing them the meeting link.
+    public function releaseSeats($space, $userId)
+    {
+        if ($space->privacy === 'public') {
+            return;
+        }
+
+        $calendar = CalendarService::findBySpace($space->id);
+
+        if (!$calendar) {
+            return;
+        }
+
+        $guests = Guest::query()
+            ->where('calendar_id', $calendar->id)
+            ->where('user_id', (int) $userId)
+            ->whereIn('status', Event::SEAT_STATUSES)
+            ->whereHas('event', function ($query) {
+                $query->where('end_at', '>=', gmdate(DateTimeHelper::FORMAT));
+            })
+            ->get();
+
+        foreach ($guests as $guest) {
+            $previousStatus = $guest->status;
+            $guest->status = 'cancelled';
+            $guest->checked_in_at = null;
+            $guest->save();
+
+            do_action('fluent_event/guest/updated', $guest, $previousStatus);
+        }
     }
 
     public function addSpaceUrl($data)
