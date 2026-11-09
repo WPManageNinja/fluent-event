@@ -141,6 +141,16 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertCount(10, $this->guestsOf($event));
     }
 
+    public function test_an_email_sent_as_a_list_is_refused_not_a_server_error()
+    {
+        $event = $this->onlineEvent('rsvp');
+
+        $response = $this->registerGuest($event, ['email' => ['visitor@example.test']]);
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertCount(0, $this->guestsOf($event));
+    }
+
     // An unlisted event opens only by its link, so walking ids without its page's nonce finds nothing.
     public function test_an_event_cannot_be_registered_for_by_id_alone()
     {
