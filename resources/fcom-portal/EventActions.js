@@ -1,5 +1,8 @@
-import { t, portalVars, eventsApi, errorMessage, isSeated } from './utils';
-import { CHECK, CHEVRON, CROSS } from './icons';
+import { h } from 'vue';
+import { ElMessageBox, ElNotification } from 'element-plus';
+import { Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
+import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
+import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE } from './icons';
 
 /*
  * The RSVP dropdown, or an open event's Register form (no undo): a member's arrives filled in,
@@ -86,6 +89,7 @@ export default {
                     });
                 this.close();
                 this.$emit('done', response);
+                this.showRegistered(response.event);
             } catch (error) {
                 this.formError = errorMessage(error);
             } finally {
@@ -103,12 +107,51 @@ export default {
             this.$emit('error', '');
 
             try {
-                this.$emit('done', await eventsApi.post(`community/events/${this.event.id}/register`, { status }));
+                const response = await eventsApi.post(`community/events/${this.event.id}/register`, { status });
+                this.$emit('done', response);
+                ElNotification({ type: 'success', message: response.message });
             } catch (error) {
                 this.$emit('error', errorMessage(error));
             } finally {
                 this.busy = false;
             }
+        },
+        // Registering is a form with no undo, so it ends in a dialog: what it was for, and its calendar links.
+        showRegistered(event) {
+            const online = event.venue_type === 'online';
+            const location = online
+                ? (/^https?:\/\//i.test(event.online_meeting_url) ? event.online_meeting_url : '')
+                : [event.venue, event.address].filter(Boolean).join(', ');
+            // The SVGs are icons.js constants, never user data.
+            const svg = (markup) => h('span', { class: 'fe-registered__icon', innerHTML: markup });
+
+            ElMessageBox.alert(h('div', { class: 'fe-registered' }, [
+                h('div', { class: 'fe-registered__head' }, [
+                    h('span', { class: 'fe-registered__check', innerHTML: CHECK }),
+                    h('strong', { class: 'fe-registered__title' }, t('You\'re registered')),
+                ]),
+                h('div', { class: 'fe-registered__event' }, [
+                    event.cover_url
+                        ? h('img', { class: 'fe-registered__cover', src: event.cover_url, alt: '' })
+                        : h('span', { class: 'fe-registered__chip', 'aria-hidden': 'true' }, [
+                            h('span', { class: 'fe-registered__chip-month' }, eventMonth(event)),
+                            h('span', { class: 'fe-registered__chip-day' }, eventDay(event)),
+                        ]),
+                    h('div', { class: 'fe-registered__details' }, [
+                        h('span', { class: 'fe-registered__event-title' }, event.title),
+                        h('span', { class: 'fe-registered__meta' }, [h(Clock, { class: 'fe-registered__meta-icon' }), eventStart(event)]),
+                        h('span', { class: 'fe-registered__meta' }, [
+                            h(online ? VideoCamera : MapLocation, { class: 'fe-registered__meta-icon' }),
+                            online ? t('Online') : (event.venue || t('In person')),
+                        ]),
+                    ]),
+                ]),
+                h('span', { class: 'fe-registered__label' }, t('Add to calendar')),
+                h('div', { class: 'fe-registered__calendar' }, [
+                    h('a', { class: 'fe-registered__calendar-link', href: googleCalendarLink(event, '', location), target: '_blank', rel: 'noopener noreferrer' }, [svg(GOOGLE), t('Google Calendar')]),
+                    h('button', { type: 'button', class: 'fe-registered__calendar-link', onClick: () => saveIcs(event, '', location) }, [svg(APPLE), t('Apple / Outlook')]),
+                ]),
+            ]), '', { customClass: 'fe-registered-box', confirmButtonText: t('Done'), confirmButtonClass: 'fcom_primary_button' }).catch(() => {});
         },
     },
     template: `

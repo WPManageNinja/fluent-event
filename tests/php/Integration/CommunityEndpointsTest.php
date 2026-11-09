@@ -176,6 +176,17 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $this->rsvp($event, 'going')['status']);
     }
 
+    // The portal shows an RSVP's message as a toast, so it names the answer the member just gave.
+    public function test_the_reply_message_names_the_answer_or_the_registration()
+    {
+        [$event] = $this->communityEvent();
+        $this->assertSame("RSVP updated. You're going!", $this->rsvp($event, 'going')['data']['message']);
+        $this->assertSame("RSVP updated. You're not going.", $this->rsvp($event, 'not_going')['data']['message']);
+
+        [$open] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->assertSame('You are registered.', $this->rsvp($open, 'going')['data']['message']);
+    }
+
     public function test_a_member_registers_for_an_open_event_and_gets_the_email()
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);

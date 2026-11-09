@@ -1856,6 +1856,202 @@ body {
     }
 }
 
+// The dialog after registering for an open event: Element Plus's message box, rendered into <body>.
+// Its CSS loads after ours, so the box rules carry both classes.
+.el-message-box.fe-registered-box {
+    width: min(420px, calc(100vw - 32px));
+    padding: 28px 24px 24px;
+    border: 1px solid var(--fcom-primary-border, #e3e8ee);
+    border-radius: 16px;
+    background: var(--fcom-primary-bg, #ffffff);
+
+    .el-message-box__header {
+        padding: 0;
+    }
+
+    .el-message-box__headerbtn {
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+    }
+
+    .el-message-box__content {
+        padding: 0;
+    }
+
+    .el-message-box__btns {
+        padding: 18px 0 0;
+
+        .el-button {
+            width: 100%;
+            height: 40px;
+            margin: 0;
+            border-radius: 10px;
+            box-shadow: none;
+
+            &:focus-visible {
+                outline: 2px solid var(--fcom-primary-button, #2b2e33);
+                outline-offset: 2px;
+            }
+        }
+    }
+}
+
+.fe-registered {
+    display: grid;
+    gap: 18px;
+    color: var(--fcom-primary-text, #19283a);
+
+    &__head {
+        display: grid;
+        justify-items: center;
+        gap: 10px;
+        text-align: center;
+    }
+
+    &__check {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--el-color-success-light-9, #f0f9eb);
+        color: var(--el-color-success, #67c23a);
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    &__title {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    &__event {
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr);
+        align-items: start;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 12px;
+        background: var(--fcom-secondary-bg, #f6f8fa);
+    }
+
+    &__cover {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    &__chip {
+        display: grid;
+        justify-items: center;
+        padding: 6px 0;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+    }
+
+    &__chip-month {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__chip-day {
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    &__details {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    &__event-title {
+        display: -webkit-box;
+        overflow: hidden;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.35;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__meta-icon {
+        width: 14px;
+        height: 14px;
+        flex: none;
+    }
+
+    &__label {
+        margin-bottom: -10px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__calendar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    &__calendar-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 10px;
+        background: transparent;
+        color: var(--fcom-primary-text, #19283a);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--fcom-active-bg, #f0f3f5);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 2px;
+        }
+    }
+
+    &__icon {
+        display: inline-flex;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
 // The event on its own page, after FluentCommunity's event-spaces view: details beside an RSVP panel.
 .fe-event-view {
     color: var(--fcom-primary-text, #19283a);
