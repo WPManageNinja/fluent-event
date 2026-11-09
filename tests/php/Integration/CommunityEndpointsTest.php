@@ -147,6 +147,33 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
     }
 
+    // A deleted account's row must not keep refusing the same person, who signs up again with that email.
+    public function test_a_new_account_with_a_deleted_members_email_takes_over_their_registration()
+    {
+        [$event] = $this->communityEvent();
+        $leaving = $this->createUser('subscriber');
+        FcomHelper::addToSpace($this->spaceId, $leaving, 'member', 'by_admin');
+        $this->actAs($leaving);
+        $this->rsvp($event, 'going');
+        $email = get_userdata($leaving)->user_email;
+
+        require_once ABSPATH . 'wp-admin/includes/user.php';
+        wp_delete_user($leaving);
+
+        $this->assertNull($this->guestsOf($event)[0]->user_id, 'The row outlives the account as an email guest');
+
+        $returning = wp_insert_user(['user_login' => 'fe-returning-' . strtolower(wp_generate_password(6, false, false)), 'user_email' => $email, 'user_pass' => wp_generate_password(), 'role' => 'subscriber']);
+        FcomHelper::addToSpace($this->spaceId, $returning, 'member', 'by_admin');
+        $this->actAs($returning);
+
+        $response = $this->rsvp($event, 'not_going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $guests = $this->guestsOf($event);
+        $this->assertCount(1, $guests);
+        $this->assertSame([(int) $returning, 'not_going'], [(int) $guests[0]->user_id, $guests[0]->status]);
+    }
+
     public function test_a_checked_in_guest_stays_checked_in_when_saying_going_again()
     {
         [$event] = $this->communityEvent();
