@@ -135,6 +135,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   reminders. "New event" notifications are fcom's own new-post notifications.
 - **FluentEvent admin:** calendars and events can be created here too, with no space or post
   linked. An event created here has no post, so the portal doesn't show it, even in a space calendar.
+  The fcom logo links out: on a space calendar's page to its space, on an event card to its post.
 
 ## Tests
 
