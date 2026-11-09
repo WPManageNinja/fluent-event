@@ -46,7 +46,8 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        isOnline() {
+        // Not isOnline: this card runs on fcom's Vue, whose global mixin has an isOnline(dateTime) method.
+        isOnlineEvent() {
             return this.event.venue_type === 'online';
         },
         hasActions() {
@@ -136,9 +137,9 @@ export default {
                         </div>
                         <p class="fe-event-card__meta">{{ startDate }}</p>
                         <p class="fe-event-card__meta fe-event-card__meta--venue">
-                            <span v-if="isOnline" class="fe-event-card__venue-icon" aria-hidden="true">${VIDEO_CAMERA}</span>
+                            <span v-if="isOnlineEvent" class="fe-event-card__venue-icon" aria-hidden="true">${VIDEO_CAMERA}</span>
                             <span v-else class="fe-event-card__venue-icon" aria-hidden="true">${MAP_LOCATION}</span>
-                            {{ isOnline ? t('Online') : t('In person') }}
+                            {{ isOnlineEvent ? t('Online') : t('In person') }}
                         </p>
                     </div>
                 </div>
