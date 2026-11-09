@@ -31,6 +31,7 @@ class FeedHandler
 
     public function register()
     {
+        add_filter('fluent_community/feed/message_required', [$this, 'captionRequired'], 10, 3);
         add_filter('fluent_community/feed/new_feed_data_type_event', [$this, 'validateNewPost'], 10, 2);
         add_action('fluent_community/feed/just_created_type_event', [$this, 'createEvent'], 10, 2);
         add_filter('fluent_community/feed/update_feed_data_type_event', [$this, 'validatePostUpdate'], 10, 3);
@@ -43,6 +44,14 @@ class FeedHandler
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);
         add_filter('fluent_event/events_api_response', [$this, 'addFeedUrls']);
+    }
+
+    // The event card is the post's content, so its caption is optional, when posting and when editing.
+    public function captionRequired($required, $requestData, $existingFeed = null)
+    {
+        $contentType = $existingFeed ? $existingFeed->content_type : Arr::get($requestData, 'content_type');
+
+        return $contentType === CommunityEvents::CONTENT_TYPE ? false : $required;
     }
 
     public function validateNewPost($data, $requestData)

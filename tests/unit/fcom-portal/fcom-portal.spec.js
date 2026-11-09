@@ -217,7 +217,7 @@ describe('fcom-portal entry', () => {
             expect((await createShell()).template).not.toContain('default-state');
         });
 
-        it('opens a folded composer before posting, so an empty caption gets fcom\'s own error', async () => {
+        it('opens a folded composer before posting, since post() ignores a folded one', async () => {
             const { submitPost } = (await createShell()).methods;
             const composer = { isStateActive: false, makeActive: vi.fn(), post: vi.fn(), $nextTick: (callback) => callback() };
             const onPosting = vi.fn();

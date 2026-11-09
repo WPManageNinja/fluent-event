@@ -129,7 +129,7 @@ const createEventShell = {
             const composer = this.$refs.composer;
             this.onPosting = onPosting;
 
-            // post() does nothing while the composer is folded; open it first, so an empty caption gets fcom's own error.
+            // post() does nothing while the composer is folded, and an event post needs no caption, so open it and post.
             if (!composer.isStateActive) {
                 composer.makeActive();
                 composer.$nextTick(() => composer.post());
