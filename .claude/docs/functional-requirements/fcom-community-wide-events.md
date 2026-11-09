@@ -61,7 +61,7 @@ events can be posted (see A6).
 | V1 | fcom home feed + author's profile | The post shows there with the event card (fcom's own feed). | Today |
 | V2 | Event card in the feed | Title links to `/event/{event-slug}` (space events keep their space URL). | Build |
 | V3 | All Events (`/events`) | Lists community-wide events with space events (tabs, search, views unchanged). | Branch |
-| V4 | All Events — origin icon | Each **space** event shows its space's icon (logo image, else emoji, else SVG shape, else a generic icon) with the space name as tooltip and accessible label. Community-wide events show nothing. **Card and timeline views only**; not in a space's own tab, not in the calendar grid. No filter. | Build |
+| V4 | All Events — origin line | A short line above the title: each **space** event shows its space's icon (logo image, else emoji, else SVG shape, else a generic icon) and the space name; a community-wide event shows a globe and "Community-wide". **Card and timeline views only**; not in a space's own tab, not in the calendar grid. No filter. | Build |
 | V5 | A space's Events tab | Only that space's events; never community-wide ones. | Branch |
 | V6 | Community-wide event page | Same page as a space event, rendered at portal top level (no space header/tabs). | Build |
 | V7 | Back buttons | Every Back (event page, create page) is `router.back()`, no fixed fallback URL. | Build (event page fell back to the space tab) |

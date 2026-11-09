@@ -229,30 +229,25 @@ describe('EventsPage', () => {
             expect(router.push).toHaveBeenCalledWith({ name: 'fe_global_event_view', params: { event_slug: 'town-hall' } });
         });
 
-        describe('space icon', () => {
+        describe('space line', () => {
             const events = [
                 { id: 5, title: 'Launch party', space_slug: 'design', space: { title: 'Design Team', logo: '', emoji: '🎨', shape_svg: '' } },
                 { id: 6, title: 'Town hall', space_slug: '', space: null },
             ];
 
-            // The tooltip renders its trigger, so the icon inside it is visible to the test.
-            const tooltip = { ElTooltip: { template: '<div class="tooltip-stub" :data-content="content"><slot /></div>', props: ['content'] } };
-
-            it('marks space events on All Events with the space icon and name, and community-wide ones with nothing', async () => {
+            it('puts each event\'s space above its title on All Events, and Community-wide on one with no space', async () => {
                 fetch.mockResolvedValueOnce(json(listResponse(events)));
-                const { wrapper } = await eventsPage({}, tooltip);
-                const icons = wrapper.findAll('.fe-event-item__space');
+                const { wrapper } = await eventsPage();
+                const lines = wrapper.findAll('.fe-event-item__space');
 
-                expect(wrapper.find('.fe-event-item__head .tooltip-stub').attributes('data-content')).toBe('Design Team');
-
-                expect(icons).toHaveLength(1);
-                expect(icons[0].attributes('aria-label')).toBe('Design Team');
-                expect(icons[0].text()).toBe('🎨');
+                expect(lines.map(line => line.find('.fe-event-item__space-name').text())).toEqual(['Design Team', 'Community-wide']);
+                expect(lines[0].find('.fe-event-item__space-icon').text()).toBe('🎨');
+                expect(lines[0].element.nextElementSibling.classList.contains('fe-event-item__head')).toBe(true);
             });
 
-            it("shows no icon inside a space's own Events tab", async () => {
+            it("shows no space line inside a space's own Events tab", async () => {
                 fetch.mockResolvedValueOnce(json(listResponse(events)));
-                const { wrapper } = await eventsPage({ spaceSlug: 'design' }, tooltip);
+                const { wrapper } = await eventsPage({ spaceSlug: 'design' });
 
                 expect(wrapper.findAll('.fe-event-item__space')).toHaveLength(0);
             });

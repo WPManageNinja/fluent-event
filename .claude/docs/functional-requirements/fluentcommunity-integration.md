@@ -79,7 +79,7 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   a **Create new event** item in two "…" menus, both for site administrators: the space header
   (spaces they may post in, opening with `?space=`) and the portal feed home (no space). For event
   posts it turns the composer's attachment apps off and removes "On my profile" from the picker.
-  On All Events, each space event shows its space's icon with the space name as tooltip.
+  On All Events, a line above each event's title shows its space's icon and name, or "Community-wide".
 - The pages are a separate Vue + Element Plus app loaded on first visit (fcom exposes neither
   to add-ons). The card is a string template on fcom's own Vue.
 - REST, `fluent-event/v2/community/*`:
