@@ -295,7 +295,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $guests[0]->status);
         $this->assertSame('fluent_community', $guests[0]->source);
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guests[0]->id]));
-        $this->assertSame('https://meet.example.test/open', $response['data']['event']['online_meeting_url'], 'The visitor just registered, so the link is theirs');
+        $this->assertSame('https://meet.example.test/open', $response['data']['online_meeting_url'], 'The visitor just registered, so the link is theirs');
     }
 
     public function test_a_visitor_needs_the_events_own_nonce()
@@ -428,7 +428,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
 
         $listed = array_column($this->rest('GET', 'community/events')['data']['events'], null, 'id');
         $this->assertArrayNotHasKey('description', $listed[$event->id]);
-        $this->assertArrayNotHasKey('description', $this->rsvp($event, 'going')['data']['event']);
+        $this->assertArrayNotHasKey('description', $this->rsvp($event, 'going')['data']);
 
         // A feed page and a single post rendered in one request must not share a cached copy.
         $page = FcomFeedsHelper::transformFeedsCollection(FcomFeed::query()->where('id', $feed->id)->get());
@@ -494,8 +494,12 @@ class CommunityEndpointsTest extends IntegrationTestCase
         [$shown] = $this->communityEvent();
         [$hidden] = $this->communityEvent([], ['show_guest_count' => 'no']);
 
-        $this->assertSame(1, $this->rsvp($shown, 'going')['data']['event']['guest_count']);
-        $this->assertNull($this->rsvp($hidden, 'going')['data']['event']['guest_count']);
+        $this->rsvp($shown, 'going');
+        $this->rsvp($hidden, 'going');
+        $listed = array_column($this->rest('GET', 'community/events')['data']['events'], null, 'id');
+
+        $this->assertSame(1, $listed[$shown->id]['guest_count']);
+        $this->assertNull($listed[$hidden->id]['guest_count']);
     }
 
     public function test_an_admin_sees_no_guest_count_when_the_event_hides_it()
@@ -505,14 +509,17 @@ class CommunityEndpointsTest extends IntegrationTestCase
         FcomHelper::addToSpace($this->spaceId, $admin, 'member', 'by_admin');
         $this->actAs($admin);
 
-        $this->assertNull($this->rsvp($event, 'going')['data']['event']['guest_count']);
+        $this->rsvp($event, 'going');
+        $listed = array_column($this->rest('GET', 'community/events')['data']['events'], null, 'id');
+
+        $this->assertNull($listed[$event->id]['guest_count']);
     }
 
     public function test_the_meeting_link_is_revealed_only_to_a_member_who_is_going()
     {
         [$event] = $this->communityEvent(['venue_type' => 'online'], ['online_meeting_url' => 'https://meet.example.test/launch']);
 
-        $this->assertSame('https://meet.example.test/launch', $this->rsvp($event, 'going')['data']['event']['online_meeting_url']);
-        $this->assertSame('', $this->rsvp($event, 'not_going')['data']['event']['online_meeting_url']);
+        $this->assertSame('https://meet.example.test/launch', $this->rsvp($event, 'going')['data']['online_meeting_url']);
+        $this->assertSame('', $this->rsvp($event, 'not_going')['data']['online_meeting_url']);
     }
 }

@@ -87,9 +87,10 @@ export default {
                         ...this.guest,
                         nonce: this.event.register_nonce,
                     });
+                const done = this.withStatus(response);
                 this.close();
-                this.$emit('done', response);
-                this.showRegistered(response.event);
+                this.$emit('done', done);
+                this.showRegistered(done.event);
             } catch (error) {
                 this.formError = errorMessage(error);
             } finally {
@@ -107,7 +108,7 @@ export default {
             this.$emit('error', '');
 
             try {
-                const response = await eventsApi.post(`community/events/${this.event.id}/register`, { status });
+                const response = this.withStatus(await eventsApi.post(`community/events/${this.event.id}/register`, { status }));
                 this.$emit('done', response);
                 ElNotification({ type: 'success', message: response.message });
             } catch (error) {
@@ -115,6 +116,22 @@ export default {
             } finally {
                 this.busy = false;
             }
+        },
+        // The reply carries only the new status and link; the count moves by this answer alone, and a reload brings everyone else's.
+        withStatus(response) {
+            const wasSeated = isSeated(this.event);
+            const isNowSeated = isSeated({ my_status: response.status });
+            const count = this.event.guest_count;
+
+            return {
+                ...response,
+                event: {
+                    ...this.event,
+                    my_status: response.status,
+                    online_meeting_url: response.online_meeting_url,
+                    guest_count: count === null || count === undefined || wasSeated === isNowSeated ? count : count + (isNowSeated ? 1 : -1),
+                },
+            };
         },
         async cancel() {
             this.close();

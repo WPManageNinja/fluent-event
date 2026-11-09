@@ -23,7 +23,7 @@ const deferredResponse = () => {
 let wrapper;
 
 beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: 'RSVP updated. You\'re going!', event: rsvp({ my_status: 'going' }) }))));
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: 'RSVP updated. You\'re going!', status: 'going', online_meeting_url: '' }))));
     ElNotification.mockClear();
     ElMessageBox.alert.mockReset().mockResolvedValue();
     ElMessageBox.confirm.mockReset().mockResolvedValue();
@@ -121,8 +121,8 @@ describe('EventActions', () => {
     });
 
     it('cancels a registration only once the member confirms', async () => {
-        fetch.mockResolvedValue(new Response(JSON.stringify({ message: 'Registration cancelled.', event: rsvp({ entry_type: 'open', my_status: 'cancelled' }) })));
-        wrapper = actions(rsvp({ entry_type: 'open', my_status: 'going' }));
+        fetch.mockResolvedValue(new Response(JSON.stringify({ message: 'Registration cancelled.', status: 'cancelled', online_meeting_url: '' })));
+        wrapper = actions(rsvp({ entry_type: 'open', my_status: 'going', guest_count: 12, online_meeting_url: 'https://meet.example.test/x' }));
 
         const pick = async () => {
             await wrapper.find('.fe-rsvp__trigger').trigger('click');
@@ -139,7 +139,7 @@ describe('EventActions', () => {
         expect(ElMessageBox.confirm.mock.calls[1][1]).toBe('Cancel your registration?');
         expect(fetch.mock.calls[0][1].body).toBe('{"status":"cancelled"}');
         expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'Registration cancelled.' });
-        expect(wrapper.emitted('done')[0][0].event.my_status).toBe('cancelled');
+        expect(wrapper.emitted('done')[0][0].event).toMatchObject({ my_status: 'cancelled', guest_count: 11, online_meeting_url: '' });
     });
 
     it("sends a logged-out visitor to fcom's login page", () => {
@@ -200,8 +200,9 @@ describe('EventActions', () => {
         expect(fetch).not.toHaveBeenCalled();
     });
 
-    it('registers a new answer and hands back the updated event', async () => {
-        wrapper = actions();
+    // The reply carries only the new status; the count moves by this one answer until a reload.
+    it('registers a new answer and hands back the event updated by it', async () => {
+        wrapper = actions(rsvp({ guest_count: 3 }));
         await wrapper.find('.fe-rsvp__trigger').trigger('click');
 
         await wrapper.findAll('[role="menuitemradio"]')[0].trigger('click');
@@ -211,7 +212,7 @@ describe('EventActions', () => {
         expect(url).toBe('https://example.test/wp-json/fluent-event/v2/community/events/5/register');
         expect(options.body).toBe('{"status":"going"}');
         expect(wrapper.emitted('error')).toEqual([['']]);
-        expect(wrapper.emitted('done')[0][0].event.my_status).toBe('going');
+        expect(wrapper.emitted('done')[0][0].event).toMatchObject({ my_status: 'going', guest_count: 4 });
         expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'RSVP updated. You\'re going!' });
         expect(ElMessageBox.alert).not.toHaveBeenCalled();
     });
