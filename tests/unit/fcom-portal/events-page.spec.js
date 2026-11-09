@@ -24,11 +24,11 @@ const warnHandler = (message, instance, trace) => {
     }
 };
 
-const eventsPage = async (props = {}) => {
+const eventsPage = async (props = {}, stubs = {}) => {
     const router = { push: vi.fn() };
     const wrapper = mount(EventsPage, {
         props: { router, ...props },
-        global: { mocks: { $t: t }, config: { warnHandler } }
+        global: { mocks: { $t: t }, config: { warnHandler }, stubs }
     });
     await flushPromises();
 
@@ -219,6 +219,43 @@ describe('EventsPage', () => {
             vm.openEvent({ id: 5, slug: 'community-meetup', space_slug: 'design' });
 
             expect(router.push).toHaveBeenCalledWith({ name: 'fe_event_view', params: { space: 'design', event_slug: 'community-meetup' } });
+        });
+
+        it('opens a community-wide event on its top-level page', async () => {
+            const { vm, router } = await eventsPage();
+
+            vm.openEvent({ id: 6, slug: 'town-hall', space_slug: '' });
+
+            expect(router.push).toHaveBeenCalledWith({ name: 'fe_global_event_view', params: { event_slug: 'town-hall' } });
+        });
+
+        describe('space icon', () => {
+            const events = [
+                { id: 5, title: 'Launch party', space_slug: 'design', space: { title: 'Design Team', logo: '', emoji: '🎨', shape_svg: '' } },
+                { id: 6, title: 'Town hall', space_slug: '', space: null },
+            ];
+
+            // The tooltip renders its trigger, so the icon inside it is visible to the test.
+            const tooltip = { ElTooltip: { template: '<div class="tooltip-stub" :data-content="content"><slot /></div>', props: ['content'] } };
+
+            it('marks space events on All Events with the space icon and name, and community-wide ones with nothing', async () => {
+                fetch.mockResolvedValueOnce(json(listResponse(events)));
+                const { wrapper } = await eventsPage({}, tooltip);
+                const icons = wrapper.findAll('.fe-event-item__space');
+
+                expect(wrapper.find('.fe-event-item__head .tooltip-stub').attributes('data-content')).toBe('Design Team');
+
+                expect(icons).toHaveLength(1);
+                expect(icons[0].attributes('aria-label')).toBe('Design Team');
+                expect(icons[0].text()).toBe('🎨');
+            });
+
+            it("shows no icon inside a space's own Events tab", async () => {
+                fetch.mockResolvedValueOnce(json(listResponse(events)));
+                const { wrapper } = await eventsPage({ spaceSlug: 'design' }, tooltip);
+
+                expect(wrapper.findAll('.fe-event-item__space')).toHaveLength(0);
+            });
         });
 
         it('offers Create new event, in a space or on all events, to members who may create', async () => {

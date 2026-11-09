@@ -101,6 +101,20 @@
 
                     <div class="fe-event-item__info">
                         <div class="fe-event-item__head">
+                            <!-- All Events only: inside a space every event is that space's. Community-wide events have no space. -->
+                            <el-tooltip
+                                v-if="!spaceSlug && event.space"
+                                :content="event.space.title"
+                                :trigger="['hover', 'focus']"
+                                placement="top"
+                            >
+                                <span class="fe-event-item__space" role="img" tabindex="0" :aria-label="event.space.title">
+                                    <img v-if="event.space.logo" class="fe-event-item__space-logo" :src="event.space.logo" alt=""/>
+                                    <span v-else-if="event.space.emoji" aria-hidden="true">{{ event.space.emoji }}</span>
+                                    <span v-else-if="event.space.shape_svg" class="fe-event-item__space-shape" aria-hidden="true" v-html="event.space.shape_svg"></span><!-- coding-rules-scan:ignore — fcom's space icon, run through fcom's CustomSanitizer::sanitizeSvg server-side, as fcom's sidebar renders it -->
+                                    <el-icon v-else aria-hidden="true"><UserFilled/></el-icon>
+                                </span>
+                            </el-tooltip>
                             <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openEvent(event)">
                                 <span class="fe-event-item__title-text">{{ event.title }}</span>
                             </a>
@@ -136,7 +150,7 @@
 </template>
 
 <script>
-import { Calendar, Grid, MapLocation, Search, Tickets, VideoCamera } from '@element-plus/icons-vue';
+import { Calendar, Grid, MapLocation, Search, Tickets, UserFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
 import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart } from '../utils';
@@ -148,7 +162,7 @@ const dayjs = (value) => window.dayjs(value);
 
 export default {
     name: 'EventsPage',
-    components: { Calendar, MapLocation, Search, VideoCamera, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
+    components: { Calendar, MapLocation, Search, UserFilled, VideoCamera, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
     props: {
         spaceSlug: { type: String, default: '' },
         router: { type: Object, required: true },
@@ -305,7 +319,11 @@ export default {
             }
         },
         openEvent(event) {
-            this.router.push({ name: 'fe_event_view', params: { space: event.space_slug, event_slug: event.slug } });
+            const route = event.space_slug
+                ? { name: 'fe_event_view', params: { space: event.space_slug, event_slug: event.slug } }
+                : { name: 'fe_global_event_view', params: { event_slug: event.slug } };
+
+            this.router.push(route);
         },
     },
 };

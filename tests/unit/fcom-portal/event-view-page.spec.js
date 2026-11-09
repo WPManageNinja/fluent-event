@@ -276,11 +276,14 @@ describe('EventViewPage', () => {
             expect(router.push).not.toHaveBeenCalled();
         });
 
-        it("falls back to the space's events on a direct visit", async () => {
+        it('only goes back, with no fixed page, on a direct visit too', async () => {
             const { wrapper, router } = await page(meetup());
+            window.history.replaceState(null, '');
+
             await wrapper.find('.fe-event-view__back').trigger('click');
 
-            expect(router.push).toHaveBeenCalledWith({ name: 'fe_space_events', params: { space: 'design' } });
+            expect(router.back).toHaveBeenCalled();
+            expect(router.push).not.toHaveBeenCalled();
         });
     });
 });

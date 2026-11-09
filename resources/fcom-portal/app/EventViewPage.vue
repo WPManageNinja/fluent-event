@@ -118,12 +118,14 @@ import EventMenu from '../EventMenu';
 const dayjs = (value) => window.dayjs(value);
 const utc = (value) => window.dayjs.utc(value);
 
-// The event on its own page inside its space, read through fcom's post endpoint so it is visible exactly when its post is.
+// The event on its own page, inside its space or at the portal's top level when community-wide,
+// read through fcom's post endpoint so it is visible exactly when its post is.
 export default {
     name: 'EventViewPage',
     components: { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera, EventActions, EventMenu },
     props: {
-        spaceSlug: { type: String, required: true },
+        // Empty for a community-wide event.
+        spaceSlug: { type: String, default: '' },
         eventSlug: { type: String, required: true },
         router: { type: Object, required: true },
     },
@@ -273,14 +275,8 @@ export default {
 
             downloadIcs(text, `${this.eventSlug}.ics`);
         },
-        // Back to wherever the member came from; a direct visit falls back to the space's Events tab.
         goBack() {
-            if (window.history.state && window.history.state.back) {
-                this.router.back();
-                return;
-            }
-
-            this.router.push({ name: 'fe_space_events', params: { space: this.spaceSlug } });
+            this.router.back();
         },
     },
 };
