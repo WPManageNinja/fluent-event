@@ -1553,6 +1553,28 @@
         }
     }
 
+    // On phones a shared row leaves each input too narrow for its value, so each takes its own line.
+    @media (max-width: 575px) {
+        &__window {
+            gap: 16px;
+        }
+
+        &__window-row {
+            flex-wrap: wrap;
+            row-gap: 8px;
+        }
+
+        &__window-label {
+            width: 100%;
+        }
+
+        &__date.el-date-editor,
+        &__time.el-date-editor,
+        &__timezone.el-select {
+            flex: 1 1 100%;
+        }
+    }
+
     // Choices are bordered cards side by side; the checked one takes the text color.
     &__choices.el-radio-group {
         display: grid;
