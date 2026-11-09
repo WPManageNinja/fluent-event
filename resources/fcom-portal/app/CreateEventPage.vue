@@ -481,15 +481,7 @@ export default {
         },
         // Checked before fcom's composer is touched, since opening it moves the focus to its title; the server still validates.
         submit() {
-            let error = '';
-
-            if (!this.event.title.trim()) {
-                error = this.$t('Event title is required.');
-            } else if (!dayjs(this.payload.end_at).isAfter(this.payload.start_at)) {
-                error = this.$t('End must be after the start.');
-            } else if (this.event.venue_type === 'online' && !this.event.online_meeting_url.trim()) {
-                error = this.$t('An online event needs a meeting link.');
-            }
+            const error = this.validateEvent();
 
             if (error) {
                 ElNotification({ type: 'error', title: this.$t('Error'), message: error });
@@ -497,6 +489,22 @@ export default {
             }
 
             this.submitPost((posting) => { this.saving = posting; });
+        },
+        // Returns the first problem's message, or '' when the event can be posted.
+        validateEvent() {
+            if (!this.event.title.trim()) {
+                return this.$t('Event title is required.');
+            }
+
+            if (!dayjs(this.payload.end_at).isAfter(this.payload.start_at)) {
+                return this.$t('End must be after the start.');
+            }
+
+            if (this.event.venue_type === 'online' && !this.event.online_meeting_url.trim()) {
+                return this.$t('An online event needs a meeting link.');
+            }
+
+            return '';
         },
         syncEndDate() {
             if (dayjs(this.event.end_date).isBefore(this.event.start_date)) {
