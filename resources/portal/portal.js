@@ -58,6 +58,10 @@ export async function submitForm(form) {
 
     try {
         swap((await send(form.action, Object.fromEntries(new FormData(form)))).html);
+
+        // The answer to a registration carries its confirmation, which opens over the new card.
+        const done = card().querySelector('[data-fe-registered]');
+        done && done.showPopover();
     } catch (error) {
         message.textContent = error.message;
         button.disabled = false;

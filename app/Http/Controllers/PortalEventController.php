@@ -58,7 +58,7 @@ class PortalEventController extends Controller
         return [
             'message' => __('You are registered.', 'fluent-event'),
             'status'  => $guest->status,
-            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event)),
+            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), true),
         ];
     }
 

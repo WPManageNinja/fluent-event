@@ -55,6 +55,25 @@ describe('registration', () => {
         expect(document.activeElement).toBe(document.querySelector('.fe-event-page__badge'));
     });
 
+    it('opens the confirmation the new card carries', async () => {
+        const showPopover = vi.fn();
+        HTMLElement.prototype.showPopover = showPopover;
+        document.body.innerHTML = card(`
+            <form data-fe-register action="https://site.test/register-guest">
+                <input name="name" value="Ada">
+                <input name="email" value="ada@example.test">
+                <p class="fe-register__error"></p>
+                <button type="submit">Register</button>
+            </form>`);
+        fetch.mockResolvedValue(respond({ html: card('<div popover data-fe-registered>You\'re registered</div>') }));
+
+        await submitForm(document.querySelector('form'));
+
+        expect(showPopover).toHaveBeenCalledTimes(1);
+        expect(showPopover.mock.instances[0]).toBe(document.querySelector('[data-fe-registered]'));
+        delete HTMLElement.prototype.showPopover;
+    });
+
     it('posts a logged-in viewer the same form, with the REST nonce their event nonce needs', async () => {
         document.body.innerHTML = card(`
             <form data-fe-register action="https://site.test/register-guest">

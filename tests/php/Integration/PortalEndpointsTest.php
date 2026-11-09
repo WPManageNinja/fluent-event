@@ -57,6 +57,9 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertStringContainsString('fe-event-page__badge', $response['data']['html']);
         $this->assertStringContainsString('https://meet.example.test/fe-room', $response['data']['html']);
         $this->assertStringNotContainsString('data-fe-status', $response['data']['html']);
+        // With the confirmation the page opens over it.
+        $this->assertStringContainsString('data-fe-registered', $response['data']['html']);
+        $this->assertStringContainsString(esc_html__("You're going", 'fluent-event'), $response['data']['html']);
     }
 
     public function test_a_visitor_registers_for_an_open_event()
@@ -68,6 +71,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
         $this->assertSame('going', $this->guestsOf($event)[0]->status);
         $this->assertStringContainsString('Registered', $response['data']['html']);
+        $this->assertStringContainsString(esc_html__("You're registered", 'fluent-event'), $response['data']['html']);
     }
 
     public function test_the_visitor_form_is_guarded_by_the_events_nonce_honeypot_and_one_row_per_email()

@@ -17,6 +17,7 @@
  * @var string     $meeting_link     http(s) only; empty unless this viewer may see it.
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
  * @var array|null $add_to_calendar  google, ics, filename.
+ * @var bool       $just_registered  Drawn only in the registration's answer, which portal.js opens.
  */
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
@@ -167,6 +168,78 @@ $fluentEventDone = $registration && $registration['is_going'];
                     <?php esc_html_e( 'Apple / Outlook', 'fluent-event' ); ?>
                 </a>
             </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ( $just_registered ) : ?>
+        <div
+            id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
+            class="fe-register-success"
+            popover
+            role="dialog"
+            aria-labelledby="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>"
+            data-fe-registered
+        >
+            <button type="button" class="fe-register__close fe-register-success__close" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" aria-label="<?php esc_attr_e( 'Close', 'fluent-event' ); ?>">
+                <?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+            </button>
+
+            <div class="fe-register-success__head">
+                <span class="fe-register-success__check"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                <h2 class="fe-register-success__title" id="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>">
+                    <?php echo esc_html( $fluentEventOpen ? __( "You're registered", 'fluent-event' ) : __( "You're going", 'fluent-event' ) ); ?>
+                </h2>
+            </div>
+
+            <div class="fe-register-success__event">
+                <?php if ( $event['cover_url'] ) : ?>
+                    <img class="fe-register-success__cover" src="<?php echo esc_url( $event['cover_url'] ); ?>" alt="">
+                <?php else : ?>
+                    <span class="fe-date-chip" aria-hidden="true">
+                        <span class="fe-date-chip__month"><?php echo esc_html( $chip_month ); ?></span>
+                        <span class="fe-date-chip__day"><?php echo esc_html( $chip_day ); ?></span>
+                    </span>
+                <?php endif; ?>
+
+                <div class="fe-register-success__details">
+                    <span class="fe-register-success__event-title"><?php echo esc_html( $event['title'] ); ?></span>
+                    <span class="fe-register-success__meta">
+                        <?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+                        <?php echo esc_html( $date_label . ' · ' . $time_label ); ?>
+                    </span>
+                    <span class="fe-register-success__meta">
+                        <?php echo $is_online ? Icon::VIDEO : Icon::MAP_PIN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constants ?>
+                        <?php echo esc_html( $is_online ? __( 'Online', 'fluent-event' ) : ( $event['venue'] ?: __( 'In person', 'fluent-event' ) ) ); ?>
+                    </span>
+                </div>
+            </div>
+
+            <?php if ( $is_online && $meeting_link ) : ?>
+                <a class="fe-event-page__join" href="<?php echo esc_url( $meeting_link ); ?>" target="_blank" rel="noopener noreferrer">
+                    <?php echo Icon::VIDEO; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+                    <span><?php esc_html_e( 'Join online', 'fluent-event' ); ?></span>
+                </a>
+            <?php endif; ?>
+
+            <?php if ( $add_to_calendar ) : ?>
+                <div class="fe-event-page__calendar">
+                    <span class="fe-event-page__calendar-label"><?php esc_html_e( 'Add to calendar', 'fluent-event' ); ?></span>
+                    <div class="fe-event-page__calendar-links">
+                        <a class="fe-event-page__calendar-link" href="<?php echo esc_attr( $add_to_calendar['google'] ); ?>" target="_blank" rel="noopener noreferrer">
+                            <?php echo Icon::GOOGLE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+                            <?php esc_html_e( 'Google Calendar', 'fluent-event' ); ?>
+                        </a>
+                        <a class="fe-event-page__calendar-link" href="<?php echo esc_attr( $add_to_calendar['ics'] ); ?>" download="<?php echo esc_attr( $add_to_calendar['filename'] ); ?>">
+                            <?php echo Icon::APPLE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+                            <?php esc_html_e( 'Apple / Outlook', 'fluent-event' ); ?>
+                        </a>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <button type="button" class="fe-event-page__button" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" autofocus>
+                <?php esc_html_e( 'Done', 'fluent-event' ); ?>
+            </button>
         </div>
     <?php endif; ?>
 </aside>
