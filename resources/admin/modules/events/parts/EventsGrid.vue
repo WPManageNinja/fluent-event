@@ -172,7 +172,7 @@
     import dayjs from 'dayjs';
     import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-    import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
+    import { DAY_MS, placeInLanes, toDayKey, toUtcDay } from '@/utils/date';
 
     const VISIBLE_PER_DAY = 3;
     const HOUR_PX = 48;
@@ -330,7 +330,7 @@
                 const dayStart = day.startOf('day');
                 const dayEnd = dayStart.add(1, 'day');
 
-                return this.entriesFor(day.format('YYYY-MM-DD')).map(entry => {
+                return placeInLanes(this.entriesFor(day.format('YYYY-MM-DD')).map(entry => {
                     const start = dayjs(entry.event.start_at_site);
                     const end = dayjs(entry.event.end_at_site);
 
@@ -340,13 +340,15 @@
                         : Math.max(end.diff(dayStart, 'minute'), from + 30);
 
                     return { entry, from, until };
-                });
+                }));
             },
             blockStyle(block) {
                 return {
                     top: `${(block.from / 60) * HOUR_PX}px`,
                     height: `${((block.until - block.from) / 60) * HOUR_PX - 2}px`,
                     '--fe-event-color': this.entryColor(block.entry),
+                    '--fe-lane': block.lane,
+                    '--fe-lanes': block.lanes,
                 };
             },
             moveStep(step) {
