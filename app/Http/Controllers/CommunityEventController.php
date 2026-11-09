@@ -7,6 +7,7 @@ use FluentCommunity\App\Services\CustomSanitizer;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
+use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\RegistrationService;
@@ -151,8 +152,15 @@ class CommunityEventController extends Controller
         $entryType = Arr::get((array) $event->meta, 'entry_type');
         $status = $request->getSafe('status', 'sanitize_text_field');
 
-        if (!in_array($status, $entryType === 'open' ? ['going'] : ['going', 'not_going'], true)) {
+        if (!in_array($status, $entryType === 'open' ? ['going', 'cancelled'] : ['going', 'not_going'], true)) {
             return $this->sendError(['message' => __('Please choose going or not going.', 'fluent-event')], 422);
+        }
+
+        // Only a registration the member holds can be cancelled; otherwise a cancelled row would appear from nothing.
+        $myStatus = Guest::query()->where('event_id', $event->id)->where('user_id', get_current_user_id())->value('status');
+
+        if ($status === 'cancelled' && !in_array($myStatus, Event::SEAT_STATUSES, true)) {
+            return $this->sendError(['message' => __('You are not registered for this event.', 'fluent-event')], 422);
         }
 
         // An open event's form lets the member change their name; their email is the account's.
@@ -164,6 +172,10 @@ class CommunityEventController extends Controller
             'source_id' => (int) $feed->id,
         ]);
 
+        if ($registered === false) {
+            return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
+        }
+
         if (!$registered) {
             return $this->sendError(['message' => __('This email is already registered for this event.', 'fluent-event')], 422);
         }
@@ -172,14 +184,16 @@ class CommunityEventController extends Controller
 
         if ($created) {
             do_action('fluent_event/guest/created', $guest);
-        } else {
+        } elseif ($previousStatus !== $guest->status) {
             do_action('fluent_event/guest/updated', $guest, $previousStatus);
         }
 
         RegistrationService::queueEmail($guest, $previousStatus);
 
         // The portal shows an RSVP's message as a toast; an open event's registration gets its own dialog.
-        if ($guest->status === 'not_going') {
+        if ($guest->status === 'cancelled') {
+            $message = __('Registration cancelled.', 'fluent-event');
+        } elseif ($guest->status === 'not_going') {
             $message = __("RSVP updated. You're not going.", 'fluent-event');
         } elseif ($entryType === 'rsvp') {
             $message = __("RSVP updated. You're going!", 'fluent-event');
@@ -187,10 +201,11 @@ class CommunityEventController extends Controller
             $message = __('You are registered.', 'fluent-event');
         }
 
+        // Only what changed: the portal updates its own copy of the event, count included, and a reload brings the rest.
         return [
-            'message' => $message,
-            'status'  => $guest->status,
-            'event'   => EventService::formatEvents([$event])[(int) $event->id],
+            'message'            => $message,
+            'status'             => $guest->status,
+            'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
         ];
     }
 
@@ -229,13 +244,19 @@ class CommunityEventController extends Controller
 
         RegistrationService::queueEmail($guest, null);
 
-        $seats = EventService::seatCounts([$event->id]);
-
         return [
-            'message' => __('You are registered.', 'fluent-event'),
-            'status'  => $guest->status,
-            'event'   => EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false),
+            'message'            => __('You are registered.', 'fluent-event'),
+            'status'             => $guest->status,
+            'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
         ];
+    }
+
+    // The link is revealed once a guest holds a seat, as EventService::formatEvent() reveals it.
+    private static function meetingUrlFor(Event $event, $status)
+    {
+        return $event->venue_type === 'online' && in_array($status, Event::SEAT_STATUSES, true)
+            ? (string) Arr::get((array) $event->meta, 'online_meeting_url', '')
+            : '';
     }
 
     // The portal renders headless, so the WordPress editor its create-event page uses is handed over

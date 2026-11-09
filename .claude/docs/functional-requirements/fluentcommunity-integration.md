@@ -113,8 +113,10 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   success toast with the server's message, "RSVP updated. You're going!" / "RSVP updated. You're not going."), `open`
   (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
   from the account, name editable, email locked. After registering, a **You're registered** dialog
-  shows the event (cover, date, place) and Add to calendar links; and a static **✓ Registered** badge replaces
-  the button, with no undo; a visitor sees it only until they reload) and `none` (no registration UI for anyone;
+  shows the event (cover, date, place) and Add to calendar links, and a **✓ Registered** badge replaces
+  the button. A member's badge is a menu (like RSVP's) with **Cancel registration**: a confirm, then status `cancelled`
+  (the cancellation email when on) and the Register button back; a visitor's registration is final
+  and shows only until they reload) and `none` (no registration UI for anyone;
   admins can still add guests, who get the usual emails).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
   the `from`/`to` filter means site days. The event page shows the event's own clock with its

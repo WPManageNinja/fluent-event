@@ -440,6 +440,10 @@
             outline: 2px solid var(--fcom-primary-button, #2b2e33);
             outline-offset: 2px;
         }
+
+        &.fe-rsvp__option--danger {
+            color: var(--el-color-danger, #f56c6c);
+        }
     }
 }
 
@@ -2268,11 +2272,6 @@ body {
 
         @media (max-width: 900px) {
             position: static;
-        }
-
-        .fe-rsvp,
-        .fe-rsvp__trigger {
-            width: 100%;
         }
     }
 

@@ -189,7 +189,7 @@ describe('EventViewPage', () => {
     describe('open', () => {
         it('offers a member the Register button, then marks them registered', async () => {
             expect((await page(meetup({ entry_type: 'open' }))).wrapper.find('.fe-event-view__rsvp button').text()).toBe('Register');
-            expect((await page(meetup({ entry_type: 'open', my_status: 'going' }))).wrapper.find('.fe-event-actions__badge').text()).toBe('Registered');
+            expect((await page(meetup({ entry_type: 'open', my_status: 'going' }))).wrapper.find('.fe-rsvp__label').text()).toBe('Registered');
         });
     });
 

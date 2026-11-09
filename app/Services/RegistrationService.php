@@ -36,7 +36,8 @@ class RegistrationService
      * under their email.
      *
      * @param array $source source and source_id for a new row.
-     * @return array|null [Guest, previous status, created]; null when another account holds the email.
+     * @return array|null|false [Guest, previous status, created]; null when another account holds the email; false
+     *                          when the row changed under this request to something other than what it asked for.
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
@@ -67,8 +68,23 @@ class RegistrationService
         $previousStatus = $guest->status;
 
         // Going again keeps a checked-in guest checked in.
-        if ($status === 'not_going' || !in_array($guest->status, Event::SEAT_STATUSES, true)) {
-            $guest->status = $status;
+        $newStatus = in_array($status, ['not_going', 'cancelled'], true) || !in_array($previousStatus, Event::SEAT_STATUSES, true)
+            ? $status
+            : $previousStatus;
+
+        // Claimed against the status read above: of two requests making the same change (two tabs), only one
+        // reports it, so only one sends the email; the other gets the row back unchanged.
+        if ($newStatus !== $previousStatus) {
+            $claimed = Guest::query()->where('id', $guest->id)->where('status', $previousStatus)
+                ->update(['status' => $newStatus, 'user_id' => $user->ID]);
+
+            $guest = Guest::query()->find($guest->id);
+
+            if (!$claimed && $guest->status !== $newStatus) {
+                return false;
+            }
+
+            return [$guest, $claimed ? $previousStatus : $guest->status, false];
         }
 
         $guest->user_id = $user->ID;
@@ -99,11 +115,12 @@ class RegistrationService
     public static function queueEmail(Guest $guest, $previousStatus)
     {
         $emails = Settings::get(Settings::EMAIL_NOTIFICATIONS);
-        $wasGoing = $previousStatus === 'going';
+        // A checked-in guest holds their seat too, so leaving from there is a cancellation as well.
+        $wasGoing = in_array($previousStatus, Event::SEAT_STATUSES, true);
 
         if ($guest->status === 'going' && !$wasGoing && !empty($emails['registration_confirmation']['enabled'])) {
             as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
-        } elseif ($guest->status === 'not_going' && $wasGoing && !empty($emails['registration_cancellation']['enabled'])) {
+        } elseif (in_array($guest->status, ['not_going', 'cancelled'], true) && $wasGoing && !empty($emails['registration_cancellation']['enabled'])) {
             as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
         }
     }

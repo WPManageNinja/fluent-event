@@ -87,9 +87,10 @@ export default {
                         ...this.guest,
                         nonce: this.event.register_nonce,
                     });
+                const done = this.withStatus(response);
                 this.close();
-                this.$emit('done', response);
-                this.showRegistered(response.event);
+                this.$emit('done', done);
+                this.showRegistered(done.event);
             } catch (error) {
                 this.formError = errorMessage(error);
             } finally {
@@ -107,7 +108,7 @@ export default {
             this.$emit('error', '');
 
             try {
-                const response = await eventsApi.post(`community/events/${this.event.id}/register`, { status });
+                const response = this.withStatus(await eventsApi.post(`community/events/${this.event.id}/register`, { status }));
                 this.$emit('done', response);
                 ElNotification({ type: 'success', message: response.message });
             } catch (error) {
@@ -116,7 +117,38 @@ export default {
                 this.busy = false;
             }
         },
-        // Registering is a form with no undo, so it ends in a dialog: what it was for, and its calendar links.
+        // The reply carries only the new status and link; the count moves by this answer alone, and a reload brings everyone else's.
+        withStatus(response) {
+            const wasSeated = isSeated(this.event);
+            const isNowSeated = isSeated({ my_status: response.status });
+            const count = this.event.guest_count;
+
+            return {
+                ...response,
+                event: {
+                    ...this.event,
+                    my_status: response.status,
+                    online_meeting_url: response.online_meeting_url,
+                    guest_count: count === null || count === undefined || wasSeated === isNowSeated ? count : count + (isNowSeated ? 1 : -1),
+                },
+            };
+        },
+        async cancel() {
+            this.close();
+
+            try {
+                await ElMessageBox.confirm(
+                    t('You will lose your spot for %s. You can register again later.', this.event.title),
+                    t('Cancel your registration?'),
+                    { confirmButtonText: t('Cancel registration'), cancelButtonText: t('Keep it'), confirmButtonClass: 'el-button--danger' },
+                );
+            } catch (dismissed) {
+                return;
+            }
+
+            this.choose('cancelled');
+        },
+        // Registering is a form, so it ends in a dialog: what it was for, and its calendar links.
         showRegistered(event) {
             const online = event.venue_type === 'online';
             const location = online
@@ -159,7 +191,31 @@ export default {
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
 
             <template v-else-if="event.entry_type === 'open'">
-                <span v-if="status === 'going'" class="fe-event-actions__badge">
+                <!-- A visitor isn't recognised again after a reload, so only a member's badge opens a menu to cancel. -->
+                <div v-if="status === 'going' && isLoggedIn" class="fe-rsvp">
+                    <button
+                        ref="trigger"
+                        type="button"
+                        class="fe-rsvp__trigger"
+                        aria-haspopup="menu"
+                        :aria-expanded="open ? 'true' : 'false'"
+                        :disabled="busy"
+                        @click.stop="toggle"
+                    >
+                        <span class="fe-rsvp__icon fe-rsvp__icon--going" aria-hidden="true">${CHECK}</span>
+                        <span class="fe-rsvp__label">{{ t('Registered') }}</span>
+                        <span class="fe-rsvp__chevron" :class="{ 'fe-rsvp__chevron--open': open }" aria-hidden="true">${CHEVRON}</span>
+                    </button>
+
+                    <div v-if="open" class="el-popover el-popper fcom_menu_below_nav fe-rsvp__pop">
+                        <ul class="actions_items" role="menu">
+                            <li role="none">
+                                <button type="button" role="menuitem" class="fe-rsvp__option fe-rsvp__option--danger" @click.stop="cancel">{{ t('Cancel registration') }}</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <span v-else-if="status === 'going'" class="fe-event-actions__badge">
                     <span class="fe-event-actions__badge-icon" aria-hidden="true">${CHECK}</span>
                     {{ t('Registered') }}
                 </span>

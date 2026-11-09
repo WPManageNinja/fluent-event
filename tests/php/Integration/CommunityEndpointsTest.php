@@ -212,6 +212,99 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $this->guestsOf($event)[0]->status);
     }
 
+    public function test_a_member_cancels_an_open_registration_and_can_register_again()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->rsvp($event, 'going');
+
+        $response = $this->rsvp($event, 'cancelled');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('Registration cancelled.', $response['data']['message']);
+        $guest = $this->guestsOf($event)[0];
+        $this->assertSame('cancelled', $guest->status);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
+
+        $this->assertSame(200, $this->rsvp($event, 'going')['status']);
+        $this->assertCount(1, $this->guestsOf($event));
+        $this->assertSame('going', $this->guestsOf($event)[0]->status);
+    }
+
+    public function test_a_checked_in_member_who_cancels_gets_the_cancellation_email()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->rsvp($event, 'going');
+        Guest::query()->where('event_id', $event->id)->update(['status' => 'checked_in']);
+
+        $this->assertSame(200, $this->rsvp($event, 'cancelled')['status']);
+
+        $guest = $this->guestsOf($event)[0];
+        $this->assertSame('cancelled', $guest->status);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
+    }
+
+    // Two tabs cancelling together: the other tab's update lands first, so this request's claim on
+    // "going" finds nothing to change and must not send a second email.
+    public function test_a_cancel_that_loses_the_race_sends_no_second_email()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->rsvp($event, 'going');
+        $guestId = (int) $this->guestsOf($event)[0]->id;
+        $raced = false;
+
+        $this->addTestFilter('query', function ($query) use (&$raced, $guestId) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'going'") !== false) {
+                $raced = true;
+                $this->wpdb->update($this->table('fe_guests'), ['status' => 'cancelled'], ['id' => $guestId]);
+            }
+
+            return $query;
+        });
+
+        $this->assertSame(200, $this->rsvp($event, 'cancelled')['status']);
+        $this->assertTrue($raced, 'The claim query never ran');
+        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [$guestId]));
+    }
+
+    // An admin checks the member in while their cancel is in flight: the cancel must say so, not report success.
+    public function test_a_cancel_overtaken_by_a_check_in_asks_to_try_again()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->rsvp($event, 'going');
+        $guestId = (int) $this->guestsOf($event)[0]->id;
+        $raced = false;
+
+        $this->addTestFilter('query', function ($query) use (&$raced, $guestId) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'going'") !== false) {
+                $raced = true;
+                $this->wpdb->update($this->table('fe_guests'), ['status' => 'checked_in'], ['id' => $guestId]);
+            }
+
+            return $query;
+        });
+
+        $response = $this->rsvp($event, 'cancelled');
+
+        $this->assertTrue($raced, 'The claim query never ran');
+        $this->assertSame(409, $response['status']);
+        $this->assertSame('checked_in', $this->guestsOf($event)[0]->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [$guestId]));
+    }
+
+    // A cancel with nothing to cancel would otherwise create a cancelled row; RSVP answers not going instead.
+    public function test_only_a_held_open_registration_can_be_cancelled()
+    {
+        [$open] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->assertSame(422, $this->rsvp($open, 'cancelled')['status']);
+        $this->assertCount(0, $this->guestsOf($open));
+
+        [$rsvp] = $this->communityEvent();
+        $this->rsvp($rsvp, 'going');
+        $this->assertSame(422, $this->rsvp($rsvp, 'cancelled')['status']);
+        $this->assertSame('going', $this->guestsOf($rsvp)[0]->status);
+    }
+
     public function test_a_visitor_registers_for_an_open_event_by_name_and_email()
     {
         [$event] = $this->communityEvent(['venue_type' => 'online'], ['entry_type' => 'open', 'online_meeting_url' => 'https://meet.example.test/open']);
@@ -227,7 +320,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $guests[0]->status);
         $this->assertSame('fluent_community', $guests[0]->source);
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guests[0]->id]));
-        $this->assertSame('https://meet.example.test/open', $response['data']['event']['online_meeting_url'], 'The visitor just registered, so the link is theirs');
+        $this->assertSame('https://meet.example.test/open', $response['data']['online_meeting_url'], 'The visitor just registered, so the link is theirs');
     }
 
     public function test_a_visitor_needs_the_events_own_nonce()
@@ -360,7 +453,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
 
         $listed = array_column($this->rest('GET', 'community/events')['data']['events'], null, 'id');
         $this->assertArrayNotHasKey('description', $listed[$event->id]);
-        $this->assertArrayNotHasKey('description', $this->rsvp($event, 'going')['data']['event']);
+        $this->assertArrayNotHasKey('description', $this->rsvp($event, 'going')['data']);
 
         // A feed page and a single post rendered in one request must not share a cached copy.
         $page = FcomFeedsHelper::transformFeedsCollection(FcomFeed::query()->where('id', $feed->id)->get());
@@ -426,8 +519,12 @@ class CommunityEndpointsTest extends IntegrationTestCase
         [$shown] = $this->communityEvent();
         [$hidden] = $this->communityEvent([], ['show_guest_count' => 'no']);
 
-        $this->assertSame(1, $this->rsvp($shown, 'going')['data']['event']['guest_count']);
-        $this->assertNull($this->rsvp($hidden, 'going')['data']['event']['guest_count']);
+        $this->rsvp($shown, 'going');
+        $this->rsvp($hidden, 'going');
+        $listed = array_column($this->rest('GET', 'community/events')['data']['events'], null, 'id');
+
+        $this->assertSame(1, $listed[$shown->id]['guest_count']);
+        $this->assertNull($listed[$hidden->id]['guest_count']);
     }
 
     public function test_an_admin_sees_no_guest_count_when_the_event_hides_it()
@@ -437,14 +534,17 @@ class CommunityEndpointsTest extends IntegrationTestCase
         FcomHelper::addToSpace($this->spaceId, $admin, 'member', 'by_admin');
         $this->actAs($admin);
 
-        $this->assertNull($this->rsvp($event, 'going')['data']['event']['guest_count']);
+        $this->rsvp($event, 'going');
+        $listed = array_column($this->rest('GET', 'community/events')['data']['events'], null, 'id');
+
+        $this->assertNull($listed[$event->id]['guest_count']);
     }
 
     public function test_the_meeting_link_is_revealed_only_to_a_member_who_is_going()
     {
         [$event] = $this->communityEvent(['venue_type' => 'online'], ['online_meeting_url' => 'https://meet.example.test/launch']);
 
-        $this->assertSame('https://meet.example.test/launch', $this->rsvp($event, 'going')['data']['event']['online_meeting_url']);
-        $this->assertSame('', $this->rsvp($event, 'not_going')['data']['event']['online_meeting_url']);
+        $this->assertSame('https://meet.example.test/launch', $this->rsvp($event, 'going')['data']['online_meeting_url']);
+        $this->assertSame('', $this->rsvp($event, 'not_going')['data']['online_meeting_url']);
     }
 }
