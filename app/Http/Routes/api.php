@@ -64,7 +64,6 @@ $router->prefix('events')->withDefaultPolicy()->group(function ($router) {
 $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($router) {
     $router->get('/events', [CommunityEventController::class, 'getEvents']);
     $router->get('/events/by-slug', [CommunityEventController::class, 'getEventBySlug']);
-    $router->post('/events/validate', [CommunityEventController::class, 'validateEvent']);
     $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])
         ->int('id')->rateLimitPerMinute(10);
     $router->post('/events/{id}/register-guest', [CommunityEventController::class, 'registerGuest'])

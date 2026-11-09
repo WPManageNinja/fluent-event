@@ -479,17 +479,21 @@ export default {
                 });
             }
         },
-        // The event is checked before fcom's composer is touched: opening it would move the focus to its title.
-        async submit() {
-            this.saving = true;
+        // Checked before fcom's composer is touched, since opening it moves the focus to its title; the server still validates.
+        submit() {
+            let error = '';
 
-            try {
-                await eventsApi.post('community/events/validate', { event: this.payload });
-            } catch (error) {
-                ElNotification({ type: 'error', title: this.$t('Error'), message: errorMessage(error) });
+            if (!this.event.title.trim()) {
+                error = this.$t('Event title is required.');
+            } else if (!dayjs(this.payload.end_at).isAfter(this.payload.start_at)) {
+                error = this.$t('End must be after the start.');
+            } else if (this.event.venue_type === 'online' && !this.event.online_meeting_url.trim()) {
+                error = this.$t('An online event needs a meeting link.');
+            }
+
+            if (error) {
+                ElNotification({ type: 'error', title: this.$t('Error'), message: error });
                 return;
-            } finally {
-                this.saving = false;
             }
 
             this.submitPost((posting) => { this.saving = posting; });

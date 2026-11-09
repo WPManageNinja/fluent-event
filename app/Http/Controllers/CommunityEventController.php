@@ -14,7 +14,6 @@ use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Framework\Http\Request\Request;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
-use FluentEvent\Modules\FluentCommunity\FeedHandler;
 
 /**
  * Member-facing event endpoints for the FluentCommunity portal. Visibility
@@ -230,19 +229,6 @@ class CommunityEventController extends Controller
             'status'  => $guest->status,
             'event'   => EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false),
         ];
-    }
-
-    // The create page checks the event first, with the post's own rules, so a bad field shows its error
-    // without fcom's composer opening and taking the focus.
-    public function validateEvent(Request $request)
-    {
-        $error = FeedHandler::validationError(FeedHandler::eventInput($request->all()));
-
-        if ($error) {
-            return $this->sendError(['message' => $error->get_error_message(), 'errors' => $error->get_error_data()], 422);
-        }
-
-        return ['valid' => true];
     }
 
     // The portal renders headless, so the WordPress editor its create-event page uses is handed over

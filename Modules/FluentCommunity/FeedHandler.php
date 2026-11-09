@@ -75,7 +75,7 @@ class FeedHandler
             return new \WP_Error('fluent_event_space', __('Events can only be posted in discussion spaces.', 'fluent-event'));
         }
 
-        if ($error = self::validationError(self::eventInput($requestData))) {
+        if ($error = $this->validationError($this->eventInput($requestData))) {
             return $error;
         }
 
@@ -87,7 +87,7 @@ class FeedHandler
 
     public function createEvent($feed, $requestData)
     {
-        $input = self::eventInput($requestData);
+        $input = $this->eventInput($requestData);
         $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
 
         $input['cover_url'] = $this->claimMedia(Arr::get($input, 'cover_url'), $feed, 'event_cover');
@@ -386,7 +386,7 @@ class FeedHandler
         return $media->public_url;
     }
 
-    public static function eventInput($requestData)
+    protected function eventInput($requestData)
     {
         $input = EventRequest::sanitize((array) Arr::get($requestData, 'event', []));
         $input['status'] = 'private';
@@ -394,25 +394,25 @@ class FeedHandler
         return $input;
     }
 
-    public static function validationError(array $input)
+    protected function validationError(array $input)
     {
         $rules = Arr::except(EventRequest::rules($input), ['calendar_id']);
         $validator = Validator::make($input, $rules, EventRequest::messages());
 
         if ($validator->validate()->fails()) {
-            return self::toWpError($validator->errors());
+            return $this->toWpError($validator->errors());
         }
 
         try {
             EventRequest::validateDateWindow($input);
         } catch (ValidationException $e) {
-            return self::toWpError($e->errors());
+            return $this->toWpError($e->errors());
         }
 
         return null;
     }
 
-    protected static function toWpError($errors)
+    protected function toWpError($errors)
     {
         $message = __('Please check the event details.', 'fluent-event');
 

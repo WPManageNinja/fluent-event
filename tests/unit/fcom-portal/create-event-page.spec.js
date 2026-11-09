@@ -135,16 +135,11 @@ describe('CreateEventPage', () => {
         expect(vm.event.end_date).toBe('2026-10-20');
     });
 
-    it("checks the event, then submits through fcom's composer and mirrors its posting state on the button", async () => {
+    it("submits through fcom's composer and mirrors its posting state on the button", async () => {
         const { vm, props } = await createPage();
-        fetch.mockResolvedValueOnce(json({ valid: true }));
+        vm.event.title = 'Friday Q&A';
 
-        await vm.submit();
-
-        const [url, request] = fetch.mock.calls.at(-1);
-        expect(url).toBe('https://example.test/wp-json/fluent-event/v2/community/events/validate');
-        expect(JSON.parse(request.body).event).toEqual(vm.payload);
-
+        vm.submit();
         const onPosting = props.submitPost.mock.calls[0][0];
 
         onPosting(true);
@@ -156,13 +151,25 @@ describe('CreateEventPage', () => {
     // Opening fcom's composer would move the focus to its title, so a bad event only shows its error.
     it('shows an invalid event as a toast and leaves the composer alone', async () => {
         const { vm, props } = await createPage();
-        fetch.mockResolvedValueOnce(json({ message: 'The event title is required.' }, 422));
+        const refused = (message) => {
+            ElNotification.mockClear();
+            vm.submit();
+            expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message });
+        };
 
-        await vm.submit();
+        vm.event.title = '  ';
+        refused('Event title is required.');
 
-        expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message: 'The event title is required.' });
+        vm.event.title = 'Friday Q&A';
+        vm.event.end_date = vm.event.start_date;
+        vm.event.end_time = vm.event.start_time;
+        refused('End must be after the start.');
+
+        vm.event.end_date = '2026-12-31';
+        vm.event.venue_type = 'online';
+        refused('An online event needs a meeting link.');
+
         expect(props.submitPost).not.toHaveBeenCalled();
-        expect(vm.saving).toBe(false);
     });
 
     it('fetches the WordPress editor assets once, not on every visit', async () => {

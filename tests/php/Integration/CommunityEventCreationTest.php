@@ -234,22 +234,6 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertInstanceOf(\WP_Error::class, $this->validate(['space_id' => $spaceId], $endsBeforeItStarts));
     }
 
-    // The create page asks this before opening fcom's composer, so it must judge the event as posting would.
-    public function test_the_create_page_checks_the_event_by_the_posts_own_rules_for_admins_only()
-    {
-        $this->assertSame(['valid' => true], $this->rest('POST', 'community/events/validate', $this->postRequest())['data']);
-
-        $untitled = $this->rest('POST', 'community/events/validate', $this->postRequest(['title' => '']));
-        $this->assertSame(422, $untitled['status']);
-        $this->assertSame('Event title is required.', $untitled['data']['message']);
-
-        $endsBeforeItStarts = $this->postRequest(['end_at' => gmdate('Y-m-d H:i:s', strtotime('+2 days'))]);
-        $this->assertSame(422, $this->rest('POST', 'community/events/validate', $endsBeforeItStarts)['status']);
-
-        $this->actAs($this->createUser('editor'));
-        $this->assertSame(403, $this->rest('POST', 'community/events/validate', $this->postRequest())['status']);
-    }
-
     public function test_a_community_wide_post_files_its_event_in_the_one_private_community_calendar()
     {
         $this->setGlobalPosts(true);
