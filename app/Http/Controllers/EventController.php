@@ -41,11 +41,19 @@ class EventController extends Controller
 
         $paginate = !$isWindow || $request->getSafe('paginate', 'rest_sanitize_boolean', true);
 
-        return [
+        $data = [
             'events' => $paginate
                 ? $events->paginate(EventRequest::perPage($request))
                 : $events->get()
         ];
+
+        /**
+         * The admin events list, for add-ons to append fields to each event.
+         *
+         * @param array $data    ['events' => paginator or collection of Event]
+         * @param array $request The request parameters.
+         */
+        return apply_filters('fluent_event/events_api_response', $data, $request->all());
     }
 
     public function getEvent(Request $request, $id)

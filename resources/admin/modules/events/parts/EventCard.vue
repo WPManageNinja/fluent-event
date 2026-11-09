@@ -38,6 +38,24 @@
                     {{ $eventStatusLabel(event.status) }}
                 </el-tag>
 
+                <el-tooltip
+                    v-if="feedUrl"
+                    :content="$t('Open the community post in a new tab')"
+                    :trigger="['hover', 'focus']"
+                    placement="top"
+                >
+                    <a
+                        class="fe-community-mark"
+                        :href="feedUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :aria-label="$t('Open the community post in a new tab')"
+                        @click.stop
+                    >
+                        <img class="fe-community-mark__logo" :src="appVars.fcom_logo" alt="" />
+                    </a>
+                </el-tooltip>
+
                 <span class="fe-event-card__venue">
                     <el-icon aria-hidden="true">
                         <VideoCamera v-if="isOnline" />
@@ -134,6 +152,9 @@
             },
             coverUrl() {
                 return this.$httpUrl(this.event.meta?.cover_url);
+            },
+            feedUrl() {
+                return this.$httpUrl(this.event.feed_url);
             },
         },
     };
