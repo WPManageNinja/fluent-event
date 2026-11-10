@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import dayjs from 'dayjs';
-import { DAY_MS, toUtcDay, toDayKey, daySpan, icsStamp, buildIcs, downloadIcs } from '@/utils/date';
+import { DAY_MS, toUtcDay, toDayKey, daySpan, lastDay, icsStamp, buildIcs, downloadIcs } from '@/utils/date';
 
 const encoder = new TextEncoder();
 const bytes = (line) => encoder.encode(line).length;
@@ -41,6 +41,19 @@ describe('day arithmetic', () => {
 
     it('spans a leap day correctly', () => {
         expect(daySpan('2028-02-28', '2028-03-01')).toBe(3);
+    });
+
+    // 22:00 → 00:00 is one evening: the end at midnight belongs to the day before.
+    it('ends an event at midnight on the day before', () => {
+        expect(lastDay('2026-11-12 22:00:00', '2026-11-13 00:00:00')).toBe('2026-11-12');
+        expect(daySpan('2026-11-12 22:00:00', '2026-11-13 00:00:00')).toBe(1);
+        expect(daySpan('2026-11-12 10:00:00', '2026-11-14 00:00:00')).toBe(2);
+        expect(lastDay('2026-02-28 20:00:00', '2026-03-01 00:00:00')).toBe('2026-02-28');
+    });
+
+    it('keeps an end just past midnight, and a zero-length midnight event, on their own day', () => {
+        expect(lastDay('2026-11-12 22:00:00', '2026-11-13 00:30:00')).toBe('2026-11-13');
+        expect(lastDay('2026-11-13 00:00:00', '2026-11-13 00:00:00')).toBe('2026-11-13');
     });
 });
 

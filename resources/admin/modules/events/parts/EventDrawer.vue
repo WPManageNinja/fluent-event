@@ -127,7 +127,7 @@
 
 <script type="text/javascript">
     import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
-    import { daySpan } from '@/utils/date';
+    import { daySpan, lastDay } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
@@ -188,7 +188,7 @@
                 }
 
                 const start = this.$formatDate(this.event.start_at_local, 'MMM D');
-                const end = this.$formatDate(this.event.end_at_local, 'MMM D, YYYY');
+                const end = this.$formatDate(lastDay(this.event.start_at_local, this.event.end_at_local), 'MMM D, YYYY');
 
                 return `${start} – ${end}`;
             },

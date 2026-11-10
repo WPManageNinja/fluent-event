@@ -106,5 +106,20 @@ class DateTimeHelperTest extends TestCase
         $this->assertSame('Nov 3, 10:00 AM – Nov 6, 5:00 PM', DateTimeHelper::timeRange('2026-11-03 10:00:00', '2026-11-06 17:00:00', ''));
         $this->assertSame('Nov 6, 3:52 PM – 5:52 PM (Asia/Dhaka)', DateTimeHelper::dateTimeRange('2026-11-06 15:52:00', '2026-11-06 17:52:00', 'Asia/Dhaka'));
         $this->assertSame('Nov 3, 10:00 AM – Nov 6, 5:00 PM (Asia/Dhaka)', DateTimeHelper::dateTimeRange('2026-11-03 10:00:00', '2026-11-06 17:00:00', 'Asia/Dhaka'));
+
+        // An end at exactly midnight belongs to the day before: one evening, not two days.
+        $this->assertSame('12th November, 2026', DateTimeHelper::dateRange('2026-11-12 22:00:00', '2026-11-13 00:00:00'));
+        $this->assertSame('10:00 PM – 12:00 AM', DateTimeHelper::timeRange('2026-11-12 22:00:00', '2026-11-13 00:00:00', ''));
+        $this->assertSame('Nov 12, 10:00 PM – 12:00 AM (Asia/Dhaka)', DateTimeHelper::dateTimeRange('2026-11-12 22:00:00', '2026-11-13 00:00:00', 'Asia/Dhaka'));
+        $this->assertSame('Nov 12 – Nov 13, 2026', DateTimeHelper::dateRange('2026-11-12 10:00:00', '2026-11-14 00:00:00'));
+    }
+
+    public function test_an_event_ending_at_midnight_ends_the_day_before()
+    {
+        $this->assertSame('2026-11-12', DateTimeHelper::lastDate('2026-11-12 22:00:00', '2026-11-13 00:00:00'));
+        $this->assertSame('2026-11-13', DateTimeHelper::lastDate('2026-11-12 22:00:00', '2026-11-13 00:30:00'));
+        $this->assertSame('2026-02-28', DateTimeHelper::lastDate('2026-02-28 20:00:00', '2026-03-01 00:00:00'));
+        // A zero-length event at midnight keeps its own day.
+        $this->assertSame('2026-11-13', DateTimeHelper::lastDate('2026-11-13 00:00:00', '2026-11-13 00:00:00'));
     }
 }

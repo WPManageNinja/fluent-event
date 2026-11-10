@@ -118,6 +118,7 @@
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
 import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, timeFormat } from '../utils';
+import { lastDay } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
@@ -241,15 +242,16 @@ export default {
         },
         dateRange(start, end) {
             const from = dayjs(start);
+            const last = lastDay(start, end);
 
-            if (from.isSame(dayjs(end), 'day')) {
+            if (start.slice(0, 10) === last) {
                 return from.format(dateFormat());
             }
 
-            return `${from.format('MMM D')} – ${dayjs(end).format('MMM D, YYYY')}`;
+            return `${from.format('MMM D')} – ${dayjs(last).format('MMM D, YYYY')}`;
         },
         timeRange(start, end, zone) {
-            const format = dayjs(start).isSame(dayjs(end), 'day') ? timeFormat() : `MMM D, ${timeFormat()}`;
+            const format = start.slice(0, 10) === lastDay(start, end) ? timeFormat() : `MMM D, ${timeFormat()}`;
             const range = `${dayjs(start).format(format)} – ${dayjs(end).format(format)}`;
 
             return zone ? `${range} (${zone})` : range;

@@ -172,7 +172,7 @@
     import dayjs from 'dayjs';
     import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-    import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
+    import { DAY_MS, lastDay, toDayKey, toUtcDay } from '@/utils/date';
 
     const VISIBLE_PER_DAY = 3;
     const HOUR_PX = 48;
@@ -273,7 +273,7 @@
 
                 this.events.forEach(event => {
                     const start = toUtcDay(event.start_at_site);
-                    const end = toUtcDay(event.end_at_site);
+                    const end = toUtcDay(lastDay(event.start_at_site, event.end_at_site));
 
                     for (
                         let day = Math.max(start, first);

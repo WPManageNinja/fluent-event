@@ -327,7 +327,8 @@ class LandingPageHandler
         $start = strtotime($event->start_at . ' UTC');
         $end = strtotime($event->end_at . ' UTC');
         $timeFormat = get_option('time_format');
-        $endFormat = wp_date('Y-m-d', $start) === wp_date('Y-m-d', $end) ? $timeFormat : get_option('date_format') . ' ' . $timeFormat;
+        // An end at midnight stays on the start's day, as calendarGrid() draws it.
+        $endFormat = wp_date('Y-m-d', $start) === wp_date('Y-m-d', max($start, $end - 1)) ? $timeFormat : get_option('date_format') . ' ' . $timeFormat;
         $isOnline = $event->venue_type === 'online';
 
         return [
