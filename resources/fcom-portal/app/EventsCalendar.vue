@@ -127,7 +127,7 @@
 <script>
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
+import { DAY_MS, placeInLanes, toDayKey, toUtcDay } from '@/utils/date';
 import { timeFormat } from '../utils';
 
 // Month / week / day grid, after the admin EventsGrid; dates come from fcom's own dayjs.
@@ -247,20 +247,22 @@ export default {
             const dayStart = day.startOf('day');
             const dayEnd = dayStart.add(1, 'day');
 
-            return this.entriesFor(day.format('YYYY-MM-DD')).map((entry) => {
+            return placeInLanes(this.entriesFor(day.format('YYYY-MM-DD')).map((entry) => {
                 const start = this.dayjs(entry.event.start_at_site);
                 const end = this.dayjs(entry.event.end_at_site);
                 const from = start.isBefore(dayStart) ? 0 : start.diff(dayStart, 'minute');
                 const until = end.isAfter(dayEnd) ? 24 * 60 : Math.max(end.diff(dayStart, 'minute'), from + 30);
 
                 return { entry, from, until };
-            });
+            }));
         },
         // In percent of the day column, so it follows the hour rows' CSS height.
         blockStyle(block) {
             return {
                 top: `${(block.from / (24 * 60)) * 100}%`,
                 height: `calc(${((block.until - block.from) / (24 * 60)) * 100}% - 2px)`,
+                '--fe-lane': block.lane,
+                '--fe-lanes': block.lanes,
             };
         },
         moveStep(step) {

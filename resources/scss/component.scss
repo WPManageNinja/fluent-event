@@ -2050,10 +2050,11 @@
         border-bottom: none;
     }
 
+    // Overlapping events split the column into lanes, set per event by placeInLanes().
     &__week-event {
         position: absolute;
-        left: 4px;
-        right: 4px;
+        left: calc(4px + (100% - 8px) * var(--fe-lane, 0) / var(--fe-lanes, 1));
+        width: calc((100% - 8px) / var(--fe-lanes, 1) - 2px);
         overflow: hidden;
         display: flex;
         flex-direction: column;

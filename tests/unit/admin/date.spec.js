@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import dayjs from 'dayjs';
-import { DAY_MS, toUtcDay, toDayKey, daySpan, icsStamp, buildIcs, downloadIcs } from '@/utils/date';
+import { DAY_MS, toUtcDay, toDayKey, daySpan, icsStamp, buildIcs, downloadIcs, placeInLanes } from '@/utils/date';
 
 const encoder = new TextEncoder();
 const bytes = (line) => encoder.encode(line).length;
@@ -156,5 +156,27 @@ describe('downloadIcs', () => {
         expect(clicked.download).toBe('meetup.ics');
         expect(clicked.href).toBe('blob:fake-ics');
         expect(revoke).toHaveBeenCalledWith('blob:fake-ics');
+    });
+});
+
+// Week and day views: overlapping events sit side by side, as the landing page's placeOnDay() lays them out.
+describe('placeInLanes', () => {
+    const lanes = (blocks) => placeInLanes(blocks.map(([from, until, id]) => ({ from, until, id })))
+        .map(({ id, lane, lanes: count }) => [id, lane, count]);
+
+    it('gives events that do not overlap the whole column', () => {
+        expect(lanes([[540, 600, 'a'], [600, 660, 'b']])).toEqual([['a', 0, 1], ['b', 0, 1]]);
+    });
+
+    it('splits five events at the same time into five lanes', () => {
+        const fivePm = [1, 2, 3, 4, 5].map((id) => [1020, 1080, id]);
+
+        expect(lanes(fivePm).map(([, lane, count]) => [lane, count])).toEqual([[0, 5], [1, 5], [2, 5], [3, 5], [4, 5]]);
+    });
+
+    it('reuses a lane freed earlier in the same group, sorting by start', () => {
+        // b overlaps a and c; c starts after a ends, so it takes a's lane, and the group keeps two.
+        expect(lanes([[660, 720, 'c'], [540, 600, 'a'], [570, 700, 'b'], [800, 860, 'd']]))
+            .toEqual([['a', 0, 2], ['b', 1, 2], ['c', 0, 2], ['d', 0, 1]]);
     });
 });

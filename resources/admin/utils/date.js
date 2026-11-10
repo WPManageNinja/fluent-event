@@ -23,6 +23,42 @@ export const toDayKey = (time) => new Date(time).toISOString().slice(0, 10);
  */
 export const daySpan = (start, end) => (toUtcDay(end) - toUtcDay(start)) / DAY_MS + 1;
 
+/**
+ * Week and day views: blocks ({ from, until } in minutes) that overlap share the column side by side,
+ * each in the first lane free when it starts; a group runs until none of its blocks is still on.
+ * The landing page's LandingPageHandler::placeOnDay() does the same in PHP.
+ * @param  {Array<{from: number, until: number}>} blocks
+ * @returns {Array} the blocks by start, each with lane and lanes set
+ */
+export function placeInLanes(blocks) {
+    const sorted = [...blocks].sort((a, b) => a.from - b.from);
+    let group = [];
+    let laneEnds = [];
+    let groupEnd = 0;
+    const closeGroup = () => group.forEach((block) => { block.lanes = laneEnds.length; });
+
+    sorted.forEach((block) => {
+        if (block.from >= groupEnd) {
+            closeGroup();
+            group = [];
+            laneEnds = [];
+        }
+
+        let lane = 0;
+        while (laneEnds[lane] !== undefined && laneEnds[lane] > block.from) {
+            lane++;
+        }
+
+        laneEnds[lane] = block.until;
+        block.lane = lane;
+        group.push(block);
+        groupEnd = Math.max(groupEnd, block.until);
+    });
+    closeGroup();
+
+    return sorted;
+}
+
 // WordPress "Week Starts On" for our dayjs (Element Plus reads it) and, in the portal, fcom's window.dayjs.
 export function applyWeekStart(value, hostDayjs) {
     const day = parseInt(value, 10);
