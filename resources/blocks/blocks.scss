@@ -1,0 +1,74 @@
+// Editor-only placeholders for the two blocks: a sketch of what renders on the page, not the page itself.
+.fe-block-preview {
+    padding: 24px;
+    border: 1px dashed var(--wp-admin-theme-color, #3858e9);
+    border-radius: 8px;
+    background-color: var(--fe-secondary-bg, #f3f5fa);
+    color: var(--fe-primary-text, #19283a);
+    text-align: center;
+
+    &__title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    &__meta {
+        margin: 4px 0 16px;
+        font-size: 13px;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__pills {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    &__pill {
+        width: 64px;
+        height: 24px;
+        border-radius: 12px;
+        background-color: var(--fe-primary-bg, #ffffff);
+
+        &.fe-block-preview__pill--active {
+            background-color: var(--fe-primary-button, #2b2e33);
+        }
+    }
+
+    &__list {
+        display: grid;
+        gap: 12px;
+
+        &.fe-block-preview__list--cards {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        &.fe-block-preview__list--calendar {
+            grid-template-columns: repeat(7, 1fr);
+        }
+    }
+
+    &__item {
+        display: block;
+        min-height: 48px;
+        border-radius: 8px;
+        background-color: var(--fe-primary-bg, #ffffff);
+
+        .fe-block-preview__list--cards & {
+            min-height: 120px;
+        }
+    }
+
+    &__event {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 12px;
+    }
+
+    &__item--cover,
+    &__item--side {
+        min-height: 140px;
+    }
+}

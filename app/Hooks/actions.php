@@ -28,6 +28,7 @@ $app->addCustomAction('exception', 'ExceptionHandler');
 $app->addAction('init', 'CPTHandler@registerPostTypes');
 
 (new \FluentEvent\App\Hooks\Handlers\FrontEndHandler())->register();
+(new \FluentEvent\App\Hooks\Handlers\BlockEditorHandler())->register();
 
 $app->addAction('init', 'ActivationHandler@maybeUpgrade');
 
