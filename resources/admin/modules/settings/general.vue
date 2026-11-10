@@ -43,34 +43,66 @@
                     </span>
                 </el-form-item>
 
-                <el-form-item>
-                    <el-checkbox
-                        v-model="general.enable_landing_pages"
-                        true-value="yes"
-                        false-value="no"
-                    >
-                        {{ $t('Enable landing pages') }}
-                    </el-checkbox>
+                <el-form-item v-for="field in pageFields" :key="field.key" :label="field.label">
+                    <div class="fe-page-picker">
+                        <el-select
+                            v-model="general[field.key]"
+                            class="fe-page-picker__select"
+                            :placeholder="$t('Select a page')"
+                            :aria-label="field.label"
+                            filterable
+                            clearable
+                            remote
+                            :remote-method="searchPages"
+                            :loading="pagesSearching"
+                            @visible-change="visible => visible && searchPages('')"
+                        >
+                            <el-option
+                                v-for="option in pageOptionsFor(field.key)"
+                                :key="option.id"
+                                :label="option.title"
+                                :value="option.id"
+                            />
+                        </el-select>
 
-                    <span class="fe-form__hint">
-                        {{ general.enable_landing_pages === 'yes'
-                            ? $t('Visitors can browse your public calendars and their events.')
-                            : $t('Calendars have no public pages, and their links show a not-found page.') }}
+                        <el-button
+                            :aria-label="$t('Create a new page')"
+                            :title="$t('Create a new page')"
+                            :loading="pageCreating && creatingKey === field.key"
+                            :disabled="pageCreating"
+                            @click="createPage(field.key)"
+                        >
+                            <el-icon><Plus /></el-icon>
+                        </el-button>
+                    </div>
+
+                    <span class="fe-form__hint fe-page-picker__help">
+                        {{ $t('Add this shortcode to the page:') }}
+                        <code class="fe-page-picker__code">[{{ field.shortcode }}]</code>
+                        <el-button
+                            link
+                            class="fe-page-picker__copy"
+                            :aria-label="$t('Copy shortcode')"
+                            :title="$t('Copy shortcode')"
+                            @click="copyShortcode(field.shortcode)"
+                        >
+                            <el-icon><DocumentCopy /></el-icon>
+                        </el-button>
+                        <a
+                            v-if="selectedPages[field.key]"
+                            :href="selectedPages[field.key].link"
+                            target="_blank"
+                            rel="noopener"
+                        >{{ $t('Preview') }}</a>
                     </span>
-                </el-form-item>
 
-                <el-form-item v-if="general.enable_landing_pages === 'yes'" :label="$t('Portal slug')">
-                    <el-input
-                        v-model="general.portal_slug"
-                        :disabled="isSlugDefined"
+                    <span
+                        v-if="selectedPages[field.key] && !selectedPages[field.key].has_shortcode"
+                        class="fe-form__hint fe-page-picker__warning"
+                        role="status"
                     >
-                        <template #prepend>{{ homeUrl }}</template>
-                    </el-input>
-
-                    <span class="fe-form__hint">
-                        {{ isSlugDefined
-                            ? $t('Set by FLUENT_EVENT_PORTAL_SLUG in wp-config.php.')
-                            : $t('Where your public calendars page lives. Leave it empty to use the site root. Changing it breaks existing links.') }}
+                        <el-icon aria-hidden="true"><WarningFilled /></el-icon>
+                        {{ $t('This page doesn’t contain the shortcode or block yet.') }}
                     </span>
                 </el-form-item>
 
@@ -179,7 +211,7 @@
 </template>
 
 <script type="text/javascript">
-    import { InfoFilled } from '@element-plus/icons-vue';
+    import { DocumentCopy, InfoFilled, Plus, WarningFilled } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import WpEditor from '@/components/WpEditor.vue';
@@ -188,7 +220,10 @@
     export default {
         name: 'SettingsGeneral',
         components: {
+            DocumentCopy,
             InfoFilled,
+            Plus,
+            WarningFilled,
             ErrorState,
             Skeleton,
             WpEditor,
@@ -202,11 +237,17 @@
                 general: {
                     default_events_view: 'timeline',
                     disable_event_view_switch: 'no',
-                    enable_landing_pages: 'no',
-                    portal_slug: '',
+                    events_page_id: 0,
+                    event_page_id: 0,
                 },
-                homeUrl: '',
-                isSlugDefined: false,
+                selectedPages: {
+                    events_page_id: null,
+                    event_page_id: null,
+                },
+                pageOptions: [],
+                pagesSearching: false,
+                pageCreating: false,
+                creatingKey: '',
                 emailLoading: true,
                 emailSaving: false,
                 emailError: '',
@@ -227,6 +268,12 @@
                     { value: 'calendar', label: this.$t('Calendar') },
                 ];
             },
+            pageFields() {
+                return [
+                    { key: 'events_page_id', label: this.$t('Events page'), shortcode: 'fluent_events' },
+                    { key: 'event_page_id', label: this.$t('Event details page'), shortcode: 'fluent_event' },
+                ];
+            },
         },
         methods: {
             fetchGeneral() {
@@ -236,10 +283,50 @@
                     errorState: 'generalError',
                     onSuccess: response => {
                         this.general = response.settings;
-                        this.homeUrl = response.home_url;
-                        this.isSlugDefined = response.is_slug_defined;
+                        this.selectedPages = response.pages;
                     },
                 });
+            },
+            // The search results, with the page already chosen kept in so the select can name it.
+            pageOptionsFor(key) {
+                const selected = this.selectedPages[key];
+
+                return selected && !this.pageOptions.some(option => option.id === selected.id)
+                    ? [selected, ...this.pageOptions]
+                    : this.pageOptions;
+            },
+            searchPages(search) {
+                this.$requestServer({
+                    path: 'settings/pages',
+                    payload: { search },
+                    loadingState: 'pagesSearching',
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
+                        this.pageOptions = response.pages;
+                    },
+                });
+            },
+            createPage(key) {
+                this.creatingKey = key;
+                this.$requestServer({
+                    method: 'post',
+                    path: 'settings/create-page',
+                    payload: { key },
+                    loadingState: 'pageCreating',
+                    errorState: null,
+                    successNotify: true,
+                    errorNotify: true,
+                    onSuccess: response => {
+                        this.general[key] = response.settings[key];
+                        this.selectedPages = response.pages;
+                    },
+                });
+            },
+            copyShortcode(shortcode) {
+                navigator.clipboard.writeText(`[${shortcode}]`)
+                    .then(() => this.$notifySuccess(this.$t('Shortcode copied.')))
+                    .catch(() => this.$notifyError(this.$t('The shortcode could not be copied.')));
             },
             saveGeneral() {
                 this.$requestServer({
@@ -252,6 +339,7 @@
                     errorNotify: true,
                     onSuccess: response => {
                         this.general = response.settings;
+                        this.selectedPages = response.pages;
                         window.fluentEventAdmin.general_settings = response.settings;
                     },
                 });
