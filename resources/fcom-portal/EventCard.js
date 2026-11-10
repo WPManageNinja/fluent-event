@@ -9,7 +9,9 @@ import EventMenu from './EventMenu';
  */
 export default {
     name: 'FluentEventCard',
-    components: { EventActions, EventMenu },
+    // Copies: Vue caches a compiled template on the component object, and our page apps render these
+    // on our own Vue, whose compiled render silently drops v-model when fcom's Vue runs it.
+    components: { EventActions: { ...EventActions }, EventMenu: { ...EventMenu } },
     props: {
         feed: { type: Object, required: true },
         is_single: { type: Boolean, default: false },

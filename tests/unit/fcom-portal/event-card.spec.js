@@ -1,3 +1,4 @@
+import path from 'path';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises, RouterLinkStub } from '@vue/test-utils';
 import EventCard from '../../../resources/fcom-portal/EventCard';
@@ -151,5 +152,41 @@ describe('EventCard', () => {
         await wrapper.setProps({ feed: { slug: 'community-meetup', fluent_event: meetup({ title: 'Renamed meetup' }) } });
 
         expect(wrapper.find('.fe-event-card__title').text()).toBe('Renamed meetup');
+    });
+
+    describe('beside our page apps, which render the same form on their own Vue', () => {
+        // A second, self-contained copy of Vue, by file path so the `vue` alias can't fold it into the first.
+        const otherVue = () => import(path.resolve(__dirname, '../../../node_modules/vue/dist/vue.esm-browser.js'));
+
+        afterEach(() => {
+            vi.unstubAllGlobals();
+        });
+
+        it('sends what a visitor types after our Vue rendered the form first', async () => {
+            // Fresh modules, as on a page load: nothing has compiled the shared template yet.
+            vi.resetModules();
+            const { default: SharedActions } = await import('../../../resources/fcom-portal/EventActions');
+            const { default: FeedCard } = await import('../../../resources/fcom-portal/EventCard');
+            const event = meetup({ entry_type: 'open', register_nonce: 'n0nce' });
+            window.fluentEventFcomPortal.is_logged_in = false;
+            vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: 'Refused.' }), { status: 422 })));
+
+            const ourVue = await otherVue();
+            const ourApp = ourVue.createApp({ render: () => ourVue.h(SharedActions, { event }) });
+            ourApp.mount(document.createElement('div'));
+            ourApp.unmount();
+
+            const wrapper = mount(FeedCard, {
+                props: { feed: { slug: 'meetup-post', space: { slug: 'design' }, fluent_event: event } },
+                global: { mocks: { $router: { hasRoute: () => true } } },
+            });
+            await wrapper.find('.fe-guest-register > button').trigger('click');
+            await wrapper.find('#fe-guest-name-5').setValue('Rafi');
+            await wrapper.find('#fe-guest-email-5').setValue('rafi@example.test');
+            await wrapper.find('form').trigger('submit');
+            await flushPromises();
+
+            expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ name: 'Rafi', email: 'rafi@example.test' });
+        });
     });
 });
