@@ -5,6 +5,7 @@ namespace FluentEvent\App\Hooks\Handlers;
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
+use FluentEvent\App\Utils\Enqueuer\Vite;
 use FluentEvent\Framework\Support\Arr;
 
 /**
@@ -73,7 +74,8 @@ class BlockEditorHandler
             self::EDITOR_HANDLE,
             'blocks/blocks.jsx',
             ['wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-i18n'],
-            FLUENT_EVENT_PLUGIN_VERSION,
+            // The dev server reads a JSX file's type from the URL's last dot, so `?ver=1.0.0` would make it `.0`.
+            Vite::isOnDevMode() ? null : FLUENT_EVENT_PLUGIN_VERSION,
             true
         );
 
