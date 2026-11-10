@@ -4,7 +4,6 @@ namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
 use FluentEvent\App\Models\Calendar;
-use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -139,7 +138,7 @@ class AdminMenuHandler
      */
     protected function getMenuItemsList()
     {
-        $items = [
+        return [
             [
                 'key'       => 'dashboard',
                 'label'     => __('Dashboard', 'fluent-event'),
@@ -156,17 +155,6 @@ class AdminMenuHandler
                 'permalink' => $this->baseUrl . 'events',
             ],
         ];
-
-        if ($portalUrl = EventPageService::listUrl()) {
-            $items[] = [
-                'key'       => 'frontend_portal',
-                'label'     => __('Frontend Portal', 'fluent-event'),
-                'permalink' => $portalUrl,
-                'new_tab'   => true,
-            ];
-        }
-
-        return $items;
     }
 
     /**
