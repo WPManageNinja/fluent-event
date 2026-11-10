@@ -159,7 +159,8 @@ class EventReminderService
         do {
             $guests = Guest::query()
                 ->where('event_id', $event->id)
-                ->whereNotIn('status', ['cancelled', 'not_going'])
+                // Seat holders by name, so a status added later (waitlisted, pending payment) never gets the meeting link.
+                ->whereIn('status', Event::SEAT_STATUSES)
                 ->where('id', '>', (int) ($reminderMeta->value['cursor'] ?? 0))
                 ->orderBy('id', 'ASC')
                 ->limit(self::BATCH_SIZE)

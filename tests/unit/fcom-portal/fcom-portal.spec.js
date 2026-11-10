@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import dayjs from 'dayjs';
-import { expectKnownIssue } from '../known-issue';
 
 const spaceRoute = () => ({ path: '/space/:space/', children: [{ path: 'home', name: 'space_feeds' }] });
 
@@ -298,16 +297,12 @@ describe('fcom-portal entry', () => {
             expect(dayjs('2026-10-28').startOf('week').format('YYYY-MM-DD')).toBe('2026-10-26');
         }, 15000);
 
-        it('KNOWN ISSUE #173 — shows a loading mask while the list loads', async (context) => {
+        it('shows a loading mask while the list loads', async () => {
             await mountEventsShell();
 
             expect(wrapper.vm.ready).toBe(true);
             expect(wrapper.find('.fe-events-page__list').exists()).toBe(true);
-
-            // #173: the page app never registers ElLoading, so v-loading is inert.
-            await expectKnownIssue('#173', context, () => {
-                expect(wrapper.find('.el-loading-mask').exists()).toBe(true);
-            });
+            expect(wrapper.find('.el-loading-mask').exists()).toBe(true);
         }, 15000);
     });
 });

@@ -94,5 +94,9 @@ class DeactivationHandler
         if (function_exists('as_unschedule_all_actions')) {
             as_unschedule_all_actions('', [], 'fluent-event');
         }
+
+        // Our landing rules live in the saved rewrite rules, and nothing rebuilds them once we stop
+        // loading: /events/* would keep serving the home page and hide a page with that slug.
+        delete_option('rewrite_rules');
     }
 }

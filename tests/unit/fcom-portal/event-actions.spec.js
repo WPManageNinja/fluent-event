@@ -69,7 +69,7 @@ describe('EventActions', () => {
         // A form with no undo ends in a dialog, not a toast.
         const [content, , settings] = ElMessageBox.alert.mock.calls[0];
         expect(content.props.class).toBe('fe-registered');
-        expect(settings).toMatchObject({ customClass: 'fe-registered-box', confirmButtonText: 'Done' });
+        expect(settings).toMatchObject({ customClass: 'fe-registered-box', confirmButtonText: 'Done', closeOnPressEscape: true });
         expect(ElNotification).not.toHaveBeenCalled();
     });
 

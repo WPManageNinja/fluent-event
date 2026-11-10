@@ -489,7 +489,13 @@
 .fe-fcom-portal-page {
     // Our Element Plus reads its primary colour from here, so tabs and controls follow the community theme.
     --el-color-primary: var(--fcom-primary-button, #2B2E33);
+    // Its loading mask too: Element Plus's own is plain white, or black in dark mode, not the community background.
+    --el-mask-color: color-mix(in srgb, var(--fcom-primary-bg, #ffffff) 85%, transparent);
     padding: 20px 0;
+
+    .el-loading-mask {
+        border-radius: 12px;
+    }
 
     // Same frame as fcom's wide pages (the .fcom_max_layout body), so it matches the space Events tab.
     // An event inside a space gets it from the space layout; a community-wide one has none, so it takes this.
@@ -1553,6 +1559,28 @@
         }
     }
 
+    // On phones a shared row leaves each input too narrow for its value, so each takes its own line.
+    @media (max-width: 575px) {
+        &__window {
+            gap: 16px;
+        }
+
+        &__window-row {
+            flex-wrap: wrap;
+            row-gap: 8px;
+        }
+
+        &__window-label {
+            width: 100%;
+        }
+
+        &__date.el-date-editor,
+        &__time.el-date-editor,
+        &__timezone.el-select {
+            flex: 1 1 100%;
+        }
+    }
+
     // Choices are bordered cards side by side; the checked one takes the text color.
     &__choices.el-radio-group {
         display: grid;
@@ -1884,6 +1912,11 @@ body {
         padding: 0;
     }
 
+    // A flex item that doesn't grow: without this, a short event title leaves the card narrower than the box.
+    .el-message-box__message {
+        flex: 1;
+    }
+
     .el-message-box__btns {
         padding: 18px 0 0;
 
@@ -2138,9 +2171,11 @@ body {
         grid-area: intro;
     }
 
+    // minmax(0, …): an auto track widens to the longest unbreakable line, pushing the card under the side card.
     &__body {
         grid-area: body;
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
         gap: 16px;
     }
 
@@ -2259,6 +2294,29 @@ body {
         img {
             max-width: 100%;
             height: auto;
+        }
+
+        // A long code line or a wide table scrolls inside the card, not the page.
+        pre {
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-wrap: normal;
+        }
+
+        table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+            overflow-wrap: normal;
+        }
+
+        th,
+        td {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
+            text-align: left;
+            vertical-align: top;
         }
     }
 
