@@ -23,6 +23,8 @@ $router->prefix('users')->withDefaultPolicy()->group(function ($router) {
 $router->prefix('settings')->withDefaultPolicy()->group(function ($router) {
     $router->get('/general', [SettingsController::class, 'getGeneral']);
     $router->post('/general', [SettingsController::class, 'updateGeneral']);
+    $router->get('/pages', [SettingsController::class, 'getPages']);
+    $router->post('/create-page', [SettingsController::class, 'createPage']);
 
     $router->get('/email', [SettingsController::class, 'getEmail']);
     $router->post('/email', [SettingsController::class, 'updateEmail']);

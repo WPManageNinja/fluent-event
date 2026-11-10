@@ -13,10 +13,71 @@ use FluentEvent\App\Utils\DateTimeHelper;
  */
 class EventPageService
 {
-    // Straight under the portal slug: an event's post slug is unique among events.
+    // The detail page reads its event from this query var; the rewrite rule fills it from /event/<slug>.
+    const EVENT_VAR = 'fe_event';
+
+    // Activation and the settings "+" create these. The content is ours, never a request's.
+    const PAGES = [
+        'events_page_id' => ['slug' => 'events', 'shortcode' => 'fluent_events', 'block' => 'fluent-event/events'],
+        'event_page_id'  => ['slug' => 'event', 'shortcode' => 'fluent_event', 'block' => 'fluent-event/event'],
+    ];
+
+    // A setting's page while it is published, else 0: a trashed or draft page turns its links off.
+    public static function pageId($key)
+    {
+        $id = (int) (Settings::get()[$key] ?? 0);
+
+        return $id && get_post_type($id) === 'page' && get_post_status($id) === 'publish' ? $id : 0;
+    }
+
+    public static function listUrl()
+    {
+        $id = self::pageId('events_page_id');
+
+        return $id ? (string) get_permalink($id) : '';
+    }
+
+    // Under the detail page by the event's post slug, which is unique among events.
     public static function url(Event $event)
     {
-        return home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->post->post_name));
+        $id = self::pageId('event_page_id');
+
+        if (!$id) {
+            return '';
+        }
+
+        $page = (string) get_permalink($id);
+
+        // Plain permalinks have no path to append to, and the query var works without the rewrite rule.
+        if (!get_option('permalink_structure')) {
+            return add_query_arg(self::EVENT_VAR, $event->post->post_name, $page);
+        }
+
+        return user_trailingslashit(untrailingslashit($page) . '/' . $event->post->post_name);
+    }
+
+    // Untitled, so the shortcode's own heading leads; WordPress suffixes the slug when it is taken.
+    public static function createPage($key)
+    {
+        $page = self::PAGES[$key];
+
+        $id = wp_insert_post([
+            'post_type'      => 'page',
+            'post_status'    => 'publish',
+            'post_title'     => '',
+            'post_name'      => $page['slug'],
+            'post_content'   => '<!-- wp:shortcode -->[' . $page['shortcode'] . ']<!-- /wp:shortcode -->',
+            'comment_status' => 'closed',
+            'ping_status'    => 'closed',
+        ]);
+
+        if (!$id || is_wp_error($id)) {
+            return 0;
+        }
+
+        Settings::update(Settings::GENERAL, [$key => (int) $id]);
+
+        return (int) $id;
     }
 
     /**

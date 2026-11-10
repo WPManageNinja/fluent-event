@@ -1,21 +1,23 @@
 <?php
 /**
- * The landing home: every public calendar's events, or one calendar's, as cards, a timeline or a
+ * [fluent_events]: every public calendar's events, or one calendar's, as cards, a timeline or a
  * month, with a chip per calendar to switch. Every control is a plain link, so each state has its own
  * URL and works without JavaScript; portal.js swaps the list in place when a chip is picked.
  *
  * @var array  $chips          title, slug ('' for All), color (sanitized hex or ''), active. Empty with one calendar.
  * @var bool   $show_calendar  Name each event's calendar: there are chips to switch between them.
- * @var string $url            The landing home, without query args.
+ * @var string $url            The page showing the list, without query args.
  * @var string $view           cards|timeline|calendar
  * @var bool   $view_locked
  * @var string $filter         upcoming|all|past
  * @var string $search
  * @var array  $state          Query args every link carries.
+ * @var array  $keep_empty     State keys a link keeps even when empty.
+ * @var string $page_var       The pagination query arg.
  * @var array  $rows           List views: one eventRow() per event.
  * @var int    $current_page
  * @var int    $last_page
- * @var array  $grid           Calendar view: LandingPageHandler::calendarGrid().
+ * @var array  $grid           Calendar view: FrontEndHandler::calendarGrid().
  */
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
@@ -26,9 +28,13 @@ $fluentEventTint = function ( $color ) {
     return $color ? ' style="color: ' . esc_attr( $color ) . '"' : '';
 };
 
-// add_query_arg() leaves values raw, so encode them; empty values drop out of the link.
-$fluentEventLink = function ( array $args ) use ( $state, $url ) {
-    return add_query_arg( array_map( 'rawurlencode', array_filter( array_merge( $state, $args ), 'strlen' ) ), $url );
+// add_query_arg() leaves values raw, so encode them; empty values drop out of the link unless kept.
+$fluentEventLink = function ( array $args ) use ( $state, $url, $keep_empty ) {
+    $args = array_filter( array_merge( $state, $args ), function ( $value, $key ) use ( $keep_empty ) {
+        return strlen( $value ) || in_array( $key, $keep_empty, true );
+    }, ARRAY_FILTER_USE_BOTH );
+
+    return add_query_arg( array_map( 'rawurlencode', $args ), $url );
 };
 
 $fluentEventSpans = [
@@ -370,7 +376,7 @@ $fluentEventEmpty = [
         <?php if ( 'calendar' !== $view && $last_page > 1 ) : ?>
             <nav class="fe-pagination" aria-label="<?php esc_attr_e( 'Pages', 'fluent-event' ); ?>">
                 <?php if ( $current_page > 1 ) : ?>
-                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ 'page' => $current_page - 1 ] ) ); ?>" rel="prev">
+                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $page_var => $current_page - 1 ] ) ); ?>" rel="prev">
                         <?php echo Icon::CHEVRON_LEFT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                         <span><?php esc_html_e( 'Previous', 'fluent-event' ); ?></span>
                     </a>
@@ -384,7 +390,7 @@ $fluentEventEmpty = [
                 </span>
 
                 <?php if ( $current_page < $last_page ) : ?>
-                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ 'page' => $current_page + 1 ] ) ); ?>" rel="next">
+                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $page_var => $current_page + 1 ] ) ); ?>" rel="next">
                         <span><?php esc_html_e( 'Next', 'fluent-event' ); ?></span>
                         <?php echo Icon::CHEVRON_RIGHT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                     </a>

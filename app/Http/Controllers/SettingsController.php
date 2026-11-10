@@ -2,6 +2,7 @@
 
 namespace FluentEvent\App\Http\Controllers;
 
+use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Http\Requests\SettingsRequest;
 use FluentEvent\Framework\Http\Request\Request;
@@ -10,41 +11,34 @@ class SettingsController extends Controller
 {
     public function getGeneral(Request $request)
     {
-        $settings = Settings::get();
-        $settings['portal_slug'] = Settings::portalSlug();
-
         return [
-            'settings'        => $settings,
-            'home_url'        => home_url('/'),
-            'is_slug_defined' => defined('FLUENT_EVENT_PORTAL_SLUG'),
+            'settings' => Settings::get(),
+            'pages'    => $this->selectedPages(),
         ];
     }
 
     public function updateGeneral(Request $request)
     {
-        $raw = $request->all();
-        $data = SettingsRequest::sanitize($raw);
-
-        // The constant owns the slug, and its value needn't pass the rules for the field it locks.
-        if (defined('FLUENT_EVENT_PORTAL_SLUG')) {
-            unset($data['portal_slug']);
-        }
-
-        // Blank means the site root, but text that sanitizes to nothing (`!!!`) stays raw so the rules reject it.
-        if (isset($data['portal_slug']) && $data['portal_slug'] === '') {
-            $data['portal_slug'] = trim((string) ($raw['portal_slug'] ?? ''));
-        }
+        $data = SettingsRequest::sanitize($request->all());
 
         $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());
 
-        $previousSlug = Settings::portalSlug();
-        $previousLanding = Settings::get()['enable_landing_pages'];
+        foreach (array_keys(EventPageService::PAGES) as $key) {
+            $id = (int) ($data[$key] ?? 0);
 
+            if ($id && (get_post_type($id) !== 'page' || get_post_status($id) !== 'publish')) {
+                return $this->sendError([
+                    'message' => __('Choose a published page.', 'fluent-event'),
+                    'errors'  => [$key => ['page' => __('Choose a published page.', 'fluent-event')]],
+                ], 422);
+            }
+        }
+
+        $previousPage = (int) Settings::get()['event_page_id'];
         $settings = Settings::update(Settings::GENERAL, $data);
-        $settings['portal_slug'] = Settings::portalSlug();
 
-        // `init` already registered the old rules, so flushing here would keep them. WordPress rebuilds on the next request.
-        if ($settings['portal_slug'] !== $previousSlug || $settings['enable_landing_pages'] !== $previousLanding) {
+        // `init` already registered the old rule, so flushing here would keep it. WordPress rebuilds on the next request.
+        if ((int) $settings['event_page_id'] !== $previousPage) {
             delete_option('rewrite_rules');
         }
 
@@ -53,9 +47,78 @@ class SettingsController extends Controller
         return [
             'message'  => __('Settings have been saved.', 'fluent-event'),
             'settings' => $settings,
+            'pages'    => $this->selectedPages(),
         ];
     }
 
+    // The page select's remote search, as FluentAffiliate's.
+    public function getPages(Request $request)
+    {
+        $pages = get_posts([
+            'post_type'      => 'page',
+            'post_status'    => 'publish',
+            's'              => $request->getSafe('search', 'sanitize_text_field', ''),
+            'posts_per_page' => 50,
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        ]);
+
+        return [
+            'pages' => array_map([$this, 'pageOption'], $pages),
+        ];
+    }
+
+    // The "+" beside a page select: our page, untitled, holding its shortcode. The request picks which, never the content.
+    public function createPage(Request $request)
+    {
+        $data = ['key' => $request->getSafe('key', 'sanitize_key', '')];
+
+        $this->validate($data, ['key' => 'required|in:' . implode(',', array_keys(EventPageService::PAGES))]);
+
+        if (!EventPageService::createPage($data['key'])) {
+            return $this->sendError(['message' => __('The page could not be created.', 'fluent-event')], 422);
+        }
+
+        if ($data['key'] === 'event_page_id') {
+            delete_option('rewrite_rules');
+        }
+
+        return [
+            'message'  => __('The page has been created.', 'fluent-event'),
+            'settings' => Settings::get(),
+            'pages'    => $this->selectedPages(),
+        ];
+    }
+
+    // Each setting's page as the select shows it, with whether it holds our shortcode or block yet.
+    private function selectedPages()
+    {
+        $pages = [];
+
+        foreach (EventPageService::PAGES as $key => $page) {
+            $post = get_post((int) Settings::get()[$key]);
+
+            $pages[$key] = $post && $post->post_type === 'page' && $post->post_status !== 'trash'
+                ? $this->pageOption($post) + [
+                    // The tag by name: has_shortcode() also wants it registered, which a REST request needn't have.
+                    'has_shortcode' => (bool) preg_match('/' . get_shortcode_regex([$page['shortcode']]) . '/', $post->post_content)
+                        || has_block($page['block'], $post),
+                ]
+                : null;
+        }
+
+        return $pages;
+    }
+
+    // Our pages are untitled, so they read as their address.
+    private function pageOption($post)
+    {
+        return [
+            'id'    => (int) $post->ID,
+            'title' => $post->post_title !== '' ? $post->post_title : '/' . get_page_uri($post) . '/',
+            'link'  => (string) get_permalink($post),
+        ];
+    }
 
     public function getEmail(Request $request)
     {

@@ -17,7 +17,7 @@ class PortalEndpointsTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        Settings::update(Settings::GENERAL, ['enable_landing_pages' => 'yes']);
+        $this->createPublicPages();
         $this->actAs(0);
     }
 
@@ -163,10 +163,10 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertCount(0, $this->guestsOf($event));
     }
 
-    // With landing pages off there is no event page, so its endpoint refuses everyone.
-    public function test_the_endpoint_does_not_answer_when_landing_pages_are_off()
+    // With no event details page there is no form, so its endpoint refuses everyone.
+    public function test_the_endpoint_does_not_answer_without_an_event_details_page()
     {
-        Settings::update(Settings::GENERAL, ['enable_landing_pages' => 'no']);
+        Settings::update(Settings::GENERAL, ['event_page_id' => 0]);
         $event = $this->createEvent();
 
         $this->assertNotSame(200, $this->registerGuest($event)['status']);

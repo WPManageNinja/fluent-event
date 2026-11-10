@@ -27,7 +27,7 @@ $app->addCustomAction('exception', 'ExceptionHandler');
  */
 $app->addAction('init', 'CPTHandler@registerPostTypes');
 
-(new \FluentEvent\App\Hooks\Handlers\LandingPageHandler())->register();
+(new \FluentEvent\App\Hooks\Handlers\FrontEndHandler())->register();
 
 $app->addAction('init', 'ActivationHandler@maybeUpgrade');
 

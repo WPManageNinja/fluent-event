@@ -2,20 +2,24 @@
 
 namespace FluentEvent\Tests\Integration;
 
-use FluentEvent\App\Hooks\Handlers\LandingPageHandler;
+use FluentEvent\App\Hooks\Handlers\FrontEndHandler;
+use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * The public event page: which events open, who sees the meeting link, and the calendar file it offers.
+ * [fluent_event]: which events open, who sees the meeting link, and the calendar file it offers.
  */
 class EventLandingPageTest extends IntegrationTestCase
 {
+    private $pages = [];
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $_GET = [];
+        $this->pages = $this->createPublicPages();
         wp_set_current_user(0);
     }
 
@@ -28,15 +32,19 @@ class EventLandingPageTest extends IntegrationTestCase
 
     private function handler()
     {
-        return new class extends LandingPageHandler {
+        return new class extends FrontEndHandler {
             public function event($eventSlug)
             {
-                return $this->eventPage($eventSlug);
+                $event = $this->findEvent($eventSlug);
+
+                return $event ? ['body' => $this->eventBody($event)] : null;
             }
 
             public function calendar($slug)
             {
-                return $this->eventsPage($slug);
+                $_GET = ['calendar' => $slug];
+
+                return ['body' => $this->eventsBody(['calendar' => '', 'view' => '', 'filter' => '', 'view_switch' => '', 'show_calendars' => 'yes'])];
             }
         };
     }
@@ -128,15 +136,37 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertNotEmpty(preg_grep('/^ /', $lines), 'The long description folds onto continuation lines.');
     }
 
-    // Straight under the portal slug: the calendar is a filter on the list, not part of an event's address.
+    // Under the event details page by slug alone: the calendar is a filter on the list, not part of an event's address.
     public function test_listed_events_link_to_their_page_by_slug_alone()
     {
         Settings::update(Settings::GENERAL, ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no']);
         $calendar = $this->createCalendar();
         $event = $this->createEvent(['calendar_id' => $calendar->id]);
 
-        $url = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->post->post_name));
+        $url = EventPageService::url($event);
 
+        $this->assertSame(user_trailingslashit(untrailingslashit(get_permalink($this->pages['event_page_id'])) . '/' . $event->post->post_name), $url);
         $this->assertStringContainsString('href="' . esc_url($url) . '"', $this->handler()->calendar($calendar->slug)['body']);
+    }
+
+    // With no event details page, nothing links to one and its form has nowhere to post.
+    public function test_without_an_event_details_page_events_have_no_address()
+    {
+        Settings::update(Settings::GENERAL, ['event_page_id' => 0]);
+
+        $this->assertSame('', EventPageService::url($this->createEvent()));
+    }
+
+    // The details page answers /<its path>/<event slug>/ by handing the slug to its own query var.
+    public function test_the_rewrite_rule_maps_an_event_slug_to_the_details_page()
+    {
+        global $wp_rewrite;
+
+        (new FrontEndHandler())->addRewriteRule();
+
+        $path = get_page_uri($this->pages['event_page_id']);
+        $rule = $wp_rewrite->extra_rules_top['^' . preg_quote($path, '#') . '/([^/]+)/?$'] ?? null;
+
+        $this->assertSame('index.php?page_id=' . $this->pages['event_page_id'] . '&fe_event=$matches[1]', $rule);
     }
 }

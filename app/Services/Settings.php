@@ -26,9 +26,9 @@ class Settings
         self::GENERAL => [
             'default_events_view'       => 'timeline',
             'disable_event_view_switch' => 'no',
-            'enable_landing_pages'      => 'no',
-            // With FluentCommunity mounted at the site root, this shadows its `/events` tab once landing pages are on.
-            'portal_slug'               => 'events',
+            // The pages holding [fluent_events] and [fluent_event]; 0 until activation or the admin sets them.
+            'events_page_id'            => 0,
+            'event_page_id'             => 0,
         ],
         self::EMAIL => [
             'from_name'      => '',
@@ -77,16 +77,6 @@ class Settings
         }
 
         return is_array($stored) ? $stored : [];
-    }
-
-    public static function portalSlug()
-    {
-        return trim(defined('FLUENT_EVENT_PORTAL_SLUG') ? FLUENT_EVENT_PORTAL_SLUG : self::get()['portal_slug'], '/');
-    }
-
-    public static function landingPagesEnabled()
-    {
-        return self::get()['enable_landing_pages'] === 'yes';
     }
 
     public static function reminderInSeconds($reminder)

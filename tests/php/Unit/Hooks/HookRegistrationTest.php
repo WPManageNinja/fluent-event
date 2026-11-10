@@ -37,6 +37,8 @@ class HookRegistrationTest extends TestCase
             $recorder->addFilter($hook, $callback, $priority);
             return true;
         });
+
+        Functions\when('add_shortcode')->justReturn(true);
     }
 
     private function load($file)

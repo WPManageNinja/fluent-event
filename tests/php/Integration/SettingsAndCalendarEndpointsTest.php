@@ -10,12 +10,13 @@ use FluentEvent\Tests\IntegrationTestCase;
 
 class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 {
+    private $pages = [];
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        // The suite runs on the site's real options; a switch flipped in the browser would read as a toggle here.
-        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars', 'enable_landing_pages' => 'no']);
+        $this->pages = $this->createPublicPages();
         $this->actAs($this->createAdmin());
     }
 
@@ -30,61 +31,105 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_general_settings_round_trip()
     {
-        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'enable_landing_pages' => 'no', 'portal_slug' => 'calendars'];
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes'] + $this->pages;
         $saved = $this->rest('POST', 'settings/general', $settings);
 
         $this->assertSame(200, $saved['status'], wp_json_encode($saved['data']));
         $this->assertSame($settings, $this->rest('GET', 'settings/general')['data']['settings']);
     }
 
-    public function test_changing_the_portal_slug_sanitises_it_and_drops_the_rewrite_rules()
+    public function test_changing_the_event_details_page_drops_the_rewrite_rules()
     {
-        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
-        update_option('rewrite_rules', ['^calendars/?$' => 'index.php?fe_route=calendars']);
+        update_option('rewrite_rules', ['^event/([^/]+)/?$' => 'index.php?page_id=1&fe_event=$matches[1]']);
+        $other = wp_insert_post(['post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Other']);
 
-        $saved = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => 'Our Events']);
+        $saved = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'event_page_id' => $other] + $this->pages);
 
         $this->assertSame(200, $saved['status'], wp_json_encode($saved['data']));
-        $this->assertSame('our-events', Settings::portalSlug());
+        $this->assertSame($other, Settings::get()['event_page_id']);
         $this->assertFalse(get_option('rewrite_rules'));
     }
 
-    public function test_saving_the_same_portal_slug_keeps_the_rewrite_rules()
+    public function test_saving_the_same_event_details_page_keeps_the_rewrite_rules()
     {
-        $rules = ['^calendars/?$' => 'index.php?fe_route=calendars'];
-        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
+        $rules = ['^event/([^/]+)/?$' => 'index.php?page_id=1&fe_event=$matches[1]'];
         update_option('rewrite_rules', $rules);
 
-        $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => 'calendars']);
+        $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no'] + $this->pages);
 
         $this->assertSame($rules, get_option('rewrite_rules'));
     }
 
     public function test_only_a_site_administrator_can_change_the_settings()
     {
-        Settings::update(Settings::GENERAL, ['portal_slug' => 'calendars']);
         $this->actAs($this->createUser('editor'));
-        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => 'our-events'];
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'events_page_id' => 0, 'event_page_id' => 0];
 
         $this->assertSame(403, $this->rest('POST', 'settings/general', $settings)['status']);
-        $this->assertSame('calendars', Settings::portalSlug());
+        $this->assertSame($this->pages['event_page_id'], Settings::get()['event_page_id']);
     }
 
-    public function test_a_portal_slug_with_no_ascii_characters_is_rejected()
+    public function test_a_page_setting_takes_only_a_published_page()
     {
-        foreach (['!!!', 'ক্যালেন্ডার'] as $slug) {
-            $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'no', 'portal_slug' => $slug]);
+        $draft = wp_insert_post(['post_type' => 'page', 'post_status' => 'draft', 'post_title' => 'Draft']);
+        $post = wp_insert_post(['post_type' => 'post', 'post_status' => 'publish', 'post_title' => 'A post']);
 
-            $this->assertSame(422, $response['status'], $slug);
-            $this->assertContains('The portal slug can only use letters, numbers, hyphens and underscores.', $response['data']['portal_slug'] ?? [], $slug);
+        foreach ([$draft, $post, 999999999] as $id) {
+            $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'events_page_id' => $id, 'event_page_id' => 0]);
+
+            $this->assertSame(422, $response['status'], (string) $id);
         }
+
+        $this->assertSame($this->pages['events_page_id'], Settings::get()['events_page_id']);
     }
 
-    public function test_a_blank_portal_slug_is_accepted()
+    public function test_each_chosen_page_reports_whether_it_holds_its_shortcode()
     {
-        $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'enable_landing_pages' => 'yes', 'portal_slug' => '']);
+        $bare = wp_insert_post(['post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Bare', 'post_content' => '<p>No events here.</p>']);
+        Settings::update(Settings::GENERAL, ['events_page_id' => $bare]);
+
+        $pages = $this->rest('GET', 'settings/general')['data']['pages'];
+
+        $this->assertSame('Bare', $pages['events_page_id']['title']);
+        $this->assertFalse($pages['events_page_id']['has_shortcode']);
+        $this->assertTrue($pages['event_page_id']['has_shortcode']);
+        // Our untitled page reads as its address.
+        $this->assertSame('/' . get_page_uri($this->pages['event_page_id']) . '/', $pages['event_page_id']['title']);
+    }
+
+    public function test_create_page_makes_an_untitled_page_holding_the_shortcode_and_sets_it()
+    {
+        $response = $this->rest('POST', 'settings/create-page', ['key' => 'event_page_id']);
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $id = Settings::get()['event_page_id'];
+        $this->assertNotSame($this->pages['event_page_id'], $id);
+        $page = get_post($id);
+        $this->assertSame('page', $page->post_type);
+        $this->assertSame('publish', $page->post_status);
+        $this->assertSame('', $page->post_title);
+        $this->assertStringContainsString('[fluent_event]', $page->post_content);
+        $this->assertTrue($response['data']['pages']['event_page_id']['has_shortcode']);
+    }
+
+    public function test_create_page_refuses_any_other_setting_and_editors()
+    {
+        $this->assertSame(422, $this->rest('POST', 'settings/create-page', ['key' => 'default_events_view'])['status']);
+
+        $this->actAs($this->createUser('editor'));
+        $this->assertSame(403, $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id'])['status']);
+        $this->assertSame($this->pages['events_page_id'], Settings::get()['events_page_id']);
+    }
+
+    public function test_the_page_search_lists_published_pages_only()
+    {
+        $title = 'Zebra page ' . wp_generate_password(6, false, false);
+        $published = wp_insert_post(['post_type' => 'page', 'post_status' => 'publish', 'post_title' => $title]);
+        wp_insert_post(['post_type' => 'page', 'post_status' => 'draft', 'post_title' => $title . ' draft']);
+
+        $pages = $this->rest('GET', 'settings/pages', ['search' => $title])['data']['pages'];
+
+        $this->assertSame([$published], array_column($pages, 'id'));
     }
 
     public function test_a_bad_from_address_is_rejected()

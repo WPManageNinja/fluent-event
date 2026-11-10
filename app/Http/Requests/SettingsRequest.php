@@ -9,8 +9,8 @@ class SettingsRequest extends BaseRequest
     const SANITIZERS = [
         'default_events_view'      => 'sanitize_text_field',
         'disable_event_view_switch' => 'sanitize_text_field',
-        'enable_landing_pages'     => 'sanitize_text_field',
-        'portal_slug'              => 'sanitize_title',
+        'events_page_id'           => 'absint',
+        'event_page_id'            => 'absint',
         'from_name'                => 'sanitize_text_field',
         'from_email'               => 'sanitize_email',
         'reply_to_name'            => 'sanitize_text_field',
@@ -26,9 +26,8 @@ class SettingsRequest extends BaseRequest
     const GENERAL_RULES = [
         'default_events_view'       => 'required|string|in:cards,timeline,calendar',
         'disable_event_view_switch' => 'required|string|in:yes,no',
-        'enable_landing_pages'      => 'required|string|in:yes,no',
-        // Not `regex`: the framework never shows a regex rule's custom message. sanitize_title() has already lowercased it.
-        'portal_slug'               => 'nullable|string|max:100|alphadash',
+        'events_page_id'            => 'nullable|integer',
+        'event_page_id'             => 'nullable|integer',
     ];
 
     const EMAIL_RULES = [
@@ -51,13 +50,7 @@ class SettingsRequest extends BaseRequest
 
     public static function generalRules()
     {
-        $rules = self::GENERAL_RULES;
-
-        if (defined('FLUENT_EVENT_PORTAL_SLUG')) {
-            unset($rules['portal_slug']);
-        }
-
-        return $rules;
+        return self::GENERAL_RULES;
     }
 
     public static function emailRules()
@@ -99,9 +92,8 @@ class SettingsRequest extends BaseRequest
             'default_events_view.required' => __('Choose a default events view.', 'fluent-event'),
             'default_events_view.in'       => __('The default events view must be cards, timeline or calendar.', 'fluent-event'),
             'disable_event_view_switch.in' => __('The view switch option must be yes or no.', 'fluent-event'),
-            'enable_landing_pages.in'      => __('The landing pages option must be yes or no.', 'fluent-event'),
-            'portal_slug.max'              => __('The portal slug cannot exceed 100 characters.', 'fluent-event'),
-            'portal_slug.alphadash'        => __('The portal slug can only use letters, numbers, hyphens and underscores.', 'fluent-event'),
+            'events_page_id.integer'       => __('Choose a published page.', 'fluent-event'),
+            'event_page_id.integer'        => __('Choose a published page.', 'fluent-event'),
         ];
     }
 }

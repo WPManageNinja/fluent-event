@@ -4,6 +4,7 @@ namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
 use FluentEvent\App\Models\Calendar;
+use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -156,11 +157,11 @@ class AdminMenuHandler
             ],
         ];
 
-        if (Settings::landingPagesEnabled()) {
+        if ($portalUrl = EventPageService::listUrl()) {
             $items[] = [
                 'key'       => 'frontend_portal',
                 'label'     => __('Frontend Portal', 'fluent-event'),
-                'permalink' => home_url(user_trailingslashit(Settings::portalSlug())),
+                'permalink' => $portalUrl,
                 'new_tab'   => true,
             ];
         }

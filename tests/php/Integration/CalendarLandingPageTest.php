@@ -2,14 +2,14 @@
 
 namespace FluentEvent\Tests\Integration;
 
-use FluentEvent\App\Hooks\Handlers\LandingPageHandler;
+use FluentEvent\App\Hooks\Handlers\FrontEndHandler;
+use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * The public events list behind the landing home and each calendar's page: which calendars and
- * events it shows, its calendar chips, and how the view settings and paging shape it. The page
- * reads its state from the query string.
+ * [fluent_events]: which calendars and events it shows, its calendar chips, and how its props, the
+ * view settings and paging shape it. The list reads the visitor's state from the query string.
  */
 class CalendarLandingPageTest extends IntegrationTestCase
 {
@@ -18,6 +18,7 @@ class CalendarLandingPageTest extends IntegrationTestCase
         parent::setUp();
 
         $_GET = [];
+        $this->createPublicPages();
         Settings::update(Settings::GENERAL, ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no']);
     }
 
@@ -28,18 +29,19 @@ class CalendarLandingPageTest extends IntegrationTestCase
         parent::tearDown();
     }
 
-    private function page($slug, array $query = [])
+    // $slug is the visitor's `?calendar=`; $atts the shortcode's props.
+    private function page($slug, array $query = [], array $atts = [])
     {
-        $_GET = $query;
+        $_GET = $slug !== '' ? ['calendar' => $slug] + $query : $query;
 
-        $handler = new class extends LandingPageHandler {
-            public function open($slug)
+        $handler = new class extends FrontEndHandler {
+            public function open(array $atts)
             {
-                return $this->eventsPage($slug);
+                return $this->eventsBody($atts);
             }
         };
 
-        return $handler->open($slug);
+        return ['body' => $handler->open(array_merge(['calendar' => '', 'view' => '', 'filter' => '', 'view_switch' => '', 'show_calendars' => 'yes'], $atts))];
     }
 
     // The query args of the calendar header link marked data-fe-nav="$key".
@@ -70,7 +72,7 @@ class CalendarLandingPageTest extends IntegrationTestCase
         // Chips for the public calendars only; each event links to its own page and is labelled with its calendar.
         $this->assertStringContainsString('Zebra Second Club', $body);
         $this->assertStringNotContainsString('Zebra Private Club', $body);
-        $this->assertStringContainsString('/' . Settings::portalSlug() . '/' . $event->post->post_name . '/', $body);
+        $this->assertStringContainsString(esc_url(EventPageService::url($event)), $body);
         $this->assertStringContainsString('fe-event-tile__calendar"', $body);
     }
 
@@ -88,7 +90,7 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertMatchesRegularExpression('/fe-calendar-chips__chip--active"(?:(?!<\/a>).)*Zebra Own Club/s', $body);
         $this->assertStringContainsString('fe-event-tile__calendar"', $body, 'The label stays, so picking a chip does not reflow the cards');
         // The calendar is a query arg the other controls carry: chips switch it and keep the view, search keeps it.
-        $this->assertStringContainsString('/' . Settings::portalSlug() . '/?calendar=' . $other->slug . '&#038;view=cards', $body);
+        $this->assertStringContainsString('?calendar=' . $other->slug . '&#038;view=cards', $body);
         $this->assertStringContainsString('name="calendar" value="' . $calendar->slug . '"', $body);
     }
 
@@ -238,11 +240,92 @@ class CalendarLandingPageTest extends IntegrationTestCase
         }
     }
 
-    public function test_a_private_or_draft_calendar_has_no_page()
+    // A calendar that isn't public, picked by link or prop while the chips show, falls back to All.
+    public function test_a_private_draft_or_unknown_calendar_falls_back_to_all()
     {
-        $this->assertNull($this->page($this->createCalendar(['status' => 'private'])->slug));
-        $this->assertNull($this->page($this->createCalendar(['status' => 'draft'])->slug));
-        $this->assertNull($this->page('fe-test-no-such-calendar'));
+        $this->createCalendar(['title' => 'Zebra Shown Club']);
+        $shown = $this->createCalendar(['title' => 'Zebra Other Shown Club']);
+        $this->createEvent(['calendar_id' => $shown->id, 'title' => 'Zebra shown night']);
+
+        foreach ([$this->createCalendar(['status' => 'private'])->slug, $this->createCalendar(['status' => 'draft'])->slug, 'fe-test-no-such-calendar'] as $slug) {
+            foreach ([$this->page($slug, ['search' => 'Zebra']), $this->page('', ['search' => 'Zebra'], ['calendar' => $slug])] as $page) {
+                $this->assertStringContainsString('Zebra shown night', $page['body'], $slug);
+                $this->assertMatchesRegularExpression('/fe-calendar-chips__chip--active"(?:(?!<\/a>).)*>All</s', $page['body'], $slug);
+            }
+        }
+    }
+
+    // `calendar` picks the first chip; the visitor can still pick another, or All, which its link has to name.
+    public function test_the_calendar_prop_preselects_its_chip_and_all_stays_pickable()
+    {
+        $calendar = $this->createCalendar(['title' => 'Zebra Preset Club']);
+        $other = $this->createCalendar(['title' => 'Zebra Unpicked Club']);
+        $this->createEvent(['calendar_id' => $calendar->id, 'title' => 'Zebra preset night']);
+        $this->createEvent(['calendar_id' => $other->id, 'title' => 'Zebra unpicked night']);
+
+        $preset = $this->page('', ['view' => 'cards', 'search' => 'Zebra'], ['calendar' => $calendar->slug])['body'];
+        $all = $this->page('', ['view' => 'cards', 'search' => 'Zebra', 'calendar' => ''], ['calendar' => $calendar->slug])['body'];
+        $switched = $this->page($other->slug, ['view' => 'cards', 'search' => 'Zebra'], ['calendar' => $calendar->slug])['body'];
+
+        $this->assertStringContainsString('Zebra preset night', $preset);
+        $this->assertStringNotContainsString('Zebra unpicked night', $preset);
+        $this->assertMatchesRegularExpression('/fe-calendar-chips__chip--active"(?:(?!<\/a>).)*Zebra Preset Club/s', $preset);
+        // add_query_arg() writes an empty value as a bare `calendar`, which PHP still reads as set.
+        $this->assertMatchesRegularExpression('/href="[^"]*\\?calendar(?:&#038;[^"]*)?"[^>]*>\\s*(?:<[^>]+>\\s*)*All/', $preset, 'All names an empty calendar');
+
+        $this->assertStringContainsString('Zebra preset night', $all);
+        $this->assertStringContainsString('Zebra unpicked night', $all);
+        $this->assertStringContainsString('name="calendar" value=""', $all, 'Searching keeps All');
+
+        $this->assertStringContainsString('Zebra unpicked night', $switched);
+        $this->assertStringNotContainsString('Zebra preset night', $switched);
+    }
+
+    // With the chips hidden the list is fixed: to the calendar prop, or to every calendar, whatever the link says.
+    public function test_hidden_chips_fix_the_list()
+    {
+        $calendar = $this->createCalendar(['title' => 'Zebra Fixed Club']);
+        $other = $this->createCalendar(['title' => 'Zebra Loose Club']);
+        $this->createEvent(['calendar_id' => $calendar->id, 'title' => 'Zebra fixed night']);
+        $this->createEvent(['calendar_id' => $other->id, 'title' => 'Zebra loose night']);
+
+        $fixed = $this->page($other->slug, ['view' => 'cards', 'search' => 'Zebra'], ['calendar' => $calendar->slug, 'show_calendars' => 'no'])['body'];
+        $every = $this->page($other->slug, ['view' => 'cards', 'search' => 'Zebra'], ['show_calendars' => 'no'])['body'];
+        $hidden = $this->page('', ['view' => 'cards', 'search' => 'Zebra'], ['calendar' => $this->createCalendar(['status' => 'private'])->slug, 'show_calendars' => 'no'])['body'];
+
+        $this->assertStringContainsString('Zebra fixed night', $fixed);
+        $this->assertStringNotContainsString('Zebra loose night', $fixed);
+        $this->assertStringNotContainsString('data-fe-chips', $fixed);
+        $this->assertStringNotContainsString('fe-event-tile__calendar"', $fixed, 'One fixed calendar needs no label');
+        $this->assertStringNotContainsString('name="calendar"', $fixed);
+
+        $this->assertStringContainsString('Zebra fixed night', $every);
+        $this->assertStringContainsString('Zebra loose night', $every);
+        $this->assertStringNotContainsString('data-fe-chips', $every);
+
+        // A fixed calendar that isn't public lists nothing.
+        $this->assertStringNotContainsString('Zebra fixed night', $hidden);
+        $this->assertStringNotContainsString('Zebra loose night', $hidden);
+    }
+
+    // `view` and `filter` are where the list starts; the visitor's link wins unless `view_switch="no"` fixes the view.
+    public function test_view_and_filter_props_start_the_list_and_override_the_settings()
+    {
+        Settings::update(Settings::GENERAL, ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'yes']);
+        $calendar = $this->createCalendar();
+        $this->createEvent(['calendar_id' => $calendar->id]);
+
+        $started = $this->page('', [], ['view' => 'calendar', 'view_switch' => 'yes'])['body'];
+        $linked = $this->page('', ['view' => 'cards'], ['view' => 'calendar', 'view_switch' => 'yes'])['body'];
+        $fixed = $this->page('', ['view' => 'cards'], ['view' => 'calendar', 'view_switch' => 'no'])['body'];
+        $past = $this->page('', [], ['filter' => 'past'])['body'];
+
+        $this->assertStringContainsString('fe-month__grid', $started);
+        $this->assertStringContainsString('fe-switch__option--icon', $started, 'The prop turns the switch back on over the setting');
+        $this->assertStringContainsString('fe-event-grid', $linked);
+        $this->assertStringContainsString('fe-month__grid', $fixed);
+        $this->assertStringNotContainsString('fe-switch__option--icon', $fixed);
+        $this->assertMatchesRegularExpression('/fe-switch__option--active"\s*href="[^"]*filter=past/', $past);
     }
 
     public function test_only_public_events_are_listed()
@@ -343,7 +426,7 @@ class CalendarLandingPageTest extends IntegrationTestCase
         }
 
         $first = $this->page($calendar->slug)['body'];
-        $second = $this->page($calendar->slug, ['page' => '2'])['body'];
+        $second = $this->page($calendar->slug, ['fe_page' => '2'])['body'];
 
         $this->assertStringContainsString('Paged event 01', $first);
         $this->assertStringContainsString('Paged event 10', $first);

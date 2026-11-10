@@ -1,67 +1,28 @@
 @use "../scss/variables";
 
-html.dark {
+// A theme that puts `dark` on <html> (FluentCommunity's frame does) gets our dark tokens; otherwise light.
+html.dark .fe-portal {
     color-scheme: dark;
 }
 
+// Inside the theme: our box paints the page we used to own, in the theme's font.
 .fe-portal {
-    margin: 0;
     background-color: var(--fe-secondary-bg, #f3f5fa);
     color: var(--fe-primary-text, #19283a);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: var(--fe-text-base, 16px);
     line-height: 1.5;
+    text-align: start;
+
+    // Themes restyle bare elements. Back to the browser's defaults, which every fe- rule was written over;
+    // a theme rule more specific than one class still reaches in. SVGs keep their fill and stroke attributes.
+    :where(*:not(svg, svg *)) {
+        all: revert;
+    }
 
     *,
     *::before,
     *::after {
         box-sizing: border-box;
-    }
-
-    // No top bar: the theme switch floats in the corner, clear of titles and covers.
-    &__mode-toggle {
-        position: fixed;
-        right: var(--fe-space-5, 20px);
-        bottom: var(--fe-space-5, 20px);
-        z-index: 10;
-        display: grid;
-        place-items: center;
-        width: 44px;
-        height: 44px;
-        padding: 0;
-        border: 1px solid var(--fe-primary-border, #eaecf0);
-        border-radius: 50%;
-        background-color: var(--fe-primary-bg, #ffffff);
-        box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
-        color: var(--fe-secondary-text, #525866);
-        cursor: pointer;
-        overflow: hidden;
-
-        &:hover {
-            color: var(--fe-primary-text, #19283a);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
-            outline-offset: 2px;
-        }
-    }
-
-    // Both icons stay mounted and swap by scale, as in the admin navbar.
-    &__mode-icon {
-        display: flex;
-        transition: transform 0.4s;
-
-        &.fe-portal__mode-icon--dark {
-            position: absolute;
-            transform: scale(0);
-
-            html.dark & { transform: scale(1); }
-        }
-
-        &.fe-portal__mode-icon--light {
-            html.dark & { transform: scale(0); }
-        }
     }
 
     &__main {

@@ -31,6 +31,11 @@ class NetworkActivationTest extends TestCase
         Functions\when('dbDelta')->justReturn([]);
         Functions\when('add_rewrite_rule')->justReturn(null);
         Functions\when('flush_rewrite_rules')->justReturn(null);
+        // Both public pages already exist, so activation leaves them alone.
+        Functions\when('get_post')->justReturn((object) ['post_type' => 'page', 'post_status' => 'publish']);
+        Functions\when('get_post_type')->justReturn('page');
+        Functions\when('get_post_status')->justReturn('publish');
+        Functions\when('get_page_uri')->justReturn('event');
         Functions\when('is_super_admin')->justReturn(true);
 
         // get_sites() returns 100 sites unless asked for more.
