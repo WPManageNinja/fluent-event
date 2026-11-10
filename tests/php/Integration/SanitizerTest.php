@@ -32,6 +32,13 @@ class SanitizerTest extends IntegrationTestCase
         ];
     }
 
+    // A list would make sanitize_email() and the email rule throw; empty, it fails validation as missing.
+    public function test_an_email_given_as_a_list_comes_out_empty()
+    {
+        $this->assertSame('', CustomSanitizer::sanitizeEmail(['visitor@example.test']));
+        $this->assertSame('visitor@example.test', CustomSanitizer::sanitizeEmail(' visitor@example.test '));
+    }
+
     public function test_an_event_request_is_sanitised_by_the_real_pipeline()
     {
         $data = EventRequest::sanitize([

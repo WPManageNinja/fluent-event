@@ -84,17 +84,26 @@ class NetworkActivationTest extends TestCase
         $this->assertSame(1, $this->currentBlog);
     }
 
-    public function test_network_deactivation_clears_queued_actions_on_every_site()
+    public function test_network_deactivation_clears_queued_actions_and_landing_rewrites_on_every_site()
     {
         $clearedOn = [];
+        $rewritesDroppedOn = [];
 
         Functions\when('as_unschedule_all_actions')->alias(function () use (&$clearedOn) {
             $clearedOn[] = $this->currentBlog;
+        });
+        Functions\when('delete_option')->alias(function ($option) use (&$rewritesDroppedOn) {
+            if ($option === 'rewrite_rules') {
+                $rewritesDroppedOn[] = $this->currentBlog;
+            }
+
+            return true;
         });
 
         (new DeactivationHandler($this->app()))->handle(true);
 
         $this->assertSame(range(1, 150), $clearedOn);
+        $this->assertSame(range(1, 150), $rewritesDroppedOn);
         $this->assertSame(1, $this->currentBlog);
     }
 

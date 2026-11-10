@@ -6,6 +6,13 @@ use FluentEvent\Framework\Support\Sanitizer;
 
 class CustomSanitizer extends Sanitizer
 {
+    // sanitize_email() and the email rule's is_email() both throw on a list, a 500 that names the file
+    // and line under WP_DEBUG; empty, it fails as a missing email.
+    public static function sanitizeEmail($arg)
+    {
+        return is_scalar($arg) ? sanitize_email($arg) : '';
+    }
+
     public static function webUrl($arg)
     {
         // Cast to a string, a list reads "Array" and saves as http://Array; left as is, the url rule rejects it.

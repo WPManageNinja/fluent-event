@@ -35,25 +35,6 @@
                     height: 40px !important;
                 }
             }
-
-            .el-input.is-focus {
-                input {
-                    &:focus {
-                        outline: none !important;
-                        box-shadow: none !important;
-                        border-color: var(--fe-primary-button, #2b2e33);
-                    }
-                }
-            }
-
-            &:hover,
-            &:focus {
-                .el-input {
-                    input {
-                        box-shadow: none !important;
-                    }
-                }
-            }
         }
 
         &-form-item {

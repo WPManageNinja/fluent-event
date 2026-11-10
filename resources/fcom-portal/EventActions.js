@@ -1,6 +1,3 @@
-import { h } from 'vue';
-import { ElMessageBox, ElNotification } from 'element-plus';
-import { Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
 import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
 import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE } from './icons';
 
@@ -9,6 +6,8 @@ import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE } from './icons';
  * email locked to the account. A none event has neither.
  * The feed card runs on fcom's Vue and the Events list on ours, so this is a
  * string template both can compile, and its popover wears fcom's classes.
+ * Our Vue and Element Plus load only when a dialog or toast opens: the feed card
+ * imports this file, and every portal page would otherwise download them.
  */
 export default {
     name: 'FluentEventActions',
@@ -110,6 +109,7 @@ export default {
             try {
                 const response = this.withStatus(await eventsApi.post(`community/events/${this.event.id}/register`, { status }));
                 this.$emit('done', response);
+                const { ElNotification } = await import('element-plus');
                 ElNotification({ type: 'success', message: response.message });
             } catch (error) {
                 this.$emit('error', errorMessage(error));
@@ -135,6 +135,7 @@ export default {
         },
         async cancel() {
             this.close();
+            const { ElMessageBox } = await import('element-plus');
 
             try {
                 await ElMessageBox.confirm(
@@ -149,7 +150,12 @@ export default {
             this.choose('cancelled');
         },
         // Registering is a form, so it ends in a dialog: what it was for, and its calendar links.
-        showRegistered(event) {
+        async showRegistered(event) {
+            const [{ h }, { ElMessageBox }, { Clock, MapLocation, VideoCamera }] = await Promise.all([
+                import('vue'),
+                import('element-plus'),
+                import('@element-plus/icons-vue'),
+            ]);
             const online = event.venue_type === 'online';
             const location = online
                 ? (/^https?:\/\//i.test(event.online_meeting_url) ? event.online_meeting_url : '')
@@ -183,7 +189,15 @@ export default {
                     h('a', { class: 'fe-registered__calendar-link', href: googleCalendarLink(event, '', location), target: '_blank', rel: 'noopener noreferrer' }, [svg(GOOGLE), t('Google Calendar')]),
                     h('button', { type: 'button', class: 'fe-registered__calendar-link', onClick: () => saveIcs(event, '', location) }, [svg(APPLE), t('Apple / Outlook')]),
                 ]),
-            ]), '', { customClass: 'fe-registered-box', confirmButtonText: t('Done'), confirmButtonClass: 'fcom_primary_button' }).catch(() => {});
+            ]), '', {
+                customClass: 'fe-registered-box',
+                confirmButtonText: t('Done'),
+                confirmButtonClass: 'fcom_primary_button',
+                // alert() defaults to ignoring Esc; a dialog must close on it.
+                closeOnPressEscape: true,
+            }).catch(() => {})
+                // Back to the "Registered" menu that replaced the Register button, not lost on <body>.
+                .finally(() => this.$refs.trigger && this.$refs.trigger.focus());
         },
     },
     template: `
