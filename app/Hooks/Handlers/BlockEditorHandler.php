@@ -98,7 +98,8 @@ class BlockEditorHandler
             ->with(['post' => function ($query) {
                 $query->select(['ID', 'post_title', 'post_name']);
             }])
-            ->byStatus(['public', 'unlisted'])
+            // An unlisted event opens only by its link, so only an admin, who sees it anyway, gets it in the picker.
+            ->byStatus(current_user_can('manage_options') ? ['public', 'unlisted'] : ['public'])
             ->whereIn('calendar_id', $calendars->pluck('id')->all() ?: [0])
             ->byPeriod('')
             ->limit(self::EDITOR_EVENTS_LIMIT)

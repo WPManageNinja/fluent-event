@@ -64,6 +64,28 @@ class BlockRenderTest extends IntegrationTestCase
         $this->assertMatchesRegularExpression('/fe-switch__option--active"\s*href="[^"]*filter=upcoming/', $html);
     }
 
+    // An unlisted event opens only by its link, so the editor's picker lists it to admins alone.
+    public function test_the_event_picker_lists_unlisted_events_to_admins_only()
+    {
+        $calendar = $this->createCalendar();
+        $this->createEvent(['calendar_id' => $calendar->id, 'title' => 'Zebra listed night']);
+        $this->createEvent(['calendar_id' => $calendar->id, 'title' => 'Zebra unlisted night', 'status' => 'unlisted']);
+
+        $handler = new class extends BlockEditorHandler {
+            public function titles()
+            {
+                return array_column($this->editorData()['events'], 'title');
+            }
+        };
+
+        $this->actAs($this->createUser('contributor'));
+        $this->assertContains('Zebra listed night', $handler->titles());
+        $this->assertNotContains('Zebra unlisted night', $handler->titles());
+
+        $this->actAs($this->createAdmin());
+        $this->assertContains('Zebra unlisted night', $handler->titles());
+    }
+
     public function test_the_event_block_renders_the_event_it_names()
     {
         $event = $this->createEvent(['title' => 'Zebra pinned night']);
