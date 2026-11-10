@@ -120,6 +120,37 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertStringNotContainsString('data-fe-status', $response['data']['html']);
     }
 
+    // The framework's limiter lets cookie-authenticated requests through; a logged-in viewer is counted all the same.
+    // 5 a minute counts double, as over HTTP WordPress runs the check twice; in-process it runs once, so 10 pass here.
+    public function test_a_logged_in_viewer_is_held_to_the_visitor_rate_limit()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $this->actAs($this->createUser('subscriber'));
+        $GLOBALS['wp_rest_auth_cookie'] = true;
+        $statuses = [];
+
+        try {
+            for ($i = 1; $i <= 11; $i++) {
+                $statuses[] = $this->registerGuest($event, ['email' => "flood{$i}@example.test"])['status'];
+            }
+        } finally {
+            unset($GLOBALS['wp_rest_auth_cookie']);
+        }
+
+        $this->assertSame(array_merge(array_fill(0, 10, 200), [429]), $statuses);
+        $this->assertCount(10, $this->guestsOf($event));
+    }
+
+    public function test_an_email_sent_as_a_list_is_refused_not_a_server_error()
+    {
+        $event = $this->onlineEvent('rsvp');
+
+        $response = $this->registerGuest($event, ['email' => ['visitor@example.test']]);
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertCount(0, $this->guestsOf($event));
+    }
+
     // An unlisted event opens only by its link, so walking ids without its page's nonce finds nothing.
     public function test_an_event_cannot_be_registered_for_by_id_alone()
     {
