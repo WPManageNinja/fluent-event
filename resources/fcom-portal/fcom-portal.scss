@@ -489,7 +489,13 @@
 .fe-fcom-portal-page {
     // Our Element Plus reads its primary colour from here, so tabs and controls follow the community theme.
     --el-color-primary: var(--fcom-primary-button, #2B2E33);
+    // Its loading mask too: Element Plus's own is plain white, or black in dark mode, not the community background.
+    --el-mask-color: color-mix(in srgb, var(--fcom-primary-bg, #ffffff) 85%, transparent);
     padding: 20px 0;
+
+    .el-loading-mask {
+        border-radius: 12px;
+    }
 
     // Same frame as fcom's wide pages (the .fcom_max_layout body), so it matches the space Events tab.
     // An event inside a space gets it from the space layout; a community-wide one has none, so it takes this.
