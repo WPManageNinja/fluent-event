@@ -5,7 +5,8 @@
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchEvent" />
 
-            <template v-else>
+            <!-- A 404 leaves the event empty while the not-found page replaces this route. -->
+            <template v-else-if="event.id">
                 <div class="fe-page__header">
                     <div>
                         <nav class="fe-page__breadcrumb" :aria-label="$t('Breadcrumb')">
