@@ -189,7 +189,15 @@ export default {
                     h('a', { class: 'fe-registered__calendar-link', href: googleCalendarLink(event, '', location), target: '_blank', rel: 'noopener noreferrer' }, [svg(GOOGLE), t('Google Calendar')]),
                     h('button', { type: 'button', class: 'fe-registered__calendar-link', onClick: () => saveIcs(event, '', location) }, [svg(APPLE), t('Apple / Outlook')]),
                 ]),
-            ]), '', { customClass: 'fe-registered-box', confirmButtonText: t('Done'), confirmButtonClass: 'fcom_primary_button' }).catch(() => {});
+            ]), '', {
+                customClass: 'fe-registered-box',
+                confirmButtonText: t('Done'),
+                confirmButtonClass: 'fcom_primary_button',
+                // alert() defaults to ignoring Esc; a dialog must close on it.
+                closeOnPressEscape: true,
+            }).catch(() => {})
+                // Back to the "Registered" menu that replaced the Register button, not lost on <body>.
+                .finally(() => this.$refs.trigger && this.$refs.trigger.focus());
         },
     },
     template: `
