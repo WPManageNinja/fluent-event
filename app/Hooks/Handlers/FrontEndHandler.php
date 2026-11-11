@@ -214,9 +214,10 @@ class FrontEndHandler
         return $this->wrap($event ? $this->eventBody($event) : $this->notFoundBody());
     }
 
+    // `alignwide`: a shortcode has no alignment setting, and a theme's content column (620px in TT4) squeezes the 980px frame.
     protected function wrap($body)
     {
-        return '<div class="fe-portal"><div class="fe-portal__main">' . $body . '</div></div>';
+        return '<div class="fe-portal alignwide"><div class="fe-portal__main">' . $body . '</div></div>';
     }
 
     protected function isPage($key)
@@ -395,7 +396,6 @@ class FrontEndHandler
             'calendar_title' => $calendar->title,
             'calendar_url'   => $this->calendarUrl($calendar->slug),
             'calendar_color' => $this->calendarColor($calendar),
-            'events_url'     => EventPageService::listUrl() ?: home_url('/'),
             'is_online'      => $isOnline,
             'location'       => $isOnline ? __('Online', 'fluent-event') : ($formatted['venue'] ?: __('In person', 'fluent-event')),
             // The heading reads the site's clock, like every list; the side card leads with the event's own.

@@ -8,7 +8,6 @@
  * @var string $calendar_title
  * @var string $calendar_url   The events home filtered to this calendar.
  * @var string $calendar_color Sanitized hex or ''.
- * @var string $events_url     The events home.
  * @var bool   $is_online
  * @var string $location
  * @var string $site_date
@@ -20,11 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 use FluentEvent\App\Services\Icon;
 ?>
 <div class="fe-event-page">
-    <a class="fe-event-page__back" href="<?php echo esc_url( $events_url ); ?>">
-        <?php echo Icon::ARROW_LEFT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
-        <span><?php esc_html_e( 'Go Back', 'fluent-event' ); ?></span>
-    </a>
-
     <?php if ( $event['cover_url'] ) : ?>
         <img class="fe-event-page__cover" src="<?php echo esc_url( $event['cover_url'] ); ?>" alt="">
     <?php endif; ?>

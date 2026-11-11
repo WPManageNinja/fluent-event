@@ -78,11 +78,6 @@ $fluentEventEmpty = [
 ];
 ?>
 <div class="fe-events-page" data-fe-events>
-    <header class="fe-portal__header">
-        <h1 class="fe-portal__title"><?php esc_html_e( 'Events', 'fluent-event' ); ?></h1>
-        <p class="fe-portal__subtitle"><?php esc_html_e( 'Events from our calendars.', 'fluent-event' ); ?></p>
-    </header>
-
     <?php if ( $chips ) : ?>
         <?php // Every chip in one row; on wide screens portal.js moves those that don't fit into the "More" panel. ?>
         <div class="fe-calendar-chips" data-fe-chips>

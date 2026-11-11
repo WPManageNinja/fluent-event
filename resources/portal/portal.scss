@@ -5,9 +5,8 @@ html.dark .fe-portal {
     color-scheme: dark;
 }
 
-// Inside the theme: our box paints the page we used to own, in the theme's font.
+// Inside the theme: no background of its own, so the page's shows through; the theme's font too.
 .fe-portal {
-    background-color: var(--fe-secondary-bg, #f3f5fa);
     color: var(--fe-primary-text, #19283a);
     font-size: var(--fe-text-base, 16px);
     line-height: 1.5;
@@ -33,24 +32,6 @@ html.dark .fe-portal {
         @media (max-width: 767px) {
             padding: var(--fe-space-8, 32px) var(--fe-space-4, 16px);
         }
-    }
-
-    &__header {
-        margin-bottom: var(--fe-space-8, 32px);
-        text-align: center;
-    }
-
-    &__title {
-        margin: 0 0 var(--fe-space-1, 4px);
-        font-size: var(--fe-text-2xl, 24px);
-        font-weight: 600;
-        line-height: 1.2;
-    }
-
-    &__subtitle {
-        margin: 0;
-        color: var(--fe-secondary-text, #525866);
-        font-size: var(--fe-text-sm, 14px);
     }
 }
 
@@ -1045,30 +1026,6 @@ html.dark .fe-portal {
 }
 
 .fe-event-page {
-    &__back {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--fe-space-1, 4px);
-        margin-bottom: var(--fe-space-4, 16px);
-        color: var(--fe-secondary-text, #525866);
-        font-size: var(--fe-text-sm, 14px);
-        text-decoration: none;
-
-        svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        &:hover {
-            color: var(--fe-primary-text, #19283a);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
-            outline-offset: 2px;
-        }
-    }
-
     // Wide and short, so the title and the side card still show without scrolling.
     &__cover {
         display: block;
