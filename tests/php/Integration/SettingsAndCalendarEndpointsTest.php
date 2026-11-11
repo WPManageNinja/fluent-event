@@ -75,7 +75,10 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_an_event_slug_that_sanitizes_to_nothing_is_refused()
     {
-        $this->assertSame(422, $this->rest('POST', 'settings/general', ['event_slug' => '!!!'])['status']);
+        $response = $this->rest('POST', 'settings/general', ['event_slug' => '!!!']);
+
+        $this->assertSame(422, $response['status']);
+        $this->assertStringContainsString('Enter an event slug.', wp_json_encode($response['data']), 'The error is ours, translatable.');
         $this->assertSame('event', Settings::get()['event_slug']);
     }
 
@@ -139,7 +142,9 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
     public function test_create_page_refuses_any_other_setting_a_blank_title_and_editors()
     {
         $this->assertSame(422, $this->rest('POST', 'settings/create-page', ['key' => 'default_events_view', 'title' => 'Events'])['status']);
-        $this->assertSame(422, $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id', 'title' => ' '])['status']);
+        $blank = $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id', 'title' => ' ']);
+        $this->assertSame(422, $blank['status']);
+        $this->assertStringContainsString('Enter a page title.', wp_json_encode($blank['data']));
 
         $this->actAs($this->createUser('editor'));
         $this->assertSame(403, $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id', 'title' => 'Events'])['status']);

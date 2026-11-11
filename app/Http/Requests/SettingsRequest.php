@@ -94,6 +94,13 @@ class SettingsRequest extends BaseRequest
             'default_events_view.in'       => __('The default events view must be cards, timeline or calendar.', 'fluent-event'),
             'disable_event_view_switch.in' => __('The view switch option must be yes or no.', 'fluent-event'),
             'events_page_id.integer'       => __('Choose a published page.', 'fluent-event'),
+            'event_slug.required'          => __('Enter an event slug.', 'fluent-event'),
+            'event_slug.alphadash'         => __('The event slug can only use letters, numbers, hyphens and underscores.', 'fluent-event'),
+            'event_slug.max'               => __('The event slug cannot exceed 100 characters.', 'fluent-event'),
+            'key.required'                 => __('Choose which page to create.', 'fluent-event'),
+            'key.in'                       => __('Choose which page to create.', 'fluent-event'),
+            'title.required'               => __('Enter a page title.', 'fluent-event'),
+            'title.max'                    => __('The page title cannot exceed 255 characters.', 'fluent-event'),
         ];
     }
 }

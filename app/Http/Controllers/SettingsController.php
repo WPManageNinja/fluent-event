@@ -79,7 +79,7 @@ class SettingsController extends Controller
         $this->validate($data, [
             'key'   => 'required|in:' . implode(',', array_keys(EventPageService::PAGES)),
             'title' => 'required|string|max:255',
-        ]);
+        ], SettingsRequest::messages());
 
         if (!EventPageService::createPage($data['key'], $data['title'])) {
             return $this->sendError(['message' => __('The page could not be created.', 'fluent-event')], 422);
