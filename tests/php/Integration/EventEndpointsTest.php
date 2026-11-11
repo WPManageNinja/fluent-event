@@ -5,6 +5,7 @@ namespace FluentEvent\Tests\Integration;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
+use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -46,6 +47,20 @@ class EventEndpointsTest extends IntegrationTestCase
         $event = Event::query()->find($response['data']['event']['id']);
         $this->assertSame('Launch', get_post($event->post_id)->post_title);
         $this->assertSame('private', $event->status);
+    }
+
+    public function test_an_event_carries_its_public_link_once_a_details_page_is_set()
+    {
+        $event = $this->createEvent();
+        Settings::update(Settings::GENERAL, ['event_page_id' => 0]);
+
+        $this->assertSame('', $this->rest('GET', "events/{$event->id}")['data']['public_url']);
+
+        $pages = $this->createPublicPages();
+        $url = $this->rest('GET', "events/{$event->id}")['data']['public_url'];
+
+        $this->assertStringStartsWith(untrailingslashit(get_permalink($pages['event_page_id'])), $url);
+        $this->assertStringContainsString(get_post($event->post_id)->post_name, $url);
     }
 
     public function test_updating_an_event_keeps_its_post_in_step()

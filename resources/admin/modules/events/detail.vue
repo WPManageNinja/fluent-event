@@ -145,6 +145,51 @@
                                         </p>
                                     </div>
                                 </div>
+
+                                <div class="fe-event-overview__row">
+                                    <span class="fe-event-overview__icon">
+                                        <el-icon aria-hidden="true"><Link /></el-icon>
+                                    </span>
+
+                                    <div class="fe-event-overview__public">
+                                        <p class="fe-event-overview__row-title">{{ $t('Public page') }}</p>
+
+                                        <p v-if="!publicUrl" class="fe-event-overview__row-text">
+                                            {{ $t('Public event pages are not enabled.') }}
+                                            <router-link
+                                                class="fe-event-overview__settings-link"
+                                                :to="{ name: 'settings_general' }"
+                                            >
+                                                {{ $t('Enable in Settings') }}
+                                                <el-icon aria-hidden="true"><TopRight /></el-icon>
+                                            </router-link>
+                                        </p>
+
+                                        <p v-else-if="publicPageNote" class="fe-event-overview__row-text">
+                                            {{ publicPageNote }}
+                                        </p>
+
+                                        <div v-else class="fe-event-overview__public-link">
+                                            <a
+                                                class="fe-event-overview__row-link"
+                                                :href="publicUrl"
+                                                target="_blank"
+                                                rel="noopener"
+                                            >
+                                                {{ publicUrl }}
+                                            </a>
+
+                                            <el-button
+                                                link
+                                                :aria-label="$t('Copy link')"
+                                                :title="$t('Copy link')"
+                                                @click="copyPublicUrl"
+                                            >
+                                                <el-icon><DocumentCopy /></el-icon>
+                                            </el-button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -181,7 +226,7 @@
 </template>
 
 <script type="text/javascript">
-    import { ArrowRight, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { ArrowRight, DocumentCopy, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import Skeleton from '@/components/Skeleton.vue';
@@ -194,6 +239,8 @@
         name: 'EventDetail',
         components: {
             ArrowRight,
+            DocumentCopy,
+            Link,
             LocationInformation,
             TopRight,
             VideoCamera,
@@ -210,6 +257,7 @@
                 error: '',
                 tab: 'overview',
                 event: {},
+                publicUrl: '',
             };
         },
         computed: {
@@ -226,6 +274,16 @@
             },
             calendarStatus() {
                 return this.event.calendar?.status || '';
+            },
+            // Why an event on an enabled details page still has no public page.
+            publicPageNote() {
+                if (!['public', 'unlisted'].includes(this.event.status)) {
+                    return this.$t('Only public and unlisted events have a public page.');
+                }
+
+                return this.calendarStatus === 'public'
+                    ? ''
+                    : this.$t('Its calendar is not public, so this event has no public page.');
             },
             calendarColor() {
                 return this.$calendarColor(this.event.calendar);
@@ -266,12 +324,18 @@
                     notFoundPage: true,
                     onSuccess: response => {
                         this.event = response.event;
+                        this.publicUrl = response.public_url;
                         this.$changeTitle(this.event.title);
                     },
                     onError: () => {
                         this.event = {};
                     },
                 });
+            },
+            copyPublicUrl() {
+                navigator.clipboard.writeText(this.publicUrl)
+                    .then(() => this.$notifySuccess(this.$t('Link copied.')))
+                    .catch(() => this.$notifyError(this.$t('The link could not be copied.')));
             },
             goToEdit() {
                 this.$router.push({
