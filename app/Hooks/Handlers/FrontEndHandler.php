@@ -386,7 +386,7 @@ class FrontEndHandler
     protected function notFoundBody()
     {
         return (string) App::make('view')->make('portal.not-found', [
-            'description' => __('This calendar or event doesn’t exist, or it isn’t open to the public.', 'fluent-event'),
+            'description' => __('This event doesn’t exist, or it isn’t open to the public.', 'fluent-event'),
             'portal_url'  => EventPageService::listUrl() ?: home_url('/'),
         ]);
     }

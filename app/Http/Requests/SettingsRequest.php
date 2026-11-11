@@ -94,7 +94,6 @@ class SettingsRequest extends BaseRequest
             'default_events_view.in'       => __('The default events view must be cards, timeline or calendar.', 'fluent-event'),
             'disable_event_view_switch.in' => __('The view switch option must be yes or no.', 'fluent-event'),
             'events_page_id.integer'       => __('Choose a published page.', 'fluent-event'),
-            'event_page_id.integer'        => __('Choose a published page.', 'fluent-event'),
         ];
     }
 }

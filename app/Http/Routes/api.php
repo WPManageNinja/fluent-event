@@ -74,7 +74,7 @@ $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($ro
     $router->get('/editor-assets', [CommunityEventController::class, 'getEditorAssets']);
 });
 
-// The public event page under the portal slug.
+// The public event page's registration form.
 $router->prefix('portal')->withPolicy('PortalPolicy')->group(function ($router) {
     $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])
         ->int('id')->before(new Throttle(5));
