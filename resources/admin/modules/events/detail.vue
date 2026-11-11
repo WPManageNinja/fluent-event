@@ -154,18 +154,7 @@
                                     <div class="fe-event-overview__public">
                                         <p class="fe-event-overview__row-title">{{ $t('Public page') }}</p>
 
-                                        <p v-if="!publicUrl" class="fe-event-overview__row-text">
-                                            {{ $t('Public event pages are not enabled.') }}
-                                            <router-link
-                                                class="fe-event-overview__settings-link"
-                                                :to="{ name: 'settings_general' }"
-                                            >
-                                                {{ $t('Enable in Settings') }}
-                                                <el-icon aria-hidden="true"><TopRight /></el-icon>
-                                            </router-link>
-                                        </p>
-
-                                        <p v-else-if="publicPageNote" class="fe-event-overview__row-text">
+                                        <p v-if="publicPageNote" class="fe-event-overview__row-text">
                                             {{ publicPageNote }}
                                         </p>
 
@@ -275,7 +264,7 @@
             calendarStatus() {
                 return this.event.calendar?.status || '';
             },
-            // Why an event on an enabled details page still has no public page.
+            // Why an event has no public page.
             publicPageNote() {
                 if (!['public', 'unlisted'].includes(this.event.status)) {
                     return this.$t('Only public and unlisted events have a public page.');

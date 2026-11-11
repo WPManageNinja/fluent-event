@@ -13,10 +13,10 @@ function Edit({ attributes, setAttributes }) {
                 <PanelBody title={__('Event', 'fluent-event')}>
                     <SelectControl
                         label={__('Event', 'fluent-event')}
-                        help={__('Leave it on the page address on the event details page, which shows the event in its link.', 'fluent-event')}
+                        help={__('Leave it on the open event in the Single Event template; pick one to show it on any page.', 'fluent-event')}
                         value={attributes.event}
                         options={[
-                            { label: __('From the page address', 'fluent-event'), value: '' },
+                            { label: __('The open event', 'fluent-event'), value: '' },
                             ...events.map(item => ({ label: `${item.title} (${item.date})`, value: item.slug })),
                         ]}
                         onChange={value => setAttributes({ event: value })}
@@ -26,7 +26,7 @@ function Edit({ attributes, setAttributes }) {
 
             <p className="fe-block-preview__title">{event ? event.title : __('Event details', 'fluent-event')}</p>
             <p className="fe-block-preview__meta">
-                {event ? event.date : __('The event named in the page address', 'fluent-event')}
+                {event ? event.date : __('The event whose page is open', 'fluent-event')}
             </p>
 
             <div className="fe-block-preview__event" aria-hidden="true">

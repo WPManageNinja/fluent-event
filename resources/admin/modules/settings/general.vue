@@ -113,17 +113,11 @@
                             <el-icon><DocumentCopy /></el-icon>
                         </el-button>
                         <a
-                            v-if="field.preview && selectedPages[field.key]"
+                            v-if="selectedPages[field.key]"
                             :href="selectedPages[field.key].link"
                             target="_blank"
                             rel="noopener"
                         >{{ $t('Preview') }}</a>
-                    </span>
-
-                    <!-- The details page alone is a 404: it needs an event's slug after its address. -->
-                    <span v-if="!field.preview && general[field.key]" class="fe-form__hint">
-                        {{ $t('To preview it, open an event and use the link under Public page in its Overview.') }}
-                        <router-link :to="{ name: 'events' }">{{ $t('Go to Events') }}</router-link>
                     </span>
 
                     <span
@@ -133,6 +127,16 @@
                     >
                         <el-icon aria-hidden="true"><WarningFilled /></el-icon>
                         {{ $t('This page doesn’t contain the shortcode or block yet.') }}
+                    </span>
+                </el-form-item>
+
+                <el-form-item :label="$t('Event Slug')">
+                    <div class="fe-page-picker">
+                        <el-input v-model="general.event_slug" :aria-label="$t('Event Slug')" />
+                    </div>
+
+                    <span class="fe-form__hint">
+                        {{ $t('Each event opens at /%s/event-name/.', general.event_slug || 'event') }}
                     </span>
                 </el-form-item>
 
@@ -303,11 +307,10 @@
                     default_events_view: 'timeline',
                     disable_event_view_switch: 'no',
                     events_page_id: 0,
-                    event_page_id: 0,
+                    event_slug: 'event',
                 },
                 selectedPages: {
                     events_page_id: null,
-                    event_page_id: null,
                 },
                 pageOptions: [],
                 pagesSearching: false,
@@ -337,8 +340,7 @@
             },
             pageFields() {
                 return [
-                    { key: 'events_page_id', label: this.$t('All Events Page'), shortcode: 'fluent_events', preview: true },
-                    { key: 'event_page_id', label: this.$t('Single Event Details Page'), shortcode: 'fluent_event', preview: false },
+                    { key: 'events_page_id', label: this.$t('All Events Page'), shortcode: 'fluent_events' },
                 ];
             },
         },
@@ -409,7 +411,7 @@
                 this.saveGeneralFields(['default_events_view', 'disable_event_view_switch'], 'generalSaving');
             },
             savePages() {
-                this.saveGeneralFields(['events_page_id', 'event_page_id'], 'pagesSaving');
+                this.saveGeneralFields(['events_page_id', 'event_slug'], 'pagesSaving');
             },
             // Each box saves only its own fields and takes back only those, so the other box keeps unsaved edits.
             saveGeneralFields(keys, loadingState) {
