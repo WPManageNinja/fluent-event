@@ -45,7 +45,7 @@ events can be posted (see A6).
 - **U1.** A URL whose space part doesn't match where the event lives now (moved event, wrong link)
   shows **"This event is not available."** No redirect. A space event opened at `/event/{slug}` is
   likewise not available. — Branch
-- The landing pages (`/{portal_slug}/{event-slug}`, default `events`) are unrelated and unchanged.
+- The public event pages (`/{event_slug}/{event-slug}/`, default `event`) are unrelated and unchanged.
 
 ## Who sees
 
