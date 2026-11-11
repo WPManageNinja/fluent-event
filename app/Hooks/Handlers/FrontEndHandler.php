@@ -43,6 +43,9 @@ class FrontEndHandler
         add_filter('template_include', [$this, 'classicTemplate']);
         add_action('template_redirect', [$this, 'resolveEventRequest']);
         add_action('pre_get_posts', [$this, 'limitListings']);
+        add_filter('posts_results', [$this, 'hideFromLookups'], 10, 2);
+        add_filter('oembed_request_post_id', [$this, 'hideFromEmbeds']);
+        add_filter('redirect_canonical', [$this, 'hideFromRedirects']);
         add_filter('wp_robots', [$this, 'robots']);
         add_action('admin_bar_menu', [$this, 'addEditLink'], 80);
         add_action('wp_enqueue_scripts', [$this, 'maybeEnqueueAssets']);
@@ -120,13 +123,66 @@ class FrontEndHandler
             return;
         }
 
-        $query->set('post__in', Event::query()
-            ->byStatus('public')
+        $query->set('post__in', $this->eventPostIds(['public']) ?: [0]);
+    }
+
+    // WordPress also fetches a post by its ID (?p=) and then redirects to its address, which would hand out an
+    // unlisted event's link: an event opens by its own link only, and a hidden one matches nothing at all.
+    public function hideFromLookups($posts, $query)
+    {
+        if (is_admin() || !$query->is_singular()) {
+            return $posts;
+        }
+
+        $ours = wp_list_pluck(wp_list_filter($posts, ['post_type' => EventPost::POST_TYPE]), 'ID');
+
+        if (!$ours) {
+            return $posts;
+        }
+
+        $allowed = $this->eventPostIds($query->get('name') !== '' ? ['public', 'unlisted'] : ['public'], $ours);
+
+        return array_values(array_filter($posts, function ($post) use ($allowed) {
+            return $post->post_type !== EventPost::POST_TYPE || in_array((int) $post->ID, $allowed, true);
+        }));
+    }
+
+    // oEmbed finds the post from any URL, ?p= included, so only listed events embed.
+    public function hideFromEmbeds($postId)
+    {
+        if (get_post_type($postId) !== EventPost::POST_TYPE) {
+            return $postId;
+        }
+
+        return $this->eventPostIds(['public'], [$postId]) ? $postId : 0;
+    }
+
+    // WordPress redirects ?p= (or ?page_id=, ?attachment_id=) to the post's address even when its query found nothing.
+    public function hideFromRedirects($redirectUrl)
+    {
+        $id = (int) max(get_query_var('p'), get_query_var('page_id'), get_query_var('attachment_id'));
+
+        if ($id && get_post_type($id) === EventPost::POST_TYPE && !$this->eventPostIds(['public'], [$id])) {
+            return false;
+        }
+
+        return $redirectUrl;
+    }
+
+    // Post IDs of events in these statuses whose calendar is public, optionally among the given posts.
+    protected function eventPostIds(array $statuses, array $postIds = [])
+    {
+        $query = Event::query()
+            ->byStatus($statuses)
             ->whereHas('calendar', function ($calendars) {
                 $calendars->byStatus('public');
-            })
-            ->pluck('post_id')
-            ->all() ?: [0]);
+            });
+
+        if ($postIds) {
+            $query->whereIn('post_id', array_map('intval', $postIds));
+        }
+
+        return array_map('intval', $query->pluck('post_id')->all());
     }
 
     // An unlisted event opens by its link, but search engines shouldn't list it.

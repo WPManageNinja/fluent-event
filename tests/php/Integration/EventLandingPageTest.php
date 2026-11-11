@@ -197,6 +197,36 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertNotContains($hidden->post_id, $ids);
     }
 
+    // By ID (?p=, its redirect, oEmbed) an event answers only when listed: walking IDs must not hand out unlisted links.
+    public function test_an_unlisted_or_hidden_event_does_not_answer_by_its_id()
+    {
+        $calendar = $this->createCalendar();
+        $public = $this->createEvent(['calendar_id' => $calendar->id]);
+        $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'unlisted']);
+        $hidden = $this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id]);
+        $handler = new FrontEndHandler();
+
+        $byId = function ($event) {
+            return (new \WP_Query(['p' => $event->post_id, 'post_type' => EventPost::POST_TYPE]))->posts;
+        };
+        $byLink = function ($event) {
+            return (new \WP_Query(['name' => $event->post->post_name, 'post_type' => EventPost::POST_TYPE]))->posts;
+        };
+
+        $this->assertCount(1, $byId($public));
+        $this->assertCount(0, $byId($unlisted));
+        $this->assertCount(0, $byId($hidden));
+        $this->assertCount(1, $byLink($unlisted), 'An unlisted event still opens by its own link.');
+        $this->assertCount(0, $byLink($hidden));
+
+        $this->assertSame($public->post_id, $handler->hideFromEmbeds($public->post_id));
+        $this->assertSame(0, $handler->hideFromEmbeds($unlisted->post_id));
+        $this->assertSame(0, $handler->hideFromEmbeds($hidden->post_id));
+
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query(['p' => $unlisted->post_id, 'post_type' => EventPost::POST_TYPE]);
+        $this->assertFalse($handler->hideFromRedirects('https://example.test/event/' . $unlisted->post->post_name . '/'));
+    }
+
     public function test_the_events_archive_gives_way_to_the_all_events_page()
     {
         $this->addTestFilter('wp_redirect', function ($location) {
