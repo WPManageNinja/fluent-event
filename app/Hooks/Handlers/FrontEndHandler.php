@@ -113,9 +113,11 @@ class FrontEndHandler
     {
         if (is_post_type_archive(EventPost::POST_TYPE)) {
             $listPage = EventPageService::pageId('events_page_id');
+            $listUrl = $listPage ? get_permalink($listPage) : '';
 
-            if ($listPage) {
-                wp_safe_redirect(get_permalink($listPage), 301);
+            // A page whose slug is the event slug sits at the archive's own address; sending it there would loop.
+            if ($listUrl && untrailingslashit($listUrl) !== untrailingslashit(get_post_type_archive_link(EventPost::POST_TYPE))) {
+                wp_safe_redirect($listUrl, 301);
                 exit;
             }
 

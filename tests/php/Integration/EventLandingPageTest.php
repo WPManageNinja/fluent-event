@@ -242,6 +242,23 @@ class EventLandingPageTest extends IntegrationTestCase
         }
     }
 
+    // An All Events Page sharing the event slug answers at the archive's own address: no redirect, or it loops.
+    public function test_the_archive_does_not_redirect_to_its_own_address()
+    {
+        $listUrl = get_permalink($this->pages['events_page_id']);
+        $this->addTestFilter('post_type_archive_link', function () use ($listUrl) {
+            return $listUrl;
+        });
+        $this->addTestFilter('wp_redirect', function ($location) {
+            throw new \RuntimeException($location);
+        });
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query(['post_type' => EventPost::POST_TYPE]);
+
+        (new FrontEndHandler())->resolveEventRequest();
+
+        $this->assertTrue(is_post_type_archive(EventPost::POST_TYPE), 'The archive renders the events list itself.');
+    }
+
     // A visit to the event's address, in WordPress's order: its query by slug, its own 404 for no post, then our guard.
     private function open($event)
     {
