@@ -31,7 +31,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_general_settings_round_trip()
     {
-        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes'] + $this->pages;
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes'] + $this->pages + ['event_slug' => 'gatherings'];
         $saved = $this->rest('POST', 'settings/general', $settings);
 
         $this->assertSame(200, $saved['status'], wp_json_encode($saved['data']));
@@ -42,45 +42,50 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
     {
         Settings::update(Settings::GENERAL, ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes']);
 
-        $this->assertSame(200, $this->rest('POST', 'settings/general', ['events_page_id' => 0, 'event_page_id' => 0])['status']);
-        $this->assertSame(['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'events_page_id' => 0, 'event_page_id' => 0], Settings::get());
+        $this->assertSame(200, $this->rest('POST', 'settings/general', ['events_page_id' => 0, 'event_slug' => 'event'])['status']);
+        $this->assertSame(['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'events_page_id' => 0, 'event_slug' => 'event'], Settings::get());
 
         $this->assertSame(200, $this->rest('POST', 'settings/general', ['default_events_view' => 'calendar', 'disable_event_view_switch' => 'no'])['status']);
-        $this->assertSame(0, Settings::get()['event_page_id']);
+        $this->assertSame(0, Settings::get()['events_page_id']);
 
         // Sent, a view field still has to be valid.
         $this->assertSame(422, $this->rest('POST', 'settings/general', ['default_events_view' => ''])['status']);
     }
 
-    public function test_changing_the_event_details_page_drops_the_rewrite_rules()
+    public function test_changing_the_event_slug_drops_the_rewrite_rules()
     {
-        update_option('rewrite_rules', ['^event/([^/]+)/?$' => 'index.php?page_id=1&fe_event=$matches[1]']);
-        $other = wp_insert_post(['post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Other']);
+        update_option('rewrite_rules', ['event/([^/]+)/?$' => 'index.php?fe_event=$matches[1]']);
 
-        $saved = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'event_page_id' => $other] + $this->pages);
+        $saved = $this->rest('POST', 'settings/general', ['events_page_id' => 0, 'event_slug' => 'Our Gatherings']);
 
         $this->assertSame(200, $saved['status'], wp_json_encode($saved['data']));
-        $this->assertSame($other, Settings::get()['event_page_id']);
+        $this->assertSame('our-gatherings', Settings::get()['event_slug']);
         $this->assertFalse(get_option('rewrite_rules'));
     }
 
-    public function test_saving_the_same_event_details_page_keeps_the_rewrite_rules()
+    public function test_saving_the_same_event_slug_keeps_the_rewrite_rules()
     {
-        $rules = ['^event/([^/]+)/?$' => 'index.php?page_id=1&fe_event=$matches[1]'];
+        $rules = ['event/([^/]+)/?$' => 'index.php?fe_event=$matches[1]'];
         update_option('rewrite_rules', $rules);
 
-        $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no'] + $this->pages);
+        $this->rest('POST', 'settings/general', ['event_slug' => 'event'] + $this->pages);
 
         $this->assertSame($rules, get_option('rewrite_rules'));
+    }
+
+    public function test_an_event_slug_that_sanitizes_to_nothing_is_refused()
+    {
+        $this->assertSame(422, $this->rest('POST', 'settings/general', ['event_slug' => '!!!'])['status']);
+        $this->assertSame('event', Settings::get()['event_slug']);
     }
 
     public function test_only_a_site_administrator_can_change_the_settings()
     {
         $this->actAs($this->createUser('editor'));
-        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'events_page_id' => 0, 'event_page_id' => 0];
+        $settings = ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'events_page_id' => 0, 'event_slug' => 'taken'];
 
         $this->assertSame(403, $this->rest('POST', 'settings/general', $settings)['status']);
-        $this->assertSame($this->pages['event_page_id'], Settings::get()['event_page_id']);
+        $this->assertSame($this->pages['events_page_id'], Settings::get()['events_page_id']);
     }
 
     public function test_a_page_setting_takes_only_a_published_page()
@@ -89,7 +94,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $post = wp_insert_post(['post_type' => 'post', 'post_status' => 'publish', 'post_title' => 'A post']);
 
         foreach ([$draft, $post, 999999999] as $id) {
-            $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'events_page_id' => $id, 'event_page_id' => 0]);
+            $response = $this->rest('POST', 'settings/general', ['default_events_view' => 'cards', 'disable_event_view_switch' => 'no', 'events_page_id' => $id]);
 
             $this->assertSame(422, $response['status'], (string) $id);
         }
@@ -106,23 +111,27 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
         $this->assertSame('Bare', $pages['events_page_id']['title']);
         $this->assertFalse($pages['events_page_id']['has_shortcode']);
-        $this->assertTrue($pages['event_page_id']['has_shortcode']);
-        $this->assertSame('(no title)', $pages['event_page_id']['title']);
+
+        Settings::update(Settings::GENERAL, $this->pages);
+        $pages = $this->rest('GET', 'settings/general')['data']['pages'];
+
+        $this->assertTrue($pages['events_page_id']['has_shortcode']);
+        $this->assertSame('(no title)', $pages['events_page_id']['title']);
     }
 
-    public function test_create_page_makes_a_titled_page_holding_the_shortcode_and_sets_it()
+    public function test_create_page_makes_a_titled_page_holding_its_block_and_sets_it()
     {
-        $response = $this->rest('POST', 'settings/create-page', ['key' => 'event_page_id', 'title' => 'Our Event']);
+        $response = $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id', 'title' => 'Our Events']);
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
-        $id = Settings::get()['event_page_id'];
-        $this->assertNotSame($this->pages['event_page_id'], $id);
+        $id = Settings::get()['events_page_id'];
+        $this->assertNotSame($this->pages['events_page_id'], $id);
         $page = get_post($id);
         $this->assertSame('page', $page->post_type);
         $this->assertSame('publish', $page->post_status);
-        $this->assertSame('Our Event', $page->post_title);
-        $this->assertSame('<!-- wp:fluent-event/event {"align":"wide"} /-->', $page->post_content);
-        $this->assertTrue($response['data']['pages']['event_page_id']['has_shortcode']);
+        $this->assertSame('Our Events', $page->post_title);
+        $this->assertSame('<!-- wp:fluent-event/events {"align":"wide"} /-->', $page->post_content);
+        $this->assertTrue($response['data']['pages']['events_page_id']['has_shortcode']);
     }
 
     public function test_create_page_refuses_any_other_setting_a_blank_title_and_editors()

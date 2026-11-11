@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Services;
 
 use FluentEvent\App\App;
+use FluentEvent\App\CPT\EventPost;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Utils\DateTimeHelper;
 
@@ -13,13 +14,9 @@ use FluentEvent\App\Utils\DateTimeHelper;
  */
 class EventPageService
 {
-    // The detail page reads its event from this query var; the rewrite rule fills it from /event/<slug>.
-    const EVENT_VAR = 'fe_event';
-
     // The settings "+" creates these. The content is ours, never a request's.
     const PAGES = [
         'events_page_id' => ['shortcode' => 'fluent_events', 'block' => 'fluent-event/events'],
-        'event_page_id'  => ['shortcode' => 'fluent_event', 'block' => 'fluent-event/event'],
     ];
 
     // A setting's page while it is published, else 0: a trashed or draft page turns its links off.
@@ -30,30 +27,17 @@ class EventPageService
         return $id && get_post_type($id) === 'page' && get_post_status($id) === 'publish' ? $id : 0;
     }
 
+    // The All Events Page, else the events archive, which lists them itself.
     public static function listUrl()
     {
         $id = self::pageId('events_page_id');
 
-        return $id ? (string) get_permalink($id) : '';
+        return (string) ($id ? get_permalink($id) : get_post_type_archive_link(EventPost::POST_TYPE));
     }
 
-    // Under the detail page by the event's post slug, which is unique among events.
     public static function url(Event $event)
     {
-        $id = self::pageId('event_page_id');
-
-        if (!$id) {
-            return '';
-        }
-
-        $page = (string) get_permalink($id);
-
-        // Plain permalinks have no path to append to, and the query var works without the rewrite rule.
-        if (!get_option('permalink_structure')) {
-            return add_query_arg(self::EVENT_VAR, $event->post->post_name, $page);
-        }
-
-        return user_trailingslashit(untrailingslashit($page) . '/' . $event->post->post_name);
+        return (string) get_permalink($event->post_id);
     }
 
     public static function createPage($key, $title)

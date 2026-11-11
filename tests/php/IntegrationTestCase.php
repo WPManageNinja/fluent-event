@@ -175,20 +175,16 @@ abstract class IntegrationTestCase extends BaseTestCase
         return $this->createUser('administrator');
     }
 
-    // Both public pages, published and set: [fluent_events] at `fe-test-events-*`, [fluent_event] at `fe-test-event-*`.
+    // The All Events Page, published and set: [fluent_events] at `fe-test-fluent-events-*`.
     protected function createPublicPages()
     {
-        $ids = [];
-
-        foreach (['events_page_id' => 'fluent_events', 'event_page_id' => 'fluent_event'] as $key => $shortcode) {
-            $ids[$key] = wp_insert_post([
-                'post_type'    => 'page',
-                'post_status'  => 'publish',
-                'post_title'   => '',
-                'post_name'    => 'fe-test-' . str_replace('_', '-', $shortcode) . '-' . strtolower(wp_generate_password(6, false, false)),
-                'post_content' => '[' . $shortcode . ']',
-            ]);
-        }
+        $ids = ['events_page_id' => wp_insert_post([
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            'post_title'   => '',
+            'post_name'    => 'fe-test-fluent-events-' . strtolower(wp_generate_password(6, false, false)),
+            'post_content' => '[fluent_events]',
+        ])];
 
         Settings::update(Settings::GENERAL, $ids);
 

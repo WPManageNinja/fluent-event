@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
+use FluentEvent\App\CPT\EventPost;
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\EventPageService;
@@ -13,8 +14,8 @@ use FluentEvent\App\Utils\Enqueuer\Enqueue;
 use FluentEvent\Framework\Support\Arr;
 
 /**
- * The public pages, inside the theme: [fluent_events] lists events and [fluent_event] shows one, on any
- * WordPress page. The event details page also answers /<its path>/<event-slug>/ through one rewrite rule.
+ * The public pages, inside the theme. Each event opens at its own WordPress address, /<event_slug>/<post slug>/,
+ * through the single-event template; [fluent_events] lists events and [fluent_event] shows one on any page.
  */
 class FrontEndHandler
 {
@@ -28,7 +29,7 @@ class FrontEndHandler
     const PER_PAGE = 10;
     const ASSET_HANDLE = 'fluent-event-portal';
 
-    // The details page's event, found before the theme prints so a missing one can answer 404.
+    // The event its own address opened, found before the theme prints so a hidden one can answer 404.
     protected static $pageEvent;
 
     protected static $enqueued = false;
@@ -38,69 +39,126 @@ class FrontEndHandler
         add_shortcode('fluent_events', [$this, 'renderEvents']);
         add_shortcode('fluent_event', [$this, 'renderEvent']);
 
-        add_action('init', [$this, 'addRewriteRule']);
-        add_filter('query_vars', [$this, 'addQueryVar']);
-        add_action('template_redirect', [$this, 'resolvePageEvent']);
+        add_action('init', [$this, 'registerTemplates']);
+        add_filter('template_include', [$this, 'classicTemplate']);
+        add_action('template_redirect', [$this, 'resolveEventRequest']);
+        add_action('pre_get_posts', [$this, 'limitListings']);
+        add_filter('wp_robots', [$this, 'robots']);
+        add_action('admin_bar_menu', [$this, 'addEditLink'], 80);
         add_action('wp_enqueue_scripts', [$this, 'maybeEnqueueAssets']);
         add_filter('document_title_parts', [$this, 'documentTitle']);
         add_filter('get_canonical_url', [$this, 'canonicalUrl'], 10, 2);
         add_action('wp_head', [$this, 'printMeta'], 1);
-        add_action('post_updated', [$this, 'maybeFlushRules'], 10, 3);
     }
 
-    // A rule only takes effect after a flush: activation, the setting and the page's own edits run one.
-    public function addRewriteRule()
+    // Block themes: the theme's header and footer around our block, as FluentCart's product template does.
+    // The admin can rework either in the Site Editor; the name is what WordPress's template hierarchy asks for.
+    public function registerTemplates()
     {
-        $id = EventPageService::pageId('event_page_id');
-        $path = $id ? get_page_uri($id) : '';
+        $templates = [
+            'single-' . EventPost::POST_TYPE  => [__('Single Event', 'fluent-event'), 'fluent-event/event'],
+            'archive-' . EventPost::POST_TYPE => [__('Events Archive', 'fluent-event'), 'fluent-event/events'],
+        ];
 
-        if (!$path) {
+        foreach ($templates as $slug => list($title, $block)) {
+            register_block_template('fluent-event//' . $slug, [
+                'title'   => $title,
+                'content' => '<!-- wp:template-part {"slug":"header","tagName":"header"} /-->'
+                    . '<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} --><main class="wp-block-group">'
+                    . '<!-- wp:' . $block . ' {"align":"wide"} /-->'
+                    . '</main><!-- /wp:group -->'
+                    . '<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->',
+            ]);
+        }
+    }
+
+    // Classic themes: their header and footer around ours, unless the theme ships its own template for events.
+    public function classicTemplate($template)
+    {
+        $ours = ['single-' . EventPost::POST_TYPE . '.php', 'archive-' . EventPost::POST_TYPE . '.php'];
+
+        if (wp_is_block_theme() || in_array(basename($template), $ours, true)
+            || !(is_singular(EventPost::POST_TYPE) || is_post_type_archive(EventPost::POST_TYPE))) {
+            return $template;
+        }
+
+        return FLUENT_EVENT_PLUGIN_DIR . 'app/Views/portal/theme-page.php';
+    }
+
+    // WordPress found the post; our statuses decide whether the public may see it. The archive gives way to the All Events Page.
+    public function resolveEventRequest()
+    {
+        if (is_post_type_archive(EventPost::POST_TYPE)) {
+            $listPage = EventPageService::pageId('events_page_id');
+
+            if ($listPage) {
+                wp_safe_redirect(get_permalink($listPage), 301);
+                exit;
+            }
+
             return;
         }
 
-        add_rewrite_rule(
-            '^' . preg_quote($path, '#') . '/([^/]+)/?$',
-            'index.php?page_id=' . $id . '&' . EventPageService::EVENT_VAR . '=$matches[1]',
-            'top'
-        );
-    }
-
-    public function addQueryVar($vars)
-    {
-        $vars[] = EventPageService::EVENT_VAR;
-
-        return $vars;
-    }
-
-    public function maybeFlushRules($postId, $after, $before)
-    {
-        if ((int) $postId !== (int) Settings::get()['event_page_id']) {
+        if (!is_singular(EventPost::POST_TYPE)) {
             return;
         }
 
-        if ($after->post_name !== $before->post_name || $after->post_parent !== $before->post_parent || $after->post_status !== $before->post_status) {
-            // `init` already registered the old rule, so flushing here would keep it. WordPress rebuilds on the next request.
-            delete_option('rewrite_rules');
-        }
-    }
+        static::$pageEvent = $this->viewableEvents()->where('post_id', get_queried_object_id())->first();
 
-    public function resolvePageEvent()
-    {
-        if (!$this->isPage('event_page_id')) {
-            return;
-        }
-
-        static::$pageEvent = $this->findEvent((string) get_query_var(EventPageService::EVENT_VAR));
-
-        // An unknown, private or draft event answers like a missing page, so a hidden one can't be told apart.
+        // A private calendar's event answers like a missing page, so a hidden one can't be told apart.
         if (!static::$pageEvent) {
+            $GLOBALS['wp_query']->set_404();
             status_header(404);
             nocache_headers();
         }
     }
 
+    // WordPress lists public posts in its archive, feeds and sitemaps; those list only what our events list shows.
+    public function limitListings($query)
+    {
+        if (is_admin() || $query->is_singular() || !in_array(EventPost::POST_TYPE, (array) $query->get('post_type'), true)) {
+            return;
+        }
+
+        $query->set('post__in', Event::query()
+            ->byStatus('public')
+            ->whereHas('calendar', function ($calendars) {
+                $calendars->byStatus('public');
+            })
+            ->pluck('post_id')
+            ->all() ?: [0]);
+    }
+
+    // An unlisted event opens by its link, but search engines shouldn't list it.
+    public function robots($robots)
+    {
+        if (static::$pageEvent && static::$pageEvent->status === 'unlisted') {
+            $robots['noindex'] = true;
+        }
+
+        return $robots;
+    }
+
+    // "Edit Event" in the toolbar opens the plugin's editor, as FluentCart's "Edit Product" does; WordPress has no editor for events.
+    public function addEditLink($bar)
+    {
+        if (static::$pageEvent && current_user_can('manage_options')) {
+            $bar->add_node([
+                'id'    => 'edit',
+                'title' => __('Edit Event', 'fluent-event'),
+                'href'  => EventService::editUrl(static::$pageEvent->id),
+            ]);
+        }
+    }
+
     public function maybeEnqueueAssets()
     {
+        if (static::$pageEvent || is_post_type_archive(EventPost::POST_TYPE)) {
+            $this->enqueueAssets();
+
+            return;
+        }
+
         $post = is_singular() ? get_post() : null;
 
         if ($post && (has_shortcode($post->post_content, 'fluent_events') || has_shortcode($post->post_content, 'fluent_event')
@@ -122,12 +180,10 @@ class FrontEndHandler
         Enqueue::script(self::ASSET_HANDLE, 'portal/portal.js', [], FLUENT_EVENT_PLUGIN_VERSION, true);
     }
 
-    // Our pages are untitled, so the tab reads what the shortcode shows.
+    // An untitled list page's tab reads what the shortcode shows.
     public function documentTitle($parts)
     {
-        if ($this->isPage('event_page_id')) {
-            $parts['title'] = static::$pageEvent ? static::$pageEvent->title : __('Page not found', 'fluent-event');
-        } elseif ($this->isPage('events_page_id') && get_the_title() === '') {
+        if ($this->isPage('events_page_id') && get_the_title() === '') {
             $calendar = $this->urlCalendar();
             $parts['title'] = $calendar ? $calendar->title : __('Events', 'fluent-event');
         }
@@ -137,10 +193,6 @@ class FrontEndHandler
 
     public function canonicalUrl($url, $post)
     {
-        if (static::$pageEvent && $this->isPage('event_page_id')) {
-            return EventPageService::url(static::$pageEvent);
-        }
-
         if ($this->isPage('events_page_id') && ($calendar = $this->urlCalendar())) {
             return add_query_arg('calendar', rawurlencode($calendar->slug), $url);
         }
@@ -150,13 +202,13 @@ class FrontEndHandler
 
     public function printMeta()
     {
-        if ($this->isPage('event_page_id') && static::$pageEvent) {
+        if (static::$pageEvent) {
             $event = static::$pageEvent;
             $title = $event->title;
             $description = wp_trim_words(wp_strip_all_tags($event->description), 30)
                 ?: DateTimeHelper::dateRange($event->start_at_site, $event->end_at_site);
             $url = EventPageService::url($event);
-        } elseif ($this->isPage('events_page_id')) {
+        } elseif ($this->isPage('events_page_id') || is_post_type_archive(EventPost::POST_TYPE)) {
             $calendar = $this->urlCalendar();
             $title = $calendar ? $calendar->title : __('Events', 'fluent-event');
             /* translators: %s: calendar title */
@@ -195,19 +247,12 @@ class FrontEndHandler
         return $this->wrap($this->eventsBody($atts));
     }
 
-    // [fluent_event event=""]: the event named, else the one in the details page's URL.
+    // [fluent_event event=""]: the event named, else the one whose own address is open (the single-event template).
     public function renderEvent($atts)
     {
         $atts = shortcode_atts(['event' => ''], $atts, 'fluent_event');
         $slug = sanitize_title($atts['event']);
-
-        if ($slug !== '') {
-            $event = $this->findEvent($slug);
-        } elseif ($this->isPage('event_page_id')) {
-            $event = static::$pageEvent;
-        } else {
-            $event = $this->findEvent((string) get_query_var(EventPageService::EVENT_VAR));
-        }
+        $event = $slug !== '' ? $this->findEvent($slug) : static::$pageEvent;
 
         $this->enqueueAssets();
 
@@ -236,7 +281,17 @@ class FrontEndHandler
         return $slug === '' ? null : Calendar::query()->byStatus('public')->where('slug', $slug)->first();
     }
 
-    // A public or unlisted event in a public calendar: what the details page opens.
+    // A public or unlisted event in a public calendar: what an event's address opens.
+    protected function viewableEvents()
+    {
+        return Event::query()
+            ->with(['post', 'calendar'])
+            ->byStatus(['public', 'unlisted'])
+            ->whereHas('calendar', function ($query) {
+                $query->byStatus('public');
+            });
+    }
+
     protected function findEvent($slug)
     {
         $slug = sanitize_title($slug);
@@ -245,12 +300,7 @@ class FrontEndHandler
             return null;
         }
 
-        return Event::query()
-            ->with(['post', 'calendar'])
-            ->byStatus(['public', 'unlisted'])
-            ->whereHas('calendar', function ($query) {
-                $query->byStatus('public');
-            })
+        return $this->viewableEvents()
             ->whereHas('post', function ($query) use ($slug) {
                 $query->where('post_name', $slug);
             })
@@ -297,7 +347,8 @@ class FrontEndHandler
         $span = in_array($span, self::SPANS, true) ? $span : 'month';
         $date = DateTimeHelper::isDate($date) ? $date : '';
         $pageId = (int) get_queried_object_id();
-        $url = $pageId ? (string) get_permalink($pageId) : home_url('/');
+        $isArchive = is_post_type_archive(EventPost::POST_TYPE);
+        $url = $pageId ? (string) get_permalink($pageId) : ($isArchive ? (string) get_post_type_archive_link(EventPost::POST_TYPE) : home_url('/'));
         // Picking "All" must outlive the preset, so its link keeps an empty `calendar`.
         $keepEmpty = $showChips && $preset !== '' ? ['calendar'] : [];
         // Carried into every link, so switching one control keeps the others, the calendar's place included.
@@ -308,8 +359,9 @@ class FrontEndHandler
             'search'   => $search,
             'span'     => $view === 'calendar' && $span !== 'month' ? $span : '',
             'date'     => $view === 'calendar' ? $date : '',
-            // Plain permalinks put the page in the query, which a GET form would otherwise drop.
-            'page_id'  => get_option('permalink_structure') ? '' : (string) $pageId,
+            // Plain permalinks put the page (or the archive's post type) in the query, which a GET form would otherwise drop.
+            'page_id'   => get_option('permalink_structure') ? '' : (string) $pageId,
+            'post_type' => get_option('permalink_structure') || !$isArchive ? '' : EventPost::POST_TYPE,
         ]) + array_fill_keys($keepEmpty, '');
 
         $events = Event::query()

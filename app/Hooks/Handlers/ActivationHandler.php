@@ -2,6 +2,7 @@
 
 namespace FluentEvent\App\Hooks\Handlers;
 
+use FluentEvent\App\CPT\EventPost;
 use FluentEvent\Database\DBMigrator;
 use FluentEvent\Framework\Foundation\Application;
 
@@ -69,7 +70,8 @@ class ActivationHandler
     {
         DBMigrator::run();
 
-        (new FrontEndHandler())->addRewriteRule();
+        // `init` ran before the plugin was active, so the post type's rules aren't registered yet.
+        (new EventPost())->registerPostType();
         flush_rewrite_rules();
         update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION, true);
 

@@ -10,7 +10,7 @@ class SettingsRequest extends BaseRequest
         'default_events_view'      => 'sanitize_text_field',
         'disable_event_view_switch' => 'sanitize_text_field',
         'events_page_id'           => 'absint',
-        'event_page_id'            => 'absint',
+        'event_slug'               => 'sanitize_title',
         'from_name'                => 'sanitize_text_field',
         'from_email'               => 'sanitize_email',
         'reply_to_name'            => 'sanitize_text_field',
@@ -28,7 +28,7 @@ class SettingsRequest extends BaseRequest
         'default_events_view'       => 'sometimes|required|string|in:cards,timeline,calendar',
         'disable_event_view_switch' => 'sometimes|required|string|in:yes,no',
         'events_page_id'            => 'nullable|integer',
-        'event_page_id'             => 'nullable|integer',
+        'event_slug'                => 'sometimes|required|alphadash|max:100',
     ];
 
     const EMAIL_RULES = [

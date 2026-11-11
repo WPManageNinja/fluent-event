@@ -2,6 +2,7 @@
 
 namespace FluentEvent\Tests\Integration;
 
+use FluentEvent\App\CPT\EventPost;
 use FluentEvent\App\Hooks\Handlers\FrontEndHandler;
 use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\Settings;
@@ -26,6 +27,7 @@ class EventLandingPageTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         $_GET = [];
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query();
 
         parent::tearDown();
     }
@@ -136,8 +138,8 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertNotEmpty(preg_grep('/^ /', $lines), 'The long description folds onto continuation lines.');
     }
 
-    // Under the event details page by slug alone: the calendar is a filter on the list, not part of an event's address.
-    public function test_listed_events_link_to_their_page_by_slug_alone()
+    // Its own WordPress address, by slug alone: the calendar is a filter on the list, not part of an event's address.
+    public function test_listed_events_link_to_their_own_address()
     {
         Settings::update(Settings::GENERAL, ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no']);
         $calendar = $this->createCalendar();
@@ -145,28 +147,87 @@ class EventLandingPageTest extends IntegrationTestCase
 
         $url = EventPageService::url($event);
 
-        $this->assertSame(user_trailingslashit(untrailingslashit(get_permalink($this->pages['event_page_id'])) . '/' . $event->post->post_name), $url);
+        $this->assertSame(get_permalink($event->post_id), $url);
+        $this->assertStringContainsString('/event/' . $event->post->post_name, $url);
         $this->assertStringContainsString('href="' . esc_url($url) . '"', $this->handler()->calendar($calendar->slug)['body']);
     }
 
-    // With no event details page, nothing links to one and its form has nowhere to post.
-    public function test_without_an_event_details_page_events_have_no_address()
+    public function test_an_events_address_follows_the_event_slug_setting()
     {
-        Settings::update(Settings::GENERAL, ['event_page_id' => 0]);
+        $event = $this->createEvent();
+        Settings::update(Settings::GENERAL, ['event_slug' => 'gatherings']);
+        (new EventPost())->registerPostType();
 
-        $this->assertSame('', EventPageService::url($this->createEvent()));
+        try {
+            $this->assertStringContainsString('/gatherings/' . $event->post->post_name, get_permalink($event->post_id));
+        } finally {
+            Settings::update(Settings::GENERAL, ['event_slug' => 'event']);
+            (new EventPost())->registerPostType();
+        }
     }
 
-    // The details page answers /<its path>/<event slug>/ by handing the slug to its own query var.
-    public function test_the_rewrite_rule_maps_an_event_slug_to_the_details_page()
+    // WordPress finds any event post by its slug; only one the public may see opens, the rest answer like a missing page.
+    public function test_only_an_event_the_public_may_see_opens_at_its_address()
     {
-        global $wp_rewrite;
+        $calendar = $this->createCalendar();
+        $public = $this->createEvent(['calendar_id' => $calendar->id]);
+        $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'unlisted']);
 
-        (new FrontEndHandler())->addRewriteRule();
+        $this->assertFalse($this->open($public)['404']);
+        $this->assertFalse($this->open($unlisted)['404']);
+        $this->assertTrue($this->open($unlisted)['noindex'], 'An unlisted event stays out of search engines.');
+        $this->assertFalse($this->open($public)['noindex']);
 
-        $path = get_page_uri($this->pages['event_page_id']);
-        $rule = $wp_rewrite->extra_rules_top['^' . preg_quote($path, '#') . '/([^/]+)/?$'] ?? null;
+        $this->assertTrue($this->open($this->createEvent(['calendar_id' => $calendar->id, 'status' => 'private']))['404']);
+        $this->assertTrue($this->open($this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id]))['404']);
+    }
 
-        $this->assertSame('index.php?page_id=' . $this->pages['event_page_id'] . '&fe_event=$matches[1]', $rule);
+    // WordPress's own listings (the archive, feeds, sitemaps) carry only what the events list shows.
+    public function test_wordpress_listings_hold_only_public_events_in_public_calendars()
+    {
+        $calendar = $this->createCalendar();
+        $public = $this->createEvent(['calendar_id' => $calendar->id]);
+        $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'unlisted']);
+        $hidden = $this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id]);
+
+        $ids = (new \WP_Query(['post_type' => EventPost::POST_TYPE, 'fields' => 'ids', 'posts_per_page' => -1]))->posts;
+
+        $this->assertContains($public->post_id, $ids);
+        $this->assertNotContains($unlisted->post_id, $ids);
+        $this->assertNotContains($hidden->post_id, $ids);
+    }
+
+    public function test_the_events_archive_gives_way_to_the_all_events_page()
+    {
+        $this->addTestFilter('wp_redirect', function ($location) {
+            throw new \RuntimeException($location);
+        });
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query(['post_type' => EventPost::POST_TYPE]);
+
+        try {
+            (new FrontEndHandler())->resolveEventRequest();
+            $this->fail('The archive did not redirect.');
+        } catch (\RuntimeException $redirect) {
+            $this->assertSame(get_permalink($this->pages['events_page_id']), $redirect->getMessage());
+        }
+    }
+
+    // A visit to the event's address, in WordPress's order: its query by slug, its own 404 for no post, then our guard.
+    private function open($event)
+    {
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query(['post_type' => EventPost::POST_TYPE, 'name' => $event->post->post_name]);
+        $GLOBALS['wp']->handle_404();
+
+        $handler = new class extends FrontEndHandler {
+            public function resolve()
+            {
+                static::$pageEvent = null;
+                $this->resolveEventRequest();
+
+                return ['404' => is_404(), 'noindex' => !empty($this->robots([])['noindex'])];
+            }
+        };
+
+        return $handler->resolve();
     }
 }

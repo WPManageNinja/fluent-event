@@ -4,7 +4,6 @@ namespace FluentEvent\Tests\Integration;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
-use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -160,19 +159,6 @@ class PortalEndpointsTest extends IntegrationTestCase
 
         $this->assertSame(403, $response['status']);
         $this->assertArrayNotHasKey('html', $response['data']);
-        $this->assertCount(0, $this->guestsOf($event));
-    }
-
-    // With no event details page there is no form, so its endpoint refuses everyone.
-    public function test_the_endpoint_does_not_answer_without_an_event_details_page()
-    {
-        Settings::update(Settings::GENERAL, ['event_page_id' => 0]);
-        $event = $this->createEvent();
-
-        $this->assertNotSame(200, $this->registerGuest($event)['status']);
-
-        $this->actAs($this->createUser('subscriber'));
-        $this->assertNotSame(200, $this->registerGuest($event)['status']);
         $this->assertCount(0, $this->guestsOf($event));
     }
 }

@@ -62,7 +62,7 @@ class EventController extends Controller
         $event = Event::query()
             ->with([
                 'post'        => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_name', 'post_content']);
+                    $query->select(['ID', 'post_title', 'post_content']);
                 },
                 'calendar'    => function ($query) {
                     $query->select(['id', 'title', 'status', 'meta']);
@@ -72,7 +72,6 @@ class EventController extends Controller
 
         return [
             'event'      => $event->append('description'),
-            // Empty while no details page is set; the Overview tells the admin to pick one.
             'public_url' => EventPageService::url($event),
         ];
     }

@@ -2,20 +2,21 @@
 
 namespace FluentEvent\App\CPT;
 
+use FluentEvent\App\Services\Settings;
+
 /**
  * The `fe_event` custom post type.
  *
  * An event's identity — title, description, author — lives in `wp_posts`;
  * everything typed lives in `wp_fe_event_details`, joined 1:1 on `post_id`.
  *
- * The post type is deliberately NOT public. An event has no permalink, no
- * archive, no REST endpoint and no admin list, and appears in neither the
- * Posts nor the Pages screen. The plugin's own SPA is the only UI, and when a
- * front-end arrives it will be a page plus a query parameter we control rather
- * than a WordPress rewrite rule.
+ * Public, as FluentCart's products are: WordPress gives every event its own
+ * address, /<event_slug>/<post slug>/, and lists them at /<event_slug>/.
+ * FrontEndHandler keeps out what our statuses hide. There is still no REST
+ * endpoint and no admin list: the plugin's SPA is the only UI.
  *
- * `post_status` stays `publish`. Visibility is a property of the type, not the
- * row, which leaves `event_details.status` free to mean what it says.
+ * `post_status` follows `event_details.status` (Event::POST_STATUSES), so a
+ * private or draft event is never a published post.
  */
 class EventPost
 {
@@ -31,16 +32,17 @@ class EventPost
      */
     public function registerPostType()
     {
+        $slug = Settings::get()['event_slug'];
+
         register_post_type(static::POST_TYPE, [
             'labels'              => $this->getLabels(),
 
-            // Not reachable from the front-end by any route.
-            'public'              => false,
-            'publicly_queryable'  => false,
+            // Our own events list has its search; WordPress's would show unlisted events.
+            'public'              => true,
+            'publicly_queryable'  => true,
             'exclude_from_search' => true,
-            'has_archive'         => false,
-            'rewrite'             => false,
-            'query_var'           => false,
+            'has_archive'         => $slug,
+            'rewrite'             => ['slug' => $slug, 'with_front' => false, 'feeds' => false, 'pages' => false],
 
             // No WordPress-supplied UI — the SPA owns event management.
             'show_ui'             => false,

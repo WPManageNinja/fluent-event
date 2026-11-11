@@ -34,11 +34,11 @@ class SettingsController extends Controller
             }
         }
 
-        $previousPage = (int) Settings::get()['event_page_id'];
+        $previousSlug = Settings::get()['event_slug'];
         $settings = Settings::update(Settings::GENERAL, $data);
 
-        // `init` already registered the old rule, so flushing here would keep it. WordPress rebuilds on the next request.
-        if ((int) $settings['event_page_id'] !== $previousPage) {
+        // `init` already registered the old slug's rules, so flushing here would keep them. WordPress rebuilds on the next request.
+        if ($settings['event_slug'] !== $previousSlug) {
             delete_option('rewrite_rules');
         }
 
@@ -83,10 +83,6 @@ class SettingsController extends Controller
 
         if (!EventPageService::createPage($data['key'], $data['title'])) {
             return $this->sendError(['message' => __('The page could not be created.', 'fluent-event')], 422);
-        }
-
-        if ($data['key'] === 'event_page_id') {
-            delete_option('rewrite_rules');
         }
 
         return [

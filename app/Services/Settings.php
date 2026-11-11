@@ -26,9 +26,10 @@ class Settings
         self::GENERAL => [
             'default_events_view'       => 'timeline',
             'disable_event_view_switch' => 'no',
-            // The pages holding [fluent_events] and [fluent_event]; 0 until activation or the admin sets them.
+            // The page holding [fluent_events]; 0 until the admin picks one.
             'events_page_id'            => 0,
-            'event_page_id'             => 0,
+            // An event's address, /<event_slug>/<its post slug>/; the events archive answers /<event_slug>/.
+            'event_slug'                => 'event',
         ],
         self::EMAIL => [
             'from_name'      => '',
