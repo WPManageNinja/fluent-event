@@ -60,15 +60,20 @@
             min-height: 120px;
         }
     }
+}
 
-    &__event {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 12px;
+// Samples of the event page in the editor, drawn in the page's own classes: only what a sample lacks is here.
+.fe-block-demo {
+    .fe-event-page__cover.fe-block-demo__cover {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
     }
 
-    &__item--cover,
-    &__item--side {
-        min-height: 140px;
+    .fe-calendar-chips__dot {
+        color: var(--fe-accent-blue, #0e7ff1);
     }
 }

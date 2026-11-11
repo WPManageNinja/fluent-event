@@ -15,6 +15,8 @@ use FluentEvent\Framework\Support\Arr;
 class BlockEditorHandler
 {
     const EDITOR_HANDLE = 'fluent-event-blocks';
+    // The open event's page, one block per piece, for the single-event template.
+    const EVENT_PARTS = ['cover', 'title', 'meta', 'calendar', 'description', 'registration'];
     const EDITOR_EVENTS_LIMIT = 200;
 
     public function register()
@@ -47,6 +49,17 @@ class BlockEditorHandler
                 'event' => ['type' => 'string', 'default' => ''],
             ],
         ]);
+
+        foreach (self::EVENT_PARTS as $part) {
+            register_block_type('fluent-event/event-' . $part, [
+                'render_callback' => function () use ($part) {
+                    $html = (new FrontEndHandler())->renderEventPart($part);
+
+                    return $html === '' ? '' : '<div ' . get_block_wrapper_attributes(['class' => 'fe-portal']) . '>' . $html . '</div>';
+                },
+                'supports'        => ['html' => false],
+            ]);
+        }
     }
 
     // Anyone who can edit a post saves attributes as they like, so each is held to the values the shortcode takes.
@@ -73,7 +86,7 @@ class BlockEditorHandler
         Enqueue::script(
             self::EDITOR_HANDLE,
             'blocks/blocks.jsx',
-            ['wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-i18n'],
+            ['wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-data', 'wp-i18n'],
             // The dev server reads a JSX file's type from the URL's last dot, so `?ver=1.0.0` would make it `.0`.
             Vite::isOnDevMode() ? null : FLUENT_EVENT_PLUGIN_VERSION,
             true
@@ -83,11 +96,13 @@ class BlockEditorHandler
         wp_localize_script(self::EDITOR_HANDLE, 'fluentEventBlocks', $this->editorData());
     }
 
-    // The placeholders' styles, on the hook that reaches the editor's iframe; the page itself never needs them.
+    // The placeholders' styles, on the hook that reaches the editor's iframe, with the event page's own so a
+    // template piece's sample looks as it will on the page.
     public function enqueueEditorStyles()
     {
         if (is_admin()) {
-            Enqueue::style(self::EDITOR_HANDLE, 'blocks/blocks.scss', [], FLUENT_EVENT_PLUGIN_VERSION);
+            Enqueue::style(FrontEndHandler::ASSET_HANDLE, 'portal/portal.scss', [], FLUENT_EVENT_PLUGIN_VERSION);
+            Enqueue::style(self::EDITOR_HANDLE, 'blocks/blocks.scss', [FrontEndHandler::ASSET_HANDLE], FLUENT_EVENT_PLUGIN_VERSION);
         }
     }
 

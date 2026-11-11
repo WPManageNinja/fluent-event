@@ -1070,6 +1070,11 @@ html.dark .fe-portal {
         grid-area: intro;
     }
 
+    // The calendar pill under the meta row; the side card's "Add to calendar" is __calendar.
+    &__calendar-tag {
+        margin-top: var(--fe-space-3, 12px);
+    }
+
     &__body {
         grid-area: body;
     }

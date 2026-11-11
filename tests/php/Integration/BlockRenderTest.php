@@ -3,6 +3,8 @@
 namespace FluentEvent\Tests\Integration;
 
 use FluentEvent\App\Hooks\Handlers\BlockEditorHandler;
+use FluentEvent\App\Hooks\Handlers\FrontEndHandler;
+use FluentEvent\App\Models\Event;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -94,6 +96,36 @@ class BlockRenderTest extends IntegrationTestCase
 
         $this->assertStringContainsString('wp-block-fluent-event-event', $html);
         $this->assertStringContainsString('Zebra pinned night', $html);
+        $this->assertStringContainsString('data-fe-card', $html);
+    }
+
+    // The single-event template's pieces: each draws its part of the open event, and nothing where none is open.
+    public function test_the_event_page_blocks_render_the_open_events_pieces()
+    {
+        $calendar = $this->createCalendar(['title' => 'Zebra Parts Club']);
+        $event = $this->createEvent(['calendar_id' => $calendar->id, 'title' => 'Zebra parts night']);
+        $blocks = '<!-- wp:fluent-event/event-title /--><!-- wp:fluent-event/event-calendar /--><!-- wp:fluent-event/event-registration /-->';
+
+        $this->assertSame('', trim(do_blocks($blocks)), 'No event is open.');
+
+        $page = new class extends FrontEndHandler {
+            public function open($event)
+            {
+                static::$pageEvent = $event;
+            }
+        };
+
+        $page->open(Event::query()->with(['post', 'calendar'])->find($event->id));
+
+        try {
+            $html = do_blocks($blocks);
+        } finally {
+            $page->open(null);
+        }
+
+        $this->assertStringContainsString('wp-block-fluent-event-event-title', $html);
+        $this->assertStringContainsString('Zebra parts night', $html);
+        $this->assertStringContainsString('Zebra Parts Club', $html);
         $this->assertStringContainsString('data-fe-card', $html);
     }
 }

@@ -54,21 +54,41 @@ class FrontEndHandler
         add_action('wp_head', [$this, 'printMeta'], 1);
     }
 
-    // Block themes: the theme's header and footer around our block, as FluentCart's product template does.
-    // The admin can rework either in the Site Editor; the name is what WordPress's template hierarchy asks for.
+    // Block themes: the theme's header and footer around ours, as FluentCart's product template does. The event's page
+    // is built from one block per piece, so the admin can rearrange or drop them in the Site Editor; the template's
+    // name is what WordPress's template hierarchy asks for.
     public function registerTemplates()
     {
+        $spacer = '<!-- wp:spacer {"height":"var:preset|spacing|40"} -->'
+            . '<div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>'
+            . '<!-- /wp:spacer -->';
+
+        $event = '<!-- wp:group {"align":"wide","layout":{"type":"constrained","contentSize":"980px"}} --><div class="wp-block-group alignwide">'
+            . $spacer
+            . '<!-- wp:fluent-event/event-cover /-->'
+            . '<!-- wp:columns --><div class="wp-block-columns">'
+            . '<!-- wp:column {"width":"66.66%"} --><div class="wp-block-column" style="flex-basis:66.66%">'
+            . '<!-- wp:fluent-event/event-title /--><!-- wp:fluent-event/event-meta /-->'
+            . '<!-- wp:fluent-event/event-calendar /--><!-- wp:fluent-event/event-description /-->'
+            . '</div><!-- /wp:column -->'
+            . '<!-- wp:column {"width":"33.33%"} --><div class="wp-block-column" style="flex-basis:33.33%">'
+            . '<!-- wp:fluent-event/event-registration /-->'
+            . '</div><!-- /wp:column -->'
+            . '</div><!-- /wp:columns -->'
+            . $spacer
+            . '</div><!-- /wp:group -->';
+
         $templates = [
-            'single-' . EventPost::POST_TYPE  => [__('Single Event', 'fluent-event'), 'fluent-event/event'],
-            'archive-' . EventPost::POST_TYPE => [__('Events Archive', 'fluent-event'), 'fluent-event/events'],
+            'single-' . EventPost::POST_TYPE  => [__('Single Event', 'fluent-event'), $event],
+            'archive-' . EventPost::POST_TYPE => [__('Events Archive', 'fluent-event'), '<!-- wp:fluent-event/events {"align":"wide"} /-->'],
         ];
 
-        foreach ($templates as $slug => list($title, $block)) {
+        foreach ($templates as $slug => list($title, $main)) {
             register_block_template('fluent-event//' . $slug, [
                 'title'   => $title,
                 'content' => '<!-- wp:template-part {"slug":"header","tagName":"header"} /-->'
                     . '<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} --><main class="wp-block-group">'
-                    . '<!-- wp:' . $block . ' {"align":"wide"} /-->'
+                    . $main
                     . '</main><!-- /wp:group -->'
                     . '<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->',
             ]);
@@ -490,15 +510,42 @@ class FrontEndHandler
         return (string) sanitize_hex_color(Arr::get((array) $calendar->meta, 'theme_color', ''));
     }
 
+    // One piece of the open event's page, for the single-event template's blocks; nothing where no event is open.
+    public function renderEventPart($part)
+    {
+        static $data = [];
+
+        $event = static::$pageEvent;
+
+        if (!$event) {
+            return '';
+        }
+
+        $this->enqueueAssets();
+        // Six blocks ask for the same event: its seat count and formatting are worked out once.
+        $data[spl_object_id($event)] = $data[spl_object_id($event)] ?? $this->eventData($event);
+
+        if ($part === 'registration') {
+            return $data[spl_object_id($event)]['side'];
+        }
+
+        return (string) App::make('view')->make('portal.event-part', $data[spl_object_id($event)] + ['part' => $part]);
+    }
+
     // The community event page's shape, drawn for a visitor whoever is viewing: the public pages don't know their viewers.
     protected function eventBody(Event $event)
+    {
+        return (string) App::make('view')->make('portal.event', $this->eventData($event));
+    }
+
+    protected function eventData(Event $event)
     {
         $calendar = $event->calendar;
         $seats = EventService::seatCounts([$event->id]);
         $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, null, false, false);
         $isOnline = $event->venue_type === 'online';
 
-        $data = [
+        return [
             'event'          => $formatted,
             'description'    => $event->description,
             'calendar_title' => $calendar->title,
@@ -511,8 +558,6 @@ class FrontEndHandler
             'site_time'      => DateTimeHelper::timeRange($event->start_at_site, $event->end_at_site, wp_timezone_string()),
             'side'           => EventPageService::sideCard($event, $formatted, EventPageService::url($event)),
         ];
-
-        return (string) App::make('view')->make('portal.event', $data);
     }
 
     // Dates and times in the site's timezone and formats, as in the admin lists.
