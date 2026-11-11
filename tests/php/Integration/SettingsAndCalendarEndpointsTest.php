@@ -121,9 +121,11 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_create_page_makes_a_titled_page_holding_its_block_and_sets_it()
     {
+        $fired = did_action('fluent_event/settings/general_updated');
         $response = $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id', 'title' => 'Our Events']);
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame($fired + 1, did_action('fluent_event/settings/general_updated'), 'Setting the page through "+" is a settings change too.');
         $id = Settings::get()['events_page_id'];
         $this->assertNotSame($this->pages['events_page_id'], $id);
         $page = get_post($id);

@@ -68,7 +68,7 @@ class SettingsController extends Controller
         ];
     }
 
-    // The "+" beside a page select: a page of the admin's title holding its shortcode. The request never sets the content.
+    // The "+" beside a page select: a page of the admin's title holding its block. The request never sets the content.
     public function createPage(Request $request)
     {
         $data = [
@@ -85,9 +85,13 @@ class SettingsController extends Controller
             return $this->sendError(['message' => __('The page could not be created.', 'fluent-event')], 422);
         }
 
+        $settings = Settings::get();
+
+        do_action('fluent_event/settings/general_updated', $settings);
+
         return [
             'message'  => __('The page has been created.', 'fluent-event'),
-            'settings' => Settings::get(),
+            'settings' => $settings,
             'pages'    => $this->selectedPages(),
         ];
     }
