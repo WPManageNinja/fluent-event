@@ -8,7 +8,6 @@ const { useSelect } = wp.data;
 
 function Edit({ attributes, setAttributes }) {
     const { events = [] } = window.fluentEventBlocks || {};
-    const event = events.find(item => item.slug === attributes.event);
     // In the Single Event template it always shows the event whose page is open, so there is nothing to pick.
     const inEventTemplate = useSelect(select => {
         const editor = select('core/editor');
@@ -34,13 +33,14 @@ function Edit({ attributes, setAttributes }) {
                 </InspectorControls>
             )}
 
+            {/* Always a sample, never a real event: the page can be laid out before any exists. */}
             <div className="fe-event-page">
                 {demos.cover()}
 
                 <div className="fe-event-page__grid">
                     <div className="fe-event-page__main">
                         <div className="fe-event-page__intro">
-                            {event ? <h1 className="fe-event-page__title">{event.title}</h1> : demos.title()}
+                            {demos.title()}
                             {demos.meta()}
                             {demos.calendar()}
                         </div>

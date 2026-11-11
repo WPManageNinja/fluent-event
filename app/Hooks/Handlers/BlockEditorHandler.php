@@ -4,6 +4,7 @@ namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
+use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
 use FluentEvent\App\Utils\Enqueuer\Vite;
 use FluentEvent\Framework\Support\Arr;
@@ -122,11 +123,17 @@ class BlockEditorHandler
             ->limit(self::EDITOR_EVENTS_LIMIT)
             ->get();
 
+        $settings = Settings::get();
+
         return [
-            'calendars' => $calendars->map(function ($calendar) {
+            // What an empty view or switcher setting falls back to, so the sample list starts where the page will.
+            'view'        => $settings['default_events_view'],
+            'view_locked' => $settings['disable_event_view_switch'] === 'yes',
+            'week_start'  => (int) get_option('start_of_week'),
+            'calendars'   => $calendars->map(function ($calendar) {
                 return ['slug' => $calendar->slug, 'title' => $calendar->title];
             })->values()->all(),
-            'events'    => $events->map(function ($event) {
+            'events'      => $events->map(function ($event) {
                 return [
                     'slug'  => $event->post->post_name,
                     'title' => $event->title,
