@@ -62,7 +62,8 @@ class EventPageService
             'post_type'      => 'page',
             'post_status'    => 'publish',
             'post_title'     => $title,
-            'post_content'   => '<!-- wp:shortcode -->[' . self::PAGES[$key]['shortcode'] . ']<!-- /wp:shortcode -->',
+            // The block, not the shortcode: the editor shows it with its settings, aligned wide like the list's frame.
+            'post_content'   => '<!-- wp:' . self::PAGES[$key]['block'] . ' {"align":"wide"} /-->',
             'comment_status' => 'closed',
             'ping_status'    => 'closed',
         ]);

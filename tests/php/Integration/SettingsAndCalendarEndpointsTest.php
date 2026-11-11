@@ -121,7 +121,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('page', $page->post_type);
         $this->assertSame('publish', $page->post_status);
         $this->assertSame('Our Event', $page->post_title);
-        $this->assertSame('<!-- wp:shortcode -->[fluent_event]<!-- /wp:shortcode -->', $page->post_content);
+        $this->assertSame('<!-- wp:fluent-event/event {"align":"wide"} /-->', $page->post_content);
         $this->assertTrue($response['data']['pages']['event_page_id']['has_shortcode']);
     }
 
