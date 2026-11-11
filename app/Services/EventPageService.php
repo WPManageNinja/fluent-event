@@ -16,10 +16,10 @@ class EventPageService
     // The detail page reads its event from this query var; the rewrite rule fills it from /event/<slug>.
     const EVENT_VAR = 'fe_event';
 
-    // Activation and the settings "+" create these. The content is ours, never a request's.
+    // The settings "+" creates these. The content is ours, never a request's.
     const PAGES = [
-        'events_page_id' => ['slug' => 'events', 'shortcode' => 'fluent_events', 'block' => 'fluent-event/events'],
-        'event_page_id'  => ['slug' => 'event', 'shortcode' => 'fluent_event', 'block' => 'fluent-event/event'],
+        'events_page_id' => ['shortcode' => 'fluent_events', 'block' => 'fluent-event/events'],
+        'event_page_id'  => ['shortcode' => 'fluent_event', 'block' => 'fluent-event/event'],
     ];
 
     // A setting's page while it is published, else 0: a trashed or draft page turns its links off.
@@ -56,17 +56,13 @@ class EventPageService
         return user_trailingslashit(untrailingslashit($page) . '/' . $event->post->post_name);
     }
 
-    // Untitled, so the shortcode's own heading leads; WordPress suffixes the slug when it is taken.
-    public static function createPage($key)
+    public static function createPage($key, $title)
     {
-        $page = self::PAGES[$key];
-
         $id = wp_insert_post([
             'post_type'      => 'page',
             'post_status'    => 'publish',
-            'post_title'     => '',
-            'post_name'      => $page['slug'],
-            'post_content'   => '<!-- wp:shortcode -->[' . $page['shortcode'] . ']<!-- /wp:shortcode -->',
+            'post_title'     => $title,
+            'post_content'   => '<!-- wp:shortcode -->[' . self::PAGES[$key]['shortcode'] . ']<!-- /wp:shortcode -->',
             'comment_status' => 'closed',
             'ping_status'    => 'closed',
         ]);

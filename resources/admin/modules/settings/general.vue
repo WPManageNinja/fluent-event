@@ -43,10 +43,34 @@
                     </span>
                 </el-form-item>
 
+                <div class="fe-form__actions">
+                    <el-button
+                        type="primary"
+                        native-type="submit"
+                        :loading="generalSaving"
+                        :disabled="generalSaving"
+                    >
+                        {{ $t('Save Settings') }}
+                    </el-button>
+                </div>
+            </el-form>
+        </section>
+
+        <section class="fe-settings-page">
+            <div class="fe-settings-page__header">
+                <h2 class="fe-settings-page__title">{{ $t('Public Pages') }}</h2>
+            </div>
+
+            <Skeleton v-if="generalLoading" type="general_settings" />
+
+            <ErrorState v-else-if="generalError" :message="generalError" @retry="fetchGeneral" />
+
+            <el-form v-else class="fe-form" label-position="top" @submit.prevent="savePages">
                 <el-form-item v-for="field in pageFields" :key="field.key" :label="field.label">
                     <div class="fe-page-picker">
+                        <!-- An unset page is 0, which the select would print; null shows the placeholder. -->
                         <el-select
-                            v-model="general[field.key]"
+                            :model-value="general[field.key] || null"
                             class="fe-page-picker__select"
                             :placeholder="$t('Select a page')"
                             :aria-label="field.label"
@@ -55,6 +79,7 @@
                             remote
                             :remote-method="searchPages"
                             :loading="pagesSearching"
+                            @update:model-value="value => general[field.key] = value || 0"
                             @visible-change="visible => visible && searchPages('')"
                         >
                             <el-option
@@ -66,17 +91,16 @@
                         </el-select>
 
                         <el-button
+                            class="fe-page-picker__add"
                             :aria-label="$t('Create a new page')"
                             :title="$t('Create a new page')"
-                            :loading="pageCreating && creatingKey === field.key"
-                            :disabled="pageCreating"
-                            @click="createPage(field.key)"
+                            @click="openAddPage(field.key)"
                         >
                             <el-icon><Plus /></el-icon>
                         </el-button>
                     </div>
 
-                    <span class="fe-form__hint fe-page-picker__help">
+                    <span v-if="general[field.key]" class="fe-form__hint fe-page-picker__help">
                         {{ $t('Add this shortcode to the page:') }}
                         <code class="fe-page-picker__code">[{{ field.shortcode }}]</code>
                         <el-button
@@ -89,11 +113,17 @@
                             <el-icon><DocumentCopy /></el-icon>
                         </el-button>
                         <a
-                            v-if="selectedPages[field.key]"
+                            v-if="field.preview && selectedPages[field.key]"
                             :href="selectedPages[field.key].link"
                             target="_blank"
                             rel="noopener"
                         >{{ $t('Preview') }}</a>
+                    </span>
+
+                    <!-- The details page alone is a 404: it needs an event's slug after its address. -->
+                    <span v-if="!field.preview && general[field.key]" class="fe-form__hint">
+                        {{ $t('To preview it, open an event and use the link under Public page in its Overview.') }}
+                        <router-link :to="{ name: 'events' }">{{ $t('Go to Events') }}</router-link>
                     </span>
 
                     <span
@@ -110,13 +140,47 @@
                     <el-button
                         type="primary"
                         native-type="submit"
-                        :loading="generalSaving"
-                        :disabled="generalSaving"
+                        :loading="pagesSaving"
+                        :disabled="pagesSaving"
                     >
                         {{ $t('Save Settings') }}
                     </el-button>
                 </div>
             </el-form>
+
+            <el-dialog
+                v-model="addPageVisible"
+                :title="$t('Add Page')"
+                width="500px"
+                append-to-body
+                @opened="$refs.newPageTitle.focus()"
+                @closed="newPageTitle = ''"
+            >
+                <el-form label-position="top" @submit.prevent="createPage">
+                    <el-form-item :label="$t('Page Title')">
+                        <el-input
+                            ref="newPageTitle"
+                            v-model="newPageTitle"
+                            :placeholder="$t('Enter Page Title')"
+                        />
+                    </el-form-item>
+                </el-form>
+
+                <template #footer>
+                    <el-button :disabled="pageCreating" @click="addPageVisible = false">
+                        {{ $t('Cancel') }}
+                    </el-button>
+
+                    <el-button
+                        type="primary"
+                        :loading="pageCreating"
+                        :disabled="pageCreating"
+                        @click="createPage"
+                    >
+                        {{ $t('Add') }}
+                    </el-button>
+                </template>
+            </el-dialog>
         </section>
 
         <section class="fe-settings-page">
@@ -233,6 +297,7 @@
             return {
                 generalLoading: true,
                 generalSaving: false,
+                pagesSaving: false,
                 generalError: '',
                 general: {
                     default_events_view: 'timeline',
@@ -246,8 +311,10 @@
                 },
                 pageOptions: [],
                 pagesSearching: false,
+                addPageVisible: false,
+                addPageKey: '',
+                newPageTitle: '',
                 pageCreating: false,
-                creatingKey: '',
                 emailLoading: true,
                 emailSaving: false,
                 emailError: '',
@@ -270,8 +337,8 @@
             },
             pageFields() {
                 return [
-                    { key: 'events_page_id', label: this.$t('Events page'), shortcode: 'fluent_events' },
-                    { key: 'event_page_id', label: this.$t('Event details page'), shortcode: 'fluent_event' },
+                    { key: 'events_page_id', label: this.$t('All Events Page'), shortcode: 'fluent_events', preview: true },
+                    { key: 'event_page_id', label: this.$t('Single Event Details Page'), shortcode: 'fluent_event', preview: false },
                 ];
             },
         },
@@ -307,12 +374,21 @@
                     },
                 });
             },
-            createPage(key) {
-                this.creatingKey = key;
+            openAddPage(key) {
+                this.addPageKey = key;
+                this.addPageVisible = true;
+            },
+            createPage() {
+                if (this.pageCreating) {
+                    return;
+                }
+
+                const key = this.addPageKey;
+
                 this.$requestServer({
                     method: 'post',
                     path: 'settings/create-page',
-                    payload: { key },
+                    payload: { key, title: this.newPageTitle },
                     loadingState: 'pageCreating',
                     errorState: null,
                     successNotify: true,
@@ -320,6 +396,7 @@
                     onSuccess: response => {
                         this.general[key] = response.settings[key];
                         this.selectedPages = response.pages;
+                        this.addPageVisible = false;
                     },
                 });
             },
@@ -329,16 +406,25 @@
                     .catch(() => this.$notifyError(this.$t('The shortcode could not be copied.')));
             },
             saveGeneral() {
+                this.saveGeneralFields(['default_events_view', 'disable_event_view_switch'], 'generalSaving');
+            },
+            savePages() {
+                this.saveGeneralFields(['events_page_id', 'event_page_id'], 'pagesSaving');
+            },
+            // Each box saves only its own fields and takes back only those, so the other box keeps unsaved edits.
+            saveGeneralFields(keys, loadingState) {
                 this.$requestServer({
                     method: 'post',
                     path: 'settings/general',
-                    payload: this.general,
-                    loadingState: 'generalSaving',
+                    payload: Object.fromEntries(keys.map(key => [key, this.general[key]])),
+                    loadingState,
                     errorState: null,
                     successNotify: true,
                     errorNotify: true,
                     onSuccess: response => {
-                        this.general = response.settings;
+                        keys.forEach(key => {
+                            this.general[key] = response.settings[key];
+                        });
                         this.selectedPages = response.pages;
                         window.fluentEventAdmin.general_settings = response.settings;
                     },

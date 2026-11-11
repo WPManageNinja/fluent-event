@@ -68,14 +68,20 @@ class SettingsController extends Controller
         ];
     }
 
-    // The "+" beside a page select: our page, untitled, holding its shortcode. The request picks which, never the content.
+    // The "+" beside a page select: a page of the admin's title holding its shortcode. The request never sets the content.
     public function createPage(Request $request)
     {
-        $data = ['key' => $request->getSafe('key', 'sanitize_key', '')];
+        $data = [
+            'key'   => $request->getSafe('key', 'sanitize_key', ''),
+            'title' => $request->getSafe('title', 'sanitize_text_field', ''),
+        ];
 
-        $this->validate($data, ['key' => 'required|in:' . implode(',', array_keys(EventPageService::PAGES))]);
+        $this->validate($data, [
+            'key'   => 'required|in:' . implode(',', array_keys(EventPageService::PAGES)),
+            'title' => 'required|string|max:255',
+        ]);
 
-        if (!EventPageService::createPage($data['key'])) {
+        if (!EventPageService::createPage($data['key'], $data['title'])) {
             return $this->sendError(['message' => __('The page could not be created.', 'fluent-event')], 422);
         }
 
@@ -110,12 +116,11 @@ class SettingsController extends Controller
         return $pages;
     }
 
-    // Our pages are untitled, so they read as their address.
     private function pageOption($post)
     {
         return [
             'id'    => (int) $post->ID,
-            'title' => $post->post_title !== '' ? $post->post_title : '/' . get_page_uri($post) . '/',
+            'title' => $post->post_title !== '' ? $post->post_title : __('(no title)', 'fluent-event'),
             'link'  => (string) get_permalink($post),
         ];
     }

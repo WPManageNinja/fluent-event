@@ -38,6 +38,20 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame($settings, $this->rest('GET', 'settings/general')['data']['settings']);
     }
 
+    public function test_each_settings_box_saves_only_its_own_fields()
+    {
+        Settings::update(Settings::GENERAL, ['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes']);
+
+        $this->assertSame(200, $this->rest('POST', 'settings/general', ['events_page_id' => 0, 'event_page_id' => 0])['status']);
+        $this->assertSame(['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'events_page_id' => 0, 'event_page_id' => 0], Settings::get());
+
+        $this->assertSame(200, $this->rest('POST', 'settings/general', ['default_events_view' => 'calendar', 'disable_event_view_switch' => 'no'])['status']);
+        $this->assertSame(0, Settings::get()['event_page_id']);
+
+        // Sent, a view field still has to be valid.
+        $this->assertSame(422, $this->rest('POST', 'settings/general', ['default_events_view' => ''])['status']);
+    }
+
     public function test_changing_the_event_details_page_drops_the_rewrite_rules()
     {
         update_option('rewrite_rules', ['^event/([^/]+)/?$' => 'index.php?page_id=1&fe_event=$matches[1]']);
@@ -93,13 +107,12 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('Bare', $pages['events_page_id']['title']);
         $this->assertFalse($pages['events_page_id']['has_shortcode']);
         $this->assertTrue($pages['event_page_id']['has_shortcode']);
-        // Our untitled page reads as its address.
-        $this->assertSame('/' . get_page_uri($this->pages['event_page_id']) . '/', $pages['event_page_id']['title']);
+        $this->assertSame('(no title)', $pages['event_page_id']['title']);
     }
 
-    public function test_create_page_makes_an_untitled_page_holding_the_shortcode_and_sets_it()
+    public function test_create_page_makes_a_titled_page_holding_the_shortcode_and_sets_it()
     {
-        $response = $this->rest('POST', 'settings/create-page', ['key' => 'event_page_id']);
+        $response = $this->rest('POST', 'settings/create-page', ['key' => 'event_page_id', 'title' => 'Our Event']);
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
         $id = Settings::get()['event_page_id'];
@@ -107,17 +120,18 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $page = get_post($id);
         $this->assertSame('page', $page->post_type);
         $this->assertSame('publish', $page->post_status);
-        $this->assertSame('', $page->post_title);
-        $this->assertStringContainsString('[fluent_event]', $page->post_content);
+        $this->assertSame('Our Event', $page->post_title);
+        $this->assertSame('<!-- wp:shortcode -->[fluent_event]<!-- /wp:shortcode -->', $page->post_content);
         $this->assertTrue($response['data']['pages']['event_page_id']['has_shortcode']);
     }
 
-    public function test_create_page_refuses_any_other_setting_and_editors()
+    public function test_create_page_refuses_any_other_setting_a_blank_title_and_editors()
     {
-        $this->assertSame(422, $this->rest('POST', 'settings/create-page', ['key' => 'default_events_view'])['status']);
+        $this->assertSame(422, $this->rest('POST', 'settings/create-page', ['key' => 'default_events_view', 'title' => 'Events'])['status']);
+        $this->assertSame(422, $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id', 'title' => ' '])['status']);
 
         $this->actAs($this->createUser('editor'));
-        $this->assertSame(403, $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id'])['status']);
+        $this->assertSame(403, $this->rest('POST', 'settings/create-page', ['key' => 'events_page_id', 'title' => 'Events'])['status']);
         $this->assertSame($this->pages['events_page_id'], Settings::get()['events_page_id']);
     }
 

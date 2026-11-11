@@ -23,9 +23,10 @@ class SettingsRequest extends BaseRequest
         'reminder_to_guest.times.*.unit'  => 'sanitize_key',
     ];
 
+    // `sometimes`: the view settings and the public pages save from separate boxes, each sending only its own fields.
     const GENERAL_RULES = [
-        'default_events_view'       => 'required|string|in:cards,timeline,calendar',
-        'disable_event_view_switch' => 'required|string|in:yes,no',
+        'default_events_view'       => 'sometimes|required|string|in:cards,timeline,calendar',
+        'disable_event_view_switch' => 'sometimes|required|string|in:yes,no',
         'events_page_id'            => 'nullable|integer',
         'event_page_id'             => 'nullable|integer',
     ];
