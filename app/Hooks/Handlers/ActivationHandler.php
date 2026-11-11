@@ -2,8 +2,6 @@
 
 namespace FluentEvent\App\Hooks\Handlers;
 
-use FluentEvent\App\Services\EventPageService;
-use FluentEvent\App\Services\Settings;
 use FluentEvent\Database\DBMigrator;
 use FluentEvent\Framework\Foundation\Application;
 
@@ -70,15 +68,6 @@ class ActivationHandler
     protected function activateSite()
     {
         DBMigrator::run();
-
-        // Our public pages, once: a page the admin still has (repointed or not) is left alone, and a deleted one comes back.
-        foreach (array_keys(EventPageService::PAGES) as $key) {
-            $page = get_post((int) Settings::get()[$key]);
-
-            if (!$page || $page->post_type !== 'page' || $page->post_status === 'trash') {
-                EventPageService::createPage($key);
-            }
-        }
 
         (new FrontEndHandler())->addRewriteRule();
         flush_rewrite_rules();
