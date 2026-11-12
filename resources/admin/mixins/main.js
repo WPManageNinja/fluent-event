@@ -227,7 +227,9 @@ export default {
                 return notify('warning', this.$t('Error'), e.message || this.$t('Request aborted.'));
             }
 
-            const message = e?.message || convertToText(e?.errors, ' ') || fallbackMessage;
+            // One message per field: an empty email fails both "required" and "email", which would read as two.
+            const firstPerField = errors => errors && Object.values(errors).map(rules => (rules && typeof rules === 'object' ? Object.values(rules)[0] : rules));
+            const message = e?.message || convertToText(firstPerField(e?.errors), ' ') || fallbackMessage;
 
             notify('error', this.$t('Error'), message || fallbackMessage);
         },
