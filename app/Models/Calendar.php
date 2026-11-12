@@ -51,6 +51,12 @@ class Calendar extends Model
         return min(255, max(1, (int) apply_filters('fluent_event/calendar_title_max_length', 100)));
     }
 
+    public function getTitleAttribute($title)
+    {
+        // Plain text, as Event's title: sanitize_text_field() stores a lone "<" as "&lt;". Every sink must escape it.
+        return strtr((string) $title, ['&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', '&#039;' => "'"]);
+    }
+
     public static function defaultMeta()
     {
         return [
