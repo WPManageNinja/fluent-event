@@ -56,13 +56,42 @@ use FluentEvent\App\Services\Icon;
             <div class="fe-navbar__link-wrapper" data-key="color_mode">
                 <button type="button"
                         class="fe-navbar__link fe-navbar__color-mode"
-                        aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'fluent-event' ); ?>"
-                        onclick="toggleColorMode()">
+                        aria-label="<?php echo esc_attr__( 'Color theme', 'fluent-event' ); ?>"
+                        title="<?php echo esc_attr__( 'Color theme', 'fluent-event' ); ?>"
+                        aria-haspopup="menu"
+                        aria-expanded="false"
+                        aria-controls="fe-navbar-color-mode-menu"
+                        onclick="toggleNavbarDropdown('fe-navbar-color-mode-menu')">
                     <span class="el-icon">
-                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--light"><?php echo Icon::MOON; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--dark"><?php echo Icon::SUN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--light"><?php echo Icon::SUN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--dark"><?php echo Icon::MOON; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        <span class="fe-navbar__mode-icon fe-navbar__mode-icon--system"><?php echo Icon::SYSTEM; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     </span>
                 </button>
+
+                <div class="fe-navbar__dropdown"
+                     id="fe-navbar-color-mode-menu"
+                     role="menu"
+                     aria-label="<?php echo esc_attr__( 'Color theme', 'fluent-event' ); ?>">
+                    <?php
+                    $fluentEventColorModes = [
+                        'light'  => [ __( 'Light', 'fluent-event' ), Icon::SUN ],
+                        'dark'   => [ __( 'Dark', 'fluent-event' ), Icon::MOON ],
+                        'system' => [ __( 'System', 'fluent-event' ), Icon::SYSTEM ],
+                    ];
+                    foreach ( $fluentEventColorModes as $fluentEventMode => $fluentEventModeItem ) : ?>
+                        <button type="button"
+                                class="fe-navbar__link fe-navbar__mode-item"
+                                role="menuitemradio"
+                                aria-checked="false"
+                                data-mode="<?php echo esc_attr( $fluentEventMode ); ?>"
+                                onclick="setColorMode('<?php echo esc_attr( $fluentEventMode ); ?>')">
+                            <span class="el-icon"><?php echo $fluentEventModeItem[1]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                            <span class="fe-navbar__link-text"><?php echo esc_html( $fluentEventModeItem[0] ); ?></span>
+                            <span class="fe-navbar__mode-check"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
             <?php foreach ( $rightMenuItems as $fluentEventRightMenuItem ) : ?>
