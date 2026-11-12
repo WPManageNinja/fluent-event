@@ -22,12 +22,13 @@ class EventReminderService
         $eventId = (int) $event->id;
         $startsAt = strtotime($event->start_at . ' UTC');
         $leadTimes = [];
+        $configured = in_array($event->status, Event::LIVE_STATUSES, true)
+            ? self::leadTimes(self::reminderFor($eventId))
+            : [];
 
-        if (in_array($event->status, Event::LIVE_STATUSES, true)) {
-            foreach (self::leadTimes(self::reminderFor($eventId)) as $leadTime) {
-                if ($startsAt - $leadTime > time()) {
-                    $leadTimes[] = $leadTime;
-                }
+        foreach ($configured as $leadTime) {
+            if ($startsAt - $leadTime > time()) {
+                $leadTimes[] = $leadTime;
             }
         }
 
@@ -56,6 +57,12 @@ class EventReminderService
         }
 
         sort($queued);
+
+        if (!$resend) {
+            // A send past its time but still pending waits on a late queue runner (WP-Cron needs traffic); dropping it loses it.
+            $leadTimes = array_values(array_unique(array_merge($leadTimes, array_intersect($queued, $configured))));
+            sort($leadTimes);
+        }
 
         if (!$resend && $queued === $leadTimes) {
             return;

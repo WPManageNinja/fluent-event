@@ -99,6 +99,33 @@ class ReminderEmailTest extends IntegrationTestCase
         $this->assertFalse($this->hasQueuedAction(self::SEND_HOOK, [(int) $event->id, self::DAY]));
     }
 
+    // WP-Cron needs traffic, so a send can still be pending after its time; saving the event must not drop it.
+    public function test_an_overdue_send_still_pending_survives_saving_the_event()
+    {
+        $threeHours = 3 * HOUR_IN_SECONDS;
+        Settings::update(Settings::EMAIL_NOTIFICATIONS, array_merge(
+            Settings::DEFAULTS[Settings::EMAIL_NOTIFICATIONS],
+            ['reminder_to_guest' => ['enabled' => true, 'times' => [['value' => 3, 'unit' => 'hours']]]]
+        ));
+        $event = $this->createEvent([
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('+2 hours')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+3 hours')),
+        ]);
+        Meta::query()->create([
+            'object_type' => Meta::OBJECT_TYPE_EVENT,
+            'object_id'   => $event->id,
+            'meta_key'    => EventReminderService::META_KEY . ':' . $threeHours,
+            'value'       => ['status' => 'scheduled', 'cursor' => 0],
+        ]);
+        as_schedule_single_action(time() - HOUR_IN_SECONDS, self::SEND_HOOK, [(int) $event->id, $threeHours], 'fluent-event');
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Typo fixed']));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertTrue($this->hasQueuedAction(self::SEND_HOOK, [(int) $event->id, $threeHours]));
+        $this->assertSame('scheduled', $this->reminderMeta($event->id, $threeHours)->value['status']);
+    }
+
     public function test_moving_the_start_requeues_the_reminder_for_the_new_time()
     {
         $event = $this->createEvent();
