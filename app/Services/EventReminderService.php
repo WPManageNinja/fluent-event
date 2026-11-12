@@ -144,15 +144,6 @@ class EventReminderService
             return;
         }
 
-        $subject = sprintf(
-            /* translators: %s is the event title */
-            __('Reminder: %s is coming up', 'fluent-event'),
-            $event->title
-        );
-
-        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
-        $intro = __('This is a friendly reminder that %1$s starts on %2$s (%3$s).', 'fluent-event');
-
         $sent = 0;
         $tick = microtime(true);
 
@@ -171,7 +162,8 @@ class EventReminderService
                 $reminderMeta->save();
 
                 if (is_email($guest->email)) {
-                    Mailer::send($guest->email, $subject, self::buildBody($event, $guest, $intro));
+                    $email = self::buildEmail('reminder', $event, $guest);
+                    Mailer::send($guest->email, $email['subject'], $email['body']);
                     $sent++;
                 }
 
@@ -209,16 +201,8 @@ class EventReminderService
 
         if (!$event || $event->status === 'draft') return;
 
-        $subject = sprintf(
-            /* translators: %s is the event title */
-            __('You are registered for %s', 'fluent-event'),
-            $event->title
-        );
-
-        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
-        $intro = __('You are registered for %1$s on %2$s (%3$s).', 'fluent-event');
-
-        Mailer::send($guest->email, $subject, self::buildBody($event, $guest, $intro));
+        $email = self::buildEmail('confirmation', $event, $guest);
+        Mailer::send($guest->email, $email['subject'], $email['body']);
 
         do_action('fluent_event/guest/confirmation_sent', $guest, $event);
     }
@@ -240,18 +224,35 @@ class EventReminderService
 
         if (!$event || $event->status === 'draft') return;
 
-        $subject = sprintf(
-            /* translators: %s is the event title */
-            __('Your registration for %s is cancelled', 'fluent-event'),
-            $event->title
-        );
-
-        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
-        $intro = __('Your registration for %1$s on %2$s (%3$s) has been cancelled.', 'fluent-event');
-
-        Mailer::send($guest->email, $subject, self::buildGreeting($event, $guest, $intro));
+        $email = self::buildEmail('cancellation', $event, $guest);
+        Mailer::send($guest->email, $email['subject'], $email['body']);
 
         do_action('fluent_event/guest/cancellation_sent', $guest, $event);
+    }
+
+    public static function buildEmail($type, $event, $guest)
+    {
+        if ($type === 'confirmation') {
+            /* translators: %s is the event title */
+            $subject = __('You are registered for %s', 'fluent-event');
+            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+            $body = self::buildBody($event, $guest, __('You are registered for %1$s on %2$s (%3$s).', 'fluent-event'));
+        } elseif ($type === 'cancellation') {
+            /* translators: %s is the event title */
+            $subject = __('Your registration for %s is cancelled', 'fluent-event');
+            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+            $body = self::buildGreeting($event, $guest, __('Your registration for %1$s on %2$s (%3$s) has been cancelled.', 'fluent-event'));
+        } else {
+            /* translators: %s is the event title */
+            $subject = __('Reminder: %s is coming up', 'fluent-event');
+            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+            $body = self::buildBody($event, $guest, __('This is a friendly reminder that %1$s starts on %2$s (%3$s).', 'fluent-event'));
+        }
+
+        return [
+            'subject' => sprintf($subject, $event->title),
+            'body'    => $body,
+        ];
     }
 
     // Sorted, so scheduleReminders() can compare it to what is queued; empty when the reminder is turned off.
