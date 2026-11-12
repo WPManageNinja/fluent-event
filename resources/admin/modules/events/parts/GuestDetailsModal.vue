@@ -36,7 +36,7 @@
                     <dt class="fe-guest-details__label">{{ $t('Source') }}</dt>
 
                     <dd class="fe-guest-details__value">
-                        {{ guest.source ? $titleCase(guest.source) : $t('Not set') }}
+                        {{ guest.source ? $guestSourceLabel(guest.source) : $t('Not set') }}
                     </dd>
                 </div>
 

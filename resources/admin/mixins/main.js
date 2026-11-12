@@ -134,6 +134,15 @@ export default {
         $entryTypeLabel(type) {
             return this.$entryTypes().find(item => item.value === type)?.label || type;
         },
+        $guestSourceLabel(source) {
+            const labels = {
+                manual: this.$t('Manual'),
+                wordpress_pages: this.$t('WordPress Pages'),
+                fluent_community: this.$t('FluentCommunity'),
+            };
+
+            return labels[source] || titleCase(source);
+        },
         $calendarStatusType(status) {
             return statusTypes.find(item => item.value === status)?.type || 'info';
         },

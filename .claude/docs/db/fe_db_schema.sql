@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_guests` (
   `payment_ref` VARCHAR(255) NULL DEFAULT NULL,
   `price` DECIMAL(10,2) NULL DEFAULT NULL,
   `paid_at` DATETIME NULL DEFAULT NULL,
-  `source` VARCHAR(64) NULL DEFAULT NULL COMMENT 'manual | portal | fluent_community',
+  `source` VARCHAR(64) NULL DEFAULT NULL COMMENT 'manual | wordpress_pages | fluent_community',
   `source_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'id in the originating system, scoped by source',
   `meta` LONGTEXT NULL DEFAULT NULL COMMENT 'form_response and other per-guest data',
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
