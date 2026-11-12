@@ -103,6 +103,7 @@
                                     :aria-label="$t('Calendar')"
                                     :placeholder="$t('Choose a calendar')"
                                     filterable
+                                    fit-input-width
                                     :loading="loadingCalendars"
                                     :loading-text="$t('Loading…')"
                                 >
@@ -124,7 +125,7 @@
                                                 class="fe-color-swatch fe-event-form__calendar-swatch"
                                                 :style="{ background: calendar.meta?.theme_color }"
                                             ></span>
-                                            {{ calendar.title }}
+                                            <span class="fe-event-form__calendar-name" :title="calendar.title">{{ calendar.title }}</span>
                                             <el-tag
                                                 v-if="calendar.status !== 'public'"
                                                 class="fe-event-form__calendar-status"
