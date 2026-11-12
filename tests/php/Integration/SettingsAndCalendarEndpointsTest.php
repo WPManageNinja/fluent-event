@@ -371,6 +371,34 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('#abcdef', Calendar::query()->find($calendar->id)->meta['theme_color']);
     }
 
+    // The tiles count what the Events tab lists: drafts and an event in progress included.
+    public function test_the_calendar_tiles_count_every_event_and_guest_in_it()
+    {
+        $calendar = $this->createCalendar();
+        $upcoming = $this->createEvent(['calendar_id' => $calendar->id]);
+        $draft = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'draft']);
+        $this->createEvent([
+            'calendar_id' => $calendar->id,
+            'start_at'    => gmdate('Y-m-d H:i:s', strtotime('-1 hour')),
+            'end_at'      => gmdate('Y-m-d H:i:s', strtotime('+1 hour')),
+        ]);
+        $this->createEvent([
+            'calendar_id' => $calendar->id,
+            'start_at'    => gmdate('Y-m-d H:i:s', strtotime('-3 days')),
+            'end_at'      => gmdate('Y-m-d H:i:s', strtotime('-3 days +1 hour')),
+        ]);
+        $this->createGuest($upcoming);
+        $this->createGuest($upcoming, ['status' => 'checked_in']);
+        $this->createGuest($draft, ['status' => 'not_going']);
+
+        $stats = $this->rest('GET', "calendars/{$calendar->id}")['data']['stats'];
+
+        $this->assertSame(4, $stats['total_events']['amount']);
+        $this->assertSame(3, $stats['upcoming_events']['amount']);
+        $this->assertSame(3, $stats['total_guests']['amount']);
+        $this->assertSame(1, $stats['checked_in_guests']['amount']);
+    }
+
     public function test_deleting_a_calendar_deletes_its_events_their_posts_and_guests()
     {
         $calendar = $this->createCalendar();
