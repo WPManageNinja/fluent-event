@@ -113,8 +113,32 @@ class AdminMenuHandler
     }
 
     /**
+     * Set the dark class in <head> before paint, so dark mode has no light flash.
+     *
+     * @param string $hookSuffix The current admin page.
+     *
+     * @return null
+     */
+    public function enqueueThemeClass($hookSuffix)
+    {
+        if ($hookSuffix !== 'toplevel_page_' . $this->slug) {
+            return;
+        }
+
+        $script = <<<'JS'
+(function(){var d=document.documentElement,t='';try{t=localStorage.getItem('fluent_theme_mode')||'';}catch(e){}
+var p=t.split(':'),m=(p[0]==='light'||p[0]==='dark')?p[0]:'system',r=p[1]||(m!=='system'?m:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+d.setAttribute('data-fe-theme',m);if(r==='dark'){d.classList.add('fluent_theme_dark','dark');}})();
+JS;
+
+        wp_register_script($this->slug . '_theme_class', false, [], FLUENT_EVENT_PLUGIN_VERSION, false);
+        wp_enqueue_script($this->slug . '_theme_class');
+        wp_add_inline_script($this->slug . '_theme_class', $script);
+    }
+
+    /**
      * Render the menu page
-     * 
+     *
      * @return null
      */
     public function render()
