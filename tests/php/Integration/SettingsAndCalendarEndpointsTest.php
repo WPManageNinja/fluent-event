@@ -198,6 +198,31 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $this->rest('POST', 'settings/email-notifications', $this->reminders([['value' => 4, 'unit' => 'minutes']]))['status']);
     }
 
+    // The time is not rounded or flipped to fit, and each mistake gets one message, not every rule it breaks.
+    public function test_a_bad_reminder_time_is_refused_with_one_message()
+    {
+        $messages = [
+            ''  => 'The guest reminder time is required.',
+            '1.5' => 'The reminder time must be a whole number.',
+            '-5'  => 'The reminder time must be at least 1.',
+        ];
+
+        foreach ([['', ''], [1.5, '1.5'], [-5, '-5']] as [$value, $key]) {
+            $response = $this->rest('POST', 'settings/email-notifications', $this->reminders([['value' => $value, 'unit' => 'hours']]));
+            $errors = wp_json_encode($response['data']);
+
+            $this->assertSame(422, $response['status'], "value {$key}");
+
+            foreach ($messages as $other => $message) {
+                (string) (string) $other === $key
+                    ? $this->assertStringContainsString($message, $errors)
+                    : $this->assertStringNotContainsString($message, $errors);
+            }
+
+            $this->assertStringNotContainsString('between 5 minutes and 30 days', $errors);
+        }
+    }
+
     public function test_more_than_five_reminders_are_rejected()
     {
         $times = array_fill(0, 6, ['value' => 1, 'unit' => 'hours']);
