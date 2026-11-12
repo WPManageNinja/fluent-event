@@ -2558,12 +2558,14 @@
         color: var(--fe-primary-text, #19283a);
     }
 
+    // "anywhere", not "break-word": only it lets the flex row shrink, so an unbroken venue wraps inside the card.
     &__row-title {
         margin: 0;
         font-size: var(--fe-text-base, 16px);
         font-weight: 500;
         line-height: 1.5;
         color: var(--fe-primary-text, #19283a);
+        overflow-wrap: anywhere;
     }
 
     &__row-link {
@@ -2595,6 +2597,7 @@
         font-size: var(--fe-text-sm, 14px);
         line-height: 1.4;
         color: var(--fe-secondary-text, #525866);
+        overflow-wrap: anywhere;
 
         &--muted {
             font-size: var(--fe-text-xs, 12px);

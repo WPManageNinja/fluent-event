@@ -65,6 +65,12 @@ class Event extends Model
         ];
     }
 
+    // Capped at 255, where the venue rule stood before the filter.
+    public static function venueMaxLength()
+    {
+        return min(255, max(1, (int) apply_filters('fluent_event/event_venue_max_length', 100)));
+    }
+
     public static function postStatusFor($status)
     {
         return self::POST_STATUSES[$status] ?? 'draft';

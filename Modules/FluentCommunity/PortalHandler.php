@@ -4,6 +4,7 @@ namespace FluentEvent\Modules\FluentCommunity;
 
 use FluentCommunity\App\Services\CustomSanitizer;
 use FluentCommunity\App\Services\Helper as FcomHelper;
+use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\Icon;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -160,6 +161,7 @@ class PortalHandler
             'disable_view_switch' => $settings['disable_event_view_switch'] === 'yes',
             'timezone'            => wp_timezone_string(),
             'start_of_week'       => (int) get_option('start_of_week', 0),
+            'venue_max_length'    => Event::venueMaxLength(),
             'i18n'                => $this->strings(),
         ];
 

@@ -52,7 +52,7 @@ class EventRequest extends BaseRequest
         'venue_type'         => 'required|string|in:' . Event::VENUE_TYPES,
         'cover_url'          => 'nullable|url',
         'online_meeting_url' => 'nullable|url',
-        'venue'              => 'nullable|string|max:255',
+        'venue'              => 'nullable|string',
         'address'            => 'nullable|string|max:500',
         'entry_type'         => 'required|string|in:' . Event::ENTRY_TYPES,
         'show_guest_count'   => 'nullable|string|in:yes,no',
@@ -61,6 +61,7 @@ class EventRequest extends BaseRequest
     public static function rules($data)
     {
         $rules = self::RULES;
+        $rules['venue'] = 'nullable|string|max:' . Event::venueMaxLength();
 
         if (Arr::get($data, 'venue_type') === 'online') {
             $rules['online_meeting_url'] = 'required|url';
@@ -106,7 +107,8 @@ class EventRequest extends BaseRequest
             'cover_url.url'               => __('Cover image must be a valid URL.', 'fluent-event'),
             'online_meeting_url.required' => __('An online event needs a meeting link.', 'fluent-event'),
             'online_meeting_url.url'      => __('Meeting link must be a valid http or https URL.', 'fluent-event'),
-            'venue.max'                   => __('Venue name cannot exceed 255 characters.', 'fluent-event'),
+            /* translators: %d: the longest venue name allowed, in characters */
+            'venue.max'                   => sprintf(__('Venue name cannot exceed %d characters.', 'fluent-event'), Event::venueMaxLength()),
             'address.max'                 => __('Address cannot exceed 500 characters.', 'fluent-event'),
             'entry_type.required'         => __('Registration type is required.', 'fluent-event'),
             'entry_type.in'               => __('Registration must be RSVP, open or none.', 'fluent-event'),
