@@ -187,6 +187,7 @@ class EventLandingPageTest extends IntegrationTestCase
     public function test_an_unlisted_event_opens_by_its_own_link_with_plain_permalinks()
     {
         $unlisted = $this->createEvent(['calendar_id' => $this->createCalendar()->id, 'status' => 'unlisted']);
+        $requestUri = $_SERVER['REQUEST_URI'];
         add_filter('pre_option_permalink_structure', '__return_empty_string');
         $GLOBALS['wp_rewrite']->init();
 
@@ -203,7 +204,7 @@ class EventLandingPageTest extends IntegrationTestCase
         } finally {
             remove_filter('pre_option_permalink_structure', '__return_empty_string');
             $GLOBALS['wp_rewrite']->init();
-            unset($_SERVER['REQUEST_URI']);
+            $_SERVER['REQUEST_URI'] = $requestUri;
         }
     }
 
