@@ -2,11 +2,13 @@
 
 namespace FluentEvent\Tests\Unit\Http;
 
+use Brain\Monkey\Functions;
 use FluentEvent\App\Http\Requests\CalendarRequest;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Http\Requests\ReportRequest;
 use FluentEvent\App\Http\Requests\SettingsRequest;
+use FluentEvent\App\Models\Event;
 use FluentEvent\Framework\Validator\ValidationException;
 use FluentEvent\Tests\TestCase;
 
@@ -60,6 +62,15 @@ class RequestRulesTest extends TestCase
     {
         $this->assertSame('required|url', EventRequest::rules(['venue_type' => 'online'])['online_meeting_url']);
         $this->assertSame('nullable|url', EventRequest::rules(['venue_type' => 'offline'])['online_meeting_url']);
+    }
+
+    // 100 by default; a site may raise it with a filter, never past 255.
+    public function test_a_venue_name_is_capped_at_its_filterable_limit()
+    {
+        $this->assertSame('nullable|string|max:100', EventRequest::rules([])['venue']);
+
+        Functions\when('apply_filters')->justReturn(1000);
+        $this->assertSame(255, Event::venueMaxLength());
     }
 
     public function test_formatting_an_event_drops_fields_the_request_does_not_own()

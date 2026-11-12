@@ -4,6 +4,7 @@ namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
 use FluentEvent\App\Models\Calendar;
+use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -326,6 +327,7 @@ class AdminMenuHandler
             'start_of_week' => (int) get_option('start_of_week', 0),
             'calendar_default_color' => Calendar::DEFAULT_THEME_COLOR,
             'calendar_title_max_length' => Calendar::titleMaxLength(),
+            'event_venue_max_length' => Event::venueMaxLength(),
             'general_settings' => Settings::get(),
             'email_notifications' => Settings::get(Settings::EMAIL_NOTIFICATIONS),
             'date_format'      => DateTimeHelper::convertToDayJsFormat(get_option('date_format')),

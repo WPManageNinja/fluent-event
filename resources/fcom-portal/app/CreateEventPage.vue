@@ -248,7 +248,7 @@
                             <el-input
                                 id="fe-create-event-venue"
                                 v-model="event.venue"
-                                maxlength="255"
+                                :maxlength="venueMaxLength"
                                 :placeholder="$t('e.g. Kingsway Hall')"
                             />
                         </el-form-item>
@@ -320,7 +320,7 @@ import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import WpEditor from '@/components/WpEditor.vue';
-import { communityApi, dateFormat, errorMessage, eventsApi, timeFormat, timezoneOffset } from '../utils';
+import { communityApi, dateFormat, errorMessage, eventsApi, portalVars, timeFormat, timezoneOffset } from '../utils';
 
 // Module scope, not data(): leaving the page and coming back reuses the first load instead of re-running WordPress's scripts.
 let wpEditorLoad = null;
@@ -374,6 +374,9 @@ export default {
         };
     },
     computed: {
+        venueMaxLength() {
+            return portalVars().venue_max_length;
+        },
         // The `event` field of the composer's POST feeds; FeedHandler builds the event from it.
         payload() {
             const event = this.event;

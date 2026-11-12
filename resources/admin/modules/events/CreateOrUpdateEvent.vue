@@ -292,6 +292,7 @@
                                     <el-input
                                         id="fe-event-venue"
                                         v-model="event.venue"
+                                        :maxlength="appVars.event_venue_max_length"
                                         :placeholder="$t('e.g. Kingsway Hall')"
                                     />
                                 </el-form-item>
