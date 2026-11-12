@@ -1,5 +1,6 @@
 <template>
-    <li class="fe-calendars__row">
+    <!-- A mouse shortcut to the title link, which stays the keyboard and screen-reader route. -->
+    <li class="fe-calendars__row" @click="openCalendar">
         <div class="fe-calendars__row-main">
             <div class="fe-calendars__row-name">
                 <span class="fe-calendars__swatch" :style="{ backgroundColor: $calendarColor(calendar) }" aria-hidden="true"></span>
@@ -14,7 +15,7 @@
             <span class="fe-calendars__row-slug" :title="calendar.slug">{{ calendar.slug }}</span>
         </div>
 
-        <div class="fe-calendars__row-stats">
+        <div class="fe-calendars__row-stats" data-row-click="off">
             <span class="fe-calendars__row-status">
                 <el-dropdown trigger="click" placement="bottom-start" @command="changeStatus">
                     <el-tag
@@ -54,7 +55,7 @@
             </span>
         </div>
 
-        <div class="fe-calendars__row-actions">
+        <div class="fe-calendars__row-actions" data-row-click="off">
             <el-button size="small" @click="goToEventCreate">
                 <el-icon><Plus /></el-icon>
                 <span>{{ $t('Add Event') }}</span>
@@ -111,6 +112,12 @@
             },
         },
         methods: {
+            // The title link navigates itself; the status, counts and buttons keep their own clicks.
+            openCalendar(event) {
+                if (event.target.closest('a, [data-row-click="off"]')) return;
+
+                this.$router.push({ name: 'calendar_detail', params: { id: this.calendar.id } });
+            },
             // The update endpoint validates the whole calendar, so the unchanged fields go along.
             changeStatus(status) {
                 if (status === this.calendar.status) return;

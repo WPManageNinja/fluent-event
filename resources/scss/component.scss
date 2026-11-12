@@ -623,6 +623,7 @@
         margin: 0;
         padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
         border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        cursor: pointer;
 
         &:last-child {
             border-bottom: 0;
@@ -630,6 +631,11 @@
 
         &:hover {
             background-color: var(--fe-hover-bg, #f9fafb);
+        }
+
+        // The status, counts and buttons don't open the calendar.
+        [data-row-click="off"] {
+            cursor: default;
         }
 
         @media screen and (max-width: 782px) {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, RouterLinkStub } from '@vue/test-utils';
 import main from '@/mixins/main';
 import CalendarRow from '@/modules/calendars/parts/CalendarRow.vue';
 
@@ -38,6 +38,36 @@ describe('CalendarRow status change', () => {
         wrapper.vm.changeStatus('public');
 
         expect(requestServer).not.toHaveBeenCalled();
+    });
+});
+
+describe('CalendarRow click', () => {
+    const mountRow = () => {
+        const push = vi.fn();
+        const wrapper = shallowMount(CalendarRow, {
+            props: { calendar: { id: 4, title: 'Meetups', slug: 'meetups', status: 'public', meta: {} } },
+            global: { mixins: [main], mocks: { $router: { push } }, stubs: { RouterLink: RouterLinkStub } }
+        });
+
+        return { wrapper, push };
+    };
+
+    it('opens the calendar from anywhere on the row outside its controls', async () => {
+        const { wrapper, push } = mountRow();
+
+        await wrapper.find('.fe-calendars__row-slug').trigger('click');
+
+        expect(push).toHaveBeenCalledWith({ name: 'calendar_detail', params: { id: 4 } });
+    });
+
+    it('leaves the title link, the status, the counts and the buttons to their own clicks', async () => {
+        const { wrapper, push } = mountRow();
+
+        for (const selector of ['a.fe-calendars__row-link', '.fe-calendars__row-status', '.fe-calendars__row-stat', '.fe-calendars__row-actions']) {
+            await wrapper.find(selector).trigger('click');
+        }
+
+        expect(push).not.toHaveBeenCalled();
     });
 });
 
