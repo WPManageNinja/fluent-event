@@ -87,8 +87,9 @@
                     class="fe-event-item"
                     :class="{ 'fe-event-item--card': view === 'cards' }"
                 >
-                    <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt=""/>
-                    <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true">
+                    <!-- A mouse shortcut to the title link, which stays the keyboard and screen-reader route. -->
+                    <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt="" @click="openEvent(event)"/>
+                    <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true" @click="openEvent(event)">
                         <el-icon><Calendar/></el-icon>
                     </span>
 

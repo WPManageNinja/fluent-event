@@ -245,6 +245,23 @@ describe('EventsPage', () => {
                 expect(lines[0].element.nextElementSibling.classList.contains('fe-event-item__head')).toBe(true);
             });
 
+            it('opens the event from its cover, with or without an image', async () => {
+                fetch.mockResolvedValueOnce(json(listResponse([
+                    { id: 5, title: 'Launch party', slug: 'launch-party', space_slug: 'design', cover_url: 'https://example.test/cover.jpg' },
+                    { id: 6, title: 'Town hall', slug: 'town-hall', space_slug: '', cover_url: '' },
+                ])));
+                const { wrapper, router } = await eventsPage();
+                const covers = wrapper.findAll('.fe-event-item__cover');
+
+                await covers[0].trigger('click');
+                await covers[1].trigger('click');
+
+                expect(router.push.mock.calls).toEqual([
+                    [{ name: 'fe_event_view', params: { space: 'design', event_slug: 'launch-party' } }],
+                    [{ name: 'fe_global_event_view', params: { event_slug: 'town-hall' } }],
+                ]);
+            });
+
             it("shows no space line inside a space's own Events tab", async () => {
                 fetch.mockResolvedValueOnce(json(listResponse(events)));
                 const { wrapper } = await eventsPage({ spaceSlug: 'design' });

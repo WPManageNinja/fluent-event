@@ -145,6 +145,10 @@
         max-height: 260px;
         border-radius: 7px 7px 0 0;
         object-fit: cover;
+
+        &.fe-event-card__cover--link {
+            cursor: pointer;
+        }
     }
 
     &__body {
@@ -1137,6 +1141,7 @@
         border-radius: 8px;
         background: var(--fcom-secondary-bg, #f7f8fa);
         object-fit: cover;
+        cursor: pointer;
     }
 
     &__cover--empty {
