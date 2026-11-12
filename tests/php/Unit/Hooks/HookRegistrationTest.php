@@ -73,26 +73,27 @@ class HookRegistrationTest extends TestCase
         }
     }
 
-    public function test_the_community_bridge_waits_for_fluentcommunity_to_load()
+    public function test_the_community_bridge_waits_for_fluentcommunity_to_enable_it()
     {
         $recorder = $this->load('actions.php');
 
         $this->assertSame(
             [[Bootstrap::class, 'register']],
-            array_column($recorder->on('fluent_community/portal_loaded'), 'callback')
+            array_column($recorder->on('fluent_community/fluent_event/init'), 'callback')
         );
-        $this->assertEmpty($recorder->on('fluent_community/feed/before_deleted'), 'Feed hooks registered before fcom loaded');
+        $this->assertEmpty($recorder->on('fluent_community/portal_loaded'), 'The bridge must not load on fcom alone');
+        $this->assertEmpty($recorder->on('fluent_community/feed/before_deleted'), 'Feed hooks registered before fcom enabled FluentEvent');
     }
 
-    public function test_the_community_bridge_registers_at_once_when_fluentcommunity_already_loaded()
+    public function test_the_community_bridge_registers_at_once_when_fluentcommunity_already_enabled_it()
     {
         Functions\when('did_action')->alias(function ($hook) {
-            return $hook === 'fluent_community/portal_loaded' ? 1 : 0;
+            return $hook === 'fluent_community/fluent_event/init' ? 1 : 0;
         });
 
         $recorder = $this->load('actions.php');
 
-        $this->assertEmpty($recorder->on('fluent_community/portal_loaded'));
+        $this->assertEmpty($recorder->on('fluent_community/fluent_event/init'));
         $this->assertNotEmpty($recorder->on('fluent_community/feed/before_deleted'));
     }
 

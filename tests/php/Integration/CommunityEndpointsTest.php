@@ -107,6 +107,24 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->actAs(0);
     }
 
+    public function test_the_community_routes_refuse_while_fluentcommunity_has_fluentevent_switched_off()
+    {
+        [$event] = $this->communityEvent();
+        $fired = $GLOBALS['wp_actions']['fluent_community/fluent_event/init'] ?? 0;
+        unset($GLOBALS['wp_actions']['fluent_community/fluent_event/init']);
+
+        try {
+            $list = $this->rest('GET', 'community/events');
+            $rsvp = $this->rsvp($event, 'going');
+        } finally {
+            $GLOBALS['wp_actions']['fluent_community/fluent_event/init'] = $fired;
+        }
+
+        $this->assertSame(403, $list['status'], wp_json_encode($list['data']));
+        $this->assertSame(403, $rsvp['status'], wp_json_encode($rsvp['data']));
+        $this->assertSame(0, Guest::query()->where('event_id', $event->id)->count());
+    }
+
     public function test_a_member_saying_going_becomes_one_guest_row()
     {
         [$event, $feed] = $this->communityEvent();

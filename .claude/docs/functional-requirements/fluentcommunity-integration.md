@@ -16,7 +16,7 @@ This is the record of intended behaviour. Keep it in step with `Modules/FluentCo
 | Event title, description, dates, venue, cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
 | Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id`; the one Community calendar for community-wide events has `fcom_global = true` ([details](fcom-community-wide-events.md)) |
 | Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (the events list joins on it) |
-| Guests | FluentEvent | `fe_guests` (`source = 'community'`, `source_id` = post id) |
+| Guests | FluentEvent | `fe_guests` (`source = 'fluent_community'`, `source_id` = post id) |
 
 Post and event titles/descriptions are separate. Editing the post uses fcom's normal edit modal.
 The event card shows an **Edit event** link to site administrators, which opens the FluentEvent
@@ -24,7 +24,13 @@ edit page.
 
 ## Bridge (`Modules/FluentCommunity/`)
 
-Registered on `fluent_community/portal_loaded`, so it only runs while fcom is active.
+Opt-in. fcom lists FluentEvent under **Settings → Features → Add-ons**; its **View Settings**
+drawer holds one **Enable FluentEvent** checkbox (fcom option `_fluent_event_settings`, off by
+default). Only while it is on does fcom fire `fluent_community/fluent_event/init`, and the bridge
+registers on that action. While it is off, FluentEvent adds nothing to fcom: no menu item, space
+tab, composer option, portal pages or assets, and `CommunityPolicy` refuses every `community/*`
+route. Event posts already in a feed stay as plain posts with no event card. The FluentEvent admin
+keeps listing community calendars and events; turning the switch back on restores everything.
 
 - **PortalHandler**
   - An **Events** item in fcom's Menu Settings, off until an admin enables it; the mobile menu

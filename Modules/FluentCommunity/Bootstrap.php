@@ -3,8 +3,8 @@
 namespace FluentEvent\Modules\FluentCommunity;
 
 /**
- * Hooked to `fluent_community/portal_loaded`, so it only runs while
- * FluentCommunity is active; without it FluentEvent stays standalone.
+ * Hooked to `fluent_community/fluent_event/init`, which fcom fires only while FluentEvent is
+ * enabled in its Features; otherwise FluentEvent stays standalone.
  */
 class Bootstrap
 {
