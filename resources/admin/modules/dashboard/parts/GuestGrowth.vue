@@ -6,6 +6,8 @@
             <el-date-picker
                 v-model="range"
                 type="daterange"
+                class="fe-dashboard__range"
+                :class="{ 'fe-dashboard__range--wide': wideDates }"
                 :format="dateFormat"
                 value-format="YYYY-MM-DD"
                 :clearable="false"
@@ -85,6 +87,10 @@
             },
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
+            },
+            // The site's format at its longest month; past 12 characters it outgrows the narrow picker.
+            wideDates() {
+                return dayjs('2026-09-28').format(this.dateFormat).length > 12;
             },
         },
         methods: {
