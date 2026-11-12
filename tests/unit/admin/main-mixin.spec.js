@@ -274,3 +274,17 @@ describe('$requestServer', () => {
         expect(vm.error).toContain('No query results');
     });
 });
+
+describe('$handleError', () => {
+    it('shows one validation message per field', () => {
+        component().$handleError(new ResponseProxyItr({
+            status: 422,
+            responseJSON: {
+                name: { required: 'Name is required.' },
+                email: { required: 'Email is required.', email: 'Please provide a valid email address.' },
+            },
+        }));
+
+        expect(lastNotification().message).toBe('Name is required. Email is required.');
+    });
+});
