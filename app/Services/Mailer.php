@@ -20,12 +20,15 @@ class Mailer
             $headers[] = 'Reply-To: ' . $replyTo;
         }
 
-        $body = (string) App::make('view')->make('emails.template', [
-            'email_body'   => $body,
-            'email_footer' => $settings['email_footer'],
-        ]);
+        return wp_mail($to, self::stripLineBreaks($subject), self::render($body), $headers);
+    }
 
-        return wp_mail($to, self::stripLineBreaks($subject), $body, $headers);
+    public static function render($body)
+    {
+        return (string) App::make('view')->make('emails.template', [
+            'email_body'   => $body,
+            'email_footer' => Settings::get(Settings::EMAIL)['email_footer'],
+        ]);
     }
 
     protected static function formatAddress($name, $email)
