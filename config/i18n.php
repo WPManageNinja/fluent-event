@@ -384,6 +384,7 @@ return [
             'View %s' => __('View %s', 'fluent-event'),
             'View actions' => __('View actions', 'fluent-event'),
             'View Full Details' => __('View Full Details', 'fluent-event'),
+            'View in Community' => __('View in Community', 'fluent-event'),
             'Visibility' => __('Visibility', 'fluent-event'),
             'Vivid Blue' => __('Vivid Blue', 'fluent-event'),
             'vs previous period' => __('vs previous period', 'fluent-event'),

@@ -188,6 +188,23 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertArrayNotHasKey('space_url', $this->rest('GET', "calendars/{$calendarId}")['data']);
     }
 
+    public function test_the_calendars_list_links_a_space_calendar_to_its_space()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        do_action('fluent_community/feed/just_created_type_event', $this->savePost($this->validate(['space_id' => $spaceId], $request)), $request);
+        $spaceCalendar = CalendarService::findBySpace($spaceId);
+        $siteCalendar = $this->createCalendar();
+
+        $response = $this->rest('GET', 'calendars');
+        $this->assertSame(200, $response['status']);
+        $calendars = array_column($response['data']['calendars'], null, 'id');
+
+        $this->assertSame(FcomSpace::query()->find($spaceId)->getPermalink(), $calendars[$spaceCalendar->id]['space_url']);
+        $this->assertArrayNotHasKey('space_url', $calendars[$siteCalendar->id]);
+    }
+
+
     public function test_the_events_list_links_a_community_event_to_its_post()
     {
         $request = $this->postRequest(['title' => 'Feed link probe']);
