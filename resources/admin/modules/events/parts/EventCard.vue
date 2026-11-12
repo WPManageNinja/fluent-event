@@ -17,7 +17,7 @@
                     :style="{ '--fe-calendar-hue': calendarColor }"
                 >
                     <span class="fe-color-swatch fe-event-card__swatch"></span>
-                    {{ event.calendar.title }}
+                    <span class="fe-event-card__badge-label" :title="event.calendar.title">{{ event.calendar.title }}</span>
                 </span>
             </div>
 

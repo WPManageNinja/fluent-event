@@ -2278,9 +2278,18 @@
         // The calendar badge is the same box, tinted with the calendar's own
         // hue. color-mix is progressive: without it the neutral badge stands.
         &.fe-event-card__badge--calendar {
+            max-width: 100%;
             color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 72%, var(--fe-primary-text, #19283a));
             background-color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 12%, transparent);
         }
+    }
+
+    // One line ending in "…": the badge's height is pinned, so a long calendar name cannot wrap.
+    &__badge-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     &__title {
