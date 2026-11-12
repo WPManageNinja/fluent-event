@@ -17,7 +17,6 @@
                 id="fe-delete-confirm"
                 v-model="typedTitle"
                 class="fe-danger-zone__input"
-                :placeholder="event.title"
                 :disabled="deleting"
             />
 
