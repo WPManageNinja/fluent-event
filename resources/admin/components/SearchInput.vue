@@ -2,6 +2,7 @@
     <el-input
         v-model="term"
         :placeholder="placeholder"
+        :aria-label="placeholder"
         :clearable="clearable"
         @clear="commit"
         @keyup.enter="onEnter"
