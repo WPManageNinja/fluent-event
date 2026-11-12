@@ -1003,8 +1003,10 @@
         gap: var(--fe-space-2, 8px);
         flex-wrap: wrap;
 
+        // A long unbroken title wraps instead of running under the actions.
         .fe-page__title {
             margin: 0;
+            overflow-wrap: anywhere;
         }
     }
 
@@ -1019,6 +1021,7 @@
 
     &__slug {
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        overflow-wrap: anywhere;
     }
 
     &__actions {
