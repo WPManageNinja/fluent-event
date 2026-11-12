@@ -32,8 +32,6 @@ class FrontEndHandler
     // The event its own address opened, found before the theme prints so a hidden one can answer 404.
     protected static $pageEvent;
 
-    protected static $enqueued = false;
-
     public function register()
     {
         add_shortcode('fluent_events', [$this, 'renderEvents']);
@@ -267,11 +265,10 @@ class FrontEndHandler
     // In the head where the page holds our shortcode; from the render otherwise (a widget, a builder), which prints in the footer.
     protected function enqueueAssets()
     {
-        if (static::$enqueued) {
+        // The queue, not a flag: WordPress dequeues what a block enqueued when it renders empty (an event's missing cover).
+        if (wp_style_is(self::ASSET_HANDLE, 'enqueued')) {
             return;
         }
-
-        static::$enqueued = true;
 
         Enqueue::style(self::ASSET_HANDLE, 'portal/portal.scss', [], FLUENT_EVENT_PLUGIN_VERSION);
         Enqueue::script(self::ASSET_HANDLE, 'portal/portal.js', [], FLUENT_EVENT_PLUGIN_VERSION, true);

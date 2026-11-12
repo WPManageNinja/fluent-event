@@ -128,4 +128,31 @@ class BlockRenderTest extends IntegrationTestCase
         $this->assertStringContainsString('Zebra Parts Club', $html);
         $this->assertStringContainsString('data-fe-card', $html);
     }
+
+    // WordPress dequeues what a block enqueued when it renders empty, as the cover part does for an event with no cover.
+    public function test_the_event_page_keeps_its_styles_when_its_first_part_renders_empty()
+    {
+        $event = $this->createEvent(['title' => 'Zebra coverless night']);
+        wp_dequeue_style(FrontEndHandler::ASSET_HANDLE);
+        wp_dequeue_script(FrontEndHandler::ASSET_HANDLE);
+
+        $page = new class extends FrontEndHandler {
+            public function open($event)
+            {
+                static::$pageEvent = $event;
+            }
+        };
+
+        $page->open(Event::query()->with(['post', 'calendar'])->find($event->id));
+
+        try {
+            $html = do_blocks('<!-- wp:fluent-event/event-cover /--><!-- wp:fluent-event/event-title /-->');
+        } finally {
+            $page->open(null);
+        }
+
+        $this->assertStringNotContainsString('wp-block-fluent-event-event-cover', $html, 'No cover, so the cover part is empty.');
+        $this->assertTrue(wp_style_is(FrontEndHandler::ASSET_HANDLE, 'enqueued'));
+        $this->assertTrue(wp_script_is(FrontEndHandler::ASSET_HANDLE, 'enqueued'));
+    }
 }
