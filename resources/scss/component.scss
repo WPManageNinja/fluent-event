@@ -1053,6 +1053,19 @@
         gap: var(--fe-space-2, 8px);
     }
 
+    // The dropdown is as wide as the field, so a long calendar name ends in "…" and keeps its status tag.
+    &__calendar-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__calendar-swatch,
+    &__calendar-status {
+        flex-shrink: 0;
+    }
+
     &__calendar-status {
         margin-left: auto;
     }
