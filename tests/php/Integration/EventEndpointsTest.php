@@ -446,4 +446,36 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('2030-10-20 03:00:00', $data['start_at_site']);
         $this->assertSame('2030-10-20 04:00:00', $data['end_at_site']);
     }
+
+    public function test_events_starting_at_the_same_time_each_appear_on_exactly_one_page()
+    {
+        $calendarId = $this->createCalendar()->id;
+        $ids = [];
+
+        for ($i = 0; $i < 12; $i++) {
+            $ids[] = (int) $this->createEvent(['calendar_id' => $calendarId, 'start_at' => '2030-05-01 09:00:00', 'end_at' => '2030-05-01 10:00:00'])->id;
+        }
+
+        foreach (['upcoming', 'past', ''] as $period) {
+            if ($period === 'past') {
+                Event::query()->whereIn('id', $ids)->update(['start_at' => '2020-05-01 09:00:00', 'end_at' => '2020-05-01 10:00:00']);
+            }
+
+            $expected = $period === 'past' ? array_reverse($ids) : $ids;
+
+            // Unfiltered, as the list first loads: MySQL reorders equal keys only for some LIMIT/OFFSET pairs.
+            foreach ([3, 5, 7] as $perPage) {
+                $listed = [];
+                $pages = 1;
+
+                for ($page = 1; $page <= $pages; $page++) {
+                    $events = $this->rest('GET', 'events', ['period' => $period, 'per_page' => $perPage, 'page' => $page])['data']['events'];
+                    $pages = (int) ceil($events['total'] / $perPage);
+                    $listed = array_merge($listed, array_map('intval', array_column($events['data'], 'id')));
+                }
+
+                $this->assertSame($expected, array_values(array_intersect($listed, $ids)), "period '{$period}', {$perPage} per page");
+            }
+        }
+    }
 }

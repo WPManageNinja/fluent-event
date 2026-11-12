@@ -169,21 +169,22 @@ class Event extends Model
         return $query;
     }
 
+    // Each order ends on id: MySQL orders rows with equal keys differently per LIMIT, so pages would repeat or skip events.
     public function scopeByPeriod($query, $period)
     {
         $now = gmdate(DateTimeHelper::FORMAT);
 
         if ($period === 'upcoming') {
-            return $query->where('end_at', '>=', $now)->orderBy('start_at', 'ASC');
+            return $query->where('end_at', '>=', $now)->orderBy('start_at', 'ASC')->orderBy('id', 'ASC');
         }
 
         if ($period === 'past') {
-            return $query->where('end_at', '<', $now)->orderBy('start_at', 'DESC');
+            return $query->where('end_at', '<', $now)->orderBy('start_at', 'DESC')->orderBy('id', 'DESC');
         }
 
         return $query->orderByRaw(
             '(end_at < ?) ASC, ABS(TIMESTAMPDIFF(SECOND, ?, start_at)) ASC',
             [$now, $now]
-        );
+        )->orderBy('id', 'ASC');
     }
 }
