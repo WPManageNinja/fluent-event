@@ -19,18 +19,30 @@ class PortalHandler
 {
     const MENU_SLUG = 'fluent_events';
 
+    protected $routeSlug;
+
     protected $routePaths;
 
     // fcom owns the slug (its FluentEvent settings); the filter can still move any single route.
     public function __construct($routeSlug = 'events')
     {
-        $this->routePaths = apply_filters('fluent_event/community/route_paths', [
-            'events'           => $routeSlug,
-            'create_event'     => $routeSlug . '/create',
-            'event_view'       => $routeSlug . '/:event_slug',
-            'space_events'     => $routeSlug,
-            'space_event_view' => $routeSlug . '/:event_slug',
-        ], $routeSlug);
+        $this->routeSlug = $routeSlug;
+    }
+
+    // Read on first use, not at construction (plugins_loaded): FluentSnippets and themes add filters at setup_theme.
+    protected function routePaths()
+    {
+        if ($this->routePaths === null) {
+            $this->routePaths = apply_filters('fluent_event/community/route_paths', [
+                'events'           => $this->routeSlug,
+                'create_event'     => $this->routeSlug . '/create',
+                'event_view'       => $this->routeSlug . '/:event_slug',
+                'space_events'     => $this->routeSlug,
+                'space_event_view' => $this->routeSlug . '/:event_slug',
+            ], $this->routeSlug);
+        }
+
+        return $this->routePaths;
     }
 
     public function register()
@@ -76,7 +88,7 @@ class PortalHandler
             'is_system'    => 'yes',
             'is_locked'    => 'no',
             'enabled'      => 'no',
-            'permalink'    => FcomHelper::baseUrl($this->routePaths['events']),
+            'permalink'    => FcomHelper::baseUrl($this->routePaths()['events']),
             'link_classes' => 'fcom_fe_events route_url',
             'shape_svg'    => Icon::CALENDAR,
         ];
@@ -111,7 +123,7 @@ class PortalHandler
     public function addRoutePath($paths)
     {
         foreach (['events', 'create_event', 'event_view'] as $key) {
-            $paths[] = strtok($this->routePaths[$key], '/');
+            $paths[] = strtok($this->routePaths()[$key], '/');
         }
 
         return array_values(array_unique($paths));
@@ -177,7 +189,7 @@ class PortalHandler
             'timezone'            => wp_timezone_string(),
             'start_of_week'       => (int) get_option('start_of_week', 0),
             'venue_max_length'    => Event::venueMaxLength(),
-            'route_paths'         => $this->routePaths,
+            'route_paths'         => $this->routePaths(),
             'i18n'                => $this->strings(),
         ];
 
