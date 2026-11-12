@@ -125,7 +125,7 @@ class GuestController extends Controller
         // Sent now, not queued: the row is gone, so a background job couldn't load it.
         if (
             $request->getSafe('send_email', 'rest_sanitize_boolean')
-            && $guest->status === 'going'
+            && in_array($guest->status, Event::SEAT_STATUSES, true)
         ) {
             EventReminderService::sendCancellation($guest);
         }
