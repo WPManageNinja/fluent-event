@@ -243,6 +243,12 @@
                 });
             },
             selectColor(color) {
+                // The picker emits an empty value for text it can't parse; taking it added a blank swatch and saved the default.
+                if (!/^#[0-9a-f]{6}$/i.test(color || '')) {
+                    this.$notifyError(this.$t('Theme color must be a hex value like #0099ff.'));
+                    return;
+                }
+
                 if (!this.colorOptions.some(option => option.value === color)) {
                     this.customColors.push(color);
                 }
