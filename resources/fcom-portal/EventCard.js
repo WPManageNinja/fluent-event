@@ -82,9 +82,20 @@ export default {
 
             return this.portalUrl + (space ? `space/${space}/` : '') + `event/${slug}`;
         },
+        canOpenEvent() {
+            return this.hasEventPage || (!!this.eventRoute && !!this.portalUrl);
+        },
     },
     methods: {
         t,
+        // Where the title link goes.
+        openEvent() {
+            if (this.hasEventPage) {
+                this.$router.push(this.eventRoute);
+            } else if (this.canOpenEvent) {
+                window.location.href = this.portalEventUrl;
+            }
+        },
         apply(response) {
             this.event = response.event;
         },
@@ -118,7 +129,15 @@ export default {
             </div>
             <p v-else-if="!event" class="fe-event-card__unavailable">{{ t('This event is not available.') }}</p>
             <template v-else>
-                <img v-if="event.cover_url" class="fe-event-card__cover" :src="event.cover_url" alt="" />
+                <!-- A mouse shortcut to the title link, which stays the keyboard and screen-reader route. -->
+                <img
+                    v-if="event.cover_url"
+                    class="fe-event-card__cover"
+                    :class="{ 'fe-event-card__cover--link': canOpenEvent }"
+                    :src="event.cover_url"
+                    alt=""
+                    @click="openEvent"
+                />
                 <div class="fe-event-card__body">
                     <div class="fe-date-chip" aria-hidden="true">
                         <span class="fe-date-chip__month">{{ month }}</span>

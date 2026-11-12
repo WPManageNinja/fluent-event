@@ -44,6 +44,34 @@ describe('EventCard', () => {
         expect(link.props('to')).toEqual({ name: 'fe_global_event_view', params: { event_slug: 'community-meetup' } });
     });
 
+    it("opens the event's page from the cover, as the title link does", async () => {
+        const push = vi.fn();
+        const wrapper = mount(EventCard, {
+            props: { feed: { slug: 'meetup-post', space: { slug: 'design' }, fluent_event: meetup({ cover_url: 'https://example.test/cover.jpg' }) } },
+            global: { mocks: { $router: { hasRoute: () => true, push } } },
+        });
+        const cover = wrapper.find('.fe-event-card__cover');
+
+        await cover.trigger('click');
+
+        expect(cover.classes()).toContain('fe-event-card__cover--link');
+        expect(push).toHaveBeenCalledWith({ name: 'fe_event_view', params: { space: 'design', event_slug: 'community-meetup' } });
+    });
+
+    it('leaves the cover inert when the title has nowhere to go', async () => {
+        const push = vi.fn();
+        const wrapper = mount(EventCard, {
+            props: { feed: { space_id: 4, fluent_event: meetup({ cover_url: 'https://example.test/cover.jpg' }) } },
+            global: { mocks: { $router: { hasRoute: () => true, push } } },
+        });
+        const cover = wrapper.find('.fe-event-card__cover');
+
+        await cover.trigger('click');
+
+        expect(cover.classes()).not.toContain('fe-event-card__cover--link');
+        expect(push).not.toHaveBeenCalled();
+    });
+
     it('shows a plain title when a space post arrives without its space', () => {
         const wrapper = card({ space_id: 4, fluent_event: meetup() });
 
