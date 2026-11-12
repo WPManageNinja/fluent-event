@@ -27,7 +27,7 @@ class SettingsController extends Controller
     {
         $data = SettingsRequest::sanitize($request->all());
 
-        $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());
+        $this->validate($data, SettingsRequest::generalRules($data), SettingsRequest::messages());
 
         foreach (array_keys(EventPageService::PAGES) as $key) {
             $id = (int) ($data[$key] ?? 0);
@@ -154,7 +154,7 @@ class SettingsController extends Controller
     {
         $data = SettingsRequest::sanitize($request->all());
 
-        $this->validate($data, SettingsRequest::emailRules(), SettingsRequest::messages());
+        $this->validate($data, SettingsRequest::emailRules($data), SettingsRequest::messages());
 
         $settings = Settings::update(Settings::EMAIL, $data);
 

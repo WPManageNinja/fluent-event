@@ -78,7 +78,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $response = $this->rest('POST', 'settings/general', ['event_slug' => '!!!']);
 
         $this->assertSame(422, $response['status']);
-        $this->assertStringContainsString('Enter an event slug.', wp_json_encode($response['data']), 'The error is ours, translatable.');
+        $this->assertSame(['required' => 'Enter an event slug.'], $response['data']['event_slug'], 'One error, ours and translatable.');
         $this->assertSame('event', Settings::get()['event_slug']);
     }
 
@@ -168,6 +168,14 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
     public function test_a_bad_from_address_is_rejected()
     {
         $this->assertSame(422, $this->rest('POST', 'settings/email', ['from_name' => 'Events', 'from_email' => 'not-an-email'])['status']);
+    }
+
+    public function test_an_empty_from_address_gets_one_error()
+    {
+        $response = $this->rest('POST', 'settings/email', ['from_name' => 'Events', 'from_email' => '']);
+
+        $this->assertSame(422, $response['status']);
+        $this->assertSame(['required' => 'The from email address is required.'], $response['data']['from_email']);
     }
 
     public function test_email_settings_are_sanitised_before_they_are_stored()

@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Requests;
 
 use FluentEvent\App\Services\Settings;
+use FluentEvent\Framework\Support\Arr;
 
 class SettingsRequest extends BaseRequest
 {
@@ -28,12 +29,10 @@ class SettingsRequest extends BaseRequest
         'default_events_view'       => 'sometimes|required|string|in:cards,timeline,calendar',
         'disable_event_view_switch' => 'sometimes|required|string|in:yes,no',
         'events_page_id'            => 'nullable|integer',
-        'event_slug'                => 'sometimes|required|alphadash|max:100',
     ];
 
     const EMAIL_RULES = [
         'from_name'      => 'required|string',
-        'from_email'     => 'required|email',
         'reply_to_name'  => 'nullable|string',
         'reply_to_email' => 'nullable|email',
         'email_footer'   => 'nullable|string',
@@ -49,14 +48,19 @@ class SettingsRequest extends BaseRequest
         'reminder_to_guest.times.*.unit'  => 'required|string|in:minutes,hours,days',
     ];
 
-    public static function generalRules()
+    // An empty field gets `required` alone: the framework reports every failing rule, so it would also fail the format rule.
+    public static function generalRules($data)
     {
-        return self::GENERAL_RULES;
+        return self::GENERAL_RULES + [
+            'event_slug' => Arr::get($data, 'event_slug') ? 'sometimes|alphadash|max:100' : 'sometimes|required',
+        ];
     }
 
-    public static function emailRules()
+    public static function emailRules($data)
     {
-        return self::EMAIL_RULES;
+        return self::EMAIL_RULES + [
+            'from_email' => Arr::get($data, 'from_email') ? 'email' : 'required',
+        ];
     }
 
     public static function emailNotificationRules()
