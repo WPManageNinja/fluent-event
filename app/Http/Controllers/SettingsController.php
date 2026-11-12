@@ -175,11 +175,12 @@ class SettingsController extends Controller
 
     public function updateEmailNotifications(Request $request)
     {
-        $data = SettingsRequest::sanitize($request->all());
+        $data = $request->all();
 
+        // Before sanitizing: absint() would turn a 1.5 or -5 reminder time into 1 or 5 and save it without a word.
         $this->validate($data, SettingsRequest::emailNotificationRules(), SettingsRequest::messages());
 
-        $settings = Settings::update(Settings::EMAIL_NOTIFICATIONS, $data);
+        $settings = Settings::update(Settings::EMAIL_NOTIFICATIONS, SettingsRequest::sanitize($data));
 
         do_action('fluent_event/settings/email_notifications_updated', $settings);
 

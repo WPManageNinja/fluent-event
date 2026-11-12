@@ -44,7 +44,6 @@ class SettingsRequest extends BaseRequest
         'reminder_to_guest'               => 'required|array',
         'reminder_to_guest.enabled'       => 'required',
         'reminder_to_guest.times'         => 'required|array|max:5',
-        'reminder_to_guest.times.*.value' => 'required|integer|min:1',
         'reminder_to_guest.times.*.unit'  => 'required|string|in:minutes,hours,days',
     ];
 
@@ -66,7 +65,22 @@ class SettingsRequest extends BaseRequest
     public static function emailNotificationRules()
     {
         return array_merge(self::EMAIL_NOTIFICATION_RULES, [
+            // The time is checked here, one step at a time: as separate rules, an empty one failed three of them at once.
             'reminder_to_guest.times.*' => [function ($attribute, $reminder) {
+                $value = Arr::get((array) $reminder, 'value');
+
+                if ($value === null || $value === '') {
+                    return __('The guest reminder time is required.', 'fluent-event');
+                }
+
+                if (filter_var($value, FILTER_VALIDATE_INT) === false) {
+                    return __('The reminder time must be a whole number.', 'fluent-event');
+                }
+
+                if ($value < 1) {
+                    return __('The reminder time must be at least 1.', 'fluent-event');
+                }
+
                 $seconds = Settings::reminderInSeconds($reminder);
 
                 if ($seconds && ($seconds < 5 * MINUTE_IN_SECONDS || $seconds > Settings::MAX_REMINDER_TIME)) {
@@ -88,9 +102,6 @@ class SettingsRequest extends BaseRequest
             'reminder_to_guest.times.required'         => __('Add an guest email reminder.', 'fluent-event'),
             'reminder_to_guest.times.array'            => __('Guest email reminders must be a list.', 'fluent-event'),
             'reminder_to_guest.times.max'              => __('Max guest email reminder reached.', 'fluent-event'),
-            'reminder_to_guest.times.*.value.required' => __('The guest reminder time is required.', 'fluent-event'),
-            'reminder_to_guest.times.*.value.integer'  => __('The reminder time must be a whole number.', 'fluent-event'),
-            'reminder_to_guest.times.*.value.min'      => __('The reminder time must be at least 1.', 'fluent-event'),
             'reminder_to_guest.times.*.unit.required'  => __('Choose minutes, hours or days for the reminder.', 'fluent-event'),
             'reminder_to_guest.times.*.unit.in'        => __('The reminder unit must be minutes, hours or days.', 'fluent-event'),
 

@@ -251,8 +251,10 @@ class RequestRulesTest extends TestCase
             'thirty days'       => [30, 'days', true],
             'thirty-one days'   => [31, 'days', false],
             'thirty days + 1h'  => [721, 'hours', false],
-            // Zero is left to the min:1 rule, so this closure stays quiet.
-            'zero'              => [0, 'hours', true],
+            'zero'              => [0, 'hours', false],
+            'negative'          => [-5, 'hours', false],
+            'decimal'           => [1.5, 'hours', false],
+            'empty'             => ['', 'hours', false],
         ];
     }
 
