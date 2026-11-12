@@ -92,6 +92,8 @@ return [
             'Basics' => __('Basics', 'fluent-event'),
             'Breadcrumb' => __('Breadcrumb', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
+            /* translators: %s is the translated calendar status */
+            'Calendar status: %s' => __('Calendar status: %s', 'fluent-event'),
             /* translators: %s is the calendar title */
             'Calendar: %s' => __('Calendar: %s', 'fluent-event'),
             'Calendars' => __('Calendars', 'fluent-event'),
@@ -332,8 +334,6 @@ return [
             /* translators: %s is the formatted start date and time */
             'Starts %s' => __('Starts %s', 'fluent-event'),
             'Status' => __('Status', 'fluent-event'),
-            /* translators: %s is the translated calendar status */
-            'Status: %s' => __('Status: %s', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
             'Success' => __('Success', 'fluent-event'),
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),

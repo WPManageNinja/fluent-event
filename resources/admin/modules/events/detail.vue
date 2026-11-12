@@ -139,9 +139,9 @@
 
                                         <p
                                             v-if="calendarStatus"
-                                            class="fe-event-overview__row-text capitalize"
+                                            class="fe-event-overview__row-text"
                                         >
-                                            {{ $t('Status: %s', $calendarStatusLabel(calendarStatus)) }}
+                                            {{ $t('Calendar status: %s', $calendarStatusLabel(calendarStatus)) }}
                                         </p>
                                     </div>
                                 </div>
