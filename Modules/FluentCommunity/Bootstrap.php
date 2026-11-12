@@ -10,8 +10,13 @@ use FluentEvent\Framework\Support\Arr;
  */
 class Bootstrap
 {
-    public static function register($app = null, $settings = [])
+    public static function register($app = null, $settings = null)
     {
+        // The late branch in actions.php runs without the action's arguments, so it asks fcom for the same settings.
+        if ($settings === null && is_callable(['FluentCommunity\Modules\Integrations\Integrations', 'getFluentEventSettings'])) {
+            $settings = \FluentCommunity\Modules\Integrations\Integrations::getFluentEventSettings();
+        }
+
         $routeSlug = sanitize_title((string) Arr::get((array) $settings, 'route_slug', '')) ?: 'events';
 
         (new PortalHandler($routeSlug))->register();
