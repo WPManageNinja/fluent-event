@@ -2969,6 +2969,9 @@
 }
 
 .fe-event-detail {
+    // Inherited by every row: an unbroken title, venue or address would otherwise scroll the drawer sideways.
+    overflow-wrap: anywhere;
+
     > :first-child {
         margin-top: 0;
     }
