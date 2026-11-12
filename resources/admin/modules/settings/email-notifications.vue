@@ -26,10 +26,21 @@
                             </span>
                         </div>
 
-                        <el-switch
-                            v-model="confirmation.enabled"
-                            :aria-label="$t('Send a confirmation email when a guest registers')"
-                        />
+                        <div class="fe-form__toggle-actions">
+                            <el-button
+                                link
+                                :aria-label="$t('Preview the confirmation email')"
+                                :title="$t('Preview the confirmation email')"
+                                @click="previewEmail('confirmation')"
+                            >
+                                <el-icon><View /></el-icon>
+                            </el-button>
+
+                            <el-switch
+                                v-model="confirmation.enabled"
+                                :aria-label="$t('Send a confirmation email when a guest registers')"
+                            />
+                        </div>
                     </div>
 
                     <div class="fe-form__toggle">
@@ -42,10 +53,21 @@
                             </span>
                         </div>
 
-                        <el-switch
-                            v-model="cancellation.enabled"
-                            :aria-label="$t('Send an email when a registration is cancelled')"
-                        />
+                        <div class="fe-form__toggle-actions">
+                            <el-button
+                                link
+                                :aria-label="$t('Preview the cancellation email')"
+                                :title="$t('Preview the cancellation email')"
+                                @click="previewEmail('cancellation')"
+                            >
+                                <el-icon><View /></el-icon>
+                            </el-button>
+
+                            <el-switch
+                                v-model="cancellation.enabled"
+                                :aria-label="$t('Send an email when a registration is cancelled')"
+                            />
+                        </div>
                     </div>
                 </div>
             </section>
@@ -67,10 +89,21 @@
                             </span>
                         </div>
 
-                        <el-switch
-                            v-model="reminder.enabled"
-                            :aria-label="$t('Send reminder emails to guests')"
-                        />
+                        <div class="fe-form__toggle-actions">
+                            <el-button
+                                link
+                                :aria-label="$t('Preview the reminder email')"
+                                :title="$t('Preview the reminder email')"
+                                @click="previewEmail('reminder')"
+                            >
+                                <el-icon><View /></el-icon>
+                            </el-button>
+
+                            <el-switch
+                                v-model="reminder.enabled"
+                                :aria-label="$t('Send reminder emails to guests')"
+                            />
+                        </div>
                     </div>
 
                     <div v-if="reminder.enabled" class="fe-form__panel">
@@ -132,11 +165,29 @@
                 </el-button>
             </div>
         </el-form>
+
+        <el-dialog v-model="preview.visible" :title="$t('Email Preview')" width="680px" append-to-body>
+            <div v-loading="previewLoading" class="fe-email-preview">
+                <p v-if="preview.subject" class="fe-email-preview__subject">
+                    <span class="fe-email-preview__label">{{ $t('Subject') }}</span>
+                    {{ preview.subject }}
+                </p>
+
+                <!-- Sandboxed: the email renders with its own styles and runs no script in the admin. -->
+                <iframe
+                    v-if="preview.html"
+                    class="fe-email-preview__frame"
+                    :srcdoc="preview.html"
+                    :title="$t('Email Preview')"
+                    sandbox=""
+                />
+            </div>
+        </el-dialog>
     </section>
 </template>
 
 <script type="text/javascript">
-    import { Close, Plus } from '@element-plus/icons-vue';
+    import { Close, Plus, View } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
@@ -145,6 +196,7 @@
         components: {
             Close,
             Plus,
+            View,
             ErrorState,
             Skeleton,
         },
@@ -158,6 +210,8 @@
                 reminder: { enabled: true },
                 times: [{ value: 24, unit: 'hours' }],
                 maxTimes: 5,
+                preview: { visible: false, subject: '', html: '' },
+                previewLoading: false,
             };
         },
         computed: {
@@ -175,6 +229,23 @@
             },
             removeTime(index) {
                 this.times.splice(index, 1);
+            },
+            previewEmail(type) {
+                this.preview = { visible: true, subject: '', html: '' };
+
+                this.$requestServer({
+                    path: `settings/email-notifications/preview/${type}`,
+                    loadingState: 'previewLoading',
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
+                        this.preview.subject = response.subject;
+                        this.preview.html = response.html;
+                    },
+                    onError: () => {
+                        this.preview.visible = false;
+                    },
+                });
             },
             setSettings(settings) {
                 this.confirmation = { enabled: settings.registration_confirmation.enabled };

@@ -80,6 +80,22 @@ class EventReminderServiceTest extends TestCase
         $this->assertStringContainsString('Asia/Dhaka', $greeting);
     }
 
+    public function test_each_guest_email_has_its_own_subject_and_only_the_cancellation_drops_the_link()
+    {
+        $expected = [
+            'confirmation' => ['You are registered for Launch party', true],
+            'cancellation' => ['Your registration for Launch party is cancelled', false],
+            'reminder'     => ['Reminder: Launch party is coming up', true],
+        ];
+
+        foreach ($expected as $type => [$subject, $hasLink]) {
+            $email = EventReminderService::buildEmail($type, $this->event(), (object) ['name' => 'Rafi']);
+
+            $this->assertSame($subject, $email['subject'], $type);
+            $this->assertSame($hasLink, strpos($email['body'], 'meet.example.com') !== false, $type);
+        }
+    }
+
     public function test_a_guest_without_a_name_is_greeted_generically()
     {
         $greeting = $this->callProtected(EventReminderService::class, 'buildGreeting', [$this->event(), (object) ['name' => ''], '%1$s']);

@@ -263,3 +263,32 @@
         color: var(--fe-tag-warning, #8a5a00);
     }
 }
+
+.fe-email-preview {
+    display: grid;
+    gap: var(--fe-space-3, 12px);
+    min-height: 200px;
+
+    &__subject {
+        margin: 0;
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__label {
+        margin-right: var(--fe-space-2, 8px);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__frame {
+        display: block;
+        width: 100%;
+        height: 480px;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+    }
+}
