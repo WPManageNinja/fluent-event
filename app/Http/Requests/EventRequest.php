@@ -46,8 +46,9 @@ class EventRequest extends BaseRequest
         'title'              => 'required|string|max:255',
         'description'        => 'nullable|string',
         'status'             => 'required|string|in:' . Event::STATUSES,
-        'start_at'           => 'required|date',
-        'end_at'             => 'required|date',
+        // No `date` rule: the framework ignores a custom message for it, so validateDateWindow() checks the dates.
+        'start_at'           => 'required',
+        'end_at'             => 'required',
         'timezone'           => 'nullable|string|max:64',
         'venue_type'         => 'required|string|in:' . Event::VENUE_TYPES,
         'cover_url'          => 'nullable|url',
@@ -72,18 +73,28 @@ class EventRequest extends BaseRequest
 
     public static function validateDateWindow($data)
     {
-        $start = strtotime(Arr::get($data, 'start_at'));
-        $end = strtotime(Arr::get($data, 'end_at'));
+        $errors = [];
+        $messages = [
+            'start_at' => esc_html__('Start must be a valid date and time.', 'fluent-event'),
+            'end_at'   => esc_html__('End must be a valid date and time.', 'fluent-event'),
+        ];
 
-        if ($start && $end && $end > $start) {
-            return;
+        foreach ($messages as $field => $message) {
+            $value = (string) Arr::get($data, $field);
+            $parts = date_parse($value);
+
+            if (strtotime($value) === false || !checkdate((int) $parts['month'], (int) $parts['day'], (int) $parts['year'])) {
+                $errors[$field] = ['date' => $message];
+            }
         }
 
-        throw new ValidationException('Unprocessable Entity!', 422, null, [
-            'end_at' => [
-                'after' => esc_html__('End must be after the start.', 'fluent-event')
-            ]
-        ]);
+        if (!$errors && strtotime($data['end_at']) <= strtotime($data['start_at'])) {
+            $errors['end_at'] = ['after' => esc_html__('End must be after the start.', 'fluent-event')];
+        }
+
+        if ($errors) {
+            throw new ValidationException('Unprocessable Entity!', 422, null, $errors);
+        }
     }
 
     public static function messages()
@@ -98,9 +109,7 @@ class EventRequest extends BaseRequest
             'status.required'             => __('Status is required.', 'fluent-event'),
             'status.in'                   => __('Status must be public, unlisted, private or draft.', 'fluent-event'),
             'start_at.required'           => __('Start date and time are required.', 'fluent-event'),
-            'start_at.date'               => __('Start must be a valid date and time.', 'fluent-event'),
             'end_at.required'             => __('End date and time are required.', 'fluent-event'),
-            'end_at.date'                 => __('End must be a valid date and time.', 'fluent-event'),
             'timezone.max'                => __('Timezone cannot exceed 64 characters.', 'fluent-event'),
             'venue_type.required'         => __('Location type is required.', 'fluent-event'),
             'venue_type.in'               => __('Location type must be offline or online.', 'fluent-event'),
