@@ -182,6 +182,31 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertTrue($this->open($this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id]))['404']);
     }
 
+    // With plain permalinks the link is ?fe_event=<slug>, which WordPress reads as the event's name, so the unlisted
+    // event still opens by its own link; an ID-based link (?p=) would be refused like any lookup by ID.
+    public function test_an_unlisted_event_opens_by_its_own_link_with_plain_permalinks()
+    {
+        $unlisted = $this->createEvent(['calendar_id' => $this->createCalendar()->id, 'status' => 'unlisted']);
+        add_filter('pre_option_permalink_structure', '__return_empty_string');
+        $GLOBALS['wp_rewrite']->init();
+
+        try {
+            $query = (string) parse_url(EventPageService::url($unlisted), PHP_URL_QUERY);
+            parse_str($query, $_GET);
+            $_SERVER['REQUEST_URI'] = '/?' . $query;
+            $GLOBALS['wp']->query_vars = [];
+            $GLOBALS['wp']->parse_request();
+            $GLOBALS['wp']->query_posts();
+
+            $this->assertSame('fe_event=' . $unlisted->post->post_name, $query);
+            $this->assertSame([$unlisted->post_id], wp_list_pluck($GLOBALS['wp_query']->posts, 'ID'));
+        } finally {
+            remove_filter('pre_option_permalink_structure', '__return_empty_string');
+            $GLOBALS['wp_rewrite']->init();
+            unset($_SERVER['REQUEST_URI']);
+        }
+    }
+
     // WordPress's own listings (the archive, feeds, sitemaps) carry only what the events list shows.
     public function test_wordpress_listings_hold_only_public_events_in_public_calendars()
     {
