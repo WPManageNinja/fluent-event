@@ -31,7 +31,7 @@
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchGuests" />
 
-        <el-empty v-else-if="!rows.length" :description="$t('No guests yet.')" />
+        <el-empty v-else-if="!rows.length" :description="emptyMessage" />
 
         <template v-else>
             <div
@@ -202,6 +202,11 @@
             };
         },
         computed: {
+            emptyMessage() {
+                return this.query.search || this.query.status
+                    ? this.$t('No guests match your search or filter.')
+                    : this.$t('No guests yet.');
+            },
             statusLabels() {
                 return {
                     going: this.$t('Going'),
