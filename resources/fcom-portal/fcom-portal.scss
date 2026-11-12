@@ -223,13 +223,19 @@
         color: var(--fcom-secondary-text, #525866);
     }
 
+    // As the Events page title: own colours at rest and on hover, so fcom's feed link rules can't grey it out.
     &__title-link {
-        color: inherit;
+        color: var(--fcom-primary-text, #19283a);
         text-decoration: none;
 
-        &:hover,
+        &:hover {
+            color: var(--fcom-primary-button, #2b2e33);
+            text-decoration: none;
+        }
+
         &:focus-visible {
-            text-decoration: underline;
+            outline: 2px solid var(--fcom-primary-button, #2B2E33);
+            outline-offset: 2px;
         }
     }
 
@@ -1131,7 +1137,7 @@
         color: var(--fcom-danger, #d63638);
     }
 
-    // Same size as the admin event card's cover.
+    // Same size as the admin event card's cover; opens the event like the title.
     &__cover {
         grid-area: cover;
         display: block;
