@@ -150,8 +150,28 @@ class RequestRulesTest extends TestCase
         return [
             'ends when it starts' => ['2026-11-01 18:00', '2026-11-01 18:00'],
             'ends before it starts' => ['2026-11-01 18:00', '2026-11-01 17:00'],
-            'unparseable end' => ['2026-11-01 18:00', 'soon'],
-            'missing start' => ['', '2026-11-01 18:00'],
+        ];
+    }
+
+    /**
+     * @dataProvider unreadableDates
+     */
+    public function test_an_unreadable_date_gets_its_own_message($field, $start, $end, $message)
+    {
+        try {
+            EventRequest::validateDateWindow(['start_at' => $start, 'end_at' => $end]);
+            $this->fail('The unreadable date was accepted');
+        } catch (ValidationException $e) {
+            $this->assertSame([$field => ['date' => $message]], $e->errors());
+        }
+    }
+
+    public function unreadableDates()
+    {
+        return [
+            'words for an end' => ['end_at', '2026-11-01 18:00', 'soon', 'End must be a valid date and time.'],
+            'missing start' => ['start_at', '', '2026-11-01 18:00', 'Start must be a valid date and time.'],
+            'day past the month' => ['start_at', '2026-02-30 18:00', '2026-03-01 18:00', 'Start must be a valid date and time.'],
         ];
     }
 

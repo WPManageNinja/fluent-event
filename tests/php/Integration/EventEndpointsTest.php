@@ -291,6 +291,16 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('Integration event', get_post($event->post_id)->post_title);
     }
 
+    public function test_a_start_that_is_not_a_date_gets_a_readable_message()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_at' => 'next-ish']));
+
+        $this->assertSame(422, $response['status']);
+        $this->assertSame(['date' => 'Start must be a valid date and time.'], $response['data']['start_at']);
+    }
+
     public function test_an_online_event_without_a_meeting_link_is_rejected()
     {
         $event = $this->createEvent();
