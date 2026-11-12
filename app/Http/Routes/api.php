@@ -29,6 +29,7 @@ $router->prefix('settings')->withDefaultPolicy()->group(function ($router) {
 
     $router->get('/email-notifications', [SettingsController::class, 'getEmailNotifications']);
     $router->post('/email-notifications', [SettingsController::class, 'updateEmailNotifications']);
+    $router->get('/email-notifications/preview/{type}', [SettingsController::class, 'previewEmail'])->alphaNumDash('type');
 });
 
 $router->prefix('calendars')->withDefaultPolicy()->group(function ($router) {

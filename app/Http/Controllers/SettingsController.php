@@ -2,7 +2,13 @@
 
 namespace FluentEvent\App\Http\Controllers;
 
+use FluentEvent\App\Models\Event;
+use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Models\Post;
+use FluentEvent\App\Services\EventReminderService;
+use FluentEvent\App\Services\Mailer;
 use FluentEvent\App\Services\Settings;
+use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Http\Requests\SettingsRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
@@ -102,6 +108,35 @@ class SettingsController extends Controller
         return [
             'message'  => __('Settings have been saved.', 'fluent-event'),
             'settings' => $settings,
+        ];
+    }
+
+    public function previewEmail(Request $request, $type)
+    {
+        $this->validate(['type' => $type], ['type' => 'required|string|in:confirmation,cancellation,reminder']);
+
+        $timezone = wp_timezone()->getName();
+
+        $event = new Event([
+            'start_at'   => DateTimeHelper::convertToUtc('+7 days 10:00', $timezone),
+            'timezone'   => $timezone,
+            'venue_type' => 'online',
+            'meta'       => ['online_meeting_url' => 'https://example.com/meeting'],
+        ]);
+
+        $post = new Post();
+        $post->post_title = __('Community Meetup', 'fluent-event');
+        $event->setRelation('post', $post);
+
+        $guest = new Guest();
+        /* translators: sample guest name shown in the email preview */
+        $guest->name = __('Jane Doe', 'fluent-event');
+
+        $email = EventReminderService::buildEmail($type, $event, $guest);
+
+        return [
+            'subject' => $email['subject'],
+            'html'    => Mailer::render($email['body']),
         ];
     }
 }
