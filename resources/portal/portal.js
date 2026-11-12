@@ -1,8 +1,7 @@
 // The landing pages' script. On the events list, a calendar chip swaps the list in place. On an event
 // page, everyone registers as a visitor, by name and email; the server draws every state into the side
-// card, and this posts the form and swaps in the card it gets back.
-
-const card = () => document.querySelector('[data-fe-card]');
+// card, and this posts the form and swaps in the card it gets back. A page can hold several events and lists
+// (shortcodes, blocks), so each step acts on the card or list it was started from.
 
 // The endpoint's own message, else the first validation error: the framework sends those keyed by
 // field then rule, at the top level.
@@ -24,8 +23,8 @@ export function errorMessage(data, fallback) {
 
 // Every post carries the event's own nonce; a logged-in viewer's also carries the REST cookie nonce
 // WordPress needs to verify it, since it binds the event's nonce to their session.
-async function send(url, body) {
-    const { nonce, eventNonce, error } = card().dataset;
+async function send(card, url, body) {
+    const { nonce, eventNonce, error } = card.dataset;
     const response = await fetch(url, {
         method: 'POST',
         credentials: 'same-origin',
@@ -41,15 +40,21 @@ async function send(url, body) {
     return data;
 }
 
-// The card is this plugin's own endpoint render, escaped in event-side.php like the page itself.
-function swap(html) {
-    card().outerHTML = html;
+// The card is this plugin's own endpoint render, escaped in event-side.php like the page itself. The new one
+// is found again at the old one's place among the page's cards.
+function swap(card, html) {
+    const index = [...document.querySelectorAll('[data-fe-card]')].indexOf(card);
+    card.outerHTML = html;
 
-    const focus = card().querySelector('[data-fe-focus]');
+    const next = document.querySelectorAll('[data-fe-card]')[index];
+    const focus = next.querySelector('[data-fe-focus]');
     focus && focus.focus();
+
+    return next;
 }
 
 export async function submitForm(form) {
+    const card = form.closest('[data-fe-card]');
     const button = form.querySelector('[type="submit"]');
     const message = form.querySelector('.fe-register__error');
 
@@ -57,10 +62,10 @@ export async function submitForm(form) {
     message.textContent = '';
 
     try {
-        swap((await send(form.action, Object.fromEntries(new FormData(form)))).html);
+        const next = swap(card, (await send(card, form.action, Object.fromEntries(new FormData(form)))).html);
 
         // The answer to a registration carries its confirmation, which opens over the new card.
-        const done = card().querySelector('[data-fe-registered]');
+        const done = next.querySelector('[data-fe-registered]');
         done && done.showPopover();
     } catch (error) {
         message.textContent = error.message;
@@ -119,18 +124,19 @@ export function fitChips(root = document.querySelector('[data-fe-chips]')) {
 }
 
 // On a phone the chips scroll sideways; bring the selected one into view.
-function revealActiveChip() {
-    const chip = document.querySelector('[data-fe-chip][aria-current]');
+function revealActiveChip(root = document) {
+    const chip = root.querySelector('[data-fe-chip][aria-current]');
     chip && chip.scrollIntoView({ block: 'nearest', inline: 'center' });
 }
 
-// Only the latest pick may land: a slower answer to an earlier chip would otherwise overwrite it.
-let loading = null;
+// Only each list's latest pick may land: a slower answer to an earlier chip would otherwise overwrite it.
+const loading = [];
 
 // The server renders the list for the chip's link, as for a normal load; this takes its [data-fe-events]
 // and moves the address bar there, so the link stays shareable and Back returns to the previous calendar.
-export async function showEvents(url, push = true, focus = '[data-fe-chip][aria-current]') {
-    const list = document.querySelector('[data-fe-events]');
+// The page renders its lists in the same order every time, so the answer's list sits at this one's place.
+export async function showEvents(url, push = true, focus = '[data-fe-chip][aria-current]', list = document.querySelector('[data-fe-events]')) {
+    const index = [...document.querySelectorAll('[data-fe-events]')].indexOf(list);
     const results = list.querySelector('[data-fe-results]');
     const skeleton = list.querySelector('template[data-fe-skeleton]');
     let page;
@@ -140,13 +146,13 @@ export async function showEvents(url, push = true, focus = '[data-fe-chip][aria-
     results.setAttribute('aria-busy', 'true');
     skeleton && results.replaceChildren(skeleton.content.cloneNode(true));
 
-    loading && loading.abort();
-    loading = new AbortController();
+    loading[index] && loading[index].abort();
+    loading[index] = new AbortController();
 
     try {
-        const response = await fetch(url, { credentials: 'same-origin', signal: loading.signal });
+        const response = await fetch(url, { credentials: 'same-origin', signal: loading[index].signal });
         page = new DOMParser().parseFromString(await response.text(), 'text/html');
-        next = page.querySelector('[data-fe-events]');
+        next = page.querySelectorAll('[data-fe-events]')[index];
 
         if (!response.ok || !next) {
             throw new Error(response.statusText);
@@ -164,7 +170,7 @@ export async function showEvents(url, push = true, focus = '[data-fe-chip][aria-
 
     list.replaceWith(next);
     document.title = page.title;
-    fitChips();
+    fitChips(next.querySelector('[data-fe-chips]'));
 
     if (push) {
         history.pushState(null, '', url);
@@ -174,7 +180,7 @@ export async function showEvents(url, push = true, focus = '[data-fe-chip][aria-
         link && link.focus({ preventScroll: true });
     }
 
-    revealActiveChip();
+    revealActiveChip(next);
 }
 
 document.addEventListener('click', (event) => {
@@ -187,9 +193,11 @@ document.addEventListener('click', (event) => {
 
     event.preventDefault();
 
+    const list = link.closest('[data-fe-events]');
+
     // The calendar's Month / Week / Day and ‹ Today › links.
     if (link.dataset.feNav) {
-        showEvents(link.href, true, `[data-fe-nav="${link.dataset.feNav}"]`);
+        showEvents(link.href, true, `[data-fe-nav="${link.dataset.feNav}"]`, list);
         return;
     }
 
@@ -201,21 +209,19 @@ document.addEventListener('click', (event) => {
     link.setAttribute('aria-current', 'page');
     link.closest('[popover]') && link.closest('[popover]').hidePopover();
 
-    showEvents(link.href);
+    showEvents(link.href, true, undefined, list);
 });
 
 window.addEventListener('popstate', () => {
-    if (document.querySelector('[data-fe-events]')) {
-        showEvents(location.href, false);
-    }
+    document.querySelectorAll('[data-fe-events]').forEach((list) => showEvents(location.href, false, undefined, list));
 });
 
 let fitting = 0;
 
 window.addEventListener('resize', () => {
     cancelAnimationFrame(fitting);
-    fitting = requestAnimationFrame(() => fitChips());
+    fitting = requestAnimationFrame(() => document.querySelectorAll('[data-fe-chips]').forEach((root) => fitChips(root)));
 });
 
-fitChips();
+document.querySelectorAll('[data-fe-chips]').forEach((root) => fitChips(root));
 revealActiveChip();
