@@ -29,7 +29,7 @@ class NetworkActivationTest extends TestCase
         $this->currentBlog = 1;
 
         Functions\when('dbDelta')->justReturn([]);
-        Functions\when('add_rewrite_rule')->justReturn(null);
+        Functions\when('register_post_type')->justReturn(null);
         Functions\when('flush_rewrite_rules')->justReturn(null);
         Functions\when('is_super_admin')->justReturn(true);
 

@@ -37,8 +37,13 @@ export default defineConfig(({ mode }) => {
             Components({ resolvers: [ElementPlusResolver()], directives: false })
         ],
         define: { __DEV__: isDev },
+        // The blocks' JSX builds on WordPress's own React, as the Fluent suite's blocks do.
         // warn and error stay in production so real failures remain visible.
-        esbuild: isDev ? {} : { pure: ['console.log', 'console.info', 'console.debug'] },
+        esbuild: {
+            jsxFactory: 'wp.element.createElement',
+            jsxFragment: 'wp.element.Fragment',
+            ...(isDev ? {} : { pure: ['console.log', 'console.info', 'console.debug'] }),
+        },
         build: {
             manifest: true,
             outDir: 'assets',
@@ -52,9 +57,12 @@ export default defineConfig(({ mode }) => {
                     // FluentCommunity portal: the route/card loader and its stylesheet.
                     'resources/fcom-portal/fcom-portal.js',
                     'resources/fcom-portal/fcom-portal.scss',
-                    // Public landing pages under the portal slug, and the event page's registration.
+                    // The public pages' list and event page, and the event page's registration.
                     'resources/portal/portal.scss',
-                    'resources/portal/portal.js'
+                    'resources/portal/portal.js',
+                    // The [fluent_events] and [fluent_event] blocks' editor side.
+                    'resources/blocks/blocks.jsx',
+                    'resources/blocks/blocks.scss'
                 ],
                 // Chunks import each other without the entries' ?ver=, so their names carry a content hash.
                 output: {
@@ -70,7 +78,7 @@ export default defineConfig(({ mode }) => {
                 vue: 'vue/dist/vue.esm-bundler.js',
                 '@': path.resolve(__dirname, 'resources/admin')
             },
-            extensions: ['.js', '.vue', '.json']
+            extensions: ['.js', '.jsx', '.vue', '.json']
         },
         optimizeDeps: {
             include: elementPlusStyles

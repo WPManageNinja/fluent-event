@@ -1,21 +1,25 @@
 <?php
 /**
- * The landing home: every public calendar's events, or one calendar's, as cards, a timeline or a
+ * [fluent_events]: every public calendar's events, or one calendar's, as cards, a timeline or a
  * month, with a chip per calendar to switch. Every control is a plain link, so each state has its own
  * URL and works without JavaScript; portal.js swaps the list in place when a chip is picked.
  *
  * @var array  $chips          title, slug ('' for All), color (sanitized hex or ''), active. Empty with one calendar.
  * @var bool   $show_calendar  Name each event's calendar: there are chips to switch between them.
- * @var string $url            The landing home, without query args.
+ * @var string $url            The page showing the list, without query args.
  * @var string $view           cards|timeline|calendar
  * @var bool   $view_locked
  * @var string $filter         upcoming|all|past
  * @var string $search
  * @var array  $state          Query args every link carries.
+ * @var array  $keep_empty     State keys a link keeps even when empty.
+ * @var string $page_var       The pagination query arg.
+ * @var string $calendar_var   The calendar query arg.
+ * @var string $search_var     The search query arg.
  * @var array  $rows           List views: one eventRow() per event.
  * @var int    $current_page
  * @var int    $last_page
- * @var array  $grid           Calendar view: LandingPageHandler::calendarGrid().
+ * @var array  $grid           Calendar view: FrontEndHandler::calendarGrid().
  */
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
@@ -26,9 +30,13 @@ $fluentEventTint = function ( $color ) {
     return $color ? ' style="color: ' . esc_attr( $color ) . '"' : '';
 };
 
-// add_query_arg() leaves values raw, so encode them; empty values drop out of the link.
-$fluentEventLink = function ( array $args ) use ( $state, $url ) {
-    return add_query_arg( array_map( 'rawurlencode', array_filter( array_merge( $state, $args ), 'strlen' ) ), $url );
+// add_query_arg() leaves values raw, so encode them; empty values drop out of the link unless kept.
+$fluentEventLink = function ( array $args ) use ( $state, $url, $keep_empty ) {
+    $args = array_filter( array_merge( $state, $args ), function ( $value, $key ) use ( $keep_empty ) {
+        return strlen( $value ) || in_array( $key, $keep_empty, true );
+    }, ARRAY_FILTER_USE_BOTH );
+
+    return add_query_arg( array_map( 'rawurlencode', $args ), $url );
 };
 
 $fluentEventSpans = [
@@ -72,11 +80,6 @@ $fluentEventEmpty = [
 ];
 ?>
 <div class="fe-events-page" data-fe-events>
-    <header class="fe-portal__header">
-        <h1 class="fe-portal__title"><?php esc_html_e( 'Events', 'fluent-event' ); ?></h1>
-        <p class="fe-portal__subtitle"><?php esc_html_e( 'Events from our calendars.', 'fluent-event' ); ?></p>
-    </header>
-
     <?php if ( $chips ) : ?>
         <?php // Every chip in one row; on wide screens portal.js moves those that don't fit into the "More" panel. ?>
         <div class="fe-calendar-chips" data-fe-chips>
@@ -84,7 +87,7 @@ $fluentEventEmpty = [
                 <?php foreach ( $chips as $fluentEventChip ) : ?>
                     <a
                         class="fe-calendar-chips__chip<?php echo $fluentEventChip['active'] ? ' fe-calendar-chips__chip--active' : ''; ?>"
-                        href="<?php echo esc_url( $fluentEventLink( [ 'calendar' => $fluentEventChip['slug'] ] ) ); ?>"
+                        href="<?php echo esc_url( $fluentEventLink( [ $calendar_var => $fluentEventChip['slug'] ] ) ); ?>"
                         <?php echo $fluentEventChip['active'] ? 'aria-current="page"' : ''; ?>
                         data-fe-chip
                     >
@@ -113,13 +116,13 @@ $fluentEventEmpty = [
         <form class="fe-events-page__search" method="get" action="<?php echo esc_url( $url ); ?>" role="search">
             <input
                 type="search"
-                name="search"
+                name="<?php echo esc_attr( $search_var ); ?>"
                 class="fe-events-page__search-input"
                 value="<?php echo esc_attr( $search ); ?>"
                 placeholder="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
                 aria-label="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
             >
-            <?php foreach ( array_diff_key( $state, [ 'search' => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
+            <?php foreach ( array_diff_key( $state, [ $search_var => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
                 <input type="hidden" name="<?php echo esc_attr( $fluentEventKey ); ?>" value="<?php echo esc_attr( $fluentEventValue ); ?>">
             <?php endforeach; ?>
         </form>
@@ -370,7 +373,7 @@ $fluentEventEmpty = [
         <?php if ( 'calendar' !== $view && $last_page > 1 ) : ?>
             <nav class="fe-pagination" aria-label="<?php esc_attr_e( 'Pages', 'fluent-event' ); ?>">
                 <?php if ( $current_page > 1 ) : ?>
-                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ 'page' => $current_page - 1 ] ) ); ?>" rel="prev">
+                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $page_var => $current_page - 1 ] ) ); ?>" rel="prev">
                         <?php echo Icon::CHEVRON_LEFT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                         <span><?php esc_html_e( 'Previous', 'fluent-event' ); ?></span>
                     </a>
@@ -384,7 +387,7 @@ $fluentEventEmpty = [
                 </span>
 
                 <?php if ( $current_page < $last_page ) : ?>
-                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ 'page' => $current_page + 1 ] ) ); ?>" rel="next">
+                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $page_var => $current_page + 1 ] ) ); ?>" rel="next">
                         <span><?php esc_html_e( 'Next', 'fluent-event' ); ?></span>
                         <?php echo Icon::CHEVRON_RIGHT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                     </a>

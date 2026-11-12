@@ -322,3 +322,64 @@ describe('fitting the chips into one row', () => {
         expect(document.querySelector('[data-fe-chips-more]').hidden).toBe(true);
     });
 });
+
+// The shortcodes and blocks can put several events and lists on one page; each acts on its own.
+describe('several events and lists on one page', () => {
+    const eventCard = (name, inner) => `
+        <aside data-fe-card data-error="Something went wrong." data-event-nonce="nonce-${name}">${inner}</aside>`;
+
+    const form = (name) => `
+        <form data-fe-register action="https://site.test/${name}/register-guest">
+            <input name="email" value="ada@example.test">
+            <p class="fe-register__error"></p>
+            <button type="submit">Register</button>
+        </form>`;
+
+    const events = (label) => `
+        <div data-fe-events>
+            <div data-fe-chips>
+                <nav data-fe-chips-row>
+                    <a data-fe-chip href="https://site.test/page/?calendar=meetups">Meetups</a>
+                    <button data-fe-chips-more data-label="More (%d)" hidden></button>
+                </nav>
+                <div data-fe-chips-panel popover></div>
+            </div>
+            <template data-fe-skeleton><span class="fe-skeleton"></span></template>
+            <div data-fe-results><p class="events">${label}</p></div>
+        </div>`;
+
+    beforeEach(() => {
+        vi.stubGlobal('fetch', vi.fn());
+        Element.prototype.scrollIntoView = vi.fn();
+        window.matchMedia = vi.fn(() => ({ matches: false }));
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        document.body.innerHTML = '';
+    });
+
+    it("registers on the second event with that event's own nonce and swaps only its card", async () => {
+        document.body.innerHTML = eventCard('a', form('a')) + eventCard('b', form('b'));
+        fetch.mockResolvedValue(respond({ html: eventCard('b', '<span class="fe-event-page__badge" tabindex="-1" data-fe-focus>Going</span>') }));
+
+        await submitForm(document.querySelectorAll('form')[1]);
+
+        expect(fetch.mock.calls[0][0]).toBe('https://site.test/b/register-guest');
+        expect(JSON.parse(fetch.mock.calls[0][1].body).nonce).toBe('nonce-b');
+        const cards = document.querySelectorAll('[data-fe-card]');
+        expect(cards[0].querySelector('form')).not.toBeNull();
+        expect(cards[1].textContent).toContain('Going');
+    });
+
+    it('swaps only the list whose chip was picked', async () => {
+        document.body.innerHTML = events('First list') + events('Second list');
+        fetch.mockResolvedValue(new Response(`<html><head><title>Meetups</title></head><body>${events('First, filtered')}${events('Second, filtered')}</body></html>`));
+        vi.spyOn(history, 'pushState').mockImplementation(() => {});
+
+        document.querySelectorAll('[data-fe-chip]')[1].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+        await vi.waitFor(() => expect(document.querySelectorAll('.events')[1].textContent).toBe('Second, filtered'));
+        expect(document.querySelectorAll('.events')[0].textContent).toBe('First list');
+    });
+});

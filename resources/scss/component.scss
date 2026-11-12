@@ -2589,6 +2589,28 @@
         color: var(--fe-wp-link, #2271b1);
     }
 
+    &__public {
+        min-width: 0;
+    }
+
+    // The public link and its copy button on one line.
+    &__public-link {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        margin-top: var(--fe-space-1, 4px);
+
+        .fe-event-overview__row-link {
+            margin-top: 0;
+        }
+
+        // Icon-sized: the admin's 36px button height would push the line away from its title.
+        .el-button {
+            height: auto;
+            padding: 0;
+        }
+    }
+
     @media screen and (max-width: 782px) {
         flex-direction: column;
         gap: var(--fe-space-5, 20px);

@@ -175,6 +175,22 @@ abstract class IntegrationTestCase extends BaseTestCase
         return $this->createUser('administrator');
     }
 
+    // The All Events Page, published and set: [fluent_events] at `fe-test-fluent-events-*`.
+    protected function createPublicPages()
+    {
+        $ids = ['events_page_id' => wp_insert_post([
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            'post_title'   => '',
+            'post_name'    => 'fe-test-fluent-events-' . strtolower(wp_generate_password(6, false, false)),
+            'post_content' => '[fluent_events]',
+        ])];
+
+        Settings::update(Settings::GENERAL, $ids);
+
+        return $ids;
+    }
+
     protected function createCalendar(array $overrides = [])
     {
         return Calendar::create(array_merge([

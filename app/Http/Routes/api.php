@@ -23,6 +23,8 @@ $router->prefix('users')->withDefaultPolicy()->group(function ($router) {
 $router->prefix('settings')->withDefaultPolicy()->group(function ($router) {
     $router->get('/general', [SettingsController::class, 'getGeneral']);
     $router->post('/general', [SettingsController::class, 'updateGeneral']);
+    $router->get('/pages', [SettingsController::class, 'getPages']);
+    $router->post('/create-page', [SettingsController::class, 'createPage']);
 
     $router->get('/email', [SettingsController::class, 'getEmail']);
     $router->post('/email', [SettingsController::class, 'updateEmail']);
@@ -73,7 +75,7 @@ $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($ro
     $router->get('/editor-assets', [CommunityEventController::class, 'getEditorAssets']);
 });
 
-// The public event page under the portal slug.
+// The public event page's registration form.
 $router->prefix('portal')->withPolicy('PortalPolicy')->group(function ($router) {
     $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])
         ->int('id')->before(new Throttle(5));

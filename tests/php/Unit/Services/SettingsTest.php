@@ -73,7 +73,7 @@ class SettingsTest extends TestCase
 
         $saved = Settings::update(Settings::GENERAL, ['disable_event_view_switch' => 'yes', 'injected' => 'x']);
 
-        $this->assertSame(['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'enable_landing_pages' => 'no', 'portal_slug' => 'events'], $saved);
+        $this->assertSame(['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'events_page_id' => 0, 'event_slug' => 'event'], $saved);
         $this->assertSame($saved, get_option(Settings::WP_OPTION_KEY));
     }
 }

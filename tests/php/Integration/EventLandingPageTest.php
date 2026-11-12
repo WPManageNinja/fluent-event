@@ -2,41 +2,51 @@
 
 namespace FluentEvent\Tests\Integration;
 
-use FluentEvent\App\Hooks\Handlers\LandingPageHandler;
+use FluentEvent\App\CPT\EventPost;
+use FluentEvent\App\Hooks\Handlers\FrontEndHandler;
+use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * The public event page: which events open, who sees the meeting link, and the calendar file it offers.
+ * [fluent_event]: which events open, who sees the meeting link, and the calendar file it offers.
  */
 class EventLandingPageTest extends IntegrationTestCase
 {
+    private $pages = [];
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $_GET = [];
+        $this->pages = $this->createPublicPages();
         wp_set_current_user(0);
     }
 
     protected function tearDown(): void
     {
         $_GET = [];
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query();
 
         parent::tearDown();
     }
 
     private function handler()
     {
-        return new class extends LandingPageHandler {
+        return new class extends FrontEndHandler {
             public function event($eventSlug)
             {
-                return $this->eventPage($eventSlug);
+                $event = $this->findEvent($eventSlug);
+
+                return $event ? ['body' => $this->eventBody($event)] : null;
             }
 
             public function calendar($slug)
             {
-                return $this->eventsPage($slug);
+                $_GET = [FrontEndHandler::CALENDAR_VAR => $slug];
+
+                return ['body' => $this->eventsBody(['calendar' => '', 'view' => '', 'filter' => '', 'view_switch' => '', 'show_calendars' => 'yes'])];
             }
         };
     }
@@ -128,15 +138,213 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertNotEmpty(preg_grep('/^ /', $lines), 'The long description folds onto continuation lines.');
     }
 
-    // Straight under the portal slug: the calendar is a filter on the list, not part of an event's address.
-    public function test_listed_events_link_to_their_page_by_slug_alone()
+    // Its own WordPress address, by slug alone: the calendar is a filter on the list, not part of an event's address.
+    public function test_listed_events_link_to_their_own_address()
     {
         Settings::update(Settings::GENERAL, ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no']);
         $calendar = $this->createCalendar();
         $event = $this->createEvent(['calendar_id' => $calendar->id]);
 
-        $url = home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->post->post_name));
+        $url = EventPageService::url($event);
 
+        $this->assertSame(get_permalink($event->post_id), $url);
+        $this->assertStringContainsString('/event/' . $event->post->post_name, $url);
         $this->assertStringContainsString('href="' . esc_url($url) . '"', $this->handler()->calendar($calendar->slug)['body']);
+    }
+
+    public function test_an_events_address_follows_the_event_slug_setting()
+    {
+        $event = $this->createEvent();
+        Settings::update(Settings::GENERAL, ['event_slug' => 'gatherings']);
+        (new EventPost())->registerPostType();
+
+        try {
+            $this->assertStringContainsString('/gatherings/' . $event->post->post_name, get_permalink($event->post_id));
+        } finally {
+            Settings::update(Settings::GENERAL, ['event_slug' => 'event']);
+            (new EventPost())->registerPostType();
+        }
+    }
+
+    // WordPress finds any event post by its slug; only one the public may see opens, the rest answer like a missing page.
+    public function test_only_an_event_the_public_may_see_opens_at_its_address()
+    {
+        $calendar = $this->createCalendar();
+        $public = $this->createEvent(['calendar_id' => $calendar->id]);
+        $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'unlisted']);
+
+        $this->assertFalse($this->open($public)['404']);
+        $this->assertFalse($this->open($unlisted)['404']);
+        $this->assertTrue($this->open($unlisted)['noindex'], 'An unlisted event stays out of search engines.');
+        $this->assertFalse($this->open($public)['noindex']);
+
+        $this->assertTrue($this->open($this->createEvent(['calendar_id' => $calendar->id, 'status' => 'private']))['404']);
+        $this->assertTrue($this->open($this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id]))['404']);
+    }
+
+    // With plain permalinks the link is ?fe_event=<slug>, which WordPress reads as the event's name, so the unlisted
+    // event still opens by its own link; an ID-based link (?p=) would be refused like any lookup by ID.
+    public function test_an_unlisted_event_opens_by_its_own_link_with_plain_permalinks()
+    {
+        $unlisted = $this->createEvent(['calendar_id' => $this->createCalendar()->id, 'status' => 'unlisted']);
+        add_filter('pre_option_permalink_structure', '__return_empty_string');
+        $GLOBALS['wp_rewrite']->init();
+
+        try {
+            $query = (string) parse_url(EventPageService::url($unlisted), PHP_URL_QUERY);
+            parse_str($query, $_GET);
+            $_SERVER['REQUEST_URI'] = '/?' . $query;
+            $GLOBALS['wp']->query_vars = [];
+            $GLOBALS['wp']->parse_request();
+            $GLOBALS['wp']->query_posts();
+
+            $this->assertSame('fe_event=' . $unlisted->post->post_name, $query);
+            $this->assertSame([$unlisted->post_id], wp_list_pluck($GLOBALS['wp_query']->posts, 'ID'));
+        } finally {
+            remove_filter('pre_option_permalink_structure', '__return_empty_string');
+            $GLOBALS['wp_rewrite']->init();
+            unset($_SERVER['REQUEST_URI']);
+        }
+    }
+
+    // WordPress's own listings (the archive, feeds, sitemaps) carry only what the events list shows.
+    public function test_wordpress_listings_hold_only_public_events_in_public_calendars()
+    {
+        $calendar = $this->createCalendar();
+        $public = $this->createEvent(['calendar_id' => $calendar->id]);
+        $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'unlisted']);
+        $hidden = $this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id]);
+
+        $ids = (new \WP_Query(['post_type' => EventPost::POST_TYPE, 'fields' => 'ids', 'posts_per_page' => -1]))->posts;
+
+        $this->assertContains($public->post_id, $ids);
+        $this->assertNotContains($unlisted->post_id, $ids);
+        $this->assertNotContains($hidden->post_id, $ids);
+    }
+
+    // By ID (?p=, its redirect, oEmbed) an event answers only when listed: walking IDs must not hand out unlisted links.
+    public function test_an_unlisted_or_hidden_event_does_not_answer_by_its_id()
+    {
+        $calendar = $this->createCalendar();
+        $public = $this->createEvent(['calendar_id' => $calendar->id]);
+        $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'status' => 'unlisted']);
+        $hidden = $this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id]);
+        $handler = new FrontEndHandler();
+
+        $byId = function ($event) {
+            return (new \WP_Query(['p' => $event->post_id, 'post_type' => EventPost::POST_TYPE]))->posts;
+        };
+        $byLink = function ($event) {
+            return (new \WP_Query(['name' => $event->post->post_name, 'post_type' => EventPost::POST_TYPE]))->posts;
+        };
+
+        $this->assertCount(1, $byId($public));
+        $this->assertCount(0, $byId($unlisted));
+        $this->assertCount(0, $byId($hidden));
+        $this->assertCount(1, $byLink($unlisted), 'An unlisted event still opens by its own link.');
+        $this->assertCount(0, $byLink($hidden));
+
+        $this->assertSame($public->post_id, $handler->hideFromEmbeds($public->post_id));
+        $this->assertSame(0, $handler->hideFromEmbeds($unlisted->post_id));
+        $this->assertSame(0, $handler->hideFromEmbeds($hidden->post_id));
+
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query(['p' => $unlisted->post_id, 'post_type' => EventPost::POST_TYPE]);
+        $this->assertFalse($handler->hideFromRedirects('https://example.test/event/' . $unlisted->post->post_name . '/'));
+    }
+
+    public function test_the_events_archive_gives_way_to_the_all_events_page()
+    {
+        $this->addTestFilter('wp_redirect', function ($location) {
+            throw new \RuntimeException($location);
+        });
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query(['post_type' => EventPost::POST_TYPE]);
+
+        try {
+            (new FrontEndHandler())->resolveEventRequest();
+            $this->fail('The archive did not redirect.');
+        } catch (\RuntimeException $redirect) {
+            $this->assertSame(get_permalink($this->pages['events_page_id']), $redirect->getMessage());
+        }
+    }
+
+    // An All Events Page sharing the event slug answers at the archive's own address: no redirect, or it loops.
+    public function test_the_archive_does_not_redirect_to_its_own_address()
+    {
+        $listUrl = get_permalink($this->pages['events_page_id']);
+        $this->addTestFilter('post_type_archive_link', function () use ($listUrl) {
+            return $listUrl;
+        });
+        $this->addTestFilter('wp_redirect', function ($location) {
+            throw new \RuntimeException($location);
+        });
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query(['post_type' => EventPost::POST_TYPE]);
+
+        (new FrontEndHandler())->resolveEventRequest();
+
+        $this->assertTrue(is_post_type_archive(EventPost::POST_TYPE), 'The archive renders the events list itself.');
+    }
+
+    // Core's admin pickers (the link dialog, Media → Attach) list every public post type to anyone who can edit a post.
+    public function test_admin_pickers_leave_out_hidden_events()
+    {
+        $token = 'fepicker' . strtolower(wp_generate_password(8, false, false));
+        $calendar = $this->createCalendar();
+        $public = $this->createEvent(['calendar_id' => $calendar->id, 'title' => "$token public"]);
+        $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'title' => "$token unlisted", 'status' => 'unlisted']);
+        $draft = $this->createEvent(['calendar_id' => $calendar->id, 'title' => "$token draft", 'status' => 'draft']);
+        $inPrivate = $this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id, 'title' => "$token in private"]);
+
+        require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+        require_once ABSPATH . 'wp-admin/includes/screen.php';
+        require_once ABSPATH . WPINC . '/class-wp-editor.php';
+        $GLOBALS['current_screen'] = \WP_Screen::get('post');
+
+        // The two core queries, as wp-link-ajax and find_posts build them.
+        $linked = function () use ($token) {
+            return array_map('intval', wp_list_pluck(\_WP_Editors::wp_link_query(['s' => $token]) ?: [], 'ID'));
+        };
+        $attachable = function () use ($token) {
+            $types = get_post_types(['public' => true]);
+            unset($types['attachment']);
+
+            return (new \WP_Query(['post_type' => array_keys($types), 'post_status' => 'any', 's' => $token, 'posts_per_page' => 50, 'fields' => 'ids']))->posts;
+        };
+
+        try {
+            $this->actAs($this->createUser('contributor'));
+
+            foreach ([$linked(), $attachable()] as $ids) {
+                $this->assertContains($public->post_id, $ids, 'A public event stays linkable.');
+                $this->assertNotContains($unlisted->post_id, $ids, 'An unlisted event opens by its link only.');
+                $this->assertNotContains($draft->post_id, $ids);
+                $this->assertNotContains($inPrivate->post_id, $ids);
+            }
+
+            // As in the block's own picker, an admin may link an unlisted event.
+            $this->actAs($this->createAdmin());
+            $this->assertContains($unlisted->post_id, $linked());
+            $this->assertNotContains($inPrivate->post_id, $linked());
+        } finally {
+            unset($GLOBALS['current_screen']);
+        }
+    }
+
+    // A visit to the event's address, in WordPress's order: its query by slug, its own 404 for no post, then our guard.
+    private function open($event)
+    {
+        $GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new \WP_Query(['post_type' => EventPost::POST_TYPE, 'name' => $event->post->post_name]);
+        $GLOBALS['wp']->handle_404();
+
+        $handler = new class extends FrontEndHandler {
+            public function resolve()
+            {
+                static::$pageEvent = null;
+                $this->resolveEventRequest();
+
+                return ['404' => is_404(), 'noindex' => !empty($this->robots([])['noindex'])];
+            }
+        };
+
+        return $handler->resolve();
     }
 }

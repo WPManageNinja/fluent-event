@@ -38,7 +38,7 @@ class EventService
         });
     }
 
-    protected static function editUrl($eventId)
+    public static function editUrl($eventId)
     {
         return admin_url('admin.php?page=fluent-event#/events/' . (int) $eventId . '/edit');
     }

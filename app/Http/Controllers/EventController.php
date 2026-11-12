@@ -4,6 +4,7 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\PostService;
 use FluentEvent\App\Utils\DateTimeHelper;
@@ -70,7 +71,8 @@ class EventController extends Controller
             ->findOrFail($id);
 
         return [
-            'event' => $event->append('description')
+            'event'      => $event->append('description'),
+            'public_url' => EventPageService::url($event),
         ];
     }
 

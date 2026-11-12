@@ -218,6 +218,52 @@
     }
 }
 
+// A page select joined to its "+" create button, as FluentAffiliate's settings pick a page.
+.fe-page-picker {
+    display: flex;
+    width: 100%;
+    max-width: 480px;
+
+    &__select {
+        flex: 1;
+    }
+
+    // One class past vendor.scss's wrapper rule, so the joined edge stays square.
+    .fe-page-picker__select .el-select__wrapper {
+        border-right: none;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .fe-page-picker__add {
+        margin-left: 0;
+        border-radius: 0 var(--fe-radius, 8px) var(--fe-radius, 8px) 0;
+        --el-button-bg-color: var(--fe-active-bg, #f0f0f1);
+        --el-button-text-color: var(--fe-primary-text, #19283a);
+    }
+
+    &__help {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+    }
+
+    &__code {
+        padding: 0 var(--fe-space-1, 4px);
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-secondary-bg, #f3f5fa);
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__warning {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        color: var(--fe-tag-warning, #8a5a00);
+    }
+}
+
 .fe-email-preview {
     display: grid;
     gap: var(--fe-space-3, 12px);

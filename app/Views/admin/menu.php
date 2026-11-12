@@ -43,8 +43,7 @@ use FluentEvent\App\Services\Icon;
                 <div class="fe-navbar__link-wrapper"
                      data-key="<?php echo esc_attr( $fluentEventMenuItem['key'] ); ?>">
                     <a class="fe-navbar__link"
-                       href="<?php echo esc_url( $fluentEventMenuItem['permalink'] ); ?>"
-                       <?php if ( ! empty( $fluentEventMenuItem['new_tab'] ) ) : ?>target="_blank" rel="noopener"<?php endif; ?>>
+                       href="<?php echo esc_url( $fluentEventMenuItem['permalink'] ); ?>">
                         <span class="fe-navbar__link-text"><?php
                             echo esc_html( $fluentEventMenuItem['label'] );
                         ?></span>

@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Services;
 
 use FluentEvent\App\App;
+use FluentEvent\App\CPT\EventPost;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Utils\DateTimeHelper;
 
@@ -13,10 +14,51 @@ use FluentEvent\App\Utils\DateTimeHelper;
  */
 class EventPageService
 {
-    // Straight under the portal slug: an event's post slug is unique among events.
+    // The settings "+" creates these. The content is ours, never a request's.
+    const PAGES = [
+        'events_page_id' => ['shortcode' => 'fluent_events', 'block' => 'fluent-event/events'],
+    ];
+
+    // A setting's page while it is published, else 0: a trashed or draft page turns its links off.
+    public static function pageId($key)
+    {
+        $id = (int) (Settings::get()[$key] ?? 0);
+
+        return $id && get_post_type($id) === 'page' && get_post_status($id) === 'publish' ? $id : 0;
+    }
+
+    // The All Events Page, else the events archive, which lists them itself.
+    public static function listUrl()
+    {
+        $id = self::pageId('events_page_id');
+
+        return (string) ($id ? get_permalink($id) : get_post_type_archive_link(EventPost::POST_TYPE));
+    }
+
     public static function url(Event $event)
     {
-        return home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->post->post_name));
+        return (string) get_permalink($event->post_id);
+    }
+
+    public static function createPage($key, $title)
+    {
+        $id = wp_insert_post([
+            'post_type'      => 'page',
+            'post_status'    => 'publish',
+            'post_title'     => $title,
+            // The block, not the shortcode: the editor shows it with its settings, aligned wide like the list's frame.
+            'post_content'   => '<!-- wp:' . self::PAGES[$key]['block'] . ' {"align":"wide"} /-->',
+            'comment_status' => 'closed',
+            'ping_status'    => 'closed',
+        ]);
+
+        if (!$id || is_wp_error($id)) {
+            return 0;
+        }
+
+        Settings::update(Settings::GENERAL, [$key => (int) $id]);
+
+        return (int) $id;
     }
 
     /**

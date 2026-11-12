@@ -48,6 +48,16 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('private', $event->status);
     }
 
+    public function test_an_event_carries_its_own_public_address()
+    {
+        $event = $this->createEvent();
+
+        $url = $this->rest('GET', "events/{$event->id}")['data']['public_url'];
+
+        $this->assertSame(get_permalink($event->post_id), $url);
+        $this->assertStringContainsString('/event/' . get_post($event->post_id)->post_name, $url);
+    }
+
     public function test_updating_an_event_keeps_its_post_in_step()
     {
         $event = $this->createEvent();

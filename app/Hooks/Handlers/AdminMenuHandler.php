@@ -138,7 +138,7 @@ class AdminMenuHandler
      */
     protected function getMenuItemsList()
     {
-        $items = [
+        return [
             [
                 'key'       => 'dashboard',
                 'label'     => __('Dashboard', 'fluent-event'),
@@ -155,17 +155,6 @@ class AdminMenuHandler
                 'permalink' => $this->baseUrl . 'events',
             ],
         ];
-
-        if (Settings::landingPagesEnabled()) {
-            $items[] = [
-                'key'       => 'frontend_portal',
-                'label'     => __('Frontend Portal', 'fluent-event'),
-                'permalink' => home_url(user_trailingslashit(Settings::portalSlug())),
-                'new_tab'   => true,
-            ];
-        }
-
-        return $items;
     }
 
     /**

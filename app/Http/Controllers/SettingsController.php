@@ -5,6 +5,7 @@ namespace FluentEvent\App\Http\Controllers;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Post;
+use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\EventReminderService;
 use FluentEvent\App\Services\Mailer;
 use FluentEvent\App\Services\Settings;
@@ -16,41 +17,34 @@ class SettingsController extends Controller
 {
     public function getGeneral(Request $request)
     {
-        $settings = Settings::get();
-        $settings['portal_slug'] = Settings::portalSlug();
-
         return [
-            'settings'        => $settings,
-            'home_url'        => home_url('/'),
-            'is_slug_defined' => defined('FLUENT_EVENT_PORTAL_SLUG'),
+            'settings' => Settings::get(),
+            'pages'    => $this->selectedPages(),
         ];
     }
 
     public function updateGeneral(Request $request)
     {
-        $raw = $request->all();
-        $data = SettingsRequest::sanitize($raw);
-
-        // The constant owns the slug, and its value needn't pass the rules for the field it locks.
-        if (defined('FLUENT_EVENT_PORTAL_SLUG')) {
-            unset($data['portal_slug']);
-        }
-
-        // Blank means the site root, but text that sanitizes to nothing (`!!!`) stays raw so the rules reject it.
-        if (isset($data['portal_slug']) && $data['portal_slug'] === '') {
-            $data['portal_slug'] = trim((string) ($raw['portal_slug'] ?? ''));
-        }
+        $data = SettingsRequest::sanitize($request->all());
 
         $this->validate($data, SettingsRequest::generalRules(), SettingsRequest::messages());
 
-        $previousSlug = Settings::portalSlug();
-        $previousLanding = Settings::get()['enable_landing_pages'];
+        foreach (array_keys(EventPageService::PAGES) as $key) {
+            $id = (int) ($data[$key] ?? 0);
 
+            if ($id && (get_post_type($id) !== 'page' || get_post_status($id) !== 'publish')) {
+                return $this->sendError([
+                    'message' => __('Choose a published page.', 'fluent-event'),
+                    'errors'  => [$key => ['page' => __('Choose a published page.', 'fluent-event')]],
+                ], 422);
+            }
+        }
+
+        $previousSlug = Settings::get()['event_slug'];
         $settings = Settings::update(Settings::GENERAL, $data);
-        $settings['portal_slug'] = Settings::portalSlug();
 
-        // `init` already registered the old rules, so flushing here would keep them. WordPress rebuilds on the next request.
-        if ($settings['portal_slug'] !== $previousSlug || $settings['enable_landing_pages'] !== $previousLanding) {
+        // `init` already registered the old slug's rules, so flushing here would keep them. WordPress rebuilds on the next request.
+        if ($settings['event_slug'] !== $previousSlug) {
             delete_option('rewrite_rules');
         }
 
@@ -59,9 +53,93 @@ class SettingsController extends Controller
         return [
             'message'  => __('Settings have been saved.', 'fluent-event'),
             'settings' => $settings,
+            'pages'    => $this->selectedPages(),
         ];
     }
 
+    // The page select's remote search, as FluentAffiliate's.
+    public function getPages(Request $request)
+    {
+        $key = $request->getSafe('key', 'sanitize_key', '');
+
+        $this->validate(['key' => $key], [
+            'key' => 'required|in:' . implode(',', array_keys(EventPageService::PAGES)),
+        ]);
+
+        $pages = get_posts([
+            'post_type'      => 'page',
+            'post_status'    => 'publish',
+            's'              => $request->getSafe('search', 'sanitize_text_field', ''),
+            'posts_per_page' => 50,
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        ]);
+
+        return [
+            'pages' => array_map(function ($post) use ($key) {
+                return $this->pageOption($post, $key);
+            }, $pages),
+        ];
+    }
+
+    // The "+" beside a page select: a page of the admin's title holding its block. The request never sets the content.
+    public function createPage(Request $request)
+    {
+        $data = [
+            'key'   => $request->getSafe('key', 'sanitize_key', ''),
+            'title' => $request->getSafe('title', 'sanitize_text_field', ''),
+        ];
+
+        $this->validate($data, [
+            'key'   => 'required|in:' . implode(',', array_keys(EventPageService::PAGES)),
+            'title' => 'required|string|max:255',
+        ], SettingsRequest::messages());
+
+        if (!EventPageService::createPage($data['key'], $data['title'])) {
+            return $this->sendError(['message' => __('The page could not be created.', 'fluent-event')], 422);
+        }
+
+        $settings = Settings::get();
+
+        do_action('fluent_event/settings/general_updated', $settings);
+
+        return [
+            'message'  => __('The page has been created.', 'fluent-event'),
+            'settings' => $settings,
+            'pages'    => $this->selectedPages(),
+        ];
+    }
+
+    // Each setting's saved page.
+    private function selectedPages()
+    {
+        $pages = [];
+
+        foreach (array_keys(EventPageService::PAGES) as $key) {
+            $post = get_post((int) Settings::get()[$key]);
+
+            $pages[$key] = $post && $post->post_type === 'page' && $post->post_status !== 'trash'
+                ? $this->pageOption($post, $key)
+                : null;
+        }
+
+        return $pages;
+    }
+
+    // A page as the select shows it, with whether it holds the setting's shortcode or block yet.
+    private function pageOption($post, $key)
+    {
+        $page = EventPageService::PAGES[$key];
+
+        return [
+            'id'            => (int) $post->ID,
+            'title'         => $post->post_title !== '' ? $post->post_title : __('(no title)', 'fluent-event'),
+            'link'          => (string) get_permalink($post),
+            // The tag by name: has_shortcode() also wants it registered, which a REST request needn't have.
+            'has_shortcode' => (bool) preg_match('/' . get_shortcode_regex([$page['shortcode']]) . '/', $post->post_content)
+                || has_block($page['block'], $post),
+        ];
+    }
 
     public function getEmail(Request $request)
     {
