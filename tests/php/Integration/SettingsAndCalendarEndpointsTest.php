@@ -222,6 +222,17 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('#0099ff', $calendar->meta['theme_color']);
     }
 
+    // A "<" the sanitizer stored as "&lt;" comes back as typed, so the admin shows "<3", not "&lt;3"; tags are still stripped.
+    public function test_a_calendar_title_comes_back_as_typed()
+    {
+        $title = 'Tom & Jerry\'s "Club" <3';
+        $created = $this->rest('POST', 'calendars', ['title' => $title . '<b>!</b>', 'slug' => 'tom-jerry', 'status' => 'public']);
+
+        $this->assertSame(200, $created['status'], wp_json_encode($created['data']));
+        $this->assertSame($title . '!', $created['data']['calendar']['title']);
+        $this->assertSame($title . '!', $this->rest('GET', 'calendars/' . $created['data']['calendar']['id'])['data']['calendar']['title']);
+    }
+
     // The column stays in the schema, but nothing writes it: the sanitizer keeps unknown keys, so $fillable is the guard.
     public function test_a_calendar_description_sent_to_the_api_is_not_saved()
     {
