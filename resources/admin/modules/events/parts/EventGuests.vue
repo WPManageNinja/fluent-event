@@ -247,7 +247,7 @@
                             ? this.$t('at: %s', this.$formatDateTime(guest.checked_in_at))
                             : '',
                         initial: (guest.name || guest.email || '?').charAt(0).toUpperCase(),
-                        sourceLabel: guest.source ? this.$titleCase(guest.source) : '—',
+                        sourceLabel: guest.source ? this.$guestSourceLabel(guest.source) : '—',
                         statusLabel: this.statusLabels[guest.status] || guest.status,
                         tagType: {
                             going: 'success',
