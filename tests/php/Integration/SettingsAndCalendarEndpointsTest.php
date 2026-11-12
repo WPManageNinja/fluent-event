@@ -222,6 +222,31 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame('#0099ff', $calendar->meta['theme_color']);
     }
 
+    // 100 by default; a site may raise it with a filter, never past the VARCHAR(255) column.
+    public function test_a_calendar_title_is_capped_at_its_filterable_limit()
+    {
+        $create = function ($length) {
+            return $this->rest('POST', 'calendars', ['title' => str_repeat('a', $length), 'slug' => 'limit-' . $length, 'status' => 'public']);
+        };
+
+        $this->assertSame(200, $create(100)['status']);
+        $tooLong = $create(101);
+        $this->assertSame(422, $tooLong['status']);
+        $this->assertStringContainsString('Title cannot exceed 100 characters.', wp_json_encode($tooLong['data']));
+
+        $raise = function () {
+            return 1000;
+        };
+        add_filter('fluent_event/calendar_title_max_length', $raise);
+
+        try {
+            $this->assertSame(255, Calendar::titleMaxLength());
+            $this->assertSame(200, $create(255)['status']);
+        } finally {
+            remove_filter('fluent_event/calendar_title_max_length', $raise);
+        }
+    }
+
     // A "<" the sanitizer stored as "&lt;" comes back as typed, so the admin shows "<3", not "&lt;3"; tags are still stripped.
     public function test_a_calendar_title_comes_back_as_typed()
     {

@@ -325,6 +325,7 @@ class AdminMenuHandler
             'timezone'      => wp_timezone_string(),
             'start_of_week' => (int) get_option('start_of_week', 0),
             'calendar_default_color' => Calendar::DEFAULT_THEME_COLOR,
+            'calendar_title_max_length' => Calendar::titleMaxLength(),
             'general_settings' => Settings::get(),
             'email_notifications' => Settings::get(Settings::EMAIL_NOTIFICATIONS),
             'date_format'      => DateTimeHelper::convertToDayJsFormat(get_option('date_format')),

@@ -17,7 +17,7 @@ class CalendarRequest extends BaseRequest
         'theme_color' => 'sanitize_hex_color',
     ];
     const RULES = [
-        'title'       => 'required|string|max:255',
+        'title'       => 'required|string',
         'slug'        => 'required|string|max:255|unique:fe_calendars,slug',
         'status'      => 'required|string|in:' . Calendar::STATUSES,
         // Six digits only: the admin works out a readable text colour from #rrggbb, and no picker sends #rgb.
@@ -26,12 +26,12 @@ class CalendarRequest extends BaseRequest
 
     public static function createRules()
     {
-        return self::RULES;
+        return array_merge(self::RULES, ['title' => 'required|string|max:' . Calendar::titleMaxLength()]);
     }
 
     public static function updateRules($currentCalendarId)
     {
-        return array_merge(self::RULES, [
+        return array_merge(self::createRules(), [
             'slug' => 'required|string|max:255|unique:fe_calendars,slug,' . $currentCalendarId . ',id',
         ]);
     }
@@ -41,7 +41,8 @@ class CalendarRequest extends BaseRequest
         return [
             'title.required'      => __('Title is required.', 'fluent-event'),
             'title.string'        => __('Title must be text.', 'fluent-event'),
-            'title.max'           => __('Title cannot exceed 255 characters.', 'fluent-event'),
+            /* translators: %d: the longest title allowed, in characters */
+            'title.max'           => sprintf(__('Title cannot exceed %d characters.', 'fluent-event'), Calendar::titleMaxLength()),
             'slug.required'       => __('Slug is required.', 'fluent-event'),
             'slug.string'         => __('Slug must be text.', 'fluent-event'),
             'slug.max'            => __('Slug cannot exceed 255 characters.', 'fluent-event'),

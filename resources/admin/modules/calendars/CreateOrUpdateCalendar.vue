@@ -37,6 +37,7 @@
                                 <el-form-item :label="$t('Title')" required>
                                     <el-input
                                         v-model="calendar.title"
+                                        :maxlength="appVars.calendar_title_max_length"
                                         :placeholder="$t('e.g. Personal')"
                                         @input="deriveSlug"
                                     />
