@@ -22,8 +22,11 @@ class FrontEndHandler
     const VIEWS = ['cards', 'timeline', 'calendar'];
     const FILTERS = ['upcoming', 'all', 'past'];
     const SPANS = ['month', 'week', 'day'];
-    // Not `page`: WordPress owns that query var and redirects a page request carrying it.
+    // Not `page`, `calendar` or `search`: WordPress owns those query vars, so a static front page carrying one shows
+    // the blog instead (and a page request carrying `page` is redirected).
     const PAGE_VAR = 'fe_page';
+    const CALENDAR_VAR = 'fe_calendar';
+    const SEARCH_VAR = 'fe_search';
     // The week and day views draw an hour this tall, as the admin calendar does.
     const HOUR_PX = 48;
     const PER_PAGE = 10;
@@ -288,7 +291,7 @@ class FrontEndHandler
     public function canonicalUrl($url, $post)
     {
         if ($this->isPage('events_page_id') && ($calendar = $this->urlCalendar())) {
-            return add_query_arg('calendar', rawurlencode($calendar->slug), $url);
+            return add_query_arg(self::CALENDAR_VAR, rawurlencode($calendar->slug), $url);
         }
 
         return $url;
@@ -307,7 +310,7 @@ class FrontEndHandler
             $title = $calendar ? $calendar->title : __('Events', 'fluent-event');
             /* translators: %s: calendar title */
             $description = $calendar ? sprintf(__('Events from %s.', 'fluent-event'), $calendar->title) : __('Events from our calendars.', 'fluent-event');
-            $url = $calendar ? add_query_arg('calendar', rawurlencode($calendar->slug), EventPageService::listUrl()) : EventPageService::listUrl();
+            $url = $calendar ? add_query_arg(self::CALENDAR_VAR, rawurlencode($calendar->slug), EventPageService::listUrl()) : EventPageService::listUrl();
         } else {
             return;
         }
@@ -366,11 +369,11 @@ class FrontEndHandler
         return $id && is_page($id);
     }
 
-    // The list page's `?calendar=`, for its title, canonical and description.
+    // The list page's calendar from its link, for its title, canonical and description.
     protected function urlCalendar()
     {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
-        $slug = sanitize_title(wp_unslash($_GET['calendar'] ?? ''));
+        $slug = sanitize_title(wp_unslash($_GET[self::CALENDAR_VAR] ?? ''));
 
         return $slug === '' ? null : Calendar::query()->byStatus('public')->where('slug', $slug)->first();
     }
@@ -418,7 +421,7 @@ class FrontEndHandler
         $preset = sanitize_title($atts['calendar']);
         // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
         // A chip's link names its calendar, "All" included once a preset would otherwise come back; hidden chips leave the list fixed.
-        $picked = $showChips && isset($_GET['calendar']) ? sanitize_title(wp_unslash($_GET['calendar'])) : $preset;
+        $picked = $showChips && isset($_GET[self::CALENDAR_VAR]) ? sanitize_title(wp_unslash($_GET[self::CALENDAR_VAR])) : $preset;
         $calendar = $picked === '' ? null : $calendars->firstWhere('slug', $picked);
         // A fixed calendar that isn't public lists nothing; with the chips showing, the list falls back to All.
         $calendarIds = $calendar ? [$calendar->id] : (!$showChips && $preset !== '' ? [0] : $calendars->pluck('id')->all());
@@ -430,7 +433,7 @@ class FrontEndHandler
 
         $view = $viewLocked ? '' : sanitize_key(wp_unslash($_GET['view'] ?? ''));
         $filter = sanitize_key(wp_unslash($_GET['filter'] ?? ''));
-        $search = sanitize_text_field(wp_unslash($_GET['search'] ?? ''));
+        $search = sanitize_text_field(wp_unslash($_GET[self::SEARCH_VAR] ?? ''));
         $span = sanitize_key(wp_unslash($_GET['span'] ?? ''));
         $date = sanitize_text_field(wp_unslash($_GET['date'] ?? ''));
         $pageNumber = max(1, absint($_GET[self::PAGE_VAR] ?? 1));
@@ -443,14 +446,14 @@ class FrontEndHandler
         $pageId = (int) get_queried_object_id();
         $isArchive = is_post_type_archive(EventPost::POST_TYPE);
         $url = $pageId ? (string) get_permalink($pageId) : ($isArchive ? (string) get_post_type_archive_link(EventPost::POST_TYPE) : home_url('/'));
-        // Picking "All" must outlive the preset, so its link keeps an empty `calendar`.
-        $keepEmpty = $showChips && $preset !== '' ? ['calendar'] : [];
+        // Picking "All" must outlive the preset, so its link keeps an empty calendar.
+        $keepEmpty = $showChips && $preset !== '' ? [self::CALENDAR_VAR] : [];
         // Carried into every link, so switching one control keeps the others, the calendar's place included.
         $state = array_filter([
-            'calendar' => $showChips && $calendar ? $calendar->slug : '',
-            'view'     => $viewLocked ? '' : $view,
-            'filter'   => $filter,
-            'search'   => $search,
+            self::CALENDAR_VAR => $showChips && $calendar ? $calendar->slug : '',
+            'view'             => $viewLocked ? '' : $view,
+            'filter'           => $filter,
+            self::SEARCH_VAR   => $search,
             'span'     => $view === 'calendar' && $span !== 'month' ? $span : '',
             'date'     => $view === 'calendar' ? $date : '',
             // Plain permalinks put the page (or the archive's post type) in the query, which a GET form would otherwise drop.
@@ -494,6 +497,8 @@ class FrontEndHandler
             'search'        => $search,
             'state'         => $state,
             'page_var'      => self::PAGE_VAR,
+            'calendar_var'  => self::CALENDAR_VAR,
+            'search_var'    => self::SEARCH_VAR,
         ];
 
         if ($view === 'calendar') {
@@ -520,7 +525,7 @@ class FrontEndHandler
     {
         $list = EventPageService::listUrl();
 
-        return $list ? add_query_arg('calendar', rawurlencode($slug), $list) : '';
+        return $list ? add_query_arg(self::CALENDAR_VAR, rawurlencode($slug), $list) : '';
     }
 
     protected function calendarColor(Calendar $calendar)

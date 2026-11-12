@@ -147,7 +147,7 @@ html.dark .fe-portal {
     }
 }
 
-// One chip per calendar, filtering the list by `?calendar=`; "All" clears it. Every chip wraps without
+// One chip per calendar, filtering the list by `?fe_calendar=`; "All" clears it. Every chip wraps without
 // JavaScript; with it, wide screens keep one row (--fitted) and the rest go in the "More" panel.
 .fe-calendar-chips {
     &__row {

@@ -14,6 +14,8 @@
  * @var array  $state          Query args every link carries.
  * @var array  $keep_empty     State keys a link keeps even when empty.
  * @var string $page_var       The pagination query arg.
+ * @var string $calendar_var   The calendar query arg.
+ * @var string $search_var     The search query arg.
  * @var array  $rows           List views: one eventRow() per event.
  * @var int    $current_page
  * @var int    $last_page
@@ -85,7 +87,7 @@ $fluentEventEmpty = [
                 <?php foreach ( $chips as $fluentEventChip ) : ?>
                     <a
                         class="fe-calendar-chips__chip<?php echo $fluentEventChip['active'] ? ' fe-calendar-chips__chip--active' : ''; ?>"
-                        href="<?php echo esc_url( $fluentEventLink( [ 'calendar' => $fluentEventChip['slug'] ] ) ); ?>"
+                        href="<?php echo esc_url( $fluentEventLink( [ $calendar_var => $fluentEventChip['slug'] ] ) ); ?>"
                         <?php echo $fluentEventChip['active'] ? 'aria-current="page"' : ''; ?>
                         data-fe-chip
                     >
@@ -114,13 +116,13 @@ $fluentEventEmpty = [
         <form class="fe-events-page__search" method="get" action="<?php echo esc_url( $url ); ?>" role="search">
             <input
                 type="search"
-                name="search"
+                name="<?php echo esc_attr( $search_var ); ?>"
                 class="fe-events-page__search-input"
                 value="<?php echo esc_attr( $search ); ?>"
                 placeholder="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
                 aria-label="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
             >
-            <?php foreach ( array_diff_key( $state, [ 'search' => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
+            <?php foreach ( array_diff_key( $state, [ $search_var => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
                 <input type="hidden" name="<?php echo esc_attr( $fluentEventKey ); ?>" value="<?php echo esc_attr( $fluentEventValue ); ?>">
             <?php endforeach; ?>
         </form>

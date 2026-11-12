@@ -44,7 +44,7 @@ class EventLandingPageTest extends IntegrationTestCase
 
             public function calendar($slug)
             {
-                $_GET = ['calendar' => $slug];
+                $_GET = [FrontEndHandler::CALENDAR_VAR => $slug];
 
                 return ['body' => $this->eventsBody(['calendar' => '', 'view' => '', 'filter' => '', 'view_switch' => '', 'show_calendars' => 'yes'])];
             }
