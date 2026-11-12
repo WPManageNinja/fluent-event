@@ -322,7 +322,7 @@ return [
             'Settings' => __('Settings', 'fluent-event'),
             'Shown at the bottom of every event email. You may include your business name, address, or why the recipient got this email.' => __('Shown at the bottom of every event email. You may include your business name, address, or why the recipient got this email.', 'fluent-event'),
             'Shown at the top of the event page and on event cards.' => __('Shown at the top of the event page and on event cards.', 'fluent-event'),
-            'Site calendars' => __('Site calendars', 'fluent-event'),
+            'Own calendars' => __('Own calendars', 'fluent-event'),
             'Slug' => __('Slug', 'fluent-event'),
             'Something went wrong' => __('Something went wrong', 'fluent-event'),
             'Source' => __('Source', 'fluent-event'),
