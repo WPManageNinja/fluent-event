@@ -60,7 +60,8 @@ class RequestRulesTest extends TestCase
 
     public function test_an_online_event_needs_a_meeting_link()
     {
-        $this->assertSame('required|url', EventRequest::rules(['venue_type' => 'online'])['online_meeting_url']);
+        $this->assertSame('required', EventRequest::rules(['venue_type' => 'online'])['online_meeting_url']);
+        $this->assertSame('url', EventRequest::rules(['venue_type' => 'online', 'online_meeting_url' => 'meet'])['online_meeting_url']);
         $this->assertSame('nullable|url', EventRequest::rules(['venue_type' => 'offline'])['online_meeting_url']);
     }
 

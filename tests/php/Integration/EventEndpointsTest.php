@@ -298,7 +298,7 @@ class EventEndpointsTest extends IntegrationTestCase
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['venue_type' => 'online', 'online_meeting_url' => '']));
 
         $this->assertSame(422, $response['status']);
-        $this->assertStringContainsString('online_meeting_url', wp_json_encode($response['data']));
+        $this->assertSame(['required'], array_keys($response['data']['online_meeting_url']));
     }
 
     public function test_an_event_cannot_be_moved_into_a_calendar_that_does_not_exist()

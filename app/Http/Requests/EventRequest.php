@@ -64,7 +64,8 @@ class EventRequest extends BaseRequest
         $rules['venue'] = 'nullable|string|max:' . Event::venueMaxLength();
 
         if (Arr::get($data, 'venue_type') === 'online') {
-            $rules['online_meeting_url'] = 'required|url';
+            // One rule at a time: the framework reports every failing rule, so an empty link would get both errors.
+            $rules['online_meeting_url'] = Arr::get($data, 'online_meeting_url') ? 'url' : 'required';
         }
 
         return $rules;
