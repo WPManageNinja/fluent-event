@@ -2504,6 +2504,7 @@ body {
         display: block;
         font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
+        white-space: pre-line;
     }
 
     &__error {
