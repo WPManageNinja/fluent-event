@@ -266,6 +266,7 @@ return [
             'No guest activity in this period.' => __('No guest activity in this period.', 'fluent-event'),
             'No guest will get a reminder before an event starts.' => __('No guest will get a reminder before an event starts.', 'fluent-event'),
             'No guests joined yet.' => __('No guests joined yet.', 'fluent-event'),
+            'No guests match your search or filter.' => __('No guests match your search or filter.', 'fluent-event'),
             'No guests yet.' => __('No guests yet.', 'fluent-event'),
             'No past events' => __('No past events', 'fluent-event'),
             'No upcoming events' => __('No upcoming events', 'fluent-event'),

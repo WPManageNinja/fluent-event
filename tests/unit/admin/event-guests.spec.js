@@ -35,3 +35,13 @@ describe('EventGuests tab counts', () => {
         expect(page.guests[1].name).toBe('Renamed');
     });
 });
+
+describe('EventGuests empty list', () => {
+    const message = query => EventGuests.computed.emptyMessage.call({ query, $t: text => text });
+
+    it('says the event has no guests only when nothing narrows the list', () => {
+        expect(message({ search: '', status: '' })).toBe('No guests yet.');
+        expect(message({ search: 'jane', status: '' })).toBe('No guests match your search or filter.');
+        expect(message({ search: '', status: 'cancelled' })).toBe('No guests match your search or filter.');
+    });
+});
