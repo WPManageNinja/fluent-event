@@ -19,6 +19,20 @@ class PortalHandler
 {
     const MENU_SLUG = 'fluent_events';
 
+    protected $routePaths;
+
+    // fcom owns the slug (its FluentEvent settings); the filter can still move any single route.
+    public function __construct($routeSlug = 'events')
+    {
+        $this->routePaths = apply_filters('fluent_event/community/route_paths', [
+            'events'           => $routeSlug,
+            'create_event'     => $routeSlug . '/create',
+            'event_view'       => $routeSlug . '/:event_slug',
+            'space_events'     => $routeSlug,
+            'space_event_view' => $routeSlug . '/:event_slug',
+        ], $routeSlug);
+    }
+
     public function register()
     {
         add_action('fluent_community/before_js_loaded', [$this, 'printVars']);
@@ -62,7 +76,7 @@ class PortalHandler
             'is_system'    => 'yes',
             'is_locked'    => 'no',
             'enabled'      => 'no',
-            'permalink'    => FcomHelper::baseUrl('events'),
+            'permalink'    => FcomHelper::baseUrl($this->routePaths['events']),
             'link_classes' => 'fcom_fe_events route_url',
             'shape_svg'    => Icon::CALENDAR,
         ];
@@ -93,13 +107,14 @@ class PortalHandler
         return $items;
     }
 
+    // fcom serves the portal on a direct load only for listed first segments; the space routes sit under its `space`.
     public function addRoutePath($paths)
     {
-        $paths[] = 'events';
-        $paths[] = 'event';
-        $paths[] = 'create-new-event';
+        foreach (['events', 'create_event', 'event_view'] as $key) {
+            $paths[] = strtok($this->routePaths[$key], '/');
+        }
 
-        return $paths;
+        return array_values(array_unique($paths));
     }
 
     // Runs for every space on every portal load, so it must not query.
@@ -162,6 +177,7 @@ class PortalHandler
             'timezone'            => wp_timezone_string(),
             'start_of_week'       => (int) get_option('start_of_week', 0),
             'venue_max_length'    => Event::venueMaxLength(),
+            'route_paths'         => $this->routePaths,
             'i18n'                => $this->strings(),
         ];
 

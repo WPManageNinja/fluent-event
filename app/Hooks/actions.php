@@ -44,5 +44,5 @@ $app->addAction('init', 'ActivationHandler@maybeUpgrade');
 if (did_action('fluent_community/fluent_event/init')) {
     \FluentEvent\Modules\FluentCommunity\Bootstrap::register();
 } else {
-    add_action('fluent_community/fluent_event/init', ['FluentEvent\Modules\FluentCommunity\Bootstrap', 'register']);
+    add_action('fluent_community/fluent_event/init', ['FluentEvent\Modules\FluentCommunity\Bootstrap', 'register'], 10, 2);
 }

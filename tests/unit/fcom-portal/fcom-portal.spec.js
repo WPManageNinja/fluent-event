@@ -42,9 +42,25 @@ describe('fcom-portal entry', () => {
 
             expect(routes.slice(1).map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
                 { path: '/events', name: 'fe_events', meta: { active_menu: 'fe_events' } },
-                { path: '/create-new-event', name: 'fe_create_event', meta: { active_menu: 'fe_events' } },
-                { path: '/event/:event_slug', name: 'fe_global_event_view', meta: { active_menu: 'fe_events' } }
+                { path: '/events/create', name: 'fe_create_event', meta: { active_menu: 'fe_events' } },
+                { path: '/events/:event_slug', name: 'fe_global_event_view', meta: { active_menu: 'fe_events' } }
             ]);
+        });
+
+        it('takes every path from the server, so a renamed slug moves all of them', async () => {
+            window.fluentEventFcomPortal.route_paths = {
+                events: 'meetups',
+                create_event: 'meetups/create',
+                event_view: 'meetups/:event_slug',
+                space_events: 'meetups',
+                space_event_view: 'meetups/:event_slug'
+            };
+            const { filters } = await loadPortal();
+
+            const routes = filters.fluent_com_portal_routes([spaceRoute()]);
+
+            expect(routes.slice(1).map(route => route.path)).toEqual(['/meetups', '/meetups/create', '/meetups/:event_slug']);
+            expect(routes[0].children.slice(1).map(route => route.path)).toEqual(['meetups', 'meetups/:event_slug']);
         });
 
         it("adds the Events tab and the single event page inside fcom's space route", async () => {
@@ -55,7 +71,7 @@ describe('fcom-portal entry', () => {
             expect(space.children.map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
                 expect.objectContaining({ name: 'space_feeds' }),
                 { path: 'events', name: 'fe_space_events', meta: { in_space: true, show_sidebar: false } },
-                { path: 'event/:event_slug', name: 'fe_event_view', meta: { in_space: true, show_sidebar: false } }
+                { path: 'events/:event_slug', name: 'fe_event_view', meta: { in_space: true, show_sidebar: false } }
             ]);
         });
 
