@@ -28,10 +28,18 @@ class CalendarController extends Controller
             ->orderBy($orderBy, $orderType)
             ->get();
 
-        return [
+        $data = [
             'calendars' => $calendars,
             'counts'    => ['all' => array_sum($counts)] + $counts,
         ];
+
+        /**
+         * The admin calendars list, for add-ons to append fields to each calendar.
+         *
+         * @param array $data    ['calendars' => collection of Calendar, 'counts' => array]
+         * @param array $request The request parameters.
+         */
+        return apply_filters('fluent_event/calendars_api_response', $data, $request->all());
     }
 
     // Dropdowns only need the id, title and colour: no counts.

@@ -14,6 +14,7 @@ class SpaceHandler
         // fcom bulk-deletes the space's posts with no per-post hooks, so the per-post park never runs.
         add_action('fluent_community/space/before_delete', [$this, 'parkCalendar']);
         add_filter('fluent_event/calendar_api_response', [$this, 'addSpaceUrl']);
+        add_filter('fluent_event/calendars_api_response', [$this, 'addSpaceUrls']);
     }
 
     public function addSpaceUrl($data)
@@ -23,6 +24,34 @@ class SpaceHandler
 
         if (CommunityEvents::isDiscussionSpace($space)) {
             $data['space_url'] = esc_url_raw($space->getPermalink());
+        }
+
+        return $data;
+    }
+
+    // One query for the list's spaces, not one per row.
+    public function addSpaceUrls($data)
+    {
+        $spaceIds = [];
+
+        foreach ($data['calendars'] as $calendar) {
+            $spaceIds[$calendar->id] = (int) Arr::get((array) $calendar->meta, CalendarService::SPACE_META_KEY);
+        }
+
+        $spaceIds = array_filter($spaceIds);
+
+        if (!$spaceIds) {
+            return $data;
+        }
+
+        $spaces = FcomBaseSpace::query()->whereIn('id', array_unique($spaceIds))->get()->keyBy('id');
+
+        foreach ($data['calendars'] as $calendar) {
+            $space = $spaces->get(Arr::get($spaceIds, $calendar->id));
+
+            if (CommunityEvents::isDiscussionSpace($space)) {
+                $calendar->space_url = esc_url_raw($space->getPermalink());
+            }
         }
 
         return $data;

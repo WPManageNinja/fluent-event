@@ -96,9 +96,18 @@
         },
         computed: {
             actions() {
-                return [
+                const actions = [
                     { label: this.$t('Edit'), action: () => this.goToEdit() },
                 ];
+
+                if (this.spaceHref) {
+                    actions.push({ label: this.$t('View in Community'), action: () => this.openSpace() });
+                }
+
+                return actions;
+            },
+            spaceHref() {
+                return /^https?:\/\//.test(this.calendar.space_url || '') ? this.calendar.space_url : '';
             },
         },
         methods: {
@@ -133,6 +142,9 @@
                     name: 'calendar_edit',
                     params: { id: this.calendar.id },
                 });
+            },
+            openSpace() {
+                window.open(this.spaceHref, '_blank', 'noopener');
             },
         },
     };

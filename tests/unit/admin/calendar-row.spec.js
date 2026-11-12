@@ -3,10 +3,10 @@ import { shallowMount } from '@vue/test-utils';
 import main from '@/mixins/main';
 import CalendarRow from '@/modules/calendars/parts/CalendarRow.vue';
 
-const row = () => {
+const row = (calendar = {}) => {
     const requestServer = vi.fn();
     const wrapper = shallowMount(CalendarRow, {
-        props: { calendar: { id: 4, title: 'Meetups', slug: 'meetups', status: 'public', meta: { theme_color: '#0099ff' } } },
+        props: { calendar: { id: 4, title: 'Meetups', slug: 'meetups', status: 'public', meta: { theme_color: '#0099ff' }, ...calendar } },
         global: {
             mixins: [main, { methods: { $requestServer: requestServer } }],
             mocks: { $router: { push: vi.fn() } }
@@ -38,5 +38,25 @@ describe('CalendarRow status change', () => {
         wrapper.vm.changeStatus('public');
 
         expect(requestServer).not.toHaveBeenCalled();
+    });
+});
+
+describe('CalendarRow community link', () => {
+    const labels = (wrapper) => wrapper.vm.actions.map(item => item.label);
+
+    it('offers the community space in a new tab when the calendar has one', () => {
+        const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+        const { wrapper } = row({ space_url: 'https://example.test/portal/space/meetups/home' });
+
+        expect(labels(wrapper)).toEqual(['Edit', 'View in Community']);
+
+        wrapper.vm.actions[1].action();
+        expect(open).toHaveBeenCalledWith('https://example.test/portal/space/meetups/home', '_blank', 'noopener');
+        open.mockRestore();
+    });
+
+    it('leaves the item out without a space or with a non-web link', () => {
+        expect(labels(row().wrapper)).toEqual(['Edit']);
+        expect(labels(row({ space_url: 'javascript:alert(1)' }).wrapper)).toEqual(['Edit']);
     });
 });
