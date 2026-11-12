@@ -105,7 +105,7 @@
                                             {{ event.meta?.venue || $t('No venue yet') }}
                                         </p>
 
-                                        <p v-if="event.meta?.address" class="fe-event-overview__row-text">
+                                        <p v-if="event.meta?.address" class="fe-event-overview__row-text fe-event-overview__row-text--address">
                                             {{ event.meta.address }}
                                         </p>
                                     </div>

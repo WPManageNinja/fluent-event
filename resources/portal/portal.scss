@@ -1275,10 +1275,12 @@ html.dark .fe-portal {
         font-weight: 600;
     }
 
+    // Typed in a textarea; keep its lines.
     &__address {
         display: block;
         color: var(--fe-secondary-text, #525866);
         font-size: 13px;
+        white-space: pre-line;
     }
 
     &__join {

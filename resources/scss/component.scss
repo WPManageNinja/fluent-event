@@ -2591,6 +2591,11 @@
             font-size: var(--fe-text-xs, 12px);
             color: var(--fe-tertiary-text, #6B7280);
         }
+
+        // The address is typed in a textarea; keep the lines it was typed on.
+        &.fe-event-overview__row-text--address {
+            white-space: pre-line;
+        }
     }
 
     &__row-link {
@@ -3066,6 +3071,10 @@
         &--muted {
             font-size: var(--fe-text-xs, 12px);
             color: var(--fe-tertiary-text, #6B7280);
+        }
+
+        &.fe-event-detail__row-text--address {
+            white-space: pre-line;
         }
     }
 
