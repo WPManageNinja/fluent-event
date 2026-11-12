@@ -77,10 +77,10 @@
                             filterable
                             clearable
                             remote
-                            :remote-method="searchPages"
+                            :remote-method="search => searchPages(search, field.key)"
                             :loading="pagesSearching"
-                            @update:model-value="value => general[field.key] = value || 0"
-                            @visible-change="visible => visible && searchPages('')"
+                            @update:model-value="value => pickPage(field.key, value)"
+                            @visible-change="visible => visible && searchPages('', field.key)"
                         >
                             <el-option
                                 v-for="option in pageOptionsFor(field.key)"
@@ -364,10 +364,10 @@
                     ? [selected, ...this.pageOptions]
                     : this.pageOptions;
             },
-            searchPages(search) {
+            searchPages(search, key) {
                 this.$requestServer({
                     path: 'settings/pages',
-                    payload: { search },
+                    payload: { search, key },
                     loadingState: 'pagesSearching',
                     errorState: null,
                     errorNotify: true,
@@ -375,6 +375,11 @@
                         this.pageOptions = response.pages;
                     },
                 });
+            },
+            // Preview and the missing-block warning follow the pick, before it is saved.
+            pickPage(key, id) {
+                this.general[key] = id || 0;
+                this.selectedPages[key] = this.pageOptionsFor(key).find(option => option.id === id) || null;
             },
             openAddPage(key) {
                 this.addPageKey = key;

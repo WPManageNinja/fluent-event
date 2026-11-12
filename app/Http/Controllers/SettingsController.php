@@ -60,6 +60,12 @@ class SettingsController extends Controller
     // The page select's remote search, as FluentAffiliate's.
     public function getPages(Request $request)
     {
+        $key = $request->getSafe('key', 'sanitize_key', '');
+
+        $this->validate(['key' => $key], [
+            'key' => 'required|in:' . implode(',', array_keys(EventPageService::PAGES)),
+        ]);
+
         $pages = get_posts([
             'post_type'      => 'page',
             'post_status'    => 'publish',
@@ -70,7 +76,9 @@ class SettingsController extends Controller
         ]);
 
         return [
-            'pages' => array_map([$this, 'pageOption'], $pages),
+            'pages' => array_map(function ($post) use ($key) {
+                return $this->pageOption($post, $key);
+            }, $pages),
         ];
     }
 
@@ -102,32 +110,34 @@ class SettingsController extends Controller
         ];
     }
 
-    // Each setting's page as the select shows it, with whether it holds our shortcode or block yet.
+    // Each setting's saved page.
     private function selectedPages()
     {
         $pages = [];
 
-        foreach (EventPageService::PAGES as $key => $page) {
+        foreach (array_keys(EventPageService::PAGES) as $key) {
             $post = get_post((int) Settings::get()[$key]);
 
             $pages[$key] = $post && $post->post_type === 'page' && $post->post_status !== 'trash'
-                ? $this->pageOption($post) + [
-                    // The tag by name: has_shortcode() also wants it registered, which a REST request needn't have.
-                    'has_shortcode' => (bool) preg_match('/' . get_shortcode_regex([$page['shortcode']]) . '/', $post->post_content)
-                        || has_block($page['block'], $post),
-                ]
+                ? $this->pageOption($post, $key)
                 : null;
         }
 
         return $pages;
     }
 
-    private function pageOption($post)
+    // A page as the select shows it, with whether it holds the setting's shortcode or block yet.
+    private function pageOption($post, $key)
     {
+        $page = EventPageService::PAGES[$key];
+
         return [
-            'id'    => (int) $post->ID,
-            'title' => $post->post_title !== '' ? $post->post_title : __('(no title)', 'fluent-event'),
-            'link'  => (string) get_permalink($post),
+            'id'            => (int) $post->ID,
+            'title'         => $post->post_title !== '' ? $post->post_title : __('(no title)', 'fluent-event'),
+            'link'          => (string) get_permalink($post),
+            // The tag by name: has_shortcode() also wants it registered, which a REST request needn't have.
+            'has_shortcode' => (bool) preg_match('/' . get_shortcode_regex([$page['shortcode']]) . '/', $post->post_content)
+                || has_block($page['block'], $post),
         ];
     }
 

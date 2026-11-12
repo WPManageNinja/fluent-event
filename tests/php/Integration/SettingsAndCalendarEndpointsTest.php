@@ -151,15 +151,18 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame($this->pages['events_page_id'], Settings::get()['events_page_id']);
     }
 
-    public function test_the_page_search_lists_published_pages_only()
+    // Each result says whether it holds the field's block, so a picked page's warning is right before it is saved.
+    public function test_the_page_search_lists_published_pages_and_whether_each_holds_the_list()
     {
         $title = 'Zebra page ' . wp_generate_password(6, false, false);
-        $published = wp_insert_post(['post_type' => 'page', 'post_status' => 'publish', 'post_title' => $title]);
+        $listed = wp_insert_post(['post_type' => 'page', 'post_status' => 'publish', 'post_title' => $title, 'post_content' => '<!-- wp:fluent-event/events /-->']);
+        $plain = wp_insert_post(['post_type' => 'page', 'post_status' => 'publish', 'post_title' => $title . ' plain']);
         wp_insert_post(['post_type' => 'page', 'post_status' => 'draft', 'post_title' => $title . ' draft']);
 
-        $pages = $this->rest('GET', 'settings/pages', ['search' => $title])['data']['pages'];
+        $pages = $this->rest('GET', 'settings/pages', ['search' => $title, 'key' => 'events_page_id'])['data']['pages'];
 
-        $this->assertSame([$published], array_column($pages, 'id'));
+        $this->assertSame([$listed => true, $plain => false], array_column($pages, 'has_shortcode', 'id'));
+        $this->assertSame(422, $this->rest('GET', 'settings/pages', ['search' => $title, 'key' => 'default_events_view'])['status']);
     }
 
     public function test_a_bad_from_address_is_rejected()
