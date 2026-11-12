@@ -149,7 +149,7 @@ return [
             'Delete this calendar' => __('Delete this calendar', 'fluent-event'),
             'Delete this event' => __('Delete this event', 'fluent-event'),
             'Deleting this calendar also permanently deletes all of its events and their guests. This cannot be undone.' => __('Deleting this calendar also permanently deletes all of its events and their guests. This cannot be undone.', 'fluent-event'),
-            'Deleting an event is permanent. The event and all of its data — guests, tickets and settings — are removed for good and cannot be undone.' => __('Deleting an event is permanent. The event and all of its data — guests, tickets and settings — are removed for good and cannot be undone.', 'fluent-event'),
+            'Deleting an event is permanent. The event and all of its data — guests and settings — are removed for good and cannot be undone.' => __('Deleting an event is permanent. The event and all of its data — guests and settings — are removed for good and cannot be undone.', 'fluent-event'),
             'Description' => __('Description', 'fluent-event'),
             'Disable view change option' => __('Disable view change option', 'fluent-event'),
             'Draft' => __('Draft', 'fluent-event'),

@@ -6,7 +6,7 @@
             <h3 class="fe-danger-zone__heading">{{ $t('Delete this event') }}</h3>
 
             <p class="fe-danger-zone__text">
-                {{ $t('Deleting an event is permanent. The event and all of its data — guests, tickets and settings — are removed for good and cannot be undone.') }}
+                {{ $t('Deleting an event is permanent. The event and all of its data — guests and settings — are removed for good and cannot be undone.') }}
             </p>
 
             <label class="fe-danger-zone__label" for="fe-delete-confirm">
