@@ -508,6 +508,9 @@ class FrontEndHandler
                 ->byPeriod($filter === 'all' ? '' : $filter)
                 ->paginate(self::PER_PAGE, ['*'], 'page', $pageNumber);
 
+            // Each row's link reads its post through get_permalink(): one query for the page's posts, not one each.
+            _prime_post_caches(wp_list_pluck($paginator->items(), 'post_id'), false, false);
+
             $data['rows'] = array_map(function ($event) use ($calendarsById) {
                 return $this->eventRow($event, $calendarsById->get($event->calendar_id));
             }, $paginator->items());
@@ -642,6 +645,7 @@ class FrontEndHandler
 
         $byDay = [];
         $rows = $events->inDateRange($from->format('Y-m-d'), $to->format('Y-m-d'))->orderBy('start_at', 'ASC')->get();
+        _prime_post_caches($rows->pluck('post_id')->all(), false, false);
 
         foreach ($rows as $event) {
             $row = $this->eventRow($event, $calendarsById->get($event->calendar_id));

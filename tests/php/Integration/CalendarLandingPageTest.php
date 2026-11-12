@@ -492,4 +492,36 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertNotEmpty($keys);
         $this->assertSame([], array_values(array_unique(array_intersect($keys, apply_filters('query_vars', $GLOBALS['wp']->public_query_vars)))));
     }
+
+    // Each row links through get_permalink(), which reads the event's post: a page of events must not cost a query each.
+    public function test_the_list_and_calendar_load_their_events_posts_in_one_go()
+    {
+        global $wpdb;
+
+        $calendar = $this->createCalendar(['title' => 'Zebra Query Club']);
+        $ids = [];
+
+        foreach ([1, 2, 3] as $n) {
+            $ids[] = (int) $this->createEvent(['calendar_id' => $calendar->id, 'title' => "Zebra query night {$n}"])->post_id;
+        }
+
+        $lookups = [];
+        $this->addTestFilter('query', function ($sql) use (&$lookups, $wpdb, $ids) {
+            if (preg_match("/^SELECT \* FROM {$wpdb->posts} WHERE ID = (\d+)/", $sql, $match) && in_array((int) $match[1], $ids, true)) {
+                $lookups[] = (int) $match[1];
+            }
+
+            return $sql;
+        });
+
+        foreach (['cards', 'calendar'] as $view) {
+            array_map('clean_post_cache', $ids);
+            $lookups = [];
+
+            $body = $this->page($calendar->slug, ['view' => $view, 'date' => gmdate('Y-m-d', strtotime('+3 days'))])['body'];
+
+            $this->assertStringContainsString('Zebra query night 3', $body, $view);
+            $this->assertSame([], $lookups, "{$view}: no event's post is fetched on its own");
+        }
+    }
 }
