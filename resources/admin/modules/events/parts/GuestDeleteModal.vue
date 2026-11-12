@@ -51,7 +51,7 @@
         },
         computed: {
             canSendEmail() {
-                return this.guest?.status === 'going'
+                return ['going', 'checked_in'].includes(this.guest?.status)
                     && !!window.fluentEventAdmin?.email_notifications?.registration_cancellation?.enabled;
             },
         },

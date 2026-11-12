@@ -216,4 +216,16 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertMailSentTo($guest->email);
         $this->assertStringNotContainsString('meet.example.test', $this->sentMail[0]['message']);
     }
+
+    // A checked-in guest holds a seat too, so removing one is a cancellation like a going guest's.
+    public function test_removing_a_checked_in_guest_with_email_sends_a_cancellation()
+    {
+        $event = $this->createEvent();
+        $guest = $this->createGuest($event, ['status' => 'checked_in']);
+
+        $response = $this->rest('DELETE', "events/{$event->id}/guests/{$guest->id}", ['send_email' => 1]);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertMailSentTo($guest->email);
+    }
 }
