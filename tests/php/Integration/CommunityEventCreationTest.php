@@ -305,6 +305,42 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertSame((int) $event->id, CommunityEvents::eventIdOf($feed), 'The post let go of its event.');
     }
 
+    public function test_a_post_without_a_caption_keeps_the_event_title_when_it_lets_go_of_its_event()
+    {
+        $request = $this->postRequest(['title' => 'Friday Q&A']);
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $request), '');
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $event = Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
+
+        // A site calendar has no space to hold the post, so the post becomes a plain one.
+        $event->calendar_id = $this->createCalendar()->id;
+        $event->save();
+        do_action('fluent_event/event/calendar_changed', $event);
+
+        $feed = FcomFeed::query()->find($feed->id);
+        $this->assertSame('text', $feed->content_type);
+        $this->assertSame(0, CommunityEvents::eventIdOf($feed));
+        $this->assertSame('Friday Q&A', $feed->message, 'The post was left blank.');
+        $this->assertStringContainsString('Friday Q&amp;A', $feed->message_rendered);
+    }
+
+    public function test_a_post_with_a_caption_keeps_it_when_it_lets_go_of_its_event()
+    {
+        $request = $this->postRequest(['title' => 'Friday Q&A']);
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $request), 'Bring a laptop.');
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $event = Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
+
+        $event->calendar_id = $this->createCalendar()->id;
+        $event->save();
+        do_action('fluent_event/event/calendar_changed', $event);
+
+        $feed = FcomFeed::query()->find($feed->id);
+        $this->assertSame('text', $feed->content_type);
+        $this->assertSame('Bring a laptop.', $feed->message);
+        $this->assertSame('<p>Bring a laptop.</p>', $feed->message_rendered);
+    }
+
     public function test_the_global_calendar_lookup_reads_the_decoded_meta()
     {
         $this->forgetSiteGlobalCalendar();
@@ -427,14 +463,14 @@ class CommunityEventCreationTest extends IntegrationTestCase
         return apply_filters('fluent_community/feed/new_feed_data_type_event', array_merge(['meta' => []], $data), $request);
     }
 
-    private function savePost(array $data)
+    private function savePost(array $data, $message = 'Rolled back.')
     {
         return FcomFeed::create(array_merge($data, [
             'user_id'          => $this->host,
             'title'            => 'Integration event post',
             'slug'             => 'fe-test-' . strtolower(wp_generate_password(10, false, false)),
-            'message'          => 'Rolled back.',
-            'message_rendered' => '<p>Rolled back.</p>',
+            'message'          => $message,
+            'message_rendered' => $message === '' ? '' : '<p>' . esc_html($message) . '</p>',
             'type'             => 'text',
             'privacy'          => 'public',
             'status'           => 'published',

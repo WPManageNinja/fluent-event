@@ -5,6 +5,7 @@ namespace FluentEvent\Modules\FluentCommunity;
 use FluentCommunity\App\Models\Activity as FcomActivity;
 use FluentCommunity\App\Models\BaseSpace as FcomBaseSpace;
 use FluentCommunity\App\Models\Feed as FcomFeed;
+use FluentCommunity\App\Services\FeedsHelper as FcomFeedsHelper;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Models\Calendar;
@@ -260,6 +261,13 @@ class FeedHandler
 
         $feed->content_type = 'text';
         $feed->meta = Arr::except((array) $feed->meta, ['event_id']);
+
+        // The event card was the post's content and its caption is optional, so an empty one would leave a blank post.
+        if (trim((string) $feed->message) === '') {
+            $feed->message = $event->title ?: __('This event is no longer available.', 'fluent-event');
+            $feed->message_rendered = wp_kses_post(FcomFeedsHelper::mdToHtml($feed->message));
+        }
+
         $feed->save();
     }
 
