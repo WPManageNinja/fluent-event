@@ -32,13 +32,27 @@ tab, composer option, portal pages or assets, and `CommunityPolicy` refuses ever
 route. Event posts already in a feed stay as plain posts with no event card. The FluentEvent admin
 keeps listing community calendars and events; turning the switch back on restores everything.
 
+The same drawer holds the **Events URL slug** (`route_slug`, default `events`). fcom rejects a slug
+that is empty, already one of its portal route paths, or one of its space child paths, and passes
+its settings with the init action (`$app, $settings`). Every community events URL hangs off that
+slug; `fluent_event/community/route_paths` can still move any single route:
+
+| Key | Default path | Route |
+|---|---|---|
+| `events` | `{slug}` | `fe_events` |
+| `create_event` | `{slug}/create` | `fe_create_event` |
+| `event_view` | `{slug}/:event_slug` | `fe_global_event_view` |
+| `space_events` | `{slug}` under `space/:space/` | `fe_space_events` |
+| `space_event_view` | `{slug}/:event_slug` under `space/:space/` | `fe_event_view` |
+
 - **PortalHandler**
   - An **Events** item in fcom's Menu Settings, off until an admin enables it; the mobile menu
     places it before Profile. It is supplied on every request through the bridge's
     `fluent_community/default_main_menu_items`; fcom keeps the admin's saved label and order and
     drops the saved row when nothing supplies it, so the link leaves with the plugin.
   - A space **Events** tab for discussion spaces only, off until a space admin enables it.
-  - `events` in fcom's route paths, and the portal script and styles printed at
+  - The first segment of each top-level route in fcom's route paths, so a reload serves the
+    portal; the menu item links to the `events` path. The route paths, the portal script and styles are printed at
     `fluent_community/before_js_loaded` (the portal is headless, so enqueues never print).
 - **FeedHandler** — the event-post lifecycle:
   - `new_feed_data_type_event`: requires a site administrator (`manage_options`), a discussion space
@@ -70,10 +84,10 @@ keeps listing community calendars and events; turning the switch back on restore
 
 ## Portal UI (`resources/fcom-portal/`)
 
-- `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`: `/events`,
-  `/create-new-event`, `/event/:event_slug` (a community-wide event), and two children of fcom's
-  space route, `/space/:space/events` and
-  `/space/:space/event/:event_slug`. The event page renders under the space's header and tabs (at
+- `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`, taking every path
+  from the printed `route_paths` (by default `/events`, `/events/create`, `/events/:event_slug` for
+  a community-wide event, and two children of fcom's space route, `/space/:space/events` and
+  `/space/:space/events/:event_slug`). Links use route names, never paths. The event page renders under the space's header and tabs (at
   the top level when community-wide) and
   is addressed by the event's own slug (`wp_posts.post_name`, as on the public page), not the
   post's: `GET community/events/by-slug?space=&slug=` returns the post's slug, and the page then

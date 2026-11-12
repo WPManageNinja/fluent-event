@@ -59,6 +59,13 @@ export const portalVars = () => ({
     default_view: 'timeline',
     disable_view_switch: false,
     start_of_week: 0,
+    route_paths: {
+        events: 'events',
+        create_event: 'events/create',
+        event_view: 'events/:event_slug',
+        space_events: 'events',
+        space_event_view: 'events/:event_slug'
+    },
     i18n: {}
 });
 

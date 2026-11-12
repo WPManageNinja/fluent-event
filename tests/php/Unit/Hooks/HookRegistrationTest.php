@@ -97,6 +97,27 @@ class HookRegistrationTest extends TestCase
         $this->assertNotEmpty($recorder->on('fluent_community/feed/before_deleted'));
     }
 
+    /**
+     * The alias stands in for fcom's class for this process only.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function test_a_bridge_registered_late_still_uses_fluentcommunitys_events_slug()
+    {
+        \Mockery::mock('alias:FluentCommunity\Modules\Integrations\Integrations')
+            ->shouldReceive('getFluentEventSettings')
+            ->andReturn(['enable_fluent_event' => 'yes', 'route_slug' => 'meetups']);
+
+        Functions\when('did_action')->alias(function ($hook) {
+            return $hook === 'fluent_community/fluent_event/init' ? 1 : 0;
+        });
+
+        [$entry] = $this->load('actions.php')->on('fluent_community/app_route_paths');
+
+        $this->assertSame(['meetups'], $entry['callback'][0]->addRoutePath([]));
+    }
+
     public function test_every_queued_job_has_a_listener()
     {
         $registered = $this->loadEverything()->hooks();

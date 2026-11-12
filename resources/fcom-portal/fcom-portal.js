@@ -176,8 +176,11 @@ function register() {
     const { addFilter } = window.FluentCommunityUtil.hooks;
 
     addFilter('fluent_com_portal_routes', 'fluent-event', (routes) => {
+        // Built server-side from fcom's events slug, through the fluent_event/community/route_paths filter.
+        const paths = portalVars().route_paths;
+
         routes.push({
-            path: '/events',
+            path: '/' + paths.events,
             name: 'fe_events',
             component: pageShell('events'),
             meta: { active_menu: 'fe_events' },
@@ -185,15 +188,15 @@ function register() {
 
         // ?space=slug starts on that space; without it, on community-wide.
         routes.push({
-            path: '/create-new-event',
+            path: '/' + paths.create_event,
             name: 'fe_create_event',
             component: createEventShell,
             meta: { active_menu: 'fe_events' },
         });
 
-        // A community-wide event, beside fcom's /post/:feed_slug as the space one sits beside space/:space/post.
+        // A community-wide event; the space one below sits under its space's header and tabs.
         routes.push({
-            path: '/event/:event_slug',
+            path: '/' + paths.event_view,
             name: 'fe_global_event_view',
             component: pageShell('global_event_view'),
             meta: { active_menu: 'fe_events' },
@@ -203,16 +206,15 @@ function register() {
 
         if (spaceRoute && spaceRoute.children) {
             spaceRoute.children.push({
-                path: 'events',
+                path: paths.space_events,
                 name: 'fe_space_events',
                 component: pageShell('space_events'),
                 props: true,
                 meta: { in_space: true, show_sidebar: false },
             });
 
-            // Beside fcom's space/:space/post/:feed_slug: one event, under its space's header and tabs.
             spaceRoute.children.push({
-                path: 'event/:event_slug',
+                path: paths.space_event_view,
                 name: 'fe_event_view',
                 component: pageShell('event_view'),
                 props: true,
