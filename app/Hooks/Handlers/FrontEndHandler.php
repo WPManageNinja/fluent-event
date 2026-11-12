@@ -428,8 +428,10 @@ class FrontEndHandler
 
         $viewSwitch = sanitize_key($atts['view_switch']);
         $viewLocked = in_array($viewSwitch, ['yes', 'no'], true) ? $viewSwitch === 'no' : $settings['disable_event_view_switch'] === 'yes';
-        $defaultView = in_array(sanitize_key($atts['view']), self::VIEWS, true) ? sanitize_key($atts['view']) : $settings['default_events_view'];
-        $defaultFilter = in_array(sanitize_key($atts['filter']), self::FILTERS, true) ? sanitize_key($atts['filter']) : 'upcoming';
+        $viewPreset = in_array(sanitize_key($atts['view']), self::VIEWS, true);
+        $filterPreset = in_array(sanitize_key($atts['filter']), self::FILTERS, true);
+        $defaultView = $viewPreset ? sanitize_key($atts['view']) : $settings['default_events_view'];
+        $defaultFilter = $filterPreset ? sanitize_key($atts['filter']) : 'upcoming';
 
         $view = $viewLocked ? '' : sanitize_key(wp_unslash($_GET['view'] ?? ''));
         $filter = sanitize_key(wp_unslash($_GET['filter'] ?? ''));
@@ -518,7 +520,7 @@ class FrontEndHandler
             $data['last_page'] = $paginator->lastPage();
         }
 
-        return $this->rememberChoices($viewLocked ? '' : $defaultView, $defaultFilter)
+        return $this->rememberChoices($viewLocked || $viewPreset ? '' : $defaultView, $filterPreset ? '' : $defaultFilter)
             // make() returns the shared View, not HTML: left uncast, it renders the layout inside itself.
             . (string) App::make('view')->make('portal.events', $data);
     }
@@ -756,15 +758,22 @@ class FrontEndHandler
 
     // Like the admin's events list, the last view and tab are kept per browser. A link that names them wins
     // and is remembered; a bare link is redirected to the remembered choice. Inline ahead of the list, since
-    // the theme's head has printed by the time a shortcode renders.
+    // the theme's head has printed by the time a shortcode renders. One memory serves every list, so an empty
+    // default (a view or tab the block or shortcode sets itself) is left out of it.
     protected function rememberChoices($defaultView, $defaultFilter)
     {
-        $choices = [
-            'filter' => ['key' => 'fe_portal_events_filter', 'allowed' => self::FILTERS, 'fallback' => $defaultFilter],
-        ];
+        $choices = [];
+
+        if ($defaultFilter) {
+            $choices['filter'] = ['key' => 'fe_portal_events_filter', 'allowed' => self::FILTERS, 'fallback' => $defaultFilter];
+        }
 
         if ($defaultView) {
             $choices['view'] = ['key' => 'fe_portal_events_view', 'allowed' => self::VIEWS, 'fallback' => $defaultView];
+        }
+
+        if (!$choices) {
+            return '';
         }
 
         ob_start();

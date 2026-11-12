@@ -328,6 +328,24 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertMatchesRegularExpression('/fe-switch__option--active"\s*href="[^"]*filter=past/', $past);
     }
 
+    // The remembered view and tab are one per browser, so a choice made on another list mustn't move a preset.
+    public function test_a_view_or_filter_remembered_on_another_list_leaves_a_preset_alone()
+    {
+        Settings::update(Settings::GENERAL, ['default_events_view' => 'timeline', 'disable_event_view_switch' => 'no']);
+        $this->createEvent(['calendar_id' => $this->createCalendar()->id]);
+
+        $plain = $this->page('')['body'];
+        $preset = $this->page('', [], ['view' => 'calendar', 'filter' => 'past'])['body'];
+        $viewOnly = $this->page('', [], ['view' => 'cards'])['body'];
+
+        $this->assertStringContainsString('fe_portal_events_view', $plain);
+        $this->assertStringContainsString('fe_portal_events_filter', $plain);
+        $this->assertStringNotContainsString('fe_portal_events_view', $preset);
+        $this->assertStringNotContainsString('fe_portal_events_filter', $preset);
+        $this->assertStringNotContainsString('fe_portal_events_view', $viewOnly);
+        $this->assertStringContainsString('fe_portal_events_filter', $viewOnly);
+    }
+
     public function test_only_public_events_are_listed()
     {
         $calendar = $this->createCalendar();
