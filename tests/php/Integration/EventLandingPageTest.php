@@ -259,6 +259,51 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertTrue(is_post_type_archive(EventPost::POST_TYPE), 'The archive renders the events list itself.');
     }
 
+    // Core's admin pickers (the link dialog, Media → Attach) list every public post type to anyone who can edit a post.
+    public function test_admin_pickers_leave_out_hidden_events()
+    {
+        $token = 'fepicker' . strtolower(wp_generate_password(8, false, false));
+        $calendar = $this->createCalendar();
+        $public = $this->createEvent(['calendar_id' => $calendar->id, 'title' => "$token public"]);
+        $unlisted = $this->createEvent(['calendar_id' => $calendar->id, 'title' => "$token unlisted", 'status' => 'unlisted']);
+        $draft = $this->createEvent(['calendar_id' => $calendar->id, 'title' => "$token draft", 'status' => 'draft']);
+        $inPrivate = $this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id, 'title' => "$token in private"]);
+
+        require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+        require_once ABSPATH . 'wp-admin/includes/screen.php';
+        require_once ABSPATH . WPINC . '/class-wp-editor.php';
+        $GLOBALS['current_screen'] = \WP_Screen::get('post');
+
+        // The two core queries, as wp-link-ajax and find_posts build them.
+        $linked = function () use ($token) {
+            return array_map('intval', wp_list_pluck(\_WP_Editors::wp_link_query(['s' => $token]) ?: [], 'ID'));
+        };
+        $attachable = function () use ($token) {
+            $types = get_post_types(['public' => true]);
+            unset($types['attachment']);
+
+            return (new \WP_Query(['post_type' => array_keys($types), 'post_status' => 'any', 's' => $token, 'posts_per_page' => 50, 'fields' => 'ids']))->posts;
+        };
+
+        try {
+            $this->actAs($this->createUser('contributor'));
+
+            foreach ([$linked(), $attachable()] as $ids) {
+                $this->assertContains($public->post_id, $ids, 'A public event stays linkable.');
+                $this->assertNotContains($unlisted->post_id, $ids, 'An unlisted event opens by its link only.');
+                $this->assertNotContains($draft->post_id, $ids);
+                $this->assertNotContains($inPrivate->post_id, $ids);
+            }
+
+            // As in the block's own picker, an admin may link an unlisted event.
+            $this->actAs($this->createAdmin());
+            $this->assertContains($unlisted->post_id, $linked());
+            $this->assertNotContains($inPrivate->post_id, $linked());
+        } finally {
+            unset($GLOBALS['current_screen']);
+        }
+    }
+
     // A visit to the event's address, in WordPress's order: its query by slug, its own 404 for no post, then our guard.
     private function open($event)
     {

@@ -141,7 +141,26 @@ class FrontEndHandler
     // WordPress lists public posts in its archive, feeds and sitemaps; those list only what our events list shows.
     public function limitListings($query)
     {
-        if (is_admin() || $query->is_singular() || !in_array(EventPost::POST_TYPE, (array) $query->get('post_type'), true)) {
+        if ($query->is_singular() || !in_array(EventPost::POST_TYPE, (array) $query->get('post_type'), true)) {
+            return;
+        }
+
+        // Core's admin pickers (the link dialog, Media → Attach) list every public type to anyone who can edit a post:
+        // only the hidden events leave, and an admin may link an unlisted one, as in the block's own picker.
+        if (is_admin()) {
+            $listed = current_user_can('manage_options') ? ['public', 'unlisted'] : ['public'];
+            $hidden = Event::query()
+                ->where(function ($events) use ($listed) {
+                    $events->whereNotIn('status', $listed)
+                        ->orWhereDoesntHave('calendar', function ($calendars) {
+                            $calendars->byStatus('public');
+                        });
+                })
+                ->pluck('post_id')
+                ->all();
+
+            $query->set('post__not_in', array_merge((array) $query->get('post__not_in'), array_map('intval', $hidden)));
+
             return;
         }
 
