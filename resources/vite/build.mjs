@@ -7,7 +7,8 @@
  * A JS app builds with cssCodeSplit off, so Vite writes all of its CSS to one stylesheet and
  * records it in the manifest as "style.css", attached to nothing. That record is hung on the app's
  * first entry as its `css`, so the enqueuer loads it with the script (and swaps in the .rtl.css
- * twin on RTL sites). No CSS is left for the browser to fetch at runtime.
+ * twin on RTL sites). The fcom portal app is the exception: it keeps its CSS per lazy chunk (see
+ * LAZY_CSS_APPS in vite.config.js), and its chunks pick the .rtl.css twin at runtime.
  */
 
 import { spawnSync } from 'child_process';

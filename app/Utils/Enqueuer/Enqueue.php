@@ -120,19 +120,13 @@ class Enqueue
     }
 
     /**
-     * The stylesheet URLs a built entry needs, for callers that print their own tags (an entry
-     * loaded through Enqueue::script gets them automatically). Empty when the build is missing.
+     * Whether the site loads the mirrored (.rtl.css) stylesheets.
      *
-     * @param  string  $src  Entry path relative to the resource root.
-     * @return array<int, string>
+     * @return bool
      */
-    public static function entryStyleUrls($src)
+    public static function isRtl()
     {
-        try {
-            return static::$enqueuer::getEntryStyleUrls($src);
-        } catch (\Exception $e) {
-            return [];
-        }
+        return static::$enqueuer::isRtl();
     }
 
     /**

@@ -46,6 +46,23 @@ function coreChunk(appName) {
     };
 }
 
+// The fcom portal shares its page with fcom, whose own Element Plus styles our copy would override. So that
+// app keeps its CSS per lazy chunk, loaded only when an events page opens. The browser fetches those files
+// at runtime, so the chunk picks the .rtl.css twin itself, from the flag PortalHandler::printVars() prints.
+const LAZY_CSS_APPS = ['fcom-portal'];
+
+function lazyCssUrl(filename, { hostId, hostType }) {
+    if (hostType !== 'js' || !filename.endsWith('.css')) {
+        return undefined;
+    }
+
+    let relative = path.posix.relative(path.posix.dirname(hostId), filename);
+    relative = relative.startsWith('.') ? relative : `./${relative}`;
+    const rtl = relative.replace(/\.css$/, '.rtl.css');
+
+    return { runtime: `(window.fluentEventFcomPortal&&window.fluentEventFcomPortal.is_rtl?${JSON.stringify(rtl)}:${JSON.stringify(relative)})` };
+}
+
 export default defineConfig(({ mode, command }) => {
     const isDev = mode === 'development';
     const appName = process.env.VITE_APP_NAME;
@@ -76,6 +93,7 @@ export default defineConfig(({ mode, command }) => {
             Components({ resolvers: [ElementPlusResolver()], directives: false })
         ],
         define: { __DEV__: isDev },
+        experimental: LAZY_CSS_APPS.includes(appName) ? { renderBuiltUrl: lazyCssUrl } : {},
         // The blocks' JSX builds on WordPress's own React, as the Fluent suite's blocks do.
         // warn and error stay in production so real failures remain visible.
         esbuild: {
@@ -90,7 +108,7 @@ export default defineConfig(({ mode, command }) => {
             assetsDir: '',
             // build.js empties assets/ on the first run only, so later runs add to it.
             emptyOutDir: process.env.VITE_EMPTY_OUT_DIR === 'yes',
-            cssCodeSplit: !appName || appName === 'styles',
+            cssCodeSplit: !appName || appName === 'styles' || LAZY_CSS_APPS.includes(appName),
             rollupOptions: {
                 input: appName ? APPS[appName] : Object.values(APPS).flat(),
                 // Chunks import each other without the entries' ?ver=, so their names carry a content hash.

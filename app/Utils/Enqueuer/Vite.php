@@ -132,7 +132,18 @@ class Vite extends Enqueuer
             return $url;
         }
 
-        return apply_filters('fluent_event/is_rtl', is_rtl()) ? preg_replace('/\.css$/', '.rtl.css', $url) : $url;
+        return static::isRtl() ? preg_replace('/\.css$/', '.rtl.css', $url) : $url;
+    }
+
+    /**
+     * Whether the built stylesheets load their .rtl.css twins. The fcom portal's lazy chunks read the
+     * same answer from PortalHandler::printVars(), so PHP and the browser never pick different files.
+     *
+     * @return bool
+     */
+    public static function isRtl(): bool
+    {
+        return (bool) apply_filters('fluent_event/is_rtl', is_rtl());
     }
 
     /**
@@ -146,27 +157,6 @@ class Vite extends Enqueuer
         }
 
         return static::styleUrl(static::getProductionFilePath($this->getFileFromManifest($src)));
-    }
-
-    /**
-     * The stylesheets a built entry needs (its app's CSS), for callers that print their own tags.
-     * Empty in dev mode, where the dev server injects them.
-     *
-     * @param string $src
-     * @return array<int, string>
-     */
-    private function getEntryStyleUrls(string $src): array
-    {
-        if (static::isOnDevMode()) {
-            return [];
-        }
-
-        $entry = $this->getFileFromManifest($src);
-        $assetPath = static::getAssetPath();
-
-        return array_map(function ($path) use ($assetPath) {
-            return static::styleUrl($assetPath . $path);
-        }, isset($entry['css']) && is_array($entry['css']) ? array_values($entry['css']) : []);
     }
 
     /**

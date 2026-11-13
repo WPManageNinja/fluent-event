@@ -52,17 +52,30 @@ describe('vite build config', () => {
     });
 
     // One stylesheet per JS app, enqueued by PHP and mirrored by the RTL step; the SCSS entries keep
-    // one file each.
-    it('keeps each JS app in one stylesheet and splits only the SCSS entries', () => {
+    // one file each. The fcom portal shares its page with fcom, so its CSS stays in its lazy chunks.
+    it('keeps each JS app in one stylesheet, except the fcom portal', () => {
         for (const name of Object.keys(APPS)) {
-            expect(buildConfig(name).build.cssCodeSplit).toBe(name === 'styles');
+            expect(buildConfig(name).build.cssCodeSplit).toBe(name === 'styles' || name === 'fcom-portal');
         }
     });
 
     it('names a JS app stylesheet after its app, with a hash', () => {
-        const { output } = buildConfig('fcom-portal').build.rollupOptions;
+        const { output } = buildConfig('admin').build.rollupOptions;
 
-        expect(output.assetFileNames({ name: 'style.css' })).toBe('admin/fcom-portal-app-[hash][extname]');
+        expect(output.assetFileNames({ name: 'style.css' })).toBe('admin/admin-app-[hash][extname]');
+    });
+
+    // The browser fetches the portal's lazy CSS itself, so the chunk has to pick the RTL twin.
+    it('lets the fcom portal chunks pick the RTL twin of their lazy CSS', () => {
+        const { renderBuiltUrl } = buildConfig('fcom-portal').experimental;
+        const url = renderBuiltUrl('admin/EventsPage-abc.css', { hostId: 'fcom-portal-abc.js', hostType: 'js' });
+
+        expect(url.runtime).toContain('fluentEventFcomPortal.is_rtl');
+        expect(url.runtime).toContain('"./admin/EventsPage-abc.rtl.css"');
+        expect(url.runtime).toContain('"./admin/EventsPage-abc.css"');
+        expect(renderBuiltUrl('logo-abc.png', { hostId: 'fcom-portal-abc.js', hostType: 'js' })).toBeUndefined();
+        expect(renderBuiltUrl('font-abc.woff2', { hostId: 'admin/x.css', hostType: 'css' })).toBeUndefined();
+        expect(buildConfig('admin').experimental.renderBuiltUrl).toBeUndefined();
     });
 
     // build.mjs merges the per-run manifests; one shared name would let each run overwrite the last.

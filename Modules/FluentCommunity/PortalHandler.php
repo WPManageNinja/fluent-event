@@ -147,12 +147,6 @@ class PortalHandler
 
     public function addStylesheet($vars)
     {
-        // The portal script's own components' CSS (Element Plus included) is built into one app
-        // stylesheet; fcom prints these tags itself, so it needs the URLs, not an enqueue.
-        foreach (Enqueue::entryStyleUrls('fcom-portal/fcom-portal.js') as $index => $url) {
-            $vars['css_files']['fluent_event_fcom_portal_app_' . $index] = ['url' => $url];
-        }
-
         $style = Enqueue::url('fcom-portal/fcom-portal.scss');
 
         if ($style) {
@@ -188,6 +182,8 @@ class PortalHandler
             'venue_max_length'    => Event::venueMaxLength(),
             'route_paths'         => $this->routePaths(),
             'i18n'                => $this->strings(),
+            // The lazy chunks load their stylesheets themselves; this picks the .rtl.css twins.
+            'is_rtl'              => Enqueue::isRtl(),
         ];
 
         wp_print_inline_script_tag('window.fluentEventFcomPortal = ' . wp_json_encode($vars, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';');
