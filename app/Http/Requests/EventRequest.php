@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Requests;
 
 use FluentEvent\App\Models\Event;
+use FluentEvent\App\Utils\Utility;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Validator\ValidationException;
 
@@ -24,11 +25,13 @@ class EventRequest extends BaseRequest
         'address',
         'entry_type',
         'show_guest_count',
+        'description_md',
     ];
     const SANITIZERS = [
         'calendar_id'        => 'intval',
         'title'              => 'sanitize_text_field',
         'description'        => 'wp_kses_post',
+        'description_md'     => 'markdown',
         'status'             => 'sanitize_text_field',
         'start_at'           => 'sanitize_text_field',
         'end_at'             => 'sanitize_text_field',
@@ -45,6 +48,7 @@ class EventRequest extends BaseRequest
         'calendar_id'        => 'required|exists:fe_calendars,id',
         'title'              => 'required|string|max:255',
         'description'        => 'nullable|string',
+        'description_md'     => 'nullable|string',
         'status'             => 'required|string|in:' . Event::STATUSES,
         // No `date` rule: the framework ignores a custom message for it, so validateDateWindow() checks the dates.
         'start_at'           => 'required',
@@ -107,6 +111,7 @@ class EventRequest extends BaseRequest
             'title.string'                => __('Event title must be text.', 'fluent-event'),
             'title.max'                   => __('Event title cannot exceed 255 characters.', 'fluent-event'),
             'description.string'          => __('Event Description must be text.', 'fluent-event'),
+            'description_md.string'       => __('Event Description must be text.', 'fluent-event'),
             'status.required'             => __('Status is required.', 'fluent-event'),
             'status.in'                   => __('Status must be public, unlisted, private or draft.', 'fluent-event'),
             'start_at.required'           => __('Start date and time are required.', 'fluent-event'),
@@ -131,6 +136,11 @@ class EventRequest extends BaseRequest
         $formatted = Arr::only(
             $data, array_merge(self::COLUMNS, ['title', 'description'])
         );
+
+        // The markdown is the source; the post keeps the HTML every page, email and calendar file reads.
+        if (array_key_exists('description_md', $data)) {
+            $formatted['description'] = Utility::mdToHtml($data['description_md']);
+        }
 
         $formatted['meta'] = array_merge(
             Event::defaultMeta(),
