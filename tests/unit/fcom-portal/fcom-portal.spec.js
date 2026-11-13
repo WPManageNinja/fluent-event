@@ -19,6 +19,7 @@ const loadPortal = async () => {
 
 afterEach(() => {
     delete window.FluentCommunityUtil;
+    delete window.fluentEventPortalRegistered;
 });
 
 describe('fcom-portal entry', () => {
@@ -32,6 +33,15 @@ describe('fcom-portal entry', () => {
             ['fluent_com_feed_actions', 'fluent-event'],
             ['fluent_com_composer_config', 'fluent-event']
         ]);
+    });
+
+    it('registers once when a lazy page loads the entry again without its ?ver=, so menus get no second Create new event', async () => {
+        const { util } = await loadPortal();
+
+        vi.resetModules();
+        await import('../../../resources/fcom-portal/fcom-portal.js');
+
+        expect(util.hooks.addFilter).toHaveBeenCalledTimes(5);
     });
 
     describe('routes', () => {
