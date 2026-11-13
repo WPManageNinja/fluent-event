@@ -3147,6 +3147,9 @@
 // Milkdown's editor in our colours, so both modes follow the admin theme. Crepe sets its
 // variables on `.milkdown`; one class deeper wins whichever stylesheet loads last.
 .fe-markdown-editor {
+    // Over the fields below it, so its slash menu and toolbar aren't painted under them.
+    position: relative;
+    z-index: 2;
     min-height: 240px;
     border: 1px solid var(--fe-primary-border, #eaecf0);
     border-radius: var(--fe-radius, 8px);
@@ -3179,12 +3182,123 @@
         --crepe-font-default: inherit;
         --crepe-shadow-1: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
         --crepe-shadow-2: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
-        border-radius: inherit;
+        // The frame paints the background, so its rounded border isn't covered at the corners.
+        background: transparent;
 
-        // Crepe pads for a full page; the left gap keeps room for the handle beside each block.
+        // Crepe pads for a full page.
         .ProseMirror {
             min-height: 240px;
-            padding: 16px 20px 16px 56px;
+            padding: 12px 16px;
+
+            // wp-admin's common.css colours headings #1d2327, and Crepe sets none; dark mode needs the editor's.
+            h1, h2, h3, h4, h5, h6 {
+                color: inherit;
+            }
+
+            // Crepe's heading margin would push a first-line heading away from the frame's top.
+            > :first-child {
+                margin-top: 0;
+            }
+        }
+
+        // Crepe's other floating boxes, like the "/" menu below: the selection toolbar, the link
+        // preview and editor, a table column's tools and a code block's language list.
+        milkdown-toolbar,
+        milkdown-link-preview > .link-preview,
+        milkdown-link-edit > .link-edit,
+        milkdown-table-block .cell-handle .button-group,
+        milkdown-code-block .list-wrapper {
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius, 8px);
+            background: var(--fe-primary-bg, #ffffff);
+            box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        }
+
+        // Crepe names the link boxes' icon buttons `.button`, which wp-admin styles as its own (border, 40px height).
+        milkdown-link-preview > .link-preview > .button,
+        milkdown-link-edit > .link-edit > .button {
+            min-height: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+
+            &:hover {
+                background: var(--fe-hover-bg, #f9fafb);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--fe-primary-text, #19283a);
+                outline-offset: 1px;
+            }
+        }
+
+        // As in fcom's editor: no drag handle beside each block; "/" opens the menu.
+        milkdown-block-handle {
+            display: none;
+        }
+
+        // The "/" menu, sized and coloured like the navbar's dropdowns. No group tabs: the list
+        // scrolls, and typing after "/" filters it.
+        milkdown-slash-menu {
+            min-width: 200px;
+            padding: var(--fe-space-2, 8px);
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius, 8px);
+            background: var(--fe-primary-bg, #ffffff);
+            box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+            .tab-group {
+                display: none;
+            }
+
+            .menu-groups {
+                max-height: 320px;
+                padding: 0;
+            }
+
+            .menu-groups .menu-group {
+                h6 {
+                    padding: 6px 12px 4px;
+                    font-size: 11px;
+                    line-height: 16px;
+                    letter-spacing: 0.04em;
+                    color: var(--fe-tertiary-text, #6b7280);
+                }
+
+                li {
+                    min-width: 0;
+                    gap: var(--fe-space-2, 8px);
+                    padding: 8px 12px;
+                    color: var(--fe-secondary-text, #525866);
+
+                    > svg {
+                        width: 18px;
+                        height: 18px;
+                        color: currentColor;
+                        fill: currentColor;
+                    }
+
+                    > span {
+                        font-size: var(--fe-text-sm, 14px);
+                        font-weight: 500;
+                    }
+                }
+
+                li.hover {
+                    background: var(--fe-hover-bg, #f9fafb);
+                    color: var(--fe-primary-text, #19283a);
+                }
+
+                li.active {
+                    background: var(--fe-active-bg, #f0f0f1);
+                    color: var(--fe-accent, #253241);
+                }
+            }
+
+            .menu-groups .menu-group + .menu-group::before {
+                margin: 4px 12px;
+                background: var(--fe-primary-border, #eaecf0);
+            }
         }
     }
 }
