@@ -44,16 +44,16 @@ class SanitizerTest extends IntegrationTestCase
         $data = EventRequest::sanitize([
             'calendar_id' => '5abc',
             'title'       => '<b>Launch</b> <script>alert(1)</script>',
-            'description' => '<p>Come along</p><script>alert(1)</script>',
+            'description_md' => "Come along\r\n<script>alert(1)</script>",
             'cover_url'   => 'javascript:alert(1)',
             'address'     => "12 Road\nDhaka",
         ]);
 
         $this->assertSame(5, $data['calendar_id']);
         $this->assertSame('Launch', $data['title']);
-        // wp_kses_post() drops the tag but keeps its text, which is inert once the tag is gone.
-        $this->assertStringStartsWith('<p>Come along</p>', $data['description']);
-        $this->assertStringNotContainsString('<script', $data['description']);
+        // Markdown is kept as written, line endings aside; it only reaches a page rendered and kses'd.
+        $this->assertSame("Come along\n<script>alert(1)</script>", $data['description_md']);
+        $this->assertArrayNotHasKey('description', $data);
         $this->assertSame('', $data['cover_url']);
         $this->assertSame("12 Road\nDhaka", $data['address'], 'A multi-line address must keep its line break');
     }

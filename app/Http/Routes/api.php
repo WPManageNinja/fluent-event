@@ -72,7 +72,6 @@ $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($ro
         ->int('id')->before(new Throttle(10));
     $router->post('/events/{id}/register-guest', [CommunityEventController::class, 'registerGuest'])
         ->int('id')->before(new Throttle(5));
-    $router->get('/editor-assets', [CommunityEventController::class, 'getEditorAssets']);
 });
 
 // The public event page's registration form.

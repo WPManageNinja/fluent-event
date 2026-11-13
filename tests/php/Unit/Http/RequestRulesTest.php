@@ -44,7 +44,7 @@ class RequestRulesTest extends TestCase
         return array_merge([
             'calendar_id'        => 3,
             'title'              => 'Launch party',
-            'description'        => '<p>Come along</p>',
+            'description_md'     => 'Come along',
             'status'             => 'public',
             'start_at'           => '2026-11-01 18:00:00',
             'end_at'             => '2026-11-01 21:00:00',

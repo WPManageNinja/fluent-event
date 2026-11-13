@@ -245,7 +245,7 @@ abstract class IntegrationTestCase extends BaseTestCase
         return array_merge([
             'calendar_id'      => $event->calendar_id,
             'title'            => $event->title,
-            'description'      => $event->description,
+            'description_md'   => (string) (((array) $event->meta)['description_md'] ?? ''),
             'status'           => $event->status,
             'start_at'         => $event->start_at_local,
             'end_at'           => $event->end_at_local,

@@ -176,7 +176,7 @@ class EventEndpointsTest extends IntegrationTestCase
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
             'title'       => 'AC\DC Live',
-            'description' => '<p>Slides in C:\Reports</p>',
+            'description_md' => 'Slides in C:\Reports',
         ]));
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
@@ -320,18 +320,19 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $response['status']);
     }
 
-    public function test_script_in_an_event_description_is_stripped_on_save()
+    public function test_script_in_an_event_description_is_saved_as_text()
     {
         $event = $this->createEvent();
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
-            'description' => '<p>Bring snacks</p><script>alert(1)</script>',
+            'description_md' => "Bring snacks\n\n<script>alert(1)</script>",
         ]));
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
 
         $content = get_post($event->post_id)->post_content;
         $this->assertStringContainsString('<p>Bring snacks</p>', $content);
+        $this->assertStringContainsString('&lt;script&gt;', $content);
         $this->assertStringNotContainsString('<script', $content);
     }
 
