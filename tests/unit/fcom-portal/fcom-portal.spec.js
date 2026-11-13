@@ -228,8 +228,8 @@ describe('fcom-portal entry', () => {
             expect(shell.feed.space).toBe('design');
         });
 
-        it('starts the composer folded, as fcom shows it in the feed', async () => {
-            expect((await createShell()).template).not.toContain('default-state');
+        it('opens the composer from the start, since the page is there to write a post', async () => {
+            expect((await createShell()).template).toContain('defaultState="active"');
         });
 
         it('opens a folded composer before posting, since post() ignores a folded one', async () => {

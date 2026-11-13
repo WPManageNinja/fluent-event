@@ -160,6 +160,7 @@ const createEventShell = {
             <teleport v-if="ready" to="#fe-create-event-composer">
                 <create-status-form
                     ref="composer"
+                    defaultState="active"
                     :disableSpace="placement === 'global'"
                     :hideSubmit="true"
                     :editing_feed="feed"
