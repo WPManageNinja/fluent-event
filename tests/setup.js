@@ -30,6 +30,8 @@ export const adminVars = () => ({
     date_format: 'MMM D, YYYY',
     time_format: 'h:mm a',
     brand_logo: '',
+    // As with FluentEvent Pro active, so the Team route the PHP menu links to is registered.
+    has_pro: true,
     nonce: 'test-ajax-nonce',
     asset_url: 'https://example.test/wp-content/plugins/fluent-events/assets/',
     rest: {
@@ -47,7 +49,9 @@ export const adminVars = () => ({
         id: 1,
         email: 'admin@example.test',
         full_name: 'Site Admin',
-        avatar: ''
+        avatar: '',
+        is_admin: true,
+        permissions: ['manage_all_data']
     },
     i18n: {}
 });

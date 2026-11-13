@@ -76,6 +76,7 @@
                 </router-link>
 
                 <router-link
+                    v-if="$userCan('write_events')"
                     class="fe-event-card__link"
                     :to="{ name: 'event_edit', params: { id: event.id } }"
                     @click.stop

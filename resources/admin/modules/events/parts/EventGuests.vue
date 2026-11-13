@@ -11,6 +11,7 @@
                 />
 
                 <el-button
+                    v-if="$userCan('write_guests')"
                     type="primary"
                     @click="openCreate"
                 >
@@ -74,7 +75,16 @@
                     <p class="fe-guests__source" role="cell">{{ row.sourceLabel }}</p>
 
                     <div class="fe-guests__stage" role="cell">
-                        <ActionPopover :width="160" placement="bottom-end">
+                        <el-tag
+                            v-if="!$userCan('write_guests')"
+                            class="fe-guests__tag"
+                            :type="row.tagType"
+                            size="small"
+                        >
+                            {{ row.statusLabel }}
+                        </el-tag>
+
+                        <ActionPopover v-else :width="160" placement="bottom-end">
                             <template #trigger>
                                 <el-tag
                                     class="fe-guests__tag"
@@ -270,11 +280,18 @@
         },
         methods: {
             actionsFor(row) {
-                return [
+                const actions = [
                     { label: this.$t('View'), action: () => this.openDetails(row) },
-                    { label: this.$t('Edit'), action: () => this.openEdit(row) },
-                    { label: this.$t('Delete'), type: 'danger', action: () => this.promptDelete(row) },
                 ];
+
+                if (this.$userCan('write_guests')) {
+                    actions.push(
+                        { label: this.$t('Edit'), action: () => this.openEdit(row) },
+                        { label: this.$t('Delete'), type: 'danger', action: () => this.promptDelete(row) },
+                    );
+                }
+
+                return actions;
             },
             openCreate() {
                 this.activeGuest = null;

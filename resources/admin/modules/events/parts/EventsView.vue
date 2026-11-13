@@ -45,7 +45,7 @@
                                 </el-radio-group>
                             </el-form-item>
 
-                            <el-form-item v-if="showCalendar" :label="$t('Calendar')">
+                            <el-form-item v-if="showCalendarFilter" :label="$t('Calendar')">
                                 <el-select v-model="pendingFilters.calendar_id" filterable>
                                     <el-option :label="$t('All')" :value="0" />
                                     <el-option
@@ -226,6 +226,11 @@
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
             },
+            showCalendarFilter() {
+                return this.showCalendar && this.$userCan(
+                    ['read_calendars', 'write_calendars'], { match_type: 'any' }
+                );
+            },
             views() {
                 return [
                     { value: 'cards', label: this.$t('Cards'), icon: Grid },
@@ -384,7 +389,7 @@
                 this.fetchEvents();
             },
             syncFilters() {
-                if (this.showCalendar && !this.calendars.length) {
+                if (this.showCalendarFilter && !this.calendars.length) {
                     this.fetchCalendars();
                 }
 

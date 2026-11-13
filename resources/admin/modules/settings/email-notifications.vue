@@ -38,6 +38,7 @@
 
                             <el-switch
                                 v-model="confirmation.enabled"
+                                :disabled="!$userCan('write_settings')"
                                 :aria-label="$t('Send a confirmation email when a guest registers')"
                             />
                         </div>
@@ -65,6 +66,7 @@
 
                             <el-switch
                                 v-model="cancellation.enabled"
+                                :disabled="!$userCan('write_settings')"
                                 :aria-label="$t('Send an email when a registration is cancelled')"
                             />
                         </div>
@@ -101,6 +103,7 @@
 
                             <el-switch
                                 v-model="reminder.enabled"
+                                :disabled="!$userCan('write_settings')"
                                 :aria-label="$t('Send reminder emails to guests')"
                             />
                         </div>
@@ -118,12 +121,14 @@
                                     v-model="time.value"
                                     class="fe-form__number"
                                     :controls="false"
+                                    :disabled="!$userCan('write_settings')"
                                     :aria-label="$t('Reminder time')"
                                 />
 
                                 <el-select
                                     v-model="time.unit"
                                     class="fe-form__unit"
+                                    :disabled="!$userCan('write_settings')"
                                     :aria-label="$t('Reminder unit')"
                                 >
                                     <el-option
@@ -135,7 +140,7 @@
                                 </el-select>
 
                                 <el-button
-                                    v-if="times.length > 1"
+                                    v-if="$userCan('write_settings') && times.length > 1"
                                     link
                                     :aria-label="$t('Remove reminder')"
                                     :title="$t('Remove reminder')"
@@ -145,7 +150,7 @@
                                 </el-button>
                             </div>
 
-                            <el-button v-if="times.length < maxTimes" link @click="addTime">
+                            <el-button v-if="$userCan('write_settings') && times.length < maxTimes" link @click="addTime">
                                 <el-icon><Plus /></el-icon>
                                 <span>{{ $t('Add Reminder') }}</span>
                             </el-button>
@@ -154,7 +159,7 @@
                 </div>
             </section>
 
-            <div class="fe-form__actions">
+            <div v-if="$userCan('write_settings')" class="fe-form__actions">
                 <el-button
                     type="primary"
                     native-type="submit"

@@ -13,6 +13,7 @@
                     />
 
                     <el-button
+                        v-if="$userCan('write_events')"
                         type="primary"
                         @click="goToCreate"
                     >

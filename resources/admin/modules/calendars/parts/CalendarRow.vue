@@ -56,12 +56,13 @@
         </div>
 
         <div class="fe-calendars__row-actions" data-row-click="off">
-            <el-button size="small" @click="goToEventCreate">
+            <el-button v-if="$userCan('write_events')" size="small" @click="goToEventCreate">
                 <el-icon><Plus /></el-icon>
                 <span>{{ $t('Add Event') }}</span>
             </el-button>
 
             <ActionPopover
+                v-if="$userCan('write_calendars')"
                 :items="actions"
                 :subject="calendar.title"
                 placement="bottom-end"
