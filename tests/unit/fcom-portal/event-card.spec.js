@@ -82,7 +82,7 @@ describe('EventCard', () => {
     it("links a community-wide title by URL in fcom's admin app", () => {
         const link = card({ fluent_event: meetup() }, {}, false).find('a.fe-event-card__title-link');
 
-        expect(link.attributes('href')).toBe('https://example.test/portal/event/community-meetup');
+        expect(link.attributes('href')).toBe('https://example.test/portal/events/community-meetup');
     });
 
     it("links the title to the portal page by URL in fcom's admin app, which has no event page route", () => {
@@ -90,8 +90,15 @@ describe('EventCard', () => {
         const link = wrapper.find('a.fe-event-card__title-link');
 
         expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false);
-        expect(link.attributes('href')).toBe('https://example.test/portal/space/design/event/community-meetup');
+        expect(link.attributes('href')).toBe('https://example.test/portal/space/design/events/community-meetup');
         expect(link.text()).toBe('Community meetup');
+    });
+
+    it("follows the events slug the site set, in fcom's admin app", () => {
+        window.fluentEventFcomPortal.route_paths = { ...window.fluentEventFcomPortal.route_paths, space_event_view: 'happenings/:event_slug' };
+        const link = card(undefined, {}, false).find('a.fe-event-card__title-link');
+
+        expect(link.attributes('href')).toBe('https://example.test/portal/space/design/happenings/community-meetup');
     });
 
     describe('a post handed over without its event (fcom moderation reports)', () => {
