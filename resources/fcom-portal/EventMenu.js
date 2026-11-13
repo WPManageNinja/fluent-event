@@ -1,4 +1,4 @@
-import { t } from './utils';
+import { portalVars, t } from './utils';
 import { DOTS } from './icons';
 
 // The "⋮" menu on an event. fcom exposes no popover to add-ons, so this one is ours.
@@ -17,6 +17,11 @@ export default {
     computed: {
         editRoute() {
             return { name: 'fe_edit_event', params: { event_slug: this.event.slug } };
+        },
+        // The event's page in the FluentEvent admin, where its guests are managed.
+        adminUrl() {
+            const base = portalVars().admin_url;
+            return base ? base + '#/events/' + this.event.id : '';
         },
         portalRouter() {
             return this.router || this.$router;
@@ -83,6 +88,9 @@ export default {
                     <li role="none">
                         <!-- .stop: fcom's document click handler would route the link a second time. -->
                         <a role="menuitem" class="fe-event-menu__item" :href="portalRouter.resolve(editRoute).href" @click.stop.prevent="portalRouter.push(editRoute)">{{ t('Edit Event') }}</a>
+                    </li>
+                    <li v-if="adminUrl" role="none">
+                        <a role="menuitem" class="fe-event-menu__item" :href="adminUrl" @click.stop>{{ t('View in FluentEvent') }}</a>
                     </li>
                 </ul>
             </div>

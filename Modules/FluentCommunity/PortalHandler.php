@@ -161,6 +161,7 @@ class PortalHandler
         $userId = get_current_user_id();
         $settings = Settings::get();
         $user = $userId ? wp_get_current_user() : null;
+        $isAdmin = current_user_can('manage_options');
 
         $vars = [
             'rest_url'            => esc_url_raw(rest_url('fluent-event/v2')),
@@ -169,7 +170,9 @@ class PortalHandler
             'is_logged_in'        => (bool) $userId,
             // Fills an open event's Register form for the member.
             'user'                => $user ? ['name' => $user->display_name, 'email' => $user->user_email] : null,
-            'can_create_events'   => current_user_can('manage_options'),
+            'can_create_events'   => $isAdmin,
+            // The way back to the FluentEvent admin, for the event menu's "View in FluentEvent".
+            'admin_url'           => $isAdmin ? esc_url_raw(admin_url('admin.php?page=fluent-event')) : '',
             // fcom's own switch for posts outside any space; community-wide events need it on.
             'global_posts'        => FcomHelper::hasGlobalPost(),
             'default_view'        => $settings['default_events_view'],
@@ -313,6 +316,7 @@ class PortalHandler
             'Venue Type' => __('Venue Type', 'fluent-event'),
             /* translators: %s: the event title */
             'View %s' => __('View %s', 'fluent-event'),
+            'View in FluentEvent' => __('View in FluentEvent', 'fluent-event'),
             'View post' => __('View post', 'fluent-event'),
             'Week' => __('Week', 'fluent-event'),
             'What members see in the feed, above the event.' => __('What members see in the feed, above the event.', 'fluent-event'),
