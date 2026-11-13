@@ -7,6 +7,7 @@ use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
+use FluentEvent\App\Services\CalendarService;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
 use FluentEvent\Tests\IntegrationTestCase;
 
@@ -186,6 +187,37 @@ class CommunityVisibilityTest extends IntegrationTestCase
         });
 
         FcomHelper::generalSettings(false);
+    }
+
+    // Out of a private space they can't see its events, so the reminders must stop mailing them the link.
+    public function test_a_member_who_leaves_a_private_space_loses_their_seats_in_its_upcoming_events()
+    {
+        $spaceId = $this->spaces['private_joined'];
+        $calendar = CalendarService::createForSpace($spaceId, 'Private joined', '');
+        $upcoming = $this->createEvent(['calendar_id' => $calendar->id]);
+        $ended = $this->createEvent(['calendar_id' => $calendar->id, 'start_at' => gmdate('Y-m-d H:i:s', strtotime('-3 days')), 'end_at' => gmdate('Y-m-d H:i:s', strtotime('-2 days'))]);
+        $seat = $this->createGuest($upcoming, ['user_id' => $this->member, 'calendar_id' => $calendar->id, 'status' => 'going']);
+        $history = $this->createGuest($ended, ['user_id' => $this->member, 'calendar_id' => $calendar->id, 'status' => 'checked_in']);
+
+        FcomHelper::removeFromSpace($spaceId, $this->member, 'by_admin');
+
+        $this->assertSame('cancelled', Guest::query()->find($seat->id)->status);
+        $this->assertSame('checked_in', Guest::query()->find($history->id)->status, 'A past attendance stays as it was');
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $seat->id]), 'Losing access is not a cancellation to email');
+    }
+
+    // A public space's events stay visible to someone who leaves it, so their seat stays too.
+    public function test_a_member_who_leaves_a_public_space_keeps_their_seat()
+    {
+        $spaceId = $this->spaces['public'];
+        FcomHelper::addToSpace($spaceId, $this->member, 'member', 'by_admin');
+        $calendar = CalendarService::createForSpace($spaceId, 'Public', '');
+        $event = $this->createEvent(['calendar_id' => $calendar->id]);
+        $seat = $this->createGuest($event, ['user_id' => $this->member, 'calendar_id' => $calendar->id, 'status' => 'going']);
+
+        FcomHelper::removeFromSpace($spaceId, $this->member, 'self');
+
+        $this->assertSame('going', Guest::query()->find($seat->id)->status);
     }
 
     private function createSpace($privacy)
