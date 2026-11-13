@@ -4,9 +4,7 @@ namespace FluentEvent\Modules\FluentCommunity;
 
 use FluentCommunity\App\Services\CustomSanitizer;
 use FluentCommunity\App\Services\Helper as FcomHelper;
-use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
-use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\Icon;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -173,9 +171,8 @@ class PortalHandler
             // Fills an open event's Register form for the member.
             'user'                => $user ? ['name' => $user->display_name, 'email' => $user->user_email] : null,
             'can_create_events'   => $isAdmin,
-            // The way back to the FluentEvent admin, for its "View in FluentEvent" links.
+            // The way back to the FluentEvent admin, for the event menu's "View in FluentEvent".
             'admin_url'           => $isAdmin ? esc_url_raw(admin_url('admin.php?page=fluent-event')) : '',
-            'space_calendars'     => $isAdmin ? $this->spaceCalendars() : (object) [],
             // fcom's own switch for posts outside any space; community-wide events need it on.
             'global_posts'        => FcomHelper::hasGlobalPost(),
             'default_view'        => $settings['default_events_view'],
@@ -188,27 +185,6 @@ class PortalHandler
         ];
 
         wp_print_inline_script_tag('window.fluentEventFcomPortal = ' . wp_json_encode($vars, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';');
-    }
-
-    // Space id => calendar id; a space gets its calendar with its first event.
-    protected function spaceCalendars()
-    {
-        $calendars = Calendar::query()
-            ->where('meta', 'LIKE', '%"' . CalendarService::SPACE_META_KEY . '"%')
-            ->get(['id', 'meta']);
-
-        $map = [];
-
-        foreach ($calendars as $calendar) {
-            $spaceId = (int) Arr::get((array) $calendar->meta, CalendarService::SPACE_META_KEY);
-
-            if ($spaceId) {
-                $map[$spaceId] = (int) $calendar->id;
-            }
-        }
-
-        // An object even when empty, so the script can look up by id.
-        return (object) $map;
     }
 
     // Keyed by the English text, the same contract as the admin app's $t().

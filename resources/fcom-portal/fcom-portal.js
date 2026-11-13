@@ -341,17 +341,6 @@ function register() {
             });
         }
 
-        // The space's calendar in the FluentEvent admin, once its first event has made one.
-        const calendarId = (portalVars().space_calendars || {})[space.id];
-
-        if (calendarId && portalVars().admin_url) {
-            actions.push({
-                key: 'fe_view_calendar',
-                title: t('View in FluentEvent'),
-                url: portalVars().admin_url + '#/calendars/' + calendarId,
-            });
-        }
-
         return actions;
     });
 
