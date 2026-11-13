@@ -1587,7 +1587,7 @@
         }
     }
 
-    // Under the choices, at a select's width rather than the section's; the section's grid gap is the only spacing.
+    // Under the choices; the section's grid gap is the only spacing.
     &__space.el-form-item {
         margin: 0;
 
@@ -1597,9 +1597,13 @@
             line-height: 20px;
         }
 
+        // As wide as the "In a space" card above it: half the row less half the cards' 12px gap.
         .el-select {
-            width: 320px;
-            max-width: 100%;
+            width: calc((100% - 12px) / 2);
+
+            @media (max-width: 575px) {
+                width: 100%;
+            }
         }
     }
 
