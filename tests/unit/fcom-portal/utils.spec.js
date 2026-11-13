@@ -221,12 +221,6 @@ describe('RSVP helpers', () => {
         expect(hasEventActions({ entry_type: 'none', is_past: true })).toBe(true);
     });
 
-    it('offers no RSVP on an event whose post is not published yet', () => {
-        expect(hasEventActions({ entry_type: 'rsvp', registration_open: false })).toBe(false);
-        expect(hasEventActions({ entry_type: 'open', registration_open: false })).toBe(false);
-        expect(hasEventActions({ entry_type: 'rsvp', registration_open: true })).toBe(true);
-    });
-
     it('shows the going count the server sends, zero included', () => {
         expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 0 })).toBe('0 going');
         expect(guestCountLabel({ entry_type: 'open', guest_count: 12 })).toBe('12 going');

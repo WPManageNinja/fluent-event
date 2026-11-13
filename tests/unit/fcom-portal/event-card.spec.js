@@ -217,4 +217,24 @@ describe('EventCard', () => {
             expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ name: 'Rafi', email: 'rafi@example.test' });
         });
     });
+
+    describe('on a post that is not published yet', () => {
+        it('notes when members can RSVP', () => {
+            const wrapper = card({ slug: 'later', fluent_event: meetup({ registration_open: false }) });
+
+            expect(wrapper.find('.fe-event-card__note').text()).toBe('Members can RSVP once this post is published.');
+        });
+
+        it('says register for an open event', () => {
+            const wrapper = card({ slug: 'later', fluent_event: meetup({ entry_type: 'open', registration_open: false }) });
+
+            expect(wrapper.find('.fe-event-card__note').text()).toBe('Members can register once this post is published.');
+        });
+
+        it('leaves a published post as it was', () => {
+            const wrapper = card({ slug: 'now', fluent_event: meetup({ registration_open: true }) });
+
+            expect(wrapper.find('.fe-event-card__note').exists()).toBe(false);
+        });
+    });
 });
