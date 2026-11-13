@@ -1675,14 +1675,23 @@
 
     // fcom's markdown editor, framed and focused like fcom's inputs; fcom's own CSS styles the editor.
     &__description {
-        min-height: 200px;
-        padding: 8px 12px;
         border: 1px solid var(--fcom-primary-border, #e3e8ee);
         border-radius: 8px;
         background: var(--fcom-primary-bg, #ffffff);
 
         &:focus-within {
             border-color: var(--fcom-primary-button, #2b2e33);
+        }
+
+        // Fills the frame, so a click anywhere in it lands in the editor.
+        .milkdown .ProseMirror {
+            min-height: 200px;
+            box-sizing: border-box;
+        }
+
+        // fcom's editor draws its own box while focused; inside this frame it would be a second border.
+        .milkdown .ProseMirror.ProseMirror-focused {
+            box-shadow: none;
         }
     }
 }
