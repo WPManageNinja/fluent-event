@@ -4,7 +4,7 @@ Tags: events, event calendar, rsvp, event registration, fluentcommunity
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -109,6 +109,11 @@ Not in this version. Both are on the roadmap.
 5. Optional: if you use FluentCommunity, turn on FluentEvent in FluentCommunity's Features settings.
 
 == Changelog ==
+
+= 1.0.1 (Date: Nov 13, 2026) =
+- Added: Automatic Plugin Updates With Checksum Verification
+- Added: RTL Language Support
+- Added: View in FluentEvent Link in the Community Event Menu
 
 = 1.0.0 - Nov 13, 2026 =
 - Initial release
