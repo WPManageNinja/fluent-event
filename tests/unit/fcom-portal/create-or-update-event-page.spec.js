@@ -313,7 +313,7 @@ describe('CreateOrUpdateEventPage', () => {
             const { wrapper } = await mountEdit();
 
             expect(wrapper.text()).not.toContain('Where do you want to post this event?');
-            expect(wrapper.text()).not.toContain('Feed post');
+            expect(wrapper.text()).not.toContain('Feed Post');
             expect(wrapper.find('#fe-create-event-composer').exists()).toBe(false);
             expect(wrapper.find('#fe-create-event-description').exists()).toBe(true);
             expect(wrapper.find('.fe-create-event__heading').text()).toBe('Edit Event');

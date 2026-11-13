@@ -129,7 +129,7 @@
                                 <VideoCamera v-if="event.venue_type === 'online'"/>
                                 <MapLocation v-else/>
                             </el-icon>
-                            {{ event.venue_type === 'online' ? $t('Online') : $t('In person') }}
+                            {{ event.venue_type === 'online' ? $t('Online') : $t('In Person') }}
                         </span>
                         <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
                     </div>
