@@ -94,6 +94,11 @@ foreach ($map as $record) {
 if ($missing) { fwrite(STDERR, "The manifest names missing files: " . implode(", ", array_slice($missing, 0, 5)) . "\n"); exit(1); }
 ' "$ROOT/assets/manifest.json" || die "assets/ is not a complete build. Run ./build.sh --node-build."
 
+# On an RTL site the enqueuer loads foo.rtl.css in place of every foo.css without checking it
+# exists, so a missing or stale twin is a 404 or an unmirrored page on Arabic and Hebrew sites.
+command -v node >/dev/null || die "node not found."
+node resources/vite/rtl-css.js --check || die "RTL stylesheets are missing or stale. Run ./build.sh --node-build."
+
 # A whitelist fails closed, but quietly: say what is left out and not known to be.
 UNKNOWN=()
 for entry in * .[!.]*; do
