@@ -29,8 +29,12 @@ export default {
         isLoggedIn() {
             return !!portalVars().is_logged_in;
         },
+        // Back to this page after login, as fcom's own login links do (getCurrentAuthUrl).
         loginUrl() {
-            return (window.fluentComAdmin && window.fluentComAdmin.auth_url) || '';
+            const url = new URL((window.fluentComAdmin || {}).auth_url || '', window.location.href);
+            url.searchParams.set('redirect_to', window.location.href);
+
+            return url.href;
         },
         // A checked-in guest counts as going.
         status() {
