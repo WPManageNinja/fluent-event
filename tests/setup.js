@@ -54,6 +54,7 @@ export const adminVars = () => ({
 
 export const portalVars = () => ({
     rest_url: 'https://example.test/wp-json/fluent-event/v2',
+    wp_rest_url: 'https://example.test/wp-json/wp/v2',
     is_logged_in: true,
     can_create_events: true,
     default_view: 'timeline',

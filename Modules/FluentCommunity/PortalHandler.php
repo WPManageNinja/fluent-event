@@ -178,6 +178,8 @@ class PortalHandler
 
         $vars = [
             'rest_url'            => esc_url_raw(rest_url('fluent-event/v2')),
+            // Event covers go to the WordPress media library, as in the admin, not to fcom's uploads.
+            'wp_rest_url'         => esc_url_raw(rest_url('wp/v2')),
             'is_logged_in'        => (bool) $userId,
             // Fills an open event's Register form for the member.
             'user'                => $user ? ['name' => $user->display_name, 'email' => $user->user_email] : null,
