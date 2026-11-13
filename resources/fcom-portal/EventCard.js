@@ -1,4 +1,4 @@
-import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions, communityApi } from './utils';
+import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions, communityApi, trackEventFeed } from './utils';
 import { MAP_LOCATION, VIDEO_CAMERA } from './icons';
 import EventActions from './EventActions';
 import EventMenu from './EventMenu';
@@ -26,6 +26,11 @@ export default {
         };
     },
     watch: {
+        // fcom swaps in a fresh post object on its soft refresh and keeps this card, so track each one.
+        feed: {
+            handler: trackEventFeed,
+            immediate: true,
+        },
         'feed.fluent_event'(value) {
             this.event = value || null;
         },

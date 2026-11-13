@@ -175,3 +175,19 @@ export function guestCountLabel(event) {
 
     return t('%s going', event.guest_count);
 }
+
+// Feed posts fcom rebuilds cards from on Back; on window since lazy chunks load this module again (no ?ver).
+const eventFeeds = window.fluentEventFeeds = window.fluentEventFeeds || new Map();
+
+export function trackEventFeed(feed) {
+    if (feed.fluent_event) {
+        eventFeeds.set(feed.fluent_event.id, (eventFeeds.get(feed.fluent_event.id) || new Set()).add(feed));
+    }
+}
+
+// Only the RSVP fields: the event page's payload has a different shape than the feed's.
+export function syncEventFeeds({ id, my_status, guest_count, online_meeting_url }) {
+    (eventFeeds.get(id) || []).forEach(feed => {
+        feed.fluent_event = { ...feed.fluent_event, my_status, guest_count, online_meeting_url };
+    });
+}

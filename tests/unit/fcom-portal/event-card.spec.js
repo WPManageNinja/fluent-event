@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises, RouterLinkStub } from '@vue/test-utils';
 import EventCard from '../../../resources/fcom-portal/EventCard';
 import EventActions from '../../../resources/fcom-portal/EventActions';
+import { syncEventFeeds } from '../../../resources/fcom-portal/utils';
 
 const meetup = (overrides = {}) => ({
     id: 5,
@@ -216,5 +217,15 @@ describe('EventCard', () => {
 
             expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ name: 'Rafi', email: 'rafi@example.test' });
         });
+    });
+
+    it('keeps the post fcom swaps in on a soft refresh in sync with later RSVPs', async () => {
+        const wrapper = card({ slug: 'swap-post', fluent_event: meetup({ id: 77 }) });
+        const fresh = { slug: 'swap-post', fluent_event: meetup({ id: 77 }) };
+        await wrapper.setProps({ feed: fresh });
+
+        syncEventFeeds({ id: 77, my_status: 'going', guest_count: 9, online_meeting_url: '' });
+
+        expect(fresh.fluent_event).toMatchObject({ my_status: 'going', guest_count: 9 });
     });
 });
