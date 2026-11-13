@@ -184,7 +184,7 @@ export default {
                         h('span', { class: 'fe-registered__meta' }, [h(Clock, { class: 'fe-registered__meta-icon' }), eventStart(event)]),
                         h('span', { class: 'fe-registered__meta' }, [
                             h(online ? VideoCamera : MapLocation, { class: 'fe-registered__meta-icon' }),
-                            online ? t('Online') : (event.venue || t('In person')),
+                            online ? t('Online') : (event.venue || t('In Person')),
                         ]),
                     ]),
                 ]),
