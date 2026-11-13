@@ -85,7 +85,7 @@
                 </span>
 
                 <div v-if="isOnline">
-                    <p class="fe-event-detail__row-title">{{ $t('Online event') }}</p>
+                    <p class="fe-event-detail__row-title">{{ $t('Online Event') }}</p>
                     <a
                         v-if="meetingUrl"
                         class="fe-event-detail__row-link"

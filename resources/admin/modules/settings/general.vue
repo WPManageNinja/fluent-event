@@ -10,7 +10,7 @@
             <ErrorState v-else-if="generalError" :message="generalError" @retry="fetchGeneral" />
 
             <el-form v-else class="fe-form" label-position="top" @submit.prevent="saveGeneral">
-                <el-form-item :label="$t('Default events list view')">
+                <el-form-item :label="$t('Default Events List View')">
                     <el-radio-group
                         v-model="general.default_events_view"
                         class="fe-view-picker"
@@ -33,7 +33,7 @@
                         true-value="yes"
                         false-value="no"
                     >
-                        {{ $t('Disable view change option') }}
+                        {{ $t('Disable View Change Option') }}
                     </el-checkbox>
 
                     <span class="fe-form__hint">
@@ -198,14 +198,14 @@
 
             <el-form v-else class="fe-form" label-position="top" @submit.prevent="saveEmail">
                 <div class="fe-form__pair">
-                    <el-form-item :label="$t('From name')" required>
+                    <el-form-item :label="$t('From Name')" required>
                         <el-input
                             v-model="email.from_name"
                             :placeholder="$t('e.g. your business name')"
                         />
                     </el-form-item>
 
-                    <el-form-item :label="$t('From email address')" required>
+                    <el-form-item :label="$t('From Email Address')" required>
                         <el-input
                             v-model="email.from_email"
                             type="email"
@@ -215,14 +215,14 @@
                 </div>
 
                 <div class="fe-form__pair">
-                    <el-form-item :label="$t('Reply-to name (optional)')">
+                    <el-form-item :label="$t('Reply-To Name (Optional)')">
                         <el-input v-model="email.reply_to_name" />
                     </el-form-item>
 
                     <el-form-item>
                         <template #label>
                             <span class="fe-form__label-row">
-                                {{ $t('Reply-to email (optional)') }}
+                                {{ $t('Reply-To Email (Optional)') }}
 
                                 <el-tooltip
                                     :content="$t('Replies to event emails go to this address instead of the from address.')"
@@ -248,7 +248,7 @@
 
                 <el-form-item>
                     <template #label>
-                        <span id="fe-email-footer-label">{{ $t('Email footer for event related emails') }}</span>
+                        <span id="fe-email-footer-label">{{ $t('Email Footer for Event Related Emails') }}</span>
                     </template>
 
                     <WpEditor
