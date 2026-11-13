@@ -18,17 +18,17 @@
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 ?>
 <div class="fe-event-page">
-    <?php $part = 'cover'; include __DIR__ . '/event-part.php'; ?>
+    <?php $fluentEventPart = 'cover'; include __DIR__ . '/event-part.php'; ?>
 
     <div class="fe-event-page__grid">
         <div class="fe-event-page__main">
             <div class="fe-event-page__intro">
-                <?php foreach ( [ 'title', 'meta', 'calendar' ] as $part ) : ?>
+                <?php foreach ( [ 'title', 'meta', 'calendar' ] as $fluentEventPart ) : ?>
                     <?php include __DIR__ . '/event-part.php'; ?>
                 <?php endforeach; ?>
             </div>
 
-            <?php $part = 'description'; include __DIR__ . '/event-part.php'; ?>
+            <?php $fluentEventPart = 'description'; include __DIR__ . '/event-part.php'; ?>
         </div>
 
         <?php echo $side; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered by EventPageService::sideCard(), escaped there ?>

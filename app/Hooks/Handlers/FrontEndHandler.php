@@ -498,9 +498,9 @@ class FrontEndHandler
             'filter'        => $filter,
             'search'        => $search,
             'state'         => $state,
-            'page_var'      => self::PAGE_VAR,
-            'calendar_var'  => self::CALENDAR_VAR,
-            'search_var'    => self::SEARCH_VAR,
+            'fluentEventPageVar'     => self::PAGE_VAR,
+            'fluentEventCalendarVar' => self::CALENDAR_VAR,
+            'fluentEventSearchVar'   => self::SEARCH_VAR,
         ];
 
         if ($view === 'calendar') {
@@ -557,7 +557,7 @@ class FrontEndHandler
             return $data[spl_object_id($event)]['side'];
         }
 
-        return (string) App::make('view')->make('portal.event-part', $data[spl_object_id($event)] + ['part' => $part]);
+        return (string) App::make('view')->make('portal.event-part', $data[spl_object_id($event)] + ['fluentEventPart' => $part]);
     }
 
     // The community event page's shape, drawn for a visitor whoever is viewing: the public pages don't know their viewers.

@@ -13,9 +13,9 @@
  * @var string $search
  * @var array  $state          Query args every link carries.
  * @var array  $keep_empty     State keys a link keeps even when empty.
- * @var string $page_var       The pagination query arg.
- * @var string $calendar_var   The calendar query arg.
- * @var string $search_var     The search query arg.
+ * @var string $fluentEventPageVar       The pagination query arg.
+ * @var string $fluentEventCalendarVar   The calendar query arg.
+ * @var string $fluentEventSearchVar     The search query arg.
  * @var array  $rows           List views: one eventRow() per event.
  * @var int    $current_page
  * @var int    $last_page
@@ -87,7 +87,7 @@ $fluentEventEmpty = [
                 <?php foreach ( $chips as $fluentEventChip ) : ?>
                     <a
                         class="fe-calendar-chips__chip<?php echo $fluentEventChip['active'] ? ' fe-calendar-chips__chip--active' : ''; ?>"
-                        href="<?php echo esc_url( $fluentEventLink( [ $calendar_var => $fluentEventChip['slug'] ] ) ); ?>"
+                        href="<?php echo esc_url( $fluentEventLink( [ $fluentEventCalendarVar => $fluentEventChip['slug'] ] ) ); ?>"
                         <?php echo $fluentEventChip['active'] ? 'aria-current="page"' : ''; ?>
                         data-fe-chip
                     >
@@ -116,13 +116,13 @@ $fluentEventEmpty = [
         <form class="fe-events-page__search" method="get" action="<?php echo esc_url( $url ); ?>" role="search">
             <input
                 type="search"
-                name="<?php echo esc_attr( $search_var ); ?>"
+                name="<?php echo esc_attr( $fluentEventSearchVar ); ?>"
                 class="fe-events-page__search-input"
                 value="<?php echo esc_attr( $search ); ?>"
                 placeholder="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
                 aria-label="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
             >
-            <?php foreach ( array_diff_key( $state, [ $search_var => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
+            <?php foreach ( array_diff_key( $state, [ $fluentEventSearchVar => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
                 <input type="hidden" name="<?php echo esc_attr( $fluentEventKey ); ?>" value="<?php echo esc_attr( $fluentEventValue ); ?>">
             <?php endforeach; ?>
         </form>
@@ -373,7 +373,7 @@ $fluentEventEmpty = [
         <?php if ( 'calendar' !== $view && $last_page > 1 ) : ?>
             <nav class="fe-pagination" aria-label="<?php esc_attr_e( 'Pages', 'fluent-event' ); ?>">
                 <?php if ( $current_page > 1 ) : ?>
-                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $page_var => $current_page - 1 ] ) ); ?>" rel="prev">
+                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $fluentEventPageVar => $current_page - 1 ] ) ); ?>" rel="prev">
                         <?php echo Icon::CHEVRON_LEFT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                         <span><?php esc_html_e( 'Previous', 'fluent-event' ); ?></span>
                     </a>
@@ -387,7 +387,7 @@ $fluentEventEmpty = [
                 </span>
 
                 <?php if ( $current_page < $last_page ) : ?>
-                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $page_var => $current_page + 1 ] ) ); ?>" rel="next">
+                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $fluentEventPageVar => $current_page + 1 ] ) ); ?>" rel="next">
                         <span><?php esc_html_e( 'Next', 'fluent-event' ); ?></span>
                         <?php echo Icon::CHEVRON_RIGHT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                     </a>
