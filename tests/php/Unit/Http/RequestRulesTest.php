@@ -106,16 +106,19 @@ class RequestRulesTest extends TestCase
 
     public function test_the_description_is_rendered_from_its_markdown_and_the_markdown_kept()
     {
-        $markdown = "**Bring** a tripod&#x20;\n\n- warm layer\n\n<script>alert(1)</script>\n\n![1.00](https://x.test/a.png \"Sunset\")";
+        $markdown = "**Bring** a tripod&#x20;\n\n- warm layer\n\n<script>alert(1)</script>\n\n![1.00](https://x.test/a.png \"Sunset\")\n\n![0.43](https://x.test/b.png)\n\n![1.50](https://x.test/c.png)";
         $formatted = EventRequest::format($this->eventInput(['description_md' => $markdown]));
 
         $this->assertSame($markdown, $formatted['meta']['description_md']);
         // Milkdown's "&#x20;" for an edge space never reaches the page as text.
         $this->assertStringContainsString('<p><strong>Bring</strong> a tripod</p>', $formatted['description']);
         $this->assertStringContainsString('<li>warm layer</li>', $formatted['description']);
-        // Typed HTML stays text; the image block's ratio alt gives way to its caption.
+        // Typed HTML stays text; the image block's ratio alt gives way to its caption and sizes the image,
+        // never past the column.
         $this->assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $formatted['description']);
-        $this->assertStringContainsString('<img src="https://x.test/a.png" alt="Sunset" title="Sunset" />', $formatted['description']);
+        $this->assertStringContainsString('<img src="https://x.test/a.png" alt="Sunset" style="display: block; margin: 0 auto; max-width: 100%;" title="Sunset" />', $formatted['description']);
+        $this->assertStringContainsString('<img src="https://x.test/b.png" alt="" style="display: block; margin: 0 auto; max-width: 43%;" />', $formatted['description']);
+        $this->assertStringContainsString('<img src="https://x.test/c.png" alt="" style="display: block; margin: 0 auto; max-width: 100%;" />', $formatted['description']);
     }
 
     public function test_an_offline_event_never_keeps_a_meeting_link()
