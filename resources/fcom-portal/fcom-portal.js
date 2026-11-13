@@ -272,19 +272,22 @@ function register() {
         });
 
         // ?space=slug starts on that space; without it, on community-wide.
-        routes.push({
-            path: '/' + paths.create_event,
-            name: 'fe_create_event',
-            component: createEventShell,
-            meta: { active_menu: 'fe_events' },
-        });
+        // Only event creators get the pages: anyone else typing the URL lands on fcom's Not Found.
+        if (portalVars().can_create_events) {
+            routes.push({
+                path: '/' + paths.create_event,
+                name: 'fe_create_event',
+                component: createEventShell,
+                meta: { active_menu: 'fe_events' },
+            });
 
-        routes.push({
-            path: '/' + paths.edit_event,
-            name: 'fe_edit_event',
-            component: createEventShell,
-            meta: { active_menu: 'fe_events' },
-        });
+            routes.push({
+                path: '/' + paths.edit_event,
+                name: 'fe_edit_event',
+                component: createEventShell,
+                meta: { active_menu: 'fe_events' },
+            });
+        }
 
         // A community-wide event; the space one below sits under its space's header and tabs.
         routes.push({

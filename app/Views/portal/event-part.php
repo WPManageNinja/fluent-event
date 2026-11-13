@@ -3,17 +3,17 @@
  * One piece of an event's page. The single-event template's blocks place each on its own; event.php puts them
  * together for [fluent_event]. Same variables as event.php, plus:
  *
- * @var string $part cover|title|meta|calendar|description
+ * @var string $fluentEventPart cover|title|meta|calendar|description
  */
 if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
 
 use FluentEvent\App\Services\Icon;
 ?>
-<?php if ( 'cover' === $part && $event['cover_url'] ) : ?>
+<?php if ( 'cover' === $fluentEventPart && $event['cover_url'] ) : ?>
     <img class="fe-event-page__cover" src="<?php echo esc_url( $event['cover_url'] ); ?>" alt="">
-<?php elseif ( 'title' === $part ) : ?>
+<?php elseif ( 'title' === $fluentEventPart ) : ?>
     <h1 class="fe-event-page__title"><?php echo esc_html( $event['title'] ); ?></h1>
-<?php elseif ( 'meta' === $part ) : ?>
+<?php elseif ( 'meta' === $fluentEventPart ) : ?>
     <ul class="fe-event-page__meta">
         <li class="fe-event-page__meta-item">
             <?php echo Icon::CALENDAR; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
@@ -28,7 +28,7 @@ use FluentEvent\App\Services\Icon;
             <span><?php echo esc_html( $location ); ?></span>
         </li>
     </ul>
-<?php elseif ( 'calendar' === $part ) : ?>
+<?php elseif ( 'calendar' === $fluentEventPart ) : ?>
     <div class="fe-calendar-chips fe-event-page__calendar-tag">
         <a class="fe-calendar-chips__chip" href="<?php echo esc_url( $calendar_url ); ?>">
             <?php if ( $calendar_color ) : ?>
@@ -37,7 +37,7 @@ use FluentEvent\App\Services\Icon;
             <span class="fe-calendar-chips__label" title="<?php echo esc_attr( $calendar_title ); ?>"><?php echo esc_html( $calendar_title ); ?></span>
         </a>
     </div>
-<?php elseif ( 'description' === $part && $description ) : ?>
+<?php elseif ( 'description' === $fluentEventPart && $description ) : ?>
     <section class="fe-event-page__card fe-event-page__body">
         <h2 class="fe-event-page__section-title"><?php esc_html_e( 'About This Event', 'fluent-event' ); ?></h2>
         <div class="fe-event-page__description"><?php echo $description; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses'd in Event::getDescriptionAttribute() ?></div>

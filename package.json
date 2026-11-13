@@ -1,4 +1,5 @@
 {
+    "name": "fluent-event",
     "scripts": {
         "dev": "node resources/vite/vite.js && vite",
         "watch": "npm run dev",

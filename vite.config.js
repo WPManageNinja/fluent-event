@@ -8,7 +8,7 @@ import Components from 'unplugin-vue-components/vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
-const devPort = process.env.PORT ? parseInt(process.env.PORT) : 8880;
+const devPort = process.env.PORT ? parseInt(process.env.PORT) : 8890;
 
 // The resolver injects per-component Element Plus CSS that Vite's startup scan can't see, so the
 // first page using a new component forced a re-bundle and a full page reload. Pre-bundle them all.
