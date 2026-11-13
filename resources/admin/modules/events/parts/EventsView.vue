@@ -57,7 +57,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item v-if="!isCalendar" :label="$t('Date range')">
+                            <el-form-item v-if="!isCalendar" :label="$t('Date Range')">
                                 <el-date-picker
                                     v-model="pendingFilters.dates"
                                     type="daterange"

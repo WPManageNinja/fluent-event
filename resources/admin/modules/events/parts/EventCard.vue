@@ -61,7 +61,7 @@
                         <VideoCamera v-if="isOnline" />
                         <MapLocation v-else />
                     </el-icon>
-                    {{ isOnline ? $t('Online') : $t('In person') }}
+                    {{ isOnline ? $t('Online') : $t('In Person') }}
                 </span>
             </div>
 

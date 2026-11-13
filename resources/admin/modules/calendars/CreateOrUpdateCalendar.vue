@@ -264,9 +264,9 @@
             unlockSlug() {
                 this.$confirm(
                     this.$t('Existing links to this calendar will be affected. Do you still want to change the slug?'),
-                    this.$t('Change slug'),
+                    this.$t('Change Slug'),
                     {
-                        confirmButtonText: this.$t('Change slug'),
+                        confirmButtonText: this.$t('Change Slug'),
                         cancelButtonText: this.$t('Cancel'),
                         type: 'warning',
                     }

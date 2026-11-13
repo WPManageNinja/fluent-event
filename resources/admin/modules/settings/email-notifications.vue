@@ -18,7 +18,7 @@
                 <div class="fe-form__section-fields">
                     <div class="fe-form__toggle">
                         <div class="fe-form__toggle-text">
-                            <span class="fe-form__toggle-title">{{ $t('Confirmation email') }}</span>
+                            <span class="fe-form__toggle-title">{{ $t('Confirmation Email') }}</span>
                             <span class="fe-form__hint">
                                 {{ confirmation.enabled
                                     ? $t('Email guests a confirmation when they register for an event.')
@@ -45,7 +45,7 @@
 
                     <div class="fe-form__toggle">
                         <div class="fe-form__toggle-text">
-                            <span class="fe-form__toggle-title">{{ $t('Cancellation email') }}</span>
+                            <span class="fe-form__toggle-title">{{ $t('Cancellation Email') }}</span>
                             <span class="fe-form__hint">
                                 {{ cancellation.enabled
                                     ? $t('Email guests when they cancel or an admin cancels their registration.')
@@ -81,7 +81,7 @@
                 <div class="fe-form__section-fields">
                     <div class="fe-form__toggle">
                         <div class="fe-form__toggle-text">
-                            <span class="fe-form__toggle-title">{{ $t('Reminder emails') }}</span>
+                            <span class="fe-form__toggle-title">{{ $t('Reminder Emails') }}</span>
                             <span class="fe-form__hint">
                                 {{ reminder.enabled
                                     ? $t('Email guests a reminder before an event starts.')
@@ -147,7 +147,7 @@
 
                             <el-button v-if="times.length < maxTimes" link @click="addTime">
                                 <el-icon><Plus /></el-icon>
-                                <span>{{ $t('Add reminder') }}</span>
+                                <span>{{ $t('Add Reminder') }}</span>
                             </el-button>
                         </div>
                     </div>

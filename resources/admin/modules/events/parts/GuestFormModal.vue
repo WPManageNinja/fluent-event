@@ -17,7 +17,7 @@
                 />
             </el-form-item>
 
-            <el-form-item v-if="mode === 'wp_user'" :label="$t('WordPress user *')">
+            <el-form-item v-if="mode === 'wp_user'" :label="$t('WordPress User *')">
                 <el-select
                     v-model="selectedUserId"
                     filterable
@@ -126,8 +126,8 @@
             },
             modes() {
                 return [
-                    { value: 'manual', label: this.$t('Enter manually') },
-                    { value: 'wp_user', label: this.$t('WordPress user') },
+                    { value: 'manual', label: this.$t('Enter Manually') },
+                    { value: 'wp_user', label: this.$t('WordPress User') },
                 ];
             },
             title() {
@@ -138,8 +138,8 @@
             },
             emailLabel() {
                 const notifications = window.fluentEventAdmin?.email_notifications || {};
-                const confirmation = notifications.registration_confirmation?.enabled ? this.$t('Send confirmation email') : '';
-                const cancellation = notifications.registration_cancellation?.enabled ? this.$t('Send cancellation email') : '';
+                const confirmation = notifications.registration_confirmation?.enabled ? this.$t('Send Confirmation Email') : '';
+                const cancellation = notifications.registration_cancellation?.enabled ? this.$t('Send Cancellation Email') : '';
 
                 if (!this.isEditing) {
                     return this.form.status === 'going' ? confirmation : '';
