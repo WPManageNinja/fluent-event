@@ -55,7 +55,7 @@ return [
             '%d guest' => __('%d guest', 'fluent-event'),
             /* translators: %d is a number of guests */
             '%d guests' => __('%d guests', 'fluent-event'),
-            /* translators: %d is the number of hidden calendar entries on this day */
+            /* translators: %d: the number of further events on that day */
             '%d more' => __('%d more', 'fluent-event'),
             /* translators: 1: number of reminders set, 2: most reminders allowed */
             '%d of %d' => __('%1$d of %2$d', 'fluent-event'),
@@ -140,7 +140,7 @@ return [
             'Date and Time' => __('Date and Time', 'fluent-event'),
             'Date Range' => __('Date Range', 'fluent-event'),
             'Day' => __('Day', 'fluent-event'),
-            /* translators: %d is the day number within a multi-day event */
+            /* translators: %d: the day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
             'Days Before' => __('Days Before', 'fluent-event'),
             'Deep Lilac' => __('Deep Lilac', 'fluent-event'),
@@ -353,7 +353,7 @@ return [
             'Start' => __('Start', 'fluent-event'),
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
-            /* translators: %s is the formatted start date and time */
+            /* translators: %s: when the event starts, as a date and time or as a relative time such as "in 3 days" */
             'Starts %s' => __('Starts %s', 'fluent-event'),
             'Status' => __('Status', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
@@ -400,7 +400,7 @@ return [
             'Venue Name' => __('Venue Name', 'fluent-event'),
             'Venue Type' => __('Venue Type', 'fluent-event'),
             'View' => __('View', 'fluent-event'),
-            /* translators: %s is the event title */
+            /* translators: %s: the event title */
             'View %s' => __('View %s', 'fluent-event'),
             'View actions' => __('View actions', 'fluent-event'),
             'View Full Details' => __('View Full Details', 'fluent-event'),

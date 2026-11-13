@@ -188,7 +188,7 @@ class PortalHandler
     protected function strings()
     {
         return [
-            /* translators: %d: number of further events on that day */
+            /* translators: %d: the number of further events on that day */
             '%d more' => __('%d more', 'fluent-event'),
             /* translators: %s: number of guests going */
             '%s going' => __('%s going', 'fluent-event'),
@@ -215,7 +215,7 @@ class PortalHandler
             'Create Event' => __('Create Event', 'fluent-event'),
             'Date and Time' => __('Date and Time', 'fluent-event'),
             'Day' => __('Day', 'fluent-event'),
-            /* translators: %d: day number within a multi-day event */
+            /* translators: %d: the day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
             'Describe the event, or type / to add images, lists and more' => __('Describe the event, or type / to add images, lists and more', 'fluent-event'),
             'Description' => __('Description', 'fluent-event'),
@@ -293,7 +293,7 @@ class PortalHandler
             'Start' => __('Start', 'fluent-event'),
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
-            /* translators: %s: relative time, e.g. "in 3 days" */
+            /* translators: %s: when the event starts, as a date and time or as a relative time such as "in 3 days" */
             'Starts %s' => __('Starts %s', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
@@ -311,7 +311,7 @@ class PortalHandler
             'Update Event' => __('Update Event', 'fluent-event'),
             'Venue Name' => __('Venue Name', 'fluent-event'),
             'Venue Type' => __('Venue Type', 'fluent-event'),
-            /* translators: %s: event title */
+            /* translators: %s: the event title */
             'View %s' => __('View %s', 'fluent-event'),
             'View post' => __('View post', 'fluent-event'),
             'Week' => __('Week', 'fluent-event'),
