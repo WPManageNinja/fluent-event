@@ -110,21 +110,10 @@ Not in this version. Both are on the roadmap.
 
 == Changelog ==
 
-= 1.0.1 - Nov 13, 2026 =
-- Added: Automatic updates from the Plugins screen. FluentEvent installs an update only when the download matches its SHA-256 checksum
-- Added: Right-to-left (RTL) support. On Arabic, Hebrew and other RTL sites, the admin, the event pages and the FluentCommunity events pages use a mirrored layout
-- Added: A View in FluentEvent item in the event menu of the FluentCommunity portal, for site administrators
+= 1.0.1 (Date: Nov 13, 2026) =
+- Added: Automatic Plugin Updates With Checksum Verification
+- Added: RTL Language Support
+- Added: View in FluentEvent Link in the Community Event Menu
 
 = 1.0.0 - Nov 13, 2026 =
 - Initial release
-- Calendars to group your events
-- Events in person or online, with a cover image, date, time and time zone
-- Four event statuses: Public, Unlisted, Private and Draft
-- Three entry modes: RSVP, Open registration and View only
-- A public page for each event, an event list, and shortcodes and blocks to show events on any page
-- Add to Google Calendar, Apple Calendar and Outlook
-- Guest management: add, edit and remove guests, and see who is going, not going, checked in or cancelled
-- Emails: registration confirmation, cancellation notice and event reminders, with sender settings
-- An admin dashboard with card, timeline and calendar views, guest statistics and a guest trend chart
-- FluentCommunity integration: events in discussion spaces, a calendar for each space, and events in the feed
-- Translation ready
