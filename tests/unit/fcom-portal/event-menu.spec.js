@@ -2,9 +2,9 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import EventMenu from '../../../resources/fcom-portal/EventMenu';
 
-const editable = { id: 5, edit_url: 'https://example.test/wp-admin/admin.php?page=fluent-event#/events/5/edit' };
-const editRoute = { name: 'fe_edit_event', params: { event_id: 5 } };
-const fcomRouter = () => ({ resolve: vi.fn(() => ({ href: '/portal/events/5/edit' })), push: vi.fn() });
+const editable = { id: 5, slug: 'night-walk', edit_url: 'https://example.test/wp-admin/admin.php?page=fluent-event#/events/5/edit' };
+const editRoute = { name: 'fe_edit_event', params: { event_slug: 'night-walk' } };
+const fcomRouter = () => ({ resolve: vi.fn(() => ({ href: '/portal/events/night-walk/edit' })), push: vi.fn() });
 
 let wrapper;
 let router;
@@ -36,7 +36,7 @@ describe('EventMenu', () => {
 
         const item = wrapper.find('[role="menuitem"]');
         expect(router.resolve).toHaveBeenCalledWith(editRoute);
-        expect(item.attributes('href')).toBe('/portal/events/5/edit');
+        expect(item.attributes('href')).toBe('/portal/events/night-walk/edit');
         expect(document.activeElement).toBe(item.element);
     });
 

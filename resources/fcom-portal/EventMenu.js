@@ -16,7 +16,7 @@ export default {
     },
     computed: {
         editRoute() {
-            return { name: 'fe_edit_event', params: { event_id: this.event.id } };
+            return { name: 'fe_edit_event', params: { event_slug: this.event.slug } };
         },
         portalRouter() {
             return this.router || this.$router;

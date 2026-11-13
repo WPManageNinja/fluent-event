@@ -129,7 +129,7 @@ const createEventShell = {
             // The description's markdown, from fcom's editor; it rides in the composer's event, or in an edit's PATCH.
             description: '',
             // fcom's editor reads its v-model only when it mounts, so an edit waits for the event's markdown.
-            editorReady: !this.$route.params.event_id,
+            editorReady: !this.$route.params.event_slug,
             // The space picked on the page; kept across a switch to community-wide and back.
             space: this.$route.query.space || '',
             feed: {
@@ -160,10 +160,10 @@ const createEventShell = {
         t,
         pageProps() {
             // Editing changes the event only; its space and post text are edited on fcom's post.
-            if (this.$route.params.event_id) {
+            if (this.$route.params.event_slug) {
                 return {
                     router: this.$router,
-                    eventId: this.$route.params.event_id,
+                    eventSlug: this.$route.params.event_slug,
                     onLoaded: (event) => {
                         this.description = (event.meta || {}).description_md || '';
                         this.editorReady = true;
@@ -232,7 +232,7 @@ const createEventShell = {
     template: `
         <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event">
             <div ref="mount"></div>
-            <teleport v-if="ready && !$route.params.event_id" to="#fe-create-event-composer">
+            <teleport v-if="ready && !$route.params.event_slug" to="#fe-create-event-composer">
                 <create-status-form
                     ref="composer"
                     defaultState="active"

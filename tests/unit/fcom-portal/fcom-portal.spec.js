@@ -43,7 +43,7 @@ describe('fcom-portal entry', () => {
             expect(routes.slice(1).map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
                 { path: '/events', name: 'fe_events', meta: { active_menu: 'fe_events' } },
                 { path: '/events/create', name: 'fe_create_event', meta: { active_menu: 'fe_events' } },
-                { path: '/events/:event_id/edit', name: 'fe_edit_event', meta: { active_menu: 'fe_events' } },
+                { path: '/events/:event_slug/edit', name: 'fe_edit_event', meta: { active_menu: 'fe_events' } },
                 { path: '/events/:event_slug', name: 'fe_global_event_view', meta: { active_menu: 'fe_events' } }
             ]);
         });
@@ -68,7 +68,7 @@ describe('fcom-portal entry', () => {
             window.fluentEventFcomPortal.route_paths = {
                 events: 'meetups',
                 create_event: 'meetups/create',
-                edit_event: 'meetups/:event_id/edit',
+                edit_event: 'meetups/:event_slug/edit',
                 event_view: 'meetups/:event_slug',
                 space_events: 'meetups',
                 space_event_view: 'meetups/:event_slug'
@@ -77,7 +77,7 @@ describe('fcom-portal entry', () => {
 
             const routes = filters.fluent_com_portal_routes([spaceRoute()]);
 
-            expect(routes.slice(1).map(route => route.path)).toEqual(['/meetups', '/meetups/create', '/meetups/:event_id/edit', '/meetups/:event_slug']);
+            expect(routes.slice(1).map(route => route.path)).toEqual(['/meetups', '/meetups/create', '/meetups/:event_slug/edit', '/meetups/:event_slug']);
             expect(routes[0].children.slice(1).map(route => route.path)).toEqual(['meetups', 'meetups/:event_slug']);
         });
 
@@ -432,9 +432,9 @@ describe('fcom-portal entry', () => {
             // The page focuses its title once loaded, and the title sits in a form item.
             const stubs = { ElFormItem: { template: '<div><slot /></div>' }, ElInput: { template: '<input />', methods: { focus() {} } } };
 
-            await mountShell('fe_edit_event', { params: { event_id: '5' }, query: {} }, { components, stubs });
+            await mountShell('fe_edit_event', { params: { event_slug: 'night-walk' }, query: {} }, { components, stubs });
 
-            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/5');
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=night-walk');
             expect(wrapper.find('.editor-stub').exists()).toBe(false);
 
             respond(new Response(JSON.stringify({ event: {

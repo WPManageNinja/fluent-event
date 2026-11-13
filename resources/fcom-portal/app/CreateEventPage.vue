@@ -11,20 +11,20 @@
                 <el-icon><ArrowLeft/></el-icon>
             </button>
 
-            <h1 class="fe-create-event__heading">{{ eventId ? $t('Edit Event') : $t('Create Event') }}</h1>
+            <h1 class="fe-create-event__heading">{{ eventSlug ? $t('Edit Event') : $t('Create Event') }}</h1>
         </div>
 
         <el-skeleton v-if="loading" :rows="8" animated role="status" :aria-label="$t('Loading event')"/>
 
         <el-empty v-else-if="!editable" :description="$t('This event is not available.')"/>
 
-        <el-alert v-if="editable && eventId && loadedEvent.feed_url" type="info" :closable="false" show-icon class="fe-create-event__notice">
+        <el-alert v-if="editable && eventSlug && loadedEvent.feed_url" type="info" :closable="false" show-icon class="fe-create-event__notice">
             {{ $t('To change the post text or its space, edit the post itself.') }}
             <a class="fe-create-event__notice-link" :href="loadedEvent.feed_url">{{ $t('View post') }}</a>
         </el-alert>
 
         <div v-if="editable" class="fe-create-event__form">
-            <section v-if="!eventId" class="fe-create-event__section">
+            <section v-if="!eventSlug" class="fe-create-event__section">
                 <div>
                     <h2 class="fe-create-event__section-title">{{ $t('Where do you want to post this event?') }}</h2>
                 </div>
@@ -83,7 +83,7 @@
                 </div>
             </section>
 
-            <section v-if="!eventId" class="fe-create-event__section">
+            <section v-if="!eventSlug" class="fe-create-event__section">
                 <div>
                     <h2 class="fe-create-event__section-title">{{ $t('Feed post') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('What members see in the feed, above the event.') }}</p>
@@ -318,7 +318,7 @@
                 :disabled="saving || uploading"
                 @click="submit"
             >
-                {{ eventId ? $t('Update Event') : $t('Create Event') }}
+                {{ eventSlug ? $t('Update Event') : $t('Create Event') }}
             </el-button>
         </div>
     </div>
@@ -337,7 +337,7 @@ export default {
     props: {
         router: { type: Object, required: true },
         // The edit route passes these instead of the create-only props below.
-        eventId: { type: String, default: '' },
+        eventSlug: { type: String, default: '' },
         onLoaded: { type: Function, default: () => {} },
         // The markdown stays in the shell, beside fcom's editor.
         getDescription: { type: Function, default: () => '' },
@@ -384,13 +384,13 @@ export default {
             },
             uploading: false,
             saving: false,
-            loading: !!this.eventId,
+            loading: !!this.eventSlug,
             loadedEvent: null,
         };
     },
     computed: {
         editable() {
-            return !this.eventId || !!this.loadedEvent;
+            return !this.eventSlug || !!this.loadedEvent;
         },
         venueMaxLength() {
             return portalVars().venue_max_length;
@@ -455,7 +455,7 @@ export default {
         },
     },
     mounted() {
-        if (this.eventId) {
+        if (this.eventSlug) {
             this.loadEvent();
             return;
         }
@@ -472,7 +472,7 @@ export default {
                 return;
             }
 
-            if (this.eventId) {
+            if (this.eventSlug) {
                 this.updateEvent();
                 return;
             }
@@ -482,7 +482,7 @@ export default {
         // Mapped as the admin form's initForm() maps it.
         async loadEvent() {
             try {
-                const { event } = await eventsApi.get(`events/${this.eventId}`);
+                const { event } = await eventsApi.get('events/by-slug', { slug: this.eventSlug });
                 const meta = event.meta || {};
                 const start = dayjs(event.start_at_local);
                 const end = dayjs(event.end_at_local);
@@ -519,7 +519,7 @@ export default {
             this.saving = true;
 
             try {
-                const response = await eventsApi.patch(`events/${this.eventId}`, {
+                const response = await eventsApi.patch(`events/${this.loadedEvent.id}`, {
                     ...this.payload,
                     // Required by the PATCH but not on this page, so they go back as loaded.
                     calendar_id: this.loadedEvent.calendar_id,
@@ -537,7 +537,7 @@ export default {
         },
         // Returns the first problem's message, or '' when the event can be posted.
         validateEvent() {
-            if (!this.eventId && this.placement === 'space' && !this.space) {
+            if (!this.eventSlug && this.placement === 'space' && !this.space) {
                 return this.$t('Choose a space for this event.');
             }
 

@@ -257,7 +257,7 @@ describe('CreateEventPage', () => {
 
         // The edit route passes only these; the create-only props fall back to their defaults.
         const mountEdit = async (response, extraProps) => {
-            const props = { router: { push: vi.fn(), back: vi.fn() }, eventId: '5', onLoaded: vi.fn(), getDescription: () => '**Bring** a torch', ...extraProps };
+            const props = { router: { push: vi.fn(), back: vi.fn() }, eventSlug: 'night-walk', onLoaded: vi.fn(), getDescription: () => '**Bring** a torch', ...extraProps };
             fetch.mockReturnValueOnce(response instanceof Promise ? response : Promise.resolve(response || json({ event: stored })));
             ElNotification.mockClear();
 
@@ -289,7 +289,7 @@ describe('CreateEventPage', () => {
         it("fills the form from the admin event endpoint and hands the event to the shell", async () => {
             const { vm, props } = await mountEdit();
 
-            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/5');
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=night-walk');
             expect(vm.event).toEqual({
                 title: 'Night walk',
                 start_date: '2026-11-20',
@@ -392,6 +392,13 @@ describe('CreateEventPage', () => {
             expect(wrapper.find('.fe-create-event__form').exists()).toBe(false);
             expect(wrapper.find('.fe-create-event__actions').exists()).toBe(false);
             expect(props.onLoaded).not.toHaveBeenCalled();
+        });
+
+        // A route param arrives decoded; in the path, a crafted `..%2F` slug would reach another REST route.
+        it('sends the slug as a query value, never as part of the path', async () => {
+            await mountEdit(undefined, { eventSlug: '../../wp/v2/users/me' });
+
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=..%2F..%2Fwp%2Fv2%2Fusers%2Fme');
         });
     });
 });

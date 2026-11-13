@@ -84,6 +84,18 @@ class EventController extends Controller
         return apply_filters('fluent_event/event_api_response', $data, $event);
     }
 
+    // The portal edit page is addressed by the event's slug, as its view page is.
+    public function getEventBySlug(Request $request)
+    {
+        $slug = $request->getSafe('slug', 'sanitize_title');
+
+        $eventId = $slug ? Event::query()->whereHas('post', function ($query) use ($slug) {
+            $query->where('post_name', $slug);
+        })->value('id') : null;
+
+        return $this->getEvent($request, (int) $eventId);
+    }
+
     public function createEvent(Request $request)
     {
         $data = EventRequest::sanitize($request->all());

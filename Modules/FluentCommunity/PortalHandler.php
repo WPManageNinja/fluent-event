@@ -36,7 +36,7 @@ class PortalHandler
             $this->routePaths = apply_filters('fluent_event/community/route_paths', [
                 'events'           => $this->routeSlug,
                 'create_event'     => $this->routeSlug . '/create',
-                'edit_event'       => $this->routeSlug . '/:event_id/edit',
+                'edit_event'       => $this->routeSlug . '/:event_slug/edit',
                 'event_view'       => $this->routeSlug . '/:event_slug',
                 'space_events'     => $this->routeSlug,
                 'space_event_view' => $this->routeSlug . '/:event_slug',
