@@ -10,7 +10,7 @@
         <p>{{ $t('%s will be removed from this event. This cannot be undone.', guest?.name) }}</p>
 
         <el-checkbox v-if="canSendEmail" v-model="sendEmail">
-            {{ $t('Send cancellation email') }}
+            {{ $t('Send Cancellation Email') }}
         </el-checkbox>
 
         <template #footer>

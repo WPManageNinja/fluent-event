@@ -11,7 +11,7 @@
                     <span>{{ $t('Back') }}</span>
                 </button>
 
-                <event-menu :event="event"></event-menu>
+                <event-menu :event="event" :router="router"></event-menu>
             </div>
 
             <img v-if="event.cover_url" class="fe-event-view__cover" :src="event.cover_url" alt=""/>
@@ -35,7 +35,7 @@
                                     <VideoCamera v-if="isOnline"/>
                                     <MapLocation v-else/>
                                 </el-icon>
-                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In person')) }}</span>
+                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In Person')) }}</span>
                             </li>
                         </ul>
 
@@ -123,7 +123,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, timeFormat } from '../utils';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, setPageTitle, timeFormat } from '../utils';
 import { lastDay } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -152,6 +152,7 @@ export default {
             feed: null,
             error: '',
             icons: { APPLE, GOOGLE },
+            requestId: 0,
         };
     },
     computed: {
@@ -245,6 +246,10 @@ export default {
     mounted() {
         this.fetchEvent();
     },
+    // A read still on its way must not title the next page's tab.
+    beforeUnmount() {
+        this.requestId++;
+    },
     methods: {
         googleCalendarLink,
         saveIcs,
@@ -268,6 +273,7 @@ export default {
             return zone ? `${range} (${zone})` : range;
         },
         async fetchEvent() {
+            const requestId = ++this.requestId;
             let feed = null;
 
             try {
@@ -275,9 +281,18 @@ export default {
                 const { feed_slug: feedSlug } = await eventsApi.get('community/events/by-slug', { space: this.spaceSlug, slug: this.eventSlug });
                 const response = await communityApi.get(`feeds/${feedSlug}/by-slug`);
 
+                // The member left before both answers came back: the tab belongs to the page open now.
+                if (requestId !== this.requestId) {
+                    return;
+                }
+
                 feed = response.feed;
                 this.feed = feed;
                 this.event = feed.fluent_event || null;
+
+                if (this.event) {
+                    setPageTitle(this.event.title);
+                }
             } catch (error) {
                 this.event = null;
             } finally {

@@ -498,9 +498,9 @@ class FrontEndHandler
             'filter'        => $filter,
             'search'        => $search,
             'state'         => $state,
-            'page_var'      => self::PAGE_VAR,
-            'calendar_var'  => self::CALENDAR_VAR,
-            'search_var'    => self::SEARCH_VAR,
+            'fluentEventPageVar'     => self::PAGE_VAR,
+            'fluentEventCalendarVar' => self::CALENDAR_VAR,
+            'fluentEventSearchVar'   => self::SEARCH_VAR,
         ];
 
         if ($view === 'calendar') {
@@ -559,7 +559,7 @@ class FrontEndHandler
             return $data[spl_object_id($event)]['side'];
         }
 
-        return (string) App::make('view')->make('portal.event-part', $data[spl_object_id($event)] + ['part' => $part]);
+        return (string) App::make('view')->make('portal.event-part', $data[spl_object_id($event)] + ['fluentEventPart' => $part]);
     }
 
     // The community event page's shape, drawn for a visitor whoever is viewing: the public pages don't know their viewers.
@@ -605,7 +605,7 @@ class FrontEndHandler
             'date'       => wp_date(get_option('date_format'), $start),
             'weekday'    => wp_date('l', $start),
             'time'       => wp_date($timeFormat, $start),
-            /* translators: 1: start time, 2: end time or end date and time */
+            /* translators: 1: start, 2: end (each a time, or a date and time) */
             'time_range' => sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), wp_date($timeFormat, $start), wp_date($endFormat, $end)),
             'is_online'  => $isOnline,
             'location'   => $isOnline ? __('Online', 'fluent-event') : (Arr::get($event->meta, 'venue') ?: __('In person', 'fluent-event')),
@@ -640,7 +640,7 @@ class FrontEndHandler
         } elseif ($span === 'week') {
             $from = $weekStart($anchor);
             $to = $from->modify('+6 days');
-            /* translators: 1: first day of the week, 2: last day of the week with its year */
+            /* translators: 1: start date, 2: end date */
             $label = sprintf(_x('%1$s – %2$s', 'date range', 'fluent-event'), wp_date('M j', $from->getTimestamp()), wp_date('M j, Y', $to->getTimestamp()));
         } else {
             $from = $to = $anchor;

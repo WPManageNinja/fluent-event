@@ -239,15 +239,21 @@
         }
     }
 
-    &__error {
+    &__error,
+    &__note {
         margin: 0;
         padding: 0 16px 12px;
         font-size: 13px;
         color: var(--fcom-danger, #d63638);
     }
 
+    &__note {
+        color: var(--fcom-primary-text, #19283a);
+    }
+
     // Sits under the buttons, so it reads as their result rather than a separate line.
-    .fe-event-card__actions + &__error {
+    .fe-event-card__actions + &__error,
+    .fe-event-card__actions + &__note {
         margin-top: -8px;
     }
 
@@ -1367,6 +1373,12 @@
         margin: 0;
         font-size: 22px;
         font-weight: 700;
+    }
+
+    // Element Plus CSS loads after ours, so .el-alert's own radius wins without the second class.
+    &__notice.el-alert {
+        margin-bottom: 16px;
+        border-radius: 12px;
     }
 
     // Closes the form card under fcom's composer section.

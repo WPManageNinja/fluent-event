@@ -36,6 +36,7 @@ class PortalHandler
             $this->routePaths = apply_filters('fluent_event/community/route_paths', [
                 'events'           => $this->routeSlug,
                 'create_event'     => $this->routeSlug . '/create',
+                'edit_event'       => $this->routeSlug . '/:event_slug/edit',
                 'event_view'       => $this->routeSlug . '/:event_slug',
                 'space_events'     => $this->routeSlug,
                 'space_event_view' => $this->routeSlug . '/:event_slug',
@@ -51,7 +52,6 @@ class PortalHandler
         add_filter('fluent_community/module_scripts', [$this, 'addModuleScript']);
         add_filter('fluent_community/portal_data_vars', [$this, 'addStylesheet'], 20);
         add_filter('fluent_community/default_main_menu_items', [$this, 'addMenuItem']);
-        add_filter('fluent_community/menu_settings_api_response', [$this, 'addMenuSetting']);
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
         add_filter('fluent_community/app_route_paths', [$this, 'addRoutePath']);
         add_filter('fluent_community/space_header_links', [$this, 'addSpaceTab'], 10, 2);
@@ -64,20 +64,6 @@ class PortalHandler
         $items[self::MENU_SLUG] = $this->menuItem();
 
         return $items;
-    }
-
-    // Listed in fcom's Menu Settings, off until an admin turns it on; fcom then stores it with its own items.
-    public function addMenuSetting($data)
-    {
-        $items = (array) Arr::get($data, 'menuSettings.mainMenuItems', []);
-
-        if (!in_array(self::MENU_SLUG, array_column($items, 'slug'), true)) {
-            $items[] = $this->menuItem();
-
-            $data['menuSettings']['mainMenuItems'] = $items;
-        }
-
-        return $data;
     }
 
     protected function menuItem()
@@ -122,7 +108,7 @@ class PortalHandler
     // fcom serves the portal on a direct load only for listed first segments; the space routes sit under its `space`.
     public function addRoutePath($paths)
     {
-        foreach (['events', 'create_event', 'event_view'] as $key) {
+        foreach (['events', 'create_event', 'edit_event', 'event_view'] as $key) {
             $paths[] = strtok($this->routePaths()[$key], '/');
         }
 
@@ -202,7 +188,7 @@ class PortalHandler
     protected function strings()
     {
         return [
-            /* translators: %d: number of further events on that day */
+            /* translators: %d: the number of further events on that day */
             '%d more' => __('%d more', 'fluent-event'),
             /* translators: %s: number of guests going */
             '%s going' => __('%s going', 'fluent-event'),
@@ -225,33 +211,32 @@ class PortalHandler
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
             'Comments' => __('Comments', 'fluent-event'),
             'Community-wide' => __('Community-wide', 'fluent-event'),
-            'Cover image' => __('Cover image', 'fluent-event'),
+            'Cover Image' => __('Cover Image', 'fluent-event'),
             'Create Event' => __('Create Event', 'fluent-event'),
-            'Create new event' => __('Create new event', 'fluent-event'),
-            'Date and time' => __('Date and time', 'fluent-event'),
+            'Date and Time' => __('Date and Time', 'fluent-event'),
             'Day' => __('Day', 'fluent-event'),
-            /* translators: %d: day number within a multi-day event */
+            /* translators: %d: the day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
             'Describe the event, or type / to add images, lists and more' => __('Describe the event, or type / to add images, lists and more', 'fluent-event'),
             'Description' => __('Description', 'fluent-event'),
             'Done' => __('Done', 'fluent-event'),
-            'Edit event' => __('Edit event', 'fluent-event'),
+            'Edit Event' => __('Edit Event', 'fluent-event'),
             'Email' => __('Email', 'fluent-event'),
             'End' => __('End', 'fluent-event'),
             'End date' => __('End date', 'fluent-event'),
             'End must be after the start.' => __('End must be after the start.', 'fluent-event'),
             'End time' => __('End time', 'fluent-event'),
             'Ended' => __('Ended', 'fluent-event'),
-            'Entry type' => __('Entry type', 'fluent-event'),
+            'Entry Type' => __('Entry Type', 'fluent-event'),
             'Error' => __('Error', 'fluent-event'),
             'Event cover image' => __('Event cover image', 'fluent-event'),
-            'Event name' => __('Event name', 'fluent-event'),
+            'Event Name' => __('Event Name', 'fluent-event'),
             'Event title is required.' => __('Event title is required.', 'fluent-event'),
             'Events' => __('Events', 'fluent-event'),
             'Events from across the community will show up here.' => __('Events from across the community will show up here.', 'fluent-event'),
             'Events posted in this space will show up here.' => __('Events posted in this space will show up here.', 'fluent-event'),
             'Events that have ended will show up here.' => __('Events that have ended will show up here.', 'fluent-event'),
-            'Feed post' => __('Feed post', 'fluent-event'),
+            'Feed Post' => __('Feed Post', 'fluent-event'),
             'Global posts are turned off in FluentCommunity settings.' => __('Global posts are turned off in FluentCommunity settings.', 'fluent-event'),
             'Going' => __('Going', 'fluent-event'),
             'Google Calendar' => __('Google Calendar', 'fluent-event'),
@@ -259,7 +244,7 @@ class PortalHandler
             'Happening now' => __('Happening now', 'fluent-event'),
             'How guests join and what they see.' => __('How guests join and what they see.', 'fluent-event'),
             'In a space' => __('In a space', 'fluent-event'),
-            'In person' => __('In person', 'fluent-event'),
+            'In Person' => __('In Person', 'fluent-event'),
             'Interested?' => __('Interested?', 'fluent-event'),
             'Join online' => __('Join online', 'fluent-event'),
             'Keep it' => __('Keep it', 'fluent-event'),
@@ -267,7 +252,9 @@ class PortalHandler
             'Loading event' => __('Loading event', 'fluent-event'),
             'Log in to RSVP' => __('Log in to RSVP', 'fluent-event'),
             'Logged-in members say whether they are going.' => __('Logged-in members say whether they are going.', 'fluent-event'),
-            'Meeting link' => __('Meeting link', 'fluent-event'),
+            'Meeting Link' => __('Meeting Link', 'fluent-event'),
+            'Members can RSVP once this post is published.' => __('Members can RSVP once this post is published.', 'fluent-event'),
+            'Members can register once this post is published.' => __('Members can register once this post is published.', 'fluent-event'),
             'Month' => __('Month', 'fluent-event'),
             'More actions' => __('More actions', 'fluent-event'),
             'Name' => __('Name', 'fluent-event'),
@@ -306,7 +293,7 @@ class PortalHandler
             'Start' => __('Start', 'fluent-event'),
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
-            /* translators: %s: relative time, e.g. "in 3 days" */
+            /* translators: %s: when the event starts, as a date and time or as a relative time such as "in 3 days" */
             'Starts %s' => __('Starts %s', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
@@ -315,14 +302,16 @@ class PortalHandler
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
+            'To change the post text or its space, edit the post itself.' => __('To change the post text or its space, edit the post itself.', 'fluent-event'),
             /* translators: a menu path in FluentCommunity's admin; keep the names as FluentCommunity shows them */
             'To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.' => __('To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
             'Try a different search term.' => __('Try a different search term.', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
-            'Venue name' => __('Venue name', 'fluent-event'),
-            'Venue type' => __('Venue type', 'fluent-event'),
-            /* translators: %s: event title */
+            'Update Event' => __('Update Event', 'fluent-event'),
+            'Venue Name' => __('Venue Name', 'fluent-event'),
+            'Venue Type' => __('Venue Type', 'fluent-event'),
+            /* translators: %s: the event title */
             'View %s' => __('View %s', 'fluent-event'),
             'View post' => __('View post', 'fluent-event'),
             'Week' => __('Week', 'fluent-event'),

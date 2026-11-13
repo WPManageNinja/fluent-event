@@ -57,6 +57,32 @@ afterEach(() => {
 
 describe('EventViewPage', () => {
     describe('loading', () => {
+        it('titles the tab with the event once it loads', async () => {
+            window.fluentComAdmin.site_title = 'Acme Community';
+
+            await page(meetup());
+
+            expect(document.title).toBe('Community meetup - Acme Community');
+        });
+
+        it('leaves the tab title alone when the member left before the event loaded', async () => {
+            document.title = 'All Feeds - Acme Community';
+            fetch.mockResolvedValueOnce(new Response(JSON.stringify({ feed_slug: 'meetup-post' })));
+            let answer;
+            fetch.mockReturnValueOnce(new Promise((resolve) => { answer = resolve; }));
+            const wrapper = mount(EventViewPage, {
+                props: { spaceSlug: 'design', eventSlug: 'community-meetup', router: { push: vi.fn(), back: vi.fn() }, onFeed: vi.fn() },
+                global: { mocks: { $t: t } }
+            });
+            await flushPromises();
+
+            wrapper.unmount();
+            answer(new Response(JSON.stringify({ feed: { slug: 'meetup-post', fluent_event: meetup() } })));
+            await flushPromises();
+
+            expect(document.title).toBe('All Feeds - Acme Community');
+        });
+
         it("reads the event through fcom's post endpoint, so it is visible exactly when its post is", async () => {
             const { wrapper } = await page(meetup());
 

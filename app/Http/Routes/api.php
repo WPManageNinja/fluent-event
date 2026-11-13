@@ -51,6 +51,7 @@ $router->prefix('reports')->withDefaultPolicy()->group(function ($router) {
 
 $router->prefix('events')->withDefaultPolicy()->group(function ($router) {
     $router->get('/', [EventController::class, 'getAllEvents']);
+    $router->get('/by-slug', [EventController::class, 'getEventBySlug']);
     $router->get('/{id}', [EventController::class, 'getEvent'])->int('id');
 
     $router->post('/', [EventController::class, 'createEvent']);

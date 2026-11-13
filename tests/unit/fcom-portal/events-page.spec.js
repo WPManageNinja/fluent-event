@@ -97,6 +97,14 @@ describe('EventsPage', () => {
     });
 
     describe('loading', () => {
+        it('titles the browser tab', async () => {
+            window.fluentComAdmin.site_title = 'Acme Community';
+
+            await eventsPage();
+
+            expect(document.title).toBe('All Events - Acme Community');
+        });
+
         it("loads the first page of the tab for the member's space", async () => {
             await eventsPage({ spaceSlug: 'design' });
 
@@ -270,7 +278,7 @@ describe('EventsPage', () => {
             });
         });
 
-        it('offers Create new event, in a space or on all events, to members who may create', async () => {
+        it('offers Create Event, in a space or on all events, to members who may create', async () => {
             expect((await eventsPage({ spaceSlug: 'design' })).vm.canCreate).toBe(true);
             expect((await eventsPage()).vm.canCreate).toBe(true);
 

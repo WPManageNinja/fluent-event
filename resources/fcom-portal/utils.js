@@ -50,6 +50,7 @@ async function request(base, method, route, data) {
 export const eventsApi = {
     get: (route, data) => request(portalVars().rest_url, 'GET', route, data),
     post: (route, data) => request(portalVars().rest_url, 'POST', route, data),
+    patch: (route, data) => request(portalVars().rest_url, 'PATCH', route, data),
 };
 
 // Event covers and description images are media library attachments: the event owns them, not its post.
@@ -174,4 +175,9 @@ export function guestCountLabel(event) {
     }
 
     return t('%s going', event.guest_count);
+}
+
+// fcom titles its own pages "<title> - <site>"; ours would keep the previous page's tab title.
+export function setPageTitle(title) {
+    document.title = [title, (window.fluentComAdmin || {}).site_title].filter(Boolean).join(' - ');
 }

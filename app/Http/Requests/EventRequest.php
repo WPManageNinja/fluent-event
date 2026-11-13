@@ -96,7 +96,7 @@ class EventRequest extends BaseRequest
         }
 
         if ($errors) {
-            throw new ValidationException('Unprocessable Entity!', 422, null, $errors);
+            throw new ValidationException('Unprocessable Entity!', 422, null, $errors); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- messages escaped with esc_html__() above; returned as REST JSON
         }
     }
 

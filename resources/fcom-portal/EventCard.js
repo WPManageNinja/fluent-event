@@ -55,6 +55,16 @@ export default {
         hasActions() {
             return !this.is_child && hasEventActions(this.event);
         },
+        // A scheduled or pending post: the server takes answers once it is published.
+        unpublishedNote() {
+            if (this.event.registration_open !== false || this.event.is_past) {
+                return '';
+            }
+
+            return this.event.entry_type === 'open'
+                ? t('Members can register once this post is published.')
+                : t('Members can RSVP once this post is published.');
+        },
         eventRoute() {
             const space = this.feed.space && this.feed.space.slug;
 
@@ -160,7 +170,7 @@ export default {
                         <p class="fe-event-card__meta fe-event-card__meta--venue">
                             <span v-if="isOnlineEvent" class="fe-event-card__venue-icon" aria-hidden="true">${VIDEO_CAMERA}</span>
                             <span v-else class="fe-event-card__venue-icon" aria-hidden="true">${MAP_LOCATION}</span>
-                            {{ isOnlineEvent ? t('Online') : t('In person') }}
+                            {{ isOnlineEvent ? t('Online') : t('In Person') }}
                         </p>
                     </div>
                 </div>
@@ -170,6 +180,7 @@ export default {
                     <event-actions :event="event" @done="apply" @error="error = $event"></event-actions>
                 </div>
 
+                <p v-if="hasActions && unpublishedNote" class="fe-event-card__note">{{ unpublishedNote }}</p>
                 <p v-if="error" class="fe-event-card__error" role="alert">{{ error }}</p>
             </template>
         </div>

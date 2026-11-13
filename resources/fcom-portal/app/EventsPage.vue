@@ -7,7 +7,7 @@
                 class="fcom_primary_button"
                 @click="createEvent"
             >
-                {{ $t('Create new event') }}
+                {{ $t('Create Event') }}
             </el-button>
         </div>
 
@@ -121,7 +121,7 @@
                             <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openEvent(event)">
                                 <span class="fe-event-item__title-text">{{ event.title }}</span>
                             </a>
-                            <event-menu class="fe-event-item__menu" :event="event"></event-menu>
+                            <event-menu class="fe-event-item__menu" :event="event" :router="router"></event-menu>
                         </div>
                         <span class="fe-event-item__meta fe-event-item__meta--date">{{ startDate(event) }}</span>
                         <span class="fe-event-item__meta fe-event-item__meta--venue">
@@ -129,7 +129,7 @@
                                 <VideoCamera v-if="event.venue_type === 'online'"/>
                                 <MapLocation v-else/>
                             </el-icon>
-                            {{ event.venue_type === 'online' ? $t('Online') : $t('In person') }}
+                            {{ event.venue_type === 'online' ? $t('Online') : $t('In Person') }}
                         </span>
                         <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
                     </div>
@@ -156,7 +156,7 @@
 import { Calendar, Grid, MapLocation, Search, Tickets, UserFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart } from '../utils';
+import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart, setPageTitle } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 import EventsCalendar from './EventsCalendar.vue';
@@ -240,6 +240,11 @@ export default {
         },
     },
     mounted() {
+        // A space's tab keeps the space's name, as fcom's other space tabs do.
+        if (!this.spaceSlug) {
+            setPageTitle(this.$t('All Events'));
+        }
+
         this.reload();
     },
     methods: {

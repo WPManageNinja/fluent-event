@@ -1,6 +1,6 @@
-=== FluentEvent - Community Events, RSVPs & Reminders for FluentCommunity ===
+=== FluentEvent - Event Calendar, RSVP & Registration ===
 Contributors: techjewel, wpmanageninja
-Tags: events, calendar, rsvp, community, fluentcommunity
+Tags: events, event calendar, rsvp, event registration, fluentcommunity
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -8,102 +8,107 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Create events inside your FluentCommunity spaces, collect RSVPs, and keep guests informed with confirmations and reminders.
+Create events, collect RSVPs and registrations, and send confirmations and reminders to your guests.
 
 == Description ==
 
-FluentEvent adds events to [FluentCommunity](https://wordpress.org/plugins/fluent-community/). Post an event in a discussion space the same way you post anything else; members see it in the feed and on the space's events page, and RSVP with one click.
+FluentEvent adds events to your WordPress site. You create events in the WordPress admin, group them in calendars, and publish each event on its own page. Visitors register with their name and email. FluentEvent sends each guest a confirmation and a reminder before the event starts.
 
-**FluentEvent requires FluentCommunity.** Install and activate FluentCommunity (the free version is enough) before activating FluentEvent.
+= Events =
 
-= Events in your community =
+* **Calendars** — group your events in calendars.
+* **In person or online** — add a venue and an address, or an online meeting link.
+* **Cover image, date, time and time zone** for each event.
+* **Four statuses** — Public, Unlisted (not in the event list, but the direct link works), Private (no public page) and Draft.
 
-* **Post events in discussion spaces** — site administrators create an event from the FluentCommunity post composer.
-* **A calendar per space** — every space gets its own events calendar automatically.
-* **In person or online** — add a venue and address, or an online meeting link.
-* **Cover image, date, time and timezone** for every event.
-* **Events page in the portal** — members browse upcoming and past events in a timeline or calendar view.
+= Registration =
 
-= RSVP & guests =
+Each event has one of three entry modes:
 
-* **Two entry modes**
-  * **RSVP** — members mark themselves Going or Not going.
-  * **Open** — no registration; everyone who can see the event sees all its details.
-* **Show or hide the guest count** on each event.
-* **Guest management** — add, edit and remove guests, and track who is going, not going, cancelled or checked in.
-* **Meeting links stay private** — on RSVP events, only guests who are going see the online meeting link.
+* **RSVP** — guests tell you that they are going.
+* **Open** — guests click Register and give their name and email.
+* **View only** — nobody registers. Every visitor sees the full event, including the meeting link.
+
+For RSVP and Open events, the online meeting link shows only after a guest registers. You can show or hide the guest count on each event.
+
+= Event pages =
+
+* **A page for each event** at `/event/<event-slug>/`. You can change the `event` part in the settings.
+* **An event list** — add the `[fluent_events]` shortcode or the Fluent Events block to any page.
+* **A single event** — add the `[fluent_event]` shortcode or the Fluent Event block.
+* **Add to calendar** — guests add an event to Google Calendar, or to Apple Calendar or Outlook with an `.ics` file.
+
+= Guests =
+
+* Add, edit and remove guests.
+* See who is going, not going, checked in or cancelled.
 
 = Emails =
 
-* **Registration confirmation** when a guest RSVPs Going.
-* **Cancellation notice** when a guest changes to Not going.
-* **Reminders** before the event starts — 24 hours before by default, with configurable lead times.
-* **Sender settings** — from name and email, reply-to, and a footer for every email.
+* **Registration confirmation** when a guest registers.
+* **Cancellation notice** when a guest cancels.
+* **Reminders** before the event starts. The default is 24 hours before. You can change the times.
+* **Sender settings** — from name and email, reply-to and an email footer.
 * Turn each email on or off.
-
-= Add to calendar =
-
-Guests add any event to Google Calendar or Apple Calendar (.ics) from the event page.
 
 = Admin dashboard =
 
-* All events in a card, timeline or calendar view, filtered by calendar or date range.
-* Guest statistics and a guest growth chart.
+* All events in a card, timeline or calendar view, with filters for calendar and date range.
+* Guest statistics and a guest trend chart.
 
-= Team permissions =
+= FluentCommunity integration =
 
-Give staff (editors, authors, contributors) access to events, guests, calendars or settings — read-only or with edit rights — without making them site administrators.
+If you use [FluentCommunity](https://wordpress.org/plugins/fluent-community/), turn on FluentEvent in FluentCommunity's Features settings. Then:
+
+* Site administrators post events in discussion spaces from the post composer.
+* Each space gets its own events calendar.
+* Members see events in the feed and on the space's events page.
+
+FluentEvent does not need FluentCommunity. Without it, all other features work.
 
 = Translation ready =
 
-Every string is translatable (text domain `fluent-event`).
+All strings are translatable. The text domain is `fluent-event`.
 
 = Source code =
 
-The plugin ships the uncompiled source of its JavaScript and styles in the `resources` folder. To build the files in `assets`, run `npm install` and then `npm run build`.
+The plugin includes the uncompiled source of its JavaScript and styles in the `resources` folder. To build the files in `assets`, run `npm install` and then `npm run build`.
 
 == Frequently Asked Questions ==
 
-= Does FluentEvent work without FluentCommunity? =
+= Does FluentEvent need FluentCommunity? =
 
-Not yet. Events are created as FluentCommunity posts, so FluentCommunity must be installed and active. The free version is enough.
+No. FluentEvent works on its own. The FluentCommunity integration is optional.
 
-= Who can create events? =
+= Who can create and manage events? =
 
-Site administrators. The whole FluentEvent admin is for administrators only.
+Site administrators. The FluentEvent admin is for administrators only.
 
-= Can community members create events? =
+= Can visitors register without an account? =
 
-No. Members see events and RSVP; creating events is limited to site administrators.
+Yes. On the event page, visitors register with their name and email.
 
 = Who can see the online meeting link? =
 
-On RSVP events, only guests who are going. On Open events, everyone who can see the event.
+On RSVP and Open events, only guests who registered. On View only events, every visitor.
 
 = What happens to my data if I delete the plugin? =
 
-Your events, guests and settings are kept, so nothing is lost if you reinstall.
+FluentEvent keeps your events, guests and settings. If you install the plugin again, your data is still there.
 
 = Does it support paid tickets or recurring events? =
 
-Not in this version. They are on the roadmap.
+Not in this version. Both are on the roadmap.
 
 == Installation ==
 
-1. Install and activate [FluentCommunity](https://wordpress.org/plugins/fluent-community/).
-2. In Plugins → Add New, search for FluentEvent, then click Install Now. Or upload the `fluent-event` folder to `/wp-content/plugins/`.
-3. Activate FluentEvent from the Plugins screen.
-4. Open FluentEvent in the WordPress admin to set up email settings and team access.
-5. Post your first event from the post composer in any FluentCommunity discussion space.
+1. In Plugins → Add New, search for FluentEvent, then click Install Now. Or upload the `fluent-event` folder to `/wp-content/plugins/`.
+2. Activate FluentEvent on the Plugins screen.
+3. Open FluentEvent in the WordPress admin. Set the email settings and create your first calendar and event.
+4. Optional: add the `[fluent_events]` shortcode or the Fluent Events block to a page to list your events.
+5. Optional: if you use FluentCommunity, turn on FluentEvent in FluentCommunity's Features settings.
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial release.
-* Events posted in FluentCommunity discussion spaces, with a calendar per space.
-* RSVP and Open entry modes, with an optional guest count.
-* Guest management: add, edit, remove, check in.
-* Confirmation, cancellation and reminder emails.
-* Add to Google Calendar and Apple Calendar.
-* Admin dashboard with card, timeline and calendar views.
-* Team permissions for staff.
+= 1.0.0 - Nov 13, 2026 =
+- Initial release

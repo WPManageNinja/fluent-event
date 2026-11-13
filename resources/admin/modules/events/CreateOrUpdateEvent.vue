@@ -39,7 +39,7 @@
                 >
                     <section class="fe-form__section" data-field="cover_url">
                         <div class="fe-form__section-rail">
-                            <h2 class="fe-form__section-title">{{ $t('Cover image') }}</h2>
+                            <h2 class="fe-form__section-title">{{ $t('Cover Image') }}</h2>
                             <p class="fe-form__section-desc">
                                 {{ $t('Shown at the top of the event page and on event cards.') }}
                             </p>
@@ -53,7 +53,7 @@
                                 :action-label="$t('Use this image')"
                                 :alt="$t('Event cover image')"
                                 :add-label="$t('Add a cover image')"
-                                :change-label="$t('Change cover image')"
+                                :change-label="$t('Change Cover Image')"
                                 :remove-label="$t('Remove cover image')"
                             >
                                 <template #placeholder>
@@ -80,7 +80,7 @@
 
                         <div class="fe-form__section-fields">
                             <el-form-item
-                                :label="$t('Event name')"
+                                :label="$t('Event Name')"
                                 for="fe-event-title"
                                 required
                                 data-field="title"
@@ -190,7 +190,7 @@
 
                     <section class="fe-form__section">
                         <div class="fe-form__section-rail">
-                            <h2 class="fe-form__section-title">{{ $t('Date and time') }}</h2>
+                            <h2 class="fe-form__section-title">{{ $t('Date and Time') }}</h2>
                             <p class="fe-form__section-desc">
                                 {{ $t('When the event starts and ends.') }}
                             </p>
@@ -250,7 +250,7 @@
 
                     <section class="fe-form__section" data-field="venue_type">
                         <div class="fe-form__section-rail">
-                            <h2 class="fe-form__section-title">{{ $t('Venue type') }}</h2>
+                            <h2 class="fe-form__section-title">{{ $t('Venue Type') }}</h2>
                             <p class="fe-form__section-desc">
                                 {{ $t('A venue for in-person events, a link for online ones.') }}
                             </p>
@@ -261,13 +261,13 @@
                                 v-model="event.venue_type"
                                 class="fe-event-form__venue-switch"
                                 :options="venueTypes"
-                                :label="$t('Venue type')"
+                                :label="$t('Venue Type')"
                                 show-labels
                             />
 
                             <el-form-item
                                 v-if="event.venue_type === 'online'"
-                                :label="$t('Meeting link')"
+                                :label="$t('Meeting Link')"
                                 for="fe-event-meeting-link"
                                 required
                                 data-field="online_meeting_url"
@@ -285,7 +285,7 @@
 
                             <template v-else>
                                 <el-form-item
-                                    :label="$t('Venue name')"
+                                    :label="$t('Venue Name')"
                                     for="fe-event-venue"
                                     data-field="venue"
                                 >
@@ -323,11 +323,11 @@
                         </div>
 
                         <div class="fe-form__section-fields">
-                            <el-form-item :label="$t('Entry type')" data-field="entry_type">
+                            <el-form-item :label="$t('Entry Type')" data-field="entry_type">
                                 <el-radio-group
                                     v-model="event.entry_type"
                                     class="fe-form__choices"
-                                    :aria-label="$t('Entry type')"
+                                    :aria-label="$t('Entry Type')"
                                 >
                                     <el-radio
                                         v-for="option in $entryTypes()"
@@ -439,7 +439,7 @@
             },
             venueTypes() {
                 return [
-                    { value: 'offline', label: this.$t('In person'), icon: MapLocation },
+                    { value: 'offline', label: this.$t('In Person'), icon: MapLocation },
                     { value: 'online', label: this.$t('Online'), icon: VideoCamera },
                 ];
             },
