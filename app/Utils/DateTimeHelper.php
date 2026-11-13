@@ -158,7 +158,7 @@ class DateTimeHelper
     public static function timeRange($start, $end, $zone)
     {
         $format = substr($start, 0, 10) === self::lastDate($start, $end) ? get_option('time_format') : 'M j, ' . get_option('time_format');
-        /* translators: 1: start time, 2: end time */
+        /* translators: 1: start, 2: end (each a time, or a date and time) */
         $range = sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), self::wallClock($start, $format), self::wallClock($end, $format));
 
         return $zone ? $range . ' (' . $zone . ')' : $range;
@@ -169,7 +169,7 @@ class DateTimeHelper
     {
         $endFormat = substr($start, 0, 10) === self::lastDate($start, $end) ? get_option('time_format') : 'M j, ' . get_option('time_format');
 
-        /* translators: 1: start date and time, 2: end time or end date and time */
+        /* translators: 1: start, 2: end (each a time, or a date and time) */
         return sprintf(_x('%1$s – %2$s', 'time range', 'fluent-event'), self::wallClock($start, 'M j, ' . get_option('time_format')), self::wallClock($end, $endFormat))
             . ' (' . $zone . ')';
     }

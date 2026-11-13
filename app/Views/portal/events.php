@@ -52,7 +52,7 @@ $fluentEventEntry = function ( array $entry, $class, $style = '' ) {
     <a class="<?php echo esc_attr( $class ); ?>" href="<?php echo esc_url( $entry['url'] ); ?>" title="<?php echo esc_attr( $entry['title'] ); ?>"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?>>
         <span class="<?php echo esc_attr( $class ); ?>-time">
             <?php
-            /* translators: %d: which day of a multi-day event this is */
+            /* translators: %d: the day number within a multi-day event */
             echo esc_html( $entry['day_index'] > 1 ? sprintf( __( 'Day %d', 'fluent-event' ), $entry['day_index'] ) : $entry['time'] );
             ?>
         </span>

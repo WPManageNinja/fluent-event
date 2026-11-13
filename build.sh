@@ -4,6 +4,7 @@
 #
 #   ./build.sh                 zip the assets/ already built
 #   ./build.sh --node-build    run `npm run build` first
+#   ./build.sh --pot           regenerate language/fluent-event.pot first (needs WP-CLI)
 #
 # Not `./wpf app:build`: its built-in excludes drop composer.json, which the
 # framework reads on every boot (devtools v1.0.48).
@@ -40,9 +41,11 @@ JUNK=(".DS_Store" "__MACOSX" "._*" "Thumbs.db" "*~" "*.orig" "*.rej" ".gitignore
 die() { echo "Error: $*" >&2; exit 1; }
 
 nodeBuild=false
+makePot=false
 for arg in "$@"; do
     case "$arg" in
         --node-build) nodeBuild=true ;;
+        --pot) makePot=true ;;
         *) die "Unknown option: $arg" ;;
     esac
 done
@@ -62,6 +65,16 @@ if "$nodeBuild"; then
     mkdir -p assets
     [ -f assets/index.php ] || printf '<?php\n\n// Silence is golden' > assets/index.php
     "$buildOk" || die "npm run build failed."
+fi
+
+if "$makePot"; then
+    # Written to the working tree, so the .pot is committed with the release that ships it.
+    # The Vue and block strings reach it through their PHP maps (config/i18n.php,
+    # PortalHandler::strings(), BlockEditorHandler::strings()); assets/ holds built copies only.
+    command -v wp >/dev/null || die "wp (WP-CLI) not found."
+    wp i18n make-pot . "language/$SLUG.pot" --slug="$SLUG" --domain="$SLUG" \
+        --exclude=assets,builds,dev,tests,test,plugin-check,node_modules,vendor,.claude,.agent,.playwright-mcp \
+        || die "wp i18n make-pot failed."
 fi
 
 # Production enqueues every script and stylesheet through assets/manifest.json, which

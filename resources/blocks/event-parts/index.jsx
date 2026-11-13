@@ -1,4 +1,4 @@
-const { __ } = wp.i18n;
+import { __ } from '../i18n.js';
 const { registerBlockType } = wp.blocks;
 const { useBlockProps } = wp.blockEditor;
 
