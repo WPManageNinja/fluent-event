@@ -1,6 +1,6 @@
 import { Icon, PATHS } from '../event-parts/index.jsx';
 
-const { __ } = wp.i18n;
+import { __ } from '../i18n.js';
 const { registerBlockType } = wp.blocks;
 const { InspectorControls, useBlockProps } = wp.blockEditor;
 const { PanelBody, SelectControl, ToggleControl } = wp.components;
