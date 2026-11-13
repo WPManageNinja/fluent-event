@@ -1,4 +1,4 @@
-import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
+import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs, syncEventFeeds } from './utils';
 import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE } from './icons';
 
 /*
@@ -88,6 +88,7 @@ export default {
                     });
                 const done = this.withStatus(response);
                 this.close();
+                syncEventFeeds(done.event);
                 this.$emit('done', done);
                 this.showRegistered(done.event);
             } catch (error) {
@@ -108,6 +109,7 @@ export default {
 
             try {
                 const response = this.withStatus(await eventsApi.post(`community/events/${this.event.id}/register`, { status }));
+                syncEventFeeds(response.event);
                 this.$emit('done', response);
                 const { ElNotification } = await import('element-plus');
                 ElNotification({ type: 'success', message: response.message });

@@ -1,4 +1,4 @@
-import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions, communityApi } from './utils';
+import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions, communityApi, trackEventFeed } from './utils';
 import { MAP_LOCATION, VIDEO_CAMERA } from './icons';
 import EventActions from './EventActions';
 import EventMenu from './EventMenu';
@@ -29,6 +29,9 @@ export default {
         'feed.fluent_event'(value) {
             this.event = value || null;
         },
+    },
+    created() {
+        trackEventFeed(this.feed);
     },
     mounted() {
         if (this.loading) {

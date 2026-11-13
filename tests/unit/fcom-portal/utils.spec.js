@@ -13,7 +13,9 @@ import {
     timezoneOffset,
     isSeated,
     hasEventActions,
-    guestCountLabel
+    guestCountLabel,
+    trackEventFeed,
+    syncEventFeeds
 } from '../../../resources/fcom-portal/utils';
 
 const respond = (body, status = 200) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
@@ -229,5 +231,38 @@ describe('RSVP helpers', () => {
     it('hides the count when the server withholds it', () => {
         expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null })).toBe('');
         expect(guestCountLabel({ entry_type: 'none' })).toBe('');
+    });
+});
+
+describe('feed post sync', () => {
+    const rsvp = { my_status: 'going', guest_count: 9, online_meeting_url: 'https://example.com/meet' };
+
+    it('copies an RSVP into the tracked feed post and keeps its other fields', () => {
+        const feed = { fluent_event: { id: 41, slug: 'meetup', my_status: null, guest_count: 8 } };
+        trackEventFeed(feed);
+
+        syncEventFeeds({ id: 41, title: 'From the event page', ...rsvp });
+
+        expect(feed.fluent_event).toEqual({ id: 41, slug: 'meetup', ...rsvp });
+    });
+
+    it('leaves posts of other events alone', () => {
+        const feed = { fluent_event: { id: 42, my_status: null } };
+        trackEventFeed(feed);
+        trackEventFeed({ id: 8 });
+
+        syncEventFeeds({ id: 99, ...rsvp });
+
+        expect(feed.fluent_event).toEqual({ id: 42, my_status: null });
+    });
+
+    it('reaches posts tracked by another copy of the module', async () => {
+        const feed = { fluent_event: { id: 43, my_status: 'not_going' } };
+        trackEventFeed(feed);
+
+        vi.resetModules();
+        (await import('../../../resources/fcom-portal/utils')).syncEventFeeds({ id: 43, ...rsvp });
+
+        expect(feed.fluent_event).toMatchObject(rsvp);
     });
 });
