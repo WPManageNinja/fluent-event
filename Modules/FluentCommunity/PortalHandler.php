@@ -147,6 +147,12 @@ class PortalHandler
 
     public function addStylesheet($vars)
     {
+        // The portal script's own components' CSS (Element Plus included) is built into one app
+        // stylesheet; fcom prints these tags itself, so it needs the URLs, not an enqueue.
+        foreach (Enqueue::entryStyleUrls('fcom-portal/fcom-portal.js') as $index => $url) {
+            $vars['css_files']['fluent_event_fcom_portal_app_' . $index] = ['url' => $url];
+        }
+
         $style = Enqueue::url('fcom-portal/fcom-portal.scss');
 
         if ($style) {

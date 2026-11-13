@@ -112,10 +112,27 @@ class Vite extends Enqueuer
             $srcPath = static::getVitePath() . ltrim($src, '/');
         } else {
             $manifestEntry = $this->getFileFromManifest($src);
-            $srcPath = static::getProductionFilePath($manifestEntry);
+            $srcPath = static::styleUrl(static::getProductionFilePath($manifestEntry));
         }
 
         wp_enqueue_style($handle, $srcPath, $dependency, $version);
+    }
+
+    /**
+     * On an RTL site, the built stylesheet's mirrored twin. resources/vite/rtl-css.js writes a
+     * foo.rtl.css next to every foo.css at build time, and build.sh fails if one is missing.
+     * The dev server serves the SCSS itself and has no twin, so dev mode stays left to right.
+     *
+     * @param string $url A built file URL; anything that is not a .css file comes back unchanged.
+     * @return string
+     */
+    public static function styleUrl(string $url): string
+    {
+        if (static::isOnDevMode() || !preg_match('/\.css$/', $url)) {
+            return $url;
+        }
+
+        return apply_filters('fluent_event/is_rtl', is_rtl()) ? preg_replace('/\.css$/', '.rtl.css', $url) : $url;
     }
 
     /**
@@ -128,7 +145,28 @@ class Vite extends Enqueuer
             return static::getVitePath() . ltrim($src, '/');
         }
 
-        return static::getProductionFilePath($this->getFileFromManifest($src));
+        return static::styleUrl(static::getProductionFilePath($this->getFileFromManifest($src)));
+    }
+
+    /**
+     * The stylesheets a built entry needs (its app's CSS), for callers that print their own tags.
+     * Empty in dev mode, where the dev server injects them.
+     *
+     * @param string $src
+     * @return array<int, string>
+     */
+    private function getEntryStyleUrls(string $src): array
+    {
+        if (static::isOnDevMode()) {
+            return [];
+        }
+
+        $entry = $this->getFileFromManifest($src);
+        $assetPath = static::getAssetPath();
+
+        return array_map(function ($path) use ($assetPath) {
+            return static::styleUrl($assetPath . $path);
+        }, isset($entry['css']) && is_array($entry['css']) ? array_values($entry['css']) : []);
     }
 
     /**
@@ -174,7 +212,7 @@ class Vite extends Enqueuer
 
             foreach ($file['css'] as $key => $path) {
                 wp_enqueue_style(
-                    $file['file'] . '_' . $key . '_css', $assetPath . $path, [], null
+                    $file['file'] . '_' . $key . '_css', static::styleUrl($assetPath . $path), [], null
                 );
             }
         }

@@ -120,6 +120,22 @@ class Enqueue
     }
 
     /**
+     * The stylesheet URLs a built entry needs, for callers that print their own tags (an entry
+     * loaded through Enqueue::script gets them automatically). Empty when the build is missing.
+     *
+     * @param  string  $src  Entry path relative to the resource root.
+     * @return array<int, string>
+     */
+    public static function entryStyleUrls($src)
+    {
+        try {
+            return static::$enqueuer::getEntryStyleUrls($src);
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
      * Resolve a static asset to an absolute URL (plugin_dir_url + path)
      * without touching the build manifest. Used for images, fonts, or any
      * asset that isn't part of the Vite build graph.
