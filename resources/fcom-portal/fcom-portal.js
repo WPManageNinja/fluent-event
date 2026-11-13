@@ -91,6 +91,8 @@ const createEventShell = {
         return {
             onPosting: null,
             placement: 'space',
+            // The space picked on the page; kept across a switch to community-wide and back.
+            space: this.$route.query.space || '',
             feed: {
                 title: '',
                 message: '',
@@ -100,16 +102,16 @@ const createEventShell = {
                 topic_ids: [],
                 send_announcement_email: 'no',
                 status: 'published',
-                // The composer shares this object and posts to feed.space, so its picker opens on a space
-                // from the menu link. Community-wide sets PROFILE_POST here, never through the composer's
-                // space prop: the composer hides itself for a space it can't find, and PROFILE_POST isn't one.
+                // The composer shares this object and posts to feed.space; its own picker is hidden, so the
+                // page sets it. Community-wide sets PROFILE_POST here, never through the composer's space
+                // prop: the composer hides itself for a space it can't find, and PROFILE_POST isn't one.
                 space: this.$route.query.space || '',
             },
         };
     },
     watch: {
         placement(placement) {
-            this.feed.space = placement === 'global' ? PROFILE_POST : (this.$route.query.space || '');
+            this.feed.space = placement === 'global' ? PROFILE_POST : this.space;
         },
     },
     methods: {
@@ -124,6 +126,15 @@ const createEventShell = {
                 globalPosts: !!portalVars().global_posts,
                 onPlacement: (placement) => {
                     this.placement = placement;
+                },
+                // fcom's own list for its composer picker: discussion spaces, keyed by slug, with the member's permissions.
+                spaces: Object.values(((this.appVars || {}).auth || {}).spaces || {})
+                    .filter((space) => space.permissions && space.permissions.can_create_post)
+                    .map((space) => ({ slug: space.slug, title: space.title, emoji: (space.settings || {}).emoji || '' })),
+                initialSpace: this.space,
+                onSpace: (space) => {
+                    this.space = space;
+                    this.feed.space = space;
                 },
             };
         },
@@ -160,7 +171,8 @@ const createEventShell = {
             <teleport v-if="ready" to="#fe-create-event-composer">
                 <create-status-form
                     ref="composer"
-                    :disableSpace="placement === 'global'"
+                    defaultState="active"
+                    :disableSpace="true"
                     :hideSubmit="true"
                     :editing_feed="feed"
                     @vue:mounted="watchPosting"

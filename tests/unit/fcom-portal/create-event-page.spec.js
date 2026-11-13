@@ -23,7 +23,8 @@ const freshPage = async () => {
 };
 
 const createPage = async (Page = CreateEventPage, extraProps = {}, extraStubs = {}) => {
-    const props = { router: { push: vi.fn(), back: vi.fn() }, onChange: vi.fn(), submitPost: vi.fn(), onPlacement: vi.fn(), ...extraProps };
+    const props = { router: { push: vi.fn(), back: vi.fn() }, onChange: vi.fn(), submitPost: vi.fn(), onPlacement: vi.fn(),
+        spaces: [{ slug: 'design', title: 'Design Team', emoji: '🎨' }], initialSpace: 'design', onSpace: vi.fn(), ...extraProps };
     const wrapper = mount(Page, {
         props,
         global: {
@@ -87,6 +88,31 @@ describe('CreateEventPage', () => {
             expect(radio(wrapper, 'space').props('disabled')).toBeFalsy();
             expect(tooltip.props('disabled')).toBe(false);
             expect(tooltip.props('content')).toContain('Global Post Status');
+        });
+
+        it('lists In a space before Community-wide', async () => {
+            const { wrapper } = await createPage(CreateEventPage, {}, slotStubs);
+
+            expect(wrapper.findAllComponents({ name: 'ElRadio' }).slice(0, 2).map(r => r.props('value'))).toEqual(['space', 'global']);
+        });
+
+        it('picks the space on the page, starting from the linked one, and reports it to the shell', async () => {
+            const { wrapper, vm, props } = await createPage();
+            const select = () => wrapper.findComponent({ name: 'ElSelect' });
+
+            expect(vm.space).toBe('design');
+            select().vm.$emit('change', 'design');
+            expect(props.onSpace).toHaveBeenCalledWith('design');
+
+            vm.placement = 'global';
+            await flushPromises();
+            expect(select().exists()).toBe(false);
+        });
+
+        it("starts with no space when the linked one isn't one the member can post in", async () => {
+            const { vm } = await createPage(CreateEventPage, { initialSpace: 'secret' });
+
+            expect(vm.space).toBe('');
         });
 
         it('keeps the tooltip off while Community-wide can be picked', async () => {
@@ -156,6 +182,10 @@ describe('CreateEventPage', () => {
             vm.submit();
             expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message });
         };
+
+        vm.space = '';
+        refused('Choose a space for this event.');
+        vm.space = 'design';
 
         vm.event.title = '  ';
         refused('Event title is required.');
