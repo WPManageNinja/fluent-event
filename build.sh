@@ -5,6 +5,7 @@
 #   ./build.sh                 zip the assets/ already built
 #   ./build.sh --node-build    run `npm run build` first
 #   ./build.sh --pot           regenerate language/fluent-event.pot first (needs WP-CLI)
+#   ./build.sh --wporg         the WordPress.org zip: no self-hosted updater (-wporg.zip)
 #
 # Not `./wpf app:build`: its built-in excludes drop composer.json, which the
 # framework reads on every boot (devtools v1.0.48).
@@ -42,10 +43,12 @@ die() { echo "Error: $*" >&2; exit 1; }
 
 nodeBuild=false
 makePot=false
+wporg=false
 for arg in "$@"; do
     case "$arg" in
         --node-build) nodeBuild=true ;;
         --pot) makePot=true ;;
+        --wporg) wporg=true ;;
         *) die "Unknown option: $arg" ;;
     esac
 done
@@ -131,6 +134,14 @@ unset($json["autoload"]["psr-4"]["FluentEvent\\Dev\\"], $json["scripts"]);
 file_put_contents($file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 ' "$STAGE/composer.json" || die "Could not strip dev keys from composer.json."
 
+# WordPress.org delivers its own updates and does not allow a plugin to update from another
+# server, so that zip leaves the updater out. boot/app.php skips it when the class is absent.
+# Removed before the dump, so the classmap never names it.
+UPDATER_DIR="app/Services/PluginManager"
+if "$wporg"; then
+    rm -rf "$STAGE/$UPDATER_DIR"
+fi
+
 # Dumped in the copy so the working tree keeps its dev autoloader.
 composer dump-autoload --working-dir="$STAGE" --classmap-authoritative --no-dev --quiet \
     || die "composer dump-autoload failed."
@@ -175,7 +186,17 @@ while IFS= read -r -d '' dir; do
 done < <(find "$STAGE" -type d -print0)
 echo "$ADDED index.php files added"
 
-ZIP="$BUILD_DIR/$SLUG-$VERSION.zip"
+if "$wporg"; then
+    # Nothing that checks or fetches updates from our server may reach the WordPress.org zip.
+    if grep -rqE "fluentapi\.wpmanageninja\.com|pre_set_site_transient_update_plugins|upgrader_pre_download" "$STAGE" \
+        --include='*.php' --exclude-dir=woocommerce; then
+        die "The WordPress.org build still contains self-hosted update code."
+    fi
+    ZIP="$BUILD_DIR/$SLUG-$VERSION-wporg.zip"
+else
+    [ -f "$STAGE/$UPDATER_DIR/PluginUpdater.php" ] || die "The updater is missing from the build."
+    ZIP="$BUILD_DIR/$SLUG-$VERSION.zip"
+fi
 rm -f "$ZIP"
 (cd "$STAGE_ROOT" && zip -qrX "$ZIP" "$SLUG")
 rm -rf "$STAGE_ROOT"
