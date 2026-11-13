@@ -34,12 +34,12 @@ const page = async (event, feed = {}) => {
     })));
     const router = { push: vi.fn(), back: vi.fn(), resolve: (route) => ({ href: `/portal/post/${route.params.feed_slug}` }) };
     const wrapper = mount(EventViewPage, {
-        props: { spaceSlug: 'design', eventSlug: 'community-meetup', router },
+        props: { spaceSlug: 'design', eventSlug: 'community-meetup', router, onFeed: vi.fn() },
         global: { mocks: { $t: t } }
     });
     await flushPromises();
 
-    return { wrapper, vm: wrapper.vm, router };
+    return { wrapper, vm: wrapper.vm, router, onFeed: wrapper.props('onFeed') };
 };
 
 beforeEach(() => {
@@ -65,6 +65,20 @@ describe('EventViewPage', () => {
             expect(wrapper.find('.fe-event-view__title').text()).toBe('Community meetup');
         });
 
+        it("hands the post to the shell once its Comments card is on the page, for fcom's comment box", async () => {
+            const { wrapper, onFeed } = await page(meetup());
+
+            expect(wrapper.find('#fe-event-view-comments').exists()).toBe(true);
+            expect(onFeed).toHaveBeenCalledWith(expect.objectContaining({ slug: 'meetup-post' }));
+        });
+
+        it('leaves the Comments card out when the post has comments turned off', async () => {
+            const { wrapper, onFeed } = await page(meetup(), { meta: { comments_disabled: 'yes' } });
+
+            expect(wrapper.find('#fe-event-view-comments').exists()).toBe(false);
+            expect(onFeed).not.toHaveBeenCalled();
+        });
+
         // The event page has no other way back to its post, its author or its space.
         it('names who posted the event and where, and links to the post', async () => {
             const { wrapper, router } = await page(meetup());
@@ -84,7 +98,7 @@ describe('EventViewPage', () => {
         it('shows the unavailable state when no visible event has that slug in that space', async () => {
             fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'This event is not available.' }), { status: 404 }));
             const wrapper = mount(EventViewPage, {
-                props: { spaceSlug: 'design', eventSlug: 'gone', router: {} },
+                props: { spaceSlug: 'design', eventSlug: 'gone', router: {}, onFeed: vi.fn() },
                 global: { mocks: { $t: t } }
             });
             await flushPromises();

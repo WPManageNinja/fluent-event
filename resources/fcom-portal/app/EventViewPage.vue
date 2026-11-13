@@ -53,6 +53,12 @@
                             <h2 class="fe-event-view__section-title">{{ $t('About This Event') }}</h2>
                             <div class="fe-event-view__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
                         </section>
+
+                        <!-- fcom's own comment box for the post, teleported in by the route shell. -->
+                        <section v-if="commentsOpen" class="fe-event-view__card">
+                            <h2 class="fe-event-view__section-title">{{ $t('Comments') }}</h2>
+                            <div id="fe-event-view-comments" class="fe-event-view__comments"></div>
+                        </section>
                     </div>
                 </div>
 
@@ -136,6 +142,8 @@ export default {
         spaceSlug: { type: String, default: '' },
         eventSlug: { type: String, required: true },
         router: { type: Object, required: true },
+        // Hands the post to the shell, which renders fcom's comment box for it.
+        onFeed: { type: Function, required: true },
     },
     data() {
         return {
@@ -152,6 +160,9 @@ export default {
         },
         author() {
             return (this.feed.xprofile || {}).display_name || '';
+        },
+        commentsOpen() {
+            return (this.feed.meta || {}).comments_disabled !== 'yes';
         },
         postRoute() {
             return { name: 'single_feed', params: { feed_slug: this.feed.slug } };
@@ -257,17 +268,26 @@ export default {
             return zone ? `${range} (${zone})` : range;
         },
         async fetchEvent() {
+            let feed = null;
+
             try {
                 // The URL carries the event's own slug; its post's slug is what fcom reads it by.
                 const { feed_slug: feedSlug } = await eventsApi.get('community/events/by-slug', { space: this.spaceSlug, slug: this.eventSlug });
                 const response = await communityApi.get(`feeds/${feedSlug}/by-slug`);
 
-                this.feed = response.feed;
-                this.event = response.feed.fluent_event || null;
+                feed = response.feed;
+                this.feed = feed;
+                this.event = feed.fluent_event || null;
             } catch (error) {
                 this.event = null;
             } finally {
                 this.loading = false;
+            }
+
+            // Once the Comments card is on the page to take it. The raw post: fcom tracks it with its own Vue.
+            if (this.event && this.commentsOpen) {
+                await this.$nextTick();
+                this.onFeed(feed);
             }
         },
         goBack() {

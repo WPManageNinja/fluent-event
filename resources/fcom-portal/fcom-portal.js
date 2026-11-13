@@ -80,6 +80,41 @@ function pageShell(page) {
     };
 }
 
+// The event page with fcom's comment box for its post, teleported into the page's Comments card once the page has the post.
+function eventViewShell(page) {
+    const base = pageShell(page);
+
+    return {
+        extends: base,
+        data() {
+            return { feed: null };
+        },
+        methods: {
+            pageProps() {
+                return {
+                    ...base.methods.pageProps.call(this),
+                    onFeed: (feed) => {
+                        this.feed = feed;
+                    },
+                };
+            },
+            // The box leaves with the page it sits in; the next page hands its own post.
+            remount() {
+                this.feed = null;
+                return base.methods.remount.call(this);
+            },
+        },
+        template: `
+            <div class="fe-fcom-portal-page fe-fcom-portal-page--${page}">
+                <div ref="mount"></div>
+                <teleport v-if="feed" to="#fe-event-view-comments">
+                    <comment-box :feed="feed"/>
+                </teleport>
+            </div>
+        `,
+    };
+}
+
 // fcom's own composer writes and submits the post; our page only fills in the event it carries.
 // The composer lives on fcom's Vue, so it is teleported into the page's Feed post section once the page is in.
 // fcom's "On my profile" space value: a post outside any space.
@@ -210,7 +245,7 @@ function register() {
         routes.push({
             path: '/' + paths.event_view,
             name: 'fe_global_event_view',
-            component: pageShell('global_event_view'),
+            component: eventViewShell('global_event_view'),
             meta: { active_menu: 'fe_events' },
         });
 
@@ -228,7 +263,7 @@ function register() {
             spaceRoute.children.push({
                 path: paths.space_event_view,
                 name: 'fe_event_view',
-                component: pageShell('event_view'),
+                component: eventViewShell('event_view'),
                 props: true,
                 meta: { in_space: true, show_sidebar: false },
             });
