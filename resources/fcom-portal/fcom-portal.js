@@ -258,6 +258,12 @@ const createEventShell = {
 };
 
 function register() {
+    // fcom loads this entry with ?ver= and our lazy pages import it without, so it runs twice; hook in once.
+    if (window.fluentEventPortalRegistered) {
+        return;
+    }
+    window.fluentEventPortalRegistered = true;
+
     const { addFilter } = window.FluentCommunityUtil.hooks;
 
     addFilter('fluent_com_portal_routes', 'fluent-event', (routes) => {
