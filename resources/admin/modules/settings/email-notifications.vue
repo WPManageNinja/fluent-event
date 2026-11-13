@@ -217,9 +217,9 @@
         computed: {
             timeUnits() {
                 return [
-                    { value: 'minutes', label: this.$t('Minutes before') },
-                    { value: 'hours', label: this.$t('Hours before') },
-                    { value: 'days', label: this.$t('Days before') },
+                    { value: 'minutes', label: this.$t('Minutes Before') },
+                    { value: 'hours', label: this.$t('Hours Before') },
+                    { value: 'days', label: this.$t('Days Before') },
                 ];
             },
         },
