@@ -309,8 +309,16 @@ class PluginUpdater
             $expected = $this->publishedChecksum($this->fetchFresh());
         }
 
+        // Verification is on (this filter is only registered then), so a package with nothing to
+        // check it against is refused, not installed unchecked. Every release of this plugin
+        // carries a checksum; FLUENT_EVENT_SKIP_UPDATE_VERIFY is the explicit opt-out.
         if (!$expected) {
-            return $reply; // No checksum available: download as WordPress would.
+            do_action('fluent_event/update_verification_failed', $this->config['slug'], 'checksum_missing');
+
+            return new \WP_Error(
+                'fluent_sl_checksum_missing',
+                __('The update could not be verified because its checksum is missing, so it was not installed. Please try again later, and contact support if this keeps happening.', 'fluent-event')
+            );
         }
 
         require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -510,6 +518,12 @@ class PluginUpdater
 
         // A release with nothing to download is not an update.
         if (empty($versionInfo->package) || !is_string($versionInfo->package)) {
+            return false;
+        }
+
+        // With verification on, a release the download gate would refuse is not one to offer:
+        // a missing or malformed checksum counts as a failed lookup, never as an update.
+        if ($this->config['verify_checksum'] && !$this->publishedChecksum($versionInfo)) {
             return false;
         }
 
