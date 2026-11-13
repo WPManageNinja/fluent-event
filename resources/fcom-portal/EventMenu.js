@@ -6,11 +6,21 @@ export default {
     name: 'FluentEventMenu',
     props: {
         event: { type: Object, required: true },
+        // Our page apps have no $router of their own, so they pass fcom's.
+        router: { type: Object, default: null },
     },
     data() {
         return {
             open: false,
         };
+    },
+    computed: {
+        editRoute() {
+            return { name: 'fe_edit_event', params: { event_id: this.event.id } };
+        },
+        portalRouter() {
+            return this.router || this.$router;
+        },
     },
     beforeUnmount() {
         this.listen(false);
@@ -71,8 +81,8 @@ export default {
             <div v-if="open" class="el-popover el-popper fcom_menu_below_nav fe-event-menu__pop">
                 <ul class="actions_items" role="menu">
                     <li role="none">
-                        <!-- .stop: fcom's document click handler would route this admin URL inside the portal on a root-mounted portal. -->
-                        <a role="menuitem" class="fe-event-menu__item" :href="event.edit_url" @click.stop>{{ t('Edit event') }}</a>
+                        <!-- .stop: fcom's document click handler would route the link a second time. -->
+                        <a role="menuitem" class="fe-event-menu__item" :href="portalRouter.resolve(editRoute).href" @click.stop.prevent="portalRouter.push(editRoute)">{{ t('Edit event') }}</a>
                     </li>
                 </ul>
             </div>

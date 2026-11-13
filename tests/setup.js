@@ -63,6 +63,7 @@ export const portalVars = () => ({
     route_paths: {
         events: 'events',
         create_event: 'events/create',
+        edit_event: 'events/:event_id/edit',
         event_view: 'events/:event_slug',
         space_events: 'events',
         space_event_view: 'events/:event_slug'

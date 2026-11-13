@@ -126,8 +126,10 @@ const createEventShell = {
         return {
             onPosting: null,
             placement: 'space',
-            // The description's markdown, from fcom's editor; it rides in the composer's event.
+            // The description's markdown, from fcom's editor; it rides in the composer's event, or in an edit's PATCH.
             description: '',
+            // fcom's editor reads its v-model only when it mounts, so an edit waits for the event's markdown.
+            editorReady: !this.$route.params.event_id,
             // The space picked on the page; kept across a switch to community-wide and back.
             space: this.$route.query.space || '',
             feed: {
@@ -157,6 +159,19 @@ const createEventShell = {
     methods: {
         t,
         pageProps() {
+            // Editing changes the event only; its space and post text are edited on fcom's post.
+            if (this.$route.params.event_id) {
+                return {
+                    router: this.$router,
+                    eventId: this.$route.params.event_id,
+                    onLoaded: (event) => {
+                        this.description = (event.meta || {}).description_md || '';
+                        this.editorReady = true;
+                    },
+                    getDescription: () => this.description,
+                };
+            }
+
             return {
                 router: this.$router,
                 onChange: (event) => {
@@ -217,7 +232,7 @@ const createEventShell = {
     template: `
         <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event">
             <div ref="mount"></div>
-            <teleport v-if="ready" to="#fe-create-event-composer">
+            <teleport v-if="ready && !$route.params.event_id" to="#fe-create-event-composer">
                 <create-status-form
                     ref="composer"
                     defaultState="active"
@@ -230,7 +245,7 @@ const createEventShell = {
                 />
             </teleport>
             <!-- fcom's own Milkdown: a second copy on this page would clash with the composer's over the custom elements both define. -->
-            <teleport v-if="ready" to="#fe-create-event-description">
+            <teleport v-if="ready && editorReady" to="#fe-create-event-description">
                 <crepe-editor
                     v-model="description"
                     :placeholder="t('Describe the event, or type / to add images, lists and more')"
@@ -260,6 +275,13 @@ function register() {
         routes.push({
             path: '/' + paths.create_event,
             name: 'fe_create_event',
+            component: createEventShell,
+            meta: { active_menu: 'fe_events' },
+        });
+
+        routes.push({
+            path: '/' + paths.edit_event,
+            name: 'fe_edit_event',
             component: createEventShell,
             meta: { active_menu: 'fe_events' },
         });

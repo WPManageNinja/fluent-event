@@ -21,10 +21,11 @@ class PortalRoutePathsTest extends TestCase
     {
         Functions\when('apply_filters')->alias(function ($hook, $paths) {
             $paths['create_event'] = 'new-event';
+            $paths['edit_event'] = 'edit-event/:event_id';
 
             return $paths;
         });
 
-        $this->assertSame(['events', 'new-event'], (new PortalHandler())->addRoutePath([]));
+        $this->assertSame(['events', 'new-event', 'edit-event'], (new PortalHandler())->addRoutePath([]));
     }
 }
