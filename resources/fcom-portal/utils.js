@@ -176,3 +176,8 @@ export function guestCountLabel(event) {
 
     return t('%s going', event.guest_count);
 }
+
+// fcom titles its own pages "<title> - <site>"; ours would keep the previous page's tab title.
+export function setPageTitle(title) {
+    document.title = [title, (window.fluentComAdmin || {}).site_title].filter(Boolean).join(' - ');
+}

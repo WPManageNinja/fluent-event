@@ -13,7 +13,8 @@ import {
     timezoneOffset,
     isSeated,
     hasEventActions,
-    guestCountLabel
+    guestCountLabel,
+    setPageTitle
 } from '../../../resources/fcom-portal/utils';
 
 const respond = (body, status = 200) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
@@ -229,5 +230,21 @@ describe('RSVP helpers', () => {
     it('hides the count when the server withholds it', () => {
         expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null })).toBe('');
         expect(guestCountLabel({ entry_type: 'none' })).toBe('');
+    });
+});
+
+describe('setPageTitle', () => {
+    it("titles the tab the way fcom titles its own pages", () => {
+        window.fluentComAdmin.site_title = 'Acme Community';
+        setPageTitle('All Events');
+
+        expect(document.title).toBe('All Events - Acme Community');
+    });
+
+    it('uses the title alone when the site has none', () => {
+        window.fluentComAdmin.site_title = '';
+        setPageTitle('Create Event');
+
+        expect(document.title).toBe('Create Event');
     });
 });

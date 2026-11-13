@@ -329,7 +329,7 @@ import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-import { dateFormat, errorMessage, eventsApi, portalVars, timeFormat, timezoneOffset, uploadMedia } from '../utils';
+import { dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
     name: 'CreateOrUpdateEventPage',
@@ -455,6 +455,8 @@ export default {
         },
     },
     mounted() {
+        setPageTitle(this.eventSlug ? this.$t('Edit Event') : this.$t('Create Event'));
+
         if (this.eventSlug) {
             this.loadEvent();
             return;
