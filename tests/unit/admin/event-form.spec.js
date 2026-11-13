@@ -103,11 +103,12 @@ describe('CreateOrUpdateEvent', () => {
                     end_at_local: '2026-11-02 21:00:00',
                     timezone: 'Europe/Berlin',
                     venue_type: 'online',
-                    meta: { online_meeting_url: 'https://meet.example.test/x', entry_type: 'open', show_guest_count: 'no' }
+                    meta: { online_meeting_url: 'https://meet.example.test/x', entry_type: 'open', show_guest_count: 'no', description_md: 'Chapter **4**' }
                 }
             });
 
             expect(vm.event).toMatchObject({
+                description_md: 'Chapter **4**',
                 calendar_id: 3,
                 status: 'private',
                 start_date: '2026-11-02',
@@ -141,6 +142,32 @@ describe('CreateOrUpdateEvent', () => {
         });
     });
 
+    describe('description images', () => {
+        afterEach(() => {
+            delete window.wp;
+        });
+
+        it('upload to the media library and hand back the URL', async () => {
+            window.wp = { apiFetch: vi.fn(() => Promise.resolve({ id: 9, source_url: 'https://example.test/uploads/walk.png' })) };
+            const { vm } = form();
+            const file = new File(['x'], 'walk.png', { type: 'image/png' });
+
+            await expect(vm.uploadImage(file)).resolves.toBe('https://example.test/uploads/walk.png');
+
+            const request = window.wp.apiFetch.mock.calls[0][0];
+            expect(request).toMatchObject({ path: '/wp/v2/media', method: 'POST' });
+            expect(request.body.get('file')).toBe(file);
+        });
+
+        it("show WordPress's reason when an upload is refused", async () => {
+            window.wp = { apiFetch: vi.fn(() => Promise.reject({ code: 'rest_upload_sideload_error', message: 'Sorry, you are not allowed to upload this file type.' })) };
+            const { vm } = form();
+
+            await expect(vm.uploadImage(new File(['x'], 'a.exe'))).rejects.toMatchObject({ code: 'rest_upload_sideload_error' });
+            expect(ElNotification).toHaveBeenCalledWith(expect.objectContaining({ type: 'error', message: 'Sorry, you are not allowed to upload this file type.' }));
+        });
+    });
+
     describe('saving', () => {
         it('posts a new event with full timestamps and opens it', () => {
             const { vm, router, request } = form();
@@ -151,6 +178,9 @@ describe('CreateOrUpdateEvent', () => {
 
             expect(save.method).toBe('post');
             expect(save.payload).toMatchObject({ start_at: '2026-10-20 18:00:00', end_at: '2026-10-20 20:00:00', calendar_id: 3 });
+            // The markdown only; the server renders the HTML from it.
+            expect(save.payload).not.toHaveProperty('description');
+            expect(save.payload).toHaveProperty('description_md', '');
 
             save.onSuccess({ event: { id: 55 } });
             expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 55 } });

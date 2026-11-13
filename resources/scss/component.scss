@@ -3143,3 +3143,48 @@
         color: var(--fe-secondary-text, #525866);
     }
 }
+
+// Milkdown's editor in our colours, so both modes follow the admin theme. Crepe sets its
+// variables on `.milkdown`; one class deeper wins whichever stylesheet loads last.
+.fe-markdown-editor {
+    min-height: 240px;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius, 8px);
+    background-color: var(--fe-primary-bg, #ffffff);
+
+    // Crepe drops the editor's own focus outline; the frame shows focus instead.
+    &:focus-within {
+        border-color: var(--fe-border-strong, #808b9c);
+    }
+
+    .milkdown {
+        --crepe-color-background: var(--fe-primary-bg, #ffffff);
+        --crepe-color-on-background: var(--fe-primary-text, #19283a);
+        --crepe-color-surface: var(--fe-secondary-bg, #f3f5fa);
+        --crepe-color-surface-low: var(--fe-hover-bg, #f9fafb);
+        --crepe-color-on-surface: var(--fe-primary-text, #19283a);
+        --crepe-color-on-surface-variant: var(--fe-secondary-text, #525866);
+        --crepe-color-outline: var(--fe-border-strong, #808b9c);
+        --crepe-color-primary: var(--fe-accent, #253241);
+        --crepe-color-secondary: var(--fe-active-bg, #f0f0f1);
+        --crepe-color-on-secondary: var(--fe-primary-text, #19283a);
+        --crepe-color-inverse: var(--fe-primary-text, #19283a);
+        --crepe-color-on-inverse: var(--fe-primary-bg, #ffffff);
+        --crepe-color-inline-code: var(--fe-danger-text, #cf222e);
+        --crepe-color-error: var(--fe-danger-text, #cf222e);
+        --crepe-color-hover: var(--fe-hover-bg, #f9fafb);
+        --crepe-color-selected: var(--fe-active-bg, #f0f0f1);
+        --crepe-color-inline-area: var(--fe-secondary-bg, #f3f5fa);
+        --crepe-font-title: inherit;
+        --crepe-font-default: inherit;
+        --crepe-shadow-1: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        --crepe-shadow-2: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        border-radius: inherit;
+
+        // Crepe pads for a full page; the left gap keeps room for the handle beside each block.
+        .ProseMirror {
+            min-height: 240px;
+            padding: 16px 20px 16px 56px;
+        }
+    }
+}

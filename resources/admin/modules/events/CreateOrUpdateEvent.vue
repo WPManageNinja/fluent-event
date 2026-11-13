@@ -179,11 +179,10 @@
                         </div>
 
                         <div class="fe-form__section-fields">
-                            <WpEditor
-                                v-model="event.description"
-                                :height="280"
-                                media-buttons
-                                quick-tags
+                            <MarkdownEditor
+                                v-model="event.description_md"
+                                :upload="uploadImage"
+                                :placeholder="$t('Describe the event, or type / to add images, lists and more')"
                                 aria-labelledby="fe-event-description-label"
                             />
                         </div>
@@ -376,7 +375,7 @@
 <script type="text/javascript">
     import dayjs from 'dayjs';
     import { MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
-    import WpEditor from '@/components/WpEditor.vue';
+    import MarkdownEditor from '@/components/MarkdownEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
@@ -391,7 +390,7 @@
         name: 'CreateOrUpdateEvent',
         components: {
             Picture,
-            WpEditor,
+            MarkdownEditor,
             ErrorState,
             MediaPicker,
             SegmentedSwitch,
@@ -502,7 +501,7 @@
                     calendar_id: event?.calendar_id || null,
                     status: event?.status || this.statuses[0].value,
                     title: event?.title || '',
-                    description: event?.description || '',
+                    description_md: meta.description_md || '',
                     start_date: start.format('YYYY-MM-DD'),
                     start_time: start.format('HH:mm'),
                     end_date: end.format('YYYY-MM-DD'),
@@ -602,7 +601,7 @@
                         calendar_id: this.event.calendar_id,
                         status: this.event.status,
                         title: this.event.title,
-                        description: this.event.description,
+                        description_md: this.event.description_md,
                         start_at: `${this.event.start_date} ${this.event.start_time}:00`,
                         end_at: `${this.event.end_date} ${this.event.end_time}:00`,
                         timezone: this.event.timezone,
@@ -625,6 +624,18 @@
                         });
                     },
                 });
+            },
+            // Description images go to the media library, as the cover does.
+            async uploadImage(file) {
+                const data = new FormData();
+                data.append('file', file);
+
+                try {
+                    return (await wp.apiFetch({ path: '/wp/v2/media', method: 'POST', body: data })).source_url;
+                } catch (error) {
+                    this.$handleError(error);
+                    throw error;
+                }
             },
             goToCalendarCreate() {
                 this.$router.push({ name: 'calendar_create' });
