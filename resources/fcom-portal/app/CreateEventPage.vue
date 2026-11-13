@@ -160,33 +160,8 @@
                 </div>
 
                 <div class="fe-create-event__section-fields">
-                    <div v-if="!editorReady" v-loading="true" class="fe-create-event__editor-loading"></div>
-
-                    <WpEditor
-                        v-else
-                        ref="descriptionEditor"
-                        v-model="event.description"
-                        :height="280"
-                        quick-tags
-                        aria-labelledby="fe-create-event-description-label"
-                    >
-                        <template #tools>
-                            <el-button class="fe-create-event__editor-tool" :loading="imageUploading" @click="$refs.imageInput.click()">
-                                <el-icon v-if="!imageUploading" aria-hidden="true"><Picture/></el-icon>
-                                <span>{{ $t('Add image') }}</span>
-                            </el-button>
-
-                            <input
-                                ref="imageInput"
-                                class="fe-create-event__file"
-                                type="file"
-                                accept="image/*"
-                                tabindex="-1"
-                                aria-hidden="true"
-                                @change="uploadImage"
-                            />
-                        </template>
-                    </WpEditor>
+                    <!-- fcom's own markdown editor lands here from the route shell; see createEventShell. -->
+                    <div id="fe-create-event-description" class="fe-create-event__description" role="group" aria-labelledby="fe-create-event-description-label"></div>
                 </div>
             </section>
 
@@ -331,7 +306,7 @@
             <el-button
                 class="fcom_primary_button"
                 :loading="saving"
-                :disabled="saving || uploading || imageUploading"
+                :disabled="saving || uploading"
                 @click="submit"
             >
                 {{ $t('Create Event') }}
@@ -345,15 +320,11 @@ import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-import WpEditor from '@/components/WpEditor.vue';
-import { communityApi, dateFormat, errorMessage, eventsApi, portalVars, timeFormat, timezoneOffset, wpApi } from '../utils';
-
-// Module scope, not data(): leaving the page and coming back reuses the first load instead of re-running WordPress's scripts.
-let wpEditorLoad = null;
+import { dateFormat, errorMessage, portalVars, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
     name: 'CreateEventPage',
-    components: { ArrowLeft, Delete, Picture, SegmentedSwitch, WpEditor },
+    components: { ArrowLeft, Delete, Picture, SegmentedSwitch },
     props: {
         router: { type: Object, required: true },
         onChange: { type: Function, required: true },
@@ -384,7 +355,6 @@ export default {
             }))),
             event: {
                 title: '',
-                description: '',
                 start_date: start.format('YYYY-MM-DD'),
                 start_time: start.format('HH:mm'),
                 end_date: end.format('YYYY-MM-DD'),
@@ -399,8 +369,6 @@ export default {
                 show_guest_count: 'yes',
             },
             uploading: false,
-            imageUploading: false,
-            editorReady: false,
             saving: false,
         };
     },
@@ -414,7 +382,6 @@ export default {
 
             return {
                 title: event.title,
-                description: event.description,
                 start_at: `${event.start_date} ${event.start_time}:00`,
                 end_at: `${event.end_date} ${event.end_time}:00`,
                 timezone: event.timezone,
@@ -470,49 +437,8 @@ export default {
     },
     mounted() {
         this.$refs.titleInput.focus();
-
-        this.loadWpEditor().then(() => {
-            this.editorReady = true;
-        });
     },
     methods: {
-        // The WordPress editor is heavy, so it loads only when this page opens. A failed
-        // load resolves anyway; the editor component then falls back to a plain textarea.
-        loadWpEditor() {
-            if (!wpEditorLoad) {
-                wpEditorLoad = eventsApi.get('community/editor-assets')
-                    .then(({ html }) => this.insertMarkup(html))
-                    .catch(() => {});
-            }
-
-            return wpEditorLoad;
-        },
-        // Markup first, so the link dialog exists when wplink initialises; then each script in order.
-        // Anything already on the page by id, jQuery say, is left alone.
-        async insertMarkup(html) {
-            const template = document.createElement('template');
-            template.innerHTML = html;
-
-            const nodes = [...template.content.children].filter((node) => !node.id || !document.getElementById(node.id));
-
-            nodes.filter((node) => node.tagName !== 'SCRIPT').forEach((node) => document.body.appendChild(node));
-
-            for (const node of nodes.filter((node) => node.tagName === 'SCRIPT')) {
-                const script = document.createElement('script');
-
-                [...node.attributes].forEach((attribute) => script.setAttribute(attribute.name, attribute.value));
-                script.text = node.text;
-
-                await new Promise((resolve) => {
-                    script.onload = script.onerror = resolve;
-                    document.body.appendChild(script);
-
-                    if (!script.src) {
-                        resolve();
-                    }
-                });
-            }
-        },
         // Checked before fcom's composer is touched, since opening it moves the focus to its title; the server still validates.
         submit() {
             const error = this.validateEvent();
@@ -556,31 +482,6 @@ export default {
         goBack() {
             this.router.back();
         },
-        async uploadImage(changeEvent) {
-            const file = changeEvent.target.files[0];
-            changeEvent.target.value = '';
-
-            if (!file) {
-                return;
-            }
-
-            const data = new FormData();
-            data.append('file', file);
-
-            this.imageUploading = true;
-
-            try {
-                const image = document.createElement('img');
-                image.src = (await communityApi.post('feeds/media-upload', data)).media.url;
-                image.alt = '';
-
-                this.$refs.descriptionEditor.insertContent(image.outerHTML);
-            } catch (error) {
-                this.showError(error);
-            } finally {
-                this.imageUploading = false;
-            }
-        },
         async uploadCover(changeEvent) {
             const file = changeEvent.target.files[0];
             changeEvent.target.value = '';
@@ -589,14 +490,10 @@ export default {
                 return;
             }
 
-            const data = new FormData();
-            data.append('file', file);
-
             this.uploading = true;
 
             try {
-                // A media library attachment, as the admin's cover picker makes; the event owns it, not the post.
-                this.event.cover_url = (await wpApi.post('media', data)).source_url;
+                this.event.cover_url = await uploadMedia(file);
             } catch (error) {
                 this.showError(error);
             } finally {

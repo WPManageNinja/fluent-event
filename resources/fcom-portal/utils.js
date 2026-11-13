@@ -52,9 +52,13 @@ export const eventsApi = {
     post: (route, data) => request(portalVars().rest_url, 'POST', route, data),
 };
 
-export const wpApi = {
-    post: (route, data) => request(portalVars().wp_rest_url, 'POST', route, data),
-};
+// Event covers and description images are media library attachments: the event owns them, not its post.
+export async function uploadMedia(file) {
+    const data = new FormData();
+    data.append('file', file);
+
+    return (await request(portalVars().wp_rest_url, 'POST', 'media', data)).source_url;
+}
 
 export const communityApi = {
     get: (route, data) => request(window.fluentComAdmin.rest.url, 'GET', route, data),

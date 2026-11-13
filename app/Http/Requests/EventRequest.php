@@ -30,7 +30,6 @@ class EventRequest extends BaseRequest
     const SANITIZERS = [
         'calendar_id'        => 'intval',
         'title'              => 'sanitize_text_field',
-        'description'        => 'wp_kses_post',
         'description_md'     => 'markdown',
         'status'             => 'sanitize_text_field',
         'start_at'           => 'sanitize_text_field',
@@ -47,7 +46,6 @@ class EventRequest extends BaseRequest
     const RULES = [
         'calendar_id'        => 'required|exists:fe_calendars,id',
         'title'              => 'required|string|max:255',
-        'description'        => 'nullable|string',
         'description_md'     => 'nullable|string',
         'status'             => 'required|string|in:' . Event::STATUSES,
         // No `date` rule: the framework ignores a custom message for it, so validateDateWindow() checks the dates.
@@ -110,7 +108,6 @@ class EventRequest extends BaseRequest
             'title.required'              => __('Event title is required.', 'fluent-event'),
             'title.string'                => __('Event title must be text.', 'fluent-event'),
             'title.max'                   => __('Event title cannot exceed 255 characters.', 'fluent-event'),
-            'description.string'          => __('Event Description must be text.', 'fluent-event'),
             'description_md.string'       => __('Event Description must be text.', 'fluent-event'),
             'status.required'             => __('Status is required.', 'fluent-event'),
             'status.in'                   => __('Status must be public, unlisted, private or draft.', 'fluent-event'),
@@ -134,7 +131,7 @@ class EventRequest extends BaseRequest
     public static function format($data, $existingMeta = [])
     {
         $formatted = Arr::only(
-            $data, array_merge(self::COLUMNS, ['title', 'description'])
+            $data, array_merge(self::COLUMNS, ['title'])
         );
 
         // The markdown is the source; the post keeps the HTML every page, email and calendar file reads.

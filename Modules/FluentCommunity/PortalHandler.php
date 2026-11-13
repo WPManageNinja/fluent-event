@@ -209,7 +209,6 @@ class PortalHandler
             'A venue for in-person events, a link for online ones.' => __('A venue for in-person events, a link for online ones.', 'fluent-event'),
             'About This Event' => __('About This Event', 'fluent-event'),
             'Add a cover image' => __('Add a cover image', 'fluent-event'),
-            'Add image' => __('Add image', 'fluent-event'),
             'Add to calendar' => __('Add to calendar', 'fluent-event'),
             'Address' => __('Address', 'fluent-event'),
             'All' => __('All', 'fluent-event'),
@@ -233,6 +232,7 @@ class PortalHandler
             'Day' => __('Day', 'fluent-event'),
             /* translators: %d: day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
+            'Describe the event, or type / to add images, lists and more' => __('Describe the event, or type / to add images, lists and more', 'fluent-event'),
             'Description' => __('Description', 'fluent-event'),
             'Done' => __('Done', 'fluent-event'),
             'Edit event' => __('Edit event', 'fluent-event'),

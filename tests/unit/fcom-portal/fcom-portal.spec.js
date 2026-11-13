@@ -196,6 +196,43 @@ describe('fcom-portal entry', () => {
             return shell.data.call({ $route: { query } });
         };
 
+        // fcom's composer already runs fcom's Milkdown here; a second copy would clash over their custom elements.
+        it("teleports fcom's markdown editor into the page, with mentions off and uploads going to the media library", async () => {
+            const { template } = await createShell();
+
+            expect(template).toMatch(/<teleport v-if="ready" to="#fe-create-event-description">\s*<crepe-editor/);
+            expect(template).toContain('v-model="description"');
+            expect(template).toContain(':disable_mention="true"');
+            expect(template).toContain(':onInlineUpload="uploadDescriptionImage"');
+        });
+
+        it("carries the editor's markdown in the composer's event, through the page's later changes too", async () => {
+            const shell = await createShell();
+            const vm = { ...shellData(shell, {}, true), $router: {}, appVars: {} };
+
+            shell.watch.description.call(vm, '**Bring** a tripod');
+            expect(vm.feed.event.description_md).toBe('**Bring** a tripod');
+
+            vm.description = '**Bring** a tripod';
+            shell.methods.pageProps.call(vm).onChange({ title: 'Night walk' });
+            expect(vm.feed.event).toEqual({ title: 'Night walk', description_md: '**Bring** a tripod' });
+        });
+
+        it("uploads the editor's images to the media library, and says why one is refused", async () => {
+            const { methods } = await createShell();
+            const $handleError = vi.fn();
+            vi.stubGlobal('fetch', vi.fn()
+                .mockResolvedValueOnce(new Response(JSON.stringify({ id: 9, source_url: 'https://example.test/uploads/walk.png' })))
+                .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Sorry, this file type is not permitted.' }), { status: 500 })));
+
+            await expect(methods.uploadDescriptionImage.call({ $handleError }, new File(['x'], 'walk.png'))).resolves.toBe('https://example.test/uploads/walk.png');
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/wp/v2/media');
+
+            await expect(methods.uploadDescriptionImage.call({ $handleError }, new File(['x'], 'a.exe'))).rejects.toMatchObject({ message: 'Sorry, this file type is not permitted.' });
+            expect($handleError).toHaveBeenCalledWith({ message: 'Sorry, this file type is not permitted.' });
+            vi.unstubAllGlobals();
+        });
+
         it('starts in a space, with no space picked, when opened without one', async () => {
             const data = shellData(await createShell(), {}, true);
 

@@ -1495,11 +1495,6 @@
         color: var(--fcom-danger, #d63638);
     }
 
-    // Holds the description's height while the WordPress editor loads.
-    &__editor-loading {
-        min-height: 400px;
-    }
-
     // Sections are grids that stretch their children; keep the switch at its own width.
     &__venue-switch {
         justify-self: start;
@@ -1592,7 +1587,7 @@
         }
     }
 
-    // Under the choices, at a select's width rather than the section's; the section's grid gap is the only spacing.
+    // Under the choices; the section's grid gap is the only spacing.
     &__space.el-form-item {
         margin: 0;
 
@@ -1602,9 +1597,13 @@
             line-height: 20px;
         }
 
+        // As wide as the "In a space" card above it: half the row less half the cards' 12px gap.
         .el-select {
-            width: 320px;
-            max-width: 100%;
+            width: calc((100% - 12px) / 2);
+
+            @media (max-width: 575px) {
+                width: 100%;
+            }
         }
     }
 
@@ -1678,250 +1677,25 @@
     }
 
 
-    // Read by WpEditor for the TinyMCE iframe; the same colors as fcom's other inputs.
-    .fe-editor {
-        --fe-editor-bg: var(--el-fill-color-blank, #ffffff);
-        --fe-editor-text: var(--el-text-color-regular, #606266);
-        --fe-editor-border: var(--fcom-primary-border, #e3e8ee);
-    }
-
-    // The WordPress editor's chrome is painted for wp-admin; this restyles it in fcom's tokens.
-    // Framed in the section dividers' color; it lights up on focus like fcom's inputs.
-    .wp-editor-wrap {
-        overflow: hidden;
+    // fcom's markdown editor, framed and focused like fcom's inputs; fcom's own CSS styles the editor.
+    &__description {
         border: 1px solid var(--fcom-primary-border, #e3e8ee);
         border-radius: 8px;
-        background-color: var(--fcom-primary-bg, #ffffff);
-        transition: border-color 0.2s;
+        background: var(--fcom-primary-bg, #ffffff);
 
-        // TinyMCE types in an iframe, which counts as focus inside the wrap.
         &:focus-within {
-            border-color: var(--el-input-focus-border-color, var(--el-color-primary, #409eff));
+            border-color: var(--fcom-primary-button, #2b2e33);
         }
 
-        // Core nests the editor container in this row, so the inset goes on the first button,
-        // not the row, or the editor would lose its edge-to-edge fit inside the frame.
-        .wp-editor-tools {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            column-gap: 4px;
-            padding-top: 8px;
-
-            > :first-child {
-                margin-left: 8px;
-            }
-        }
-
-        .wp-editor-tabs {
-            display: flex;
-            gap: 4px;
-        }
-
-        // Not wp-switch-editor on our button: core binds that class's clicks to the Visual/Code switch.
-        .wp-switch-editor,
-        .fe-create-event__editor-tool.el-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+        // Fills the frame, so a click anywhere in it lands in the editor.
+        .milkdown .ProseMirror {
+            min-height: 200px;
             box-sizing: border-box;
-            top: 0;
-            height: auto;
-            min-height: 36px;
-            margin: 0;
-            padding: 0 12px;
-            border: 1px solid var(--fcom-primary-border, #e3e8ee);
-            border-radius: 4px;
-            background: transparent;
-            color: var(--fcom-secondary-text, #525866);
-            font-size: 14px;
-            font-weight: 500;
-            line-height: 1;
-            cursor: pointer;
-
-            &:hover {
-                background: var(--fcom-active-bg, #f0f3f5);
-                color: var(--fcom-primary-text, #19283a);
-            }
         }
 
-        &.tmce-active .switch-tmce,
-        &.html-active .switch-html {
-            background: var(--fcom-active-bg, #f0f3f5);
-            color: var(--fcom-primary-text, #19283a);
-        }
-
-        // Core nests the container inside the tools row; give it a full line below the buttons.
-        .wp-editor-container {
-            flex-basis: 100%;
-            border: 0;
+        // fcom's editor draws its own box while focused; inside this frame it would be a second border.
+        .milkdown .ProseMirror.ProseMirror-focused {
             box-shadow: none;
-            background: transparent;
-        }
-
-        .quicktags-toolbar {
-            border-bottom: 1px solid var(--fcom-primary-border, #e3e8ee);
-            background: var(--fcom-primary-bg, #ffffff);
-
-            input.button {
-                min-height: 28px;
-                margin: 2px;
-                padding: 0 8px;
-                border: 1px solid var(--fcom-primary-border, #e3e8ee);
-                border-radius: 4px;
-                background: transparent;
-                font-size: 13px;
-                color: var(--fcom-secondary-text, #525866);
-                cursor: pointer;
-
-                &:hover {
-                    background: var(--fcom-active-bg, #f0f3f5);
-                    color: var(--fcom-primary-text, #19283a);
-                }
-            }
-        }
-
-        &.html-active .wp-editor-area {
-            border-radius: 0;
-            background: var(--el-fill-color-blank, #ffffff);
-            color: var(--el-text-color-regular, #606266);
-        }
-
-        .mce-tinymce {
-            border: 0;
-            box-shadow: none;
-        }
-
-        .mce-top-part::before {
-            box-shadow: none;
-        }
-
-        .mce-panel {
-            border-color: var(--fcom-primary-border, #e3e8ee);
-            background-color: transparent;
-        }
-
-        div.mce-toolbar-grp {
-            border-bottom: 0;
-            background-color: var(--fcom-primary-bg, #ffffff);
-
-            > div {
-                padding: 4px 14px;
-            }
-        }
-
-        div.mce-statusbar {
-            border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
-            background-color: var(--fcom-primary-bg, #ffffff);
-        }
-
-        .mce-toolbar .mce-btn-group .mce-btn {
-            border-color: var(--fcom-primary-border, #e3e8ee);
-            box-shadow: none;
-            background: transparent;
-
-            button {
-                color: var(--fcom-secondary-text, #525866);
-            }
-
-            .mce-ico {
-                color: inherit;
-            }
-
-            &:hover,
-            &:focus,
-            &.mce-active {
-                background: var(--fcom-active-bg, #f0f3f5);
-
-                button {
-                    color: var(--fcom-primary-text, #19283a);
-                }
-            }
-
-            &.mce-disabled button {
-                opacity: 0.5;
-            }
-
-            &.mce-listbox {
-                border-color: transparent;
-                border-radius: 4px;
-                background: var(--fcom-active-bg, #f0f3f5);
-            }
-        }
-
-        // Core paints the carets for light mode only; dark mode would lose them.
-        .mce-btn i.mce-caret {
-            border-top-color: var(--fcom-secondary-text, #525866);
-        }
-
-        .mce-btn:hover i.mce-caret,
-        .mce-btn:focus i.mce-caret,
-        .mce-active i.mce-caret {
-            border-top-color: var(--fcom-primary-text, #19283a);
-            border-bottom-color: var(--fcom-primary-text, #19283a);
-        }
-    }
-}
-
-// TinyMCE's menus and inline link box float on <body>, outside .fe-create-event, and core paints
-// them for light mode only. `body` lifts these over the skin TinyMCE loads after this sheet.
-body {
-    .mce-menu.mce-floatpanel {
-        border-color: var(--fcom-primary-border, #e3e8ee);
-        background: var(--fcom-primary-bg, #ffffff);
-        color: var(--fcom-primary-text, #19283a);
-
-        .mce-menu-item:hover,
-        .mce-menu-item:focus,
-        .mce-menu-item.mce-selected,
-        .mce-menu-item.mce-active {
-            background: var(--fcom-active-bg, #f0f3f5);
-            color: var(--fcom-primary-text, #19283a);
-        }
-
-        .mce-menu-shortcut {
-            color: var(--fcom-secondary-text, #525866);
-        }
-    }
-
-    div.mce-inline-toolbar-grp {
-        border-color: var(--fcom-primary-border, #e3e8ee);
-        background: var(--fcom-primary-bg, #ffffff);
-        color: var(--fcom-primary-text, #19283a);
-
-        div.mce-panel,
-        div.mce-toolbar-grp {
-            background: transparent;
-        }
-
-        .mce-btn:not(.mce-primary) .mce-ico {
-            color: var(--fcom-secondary-text, #525866);
-        }
-
-        div.wp-link-input input {
-            border: 1px solid var(--fcom-primary-border, #e3e8ee);
-            background: var(--el-fill-color-blank, #ffffff);
-            color: var(--el-text-color-regular, #606266);
-        }
-
-        div.wp-link-preview a {
-            color: var(--fcom-primary-text, #19283a);
-        }
-
-        &.mce-arrow-up::before {
-            border-bottom-color: var(--fcom-primary-border, #e3e8ee);
-        }
-
-        &.mce-arrow-up::after {
-            border-bottom-color: var(--fcom-primary-bg, #ffffff);
-        }
-
-        &.mce-arrow-down::before {
-            border-top-color: var(--fcom-primary-border, #e3e8ee);
-        }
-
-        &.mce-arrow-down::after {
-            border-top-color: var(--fcom-primary-bg, #ffffff);
         }
     }
 }

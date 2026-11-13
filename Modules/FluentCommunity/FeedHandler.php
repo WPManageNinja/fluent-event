@@ -91,13 +91,6 @@ class FeedHandler
         $input = $this->eventInput($requestData);
         $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
 
-        // Images added to the description are fcom uploads, which fcom deletes unless claimed.
-        $input['description'] = preg_replace_callback('/(<img\b[^>]*\bsrc=)(["\'])(.*?)\2/i', function ($match) use ($feed) {
-            $url = $this->claimMedia(html_entity_decode($match[3]), $feed, 'event_description');
-
-            return $match[1] . $match[2] . esc_attr($url) . $match[2];
-        }, (string) Arr::get($input, 'description', ''));
-
         $data = EventRequest::format($input);
 
         try {
@@ -368,28 +361,6 @@ class FeedHandler
         foreach ($eventIds as $eventId) {
             $this->formattedEvents[$eventId] = $formatted[$eventId] ?? null;
         }
-    }
-
-    // fcom's cron deletes an unclaimed upload after two hours; tying it to the post also
-    // retires it with the post. An active upload already belongs to something else.
-    protected function claimMedia($url, $feed, $source)
-    {
-        $media = FcomHelper::getMediaFromUrl($url);
-
-        if (!$media) {
-            return $url;
-        }
-
-        if (!$media->is_active) {
-            $media->update([
-                'is_active'     => true,
-                'user_id'       => $feed->user_id,
-                'feed_id'       => $feed->id,
-                'object_source' => $source,
-            ]);
-        }
-
-        return $media->public_url;
     }
 
     protected function eventInput($requestData)
