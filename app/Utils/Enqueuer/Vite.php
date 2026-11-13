@@ -262,7 +262,7 @@ class Vite extends Enqueuer
 
     /**
      * Vite dev server URL base — reads the dynamic port from the plugin's
-     * `.vite-port` file (written by `npm run watch`) or falls back to 8880.
+     * `.vite-port` file (create it when `PORT` overrides the dev port) or falls back to 8890.
      * Append the resource path to get the full URL of a source file served
      * by the HMR server.
      *
@@ -271,7 +271,7 @@ class Vite extends Enqueuer
     public static function getVitePath(): string
     {
         $portFile = App::make('path') . '.vite-port';
-        $vitePort = '8880';
+        $vitePort = '8890';
 
         if (file_exists($portFile)) {
             $fileContent = trim(file_get_contents($portFile));
