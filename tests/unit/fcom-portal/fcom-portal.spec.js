@@ -47,6 +47,15 @@ describe('fcom-portal entry', () => {
             ]);
         });
 
+        it('leaves the create page out for anyone who cannot create events', async () => {
+            window.fluentEventFcomPortal.can_create_events = false;
+            const { filters } = await loadPortal();
+
+            const routes = filters.fluent_com_portal_routes([spaceRoute()]);
+
+            expect(routes.slice(1).map(route => route.name)).toEqual(['fe_events', 'fe_global_event_view']);
+        });
+
         it('takes every path from the server, so a renamed slug moves all of them', async () => {
             window.fluentEventFcomPortal.route_paths = {
                 events: 'meetups',
