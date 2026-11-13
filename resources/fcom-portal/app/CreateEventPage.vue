@@ -27,6 +27,10 @@
                         :aria-label="$t('Where do you want to post this event?')"
                         @change="onPlacement"
                     >
+                        <el-radio value="space" border>
+                            <span class="fe-create-event__choice-title">{{ $t('In a space') }}</span>
+                            <span class="fe-create-event__hint">{{ $t('Only members of the space can see it.') }}</span>
+                        </el-radio>
                         <!-- The disabled card says why; the tooltip says where to turn it on. -->
                         <el-tooltip
                             :disabled="globalPosts"
@@ -40,11 +44,33 @@
                                 </span>
                             </el-radio>
                         </el-tooltip>
-                        <el-radio value="space" border>
-                            <span class="fe-create-event__choice-title">{{ $t('In a space') }}</span>
-                            <span class="fe-create-event__hint">{{ $t('Only members of the space can see it.') }}</span>
-                        </el-radio>
                     </el-radio-group>
+
+                    <!-- Chosen here rather than in fcom's composer, whose own picker stays hidden. -->
+                    <el-form-item
+                        v-if="placement === 'space'"
+                        class="fe-create-event__space"
+                        :label="$t('Space')"
+                        label-position="top"
+                        for="fe-create-event-space"
+                        required
+                    >
+                        <el-select
+                            id="fe-create-event-space"
+                            v-model="space"
+                            filterable
+                            :placeholder="$t('Select a space')"
+                            @change="onSpace"
+                        >
+                            <el-option v-for="option in spaces" :key="option.slug" :label="option.title" :value="option.slug">
+                                <span v-if="option.emoji" class="fe-create-event__space-emoji" aria-hidden="true">{{ option.emoji }}</span>
+                                {{ option.title }}
+                            </el-option>
+                            <template #empty>
+                                <p class="fe-create-event__space-empty">{{ $t('There are no spaces you can post in.') }}</p>
+                            </template>
+                        </el-select>
+                    </el-form-item>
                 </div>
             </section>
 
@@ -335,6 +361,10 @@ export default {
         // The composer belongs to fcom's Vue; it follows this choice through onPlacement.
         globalPosts: { type: Boolean, default: true },
         onPlacement: { type: Function, required: true },
+        // The discussion spaces the member may post in, and the one the link named (?space=).
+        spaces: { type: Array, default: () => [] },
+        initialSpace: { type: String, default: '' },
+        onSpace: { type: Function, required: true },
     },
     data() {
         const start = dayjs().add(1, 'hour').startOf('hour');
@@ -344,6 +374,7 @@ export default {
 
         return {
             placement: 'space',
+            space: this.spaces.some((option) => option.slug === this.initialSpace) ? this.initialSpace : '',
             dateFormat: dateFormat(),
             timeFormat: timeFormat(),
             // Built timezone options once per visit
@@ -495,6 +526,10 @@ export default {
         },
         // Returns the first problem's message, or '' when the event can be posted.
         validateEvent() {
+            if (this.placement === 'space' && !this.space) {
+                return this.$t('Choose a space for this event.');
+            }
+
             if (!this.event.title.trim()) {
                 return this.$t('Event title is required.');
             }

@@ -219,7 +219,7 @@ describe('fcom-portal entry', () => {
 
         it('points the composer at the profile post or back at the space as the choice changes', async () => {
             const { placement } = (await createShell()).watch;
-            const shell = { $route: { query: { space: 'design' } }, feed: { space: 'design' } };
+            const shell = { space: 'design', feed: { space: 'design' } };
 
             placement.call(shell, 'global');
             expect(shell.feed.space).toBe('__self__post__');
@@ -230,6 +230,25 @@ describe('fcom-portal entry', () => {
 
         it('opens the composer from the start, since the page is there to write a post', async () => {
             expect((await createShell()).template).toContain('defaultState="active"');
+        });
+
+        it("hands the page the spaces the member can post in, and points the composer at the one picked", async () => {
+            const shell = (await createShell());
+            const vm = {
+                ...shell.data.call({ $route: { query: {} } }),
+                $router: {},
+                appVars: { auth: { spaces: {
+                    design: { slug: 'design', title: 'Design Team', settings: { emoji: '🎨' }, permissions: { can_create_post: true } },
+                    news: { slug: 'news', title: 'News', settings: {}, permissions: { can_create_post: false } },
+                } } },
+            };
+            const props = shell.methods.pageProps.call(vm);
+
+            expect(props.spaces).toEqual([{ slug: 'design', title: 'Design Team', emoji: '🎨' }]);
+
+            props.onSpace('design');
+            expect(vm.feed.space).toBe('design');
+            expect(vm.space).toBe('design');
         });
 
         it('opens a folded composer before posting, since post() ignores a folded one', async () => {
@@ -254,11 +273,11 @@ describe('fcom-portal entry', () => {
         });
 
         // The composer hides itself when its space prop names no real space, as the profile post doesn't.
-        it("never hands the profile post to the composer's space prop, and hides its picker for community-wide", async () => {
+        it("never hands the profile post to the composer's space prop, and always hides its picker, since the page has its own", async () => {
             const template = (await createShell()).template;
 
             expect(template).not.toMatch(/:space=/);
-            expect(template).toContain(`:disableSpace="placement === 'global'"`);
+            expect(template).toContain(':disableSpace="true"');
         });
     });
 
