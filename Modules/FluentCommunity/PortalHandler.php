@@ -213,7 +213,6 @@ class PortalHandler
             'Community-wide' => __('Community-wide', 'fluent-event'),
             'Cover image' => __('Cover image', 'fluent-event'),
             'Create Event' => __('Create Event', 'fluent-event'),
-            'Create new event' => __('Create new event', 'fluent-event'),
             'Date and time' => __('Date and time', 'fluent-event'),
             'Day' => __('Day', 'fluent-event'),
             /* translators: %d: day number within a multi-day event */
