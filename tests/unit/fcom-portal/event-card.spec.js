@@ -140,7 +140,7 @@ describe('EventCard', () => {
     });
 
     it('says whether the event is online or in person', () => {
-        expect(card().find('.fe-event-card__meta--venue').text()).toBe('In Person');
+        expect(card().find('.fe-event-card__meta--venue').text()).toBe('In person');
         expect(card({ fluent_event: meetup({ venue_type: 'online' }) }).find('.fe-event-card__meta--venue').text()).toBe('Online');
     });
 

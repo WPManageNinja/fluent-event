@@ -82,7 +82,7 @@ export default {
                 <ul class="actions_items" role="menu">
                     <li role="none">
                         <!-- .stop: fcom's document click handler would route the link a second time. -->
-                        <a role="menuitem" class="fe-event-menu__item" :href="portalRouter.resolve(editRoute).href" @click.stop.prevent="portalRouter.push(editRoute)">{{ t('Edit Event') }}</a>
+                        <a role="menuitem" class="fe-event-menu__item" :href="portalRouter.resolve(editRoute).href" @click.stop.prevent="portalRouter.push(editRoute)">{{ t('Edit event') }}</a>
                     </li>
                 </ul>
             </div>

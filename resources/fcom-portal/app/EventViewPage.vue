@@ -35,7 +35,7 @@
                                     <VideoCamera v-if="isOnline"/>
                                     <MapLocation v-else/>
                                 </el-icon>
-                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In Person')) }}</span>
+                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In person')) }}</span>
                             </li>
                         </ul>
 

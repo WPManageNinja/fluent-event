@@ -160,7 +160,7 @@ export default {
                         <p class="fe-event-card__meta fe-event-card__meta--venue">
                             <span v-if="isOnlineEvent" class="fe-event-card__venue-icon" aria-hidden="true">${VIDEO_CAMERA}</span>
                             <span v-else class="fe-event-card__venue-icon" aria-hidden="true">${MAP_LOCATION}</span>
-                            {{ isOnlineEvent ? t('Online') : t('In Person') }}
+                            {{ isOnlineEvent ? t('Online') : t('In person') }}
                         </p>
                     </div>
                 </div>

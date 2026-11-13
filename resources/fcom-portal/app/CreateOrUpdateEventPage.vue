@@ -85,7 +85,7 @@
 
             <section v-if="!eventSlug" class="fe-create-event__section">
                 <div>
-                    <h2 class="fe-create-event__section-title">{{ $t('Feed Post') }}</h2>
+                    <h2 class="fe-create-event__section-title">{{ $t('Feed post') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('What members see in the feed, above the event.') }}</p>
                 </div>
 
@@ -95,7 +95,7 @@
 
             <section class="fe-create-event__section">
                 <div>
-                    <h2 class="fe-create-event__section-title">{{ $t('Cover Image') }}</h2>
+                    <h2 class="fe-create-event__section-title">{{ $t('Cover image') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('Shown at the top of the event page and on event cards.') }}</p>
                 </div>
 
@@ -146,7 +146,7 @@
 
                 <div class="fe-create-event__section-fields">
                     <el-form-item
-                        :label="$t('Event Name')"
+                        :label="$t('Event name')"
                         label-position="top"
                         for="fe-create-event-title"
                         required
@@ -176,7 +176,7 @@
 
             <section class="fe-create-event__section">
                 <div>
-                    <h2 class="fe-create-event__section-title">{{ $t('Date and Time') }}</h2>
+                    <h2 class="fe-create-event__section-title">{{ $t('Date and time') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('When the event starts and ends.') }}</p>
                 </div>
 
@@ -224,7 +224,7 @@
 
             <section class="fe-create-event__section">
                 <div>
-                    <h2 class="fe-create-event__section-title">{{ $t('Venue Type') }}</h2>
+                    <h2 class="fe-create-event__section-title">{{ $t('Venue type') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('A venue for in-person events, a link for online ones.') }}</p>
                 </div>
 
@@ -233,13 +233,13 @@
                         v-model="event.venue_type"
                         class="fe-create-event__venue-switch"
                         :options="venueTypes"
-                        :label="$t('Venue Type')"
+                        :label="$t('Venue type')"
                         show-labels
                     />
 
                     <el-form-item
                         v-if="event.venue_type === 'online'"
-                        :label="$t('Meeting Link')"
+                        :label="$t('Meeting link')"
                         label-position="top"
                         for="fe-create-event-meeting-link"
                         required
@@ -254,7 +254,7 @@
                     </el-form-item>
 
                     <template v-else>
-                        <el-form-item :label="$t('Venue Name')" label-position="top" for="fe-create-event-venue">
+                        <el-form-item :label="$t('Venue name')" label-position="top" for="fe-create-event-venue">
                             <el-input
                                 id="fe-create-event-venue"
                                 v-model="event.venue"
@@ -279,7 +279,7 @@
 
             <section class="fe-create-event__section">
                 <div>
-                    <h2 class="fe-create-event__section-title">{{ $t('Entry Type') }}</h2>
+                    <h2 class="fe-create-event__section-title">{{ $t('Entry type') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('How guests join and what they see.') }}</p>
                 </div>
 
@@ -287,7 +287,7 @@
                     <el-radio-group
                         v-model="event.entry_type"
                         class="fe-create-event__choices"
-                        :aria-label="$t('Entry Type')"
+                        :aria-label="$t('Entry type')"
                     >
                         <el-radio v-for="option in entryTypes" :key="option.value" :value="option.value" border>
                             <span class="fe-create-event__choice-title">{{ option.label }}</span>
@@ -434,7 +434,7 @@ export default {
         },
         venueTypes() {
             return [
-                { value: 'offline', label: this.$t('In Person'), icon: MapLocation },
+                { value: 'offline', label: this.$t('In person'), icon: MapLocation },
                 { value: 'online', label: this.$t('Online'), icon: VideoCamera },
             ];
         },
