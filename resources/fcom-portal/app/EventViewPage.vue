@@ -123,7 +123,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, timeFormat } from '../utils';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, setPageTitle, timeFormat } from '../utils';
 import { lastDay } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -278,6 +278,10 @@ export default {
                 feed = response.feed;
                 this.feed = feed;
                 this.event = feed.fluent_event || null;
+
+                if (this.event) {
+                    setPageTitle(this.event.title);
+                }
             } catch (error) {
                 this.event = null;
             } finally {

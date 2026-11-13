@@ -156,7 +156,7 @@
 import { Calendar, Grid, MapLocation, Search, Tickets, UserFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart } from '../utils';
+import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart, setPageTitle } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 import EventsCalendar from './EventsCalendar.vue';
@@ -240,6 +240,11 @@ export default {
         },
     },
     mounted() {
+        // A space's tab keeps the space's name, as fcom's other space tabs do.
+        if (!this.spaceSlug) {
+            setPageTitle(this.$t('All Events'));
+        }
+
         this.reload();
     },
     methods: {

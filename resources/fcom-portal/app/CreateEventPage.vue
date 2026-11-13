@@ -320,7 +320,7 @@ import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-import { dateFormat, errorMessage, portalVars, timeFormat, timezoneOffset, uploadMedia } from '../utils';
+import { dateFormat, errorMessage, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
     name: 'CreateEventPage',
@@ -436,6 +436,7 @@ export default {
         },
     },
     mounted() {
+        setPageTitle(this.$t('Create Event'));
         this.$refs.titleInput.focus();
     },
     methods: {
