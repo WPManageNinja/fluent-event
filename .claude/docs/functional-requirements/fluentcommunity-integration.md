@@ -19,8 +19,11 @@ This is the record of intended behaviour. Keep it in step with `Modules/FluentCo
 | Guests | FluentEvent | `fe_guests` (`source = 'fluent_community'`, `source_id` = post id) |
 
 Post and event titles/descriptions are separate. Editing the post uses fcom's normal edit modal.
-The event card shows an **Edit event** link to site administrators, which opens the FluentEvent
-edit page.
+The event's "⋮" menu shows site administrators **Edit Event** (the portal edit page) and
+**View in FluentEvent** (the event in the FluentEvent admin, where its guests are managed). The
+space header "…" menu shows them **View in FluentEvent** too, which opens the space's calendar in
+the admin; a space has no calendar, and so no link, until its first event. These are the way back
+from fcom to the admin's **View in Community**.
 
 ## Bridge (`Modules/FluentCommunity/`)
 
