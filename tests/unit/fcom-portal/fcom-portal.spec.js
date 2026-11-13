@@ -282,6 +282,30 @@ describe('fcom-portal entry', () => {
     });
 
     // Mounts the real route shell, so the page goes through the same createApp() the portal uses.
+    describe('event page comments', () => {
+        const viewShells = async () => {
+            const { filters } = await loadPortal();
+            const routes = filters.fluent_com_portal_routes([spaceRoute()]);
+
+            return [routes.find(r => r.name === 'fe_global_event_view'), routes[0].children.find(r => r.name === 'fe_event_view')]
+                .map(route => route.component);
+        };
+
+        it("teleports fcom's comment box for the post the page hands over into its Comments card", async () => {
+            for (const shell of await viewShells()) {
+                expect(shell.template).toMatch(/<teleport v-if="feed" to="#fe-event-view-comments">\s*<comment-box :feed="feed"\/>/);
+
+                const vm = { ...shell.data.call({}), $route: { params: { event_slug: 'meetup' } }, $router: {} };
+                const props = shell.methods.pageProps.call(vm);
+                const feed = { id: 7 };
+
+                expect(props.eventSlug).toBe('meetup');
+                props.onFeed(feed);
+                expect(vm.feed).toBe(feed);
+            }
+        });
+    });
+
     describe('page shell', () => {
         let wrapper;
 

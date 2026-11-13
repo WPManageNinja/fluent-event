@@ -222,6 +222,7 @@ class PortalHandler
             'Cards' => __('Cards', 'fluent-event'),
             'Choose a space for this event.' => __('Choose a space for this event.', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
+            'Comments' => __('Comments', 'fluent-event'),
             'Community-wide' => __('Community-wide', 'fluent-event'),
             'Cover image' => __('Cover image', 'fluent-event'),
             'Create Event' => __('Create Event', 'fluent-event'),

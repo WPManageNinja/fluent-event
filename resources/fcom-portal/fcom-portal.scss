@@ -2291,6 +2291,24 @@ body {
         background: var(--fcom-primary-bg, #ffffff);
     }
 
+    // fcom's comment box puts its composer above the list; under it, as on a feed post.
+    &__comments .fcom_comment_box {
+        display: flex;
+        flex-direction: column;
+
+        // fcom bleeds it to the card's sides; it also meets the card's bottom edge, as on a feed post.
+        .feed_comment {
+            order: 1;
+            margin-bottom: -20px;
+            border-radius: 0 0 11px 11px;
+        }
+
+        // fcom's line between a composer on top and the list; the heading separates them here.
+        .feed_comments {
+            border-top: 0;
+        }
+    }
+
     &__section-title {
         margin: 0 0 12px;
         font-size: 17px;
