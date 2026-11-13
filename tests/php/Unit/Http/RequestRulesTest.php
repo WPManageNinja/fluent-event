@@ -104,6 +104,19 @@ class RequestRulesTest extends TestCase
         $this->assertSame('rsvp', $formatted['meta']['entry_type']);
     }
 
+    public function test_the_description_is_rendered_from_its_markdown_and_the_markdown_kept()
+    {
+        $markdown = "**Bring** a tripod\n\n- warm layer\n\n<script>alert(1)</script>\n\n![1.00](https://x.test/a.png \"Sunset\")";
+        $formatted = EventRequest::format($this->eventInput(['description_md' => $markdown]));
+
+        $this->assertSame($markdown, $formatted['meta']['description_md']);
+        $this->assertStringContainsString('<p><strong>Bring</strong> a tripod</p>', $formatted['description']);
+        $this->assertStringContainsString('<li>warm layer</li>', $formatted['description']);
+        // Typed HTML stays text; the image block's ratio alt gives way to its caption.
+        $this->assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $formatted['description']);
+        $this->assertStringContainsString('<img src="https://x.test/a.png" alt="Sunset" title="Sunset" />', $formatted['description']);
+    }
+
     public function test_an_offline_event_never_keeps_a_meeting_link()
     {
         $meta = EventRequest::format($this->eventInput(['venue_type' => 'offline']))['meta'];

@@ -62,6 +62,8 @@ class Event extends Model
             'address'            => '',
             'entry_type'         => '',
             'show_guest_count'   => 'yes',
+            // The description's markdown, as written in the editor; the post holds its rendered HTML.
+            'description_md'     => '',
         ];
     }
 
