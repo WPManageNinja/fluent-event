@@ -29,9 +29,6 @@ export default {
         isLoggedIn() {
             return !!portalVars().is_logged_in;
         },
-        loginUrl() {
-            return (window.fluentComAdmin && window.fluentComAdmin.auth_url) || '';
-        },
         // A checked-in guest counts as going.
         status() {
             if (isSeated(this.event)) {
@@ -45,6 +42,13 @@ export default {
         this.listen(false);
     },
     methods: {
+        // Back here after login, as fcom's getCurrentAuthUrl does; also read at click, as the URL changes without a reload.
+        loginUrl() {
+            const url = new URL((window.fluentComAdmin || {}).auth_url || '', window.location.href);
+            url.searchParams.set('redirect_to', window.location.href);
+
+            return url.href;
+        },
         t,
         toggle() {
             this.open = !this.open;
@@ -265,7 +269,7 @@ export default {
                 </div>
             </template>
 
-            <a v-else-if="!isLoggedIn" class="el-button fcom_primary_button" :href="loginUrl">{{ t('Log in to RSVP') }}</a>
+            <a v-else-if="!isLoggedIn" class="el-button fcom_primary_button" :href="loginUrl()" @click="$event.currentTarget.href = loginUrl()">{{ t('Log in to RSVP') }}</a>
 
             <div v-else class="fe-rsvp">
                 <button
