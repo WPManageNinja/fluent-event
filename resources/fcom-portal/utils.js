@@ -163,9 +163,9 @@ export function isSeated(event) {
     return ['going', 'checked_in'].includes(event.my_status);
 }
 
-// RSVP and open events take registrations here; none takes nobody.
+// RSVP and open events take registrations here; none takes nobody, nor a post that isn't published yet.
 export function hasEventActions(event) {
-    return event.is_past || ['rsvp', 'open'].includes(event.entry_type);
+    return event.is_past || (event.registration_open !== false && ['rsvp', 'open'].includes(event.entry_type));
 }
 
 export function guestCountLabel(event) {
