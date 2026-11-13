@@ -5,8 +5,8 @@ namespace FluentEvent\Tests\Integration;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * The free plugin has no team permissions: every admin route is for site administrators
- * (manage_options) only. Per-module access is a Pro feature.
+ * A user with no team keys reaches no admin route: they are for site administrators
+ * (manage_options) and the team members FluentEvent Pro grants keys to.
  */
 class AdminAccessTest extends IntegrationTestCase
 {

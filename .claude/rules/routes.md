@@ -34,9 +34,11 @@ Rule: when adding a route to a `withPolicy(...)` group, ensure either —
 
 Never let a destructive action rely on the `verifyRequest` fallback.
 
-**The exception is the base `Policy`** (`withDefaultPolicy()`): its `verifyRequest()` is
-`manage_options`, the admin routes' only check, so every action may use it. The free plugin
-has no team permissions; the admin API is for site administrators only.
+**Admin routes check team keys.** Each admin group binds its area's policy (`EventPolicy`,
+`CalendarPolicy`, `SettingsPolicy`, …), whose methods call `PermissionManager::userCan()`.
+Site admins pass everything; anyone else needs keys, which only FluentEvent Pro grants — free
+alone honours none. A route that changes the site itself (a WordPress page, a URL slug) checks
+`manage_options` in its policy method, past any key.
 
 ## Param constraints
 
