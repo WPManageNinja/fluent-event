@@ -30,10 +30,11 @@ const event = (id) => ({
     meta: {}
 });
 
-const drawer = () => mount(EventDrawer, {
+const drawer = (mocks = {}) => mount(EventDrawer, {
     props: { modelValue: true, event: event(1) },
     global: {
         mixins: [main],
+        mocks,
         stubs: {
             Drawer: { template: '<div><slot /></div>' },
             ElResult: { template: '<div><slot name="extra" /></div>' },
@@ -119,5 +120,54 @@ describe('EventDrawer', () => {
 
         expect(wrapper.findComponent(ErrorState).exists()).toBe(false);
         expect(wrapper.find('.fe-event-detail__description').html()).toContain('<p>Bring snacks</p>');
+    });
+
+    describe('shortcuts', () => {
+        const loaded = (status, calendarStatus) => ({
+            event: { id: 1, status, calendar: { status: calendarStatus }, description: '' },
+            public_url: 'https://site.test/events/meetup/'
+        });
+        const shortcuts = wrapper => wrapper.findAll('.fe-event-detail__shortcuts button').map(button => button.text());
+
+        it('opens and copies the public page of a public or unlisted event in a public calendar', async () => {
+            const writeText = vi.fn().mockResolvedValue();
+            Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+            Rest.get.mockResolvedValue(loaded('unlisted', 'public'));
+
+            const wrapper = drawer();
+            await flushPromises();
+
+            expect(shortcuts(wrapper)).toEqual(['Edit Event', 'Public Page', 'Copy Link']);
+            const [, open, copy] = wrapper.findAll('.fe-event-detail__shortcuts button');
+            expect(open.attributes()).toMatchObject({ href: 'https://site.test/events/meetup/', target: '_blank' });
+
+            await copy.trigger('click');
+            expect(writeText).toHaveBeenCalledWith('https://site.test/events/meetup/');
+        });
+
+        it.each([
+            ['a private event', 'private', 'public'],
+            ['a draft', 'draft', 'public'],
+            ['an event in a private calendar', 'public', 'private']
+        ])('offers only Edit for %s, which has no public page', async (_, status, calendarStatus) => {
+            Rest.get.mockResolvedValue(loaded(status, calendarStatus));
+
+            const wrapper = drawer();
+            await flushPromises();
+
+            expect(shortcuts(wrapper)).toEqual(['Edit Event']);
+        });
+
+        it('closes and opens the edit page', async () => {
+            const push = vi.fn();
+            Rest.get.mockResolvedValue(loaded('public', 'public'));
+
+            const wrapper = drawer({ $router: { push } });
+            await flushPromises();
+            await wrapper.find('.fe-event-detail__shortcuts button').trigger('click');
+
+            expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
+            expect(push).toHaveBeenCalledWith({ name: 'event_edit', params: { id: 1 } });
+        });
     });
 });
