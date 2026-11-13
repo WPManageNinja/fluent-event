@@ -1369,6 +1369,12 @@
         font-weight: 700;
     }
 
+    // Element Plus CSS loads after ours, so .el-alert's own radius wins without the second class.
+    &__notice.el-alert {
+        margin-bottom: 16px;
+        border-radius: 12px;
+    }
+
     // Closes the form card under fcom's composer section.
     &__actions {
         display: flex;

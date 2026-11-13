@@ -11,11 +11,20 @@
                 <el-icon><ArrowLeft/></el-icon>
             </button>
 
-            <h1 class="fe-create-event__heading">{{ $t('Create Event') }}</h1>
+            <h1 class="fe-create-event__heading">{{ eventSlug ? $t('Edit Event') : $t('Create Event') }}</h1>
         </div>
 
-        <div class="fe-create-event__form">
-            <section class="fe-create-event__section">
+        <el-skeleton v-if="loading" :rows="8" animated role="status" :aria-label="$t('Loading event')"/>
+
+        <el-empty v-else-if="!editable" :description="$t('This event is not available.')"/>
+
+        <el-alert v-if="editable && eventSlug && loadedEvent.feed_url" type="info" :closable="false" show-icon class="fe-create-event__notice">
+            {{ $t('To change the post text or its space, edit the post itself.') }}
+            <a class="fe-create-event__notice-link" :href="loadedEvent.feed_url">{{ $t('View post') }}</a>
+        </el-alert>
+
+        <div v-if="editable" class="fe-create-event__form">
+            <section v-if="!eventSlug" class="fe-create-event__section">
                 <div>
                     <h2 class="fe-create-event__section-title">{{ $t('Where do you want to post this event?') }}</h2>
                 </div>
@@ -74,7 +83,7 @@
                 </div>
             </section>
 
-            <section class="fe-create-event__section">
+            <section v-if="!eventSlug" class="fe-create-event__section">
                 <div>
                     <h2 class="fe-create-event__section-title">{{ $t('Feed post') }}</h2>
                     <p class="fe-create-event__section-desc">{{ $t('What members see in the feed, above the event.') }}</p>
@@ -302,14 +311,14 @@
             </section>
         </div>
 
-        <div class="fe-create-event__actions">
+        <div v-if="editable" class="fe-create-event__actions">
             <el-button
                 class="fcom_primary_button"
                 :loading="saving"
                 :disabled="saving || uploading"
                 @click="submit"
             >
-                {{ $t('Create Event') }}
+                {{ eventSlug ? $t('Update Event') : $t('Create Event') }}
             </el-button>
         </div>
     </div>
@@ -320,22 +329,27 @@ import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-import { dateFormat, errorMessage, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
+import { dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
-    name: 'CreateEventPage',
+    name: 'CreateOrUpdateEventPage',
     components: { ArrowLeft, Delete, Picture, SegmentedSwitch },
     props: {
         router: { type: Object, required: true },
-        onChange: { type: Function, required: true },
-        submitPost: { type: Function, required: true },
+        // The edit route passes these instead of the create-only props below.
+        eventSlug: { type: String, default: '' },
+        onLoaded: { type: Function, default: () => {} },
+        // The markdown stays in the shell, beside fcom's editor.
+        getDescription: { type: Function, default: () => '' },
+        onChange: { type: Function, default: () => {} },
+        submitPost: { type: Function, default: () => {} },
         // The composer belongs to fcom's Vue; it follows this choice through onPlacement.
         globalPosts: { type: Boolean, default: true },
-        onPlacement: { type: Function, required: true },
+        onPlacement: { type: Function, default: () => {} },
         // The discussion spaces the member may post in, and the one the link named (?space=).
         spaces: { type: Array, default: () => [] },
         initialSpace: { type: String, default: '' },
-        onSpace: { type: Function, required: true },
+        onSpace: { type: Function, default: () => {} },
     },
     data() {
         const start = dayjs().add(1, 'hour').startOf('hour');
@@ -370,13 +384,18 @@ export default {
             },
             uploading: false,
             saving: false,
+            loading: !!this.eventSlug,
+            loadedEvent: null,
         };
     },
     computed: {
+        editable() {
+            return !this.eventSlug || !!this.loadedEvent;
+        },
         venueMaxLength() {
             return portalVars().venue_max_length;
         },
-        // The `event` field of the composer's POST feeds; FeedHandler builds the event from it.
+        // The `event` field of the composer's POST feeds (FeedHandler builds the event from it), or an edit's PATCH.
         payload() {
             const event = this.event;
 
@@ -436,7 +455,13 @@ export default {
         },
     },
     mounted() {
-        setPageTitle(this.$t('Create Event'));
+        setPageTitle(this.eventSlug ? this.$t('Edit Event') : this.$t('Create Event'));
+
+        if (this.eventSlug) {
+            this.loadEvent();
+            return;
+        }
+
         this.$refs.titleInput.focus();
     },
     methods: {
@@ -449,11 +474,72 @@ export default {
                 return;
             }
 
+            if (this.eventSlug) {
+                this.updateEvent();
+                return;
+            }
+
             this.submitPost((posting) => { this.saving = posting; });
+        },
+        // Mapped as the admin form's initForm() maps it.
+        async loadEvent() {
+            try {
+                const { event } = await eventsApi.get('events/by-slug', { slug: this.eventSlug });
+                const meta = event.meta || {};
+                const start = dayjs(event.start_at_local);
+                const end = dayjs(event.end_at_local);
+
+                this.event = {
+                    title: event.title || '',
+                    start_date: start.format('YYYY-MM-DD'),
+                    start_time: start.format('HH:mm'),
+                    end_date: end.format('YYYY-MM-DD'),
+                    end_time: end.format('HH:mm'),
+                    timezone: event.timezone || this.event.timezone,
+                    venue_type: event.venue_type || 'offline',
+                    venue: meta.venue || '',
+                    address: meta.address || '',
+                    online_meeting_url: meta.online_meeting_url || '',
+                    cover_url: meta.cover_url || '',
+                    entry_type: meta.entry_type || '',
+                    show_guest_count: meta.show_guest_count || 'yes',
+                };
+                this.loadedEvent = event;
+            } catch (error) {
+                this.showError(error);
+                return;
+            } finally {
+                this.loading = false;
+            }
+
+            // The shell mounts fcom's editor into the description spot, so the form must be rendered first.
+            await this.$nextTick();
+            this.onLoaded(this.loadedEvent);
+            this.$refs.titleInput.focus();
+        },
+        async updateEvent() {
+            this.saving = true;
+
+            try {
+                const response = await eventsApi.patch(`events/${this.loadedEvent.id}`, {
+                    ...this.payload,
+                    // Required by the PATCH but not on this page, so they go back as loaded.
+                    calendar_id: this.loadedEvent.calendar_id,
+                    status: this.loadedEvent.status,
+                    description_md: this.getDescription(),
+                });
+
+                ElNotification({ type: 'success', message: response.message });
+                this.router.back();
+            } catch (error) {
+                this.showError(error);
+            } finally {
+                this.saving = false;
+            }
         },
         // Returns the first problem's message, or '' when the event can be posted.
         validateEvent() {
-            if (this.placement === 'space' && !this.space) {
+            if (!this.eventSlug && this.placement === 'space' && !this.space) {
                 return this.$t('Choose a space for this event.');
             }
 

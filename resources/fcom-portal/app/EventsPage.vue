@@ -121,7 +121,7 @@
                             <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openEvent(event)">
                                 <span class="fe-event-item__title-text">{{ event.title }}</span>
                             </a>
-                            <event-menu class="fe-event-item__menu" :event="event"></event-menu>
+                            <event-menu class="fe-event-item__menu" :event="event" :router="router"></event-menu>
                         </div>
                         <span class="fe-event-item__meta fe-event-item__meta--date">{{ startDate(event) }}</span>
                         <span class="fe-event-item__meta fe-event-item__meta--venue">

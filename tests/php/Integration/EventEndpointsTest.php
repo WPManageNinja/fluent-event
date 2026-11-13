@@ -58,6 +58,21 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertStringContainsString('/event/' . get_post($event->post_id)->post_name, $url);
     }
 
+    public function test_an_event_loads_by_its_slug_as_it_does_by_its_id()
+    {
+        $event = $this->createEvent();
+        $slug = get_post($event->post_id)->post_name;
+
+        $byId = $this->rest('GET', "events/{$event->id}")['data'];
+        $bySlug = $this->rest('GET', 'events/by-slug', ['slug' => $slug]);
+
+        $this->assertSame(200, $bySlug['status'], wp_json_encode($bySlug['data']));
+        $this->assertEquals($byId, $bySlug['data']);
+
+        $this->assertSame(404, $this->rest('GET', 'events/by-slug', ['slug' => $slug . '-missing'])['status']);
+        $this->assertSame(404, $this->rest('GET', 'events/by-slug')['status']);
+    }
+
     public function test_updating_an_event_keeps_its_post_in_step()
     {
         $event = $this->createEvent();

@@ -35,7 +35,7 @@ describe('fcom-portal entry', () => {
     });
 
     describe('routes', () => {
-        it('adds the community events page, the create page and the community-wide event page', async () => {
+        it('adds the community events page, the create and edit pages and the community-wide event page', async () => {
             const { filters } = await loadPortal();
 
             const routes = filters.fluent_com_portal_routes([spaceRoute()]);
@@ -43,11 +43,19 @@ describe('fcom-portal entry', () => {
             expect(routes.slice(1).map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
                 { path: '/events', name: 'fe_events', meta: { active_menu: 'fe_events' } },
                 { path: '/events/create', name: 'fe_create_event', meta: { active_menu: 'fe_events' } },
+                { path: '/events/:event_slug/edit', name: 'fe_edit_event', meta: { active_menu: 'fe_events' } },
                 { path: '/events/:event_slug', name: 'fe_global_event_view', meta: { active_menu: 'fe_events' } }
             ]);
         });
 
-        it('leaves the create page out for anyone who cannot create events', async () => {
+        it('edits an event on the create page', async () => {
+            const { filters } = await loadPortal();
+            const routes = filters.fluent_com_portal_routes([spaceRoute()]);
+
+            expect(routes.find(r => r.name === 'fe_edit_event').component).toBe(routes.find(r => r.name === 'fe_create_event').component);
+        });
+
+        it('leaves the create and edit pages out for anyone who cannot create events', async () => {
             window.fluentEventFcomPortal.can_create_events = false;
             const { filters } = await loadPortal();
 
@@ -60,6 +68,7 @@ describe('fcom-portal entry', () => {
             window.fluentEventFcomPortal.route_paths = {
                 events: 'meetups',
                 create_event: 'meetups/create',
+                edit_event: 'meetups/:event_slug/edit',
                 event_view: 'meetups/:event_slug',
                 space_events: 'meetups',
                 space_event_view: 'meetups/:event_slug'
@@ -68,7 +77,7 @@ describe('fcom-portal entry', () => {
 
             const routes = filters.fluent_com_portal_routes([spaceRoute()]);
 
-            expect(routes.slice(1).map(route => route.path)).toEqual(['/meetups', '/meetups/create', '/meetups/:event_slug']);
+            expect(routes.slice(1).map(route => route.path)).toEqual(['/meetups', '/meetups/create', '/meetups/:event_slug/edit', '/meetups/:event_slug']);
             expect(routes[0].children.slice(1).map(route => route.path)).toEqual(['meetups', 'meetups/:event_slug']);
         });
 
@@ -96,7 +105,7 @@ describe('fcom-portal entry', () => {
 
             const routes = filters.fluent_com_portal_routes([{ path: '/', name: 'all_feeds' }]);
 
-            expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_create_event', 'fe_global_event_view']);
+            expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_create_event', 'fe_edit_event', 'fe_global_event_view']);
         });
     });
 
@@ -202,14 +211,14 @@ describe('fcom-portal entry', () => {
         const shellData = (shell, query, globalPosts) => {
             window.fluentEventFcomPortal = { ...window.fluentEventFcomPortal, global_posts: globalPosts };
 
-            return shell.data.call({ $route: { query } });
+            return shell.data.call({ $route: { params: {}, query } });
         };
 
         // fcom's composer already runs fcom's Milkdown here; a second copy would clash over their custom elements.
         it("teleports fcom's markdown editor into the page, with mentions off and uploads going to the media library", async () => {
             const { template } = await createShell();
 
-            expect(template).toMatch(/<teleport v-if="ready" to="#fe-create-event-description">\s*<crepe-editor/);
+            expect(template).toMatch(/<teleport v-if="ready && editorReady" to="#fe-create-event-description">\s*<crepe-editor/);
             expect(template).toContain('v-model="description"');
             expect(template).toContain(':disable_mention="true"');
             expect(template).toContain(':onInlineUpload="uploadDescriptionImage"');
@@ -217,7 +226,7 @@ describe('fcom-portal entry', () => {
 
         it("carries the editor's markdown in the composer's event, through the page's later changes too", async () => {
             const shell = await createShell();
-            const vm = { ...shellData(shell, {}, true), $router: {}, appVars: {} };
+            const vm = { ...shellData(shell, {}, true), $route: { params: {}, query: {} }, $router: {}, appVars: {} };
 
             shell.watch.description.call(vm, '**Bring** a tripod');
             expect(vm.feed.event.description_md).toBe('**Bring** a tripod');
@@ -281,7 +290,8 @@ describe('fcom-portal entry', () => {
         it("hands the page the spaces the member can post in, and points the composer at the one picked", async () => {
             const shell = (await createShell());
             const vm = {
-                ...shell.data.call({ $route: { query: {} } }),
+                ...shell.data.call({ $route: { params: {}, query: {} } }),
+                $route: { params: {}, query: {} },
                 $router: {},
                 appVars: { auth: { spaces: {
                     design: { slug: 'design', title: 'Design Team', settings: { emoji: '🎨' }, permissions: { can_create_post: true } },
@@ -355,12 +365,12 @@ describe('fcom-portal entry', () => {
     describe('page shell', () => {
         let wrapper;
 
-        const mountEventsShell = async () => {
+        const mountShell = async (name = 'fe_events', $route = { params: {} }, global = {}) => {
             const { filters } = await loadPortal();
             const shell = filters.fluent_com_portal_routes([{ path: '/', name: 'all_feeds' }])
-                .find(route => route.name === 'fe_events').component;
+                .find(route => route.name === name).component;
 
-            wrapper = mount(shell, { global: { mocks: { $route: { params: {} }, $router: { push: vi.fn() } } } });
+            wrapper = mount(shell, { global: { mocks: { $route, $router: { push: vi.fn() } }, ...global } });
 
             // The page and Vue load through dynamic imports (a first compile takes over a second), then the page app mounts.
             for (let i = 0; i < 1200 && !wrapper.vm.ready; i++) {
@@ -396,18 +406,49 @@ describe('fcom-portal entry', () => {
             // fcom's window.dayjs is a separate copy in the portal; here both are the test's dayjs.
             const updateLocale = vi.spyOn(window.dayjs, 'updateLocale');
 
-            await mountEventsShell();
+            await mountShell();
 
             expect(updateLocale.mock.calls).toEqual([['en', { weekStart: 1 }], ['en', { weekStart: 1 }]]);
             expect(dayjs('2026-10-28').startOf('week').format('YYYY-MM-DD')).toBe('2026-10-26');
         }, 15000);
 
         it('shows a loading mask while the list loads', async () => {
-            await mountEventsShell();
+            await mountShell();
 
             expect(wrapper.vm.ready).toBe(true);
             expect(wrapper.find('.fe-events-page__list').exists()).toBe(true);
             expect(wrapper.find('.el-loading-mask').exists()).toBe(true);
+        }, 15000);
+
+        // fcom's editor reads its v-model only when it mounts; the post's composer has no place on an edit.
+        it("mounts no composer when editing, and fcom's editor only once the event brings its markdown", async () => {
+            let respond;
+            fetch.mockImplementationOnce(() => new Promise((resolve) => { respond = resolve; }));
+            const components = {
+                CreateStatusForm: { template: '<div class="composer-stub"></div>' },
+                CrepeEditor: { props: ['modelValue'], template: '<div class="editor-stub">{{ modelValue }}</div>' }
+            };
+
+            // The page focuses its title once loaded, and the title sits in a form item.
+            const stubs = { ElFormItem: { template: '<div><slot /></div>' }, ElInput: { template: '<input />', methods: { focus() {} } } };
+
+            await mountShell('fe_edit_event', { params: { event_slug: 'night-walk' }, query: {} }, { components, stubs });
+
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=night-walk');
+            expect(wrapper.find('.editor-stub').exists()).toBe(false);
+
+            respond(new Response(JSON.stringify({ event: {
+                title: 'Night walk',
+                start_at_local: '2026-11-20 18:30:00',
+                end_at_local: '2026-11-20 20:00:00',
+                meta: { description_md: '**Bring** a torch' }
+            } })));
+            for (let i = 0; i < 5; i++) {
+                await new Promise(resolve => setTimeout(resolve, 0));
+            }
+
+            expect(wrapper.find('.editor-stub').text()).toBe('**Bring** a torch');
+            expect(wrapper.find('.composer-stub').exists()).toBe(false);
         }, 15000);
     });
 });
