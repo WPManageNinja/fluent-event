@@ -87,7 +87,7 @@
                                     </span>
 
                                     <div v-if="isOnline">
-                                        <p class="fe-event-overview__row-title">{{ $t('Online event') }}</p>
+                                        <p class="fe-event-overview__row-title">{{ $t('Online Event') }}</p>
 
                                         <a
                                             v-if="meetingUrl"
@@ -152,7 +152,7 @@
                                     </span>
 
                                     <div class="fe-event-overview__public">
-                                        <p class="fe-event-overview__row-title">{{ $t('Public page') }}</p>
+                                        <p class="fe-event-overview__row-title">{{ $t('Public Page') }}</p>
 
                                         <p v-if="publicPageNote" class="fe-event-overview__row-text">
                                             {{ publicPageNote }}

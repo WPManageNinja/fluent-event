@@ -49,7 +49,7 @@
                 </div>
 
                 <div v-if="guest.checked_in_at" class="fe-guest-details__row">
-                    <dt class="fe-guest-details__label">{{ $t('Checked in') }}</dt>
+                    <dt class="fe-guest-details__label">{{ $t('Checked In') }}</dt>
 
                     <dd class="fe-guest-details__value">
                         {{ $formatDateTime(guest.checked_in_at) }}
@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="fe-guest-details__row">
-                    <dt class="fe-guest-details__label">{{ $t('Last updated') }}</dt>
+                    <dt class="fe-guest-details__label">{{ $t('Last Updated') }}</dt>
 
                     <dd class="fe-guest-details__value">
                         {{ $formatDateTime(guest.updated_at) }}
