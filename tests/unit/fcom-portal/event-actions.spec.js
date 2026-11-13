@@ -159,6 +159,22 @@ describe('EventActions', () => {
         expect(new URL(wrapper.find('a').attributes('href')).searchParams.getAll('redirect_to')).toEqual([window.location.href]);
     });
 
+    it('sends the visitor back to the URL they are on when they click, not the one the link first rendered on', async () => {
+        window.fluentEventFcomPortal.is_logged_in = false;
+        const before = window.location.href;
+        wrapper = actions();
+
+        window.history.pushState({}, '', '/portal/?search=meetup');
+        const link = wrapper.find('a');
+        // Stops jsdom following the link, after the component's own click handler has run.
+        link.element.addEventListener('click', (event) => event.preventDefault());
+        await link.trigger('click');
+        const redirect = new URL(link.element.href).searchParams.get('redirect_to');
+        window.history.replaceState({}, '', before);
+
+        expect(redirect).toMatch(/\/portal\/\?search=meetup$/);
+    });
+
     it("labels the trigger with the member's answer", () => {
         const label = (status) => mount(EventActions, { props: { event: rsvp({ my_status: status }) } }).find('.fe-rsvp__label').text();
 
