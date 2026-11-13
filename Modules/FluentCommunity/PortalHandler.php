@@ -254,6 +254,8 @@ class PortalHandler
             'Log in to RSVP' => __('Log in to RSVP', 'fluent-event'),
             'Logged-in members say whether they are going.' => __('Logged-in members say whether they are going.', 'fluent-event'),
             'Meeting link' => __('Meeting link', 'fluent-event'),
+            'Members can RSVP once this post is published.' => __('Members can RSVP once this post is published.', 'fluent-event'),
+            'Members can register once this post is published.' => __('Members can register once this post is published.', 'fluent-event'),
             'Month' => __('Month', 'fluent-event'),
             'More actions' => __('More actions', 'fluent-event'),
             'Name' => __('Name', 'fluent-event'),
