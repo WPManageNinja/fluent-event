@@ -270,7 +270,7 @@ describe('EventsPage', () => {
             });
         });
 
-        it('offers Create new event, in a space or on all events, to members who may create', async () => {
+        it('offers Create Event, in a space or on all events, to members who may create', async () => {
             expect((await eventsPage({ spaceSlug: 'design' })).vm.canCreate).toBe(true);
             expect((await eventsPage()).vm.canCreate).toBe(true);
 

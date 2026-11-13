@@ -121,12 +121,12 @@ describe('fcom-portal entry', () => {
     describe('space actions', () => {
         const space = (overrides = {}) => ({ slug: 'design', type: 'community', permissions: { can_create_post: true }, ...overrides });
 
-        it('offers Create new event to a member who can post in a community space', async () => {
+        it('offers Create Event to a member who can post in a community space', async () => {
             const { filters } = await loadPortal();
 
             expect(filters.fluent_com_space_actions([], space())).toEqual([{
                 key: 'fe_create_event',
-                title: 'Create new event',
+                title: 'Create Event',
                 route: { name: 'fe_create_event', query: { space: 'design' } }
             }]);
         });
@@ -143,12 +143,12 @@ describe('fcom-portal entry', () => {
     });
 
     describe('feed actions', () => {
-        it('offers Create new event, without a space, to an event creator', async () => {
+        it('offers Create Event, without a space, to an event creator', async () => {
             const { filters } = await loadPortal();
 
             expect(filters.fluent_com_feed_actions([])).toEqual([{
                 key: 'fe_create_event',
-                title: 'Create new event',
+                title: 'Create Event',
                 route: { name: 'fe_create_event' }
             }]);
         });

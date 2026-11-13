@@ -329,7 +329,7 @@ function register() {
         if (portalVars().can_create_events && space.type === 'community' && space.permissions && space.permissions.can_create_post) {
             actions.push({
                 key: 'fe_create_event',
-                title: t('Create new event'),
+                title: t('Create Event'),
                 route: { name: 'fe_create_event', query: { space: space.slug } },
             });
         }
@@ -341,7 +341,7 @@ function register() {
         if (portalVars().can_create_events) {
             actions.push({
                 key: 'fe_create_event',
-                title: t('Create new event'),
+                title: t('Create Event'),
                 route: { name: 'fe_create_event' },
             });
         }

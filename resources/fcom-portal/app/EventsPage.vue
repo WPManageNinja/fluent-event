@@ -7,7 +7,7 @@
                 class="fcom_primary_button"
                 @click="createEvent"
             >
-                {{ $t('Create new event') }}
+                {{ $t('Create Event') }}
             </el-button>
         </div>
 
