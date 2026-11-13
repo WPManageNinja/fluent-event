@@ -45,6 +45,7 @@ class FeedHandler
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);
         add_filter('fluent_event/events_api_response', [$this, 'addFeedUrls']);
+        add_filter('fluent_event/event_api_response', [$this, 'addFeedUrl']);
     }
 
     // The event card is the post's content, so its caption is optional, when posting and when editing.
@@ -260,6 +261,14 @@ class FeedHandler
         }
 
         $feed->save();
+    }
+
+    // The portal edit page links here: the post's text and space are edited on the post itself.
+    public function addFeedUrl($data)
+    {
+        $this->addFeedUrls(['events' => [$data['event']]]);
+
+        return $data;
     }
 
     public function addFeedUrls($data)

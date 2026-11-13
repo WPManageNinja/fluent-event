@@ -70,10 +70,18 @@ class EventController extends Controller
             ])
             ->findOrFail($id);
 
-        return [
+        $data = [
             'event'      => $event->append('description'),
             'public_url' => EventPageService::url($event),
         ];
+
+        /**
+         * One event, as the admin form and the portal edit page load it, for add-ons to append fields.
+         *
+         * @param array $data  ['event' => Event, 'public_url' => string]
+         * @param Event $event
+         */
+        return apply_filters('fluent_event/event_api_response', $data, $event);
     }
 
     public function createEvent(Request $request)

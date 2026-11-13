@@ -320,6 +320,17 @@ describe('CreateEventPage', () => {
             expect(wrapper.find('.fe-create-event__actions').text()).toBe('Update Event');
         });
 
+        it('points to the post for its text and space, when the event has one', async () => {
+            const { wrapper } = await mountEdit(json({ event: { ...stored, feed_url: 'https://example.test/portal/space/design/post/night-walk' } }));
+
+            expect(wrapper.find('.fe-create-event__notice').text()).toContain('To change the post text or its space, edit the post itself.');
+            expect(wrapper.find('.fe-create-event__notice-link').attributes('href')).toBe('https://example.test/portal/space/design/post/night-walk');
+
+            const { wrapper: unlinked } = await mountEdit();
+
+            expect(unlinked.find('.fe-create-event__notice').exists()).toBe(false);
+        });
+
         it('saves through PATCH with the calendar and status it loaded, and goes back', async () => {
             const { vm, props } = await mountEdit(undefined, { getDescription: () => '**Bring** a torch and boots' });
             vm.event.title = 'Night walk II';

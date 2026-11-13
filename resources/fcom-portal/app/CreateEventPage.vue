@@ -18,6 +18,11 @@
 
         <el-empty v-else-if="!editable" :description="$t('This event is not available.')"/>
 
+        <el-alert v-if="editable && eventId && loadedEvent.feed_url" type="info" :closable="false" show-icon class="fe-create-event__notice">
+            {{ $t('To change the post text or its space, edit the post itself.') }}
+            <a class="fe-create-event__notice-link" :href="loadedEvent.feed_url">{{ $t('View post') }}</a>
+        </el-alert>
+
         <div v-if="editable" class="fe-create-event__form">
             <section v-if="!eventId" class="fe-create-event__section">
                 <div>

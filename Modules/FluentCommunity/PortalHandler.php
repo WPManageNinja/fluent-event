@@ -317,6 +317,7 @@ class PortalHandler
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
+            'To change the post text or its space, edit the post itself.' => __('To change the post text or its space, edit the post itself.', 'fluent-event'),
             /* translators: a menu path in FluentCommunity's admin; keep the names as FluentCommunity shows them */
             'To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.' => __('To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
