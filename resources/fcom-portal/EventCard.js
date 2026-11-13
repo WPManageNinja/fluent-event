@@ -26,12 +26,14 @@ export default {
         };
     },
     watch: {
+        // fcom swaps in a fresh post object on its soft refresh and keeps this card, so track each one.
+        feed: {
+            handler: trackEventFeed,
+            immediate: true,
+        },
         'feed.fluent_event'(value) {
             this.event = value || null;
         },
-    },
-    created() {
-        trackEventFeed(this.feed);
     },
     mounted() {
         if (this.loading) {
