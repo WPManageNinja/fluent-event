@@ -1,5 +1,5 @@
 import EventCard from './EventCard';
-import { t, portalVars } from './utils';
+import { t, portalVars, uploadMedia } from './utils';
 
 /*
  * Plugs FluentEvent into the FluentCommunity portal through fcom's JS hooks.
@@ -126,6 +126,8 @@ const createEventShell = {
         return {
             onPosting: null,
             placement: 'space',
+            // The description's markdown, from fcom's editor; it rides in the composer's event.
+            description: '',
             // The space picked on the page; kept across a switch to community-wide and back.
             space: this.$route.query.space || '',
             feed: {
@@ -148,6 +150,9 @@ const createEventShell = {
         placement(placement) {
             this.feed.space = placement === 'global' ? PROFILE_POST : this.space;
         },
+        description(markdown) {
+            this.feed.event = { ...this.feed.event, description_md: markdown };
+        },
     },
     methods: {
         t,
@@ -155,7 +160,7 @@ const createEventShell = {
             return {
                 router: this.$router,
                 onChange: (event) => {
-                    this.feed.event = event;
+                    this.feed.event = { ...event, description_md: this.description };
                 },
                 submitPost: (onPosting) => this.submitPost(onPosting),
                 globalPosts: !!portalVars().global_posts,
@@ -172,6 +177,15 @@ const createEventShell = {
                     this.feed.space = space;
                 },
             };
+        },
+        // Images go to the media library, like the cover; fcom's editor just places the URL.
+        async uploadDescriptionImage(file) {
+            try {
+                return await uploadMedia(file);
+            } catch (error) {
+                this.$handleError(error);
+                throw error;
+            }
         },
         // Our Create button submits fcom's composer, which reports back while it posts.
         submitPost(onPosting) {
@@ -213,6 +227,15 @@ const createEventShell = {
                     @vue:mounted="watchPosting"
                     @added="posted"
                     @scheduled="posted"
+                />
+            </teleport>
+            <!-- fcom's own Milkdown: a second copy on this page would clash with the composer's over the custom elements both define. -->
+            <teleport v-if="ready" to="#fe-create-event-description">
+                <crepe-editor
+                    v-model="description"
+                    :placeholder="t('Describe the event, or type / to add images, lists and more')"
+                    :disable_mention="true"
+                    :onInlineUpload="uploadDescriptionImage"
                 />
             </teleport>
         </div>
