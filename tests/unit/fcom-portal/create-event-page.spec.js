@@ -233,13 +233,13 @@ describe('CreateEventPage', () => {
         document.getElementById('wp-link-wrap').remove();
     });
 
-    it('uploads a cover through fcom and keeps its URL', async () => {
+    it('uploads a cover to the WordPress media library and keeps its URL', async () => {
         const { vm } = await createPage();
-        fetch.mockResolvedValueOnce(json({ media: { url: 'https://example.test/uploads/cover.png' } }));
+        fetch.mockResolvedValueOnce(json({ id: 9, source_url: 'https://example.test/uploads/cover.png' }));
 
         await pickFile(vm, 'uploadCover');
 
-        expect(fetch.mock.calls.at(-1)[0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/media-upload');
+        expect(fetch.mock.calls.at(-1)[0]).toBe('https://example.test/wp-json/wp/v2/media');
         expect(vm.event.cover_url).toBe('https://example.test/uploads/cover.png');
         expect(vm.uploading).toBe(false);
     });
@@ -253,7 +253,7 @@ describe('CreateEventPage', () => {
         expect(insertContent).toHaveBeenCalledWith('<img src="https://example.test/uploads/photo.png" alt="">');
     });
 
-    it("shows fcom's reason when an upload is refused", async () => {
+    it('shows the reason when an upload is refused', async () => {
         const { vm } = await createPage();
         fetch.mockResolvedValueOnce(json({ message: 'File type not allowed.' }, 422));
 

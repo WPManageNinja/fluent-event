@@ -91,9 +91,7 @@ class FeedHandler
         $input = $this->eventInput($requestData);
         $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
 
-        $input['cover_url'] = $this->claimMedia(Arr::get($input, 'cover_url'), $feed, 'event_cover');
-
-        // Images added to the description are fcom uploads too, and need the same claim.
+        // Images added to the description are fcom uploads, which fcom deletes unless claimed.
         $input['description'] = preg_replace_callback('/(<img\b[^>]*\bsrc=)(["\'])(.*?)\2/i', function ($match) use ($feed) {
             $url = $this->claimMedia(html_entity_decode($match[3]), $feed, 'event_description');
 

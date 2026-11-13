@@ -346,7 +346,7 @@ import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import WpEditor from '@/components/WpEditor.vue';
-import { communityApi, dateFormat, errorMessage, eventsApi, portalVars, timeFormat, timezoneOffset } from '../utils';
+import { communityApi, dateFormat, errorMessage, eventsApi, portalVars, timeFormat, timezoneOffset, wpApi } from '../utils';
 
 // Module scope, not data(): leaving the page and coming back reuses the first load instead of re-running WordPress's scripts.
 let wpEditorLoad = null;
@@ -595,7 +595,8 @@ export default {
             this.uploading = true;
 
             try {
-                this.event.cover_url = (await communityApi.post('feeds/media-upload', data)).media.url;
+                // A media library attachment, as the admin's cover picker makes; the event owns it, not the post.
+                this.event.cover_url = (await wpApi.post('media', data)).source_url;
             } catch (error) {
                 this.showError(error);
             } finally {

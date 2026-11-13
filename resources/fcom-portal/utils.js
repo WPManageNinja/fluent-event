@@ -52,6 +52,10 @@ export const eventsApi = {
     post: (route, data) => request(portalVars().rest_url, 'POST', route, data),
 };
 
+export const wpApi = {
+    post: (route, data) => request(portalVars().wp_rest_url, 'POST', route, data),
+};
+
 export const communityApi = {
     get: (route, data) => request(window.fluentComAdmin.rest.url, 'GET', route, data),
     post: (route, data) => request(window.fluentComAdmin.rest.url, 'POST', route, data),
