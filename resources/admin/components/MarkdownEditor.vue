@@ -1,5 +1,5 @@
 <template>
-    <div v-loading="!ready" class="fe-markdown-editor">
+    <div v-loading="!ready" class="fe-markdown-editor" @click.capture="keepButtonInEditor" @keydown.enter.capture="keepEnterInEditor">
         <div ref="root" class="fe-markdown-editor__root" :aria-labelledby="ariaLabelledby || null"></div>
     </div>
 </template>
@@ -80,6 +80,20 @@
             }
         },
         methods: {
+            // Crepe's buttons carry no type, so inside a <form> a click would submit it; its table tools
+            // are even buttons inside a button. All are typed before the click's default action reads it.
+            keepButtonInEditor() {
+                this.$el.querySelectorAll('button:not([type])').forEach((button) => {
+                    button.type = 'button';
+                });
+            },
+            // Enter in Crepe's link and caption inputs would submit the form too; Crepe's own Enter
+            // handlers still run, only the browser's form submit is cancelled.
+            keepEnterInEditor(event) {
+                if (event.target.tagName === 'INPUT') {
+                    event.preventDefault();
+                }
+            },
             featureConfigs(Feature) {
                 return {
                     [Feature.Placeholder]: { text: this.placeholder, mode: 'doc' },

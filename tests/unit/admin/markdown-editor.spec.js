@@ -100,6 +100,37 @@ describe('MarkdownEditor', () => {
         expect(list.items.map((item) => item.key)).toEqual(['bullet-list', 'ordered-list']);
     });
 
+    // Crepe's toolbar, image and link buttons have no type, and its inputs submit on Enter.
+    it("never submits the form it sits in from Crepe's buttons or inputs", async () => {
+        const onSubmit = vi.fn((event) => event.preventDefault());
+        const form = document.createElement('form');
+        form.addEventListener('submit', onSubmit);
+        document.body.appendChild(form);
+        const wrapper = mount(MarkdownEditor, {
+            attachTo: form,
+            props: { upload: vi.fn() },
+            global: { mocks: { $t: (text) => text }, directives: { loading: {} } },
+        });
+        await flushPromises();
+
+        const root = wrapper.find('.fe-markdown-editor__root').element;
+        // The table's column tools are buttons inside its drag handle, itself a button.
+        root.innerHTML = '<button class="toolbar-item">B</button><input class="caption-input">'
+            + '<button class="cell-handle"><span class="button-group"><button class="align">L</button></span></button>';
+
+        root.querySelector('.toolbar-item').click();
+        root.querySelector('.align').click();
+        expect(onSubmit).not.toHaveBeenCalled();
+        expect([...root.querySelectorAll('button')].map((button) => button.type)).toEqual(['button', 'button', 'button']);
+
+        const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+        root.querySelector('input').dispatchEvent(enter);
+        expect(enter.defaultPrevented).toBe(true);
+
+        wrapper.unmount();
+        form.remove();
+    });
+
     it('destroys the editor with the form', async () => {
         const { wrapper, crepe } = await editor();
 

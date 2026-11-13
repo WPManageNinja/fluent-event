@@ -106,10 +106,11 @@ class RequestRulesTest extends TestCase
 
     public function test_the_description_is_rendered_from_its_markdown_and_the_markdown_kept()
     {
-        $markdown = "**Bring** a tripod\n\n- warm layer\n\n<script>alert(1)</script>\n\n![1.00](https://x.test/a.png \"Sunset\")";
+        $markdown = "**Bring** a tripod&#x20;\n\n- warm layer\n\n<script>alert(1)</script>\n\n![1.00](https://x.test/a.png \"Sunset\")";
         $formatted = EventRequest::format($this->eventInput(['description_md' => $markdown]));
 
         $this->assertSame($markdown, $formatted['meta']['description_md']);
+        // Milkdown's "&#x20;" for an edge space never reaches the page as text.
         $this->assertStringContainsString('<p><strong>Bring</strong> a tripod</p>', $formatted['description']);
         $this->assertStringContainsString('<li>warm layer</li>', $formatted['description']);
         // Typed HTML stays text; the image block's ratio alt gives way to its caption.

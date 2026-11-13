@@ -2090,22 +2090,62 @@
             margin-bottom: 0;
         }
 
-        // Organizer headings stay below the section title above them.
+        // Three steps, as the admin shows them: the editor offers six heading levels.
         h1,
         h2,
-        h3 {
+        h3,
+        h4,
+        h5,
+        h6 {
             margin: 18px 0 8px;
-            font-size: 16px;
             font-weight: 600;
             line-height: 1.4;
         }
 
-        h4,
+        h1,
+        h2 {
+            font-size: 18px;
+        }
+
+        h3,
+        h4 {
+            font-size: 16px;
+        }
+
         h5,
         h6 {
-            margin: 14px 0 6px;
             font-size: 15px;
-            font-weight: 600;
+        }
+
+        blockquote {
+            margin: 0 0 16px;
+            padding-left: 16px;
+            border-left: 3px solid var(--fcom-primary-border, #e3e8ee);
+            color: var(--fcom-secondary-text, #525866);
+        }
+
+        hr {
+            margin: 20px 0;
+            border: 0;
+            border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
+        }
+
+        code {
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: var(--fcom-secondary-bg, #f0f2f5);
+            font-size: 0.9em;
+        }
+
+        pre {
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: var(--fcom-secondary-bg, #f0f2f5);
+
+            code {
+                padding: 0;
+                background: none;
+            }
         }
 
         img {
