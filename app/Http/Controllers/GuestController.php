@@ -5,6 +5,7 @@ namespace FluentEvent\App\Http\Controllers;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Services\EventReminderService;
+use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Http\Request\Request;
@@ -56,8 +57,8 @@ class GuestController extends Controller
 
         do_action('fluent_event/guest/created', $guest);
 
-        if ($status === 'going' && $request->getSafe('send_email', 'rest_sanitize_boolean')) {
-            as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
+        if ($request->getSafe('send_email', 'rest_sanitize_boolean')) {
+            RegistrationService::queueEmail($guest, null);
         }
 
         return [
@@ -94,16 +95,12 @@ class GuestController extends Controller
         }
 
         $guest->fill($fields)->save();
-        $status = $guest->status;
 
         do_action('fluent_event/guest/updated', $guest, $previousStatus);
 
-        if ($status !== $previousStatus && $request->getSafe('send_email', 'rest_sanitize_boolean')) {
-            if ($status === 'going') {
-                as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
-            } elseif (in_array($status, ['not_going', 'cancelled'], true)) {
-                as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
-            }
+        // The member flow's rules: a confirmation on taking a seat, a cancellation only on giving one up.
+        if ($request->getSafe('send_email', 'rest_sanitize_boolean')) {
+            RegistrationService::queueEmail($guest, $previousStatus);
         }
 
         return [
