@@ -360,7 +360,6 @@ return [
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
             'Switch between list and card view' => __('Switch between list and card view', 'fluent-event'),
             'Switch between month, week and day view' => __('Switch between month, week and day view', 'fluent-event'),
-            'Table' => __('Table', 'fluent-event'),
             'Text' => __('Text', 'fluent-event'),
             'The description tells guests what this event is about.' => __('The description tells guests what this event is about.', 'fluent-event'),
             'The link could not be copied.' => __('The link could not be copied.', 'fluent-event'),

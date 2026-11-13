@@ -3226,6 +3226,26 @@
             > :first-child {
                 margin-top: 0;
             }
+
+            // Crepe sizes paragraphs (16px on a 24px line) but not list numbers, which took wp-admin's
+            // 13px and sat high beside the text.
+            milkdown-list-item-block li .label-wrapper {
+                color: var(--fe-secondary-text, #525866);
+
+                .label {
+                    font-size: 16px;
+                    line-height: 24px;
+                }
+
+                svg {
+                    fill: currentColor;
+                }
+            }
+
+            // Crepe indents a quote 40px past its bar; the event page uses 16px.
+            blockquote {
+                padding-left: 16px;
+            }
         }
 
         // Crepe's other floating boxes, like the "/" menu below: the selection toolbar, the link

@@ -8,7 +8,7 @@ const milkdown = vi.hoisted(() => ({ instances: [], configs: [] }));
 vi.mock('@milkdown/crepe', () => {
     class Crepe {
         static Feature = {
-            Placeholder: 'placeholder', ImageBlock: 'image-block', LinkTooltip: 'link-tooltip', CodeMirror: 'code-mirror', BlockEdit: 'block-edit',
+            Placeholder: 'placeholder', ImageBlock: 'image-block', LinkTooltip: 'link-tooltip', CodeMirror: 'code-mirror', BlockEdit: 'block-edit', Table: 'table',
         };
 
         constructor(options) {
@@ -91,13 +91,18 @@ describe('MarkdownEditor', () => {
         expect(nodes).toEqual([{ src: 'https://example.test/ok.png' }]);
     });
 
-    it("leaves task lists out of the slash menu, since the server's renderer has none", async () => {
+    it("turns tables off and leaves them and task lists out of the slash menu", async () => {
         const { crepe } = await editor();
-        const list = { items: [{ key: 'bullet-list' }, { key: 'ordered-list' }, { key: 'todo-list' }] };
+        const groups = {
+            list: { items: [{ key: 'bullet-list' }, { key: 'ordered-list' }, { key: 'todo-list' }] },
+            advanced: { items: [{ key: 'image' }, { key: 'code' }, { key: 'table' }] },
+        };
 
-        crepe.options.featureConfigs['block-edit'].buildMenu({ getGroup: () => ({ group: list }) });
+        expect(crepe.options.features).toEqual({ table: false });
+        crepe.options.featureConfigs['block-edit'].buildMenu({ getGroup: (key) => ({ group: groups[key] }) });
 
-        expect(list.items.map((item) => item.key)).toEqual(['bullet-list', 'ordered-list']);
+        expect(groups.list.items.map((item) => item.key)).toEqual(['bullet-list', 'ordered-list']);
+        expect(groups.advanced.items.map((item) => item.key)).toEqual(['image', 'code']);
     });
 
     // Crepe's toolbar, image and link buttons have no type, and its inputs submit on Enter.

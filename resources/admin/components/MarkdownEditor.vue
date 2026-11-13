@@ -52,6 +52,8 @@
             this.crepe = new Crepe({
                 root: this.$refs.root,
                 defaultValue: this.modelValue,
+                // Event descriptions don't offer tables.
+                features: { [Crepe.Feature.Table]: false },
                 featureConfigs: this.featureConfigs(Crepe.Feature),
             });
 
@@ -127,11 +129,13 @@
                         slashMenuAdvancedGroupLabel: this.$t('Advanced'),
                         slashMenuImageLabel: this.$t('Image'),
                         slashMenuCodeBlockLabel: this.$t('Code'),
-                        slashMenuTableLabel: this.$t('Table'),
-                        // The server's markdown renderer has no task lists, so the menu doesn't offer one.
+                        // The menu lists Table even with the feature off, and the server's renderer has no task lists.
                         buildMenu: (builder) => {
                             const list = builder.getGroup('list').group;
                             list.items = list.items.filter((item) => item.key !== 'todo-list');
+
+                            const advanced = builder.getGroup('advanced').group;
+                            advanced.items = advanced.items.filter((item) => item.key !== 'table');
                         },
                     },
                 };
