@@ -49,6 +49,9 @@ class PluginUpdater
     /** @var bool one uncached retry per request, no more */
     private $refetched = false;
 
+    /** @var bool set while the Check Update link runs, so the multisite skip does not swallow it */
+    private $forceCheck = false;
+
     /**
      * FluentEvent's own updater, against the addon registry. FluentEvent is free: no licence
      * key and no product id, so the slug is the whole identity and has to match the plugin
@@ -132,11 +135,12 @@ class PluginUpdater
             $getParam = 'fluent_sl_check_update_' . $this->config['slug'];
 
             add_filter('plugin_row_meta', function ($links, $file) use ($getParam) {
-                if ($this->config['basename'] !== $file) {
+                // On multisite only a network admin can update plugins, and the link leads to the network screen.
+                if ($this->config['basename'] !== $file || !current_user_can('update_plugins')) {
                     return $links;
                 }
 
-                $checkUpdateUrl = esc_url(admin_url('plugins.php?' . $getParam . '=' . time()));
+                $checkUpdateUrl = esc_url($this->pluginsScreenUrl('plugins.php?' . $getParam . '=' . time()));
                 $row_meta = array(
                     'check_update' => '<a style="color: #583fad;font-weight: 600;" href="' . $checkUpdateUrl . '" aria-label="' . esc_attr__('Check Update', 'fluent-event') . '">' . esc_html__('Check Update', 'fluent-event') . '</a>',
                 );
@@ -163,18 +167,34 @@ class PluginUpdater
                             unset($update_cache->response[$this->config['basename']]);
                         }
 
+                        // Asked for explicitly: the entry was just removed above, so skipping the lookup
+                        // here would save the transient without it and hide an available update.
+                        $this->forceCheck = true;
                         $update_cache = $this->checkPluginUpdate($update_cache);
+                        $this->forceCheck = false;
                         set_site_transient('update_plugins', $update_cache);
 
                         // Restore our filter
                         add_filter('pre_set_site_transient_update_plugins', [$this, 'checkPluginUpdate']);
 
-                        wp_safe_redirect(admin_url('plugins.php?s=' . $this->config['slug'] . '&plugin_status=all'));
+                        wp_safe_redirect($this->pluginsScreenUrl('plugins.php?s=' . $this->config['slug'] . '&plugin_status=all'));
                         exit();
                     }
                 });
             }
         }
+    }
+
+    /**
+     * A Plugins-screen URL. On multisite, plugin updates are managed on the network screen;
+     * the site screen shows no update notices.
+     *
+     * @param string $path
+     * @return string
+     */
+    private function pluginsScreenUrl($path)
+    {
+        return is_multisite() ? network_admin_url($path) : admin_url($path);
     }
 
     /**
@@ -190,7 +210,7 @@ class PluginUpdater
             $transient_data = new \stdClass();
         }
 
-        if ('plugins.php' === $pagenow && is_multisite()) {
+        if (!$this->forceCheck && 'plugins.php' === $pagenow && is_multisite()) {
             return $transient_data; // If on plugins page in a multisite, skip update check.
         }
 
