@@ -153,6 +153,9 @@ class EventRequest extends BaseRequest
 
     protected static function descriptionHtml($markdown)
     {
+        // Milkdown keeps a line's edge spaces as "&#x20;", which safe mode would print as text; fcom drops them too.
+        $markdown = str_replace('&#x20;', '', $markdown);
+
         // Safe mode escapes HTML typed into the markdown; kses then holds the rest to post HTML.
         $html = (new Parsedown())->setSafeMode(true)->setBreaksEnabled(true)->text($markdown);
 
