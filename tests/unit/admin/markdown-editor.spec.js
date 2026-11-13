@@ -15,13 +15,14 @@ vi.mock('@milkdown/crepe', () => {
             this.options = options;
             this.destroy = vi.fn();
             this.create = vi.fn(() => Promise.resolve());
-            this.editor = { config: (fn) => (milkdown.configs.push(fn), this.editor), use: () => this.editor };
+            this.editor = { config: (fn) => (milkdown.configs.push(fn), this.editor), use: () => this.editor, action: vi.fn() };
             milkdown.instances.push(this);
         }
     }
 
     return { Crepe };
 });
+vi.mock('@milkdown/kit/core', () => ({ editorViewCtx: 'editorViewCtx' }));
 vi.mock('@milkdown/kit/plugin/listener', () => ({ listener: {}, listenerCtx: 'listenerCtx' }));
 vi.mock('@milkdown/kit/plugin/upload', () => ({ upload: {}, uploadConfig: { key: 'uploadConfig' } }));
 vi.mock('@milkdown/crepe/theme/common/style.css', () => ({}));
@@ -134,6 +135,47 @@ describe('MarkdownEditor', () => {
 
         wrapper.unmount();
         form.remove();
+    });
+
+    it("opens the media library from the image block's Choose image, and puts the picked image in that block", async () => {
+        const wrapper = mount(MarkdownEditor, {
+            attachTo: document.body,
+            props: { upload: vi.fn() },
+            global: { mocks: { $t: (text) => text }, directives: { loading: {} } },
+        });
+        await flushPromises();
+        const crepe = milkdown.instances.at(-1);
+        const root = wrapper.find('.fe-markdown-editor__root').element;
+        root.innerHTML = '<milkdown-image-block><label class="uploader">Choose image</label></milkdown-image-block>';
+        const choose = () => {
+            const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+            root.querySelector('.uploader').dispatchEvent(click);
+            return click;
+        };
+
+        // Without wp.media the label keeps the browser's file dialog.
+        expect(choose().defaultPrevented).toBe(false);
+
+        const frame = {
+            on: vi.fn((name, fn) => (frame.select = fn)), once: vi.fn(), open: vi.fn(), off: vi.fn(), remove: vi.fn(),
+            state: () => ({ get: () => ({ first: () => ({ toJSON: () => ({ url: 'https://example.test/uploads/walk.png' }) }) }) }),
+        };
+        window.wp = { media: vi.fn(() => frame) };
+
+        expect(choose().defaultPrevented).toBe(true);
+        expect(frame.open).toHaveBeenCalled();
+
+        frame.select();
+        const tr = { setNodeAttribute: vi.fn(() => tr) };
+        const view = { posAtDOM: vi.fn(() => 7), state: { tr }, dispatch: vi.fn() };
+        crepe.editor.action.mock.calls[0][0]({ get: () => view });
+
+        expect(view.posAtDOM).toHaveBeenCalledWith(root.querySelector('milkdown-image-block'), 0);
+        expect(tr.setNodeAttribute).toHaveBeenCalledWith(7, 'src', 'https://example.test/uploads/walk.png');
+        expect(view.dispatch).toHaveBeenCalledWith(tr);
+
+        wrapper.unmount();
+        delete window.wp;
     });
 
     it('destroys the editor with the form', async () => {

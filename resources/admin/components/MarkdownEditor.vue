@@ -1,6 +1,6 @@
 <template>
     <div v-loading="!ready" class="fe-markdown-editor" @click.capture="keepButtonInEditor" @keydown.enter.capture="keepEnterInEditor">
-        <div ref="root" class="fe-markdown-editor__root" :aria-labelledby="ariaLabelledby || null"></div>
+        <div ref="root" class="fe-markdown-editor__root" :aria-labelledby="ariaLabelledby || null" @click.capture="pickFromLibrary"></div>
     </div>
 </template>
 
@@ -8,6 +8,7 @@
     // Milkdown is heavy, so it downloads only when a form with this editor opens.
     const loadMilkdown = () => Promise.all([
         import('@milkdown/crepe'),
+        import('@milkdown/kit/core'),
         import('@milkdown/kit/plugin/listener'),
         import('@milkdown/kit/plugin/upload'),
         import('@milkdown/crepe/theme/common/style.css'),
@@ -43,11 +44,13 @@
             };
         },
         async mounted() {
-            const [{ Crepe }, { listener, listenerCtx }, { upload, uploadConfig }] = await loadMilkdown();
+            const [{ Crepe }, { editorViewCtx }, { listener, listenerCtx }, { upload, uploadConfig }] = await loadMilkdown();
 
             if (this.gone) {
                 return;
             }
+
+            this.editorViewCtx = editorViewCtx;
 
             this.crepe = new Crepe({
                 root: this.$refs.root,
@@ -80,8 +83,55 @@
             if (this.ready) {
                 this.crepe.destroy();
             }
+
+            this.frame?.off('select', this.useLibraryImage);
+            this.frame?.off('open', this.paintLibrary);
+            this.frame?.remove?.();
         },
         methods: {
+            // The image block's "Choose image" opens the media library, like the cover picker, instead of the
+            // browser's file dialog. Without wp.media the label keeps its file dialog.
+            pickFromLibrary(event) {
+                const block = event.target.closest('.uploader') && event.target.closest('milkdown-image-block, milkdown-image-inline');
+
+                if (!block || typeof window.wp?.media !== 'function') {
+                    return;
+                }
+
+                event.preventDefault();
+                this.libraryBlock = block;
+
+                if (!this.frame) {
+                    this.frame = window.wp.media({
+                        title: this.$t('Select an image'),
+                        button: { text: this.$t('Use this image') },
+                        library: { type: 'image' },
+                        multiple: false,
+                    });
+                    this.frame.on('select', this.useLibraryImage);
+                    this.frame.once('open', this.paintLibrary);
+                }
+
+                this.frame.open();
+            },
+            // Same first-open repaint as MediaPicker.
+            paintLibrary() {
+                const library = this.frame.state()?.get('library');
+                if (!library) return;
+                library.more().done(() => library.trigger('reset'));
+            },
+            useLibraryImage() {
+                const url = this.frame.state().get('selection').first()?.toJSON()?.url;
+
+                if (!url || !this.libraryBlock.isConnected) {
+                    return;
+                }
+
+                this.crepe.editor.action((ctx) => {
+                    const view = ctx.get(this.editorViewCtx);
+                    view.dispatch(view.state.tr.setNodeAttribute(view.posAtDOM(this.libraryBlock, 0), 'src', url));
+                });
+            },
             // Crepe's buttons carry no type, so inside a <form> a click would submit it; its table tools
             // are even buttons inside a button. All are typed before the click's default action reads it.
             keepButtonInEditor() {
@@ -101,10 +151,10 @@
                     [Feature.Placeholder]: { text: this.placeholder, mode: 'doc' },
                     [Feature.ImageBlock]: {
                         onUpload: this.upload,
-                        blockUploadButton: () => this.$t('Upload image'),
+                        blockUploadButton: () => this.$t('Choose image'),
                         blockUploadPlaceholderText: this.$t('or paste an image link'),
                         blockCaptionPlaceholderText: this.$t('Write a caption'),
-                        inlineUploadButton: () => this.$t('Upload image'),
+                        inlineUploadButton: () => this.$t('Choose image'),
                         inlineUploadPlaceholderText: this.$t('or paste an image link'),
                     },
                     [Feature.LinkTooltip]: { inputPlaceholder: this.$t('Paste a link') },
