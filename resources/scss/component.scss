@@ -909,6 +909,15 @@
         display: block;
         max-width: 100%;
         overflow-x: auto;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 6px 12px;
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        text-align: left;
+        vertical-align: top;
     }
 
     > :first-child { margin-top: 0; }
@@ -962,6 +971,24 @@
         margin: var(--fe-space-5, 20px) 0;
         border: 0;
         border-top: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    code {
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: var(--fe-secondary-bg, #f3f5fa);
+        font-size: 0.9em;
+    }
+
+    pre {
+        padding: 12px 14px;
+        border-radius: var(--fe-radius, 8px);
+        background: var(--fe-secondary-bg, #f3f5fa);
+
+        code {
+            padding: 0;
+            background: none;
+        }
     }
 }
 
