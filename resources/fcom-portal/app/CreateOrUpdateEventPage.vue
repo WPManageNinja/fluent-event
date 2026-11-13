@@ -332,7 +332,7 @@ import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import { dateFormat, errorMessage, eventsApi, portalVars, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
-    name: 'CreateEventPage',
+    name: 'CreateOrUpdateEventPage',
     components: { ArrowLeft, Delete, Picture, SegmentedSwitch },
     props: {
         router: { type: Object, required: true },

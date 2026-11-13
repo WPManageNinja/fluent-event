@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { ElNotification } from 'element-plus';
 import { t } from '../../../resources/fcom-portal/utils';
-import CreateEventPage from '../../../resources/fcom-portal/app/CreateEventPage.vue';
+import CreateOrUpdateEventPage from '../../../resources/fcom-portal/app/CreateOrUpdateEventPage.vue';
 
 vi.mock('element-plus', async (importOriginal) => ({ ...(await importOriginal()), ElNotification: vi.fn() }));
 
@@ -15,7 +15,7 @@ const warnHandler = (message, instance, trace) => {
     }
 };
 
-const createPage = async (Page = CreateEventPage, extraProps = {}, extraStubs = {}) => {
+const createPage = async (Page = CreateOrUpdateEventPage, extraProps = {}, extraStubs = {}) => {
     const props = { router: { push: vi.fn(), back: vi.fn() }, onChange: vi.fn(), submitPost: vi.fn(), onPlacement: vi.fn(),
         spaces: [{ slug: 'design', title: 'Design Team', emoji: '🎨' }], initialSpace: 'design', onSpace: vi.fn(), ...extraProps };
     const wrapper = mount(Page, {
@@ -48,7 +48,7 @@ afterEach(() => {
     vi.unstubAllGlobals();
 });
 
-describe('CreateEventPage', () => {
+describe('CreateOrUpdateEventPage', () => {
     describe('where to post', () => {
         // The page's first section, so the first radio group; Element Plus is stubbed (tests/setup.js).
         const placementGroup = (wrapper) => wrapper.findAllComponents({ name: 'ElRadioGroup' })[0];
@@ -71,7 +71,7 @@ describe('CreateEventPage', () => {
         };
 
         it("disables Community-wide, with a tooltip on where to turn it on, when fcom's global posts are off", async () => {
-            const { wrapper } = await createPage(CreateEventPage, { globalPosts: false }, slotStubs);
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, { globalPosts: false }, slotStubs);
             const tooltip = wrapper.findAllComponents({ name: 'ElTooltip' })[0];
 
             expect(placementGroup(wrapper).props('modelValue')).toBe('space');
@@ -82,7 +82,7 @@ describe('CreateEventPage', () => {
         });
 
         it('lists In a space before Community-wide', async () => {
-            const { wrapper } = await createPage(CreateEventPage, {}, slotStubs);
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, {}, slotStubs);
 
             expect(wrapper.findAllComponents({ name: 'ElRadio' }).slice(0, 2).map(r => r.props('value'))).toEqual(['space', 'global']);
         });
@@ -101,13 +101,13 @@ describe('CreateEventPage', () => {
         });
 
         it("starts with no space when the linked one isn't one the member can post in", async () => {
-            const { vm } = await createPage(CreateEventPage, { initialSpace: 'secret' });
+            const { vm } = await createPage(CreateOrUpdateEventPage, { initialSpace: 'secret' });
 
             expect(vm.space).toBe('');
         });
 
         it('keeps the tooltip off while Community-wide can be picked', async () => {
-            const { wrapper } = await createPage(CreateEventPage, {}, slotStubs);
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, {}, slotStubs);
 
             expect(wrapper.findAllComponents({ name: 'ElTooltip' })[0].props('disabled')).toBe(true);
         });
@@ -261,7 +261,7 @@ describe('CreateEventPage', () => {
             fetch.mockReturnValueOnce(response instanceof Promise ? response : Promise.resolve(response || json({ event: stored })));
             ElNotification.mockClear();
 
-            const wrapper = mount(CreateEventPage, {
+            const wrapper = mount(CreateOrUpdateEventPage, {
                 props,
                 global: {
                     mocks: { $t: t },

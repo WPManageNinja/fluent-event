@@ -10,7 +10,7 @@ import { t, portalVars, uploadMedia } from './utils';
 const pages = {
     events: () => import('./app/EventsPage.vue'),
     space_events: () => import('./app/EventsPage.vue'),
-    create_event: () => import('./app/CreateEventPage.vue'),
+    create_event: () => import('./app/CreateOrUpdateEventPage.vue'),
     event_view: () => import('./app/EventViewPage.vue'),
     // The same page outside any space, where no space layout frames it.
     global_event_view: () => import('./app/EventViewPage.vue'),
