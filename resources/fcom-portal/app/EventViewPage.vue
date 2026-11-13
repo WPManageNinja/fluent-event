@@ -152,6 +152,7 @@ export default {
             feed: null,
             error: '',
             icons: { APPLE, GOOGLE },
+            requestId: 0,
         };
     },
     computed: {
@@ -245,6 +246,10 @@ export default {
     mounted() {
         this.fetchEvent();
     },
+    // A read still on its way must not title the next page's tab.
+    beforeUnmount() {
+        this.requestId++;
+    },
     methods: {
         googleCalendarLink,
         saveIcs,
@@ -268,12 +273,18 @@ export default {
             return zone ? `${range} (${zone})` : range;
         },
         async fetchEvent() {
+            const requestId = ++this.requestId;
             let feed = null;
 
             try {
                 // The URL carries the event's own slug; its post's slug is what fcom reads it by.
                 const { feed_slug: feedSlug } = await eventsApi.get('community/events/by-slug', { space: this.spaceSlug, slug: this.eventSlug });
                 const response = await communityApi.get(`feeds/${feedSlug}/by-slug`);
+
+                // The member left before both answers came back: the tab belongs to the page open now.
+                if (requestId !== this.requestId) {
+                    return;
+                }
 
                 feed = response.feed;
                 this.feed = feed;

@@ -89,7 +89,7 @@ describe('fcom-portal entry', () => {
             expect(space.children.map(({ path, name, meta }) => ({ path, name, meta }))).toEqual([
                 expect.objectContaining({ name: 'space_feeds' }),
                 { path: 'events', name: 'fe_space_events', meta: { in_space: true, show_sidebar: false } },
-                { path: 'events/:event_slug', name: 'fe_event_view', meta: { in_space: true, show_sidebar: false } }
+                { path: 'events/:event_slug', name: 'fe_event_view', meta: { in_space: true, show_sidebar: false, owns_title: true } }
             ]);
         });
 

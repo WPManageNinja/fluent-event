@@ -313,7 +313,8 @@ function register() {
                 name: 'fe_event_view',
                 component: eventViewShell('event_view'),
                 props: true,
-                meta: { in_space: true, show_sidebar: false },
+                // fcom's space route then leaves the event's own tab title alone.
+                meta: { in_space: true, show_sidebar: false, owns_title: true },
             });
         }
 
