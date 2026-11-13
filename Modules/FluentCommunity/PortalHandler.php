@@ -36,6 +36,7 @@ class PortalHandler
             $this->routePaths = apply_filters('fluent_event/community/route_paths', [
                 'events'           => $this->routeSlug,
                 'create_event'     => $this->routeSlug . '/create',
+                'edit_event'       => $this->routeSlug . '/:event_slug/edit',
                 'event_view'       => $this->routeSlug . '/:event_slug',
                 'space_events'     => $this->routeSlug,
                 'space_event_view' => $this->routeSlug . '/:event_slug',
@@ -122,7 +123,7 @@ class PortalHandler
     // fcom serves the portal on a direct load only for listed first segments; the space routes sit under its `space`.
     public function addRoutePath($paths)
     {
-        foreach (['events', 'create_event', 'event_view'] as $key) {
+        foreach (['events', 'create_event', 'edit_event', 'event_view'] as $key) {
             $paths[] = strtok($this->routePaths()[$key], '/');
         }
 
@@ -235,6 +236,7 @@ class PortalHandler
             'Describe the event, or type / to add images, lists and more' => __('Describe the event, or type / to add images, lists and more', 'fluent-event'),
             'Description' => __('Description', 'fluent-event'),
             'Done' => __('Done', 'fluent-event'),
+            'Edit Event' => __('Edit Event', 'fluent-event'),
             'Edit event' => __('Edit event', 'fluent-event'),
             'Email' => __('Email', 'fluent-event'),
             'End' => __('End', 'fluent-event'),
@@ -315,11 +317,13 @@ class PortalHandler
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
+            'To change the post text or its space, edit the post itself.' => __('To change the post text or its space, edit the post itself.', 'fluent-event'),
             /* translators: a menu path in FluentCommunity's admin; keep the names as FluentCommunity shows them */
             'To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.' => __('To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
             'Try a different search term.' => __('Try a different search term.', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
+            'Update Event' => __('Update Event', 'fluent-event'),
             'Venue name' => __('Venue name', 'fluent-event'),
             'Venue type' => __('Venue type', 'fluent-event'),
             /* translators: %s: event title */

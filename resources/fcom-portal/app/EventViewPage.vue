@@ -11,7 +11,7 @@
                     <span>{{ $t('Back') }}</span>
                 </button>
 
-                <event-menu :event="event"></event-menu>
+                <event-menu :event="event" :router="router"></event-menu>
             </div>
 
             <img v-if="event.cover_url" class="fe-event-view__cover" :src="event.cover_url" alt=""/>

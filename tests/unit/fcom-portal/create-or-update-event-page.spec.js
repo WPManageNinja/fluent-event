@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { ElNotification } from 'element-plus';
 import { t } from '../../../resources/fcom-portal/utils';
-import CreateEventPage from '../../../resources/fcom-portal/app/CreateEventPage.vue';
+import CreateOrUpdateEventPage from '../../../resources/fcom-portal/app/CreateOrUpdateEventPage.vue';
 
 vi.mock('element-plus', async (importOriginal) => ({ ...(await importOriginal()), ElNotification: vi.fn() }));
 
@@ -15,7 +15,7 @@ const warnHandler = (message, instance, trace) => {
     }
 };
 
-const createPage = async (Page = CreateEventPage, extraProps = {}, extraStubs = {}) => {
+const createPage = async (Page = CreateOrUpdateEventPage, extraProps = {}, extraStubs = {}) => {
     const props = { router: { push: vi.fn(), back: vi.fn() }, onChange: vi.fn(), submitPost: vi.fn(), onPlacement: vi.fn(),
         spaces: [{ slug: 'design', title: 'Design Team', emoji: '🎨' }], initialSpace: 'design', onSpace: vi.fn(), ...extraProps };
     const wrapper = mount(Page, {
@@ -48,7 +48,7 @@ afterEach(() => {
     vi.unstubAllGlobals();
 });
 
-describe('CreateEventPage', () => {
+describe('CreateOrUpdateEventPage', () => {
     describe('where to post', () => {
         // The page's first section, so the first radio group; Element Plus is stubbed (tests/setup.js).
         const placementGroup = (wrapper) => wrapper.findAllComponents({ name: 'ElRadioGroup' })[0];
@@ -71,7 +71,7 @@ describe('CreateEventPage', () => {
         };
 
         it("disables Community-wide, with a tooltip on where to turn it on, when fcom's global posts are off", async () => {
-            const { wrapper } = await createPage(CreateEventPage, { globalPosts: false }, slotStubs);
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, { globalPosts: false }, slotStubs);
             const tooltip = wrapper.findAllComponents({ name: 'ElTooltip' })[0];
 
             expect(placementGroup(wrapper).props('modelValue')).toBe('space');
@@ -82,7 +82,7 @@ describe('CreateEventPage', () => {
         });
 
         it('lists In a space before Community-wide', async () => {
-            const { wrapper } = await createPage(CreateEventPage, {}, slotStubs);
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, {}, slotStubs);
 
             expect(wrapper.findAllComponents({ name: 'ElRadio' }).slice(0, 2).map(r => r.props('value'))).toEqual(['space', 'global']);
         });
@@ -101,13 +101,13 @@ describe('CreateEventPage', () => {
         });
 
         it("starts with no space when the linked one isn't one the member can post in", async () => {
-            const { vm } = await createPage(CreateEventPage, { initialSpace: 'secret' });
+            const { vm } = await createPage(CreateOrUpdateEventPage, { initialSpace: 'secret' });
 
             expect(vm.space).toBe('');
         });
 
         it('keeps the tooltip off while Community-wide can be picked', async () => {
-            const { wrapper } = await createPage(CreateEventPage, {}, slotStubs);
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, {}, slotStubs);
 
             expect(wrapper.findAllComponents({ name: 'ElTooltip' })[0].props('disabled')).toBe(true);
         });
@@ -232,5 +232,173 @@ describe('CreateEventPage', () => {
 
         expect(props.router.back).toHaveBeenCalled();
         expect(props.router.push).not.toHaveBeenCalled();
+    });
+
+    describe('editing', () => {
+        const stored = {
+            id: 5,
+            title: 'Night walk',
+            calendar_id: 3,
+            status: 'private',
+            timezone: 'Europe/London',
+            venue_type: 'online',
+            start_at_local: '2026-11-20 18:30:00',
+            end_at_local: '2026-11-20 20:00:00',
+            meta: {
+                description_md: '**Bring** a torch',
+                online_meeting_url: 'https://meet.example.test/walk',
+                venue: '',
+                address: '',
+                cover_url: 'https://example.test/uploads/walk.png',
+                entry_type: 'open',
+                show_guest_count: 'no'
+            }
+        };
+
+        // The edit route passes only these; the create-only props fall back to their defaults.
+        const mountEdit = async (response, extraProps) => {
+            const props = { router: { push: vi.fn(), back: vi.fn() }, eventSlug: 'night-walk', onLoaded: vi.fn(), getDescription: () => '**Bring** a torch', ...extraProps };
+            fetch.mockReturnValueOnce(response instanceof Promise ? response : Promise.resolve(response || json({ event: stored })));
+            ElNotification.mockClear();
+
+            const wrapper = mount(CreateOrUpdateEventPage, {
+                props,
+                global: {
+                    mocks: { $t: t },
+                    stubs: {
+                        ElFormItem: { template: '<div><slot /></div>' },
+                        ElInput: { template: '<input />', methods: { focus() {} } },
+                        ElButton: { template: '<button><slot /></button>' }
+                    },
+                    config: { warnHandler }
+                }
+            });
+            await flushPromises();
+
+            return { wrapper, vm: wrapper.vm, props };
+        };
+
+        it('shows a loading state while the event loads', async () => {
+            const { wrapper } = await mountEdit(new Promise(() => {}));
+
+            expect(wrapper.findComponent({ name: 'ElSkeleton' }).exists()).toBe(true);
+            expect(wrapper.find('.fe-create-event__form').exists()).toBe(false);
+            expect(wrapper.find('.fe-create-event__actions').exists()).toBe(false);
+        });
+
+        it("fills the form from the admin event endpoint and hands the event to the shell", async () => {
+            const { vm, props } = await mountEdit();
+
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=night-walk');
+            expect(vm.event).toEqual({
+                title: 'Night walk',
+                start_date: '2026-11-20',
+                start_time: '18:30',
+                end_date: '2026-11-20',
+                end_time: '20:00',
+                timezone: 'Europe/London',
+                venue_type: 'online',
+                venue: '',
+                address: '',
+                online_meeting_url: 'https://meet.example.test/walk',
+                cover_url: 'https://example.test/uploads/walk.png',
+                entry_type: 'open',
+                show_guest_count: 'no'
+            });
+            expect(props.onLoaded).toHaveBeenCalledWith(stored);
+        });
+
+        // Space and post text are fcom's post, edited there.
+        it('leaves out where to post and the feed post, and says Edit / Update', async () => {
+            const { wrapper } = await mountEdit();
+
+            expect(wrapper.text()).not.toContain('Where do you want to post this event?');
+            expect(wrapper.text()).not.toContain('Feed post');
+            expect(wrapper.find('#fe-create-event-composer').exists()).toBe(false);
+            expect(wrapper.find('#fe-create-event-description').exists()).toBe(true);
+            expect(wrapper.find('.fe-create-event__heading').text()).toBe('Edit Event');
+            expect(wrapper.find('.fe-create-event__actions').text()).toBe('Update Event');
+        });
+
+        it('points to the post for its text and space, when the event has one', async () => {
+            const { wrapper } = await mountEdit(json({ event: { ...stored, feed_url: 'https://example.test/portal/space/design/post/night-walk' } }));
+
+            expect(wrapper.find('.fe-create-event__notice').text()).toContain('To change the post text or its space, edit the post itself.');
+            expect(wrapper.find('.fe-create-event__notice-link').attributes('href')).toBe('https://example.test/portal/space/design/post/night-walk');
+
+            const { wrapper: unlinked } = await mountEdit();
+
+            expect(unlinked.find('.fe-create-event__notice').exists()).toBe(false);
+        });
+
+        it('saves through PATCH with the calendar and status it loaded, and goes back', async () => {
+            const { vm, props } = await mountEdit(undefined, { getDescription: () => '**Bring** a torch and boots' });
+            vm.event.title = 'Night walk II';
+            fetch.mockResolvedValueOnce(json({ message: 'Event has been successfully updated' }));
+
+            vm.submit();
+            await flushPromises();
+
+            const [url, options] = fetch.mock.calls.at(-1);
+            expect(url).toBe('https://example.test/wp-json/fluent-event/v2/events/5');
+            expect(options.method).toBe('PATCH');
+            expect(JSON.parse(options.body)).toEqual({
+                calendar_id: 3,
+                status: 'private',
+                title: 'Night walk II',
+                description_md: '**Bring** a torch and boots',
+                start_at: '2026-11-20 18:30:00',
+                end_at: '2026-11-20 20:00:00',
+                timezone: 'Europe/London',
+                venue_type: 'online',
+                cover_url: 'https://example.test/uploads/walk.png',
+                online_meeting_url: 'https://meet.example.test/walk',
+                venue: '',
+                address: '',
+                entry_type: 'open',
+                show_guest_count: 'no'
+            });
+            expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'Event has been successfully updated' });
+            expect(props.router.back).toHaveBeenCalled();
+        });
+
+        it('stays on the page and says why when the update is refused', async () => {
+            const { vm, props } = await mountEdit();
+            fetch.mockResolvedValueOnce(json({ message: 'The title may not be greater than 255 characters.' }, 422));
+
+            vm.submit();
+            await flushPromises();
+
+            expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message: 'The title may not be greater than 255 characters.' });
+            expect(props.router.back).not.toHaveBeenCalled();
+            expect(vm.saving).toBe(false);
+        });
+
+        it('needs no space, but still checks the event', async () => {
+            const { vm } = await mountEdit();
+
+            expect(vm.space).toBe('');
+            expect(vm.validateEvent()).toBe('');
+
+            vm.event.title = ' ';
+            expect(vm.validateEvent()).toBe('Event title is required.');
+        });
+
+        it("says the event isn't available when it can't be loaded", async () => {
+            const { wrapper, props } = await mountEdit(json({ message: 'Event not found' }, 404));
+
+            expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message: 'Event not found' });
+            expect(wrapper.findComponent({ name: 'ElEmpty' }).props('description')).toBe('This event is not available.');
+            expect(wrapper.find('.fe-create-event__form').exists()).toBe(false);
+            expect(wrapper.find('.fe-create-event__actions').exists()).toBe(false);
+            expect(props.onLoaded).not.toHaveBeenCalled();
+        });
+
+        // A route param arrives decoded; in the path, a crafted `..%2F` slug would reach another REST route.
+        it('sends the slug as a query value, never as part of the path', async () => {
+            await mountEdit(undefined, { eventSlug: '../../wp/v2/users/me' });
+
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=..%2F..%2Fwp%2Fv2%2Fusers%2Fme');
+        });
     });
 });

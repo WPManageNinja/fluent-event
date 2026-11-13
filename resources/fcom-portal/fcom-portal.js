@@ -10,7 +10,7 @@ import { t, portalVars, uploadMedia } from './utils';
 const pages = {
     events: () => import('./app/EventsPage.vue'),
     space_events: () => import('./app/EventsPage.vue'),
-    create_event: () => import('./app/CreateEventPage.vue'),
+    create_event: () => import('./app/CreateOrUpdateEventPage.vue'),
     event_view: () => import('./app/EventViewPage.vue'),
     // The same page outside any space, where no space layout frames it.
     global_event_view: () => import('./app/EventViewPage.vue'),
@@ -126,8 +126,10 @@ const createEventShell = {
         return {
             onPosting: null,
             placement: 'space',
-            // The description's markdown, from fcom's editor; it rides in the composer's event.
+            // The description's markdown, from fcom's editor; it rides in the composer's event, or in an edit's PATCH.
             description: '',
+            // fcom's editor reads its v-model only when it mounts, so an edit waits for the event's markdown.
+            editorReady: !this.$route.params.event_slug,
             // The space picked on the page; kept across a switch to community-wide and back.
             space: this.$route.query.space || '',
             feed: {
@@ -157,6 +159,19 @@ const createEventShell = {
     methods: {
         t,
         pageProps() {
+            // Editing changes the event only; its space and post text are edited on fcom's post.
+            if (this.$route.params.event_slug) {
+                return {
+                    router: this.$router,
+                    eventSlug: this.$route.params.event_slug,
+                    onLoaded: (event) => {
+                        this.description = (event.meta || {}).description_md || '';
+                        this.editorReady = true;
+                    },
+                    getDescription: () => this.description,
+                };
+            }
+
             return {
                 router: this.$router,
                 onChange: (event) => {
@@ -217,7 +232,7 @@ const createEventShell = {
     template: `
         <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event">
             <div ref="mount"></div>
-            <teleport v-if="ready" to="#fe-create-event-composer">
+            <teleport v-if="ready && !$route.params.event_slug" to="#fe-create-event-composer">
                 <create-status-form
                     ref="composer"
                     defaultState="active"
@@ -230,7 +245,7 @@ const createEventShell = {
                 />
             </teleport>
             <!-- fcom's own Milkdown: a second copy on this page would clash with the composer's over the custom elements both define. -->
-            <teleport v-if="ready" to="#fe-create-event-description">
+            <teleport v-if="ready && editorReady" to="#fe-create-event-description">
                 <crepe-editor
                     v-model="description"
                     :placeholder="t('Describe the event, or type / to add images, lists and more')"
@@ -257,11 +272,18 @@ function register() {
         });
 
         // ?space=slug starts on that space; without it, on community-wide.
-        // Only event creators get the page: anyone else typing the URL lands on fcom's Not Found.
+        // Only event creators get the pages: anyone else typing the URL lands on fcom's Not Found.
         if (portalVars().can_create_events) {
             routes.push({
                 path: '/' + paths.create_event,
                 name: 'fe_create_event',
+                component: createEventShell,
+                meta: { active_menu: 'fe_events' },
+            });
+
+            routes.push({
+                path: '/' + paths.edit_event,
+                name: 'fe_edit_event',
                 component: createEventShell,
                 meta: { active_menu: 'fe_events' },
             });
