@@ -9,7 +9,8 @@ use FluentEvent\Tests\IntegrationTestCase;
 
 /**
  * The portal's top Events link exists only while FluentEvent supplies it: fcom keeps the
- * admin's saved label and order, and drops the saved row once nothing supplies it.
+ * admin's saved label and order, drops the saved row once nothing supplies it, and adds
+ * it to a menu saved before FluentEvent was on.
  */
 class PortalMenuTest extends IntegrationTestCase
 {
@@ -32,9 +33,9 @@ class PortalMenuTest extends IntegrationTestCase
         parent::tearDown();
     }
 
-    private function mainMenu()
+    private function mainMenu($savedWithEvents = true)
     {
-        FcomUtility::setCache(self::OPTION_CACHE_KEY, ['mainMenuItems' => [
+        $saved = [
             PortalHandler::MENU_SLUG => [
                 'slug'      => PortalHandler::MENU_SLUG,
                 'title'     => 'Meetups',
@@ -50,7 +51,13 @@ class PortalMenuTest extends IntegrationTestCase
                 'enabled'   => 'yes',
                 'permalink' => 'https://docs.test/',
             ],
-        ]]);
+        ];
+
+        if (!$savedWithEvents) {
+            unset($saved[PortalHandler::MENU_SLUG]);
+        }
+
+        FcomUtility::setCache(self::OPTION_CACHE_KEY, ['mainMenuItems' => $saved]);
 
         return FcomHelper::getMenuItemsGroup('edit')['mainMenuItems'];
     }
@@ -76,5 +83,14 @@ class PortalMenuTest extends IntegrationTestCase
 
         $this->assertArrayNotHasKey(PortalHandler::MENU_SLUG, $items);
         $this->assertArrayHasKey('docs', $items);
+    }
+
+    // Menu Settings must list it, or an admin has no way to turn it on.
+    public function test_a_menu_saved_without_events_lists_it_switched_off()
+    {
+        $item = $this->mainMenu(false)[PortalHandler::MENU_SLUG];
+
+        $this->assertSame('no', $item['enabled']);
+        $this->assertSame(FcomHelper::baseUrl('events'), $item['permalink']);
     }
 }

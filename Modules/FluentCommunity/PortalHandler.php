@@ -52,7 +52,6 @@ class PortalHandler
         add_filter('fluent_community/module_scripts', [$this, 'addModuleScript']);
         add_filter('fluent_community/portal_data_vars', [$this, 'addStylesheet'], 20);
         add_filter('fluent_community/default_main_menu_items', [$this, 'addMenuItem']);
-        add_filter('fluent_community/menu_settings_api_response', [$this, 'addMenuSetting']);
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
         add_filter('fluent_community/app_route_paths', [$this, 'addRoutePath']);
         add_filter('fluent_community/space_header_links', [$this, 'addSpaceTab'], 10, 2);
@@ -65,20 +64,6 @@ class PortalHandler
         $items[self::MENU_SLUG] = $this->menuItem();
 
         return $items;
-    }
-
-    // Listed in fcom's Menu Settings, off until an admin turns it on; fcom then stores it with its own items.
-    public function addMenuSetting($data)
-    {
-        $items = (array) Arr::get($data, 'menuSettings.mainMenuItems', []);
-
-        if (!in_array(self::MENU_SLUG, array_column($items, 'slug'), true)) {
-            $items[] = $this->menuItem();
-
-            $data['menuSettings']['mainMenuItems'] = $items;
-        }
-
-        return $data;
     }
 
     protected function menuItem()
