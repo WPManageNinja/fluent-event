@@ -30,15 +30,14 @@ const event = (id) => ({
     meta: {}
 });
 
-const drawer = (mocks = {}) => mount(EventDrawer, {
+const drawer = () => mount(EventDrawer, {
     props: { modelValue: true, event: event(1) },
     global: {
         mixins: [main],
-        mocks,
         stubs: {
             Drawer: { template: '<div><slot /></div>' },
             ElResult: { template: '<div><slot name="extra" /></div>' },
-            ElButton: { emits: ['click'], template: '<button @click="$emit(\'click\')"><slot /></button>' }
+            ElButton: { props: ['to'], emits: ['click'], template: '<button :data-to="to && JSON.stringify(to)" @click="$emit(\'click\')"><slot /></button>' }
         }
     }
 });
@@ -158,16 +157,19 @@ describe('EventDrawer', () => {
             expect(shortcuts(wrapper)).toEqual(['Edit Event']);
         });
 
-        it('closes and opens the edit page', async () => {
-            const push = vi.fn();
+        it('links the full page and the edit page, so either opens in a new tab too, and closes on a click', async () => {
             Rest.get.mockResolvedValue(loaded('public', 'public'));
 
-            const wrapper = drawer({ $router: { push } });
+            const wrapper = drawer();
             await flushPromises();
-            await wrapper.find('.fe-event-detail__shortcuts button').trigger('click');
 
+            const view = wrapper.find('.fe-event-detail__action');
+            const edit = wrapper.find('.fe-event-detail__shortcuts button');
+            expect(JSON.parse(view.attributes('data-to'))).toEqual({ name: 'event_detail', params: { id: 1 } });
+            expect(JSON.parse(edit.attributes('data-to'))).toEqual({ name: 'event_edit', params: { id: 1 } });
+
+            await edit.trigger('click');
             expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
-            expect(push).toHaveBeenCalledWith({ name: 'event_edit', params: { id: 1 } });
         });
     });
 });
