@@ -119,7 +119,6 @@ return [
             'Color' => __('Color', 'fluent-event'),
             'Confirm' => __('Confirm', 'fluent-event'),
             'Copy Link' => __('Copy Link', 'fluent-event'),
-            'Copy link' => __('Copy link', 'fluent-event'),
             'Copy shortcode' => __('Copy shortcode', 'fluent-event'),
             'Could not load this event. Please try again.' => __('Could not load this event. Please try again.', 'fluent-event'),
             'Cover Image' => __('Cover Image', 'fluent-event'),

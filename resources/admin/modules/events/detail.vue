@@ -170,11 +170,11 @@
 
                                             <el-button
                                                 link
-                                                :aria-label="$t('Copy link')"
-                                                :title="$t('Copy link')"
+                                                :aria-label="$t('Copy Link')"
+                                                :title="$t('Copy Link')"
                                                 @click="copyPublicUrl"
                                             >
-                                                <el-icon><DocumentCopy /></el-icon>
+                                                <el-icon><CopyDocument /></el-icon>
                                             </el-button>
                                         </div>
                                     </div>
@@ -215,7 +215,7 @@
 </template>
 
 <script type="text/javascript">
-    import { ArrowRight, DocumentCopy, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { ArrowRight, CopyDocument, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import Skeleton from '@/components/Skeleton.vue';
@@ -228,7 +228,7 @@
         name: 'EventDetail',
         components: {
             ArrowRight,
-            DocumentCopy,
+            CopyDocument,
             Link,
             LocationInformation,
             TopRight,

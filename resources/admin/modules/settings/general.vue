@@ -110,7 +110,7 @@
                             :title="$t('Copy shortcode')"
                             @click="copyShortcode(field.shortcode)"
                         >
-                            <el-icon><DocumentCopy /></el-icon>
+                            <el-icon><CopyDocument /></el-icon>
                         </el-button>
                         <a
                             v-if="selectedPages[field.key]"
@@ -279,7 +279,7 @@
 </template>
 
 <script type="text/javascript">
-    import { DocumentCopy, InfoFilled, Plus, WarningFilled } from '@element-plus/icons-vue';
+    import { CopyDocument, InfoFilled, Plus, WarningFilled } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import WpEditor from '@/components/WpEditor.vue';
@@ -288,7 +288,7 @@
     export default {
         name: 'SettingsGeneral',
         components: {
-            DocumentCopy,
+            CopyDocument,
             InfoFilled,
             Plus,
             WarningFilled,

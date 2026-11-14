@@ -128,7 +128,7 @@
                     </el-button>
 
                     <el-button @click="copyPublicUrl">
-                        <el-icon aria-hidden="true"><DocumentCopy /></el-icon>
+                        <el-icon aria-hidden="true"><CopyDocument /></el-icon>
                         <span>{{ $t('Copy Link') }}</span>
                     </el-button>
                 </template>
@@ -145,7 +145,7 @@
 </template>
 
 <script type="text/javascript">
-    import { DocumentCopy, EditPen, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { CopyDocument, EditPen, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
     import ErrorState from '@/components/ErrorState.vue';
@@ -157,7 +157,7 @@
             Drawer,
             ErrorState,
             Skeleton,
-            DocumentCopy,
+            CopyDocument,
             EditPen,
             LocationInformation,
             TopRight,
