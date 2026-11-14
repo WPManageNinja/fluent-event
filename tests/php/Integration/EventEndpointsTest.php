@@ -415,6 +415,22 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('<p>Written by the integration suite; rolled back.</p>', $single['description']);
     }
 
+    // The cards' "N going": going and checked-in guests count, not going and cancelled ones don't.
+    public function test_the_event_list_counts_the_guests_going_to_each_event()
+    {
+        $event = $this->createEvent();
+        $empty = $this->createEvent(['calendar_id' => $event->calendar_id]);
+
+        foreach (['going', 'going', 'checked_in', 'not_going', 'cancelled'] as $status) {
+            $this->createGuest($event, ['status' => $status]);
+        }
+
+        $listed = array_column($this->rest('GET', 'events', ['calendar_id' => $event->calendar_id])['data']['events']['data'], 'going_count', 'id');
+
+        $this->assertSame(3, (int) $listed[$event->id]);
+        $this->assertSame(0, (int) $listed[$empty->id]);
+    }
+
     public function test_the_event_list_filters_by_calendar()
     {
         $mine = $this->createEvent();

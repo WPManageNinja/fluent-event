@@ -63,6 +63,11 @@
                     </el-icon>
                     {{ isOnline ? $t('Online') : $t('In Person') }}
                 </span>
+
+                <span v-if="takesRegistrations" class="fe-event-card__going">
+                    <el-icon aria-hidden="true"><User /></el-icon>
+                    {{ $t('%d going', event.going_count || 0) }}
+                </span>
             </div>
 
             <div class="fe-event-card__actions">
@@ -100,7 +105,7 @@
 </template>
 
 <script type="text/javascript">
-    import { Calendar, EditPen, MapLocation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { Calendar, EditPen, MapLocation, TopRight, User, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
 
     export default {
@@ -110,6 +115,7 @@
             EditPen,
             MapLocation,
             TopRight,
+            User,
             VideoCamera,
         },
         props: {
@@ -130,6 +136,10 @@
         computed: {
             isOnline() {
                 return this.event.venue_type === 'online';
+            },
+            // A view-only event takes no guests, so it has no count to show.
+            takesRegistrations() {
+                return ['rsvp', 'open'].includes(this.event.meta?.entry_type);
             },
             date() {
                 return this.$formatDate(this.event.start_at_site);

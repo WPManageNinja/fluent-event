@@ -29,6 +29,10 @@ class EventController extends Controller
                     $query->select(['id', 'title', 'meta']);
                 },
             ])
+            // The cards' "N going": seated guests, counted in the same query as the events.
+            ->withCount(['guests as going_count' => function ($query) {
+                $query->whereIn('status', Event::SEAT_STATUSES);
+            }])
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->byCalendar($request->getSafe('calendar_id', 'intval'))
             ->byStatus($request->getSafe('status', 'sanitize_text_field'))

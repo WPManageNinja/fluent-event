@@ -51,6 +51,8 @@ return [
             '%d event' => __('%d event', 'fluent-event'),
             /* translators: %d is a number of events */
             '%d events' => __('%d events', 'fluent-event'),
+            /* translators: %d is the number of guests going to an event */
+            '%d going' => __('%d going', 'fluent-event'),
             /* translators: %d is 1, the number of guests */
             '%d guest' => __('%d guest', 'fluent-event'),
             /* translators: %d is a number of guests */
