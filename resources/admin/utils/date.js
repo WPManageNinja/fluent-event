@@ -43,6 +43,23 @@ export function applyWeekStart(value, hostDayjs) {
     hostDayjs?.updateLocale('en', { weekStart });
 }
 
+// Element Plus writes a picked date with our dayjs, which only knows English. Lend it the host's language
+// (fcom's dayjs has the site's), keeping the week start above; returns the name Element Plus should use.
+export function borrowLocale(hostDayjs) {
+    const name = hostDayjs.locale();
+    const locale = hostDayjs.Ls[name];
+
+    if (!locale) {
+        return 'en';
+    }
+
+    if (name !== 'en') {
+        dayjs.locale({ ...locale, weekStart: dayjs.Ls.en.weekStart }, null, true);
+    }
+
+    return name;
+}
+
 // "Add to calendar" files (.ics).
 
 const encoder = new TextEncoder();

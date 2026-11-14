@@ -49,7 +49,7 @@ function pageShell(page) {
                 };
             },
             async remount() {
-                const [{ createApp }, { default: Page }, { applyWeekStart }, { vLoading, provideGlobalConfig }, { default: en }] = await Promise.all([
+                const [{ createApp }, { default: Page }, { applyWeekStart, borrowLocale }, { vLoading, provideGlobalConfig }, { default: en }] = await Promise.all([
                     import('vue'),
                     pages[page](),
                     import('@/utils/date'),
@@ -69,7 +69,7 @@ function pageShell(page) {
                 // Its own Vue app: fcom exposes neither its Vue nor Element Plus to add-ons.
                 const app = createApp(Page, this.pageProps());
                 app.config.globalProperties.$t = t;
-                provideGlobalConfig({ locale: localizedDateNames(en, window.dayjs) }, app);
+                provideGlobalConfig({ locale: { ...localizedDateNames(en, window.dayjs), name: borrowLocale(window.dayjs) } }, app);
                 // The pages' v-loading spinners (list, calendar, cover upload, editor) need it registered here.
                 app.directive('loading', vLoading);
                 app.mount(this.$refs.mount);
