@@ -288,3 +288,37 @@ describe('$handleError', () => {
         expect(lastNotification().message).toBe('Name is required. Email is required.');
     });
 });
+
+describe('$userCan', () => {
+    const as = (me) => {
+        window.fluentEventAdmin.me = me;
+        return component();
+    };
+
+    it('allows everything for a WordPress administrator', () => {
+        expect(as({ is_admin: true, permissions: [] }).$userCan('write_settings')).toBe(true);
+    });
+
+    it('allows everything for a manage_all_data holder', () => {
+        expect(as({ is_admin: false, permissions: ['manage_all_data'] }).$userCan(['write_events', 'write_settings'])).toBe(true);
+    });
+
+    it('requires every key by default', () => {
+        const vm = as({ is_admin: false, permissions: ['read_events'] });
+
+        expect(vm.$userCan('read_events')).toBe(true);
+        expect(vm.$userCan(['read_events', 'write_events'])).toBe(false);
+    });
+
+    it('accepts any one key when asked to match any', () => {
+        const vm = as({ is_admin: false, permissions: ['read_calendars'] });
+
+        expect(vm.$userCan(['read_calendars', 'write_calendars'], { match_type: 'any' })).toBe(true);
+    });
+
+    it('denies when the current user is unknown', () => {
+        delete window.fluentEventAdmin.me;
+
+        expect(component().$userCan('read_events')).toBe(false);
+    });
+});

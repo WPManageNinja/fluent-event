@@ -40,11 +40,23 @@ class SettingsController extends Controller
             }
         }
 
-        $previousSlug = Settings::get()['event_slug'];
+        $previous = Settings::get();
+
+        // The public pages and the event slug change site URLs, so a team member's write_settings stops short of them.
+        if (!current_user_can('manage_options')) {
+            foreach (array_merge(array_keys(EventPageService::PAGES), ['event_slug']) as $key) {
+                if (isset($data[$key]) && (string) $data[$key] !== (string) ($previous[$key] ?? '')) {
+                    return $this->sendError([
+                        'message' => __('Only a site administrator can change the public pages or the event slug.', 'fluent-event'),
+                    ], 403);
+                }
+            }
+        }
+
         $settings = Settings::update(Settings::GENERAL, $data);
 
         // `init` already registered the old slug's rules, so flushing here would keep them. WordPress rebuilds on the next request.
-        if ($settings['event_slug'] !== $previousSlug) {
+        if ($settings['event_slug'] !== $previous['event_slug']) {
             delete_option('rewrite_rules');
         }
 

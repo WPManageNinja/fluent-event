@@ -28,13 +28,13 @@
 </template>
 
 <script type="text/javascript">
-    import { Message, Setting } from '@element-plus/icons-vue';
+    import { Message, Setting, User } from '@element-plus/icons-vue';
 
     export default {
         name: 'SettingsLayout',
         computed: {
             menuItems() {
-                return [
+                const items = [
                     {
                         name: 'settings_general',
                         label: this.$t('General'),
@@ -46,6 +46,16 @@
                         icon: Message,
                     },
                 ];
+
+                if (this.$userCan('manage_all_data')) {
+                    items.push({
+                        name: 'settings_team',
+                        label: this.$t('Team'),
+                        icon: User,
+                    });
+                }
+
+                return items;
             },
         },
         methods: {

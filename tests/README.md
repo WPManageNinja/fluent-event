@@ -54,7 +54,7 @@ site. So:
 - **Mail and outbound HTTP are blocked**, and captured for assertions (`$this->sentMail`).
 - **The Redis object cache is switched off** (`WP_REDIS_DISABLED`); the bootstrap refuses
   to run if a persistent cache is still active, since rolled-back rows would survive in it.
-- Static caches (`Settings::$stored`) and the framework's
+- Static caches (`PermissionManager::$cache`, `Settings::$stored`) and the framework's
   singleton `Request` are reset per test / per request.
 
 ## Conventions

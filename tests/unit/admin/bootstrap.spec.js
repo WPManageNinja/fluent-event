@@ -11,7 +11,7 @@ describe('config', () => {
     const seed = () => Object.assign(config, {
         slug: 'fluent-event',
         rest: { url: 'https://example.test/wp-json/fluent-event/v2', nonce: 'abc' },
-        me: { id: 0 },
+        me: { permissions: [] },
         theme: null
     });
 
@@ -32,7 +32,7 @@ describe('config', () => {
     it('keeps a falsy value that is actually set', () => {
         seed();
 
-        expect(config.get('me.id', 5)).toBe(0);
+        expect(config.get('me.permissions', ['x'])).toEqual([]);
     });
 
     it('returns a copy of everything when no key is given', () => {

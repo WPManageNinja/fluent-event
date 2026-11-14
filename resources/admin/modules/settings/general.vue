@@ -14,6 +14,7 @@
                     <el-radio-group
                         v-model="general.default_events_view"
                         class="fe-view-picker"
+                        :disabled="!$userCan('write_settings')"
                     >
                         <el-radio
                             v-for="option in viewOptions"
@@ -32,6 +33,7 @@
                         v-model="general.disable_event_view_switch"
                         true-value="yes"
                         false-value="no"
+                        :disabled="!$userCan('write_settings')"
                     >
                         {{ $t('Disable View Change Option') }}
                     </el-checkbox>
@@ -43,7 +45,7 @@
                     </span>
                 </el-form-item>
 
-                <div class="fe-form__actions">
+                <div v-if="$userCan('write_settings')" class="fe-form__actions">
                     <el-button
                         type="primary"
                         native-type="submit"
@@ -56,7 +58,8 @@
             </el-form>
         </section>
 
-        <section class="fe-settings-page">
+        <!-- Pages and the event slug change site URLs, so the server keeps them to site admins. -->
+        <section v-if="isSiteAdmin" class="fe-settings-page">
             <div class="fe-settings-page__header">
                 <h2 class="fe-settings-page__title">{{ $t('Public Pages') }}</h2>
             </div>
@@ -202,6 +205,7 @@
                         <el-input
                             v-model="email.from_name"
                             :placeholder="$t('e.g. your business name')"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
 
@@ -210,13 +214,14 @@
                             v-model="email.from_email"
                             type="email"
                             placeholder="events@example.com"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
                 </div>
 
                 <div class="fe-form__pair">
                     <el-form-item :label="$t('Reply-To Name (Optional)')">
-                        <el-input v-model="email.reply_to_name" />
+                        <el-input v-model="email.reply_to_name" :disabled="!$userCan('write_settings')" />
                     </el-form-item>
 
                     <el-form-item>
@@ -242,6 +247,7 @@
                         <el-input
                             v-model="email.reply_to_email"
                             type="email"
+                            :disabled="!$userCan('write_settings')"
                         />
                     </el-form-item>
                 </div>
@@ -263,7 +269,7 @@
                     </span>
                 </el-form-item>
 
-                <div class="fe-form__actions">
+                <div v-if="$userCan('write_settings')" class="fe-form__actions">
                     <el-button
                         type="primary"
                         native-type="submit"
@@ -331,6 +337,9 @@
             };
         },
         computed: {
+            isSiteAdmin() {
+                return !!window.fluentEventAdmin.me?.is_admin;
+            },
             viewOptions() {
                 return [
                     { value: 'cards', label: this.$t('Cards') },

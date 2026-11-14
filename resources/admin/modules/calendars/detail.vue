@@ -66,10 +66,10 @@
                     </div>
 
                     <div class="fe-calendar-detail__actions">
-                        <el-button @click="goToEdit">
+                        <el-button v-if="$userCan('write_calendars')" @click="goToEdit">
                             {{ $t('Edit') }}
                         </el-button>
-                        <el-button type="primary" @click="goToEventCreate">
+                        <el-button v-if="$userCan('write_events')" type="primary" @click="goToEventCreate">
                             {{ $t('Add Event') }}
                         </el-button>
                     </div>
@@ -127,7 +127,7 @@
             return {
                 loading: true,
                 error: '',
-                tab: 'events',
+                tab: this.$userCan(['read_events', 'write_events'], { match_type: 'any' }) ? 'events' : 'settings',
                 period: 'upcoming',
                 calendar: {},
                 stats: {},
@@ -136,10 +136,17 @@
         },
         computed: {
             tabs() {
-                return [
-                    { value: 'events', label: this.$t('Events') },
-                    { value: 'settings', label: this.$t('Settings') },
-                ];
+                const tabs = [];
+
+                if (this.$userCan(['read_events', 'write_events'], { match_type: 'any' })) {
+                    tabs.push({ value: 'events', label: this.$t('Events') });
+                }
+
+                if (this.$userCan('write_calendars')) {
+                    tabs.push({ value: 'settings', label: this.$t('Settings') });
+                }
+
+                return tabs;
             },
             periods() {
                 return [

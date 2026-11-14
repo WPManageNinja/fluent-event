@@ -60,6 +60,11 @@ $GLOBALS['wp_filter']['fluent_community/portal_loaded'][99][] = [
 
 require_once $wpPath . '/wp-load.php';
 
+// Free honours team keys only beside FluentEvent Pro. This tier tests that path; the unit tier covers free alone.
+if (!defined('FLUENT_EVENT_PRO')) {
+    define('FLUENT_EVENT_PRO', true);
+}
+
 if (!defined('FLUENT_EVENT_PLUGIN_VERSION')) {
     fwrite(STDERR, "\n[fluent-event integration] WordPress loaded but FluentEvent is not active on {$wpPath}.\n\n");
     exit(1);

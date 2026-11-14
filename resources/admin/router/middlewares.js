@@ -20,5 +20,24 @@ export default {
         before: {},
         after: {},
     },
-    route: {},
+    route: {
+        permission: async (to, from, app) => {
+            const user = getCurrentUser(app);
+            const required = to.meta?.permissions || [];
+
+            if (!required.length) return true;
+
+            const granted = user.permissions || [];
+            const matches = to.meta?.match_type === 'any'
+                ? required.some(key => granted.includes(key))
+                : required.every(key => granted.includes(key))
+
+            const allowed = user.is_admin
+                || granted.includes('manage_all_data')
+                || matches;
+
+            if (!allowed) return { path: '/unauthorized' };
+            return true;
+        },
+    },
 };

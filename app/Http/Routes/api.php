@@ -12,15 +12,15 @@ use FluentEvent\App\Http\Controllers\CommunityEventController;
 use FluentEvent\App\Http\Controllers\PortalEventController;
 use FluentEvent\App\Http\Middleware\Throttle;
 
-$router->withDefaultPolicy()->group(function ($router) {
+$router->withPolicy('ReportPolicy')->group(function ($router) {
     $router->get('/dashboard', 'DashboardController@get');
 });
 
-$router->prefix('users')->withDefaultPolicy()->group(function ($router) {
+$router->prefix('users')->withPolicy('UserPolicy')->group(function ($router) {
     $router->get('/', [UserController::class, 'getUsers']);
 });
 
-$router->prefix('settings')->withDefaultPolicy()->group(function ($router) {
+$router->prefix('settings')->withPolicy('SettingsPolicy')->group(function ($router) {
     $router->get('/general', [SettingsController::class, 'getGeneral']);
     $router->post('/general', [SettingsController::class, 'updateGeneral']);
     $router->get('/pages', [SettingsController::class, 'getPages']);
@@ -34,7 +34,7 @@ $router->prefix('settings')->withDefaultPolicy()->group(function ($router) {
     $router->get('/email-notifications/preview/{type}', [SettingsController::class, 'previewEmail'])->alphaNumDash('type');
 });
 
-$router->prefix('calendars')->withDefaultPolicy()->group(function ($router) {
+$router->prefix('calendars')->withPolicy('CalendarPolicy')->group(function ($router) {
     $router->get('/', [CalendarController::class, 'getAllCalendars']);
     $router->get('/options', [CalendarController::class, 'getCalendarOptions']);
     $router->get('/{id}', [CalendarController::class, 'getCalendar'])->int('id');
@@ -44,12 +44,12 @@ $router->prefix('calendars')->withDefaultPolicy()->group(function ($router) {
     $router->delete('/{id}', [CalendarController::class, 'deleteCalendar'])->int('id');
 });
 
-$router->prefix('reports')->withDefaultPolicy()->group(function ($router) {
+$router->prefix('reports')->withPolicy('ReportPolicy')->group(function ($router) {
     $router->get('/', [ReportController::class, 'getReports']);
     $router->get('/guest-trends', [ReportController::class, 'getGuestTrends']);
 });
 
-$router->prefix('events')->withDefaultPolicy()->group(function ($router) {
+$router->prefix('events')->withPolicy('EventPolicy')->group(function ($router) {
     $router->get('/', [EventController::class, 'getAllEvents']);
     $router->get('/by-slug', [EventController::class, 'getEventBySlug']);
     $router->get('/{id}', [EventController::class, 'getEvent'])->int('id');
