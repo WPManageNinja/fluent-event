@@ -107,16 +107,19 @@
                 </div>
             </div>
 
+            <!-- Links, so a modified click or the context menu can open them in a new tab. -->
             <el-button
                 class="fe-event-detail__action"
                 type="primary"
-                @click="goToDetail"
+                tag="router-link"
+                :to="{ name: 'event_detail', params: { id: event.id } }"
+                @click="close"
             >
                 {{ $t('View Full Details') }}
             </el-button>
 
             <div class="fe-event-detail__shortcuts">
-                <el-button @click="goToEdit">
+                <el-button tag="router-link" :to="{ name: 'event_edit', params: { id: event.id } }" @click="close">
                     <el-icon aria-hidden="true"><EditPen /></el-icon>
                     <span>{{ $t('Edit Event') }}</span>
                 </el-button>
@@ -258,14 +261,6 @@
             },
             close() {
                 this.$emit('update:modelValue', false);
-            },
-            goToDetail() {
-                this.close();
-                this.$router.push({ name: 'event_detail', params: { id: this.event.id } });
-            },
-            goToEdit() {
-                this.close();
-                this.$router.push({ name: 'event_edit', params: { id: this.event.id } });
             },
             copyPublicUrl() {
                 navigator.clipboard.writeText(this.publicUrl)
