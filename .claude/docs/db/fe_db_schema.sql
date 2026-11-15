@@ -44,7 +44,7 @@ DEFAULT CHARACTER SET = utf8mb4;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_meta` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `object_type` VARCHAR(64) NOT NULL COMMENT 'option | user | calendar | event',
+  `object_type` VARCHAR(50) NOT NULL COMMENT 'option | user | calendar | event',
   `object_id` BIGINT UNSIGNED NULL DEFAULT NULL,
   `meta_key` VARCHAR(191) NOT NULL,
   `value` LONGTEXT NULL DEFAULT NULL,
