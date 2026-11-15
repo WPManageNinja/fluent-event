@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import EventDetail from '@/modules/events/detail.vue';
 
-const { computed, methods } = EventDetail;
+const { computed, methods, watch } = EventDetail;
 
 const summary = (counts) => computed.guestSummary.call({
     guestCounts: counts,
@@ -43,5 +43,15 @@ describe('Event page guest summary', () => {
         }));
         ctx.$requestServer.mock.calls[0][0].onSuccess({ counts: counts(1, 1) });
         expect(ctx.guestCounts).toEqual(counts(1, 1));
+    });
+
+    it('reads the counts again on returning to Overview, after guests may have changed', () => {
+        const ctx = { fetchGuestCounts: vi.fn() };
+
+        watch.tab.call(ctx, 'guests');
+        expect(ctx.fetchGuestCounts).not.toHaveBeenCalled();
+
+        watch.tab.call(ctx, 'overview');
+        expect(ctx.fetchGuestCounts).toHaveBeenCalledTimes(1);
     });
 });
