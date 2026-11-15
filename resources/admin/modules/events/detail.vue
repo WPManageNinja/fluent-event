@@ -63,6 +63,12 @@
                                             {{ $entryTypeLabel(event.meta.entry_type) }}
                                         </span>
                                     </div>
+
+                                    <div v-if="guestSummary" class="fe-event-overview__badge">
+                                        <span class="fe-event-overview__badge-label">{{ $t('Guests') }}</span>
+
+                                        <span class="fe-badge">{{ guestSummary }}</span>
+                                    </div>
                                 </div>
 
                                 <div class="fe-event-overview__row">
@@ -247,6 +253,7 @@
                 tab: 'overview',
                 event: {},
                 publicUrl: '',
+                guestCounts: null,
             };
         },
         computed: {
@@ -260,6 +267,18 @@
             },
             isOnline() {
                 return this.event.venue_type === 'online';
+            },
+            // As on the list cards: going counts everyone coming, checked in or not.
+            guestSummary() {
+                const counts = this.guestCounts;
+
+                if (!counts) {
+                    return '';
+                }
+
+                const going = this.$t('%d going', counts.going + counts.checked_in);
+
+                return counts.checked_in ? `${going} · ${this.$t('%d checked in', counts.checked_in)}` : going;
             },
             calendarStatus() {
                 return this.event.calendar?.status || '';
@@ -315,9 +334,26 @@
                         this.event = response.event;
                         this.publicUrl = response.public_url;
                         this.$changeTitle(this.event.title);
+                        this.fetchGuestCounts();
                     },
                     onError: () => {
                         this.event = {};
+                    },
+                });
+            },
+            // The guests list already counts every status; one row is enough to get them. A view-only event takes no guests.
+            fetchGuestCounts() {
+                if (!['rsvp', 'open'].includes(this.event.meta?.entry_type)) {
+                    return;
+                }
+
+                this.$requestServer({
+                    path: `events/${this.$route.params.id}/guests`,
+                    payload: { per_page: 1 },
+                    loadingState: null,
+                    errorState: null,
+                    onSuccess: response => {
+                        this.guestCounts = response.counts;
                     },
                 });
             },

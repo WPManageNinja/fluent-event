@@ -45,12 +45,16 @@ return [
         'admin' => [
             /* translators: %d is the number of rows shown per page */
             '%d / page' => __('%d / page', 'fluent-event'),
+            /* translators: %d is the number of guests checked in at an event */
+            '%d checked in' => __('%d checked in', 'fluent-event'),
             /* translators: %d is a number of days */
             '%d days' => __('%d days', 'fluent-event'),
             /* translators: %d is 1, the number of events */
             '%d event' => __('%d event', 'fluent-event'),
             /* translators: %d is a number of events */
             '%d events' => __('%d events', 'fluent-event'),
+            /* translators: %d is the number of guests going to an event */
+            '%d going' => __('%d going', 'fluent-event'),
             /* translators: %d is 1, the number of guests */
             '%d guest' => __('%d guest', 'fluent-event'),
             /* translators: %d is a number of guests */
