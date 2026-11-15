@@ -95,6 +95,53 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')));
     }
 
+    // The space's calendar is looked up before the event is made. A failure there left the post behind.
+    public function test_a_post_whose_calendar_lookup_fails_is_deleted()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        $eventsBefore = $this->rowCount($this->table('fe_event_details'));
+
+        // A space that no longer exists has no title to name its new calendar after.
+        $feed->space_id = PHP_INT_MAX;
+
+        try {
+            do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+            $this->fail('A failed calendar lookup must not be swallowed.');
+        } catch (\Throwable $e) {
+            // Thrown, as fcom's own hook call expects.
+        }
+
+        $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')));
+    }
+
+    // Without the link the post can't find its event, so the event is rolled back with the post.
+    public function test_an_event_whose_post_link_fails_to_save_is_rolled_back_with_the_post()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        $eventsBefore = $this->rowCount($this->table('fe_event_details'));
+        $metaTable = $this->table('fe_meta');
+
+        // The link is the only insert into fe_meta; break that one query.
+        $this->addTestFilter('query', function ($query) use ($metaTable) {
+            return stripos($query, "INSERT INTO `{$metaTable}`") === 0 ? 'INSERT INTO fe_no_such_table VALUES (1)' : $query;
+        });
+
+        try {
+            do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+            $this->fail('A failed link save must not be swallowed.');
+        } catch (\Throwable $e) {
+            // Thrown, as fcom's own hook call expects.
+        }
+
+        $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')), 'The event outlived its post.');
+    }
+
     public function test_deleting_the_post_parks_the_event_as_a_draft_with_its_guests()
     {
         Settings::update(Settings::EMAIL_NOTIFICATIONS, Settings::DEFAULTS[Settings::EMAIL_NOTIFICATIONS]);

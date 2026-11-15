@@ -89,15 +89,28 @@ class FeedHandler
 
     public function createEvent($feed, $requestData)
     {
-        $input = $this->eventInput($requestData);
-        $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
-
-        $data = EventRequest::format($input);
-
         try {
-            $event = EventService::createEvent($data, $feed->user_id);
+            $input = $this->eventInput($requestData);
+            $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
+
+            $data = EventRequest::format($input);
+
+            // The event and its link to the post land together: an event the post can't find is lost.
+            $event = DB::transaction(function () use ($data, $feed) {
+                $event = EventService::createEvent($data, $feed->user_id);
+
+                Meta::query()->create([
+                    'object_type' => Meta::OBJECT_TYPE_EVENT,
+                    'object_id'   => $event->id,
+                    'meta_key'    => CommunityEvents::FEED_META_KEY,
+                    'value'       => (int) $feed->id,
+                ]);
+
+                return $event;
+            });
         } catch (\Throwable $e) {
-            // An event post without its event would only render a dead card.
+            // fcom saved the post before this hook. Without its event it would only render a dead card,
+            // and a second try with the same text would be refused as a duplicate.
             $feed->delete();
             throw $e;
         }
@@ -106,13 +119,6 @@ class FeedHandler
         $meta['event_id'] = (int) $event->id;
         $feed->meta = $meta;
         $feed->save();
-
-        Meta::query()->create([
-            'object_type' => Meta::OBJECT_TYPE_EVENT,
-            'object_id'   => $event->id,
-            'meta_key'    => CommunityEvents::FEED_META_KEY,
-            'value'       => (int) $feed->id,
-        ]);
 
         do_action('fluent_event/event/created', $event);
     }
