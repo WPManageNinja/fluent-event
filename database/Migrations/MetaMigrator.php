@@ -21,7 +21,7 @@ class MetaMigrator
 
         $sql = "CREATE TABLE $table (
         `id` BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        `object_type` VARCHAR(64) NOT NULL COMMENT 'option | user | calendar | event',
+        `object_type` VARCHAR(50) NOT NULL COMMENT 'option | user | calendar | event',
         `object_id` BIGINT(20) UNSIGNED NULL,
         `meta_key` VARCHAR(191) NOT NULL,
         `value` LONGTEXT NULL,
