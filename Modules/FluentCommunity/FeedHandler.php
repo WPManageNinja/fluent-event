@@ -352,6 +352,8 @@ class FeedHandler
         }
 
         $feed->fluent_event = $formatted;
+        // fcom's views show a post's featured image; an event post's is its event's cover.
+        $feed->featured_image = $formatted ? ($formatted['cover_url'] ?: null) : null;
 
         return $feed;
     }
