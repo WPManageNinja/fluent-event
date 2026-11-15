@@ -115,16 +115,10 @@ class AdminMenuHandler
     /**
      * Set the dark class in <head> before paint, so dark mode has no light flash.
      *
-     * @param string $hookSuffix The current admin page.
-     *
      * @return null
      */
-    public function enqueueThemeClass($hookSuffix)
+    protected function enqueueThemeClass()
     {
-        if ($hookSuffix !== 'toplevel_page_' . $this->slug) {
-            return;
-        }
-
         $script = <<<'JS'
 (function(){var d=document.documentElement,t='';try{t=localStorage.getItem('fluent_theme_mode')||'';}catch(e){}
 var p=t.split(':'),m=(p[0]==='light'||p[0]==='dark')?p[0]:'system',r=p[1]||(m!=='system'?m:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
@@ -137,14 +131,31 @@ JS;
     }
 
     /**
+     * Enqueue the admin page assets before the admin header prints, so the
+     * theme class and stylesheet land in <head> and the PHP topbar paints
+     * already styled.
+     *
+     * @param string $hookSuffix The current admin page.
+     *
+     * @return null
+     */
+    public function enqueueAdminPageAssets($hookSuffix)
+    {
+        if ($hookSuffix !== 'toplevel_page_' . $this->slug) {
+            return;
+        }
+
+        $this->enqueueThemeClass();
+        $this->enqueueAssets($this->slug);
+    }
+
+    /**
      * Render the menu page
      *
      * @return null
      */
     public function render()
     {
-        $this->enqueueAssets($this->slug);
-
         $this->app->view->render('admin.menu', [
             'slug'           => $this->slug,
             'baseUrl'        => $this->baseUrl,
