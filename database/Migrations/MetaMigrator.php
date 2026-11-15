@@ -23,7 +23,7 @@ class MetaMigrator
         `id` BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `object_type` VARCHAR(64) NOT NULL COMMENT 'option | user | calendar | event',
         `object_id` BIGINT(20) UNSIGNED NULL,
-        `meta_key` VARCHAR(255) NOT NULL,
+        `meta_key` VARCHAR(191) NOT NULL,
         `value` LONGTEXT NULL,
         `created_at` TIMESTAMP NULL,
         `updated_at` TIMESTAMP NULL,
