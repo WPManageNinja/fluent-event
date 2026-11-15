@@ -8,6 +8,9 @@ use FluentEvent\Framework\Foundation\Application;
 
 class ActivationHandler
 {
+    const DB_VERSION_OPTION = 'fluent_event_db_version';
+    const MIGRATION_LOCK = 'fluent_event_db_migration_lock';
+
     protected $app = null;
 
     public function __construct(Application $app)
@@ -53,27 +56,58 @@ class ActivationHandler
         }
     }
 
-    // A plugin update never fires the activation hook, so new tables and URL rules land here once per version.
+    // A plugin update never fires the activation hook, so new tables and URL rules land here.
     public function maybeUpgrade()
     {
+        $this->maybeMigrate();
+
         if (get_option('fe_version') === FLUENT_EVENT_PLUGIN_VERSION) {
             return;
         }
 
-        DBMigrator::run();
         flush_rewrite_rules(false);
 
         update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION, true);
     }
 
+    // Runs once per FLUENT_EVENT_DB_VERSION: bump it when a migration changes, and every site migrates again.
+    protected function maybeMigrate()
+    {
+        $dbVersion = get_option(self::DB_VERSION_OPTION);
+
+        if ($dbVersion && version_compare($dbVersion, FLUENT_EVENT_DB_VERSION, '>=')) {
+            return;
+        }
+
+        // Every request during an update reaches this; only one runs the migration.
+        if (get_transient(self::MIGRATION_LOCK)) {
+            return;
+        }
+
+        set_transient(self::MIGRATION_LOCK, 1, 5 * MINUTE_IN_SECONDS);
+
+        try {
+            if (DBMigrator::run()) {
+                update_option(self::DB_VERSION_OPTION, FLUENT_EVENT_DB_VERSION, true);
+            }
+        } finally {
+            delete_transient(self::MIGRATION_LOCK);
+        }
+    }
+
     protected function activateSite()
     {
-        DBMigrator::run();
+        $migrated = DBMigrator::run();
 
         // `init` ran before the plugin was active, so the post type's rules aren't registered yet.
         (new EventPost())->registerPostType();
         flush_rewrite_rules();
         update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION, true);
+
+        // Left unset when a table is missing, so maybeUpgrade() tries again.
+        if ($migrated) {
+            update_option(self::DB_VERSION_OPTION, FLUENT_EVENT_DB_VERSION, true);
+        }
 
         // Deactivation unschedules every queued action, reminder sends included.
         if (function_exists('as_enqueue_async_action')) {
