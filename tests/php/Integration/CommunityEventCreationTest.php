@@ -142,6 +142,33 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')), 'The event outlived its post.');
     }
 
+    // The post renders its card from meta.event_id; without it the event is lost to the post.
+    public function test_an_event_whose_post_update_fails_is_rolled_back_with_the_post()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        $eventsBefore = $this->rowCount($this->table('fe_event_details'));
+        $metaBefore = $this->rowCount($this->table('fe_meta'));
+        $postsTable = $this->table('fcom_posts');
+
+        // The post's own event_id is saved with an UPDATE on fcom_posts; break that one query.
+        $this->addTestFilter('query', function ($query) use ($postsTable) {
+            return stripos($query, "UPDATE `{$postsTable}`") === 0 ? 'UPDATE fe_no_such_table SET x = 1' : $query;
+        });
+
+        try {
+            do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+            $this->fail('A failed post update must not be swallowed.');
+        } catch (\Throwable $e) {
+            // Thrown, as fcom's own hook call expects.
+        }
+
+        $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')), 'The event outlived its post.');
+        $this->assertSame($metaBefore, $this->rowCount($this->table('fe_meta')), 'The link outlived its post.');
+    }
+
     public function test_deleting_the_post_parks_the_event_as_a_draft_with_its_guests()
     {
         Settings::update(Settings::EMAIL_NOTIFICATIONS, Settings::DEFAULTS[Settings::EMAIL_NOTIFICATIONS]);

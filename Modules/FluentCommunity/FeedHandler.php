@@ -95,7 +95,8 @@ class FeedHandler
 
             $data = EventRequest::format($input);
 
-            // The event and its link to the post land together: an event the post can't find is lost.
+            // The event and both links between it and the post land together: the post renders its card
+            // from meta.event_id, so an event the post can't find is lost.
             $event = DB::transaction(function () use ($data, $feed) {
                 $event = EventService::createEvent($data, $feed->user_id);
 
@@ -106,6 +107,14 @@ class FeedHandler
                     'value'       => (int) $feed->id,
                 ]);
 
+                $meta = (array) $feed->meta;
+                $meta['event_id'] = (int) $event->id;
+                $feed->meta = $meta;
+
+                if (!$feed->save()) {
+                    throw new \RuntimeException('The event post could not be linked to its event.');
+                }
+
                 return $event;
             });
         } catch (\Throwable $e) {
@@ -114,11 +123,6 @@ class FeedHandler
             $feed->delete();
             throw $e;
         }
-
-        $meta = (array) $feed->meta;
-        $meta['event_id'] = (int) $event->id;
-        $feed->meta = $meta;
-        $feed->save();
 
         do_action('fluent_event/event/created', $event);
     }
