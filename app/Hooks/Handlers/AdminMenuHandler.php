@@ -348,15 +348,9 @@ JS;
     {
         $authUser = get_user_by('ID', get_current_user_id());
 
-        $theme = null;
-        if ($themes = $this->config->get('theme.themes')) {
-            $theme = $themes[$this->config->get('theme.default')] ?? null;
-        }
-
         wp_localize_script($slug . '_admin_app', 'fluentEventAdmin', [
             'env'           => $this->app->env(),
             'slug'          => $slug,
-            'theme'         => $theme,
             'user_locale'   => get_locale(),
             'timezone'      => wp_timezone_string(),
             'start_of_week' => (int) get_option('start_of_week', 0),
