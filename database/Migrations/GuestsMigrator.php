@@ -27,7 +27,7 @@ class GuestsMigrator
         `group_id` VARCHAR(64) NOT NULL COMMENT 'rows sharing this value are one order',
         `is_buyer` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'one per group_id, carries order and payment',
         `name` VARCHAR(255) NULL,
-        `email` VARCHAR(192) NULL,
+        `email` VARCHAR(191) NULL,
         `user_id` BIGINT(20) UNSIGNED NULL COMMENT 'wp_users.ID when logged in',
         `status` VARCHAR(64) NOT NULL COMMENT 'going | not_going | checked_in | cancelled',
         `hash` VARCHAR(64) NULL COMMENT 'per-ticket token, wp_generate_password',

@@ -18,7 +18,7 @@ class CalendarRequest extends BaseRequest
     ];
     const RULES = [
         'title'       => 'required|string',
-        'slug'        => 'required|string|max:255|unique:fe_calendars,slug',
+        'slug'        => 'required|string|max:191|unique:fe_calendars,slug',
         'status'      => 'required|string|in:' . Calendar::STATUSES,
         // Six digits only: the admin works out a readable text colour from #rrggbb, and no picker sends #rgb.
         'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{6}$/',
@@ -32,7 +32,7 @@ class CalendarRequest extends BaseRequest
     public static function updateRules($currentCalendarId)
     {
         return array_merge(self::createRules(), [
-            'slug' => 'required|string|max:255|unique:fe_calendars,slug,' . $currentCalendarId . ',id',
+            'slug' => 'required|string|max:191|unique:fe_calendars,slug,' . $currentCalendarId . ',id',
         ]);
     }
 
@@ -45,7 +45,7 @@ class CalendarRequest extends BaseRequest
             'title.max'           => sprintf(__('Title cannot exceed %d characters.', 'fluent-event'), Calendar::titleMaxLength()),
             'slug.required'       => __('Slug is required.', 'fluent-event'),
             'slug.string'         => __('Slug must be text.', 'fluent-event'),
-            'slug.max'            => __('Slug cannot exceed 255 characters.', 'fluent-event'),
+            'slug.max'            => __('Slug cannot exceed 191 characters.', 'fluent-event'),
             'slug.unique'         => __('This slug is already taken.', 'fluent-event'),
             'status.required'     => __('Status is required.', 'fluent-event'),
             'status.string'       => __('Status must be text.', 'fluent-event'),
