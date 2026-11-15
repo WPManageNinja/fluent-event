@@ -1,10 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import EventGuests from '../../../resources/admin/modules/events/parts/EventGuests.vue';
 
-const { onGuestSaved } = EventGuests.methods;
+const { onGuestSaved, onGuestDeleted } = EventGuests.methods;
 const list = () => ({
     guests: [{ id: 1, status: 'going' }, { id: 2, status: 'not_going' }],
     counts: { all: 2, going: 1, not_going: 1 },
+    $emit: vi.fn(),
 });
 
 describe('EventGuests tab counts', () => {
@@ -33,6 +34,25 @@ describe('EventGuests tab counts', () => {
 
         expect(page.counts).toEqual({ all: 2, going: 1, not_going: 1 });
         expect(page.guests[1].name).toBe('Renamed');
+    });
+});
+
+// After the write lands, so the event page's guest numbers never read the old counts.
+describe('EventGuests changes', () => {
+    it('tells the event page once a guest is saved', () => {
+        const page = list();
+
+        onGuestSaved.call(page, { id: 1, status: 'checked_in' });
+
+        expect(page.$emit).toHaveBeenCalledWith('changed');
+    });
+
+    it('tells the event page once a guest is deleted', () => {
+        const page = { ...list(), goToLastPageIfEmptied: vi.fn(), fetchGuests: vi.fn() };
+
+        onGuestDeleted.call(page);
+
+        expect(page.$emit).toHaveBeenCalledWith('changed');
     });
 });
 

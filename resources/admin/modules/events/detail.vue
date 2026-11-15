@@ -207,7 +207,7 @@
 
                     <template #guests>
                         <div class="fe-card">
-                            <EventGuests :event-id="event.id" />
+                            <EventGuests :event-id="event.id" @changed="fetchGuestCounts" />
                         </div>
                     </template>
 
@@ -255,14 +255,6 @@
                 publicUrl: '',
                 guestCounts: null,
             };
-        },
-        watch: {
-            // Back on Overview after changing guests: show the current numbers.
-            tab(tab) {
-                if (tab === 'overview') {
-                    this.fetchGuestCounts();
-                }
-            },
         },
         computed: {
             tabs() {
