@@ -86,11 +86,10 @@ class ActivationHandler
 
         set_transient(self::MIGRATION_LOCK, 1, 5 * MINUTE_IN_SECONDS);
 
-        try {
-            if (DBMigrator::run()) {
-                update_option(self::DB_VERSION_OPTION, FLUENT_EVENT_DB_VERSION, true);
-            }
-        } finally {
+        // A failed run keeps the lock until it expires, so the next try waits five minutes
+        // instead of repeating the failing migration on every request.
+        if (DBMigrator::run()) {
+            update_option(self::DB_VERSION_OPTION, FLUENT_EVENT_DB_VERSION, true);
             delete_transient(self::MIGRATION_LOCK);
         }
     }

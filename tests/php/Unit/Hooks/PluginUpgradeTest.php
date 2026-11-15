@@ -169,6 +169,11 @@ class PluginUpgradeTest extends TestCase
         $this->upgrade();
 
         $this->assertFalse(get_option(ActivationHandler::DB_VERSION_OPTION));
-        $this->assertArrayNotHasKey(ActivationHandler::MIGRATION_LOCK, $this->transients, 'The lock outlived the run.');
+        $this->assertArrayHasKey(ActivationHandler::MIGRATION_LOCK, $this->transients, 'Without the lock, every request would retry.');
+
+        // Within the lock's five minutes, the next request leaves the migration alone.
+        $migrations = $this->migrations;
+        $this->upgrade();
+        $this->assertSame($migrations, $this->migrations);
     }
 }
