@@ -5,7 +5,8 @@
 
 import { padPart, startCountdown } from '@/utils/countdown';
 
-// An event page's countdown to its start; at 0 the "Happening now" badge takes its place.
+// An event page's countdown to its start; at 0 the "Happening now" badge takes its place, or Ended when a
+// tab that slept through the whole event wakes past its end.
 export function startCountdowns(root = document) {
     root.querySelectorAll('[data-fe-countdown]').forEach((countdown) => {
         const values = countdown.querySelectorAll('[data-unit]');
@@ -22,10 +23,11 @@ export function startCountdowns(root = document) {
             });
 
             if (parts.done) {
-                const badge = document.createElement('span');
-                badge.className = 'fe-live-badge';
-                badge.textContent = countdown.dataset.liveLabel;
-                countdown.replaceWith(badge);
+                const ended = Date.now() >= countdown.dataset.feCountdownEnd * 1000;
+                const status = document.createElement('span');
+                status.className = ended ? 'fe-event-page__status fe-event-page__status--ended' : 'fe-live-badge';
+                status.textContent = ended ? countdown.dataset.endedLabel : countdown.dataset.liveLabel;
+                countdown.replaceWith(status);
             }
         });
     });

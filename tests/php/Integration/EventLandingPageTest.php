@@ -98,6 +98,8 @@ class EventLandingPageTest extends IntegrationTestCase
         $body = $this->page($countdown)['body'];
 
         $this->assertStringContainsString('data-fe-countdown="' . strtotime($countdown->start_at . ' UTC') . '"', $body);
+        // The end too, so a tab that slept through the event lands on Ended rather than live.
+        $this->assertStringContainsString('data-fe-countdown-end="' . strtotime($countdown->end_at . ' UTC') . '"', $body);
         $this->assertStringNotContainsString('Starts in', $body);
         $this->assertStringContainsString('Starts in', $this->page($this->createEvent())['body']);
     }

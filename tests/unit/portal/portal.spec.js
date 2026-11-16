@@ -409,4 +409,21 @@ describe('countdown to the start', () => {
         expect(document.querySelector('[data-fe-countdown]')).toBeNull();
         expect(document.querySelector('.fe-live-badge').textContent).toBe('Happening now');
     });
+
+    // A suspended tab can miss the whole event between two ticks; reaching 0 then must not mean live.
+    it('lands on Ended, not live, when the countdown finishes after the event is over', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(0);
+        document.body.innerHTML = `
+            <div data-fe-countdown="2" data-fe-countdown-end="10" data-live-label="Happening now" data-ended-label="Ended">
+                <span data-unit="days"></span><span data-unit="hours"></span><span data-unit="minutes"></span><span data-unit="seconds"></span>
+            </div>`;
+
+        startCountdowns();
+        vi.setSystemTime(15000);
+        vi.advanceTimersByTime(1000);
+
+        expect(document.querySelector('.fe-live-badge')).toBeNull();
+        expect(document.querySelector('.fe-event-page__status--ended').textContent).toBe('Ended');
+    });
 });
