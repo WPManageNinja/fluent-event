@@ -2459,6 +2459,11 @@
 
 // The event form's "Before It Starts" help: each choice above how it looks on the event page.
 .fe-start-display-help {
+    // fcom caps only its own dialogs, so without this the 560px dialog runs off a phone screen.
+    &.el-dialog {
+        max-width: calc(100vw - 24px);
+    }
+
     &__item {
         display: grid;
         gap: 8px;

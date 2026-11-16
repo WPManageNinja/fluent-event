@@ -250,7 +250,7 @@
                         </el-radio>
                     </el-radio-group>
 
-                    <el-dialog v-model="startDisplayHelp" :title="$t('Before It Starts')" width="560px" append-to-body>
+                    <el-dialog v-model="startDisplayHelp" class="fe-start-display-help" :title="$t('Before It Starts')" width="560px" append-to-body>
                         <figure v-for="option in startDisplays" :key="option.value" class="fe-start-display-help__item">
                             <figcaption class="fe-start-display-help__caption">
                                 <span class="fe-start-display-help__title">{{ option.label }}</span>

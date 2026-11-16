@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
+import { compile } from 'sass';
 import { ElNotification } from 'element-plus';
 import { t } from '../../../resources/fcom-portal/utils';
 import CreateOrUpdateEventPage from '../../../resources/fcom-portal/app/CreateOrUpdateEventPage.vue';
@@ -403,6 +404,17 @@ describe('CreateOrUpdateEventPage', () => {
             await mountEdit(undefined, { eventSlug: '../../wp/v2/users/me' });
 
             expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=..%2F..%2Fwp%2Fv2%2Fusers%2Fme');
+        });
+    });
+
+    describe('"Before It Starts" help', () => {
+        // The dialog is 560px; fcom's styles cap only its own dialogs, so on a phone it ran off the screen.
+        it('keeps the help dialog inside a phone screen', async () => {
+            const { wrapper } = await createPage();
+
+            expect(wrapper.findComponent({ name: 'ElDialog' }).classes()).toContain('fe-start-display-help');
+            expect(compile('resources/fcom-portal/fcom-portal.scss').css)
+                .toMatch(/\.fe-start-display-help\.el-dialog\s*\{\s*max-width:\s*calc\(100vw - 24px\)/);
         });
     });
 });
