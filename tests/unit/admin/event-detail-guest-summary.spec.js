@@ -25,16 +25,9 @@ describe('Event page guest summary', () => {
         expect(summary(null)).toBe('');
     });
 
-    it('asks for no counts on a view-only event, where nobody registers', () => {
-        const ctx = { event: { meta: { entry_type: 'none' } }, $requestServer: vi.fn() };
-
-        methods.fetchGuestCounts.call(ctx);
-
-        expect(ctx.$requestServer).not.toHaveBeenCalled();
-    });
-
-    it("reads the counts from the guests list, without touching the page's own loading state", () => {
-        const ctx = { event: { meta: { entry_type: 'open' } }, $route: { params: { id: 7 } }, $requestServer: vi.fn() };
+    // A view-only event still has guests: from an earlier entry type, or added by an admin.
+    it.each(['rsvp', 'open', 'none'])("reads the counts of an %s event from the guests list, without touching the page's own loading state", (entryType) => {
+        const ctx = { event: { meta: { entry_type: entryType } }, $route: { params: { id: 7 } }, $requestServer: vi.fn() };
 
         methods.fetchGuestCounts.call(ctx);
 

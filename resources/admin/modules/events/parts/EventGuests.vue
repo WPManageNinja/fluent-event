@@ -178,8 +178,6 @@
                 required: true,
             },
         },
-        // A guest was added, edited or removed: the event page refreshes its guest numbers.
-        emits: ['changed'],
         data() {
             return {
                 loading: false,
@@ -323,8 +321,6 @@
                     }
                     this.counts[guest.status] = (this.counts[guest.status] || 0) + 1;
                 }
-
-                this.$emit('changed');
             },
             promptDelete(row) {
                 this.activeGuest = row;
@@ -333,7 +329,6 @@
             onGuestDeleted() {
                 this.goToLastPageIfEmptied();
                 this.fetchGuests();
-                this.$emit('changed');
             },
             goToLastPageIfEmptied() {
                 if (this.guests.length === 1 && this.pagination.current_page > 1) {

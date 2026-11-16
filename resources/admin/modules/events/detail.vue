@@ -341,12 +341,8 @@
                     },
                 });
             },
-            // The guests list already counts every status; one row is enough to get them. A view-only event takes no guests.
+            // The guests list already counts every status; one row is enough to get them.
             fetchGuestCounts() {
-                if (!['rsvp', 'open'].includes(this.event.meta?.entry_type)) {
-                    return;
-                }
-
                 this.$requestServer({
                     path: `events/${this.$route.params.id}/guests`,
                     payload: { per_page: 1 },
