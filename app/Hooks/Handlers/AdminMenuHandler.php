@@ -370,6 +370,11 @@ JS;
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
             'logoUrl'       => Enqueue::getStaticFilePath('images/logo.svg'),
             'fcom_logo'     => Enqueue::getStaticFilePath('images/fluent-community.svg'),
+            // The event form's "Before It Starts" help shows each choice as it looks on the event page.
+            'start_display_examples' => [
+                'relative'  => Enqueue::getStaticFilePath('images/start-display-relative.png'),
+                'countdown' => Enqueue::getStaticFilePath('images/start-display-countdown.png'),
+            ],
             'me'            => [
                 'id'          => $authUser->ID ?? null,
                 'email'       => $authUser->user_email ?? null,

@@ -165,6 +165,29 @@
                                     <span class="fe-form__hint">{{ option.hint }}</span>
                                 </el-radio>
                             </el-radio-group>
+
+                            <el-dialog
+                                v-model="startDisplayHelp"
+                                :title="$t('Before It Starts')"
+                                width="560px"
+                                append-to-body
+                            >
+                                <figure
+                                    v-for="option in startDisplays"
+                                    :key="option.value"
+                                    class="fe-start-display-help__item"
+                                >
+                                    <figcaption class="fe-start-display-help__caption">
+                                        <span class="fe-start-display-help__title">{{ option.label }}</span>
+                                        <span class="fe-start-display-help__text">{{ option.details }}</span>
+                                    </figcaption>
+                                    <img
+                                        class="fe-start-display-help__image"
+                                        :src="appVars.start_display_examples[option.value]"
+                                        :alt="$t('%s on the event page', option.label)"
+                                    >
+                                </figure>
+                            </el-dialog>
                         </div>
                     </section>
 
@@ -245,24 +268,43 @@
                                     </div>
                                 </div>
                             </el-form-item>
+                        </div>
+                    </section>
 
-                            <el-form-item :label="$t('Before It Starts')" data-field="start_display">
-                                <el-radio-group
-                                    v-model="event.start_display"
-                                    class="fe-form__choices"
-                                    :aria-label="$t('Before It Starts')"
+                    <section class="fe-form__section" data-field="start_display">
+                        <div class="fe-form__section-rail">
+                            <h2 class="fe-form__section-title fe-form__section-title--info">
+                                {{ $t('Before It Starts') }}
+                                <button
+                                    type="button"
+                                    class="fe-form__label-info"
+                                    :aria-label="$t('What the two choices look like')"
+                                    @click="startDisplayHelp = true"
                                 >
-                                    <el-radio
-                                        v-for="option in startDisplays"
-                                        :key="option.value"
-                                        :value="option.value"
-                                        border
-                                    >
-                                        <span class="fe-form__choice-title">{{ option.label }}</span>
-                                        <span class="fe-form__hint">{{ option.hint }}</span>
-                                    </el-radio>
-                                </el-radio-group>
-                            </el-form-item>
+                                    <el-icon><QuestionFilled /></el-icon>
+                                </button>
+                            </h2>
+                            <p class="fe-form__section-desc">
+                                {{ $t('How the event page shows the time until the start.') }}
+                            </p>
+                        </div>
+
+                        <div class="fe-form__section-fields">
+                            <el-radio-group
+                                v-model="event.start_display"
+                                class="fe-form__choices"
+                                :aria-label="$t('Before It Starts')"
+                            >
+                                <el-radio
+                                    v-for="option in startDisplays"
+                                    :key="option.value"
+                                    :value="option.value"
+                                    border
+                                >
+                                    <span class="fe-form__choice-title">{{ option.label }}</span>
+                                    <span class="fe-form__hint">{{ option.hint }}</span>
+                                </el-radio>
+                            </el-radio-group>
                         </div>
                     </section>
 
@@ -392,7 +434,7 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
-    import { MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
+    import { MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
     import MarkdownEditor from '@/components/MarkdownEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
@@ -408,6 +450,7 @@
         name: 'CreateOrUpdateEvent',
         components: {
             Picture,
+            QuestionFilled,
             MarkdownEditor,
             ErrorState,
             MediaPicker,
@@ -421,6 +464,7 @@
                 calendarError: '',
                 eventError: '',
                 saving: false,
+                startDisplayHelp: false,
                 calendars: [],
                 event: {},
             };
@@ -463,8 +507,18 @@
             },
             startDisplays() {
                 return [
-                    { value: 'relative', label: this.$t('Time Left'), hint: this.$t('A short line, like "Starts in 3 days".') },
-                    { value: 'countdown', label: this.$t('Countdown'), hint: this.$t('Days, hours, minutes and seconds, ticking down to the start.') },
+                    {
+                        value: 'relative',
+                        label: this.$t('Time Left'),
+                        hint: this.$t('A short line, like "Starts in 3 days".'),
+                        details: this.$t('A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".'),
+                    },
+                    {
+                        value: 'countdown',
+                        label: this.$t('Countdown'),
+                        hint: this.$t('Days, hours, minutes and seconds, ticking down to the start.'),
+                        details: this.$t('Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.'),
+                    },
                 ];
             },
             bounds() {
