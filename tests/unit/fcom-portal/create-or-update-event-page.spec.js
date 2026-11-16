@@ -121,7 +121,8 @@ describe('CreateOrUpdateEventPage', () => {
             end_at: '2026-10-14 11:00:00',
             venue_type: 'offline',
             entry_type: 'rsvp',
-            show_guest_count: 'yes'
+            show_guest_count: 'yes',
+            start_display: 'relative'
         }));
         // The description comes from fcom's editor, which the shell owns; the page sends none.
         expect(props.onChange.mock.calls[0][0]).not.toHaveProperty('description');
@@ -251,7 +252,8 @@ describe('CreateOrUpdateEventPage', () => {
                 address: '',
                 cover_url: 'https://example.test/uploads/walk.png',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                start_display: 'countdown'
             }
         };
 
@@ -303,7 +305,8 @@ describe('CreateOrUpdateEventPage', () => {
                 online_meeting_url: 'https://meet.example.test/walk',
                 cover_url: 'https://example.test/uploads/walk.png',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                start_display: 'countdown'
             });
             expect(props.onLoaded).toHaveBeenCalledWith(stored);
         });
@@ -356,7 +359,8 @@ describe('CreateOrUpdateEventPage', () => {
                 venue: '',
                 address: '',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                start_display: 'countdown'
             });
             expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'Event has been successfully updated' });
             expect(props.router.back).toHaveBeenCalled();

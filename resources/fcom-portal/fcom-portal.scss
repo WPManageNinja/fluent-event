@@ -1428,6 +1428,34 @@
         color: var(--fcom-primary-text, #19283a);
     }
 
+    // A section title with a help button beside it.
+    &__section-title--info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__info {
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--fcom-secondary-text, #525866);
+
+        &:hover {
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 1px;
+            border-radius: 50%;
+        }
+    }
+
     &__section-desc {
         margin: 4px 0 0;
         font-size: 12px;
@@ -2426,5 +2454,44 @@
         white-space: nowrap;
         text-transform: uppercase;
         color: var(--fcom-secondary-text, #525866);
+    }
+}
+
+// The event form's "Before It Starts" help: each choice above how it looks on the event page.
+.fe-start-display-help {
+    &__item {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+    }
+
+    &__item + &__item {
+        margin-top: 20px;
+    }
+
+    &__caption {
+        display: grid;
+        gap: 2px;
+    }
+
+    &__title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__text {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__image {
+        display: block;
+        width: 100%;
+        max-width: 320px;
+        height: auto;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
     }
 }
