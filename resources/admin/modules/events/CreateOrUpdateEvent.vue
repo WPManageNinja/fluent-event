@@ -171,6 +171,7 @@
                                 :title="$t('Start Time Display')"
                                 width="560px"
                                 append-to-body
+                                destroy-on-close
                             >
                                 <figure
                                     v-for="option in startDisplays"
