@@ -46,6 +46,13 @@ class ModelContractTest extends TestCase
         }
     }
 
+    public function test_the_read_only_models_refuse_mass_assignment()
+    {
+        foreach (self::READ_ONLY_MODELS as $model) {
+            $this->assertTrue((new $model())->totallyGuarded(), "{$model} allows mass assignment");
+        }
+    }
+
     public function test_a_calendar_owner_is_set_server_side_not_mass_assigned()
     {
         $this->assertNotContains('created_by', (new Calendar())->getFillable());
