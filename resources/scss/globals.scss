@@ -52,7 +52,8 @@
     a {
         text-decoration: none;
 
-        &:focus {
+        // An `el-button` rendered as a link keeps its own colours; `:where()` holds this rule at 0,2,1.
+        &:not(:where(.el-button)):focus {
             border-radius: var(--fe-radius, 8px);
             color: var(--fe-primary-text, #19283a);
         }
