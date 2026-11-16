@@ -2585,6 +2585,20 @@
         color: var(--fe-secondary-text, #525866);
     }
 
+    // The registration notes, joined by a dot; the waitlist's On/Off sits in a badge.
+    &__notes {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--fe-space-1, 4px) 6px;
+    }
+
+    &__note {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
     &__row {
         display: flex;
         align-items: center;
