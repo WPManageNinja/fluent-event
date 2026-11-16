@@ -42,12 +42,20 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $guest->status);
     }
 
-    // Members can't register for an open event, but an admin still manages its guests, emails included.
-    public function test_an_admin_can_add_a_guest_to_an_open_event()
+    public function test_a_guest_added_by_an_admin_is_manual_whatever_source_is_sent()
     {
-        $open = $this->createEvent([], ['entry_type' => 'open']);
+        $response = $this->addGuest(['name' => 'Rafi', 'email' => 'rafi@example.test', 'source' => 'stripe-paid']);
 
-        $response = $this->addGuest(['name' => 'Walk-in', 'email' => 'walkin@example.test', 'send_email' => 1], $open);
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('manual', Guest::query()->find($response['data']['guest']['id'])->source);
+    }
+
+    // Members can't register for a no-entry event, but an admin still manages its guests, emails included.
+    public function test_an_admin_can_add_a_guest_to_a_no_entry_event()
+    {
+        $event = $this->createEvent([], ['entry_type' => 'none']);
+
+        $response = $this->addGuest(['name' => 'Walk-in', 'email' => 'walkin@example.test', 'send_email' => 1], $event);
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $response['data']['guest']['id']]));
@@ -389,5 +397,17 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertNull(Guest::query()->find($guest->id));
         $this->assertMailSentTo($guest->email);
         $this->assertStringNotContainsString('meet.example.test', $this->sentMail[0]['message']);
+    }
+
+    // A checked-in guest holds a seat too, so removing one is a cancellation like a going guest's.
+    public function test_removing_a_checked_in_guest_with_email_sends_a_cancellation()
+    {
+        $event = $this->createEvent();
+        $guest = $this->createGuest($event, ['status' => 'checked_in']);
+
+        $response = $this->rest('DELETE', "events/{$event->id}/guests/{$guest->id}", ['send_email' => 1]);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertMailSentTo($guest->email);
     }
 }

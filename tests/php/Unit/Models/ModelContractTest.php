@@ -59,10 +59,10 @@ class ModelContractTest extends TestCase
         $this->assertSame('fe_meta', (new Meta())->getTable());
     }
 
-    public function test_events_and_calendars_share_one_status_vocabulary()
+    public function test_calendars_use_the_event_statuses_except_unlisted()
     {
-        $this->assertSame('public,private,draft', Event::STATUSES);
-        $this->assertSame(Event::STATUSES, Calendar::STATUSES);
+        $this->assertSame('public,unlisted,private,draft', Event::STATUSES);
+        $this->assertSame('public,private,draft', Calendar::STATUSES);
         $this->assertSame(explode(',', Event::STATUSES), array_keys(Event::POST_STATUSES));
     }
 
@@ -77,18 +77,19 @@ class ModelContractTest extends TestCase
     public function postStatuses()
     {
         return [
-            'public'  => ['public', 'publish'],
-            'private' => ['private', 'private'],
-            'draft'   => ['draft', 'draft'],
+            'public'   => ['public', 'publish'],
+            'unlisted' => ['unlisted', 'publish'],
+            'private'  => ['private', 'private'],
+            'draft'    => ['draft', 'draft'],
             // An unknown status must never publish.
-            'unknown' => ['archived', 'draft'],
-            'empty'   => ['', 'draft'],
+            'unknown'  => ['archived', 'draft'],
+            'empty'    => ['', 'draft'],
         ];
     }
 
-    public function test_the_entry_modes_are_rsvp_and_open()
+    public function test_the_entry_modes_are_rsvp_open_and_none()
     {
-        $this->assertSame('rsvp,open', Event::ENTRY_TYPES);
+        $this->assertSame('rsvp,open,none', Event::ENTRY_TYPES);
     }
 
     public function test_every_event_meta_key_the_request_accepts_has_a_default()

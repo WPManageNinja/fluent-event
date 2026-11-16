@@ -20,6 +20,59 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->actAs($this->createAdmin());
     }
 
+    private function recordDeleteHooks()
+    {
+        $fired = (object) ['hooks' => []];
+
+        foreach (['fluent_event/event/before_deleted', 'fluent_event/event/deleted'] as $hook) {
+            $this->addTestFilter($hook, function ($event) use ($hook, $fired) {
+                $fired->hooks[] = $hook;
+
+                return $event;
+            });
+        }
+
+        return $fired;
+    }
+
+    public function test_creating_an_event_writes_its_post_and_details_together()
+    {
+        $payload = $this->eventPayload($this->createEvent(), ['title' => 'Launch', 'status' => 'private']);
+
+        $response = $this->rest('POST', 'events', $payload);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $event = Event::query()->find($response['data']['event']['id']);
+        $this->assertSame('Launch', get_post($event->post_id)->post_title);
+        $this->assertSame('private', $event->status);
+    }
+
+    public function test_an_event_carries_its_own_public_address()
+    {
+        $event = $this->createEvent();
+
+        $url = $this->rest('GET', "events/{$event->id}")['data']['public_url'];
+
+        $this->assertSame(get_permalink($event->post_id), $url);
+        $this->assertStringContainsString('/event/' . get_post($event->post_id)->post_name, $url);
+    }
+
+    public function test_an_event_loads_by_its_slug_as_it_does_by_its_id()
+    {
+        $event = $this->createEvent();
+        $slug = get_post($event->post_id)->post_name;
+
+        $byId = $this->rest('GET', "events/{$event->id}")['data'];
+        $bySlug = $this->rest('GET', 'events/by-slug', ['slug' => $slug]);
+
+        $this->assertSame(200, $bySlug['status'], wp_json_encode($bySlug['data']));
+        $this->assertEquals($byId, $bySlug['data']);
+
+        $this->assertSame(404, $this->rest('GET', 'events/by-slug', ['slug' => $slug . '-missing'])['status']);
+        $this->assertSame(404, $this->rest('GET', 'events/by-slug')['status']);
+    }
+
     public function test_updating_an_event_keeps_its_post_in_step()
     {
         $event = $this->createEvent();
@@ -34,11 +87,27 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('private', Event::query()->find($event->id)->status);
     }
 
+    public function test_an_event_saves_each_entry_type_and_refuses_any_other()
+    {
+        $event = $this->createEvent();
+
+        foreach (['open', 'none', 'rsvp'] as $type) {
+            $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['entry_type' => $type]));
+
+            $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+            $this->assertSame($type, Event::query()->find($event->id)->meta['entry_type']);
+        }
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['entry_type' => 'ticketed']));
+
+        $this->assertSame(422, $response['status']);
+    }
+
     public function test_deleting_a_wordpress_user_keeps_the_events_they_created()
     {
         require_once ABSPATH . 'wp-admin/includes/user.php';
 
-        $authorId = $this->createUser('editor', ['write_events']);
+        $authorId = $this->createUser('editor');
         $this->actAs($authorId);
         $event = $this->createEvent();
         $this->actAs($this->createAdmin());
@@ -49,12 +118,49 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertNotNull(get_post($event->post_id));
     }
 
-    // A post removed outside the plugin (XML-RPC, WP-CLI, another plugin) must not leave an undeletable event.
+    public function test_deleting_an_event_post_outside_the_plugin_deletes_the_event()
+    {
+        $event = $this->createEvent();
+        $this->createGuest($event);
+        Meta::query()->create(['object_type' => Meta::OBJECT_TYPE_EVENT, 'object_id' => $event->id, 'meta_key' => 'probe', 'value' => []]);
+        $fired = $this->recordDeleteHooks();
+
+        wp_delete_post($event->post_id, true);
+
+        $this->assertNull(Event::query()->find($event->id));
+        $this->assertSame(0, Guest::query()->where('event_id', $event->id)->count());
+        $this->assertSame(0, Meta::query()->where('object_type', Meta::OBJECT_TYPE_EVENT)->where('object_id', $event->id)->count());
+        $this->assertSame(['fluent_event/event/before_deleted', 'fluent_event/event/deleted'], $fired->hooks);
+    }
+
+    // The plugin's own delete removes the post too, which must not run the cleanup a second time.
+    public function test_deleting_an_event_fires_each_delete_hook_once()
+    {
+        $event = $this->createEvent();
+        $fired = $this->recordDeleteHooks();
+
+        $this->assertSame(200, $this->rest('DELETE', "events/{$event->id}")['status']);
+        $this->assertSame(['fluent_event/event/before_deleted', 'fluent_event/event/deleted'], $fired->hooks);
+    }
+
+    // Deleting the post now deletes the event and its guests, so only an admin may delete or edit it.
+    public function test_only_an_admin_may_edit_or_delete_an_event_post()
+    {
+        $event = $this->createEvent();
+        $editor = $this->createUser('editor');
+
+        $this->assertFalse(user_can($editor, 'delete_post', $event->post_id));
+        $this->assertFalse(user_can($editor, 'edit_post', $event->post_id));
+        $this->assertTrue(user_can($this->createAdmin(), 'delete_post', $event->post_id));
+    }
+
+    // A post row removed straight from the database fires no hook, and must not leave an undeletable event.
     public function test_an_event_whose_post_is_already_gone_can_still_be_deleted()
     {
         $event = $this->createEvent();
         $guest = $this->createGuest($event);
-        wp_delete_post($event->post_id, true);
+        $this->wpdb->delete($this->wpdb->posts, ['ID' => $event->post_id]);
+        clean_post_cache($event->post_id);
 
         $response = $this->rest('DELETE', "events/{$event->id}");
 
@@ -68,7 +174,8 @@ class EventEndpointsTest extends IntegrationTestCase
         $calendar = $this->createCalendar();
         $orphan = $this->createEvent(['calendar_id' => $calendar->id]);
         $sibling = $this->createEvent(['calendar_id' => $calendar->id]);
-        wp_delete_post($orphan->post_id, true);
+        $this->wpdb->delete($this->wpdb->posts, ['ID' => $orphan->post_id]);
+        clean_post_cache($orphan->post_id);
 
         $response = $this->rest('DELETE', "calendars/{$calendar->id}");
 
@@ -84,7 +191,7 @@ class EventEndpointsTest extends IntegrationTestCase
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
             'title'       => 'AC\DC Live',
-            'description' => '<p>Slides in C:\Reports</p>',
+            'description_md' => 'Slides in C:\Reports',
         ]));
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
@@ -95,10 +202,10 @@ class EventEndpointsTest extends IntegrationTestCase
     }
 
     // Without unfiltered_html, WordPress stores "&" in a post title as "&amp;".
-    public function test_an_ampersand_in_a_title_reads_back_as_typed_for_staff_without_unfiltered_html()
+    public function test_an_ampersand_in_a_title_reads_back_as_typed_for_an_admin_without_unfiltered_html()
     {
         $event = $this->createEvent();
-        $this->actAs($this->createUser('author', ['write_events']));
+        $this->actAs($this->adminWithoutUnfilteredHtml());
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Wine & Cheese']));
 
@@ -114,12 +221,48 @@ class EventEndpointsTest extends IntegrationTestCase
     public function test_a_less_than_sign_in_a_title_reads_back_as_typed($title)
     {
         $event = $this->createEvent();
-        $this->actAs($this->createUser('author', ['write_events']));
+        $this->actAs($this->adminWithoutUnfilteredHtml());
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => $title]));
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
         $this->assertSame($title, $this->rest('GET', "events/{$event->id}")['data']['event']['title']);
+    }
+
+    /**
+     * A link sent as a list must be rejected, not saved as http://Array.
+     *
+     * @dataProvider linkFields
+     */
+    public function test_a_link_sent_as_a_list_is_rejected($field, $venueType)
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'venue_type' => $venueType,
+            $field       => ['https://example.com/a.jpg'],
+        ]));
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertArrayHasKey($field, $response['data']);
+        $this->assertSame('', Event::query()->find($event->id)->meta[$field] ?? '');
+    }
+
+    public static function linkFields()
+    {
+        return [
+            'cover image'  => ['cover_url', 'offline'],
+            'meeting link' => ['online_meeting_url', 'online'],
+        ];
+    }
+
+    // A multisite admin, or a site with DISALLOW_UNFILTERED_HTML, works without unfiltered_html.
+    private function adminWithoutUnfilteredHtml()
+    {
+        $userId = $this->createAdmin();
+        (new \WP_User($userId))->add_cap('unfiltered_html', false);
+
+        return $userId;
     }
 
     public function titlesWithLessThan()
@@ -257,6 +400,16 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('Integration event', get_post($event->post_id)->post_title);
     }
 
+    public function test_a_start_that_is_not_a_date_gets_a_readable_message()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_at' => 'next-ish']));
+
+        $this->assertSame(422, $response['status']);
+        $this->assertSame(['date' => 'Start must be a valid date and time.'], $response['data']['start_at']);
+    }
+
     public function test_an_online_event_without_a_meeting_link_is_rejected()
     {
         $event = $this->createEvent();
@@ -264,7 +417,7 @@ class EventEndpointsTest extends IntegrationTestCase
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['venue_type' => 'online', 'online_meeting_url' => '']));
 
         $this->assertSame(422, $response['status']);
-        $this->assertStringContainsString('online_meeting_url', wp_json_encode($response['data']));
+        $this->assertSame(['required'], array_keys($response['data']['online_meeting_url']));
     }
 
     public function test_an_event_cannot_be_moved_into_a_calendar_that_does_not_exist()
@@ -276,18 +429,19 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $response['status']);
     }
 
-    public function test_script_in_an_event_description_is_stripped_on_save()
+    public function test_script_in_an_event_description_is_saved_as_text()
     {
         $event = $this->createEvent();
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
-            'description' => '<p>Bring snacks</p><script>alert(1)</script>',
+            'description_md' => "Bring snacks\n\n<script>alert(1)</script>",
         ]));
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
 
         $content = get_post($event->post_id)->post_content;
         $this->assertStringContainsString('<p>Bring snacks</p>', $content);
+        $this->assertStringContainsString('&lt;script&gt;', $content);
         $this->assertStringNotContainsString('<script', $content);
     }
 
@@ -379,6 +533,22 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('<p>Written by the integration suite; rolled back.</p>', $single['description']);
     }
 
+    // The cards' "N guests": every guest counts, not going and cancelled included.
+    public function test_the_event_list_counts_all_guests_of_each_event()
+    {
+        $event = $this->createEvent();
+        $empty = $this->createEvent(['calendar_id' => $event->calendar_id]);
+
+        foreach (['going', 'going', 'checked_in', 'not_going', 'cancelled'] as $status) {
+            $this->createGuest($event, ['status' => $status]);
+        }
+
+        $listed = array_column($this->rest('GET', 'events', ['calendar_id' => $event->calendar_id])['data']['events']['data'], 'guests_count', 'id');
+
+        $this->assertSame(5, (int) $listed[$event->id]);
+        $this->assertSame(0, (int) $listed[$empty->id]);
+    }
+
     public function test_the_event_list_filters_by_calendar()
     {
         $mine = $this->createEvent();
@@ -425,5 +595,37 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('2030-10-19 22:00:00', $data['start_at_local']);
         $this->assertSame('2030-10-20 03:00:00', $data['start_at_site']);
         $this->assertSame('2030-10-20 04:00:00', $data['end_at_site']);
+    }
+
+    public function test_events_starting_at_the_same_time_each_appear_on_exactly_one_page()
+    {
+        $calendarId = $this->createCalendar()->id;
+        $ids = [];
+
+        for ($i = 0; $i < 12; $i++) {
+            $ids[] = (int) $this->createEvent(['calendar_id' => $calendarId, 'start_at' => '2030-05-01 09:00:00', 'end_at' => '2030-05-01 10:00:00'])->id;
+        }
+
+        foreach (['upcoming', 'past', ''] as $period) {
+            if ($period === 'past') {
+                Event::query()->whereIn('id', $ids)->update(['start_at' => '2020-05-01 09:00:00', 'end_at' => '2020-05-01 10:00:00']);
+            }
+
+            $expected = $period === 'past' ? array_reverse($ids) : $ids;
+
+            // Unfiltered, as the list first loads: MySQL reorders equal keys only for some LIMIT/OFFSET pairs.
+            foreach ([3, 5, 7] as $perPage) {
+                $listed = [];
+                $pages = 1;
+
+                for ($page = 1; $page <= $pages; $page++) {
+                    $events = $this->rest('GET', 'events', ['period' => $period, 'per_page' => $perPage, 'page' => $page])['data']['events'];
+                    $pages = (int) ceil($events['total'] / $perPage);
+                    $listed = array_merge($listed, array_map('intval', array_column($events['data'], 'id')));
+                }
+
+                $this->assertSame($expected, array_values(array_intersect($listed, $ids)), "period '{$period}', {$perPage} per page");
+            }
+        }
     }
 }

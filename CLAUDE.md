@@ -28,13 +28,17 @@ Three things people get wrong:
   attachment FK. The column is `meta` on both `event_details` and `calendars` — open-ended,
   holds whatever per-record config accrues, and is documented by the model's `defaultMeta()`.
 
-Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going)
-or `open` (view-only: members can't register, every viewer sees the whole event,
-meeting link included; admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp`, and so does `capacity`: the most members going at once (0 = unlimited); admins can add guests past it. With `waitlist` on, a full event files a member's RSVP as `waitlisted` (no seat, no meeting link, no reminders). `registration_opens` / `registration_closes` (`{value, unit}` before the start, null = no limit) bound when members can RSVP; one already going can still give up the seat. `ticketed` is a documented future
+Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going; on the public event page anyone can also say Going by name + email, final),
+`open` (a Register button opening a name + email popover — prefilled for members, email locked; a Registered badge after; in the portal a member can cancel it (`cancelled`) and register again, a visitor's is final) or
+`none` (view-only: nobody registers, every viewer sees the whole event, meeting link included;
+admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp` and `open`, and so does `capacity`: the most guests going at once (0 = unlimited); admins can add guests past it. With `waitlist` on, a full event files a sign-up as `waitlisted` (no seat, no meeting link, no reminders). `registration_opens` / `registration_closes` (`{value, unit}` before the start, null = no limit) bound when guests can sign up; one already going can still give up the seat. The public landing pages enforce all three. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.
 
-Statuses: events and calendars are both `public | private | draft`. `private` means no
-public page; space calendars start `private`. FluentCommunity integration (events as posts
+Statuses: events are `public | unlisted | private | draft`, calendars `public | private | draft`.
+An `unlisted` event is left off the upcoming landing page but opens by direct link; a calendar has no
+page of its own to share, so it has no `unlisted`.
+`private` means no public page; space calendars start `private`. The public (landing) pages don't know their viewers:
+everyone, logged in or not, sees and registers as a visitor — nothing prefilled, no member state, the meeting link only after registering. FluentCommunity integration (events as posts
 in discussion spaces): [.claude/docs/functional-requirements/fluentcommunity-integration.md](.claude/docs/functional-requirements/fluentcommunity-integration.md).
 
 Schema: [docs/db/fe_db_schema.sql](.claude/docs/db/fe_db_schema.sql).

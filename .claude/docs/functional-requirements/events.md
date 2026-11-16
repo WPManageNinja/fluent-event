@@ -15,10 +15,13 @@
 - **Ticket tiers.** Each event has ≥1 `ticket_types` row. If the host defines none, one **"General"** tier is auto-created (price 0). Free event = one free tier.
 - **Dynamic form.** The event defines fields in `event_details.form_fields` (JSON column); each attendee's answers save to `guests.form_response` (JSON).
 - **Mode** via `event_details.venue_type` (online / offline / hybrid); **policy** via `event_details.settings.join_policy` (open / approval / invite_only).
-- **Entry mode** via `event_details.meta.entry_type` (built: `rsvp`, `open`; `ticketed` is future):
+- **Entry mode** via `event_details.meta.entry_type` (built: `rsvp`, `open`, `none`; `ticketed` is future):
   - **`rsvp`** — logged-in "I'm coming". Guest rows with **`ticket_type_id` = NULL**; going / not going via `status` (`going` / `not_going`).
-  - **`open`** — view-only. Nobody registers and there are no guest rows; anyone who can see the event sees all of it, the online meeting link included.
-  - **Capacity** — `meta.capacity` caps `going` + `checked_in` guests (0 = unlimited). A full event refuses a member's "going" and shows **Event full** in place of the RSVP; a guest already going keeps their seat, and admins can add past it. With `meta.waitlist` = `yes`, a full event files the "going" as `waitlisted` instead (no seat, no meeting link, no reminders). `meta.show_guest_count` (`yes` / `no`) shows viewers how many are `going` + `checked_in`.
+  - **`open`** — a Register button. It opens a name + email popover: prefilled for members (email locked to the account), blank for visitors, no login needed. A Registered badge follows; in the portal a logged-in member can cancel it (after a confirm; status `cancelled`) and register again, while a visitor's is final; the meeting link is for registered guests and staff.
+  - **`none`** — view-only. Nobody registers; anyone who can see the event sees all of it, the online meeting link included. Admins can still add guests.
+  - **Public event page:** after a visitor's Going (`rsvp`) or Register (`open`), a confirmation modal opens over the new card — "You're going" / "You're registered", the event (cover or date chip, date, place), **Join online** when it has a meeting link, Add to calendar, Done. No cancel there: a visitor has no account to change it from.
+  - **Capacity** — `meta.capacity` caps `going` + `checked_in` guests on `rsvp` and `open` events (0 = unlimited). A full event refuses a new Going / Register and shows **Event full** in its place; a guest already going keeps their seat, and admins can add past it. With `meta.waitlist` = `yes`, a full event files the sign-up as `waitlisted` instead (no seat, no meeting link, no reminders). The public event page enforces the same rules. `meta.show_guest_count` (`yes` / `no`, `rsvp` and `open`) shows viewers how many are `going` + `checked_in`.
+  - **Registration window** — `meta.registration_opens` / `registration_closes` (`{value, unit}` before the start, null = no limit) bound when guests can sign up, on the portal and the public page alike; admins can add guests any time.
   - **`ticketed`** (future) — buy tickets. Guest rows **require** `ticket_type_id`, payment on the `is_buyer=1` row; the service layer enforces it.
   - These compose with `join_policy` (an `rsvp` event can be approval-gated) and capacity (unlimited when there's no tier / `ticket_types.slot IS NULL`).
 - **Outside services** — Google Places (location + map), Google Meet / Zoom (online). Keys in settings.
@@ -44,7 +47,7 @@ place (address/map) is `fe_venue` term meta, not an event column. See
 | `post_id` | BIGINT **NOT NULL** UNIQUE | 1:1 → the `wp_posts` event row + taxonomy anchor. **Every** details row has its own post — including each recurrence occurrence |
 | `calendar_id` | BIGINT **NOT NULL** FK | → calendar (`RESTRICT`) |
 | `parent_event_id` | BIGINT NULL FK→self | NULL = master/standalone; set = a recurrence **occurrence** of that master (`ON DELETE CASCADE`) |
-| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `private` \| `draft` |
+| `status` | VARCHAR NOT NULL, default `'public'` | `public` \| `unlisted` \| `private` \| `draft` |
 | `start_at` / `end_at` | DATETIME **NOT NULL** (**UTC**) | stored in UTC; the indexed date window |
 | `timezone` | VARCHAR **NULL** | IANA tz (e.g. `Asia/Dhaka`) — to display the organizer's local time; also DST, ICS, reminders |
 | `venue_type` | VARCHAR **NULL**, default `'offline'` | event **mode**: `offline` \| `online` \| `hybrid`. Place = `fe_venue` term (address/map in term meta) |
@@ -78,7 +81,7 @@ occurrence owns its **own** `wp_posts` row and its own complete values. There is
 *(Venue place data → `fe_venue` term meta; the online link is per-event in `settings`,
 never term meta.)*
 
-> **Note on `status`:** it carries visibility semantics (`public`/`private`/`draft`; `private` = no public page)
+> **Note on `status`:** it carries visibility semantics (`public`/`unlisted`/`private`/`draft`; `private` = no public page)
 > which overlap `wp_posts.post_status`. Pick one as authoritative in the service layer —
 > `event_details.status` is the queryable one, so keep `post_status` in step with it on write.
 
@@ -150,7 +153,7 @@ Deliberately **not** unique on `email` — a buyer commonly uses their own addre
 | `cancelled`  | Was in, then pulled out (or was removed).                      |
 | `checked_in` | Showed up and checked in at the event.                         |
 
-**Per entry mode:** `ticketed` uses the payment-driven flow (`approved` → `attending` after pay, `waitlisted` when full). `rsvp` reuses the **same column, no new values** — `attending` = "going", `declined` = "not going", `waitlisted` = capped-RSVP overflow. `open` writes no guest rows at all, so `status` never applies. Keep one vocabulary; the mode decides which subset is in play.
+**Per entry mode:** `ticketed` uses the payment-driven flow (`approved` → `attending` after pay, `waitlisted` when full). `rsvp` reuses the **same column, no new values** — `attending` = "going", `declined` = "not going", `waitlisted` = capped-RSVP overflow. `none` takes no registrations, so `status` applies only to guests an admin adds. Keep one vocabulary; the mode decides which subset is in play.
 
 ### Classification + roster
 
@@ -198,8 +201,8 @@ be a taxonomy (`fe_sponsor`, like organizer), not a custom table.
 
 ### FR-6.5 — Visibility & discovery
 
-- `public` (listed, anyone can find), `unlisted` (only people with the link), `private` (invite-only).
-- **v1 ships `public` + `draft` only.** `unlisted` and `private` wait for the public event page and invites — with no front-end, they would behave exactly like `public`.
+- `public` (listed, anyone can find), `unlisted` (left off the upcoming landing page, opens by direct link), `private` (no public page; people reach it through its space or its guest emails), `draft` (not ready). Events and calendars share these.
+- `unlisted` only takes effect on the landing page: the portal, reminders and reports treat it like any live event.
 - Public events show in listings; they still follow calendar + space access rules. (unfiltered #12)
 
 ### FR-6.6 — Dynamic registration form

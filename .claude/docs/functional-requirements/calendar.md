@@ -29,7 +29,7 @@
 | `id`             | BIGINT PK   |                                                  |
 | `title`          | VARCHAR     | calendar name                                    |
 | `slug`           | VARCHAR     | unique; the shareable URL                        |
-| `description`    | TEXT NULL   |                                                  |
+| `description`    | TEXT NULL   | kept in the schema, optional; removed from the admin and the API 2026-11-04, so nothing sets it |
 | `status`         | VARCHAR     | `public` \| `private` \| `draft`; default `public` |
 | `meta`           | JSON NULL   | open-ended. v1 stores `theme_color`. Planned: `logo_url`, `cover_url`, who-can-manage (caps), notification prefs |
 | `created_by`     | BIGINT      | host/manager user id                             |
@@ -46,7 +46,7 @@ anyway. `UNIQUE(slug)` is kept for **correctness** (no duplicate slugs) — the 
 
 ### FR-8.1 — Create & manage calendars
 
-- Host/managers create calendars (name, slug, description, logo/cover). Multiple per space. (unfiltered cal #1, #2)
+- Host/managers create calendars (name, slug, logo/cover). Multiple per space. (unfiltered cal #1, #2)
 
 ### FR-8.2 — Assign events to calendars
 

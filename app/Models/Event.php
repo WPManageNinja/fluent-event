@@ -14,13 +14,15 @@ class Event extends Model
 {
     protected $table = 'fe_event_details';
 
-    const STATUSES = 'public,private,draft';
+    const STATUSES = 'public,unlisted,private,draft';
+    const LIVE_STATUSES = ['public', 'unlisted', 'private'];
     const VENUE_TYPES = 'offline,online';
-    const ENTRY_TYPES = 'rsvp,open';
+    const ENTRY_TYPES = 'rsvp,open,none';
     const SEAT_STATUSES = ['going', 'checked_in'];
     const REGISTRATION_LIMITS = ['registration_opens', 'registration_closes'];
     const POST_STATUSES = [
         'public'   => 'publish',
+        'unlisted' => 'publish',
         'private'  => 'private',
         'draft'    => 'draft',
     ];
@@ -63,10 +65,18 @@ class Event extends Model
             'entry_type'          => '',
             'show_guest_count'    => 'yes',
             'capacity'            => 0, // most guests going at once; 0 = unlimited
-            'waitlist'            => 'no', // yes: a full event files new RSVPs as waitlisted
+            'waitlist'            => 'no', // yes: a full event files new sign-ups as waitlisted
             'registration_opens'  => null, // {value, unit} before the start; null = as soon as published
             'registration_closes' => null, // {value, unit} before the start; null = until the event ends
+            // The description's markdown, as written in the editor; the post holds its rendered HTML.
+            'description_md'      => '',
         ];
+    }
+
+    // Capped at 255, where the venue rule stood before the filter.
+    public static function venueMaxLength()
+    {
+        return min(255, max(1, (int) apply_filters('fluent_event/event_venue_max_length', 100)));
     }
 
     public static function postStatusFor($status)
@@ -185,21 +195,22 @@ class Event extends Model
         return $query;
     }
 
+    // Each order ends on id: MySQL orders rows with equal keys differently per LIMIT, so pages would repeat or skip events.
     public function scopeByPeriod($query, $period)
     {
         $now = gmdate(DateTimeHelper::FORMAT);
 
         if ($period === 'upcoming') {
-            return $query->where('end_at', '>=', $now)->orderBy('start_at', 'ASC');
+            return $query->where('end_at', '>=', $now)->orderBy('start_at', 'ASC')->orderBy('id', 'ASC');
         }
 
         if ($period === 'past') {
-            return $query->where('end_at', '<', $now)->orderBy('start_at', 'DESC');
+            return $query->where('end_at', '<', $now)->orderBy('start_at', 'DESC')->orderBy('id', 'DESC');
         }
 
         return $query->orderByRaw(
             '(end_at < ?) ASC, ABS(TIMESTAMPDIFF(SECOND, ?, start_at)) ASC',
             [$now, $now]
-        );
+        )->orderBy('id', 'ASC');
     }
 }

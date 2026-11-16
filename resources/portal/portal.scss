@@ -1,0 +1,1890 @@
+@use "../scss/variables";
+
+// A theme that puts `dark` on <html> (FluentCommunity's frame does) gets our dark tokens; otherwise light.
+html.dark .fe-portal {
+    color-scheme: dark;
+}
+
+// Inside the theme: no background of its own, so the page's shows through; the theme's font too.
+.fe-portal {
+    color: var(--fe-primary-text, #19283a);
+    font-size: var(--fe-text-base, 16px);
+    line-height: 1.5;
+    text-align: start;
+
+    // Themes restyle bare elements. Back to the browser's defaults, which every fe- rule was written over;
+    // a theme rule more specific than one class still reaches in. SVGs keep their fill and stroke attributes.
+    :where(*:not(svg, svg *)) {
+        all: revert;
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    &__main {
+        max-width: var(--fe-page-width-sm, 980px);
+        margin: 0 auto;
+        padding: var(--fe-space-12, 48px) var(--fe-gutter, 30px);
+
+        @media (max-width: 767px) {
+            padding: var(--fe-space-8, 32px) var(--fe-space-4, 16px);
+        }
+    }
+}
+
+.fe-not-found {
+    max-width: 480px;
+    margin: var(--fe-space-12, 48px) auto;
+    text-align: center;
+
+    &__code {
+        margin: 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: clamp(96px, 22vw, 160px);
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.04em;
+    }
+
+    &__title {
+        margin: var(--fe-space-2, 8px) 0;
+        font-size: var(--fe-text-2xl, 24px);
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    &__text {
+        margin: 0 0 var(--fe-space-6, 24px);
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    &__button {
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--fe-control-height, 36px);
+        padding: 0 var(--fe-space-4, 16px);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-button, #2b2e33);
+        color: var(--fe-primary-bg, #ffffff);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        text-decoration: none;
+
+        &:hover {
+            opacity: 0.9;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+}
+
+.fe-events-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fe-space-4, 16px);
+
+    &__results {
+        display: flex;
+        flex-direction: column;
+        gap: var(--fe-space-4, 16px);
+    }
+
+    &__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        margin-top: var(--fe-space-2, 8px);
+        padding-top: var(--fe-space-6, 24px);
+        border-top: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__search {
+        flex: 0 1 300px;
+        margin: 0 auto 0 0;
+
+        @media (max-width: 767px) {
+            flex-basis: 100%;
+        }
+    }
+
+    &__search-input {
+        width: 100%;
+        height: 34px;
+        padding: 0 var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+
+        &::placeholder {
+            color: var(--fe-secondary-text, #525866);
+        }
+
+        &:focus {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: -1px;
+        }
+    }
+
+    &__empty {
+        margin: 0;
+        padding: var(--fe-space-12, 48px) var(--fe-space-4, 16px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-secondary-text, #525866);
+        text-align: center;
+    }
+}
+
+// One chip per calendar, filtering the list by `?fe_calendar=`; "All" clears it. Every chip wraps without
+// JavaScript; with it, wide screens keep one row (--fitted) and the rest go in the "More" panel.
+.fe-calendar-chips {
+    &__row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px);
+
+        // One scrolling row on phones, instead of a stack of wrapped chips above the list.
+        @media (max-width: 767px) {
+            flex-wrap: nowrap;
+            margin: 0 calc(-1 * var(--fe-space-4, 16px));
+            padding: 2px var(--fe-space-4, 16px);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+    }
+
+    &.fe-calendar-chips--fitted &__row {
+        flex-wrap: nowrap;
+    }
+
+    &__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 32px;
+        padding: 0 var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: 999px;
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-secondary-text, #525866);
+        flex-shrink: 0;
+        max-width: 260px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: -2px;
+        }
+
+        &.fe-calendar-chips__chip--active {
+            border-color: var(--fe-primary-button, #2b2e33);
+            background-color: var(--fe-primary-button, #2b2e33);
+            color: var(--fe-primary-bg, #ffffff);
+        }
+    }
+
+    &__label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__more {
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+
+        // The chip's display would otherwise override [hidden].
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    // Under the "More" chip where anchor positioning works, centred otherwise.
+    &__panel {
+        width: min(560px, calc(100vw - 32px));
+        max-height: 60vh;
+        padding: var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius-lg, 12px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+        &:popover-open {
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: var(--fe-space-2, 8px);
+            overflow-y: auto;
+        }
+
+        @supports (position-area: bottom) {
+            margin: 6px 0;
+            position-area: bottom span-right;
+            position-try-fallbacks: bottom span-left, top span-right;
+        }
+    }
+
+    // The calendar's colour arrives as `color`; the dot paints it.
+    &__dot {
+        flex-shrink: 0;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: currentColor;
+    }
+}
+
+// Grey stand-ins for the results while a chip's list loads (the template in portal/events.php).
+.fe-skeleton {
+    display: block;
+    background: linear-gradient(90deg, var(--fe-active-bg, #f0f0f1) 25%, var(--fe-hover-bg, #f9fafb) 50%, var(--fe-active-bg, #f0f0f1) 75%);
+    background-size: 200% 100%;
+    animation: fe-skeleton 1.2s ease-in-out infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+
+    &--line {
+        width: 100%;
+        height: 12px;
+        border-radius: var(--fe-radius-sm, 4px);
+    }
+
+    &--title {
+        width: 85%;
+        height: 18px;
+        margin: 4px 0;
+    }
+
+    &--medium {
+        width: 60%;
+    }
+
+    &--short {
+        width: 40%;
+    }
+
+    &--calendar {
+        height: 640px;
+        border-radius: var(--fe-radius, 8px);
+    }
+}
+
+@keyframes fe-skeleton {
+    from { background-position: 100% 0; }
+    to { background-position: -100% 0; }
+}
+
+// Compact segmented control, the portal twin of the admin's .fe-switch.
+.fe-switch {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: var(--fe-radius, 8px);
+    background-color: var(--fe-active-bg, #f0f0f1);
+
+    &__option {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 28px;
+        padding: 0 var(--fe-space-3, 12px);
+        border-radius: 6px;
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+        text-decoration: none;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+
+        &.fe-switch__option--icon {
+            width: 32px;
+            padding: 0;
+        }
+
+        &.fe-switch__option--active {
+            background-color: var(--fe-primary-bg, #ffffff);
+            color: var(--fe-primary-text, #19283a);
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+        }
+    }
+}
+
+// The date column, the dashed line and the dot all key off --date-w and --gap, so they stay aligned.
+.fe-timeline {
+    --date-w: 160px;
+    --gap: 48px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--fe-space-3, 12px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        bottom: 20px;
+        left: calc(var(--date-w) + var(--gap) / 2 - 1px);
+        border-left: 2px dashed var(--fe-primary-border, #eaecf0);
+    }
+
+    &__item {
+        position: relative;
+        display: grid;
+        grid-template-columns: var(--date-w) minmax(0, 1fr);
+        column-gap: var(--gap);
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 22px;
+            left: calc(var(--date-w) + var(--gap) / 2 - 4px);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--fe-secondary-text, #525866);
+        }
+    }
+
+    // Right-aligned, so the date sits as far from the line as the card does.
+    &__stamp {
+        display: grid;
+        align-content: start;
+        justify-items: end;
+        padding-top: 14px;
+        line-height: 1.4;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    &__date {
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+    }
+
+    &__weekday {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+    }
+
+    // No room for a date column: the date sits on one line above its card.
+    @media (max-width: 767px) {
+        gap: var(--fe-space-4, 16px);
+
+        &::before {
+            top: 10px;
+            left: 3px;
+        }
+
+        &__item {
+            grid-template-columns: minmax(0, 1fr);
+            row-gap: var(--fe-space-2, 8px);
+            padding-left: 20px;
+
+            &::before {
+                top: 6px;
+                left: 0;
+            }
+        }
+
+        &__stamp {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0 var(--fe-space-2, 8px);
+            padding-top: 0;
+            text-align: left;
+        }
+
+        &__date {
+            font-size: 13px;
+        }
+    }
+}
+
+.fe-event-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius-lg, 12px);
+    background-color: var(--fe-primary-bg, #ffffff);
+
+    &:hover {
+        border-color: var(--fe-secondary-border, #9ca3af);
+    }
+
+    // The title link covers the tile, so the tile shows its focus.
+    &:focus-within {
+        outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+        outline-offset: 2px;
+    }
+
+    &__cover {
+        display: block;
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+    }
+
+    // No cover image: its calendar's colour.
+    &__cover--empty {
+        position: relative;
+        overflow: hidden;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        color: var(--fe-secondary-border, #9ca3af);
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(150deg, currentColor 0%, transparent 118%);
+            opacity: var(--fe-cover-tint, 0.36);
+        }
+    }
+
+    &__body {
+        display: grid;
+        align-content: start;
+        gap: var(--fe-space-1, 4px);
+        min-width: 0;
+        padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px) var(--fe-space-4, 16px);
+    }
+
+    // Which calendar the event is in, when the list mixes calendars.
+    &__calendar {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--fe-secondary-text, #525866);
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    &__calendar-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: currentColor;
+    }
+
+    &__date {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    &__time {
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: var(--fe-text-base, 16px);
+        font-weight: 600;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    // One link per tile for screen readers; its ::after makes the whole tile clickable.
+    &__link {
+        color: inherit;
+        text-decoration: none;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+        }
+
+        &:focus-visible {
+            outline: none;
+        }
+    }
+
+    &__location {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        color: var(--fe-text-mid, #565865);
+        font-size: 13px;
+
+        svg {
+            flex: none;
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    // Timeline rows: details on the left, a square cover on the right.
+    &.fe-event-tile--row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 100px;
+        gap: var(--fe-space-4, 16px);
+        padding: var(--fe-space-4, 16px);
+
+        .fe-event-tile__body {
+            padding: 0;
+        }
+
+        .fe-event-tile__cover {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 767px) {
+            grid-template-columns: minmax(0, 1fr);
+            padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
+
+            .fe-event-tile__cover {
+                display: none;
+            }
+        }
+    }
+}
+
+.fe-event-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--fe-space-4, 16px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @media (max-width: 767px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+// Title, Month / Week / Day and ‹ Today ›, above whichever calendar view is showing, as in the admin.
+.fe-calendar-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--fe-space-3, 12px);
+
+    &__title {
+        min-width: 180px;
+        margin: 0;
+        font-size: var(--fe-text-lg, 18px);
+        font-weight: 600;
+    }
+
+    &__nav {
+        display: inline-flex;
+        overflow: hidden;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__step,
+    &__today {
+        display: grid;
+        place-items: center;
+        min-width: 34px;
+        height: 34px;
+        color: var(--fe-secondary-text, #525866);
+        text-decoration: none;
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: -2px;
+        }
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    &__today {
+        padding: 0 var(--fe-space-3, 12px);
+        border-right: 1px solid var(--fe-primary-border, #eaecf0);
+        border-left: 1px solid var(--fe-primary-border, #eaecf0);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+    }
+}
+
+.fe-month {
+    // 1px gaps over the border colour draw the grid lines.
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 1px;
+        overflow: hidden;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius-lg, 12px);
+        background-color: var(--fe-primary-border, #eaecf0);
+    }
+
+    &__weekday {
+        padding: 8px 0;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    &__cell {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+        min-height: 112px;
+        padding: 8px;
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    // The neighbouring months' days, faded like the admin's.
+    &__cell--outside > * {
+        opacity: 0.5;
+    }
+
+    &__day {
+        color: var(--fe-primary-text, #19283a);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__cell--today &__day {
+        color: var(--fe-accent-blue, #0e7ff1);
+        font-weight: 700;
+    }
+
+    // The calendar's colour as a left bar over a tint of it, as in the admin; grey without one.
+    &__chip {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        min-width: 0;
+        padding: 4px 8px;
+        border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 16%, transparent);
+        color: var(--fe-primary-text, #19283a);
+        font-size: 12px;
+        line-height: 1.5;
+        text-decoration: none;
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 28%, transparent);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__chip-time {
+        flex-shrink: 0;
+        color: var(--fe-secondary-text, #525866);
+        font-weight: 600;
+    }
+
+    &__chip-title {
+        overflow: hidden;
+        min-width: 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    // Full cell width, so the popover's anchor edge is the cell's and it opens beside the day.
+    &__more {
+        align-self: stretch;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--fe-secondary-text, #525866);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    // A native popover: click opens it, a click outside or Escape closes it, and the top layer
+    // keeps the grid from clipping it. Without anchor positioning it opens centred instead.
+    &__popover {
+        width: 260px;
+        max-height: 320px;
+        padding: var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+        &:popover-open {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+        }
+
+        // Rows keep their height and the popover scrolls; a chip clips its overflow, so it would otherwise shrink.
+        > * {
+            flex-shrink: 0;
+        }
+
+        // Beside the cell, like the admin's right placement; flips left at the screen edge.
+        @supports (position-area: right) {
+            // Both sides, so a left fallback keeps the same gap; 12px clears the cell's 6px padding.
+            margin: 0 12px;
+            position-area: right center;
+            position-try-fallbacks: right span-bottom, right span-top, left center, left span-bottom, left span-top;
+        }
+    }
+
+    &__popover-title {
+        margin: 0 0 4px;
+        font-size: var(--fe-text-sm, 13px);
+        font-weight: 600;
+    }
+
+    &__dot {
+        display: none;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--fe-secondary-text, #525866);
+    }
+
+    // Phones show a dot per busy day instead of the chips.
+    @media (max-width: 767px) {
+        &__cell {
+            align-items: center;
+            min-height: 48px;
+            padding: 4px;
+        }
+
+        &__chip,
+        &__more {
+            display: none;
+        }
+
+        &__dot {
+            display: block;
+        }
+    }
+}
+
+// The week and day views, after the admin's: an hour per 48px row, each event placed from its start to its end.
+.fe-week {
+    overflow-x: auto;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius-lg, 12px);
+    background-color: var(--fe-primary-bg, #ffffff);
+
+    // A week stays readable on a phone by scrolling sideways; a day fits as it is.
+    &__frame {
+        min-width: 640px;
+    }
+
+    &.fe-week--day &__frame {
+        min-width: 0;
+    }
+
+    &__head,
+    &__body {
+        display: grid;
+        grid-template-columns: 64px repeat(7, minmax(0, 1fr));
+    }
+
+    &.fe-week--day &__head,
+    &.fe-week--day &__body {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    &__head {
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__day {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--fe-space-2, 8px);
+        padding: var(--fe-space-3, 12px) var(--fe-space-2, 8px);
+        border-left: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__day-name {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    &__day-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-weight: 600;
+    }
+
+    &__day.fe-week__day--today &__day-number {
+        background-color: var(--fe-primary-button, #2b2e33);
+        color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__body {
+        max-height: 640px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    &__times {
+        display: flex;
+        flex-direction: column;
+    }
+
+    // Each label sits on the line that starts its hour.
+    &__time {
+        flex-shrink: 0;
+        height: 48px;
+        padding-right: var(--fe-space-2, 8px);
+        transform: translateY(-7px);
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+        text-align: right;
+    }
+
+    &__col {
+        position: relative;
+        border-left: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__cell {
+        display: block;
+        height: 48px;
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+
+        &:last-of-type {
+            border-bottom: 0;
+        }
+    }
+
+    // Overlapping events split the column into lanes, set per event by the server.
+    &__event {
+        position: absolute;
+        left: calc(4px + (100% - 8px) * var(--fe-lane, 0) / var(--fe-lanes, 1));
+        width: calc((100% - 8px) / var(--fe-lanes, 1) - 2px);
+        container-type: size;
+        overflow: hidden;
+        padding: 4px 8px;
+        border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 16%, var(--fe-primary-bg, #ffffff));
+        color: var(--fe-primary-text, #19283a);
+        font-size: 12px;
+        line-height: 1.4;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 28%, var(--fe-primary-bg, #ffffff));
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__event-time,
+    &__event-title {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__event-time {
+        margin-bottom: 2px;
+        color: var(--fe-secondary-text, #525866);
+        font-weight: 600;
+    }
+
+    // Two lines need 36px inside the padding; a shorter event, under an hour, puts its time and title on one.
+    @container (max-height: 35px) {
+        &__event-time,
+        &__event-title {
+            display: inline;
+        }
+
+        &__event-time {
+            margin: 0 4px 0 0;
+        }
+    }
+}
+
+.fe-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--fe-space-3, 12px);
+    margin-top: var(--fe-space-2, 8px);
+
+    &__link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        height: 34px;
+        padding: 0 var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        font-size: var(--fe-text-sm, 14px);
+        text-decoration: none;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            background-color: var(--fe-hover-bg, #f9fafb);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__status {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+    }
+}
+
+.fe-event-page {
+    // Wide and short, so the title and the side card still show without scrolling.
+    &__cover {
+        display: block;
+        width: 100%;
+        margin-bottom: var(--fe-space-5, 20px);
+        aspect-ratio: 21 / 8;
+        border-radius: var(--fe-radius-lg, 12px);
+        object-fit: cover;
+    }
+
+    // The side card sits beside the content, but before it on narrow screens.
+    &__grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        grid-template-areas: "main side";
+        gap: var(--fe-space-5, 20px) 28px;
+        align-items: start;
+
+        @media (max-width: 900px) {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas:
+                "intro"
+                "side"
+                "body";
+        }
+    }
+
+    // Its own column, so a card taller than the title and description can't open a gap between them.
+    &__main {
+        grid-area: main;
+        display: flex;
+        flex-direction: column;
+        gap: var(--fe-space-5, 20px);
+
+        // Hands its children to the grid, which puts the card between them.
+        @media (max-width: 900px) {
+            display: contents;
+        }
+    }
+
+    &__intro {
+        grid-area: intro;
+    }
+
+    // The calendar pill under the meta row; the side card's "Add to calendar" is __calendar.
+    &__calendar-tag {
+        margin-top: var(--fe-space-3, 12px);
+    }
+
+    &__body {
+        grid-area: body;
+    }
+
+    &__title {
+        margin: 0 0 var(--fe-space-3, 12px);
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px) var(--fe-space-5, 20px);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+
+        svg {
+            flex: none;
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    &__card {
+        padding: var(--fe-space-5, 20px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius-lg, 12px);
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__section-title {
+        margin: 0 0 var(--fe-space-3, 12px);
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    &__description {
+        font-size: 15px;
+        line-height: 1.65;
+        overflow-wrap: anywhere;
+
+        p:first-child {
+            margin-top: 0;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        // Three steps, as the admin shows them: the editor offers six heading levels.
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 18px 0 8px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        h1,
+        h2 {
+            font-size: 18px;
+        }
+
+        h3,
+        h4 {
+            font-size: 16px;
+        }
+
+        h5,
+        h6 {
+            font-size: 15px;
+        }
+
+        blockquote {
+            margin: 0 0 16px;
+            padding-left: 16px;
+            border-left: 3px solid var(--fe-primary-border, #eaecf0);
+            color: var(--fe-secondary-text, #525866);
+        }
+
+        hr {
+            margin: 20px 0;
+            border: 0;
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
+        }
+
+        code {
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: var(--fe-secondary-bg, #f3f5fa);
+            font-size: 0.9em;
+        }
+
+        pre {
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: var(--fe-secondary-bg, #f3f5fa);
+
+            code {
+                padding: 0;
+                background: none;
+            }
+        }
+
+        a {
+            color: var(--fe-accent-blue, #0e7ff1);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        // A long code line or a wide table scrolls inside the card, not the page.
+        pre {
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-wrap: normal;
+        }
+
+        table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+            overflow-wrap: normal;
+        }
+
+        th,
+        td {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+            text-align: left;
+            vertical-align: top;
+        }
+    }
+
+    // Stays in view beside a long description; scrolls with the page on narrow screens.
+    &__side {
+        grid-area: side;
+        display: grid;
+        gap: 14px;
+        position: sticky;
+        top: var(--fe-space-6, 24px);
+
+        @media (max-width: 900px) {
+            position: static;
+        }
+    }
+
+    &__when {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--fe-space-3, 12px);
+    }
+
+    &__when-text {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+        font-size: var(--fe-text-sm, 14px);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__when-date {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    &__when-local {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+    }
+
+    &__status {
+        justify-self: start;
+        padding: 2px 10px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+
+        &.fe-event-page__status--ended {
+            border-color: var(--fe-primary-border, #eaecf0);
+            background-color: transparent;
+            color: var(--fe-secondary-text, #525866);
+        }
+    }
+
+    &__count {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    // Sits where online events show Join online, so "where" has one place in the card.
+    &__place {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+
+        svg {
+            flex: none;
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            color: var(--fe-secondary-text, #525866);
+        }
+    }
+
+    &__place-text {
+        min-width: 0;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+    }
+
+    &__venue {
+        display: block;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+    }
+
+    // Typed in a textarea; keep its lines.
+    &__address {
+        display: block;
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+        white-space: pre-line;
+    }
+
+    &__join {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--fe-space-2, 8px);
+        min-height: var(--fe-control-height, 36px);
+        padding: 6px var(--fe-space-4, 16px);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-button, #2b2e33);
+        color: var(--fe-primary-bg, #ffffff);
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        text-decoration: none;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            opacity: 0.9;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+
+    &__note {
+        margin: 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+    }
+
+    &__calendar {
+        display: grid;
+        gap: var(--fe-space-2, 8px);
+        padding-top: 14px;
+        border-top: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
+    &__calendar-label {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    // Stacked: side by side, the labels wrap beside their icons in the narrow card.
+    &__calendar-links {
+        display: grid;
+        gap: var(--fe-space-2, 8px);
+    }
+
+    &__calendar-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: var(--fe-control-height, 36px);
+        padding: 6px 10px;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        color: var(--fe-primary-text, #19283a);
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+
+        svg {
+            flex: none;
+            width: 15px;
+            height: 15px;
+        }
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+}
+
+// Registration on the event page: the Register button, the RSVP menu and the final mark sit beside the count.
+.fe-event-page {
+    &__rsvp {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--fe-space-3, 12px);
+    }
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+
+        // Focused from script after registering, so screen readers land on it; it is not a control.
+        &:focus {
+            outline: none;
+        }
+    }
+
+    &__badge-icon {
+        display: inline-flex;
+        color: var(--fe-accent-green, #1a7f37);
+    }
+
+    &__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: var(--fe-control-height, 36px);
+        padding: 0 var(--fe-space-4, 16px);
+        border: 0;
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-button, #2b2e33);
+        color: var(--fe-primary-bg, #ffffff);
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 0.9;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+    }
+
+    &__error {
+        margin: 0;
+        color: var(--fe-danger-text, #cf222e);
+        font-size: 13px;
+
+        &:empty {
+            display: none;
+        }
+    }
+}
+
+.fe-rsvp {
+    &__trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        min-width: 150px;
+        height: var(--fe-control-height, 36px);
+        padding: 0 var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 2px;
+        }
+    }
+
+    &__chevron {
+        display: flex;
+        margin-left: auto;
+        color: var(--fe-secondary-text, #525866);
+        transition: transform 0.15s ease;
+    }
+
+    &__trigger:has(+ .fe-rsvp__menu:popover-open) &__chevron {
+        transform: rotate(180deg);
+    }
+
+    &__icon {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        color: var(--fe-primary-bg, #ffffff);
+
+        &.fe-rsvp__icon--going {
+            background-color: var(--fe-accent-green, #1a7f37);
+        }
+    }
+
+    // A native popover: a click outside or Escape closes it. Below the trigger where anchor positioning works.
+    &__menu {
+        min-width: 180px;
+        padding: 6px;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+        &:popover-open {
+            display: grid;
+            gap: 2px;
+        }
+
+        @supports (position-area: bottom) {
+            margin: 4px 0;
+            position-area: bottom span-right;
+            position-try-fallbacks: top span-right;
+        }
+    }
+
+    // A visitor's Going opens the register form from inside the menu, so the menu stays open beneath it.
+    .fe-event-page__side:has(.fe-register:popover-open) &__menu {
+        visibility: hidden;
+    }
+
+    &__option {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        width: 100%;
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 6px;
+        background: none;
+        color: inherit;
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+        text-align: left;
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: -2px;
+        }
+
+        &[aria-checked="true"] {
+            font-weight: 600;
+        }
+    }
+}
+
+// The name and email form, a native popover centred over a dimmed page; Escape or the backdrop closes it.
+.fe-register {
+    width: min(400px, calc(100vw - 32px));
+    padding: var(--fe-space-5, 20px);
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius-lg, 12px);
+    background-color: var(--fe-primary-bg, #ffffff);
+    color: var(--fe-primary-text, #19283a);
+    box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+    &:popover-open {
+        display: grid;
+        gap: 6px;
+    }
+
+    &::backdrop {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    &__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--fe-space-3, 12px);
+        margin-bottom: var(--fe-space-2, 8px);
+    }
+
+    &__title {
+        margin: 0;
+        font-size: var(--fe-text-lg, 18px);
+        font-weight: 600;
+    }
+
+    &__event {
+        margin: 2px 0 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+    }
+
+    &__close {
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 6px;
+        background: none;
+        color: var(--fe-secondary-text, #525866);
+        cursor: pointer;
+
+        svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        &:hover {
+            background-color: var(--fe-active-bg, #f0f0f1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__label {
+        margin-top: 6px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    &__input {
+        width: 100%;
+        height: 38px;
+        padding: 0 10px;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: 6px;
+        background-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-text, #19283a);
+        font: inherit;
+        font-size: var(--fe-text-sm, 14px);
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+
+        // A member's email is the account's: shown, but it can't change.
+        &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    }
+
+    // The honeypot: off-screen for people, still filled in by bots.
+    &__trap {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+    }
+
+    &__error {
+        margin: 0;
+        color: var(--fe-danger-text, #cf222e);
+        font-size: 13px;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    [type="submit"] {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+// The confirmation a registration ends in; the card the answer brings opens it.
+.fe-register-success {
+    position: fixed;
+    width: min(420px, calc(100vw - 32px));
+    padding: 28px 24px 24px;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: 16px;
+    background-color: var(--fe-primary-bg, #ffffff);
+    color: var(--fe-primary-text, #19283a);
+    box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+    &:popover-open {
+        display: grid;
+        gap: 18px;
+    }
+
+    &::backdrop {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    &__close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+    }
+
+    &__head {
+        display: grid;
+        justify-items: center;
+        gap: 10px;
+        text-align: center;
+    }
+
+    &__check {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background-color: color-mix(in srgb, var(--fe-accent-green, #1a7f37) 14%, transparent);
+        color: var(--fe-accent-green, #1a7f37);
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    &__event {
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr);
+        align-items: start;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: 12px;
+        background-color: var(--fe-secondary-bg, #f7f8fa);
+    }
+
+    &__cover {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    &__details {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    &__event-title {
+        display: -webkit-box;
+        overflow: hidden;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.35;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--fe-secondary-text, #525866);
+
+        svg {
+            flex: none;
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    .fe-event-page__button {
+        width: 100%;
+    }
+
+    // Side by side here, as in the portal's dialog; the page card keeps them stacked.
+    .fe-event-page__calendar-links {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.fe-date-chip {
+    flex: none;
+    width: 52px;
+    overflow: hidden;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: 10px;
+    text-align: center;
+
+    &__month {
+        display: block;
+        padding: 2px 0;
+        background-color: var(--fe-active-bg, #f0f0f1);
+        color: var(--fe-secondary-text, #525866);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    &__day {
+        display: block;
+        padding: 3px 0 5px;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+}
+
+.fe-live-badge {
+    display: flex;
+    align-items: center;
+    justify-self: start;
+    gap: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--fe-danger-text, #cf222e) 14%, transparent);
+    color: var(--fe-danger-text, #cf222e);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+
+    &::before {
+        content: '';
+        flex: none;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+        animation: fe-radar 1.6s ease-out infinite;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+    }
+}
+
+@keyframes fe-radar {
+    from {
+        box-shadow: 0 0 0 0 currentColor;
+    }
+
+    to {
+        box-shadow: 0 0 0 6px transparent;
+    }
+}

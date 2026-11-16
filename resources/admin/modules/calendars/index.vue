@@ -4,16 +4,15 @@
             <div class="fe-page__header">
                 <h1 class="fe-page__title">{{ $t('Calendars') }}</h1>
 
-                <!-- <div class="fe-page__actions">
+                <div class="fe-page__actions">
                     <el-button
-                        v-if="$userCan('write_calendars')"
                         type="primary"
                         @click="goToCreate"
                     >
                         <el-icon><Plus /></el-icon>
                         <span>{{ $t('Create Calendar') }}</span>
                     </el-button>
-                </div> -->
+                </div>
             </div>
 
             <div v-if="!isOnboarding" class="fe-calendars__toolbar">
@@ -25,30 +24,57 @@
                     @change="fetchCalendars"
                 />
 
-                <SearchInput
-                    v-model="query.search"
-                    class="fe-calendars__search"
-                    :placeholder="$t('Search calendars')"
-                    type="search_on_enter"
-                    @search="fetchCalendars"
-                />
+                <div class="fe-calendars__toolbar-end">
+                    <SearchInput
+                        v-model="query.search"
+                        class="fe-calendars__search"
+                        :placeholder="$t('Search calendars')"
+                        type="search_on_enter"
+                        @search="fetchCalendars"
+                    />
+
+                    <SegmentedSwitch
+                        v-model="view"
+                        class="fe-switch--compact"
+                        :options="views"
+                        :label="$t('Switch between list and card view')"
+                        @change="rememberView"
+                    />
+                </div>
             </div>
 
-            <Skeleton v-if="loading && !fetched" type="calendar-grid" />
+            <Skeleton v-if="loading && !fetched" type="calendar-list" />
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchCalendars" />
 
             <div
                 v-else-if="calendars.length"
-                class="fe-calendars__grid"
                 :class="{ 'fe-is-loading': loading }"
                 :aria-busy="loading"
             >
-                <CalendarCard
-                    v-for="calendar in calendars"
-                    :key="calendar.id"
-                    :calendar="calendar"
-                />
+                <section v-for="group in groups" :key="group.key" class="fe-calendars__group">
+                    <div class="fe-calendars__group-head">
+                        <img
+                            v-if="group.key === 'community'"
+                            class="fe-calendars__group-logo"
+                            :src="appVars.fcom_logo"
+                            width="16"
+                            height="16"
+                            alt=""
+                        />
+                        <h2 class="fe-calendars__group-title">{{ group.title }}</h2>
+                        <span class="fe-calendars__group-count">{{ group.calendars.length }}</span>
+                    </div>
+
+                    <ul class="fe-calendars__list" :class="{ 'fe-calendars__list--cards': view === 'cards' }">
+                        <CalendarRow
+                            v-for="calendar in group.calendars"
+                            :key="calendar.id"
+                            :calendar="calendar"
+                            @updated="fetchCalendars"
+                        />
+                    </ul>
+                </section>
             </div>
 
             <EmptyState
@@ -59,42 +85,42 @@
 
             <EmptyState
                 v-else
-                :title="$t('No calendars yet')"
-                :message="$t('A space gets its calendar when its first event is posted in FluentCommunity.')"
+                :title="$t('Create your first calendar')"
+                :message="$t('A calendar holds your events. You need one before you can add an event.')"
             >
-                <!-- <template #action>
+                <template #action>
                     <el-button
-                        v-if="$userCan('write_calendars')"
                         type="primary"
                         @click="goToCreate"
                     >
                         {{ $t('Create Calendar') }}
                     </el-button>
-                </template> -->
+                </template>
             </EmptyState>
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
-    // import { Plus } from '@element-plus/icons-vue';
+    import { Grid, List, Plus } from '@element-plus/icons-vue';
     import SearchInput from '@/components/SearchInput.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import EmptyState from '@/components/EmptyState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-    import CalendarCard from './parts/CalendarCard.vue';
+    import Storage from '@/utils/Storage';
+    import CalendarRow from './parts/CalendarRow.vue';
 
     export default {
         name: 'Calendars',
         components: {
-            // Plus,
+            Plus,
             SearchInput,
             ErrorState,
             EmptyState,
             Skeleton,
             SegmentedSwitch,
-            CalendarCard,
+            CalendarRow,
         },
         data() {
             return {
@@ -103,6 +129,7 @@
                 error: '',
                 calendars: [],
                 counts: {},
+                view: Storage.get('calendars_view') === 'cards' ? 'cards' : 'list',
                 query: {
                     search: '',
                     status: '',
@@ -118,6 +145,26 @@
                     value,
                     label: this.$t('%s (%d)', label, this.counts[value || 'all'] || 0),
                 }));
+            },
+            views() {
+                return [
+                    { value: 'list', label: this.$t('List'), icon: List },
+                    { value: 'cards', label: this.$t('Cards'), icon: Grid },
+                ];
+            },
+            groups() {
+                return [
+                    {
+                        key: 'site',
+                        title: this.$t('Own calendars'),
+                        calendars: this.calendars.filter(calendar => !calendar.meta?.fcom_space_id && !calendar.meta?.fcom_global),
+                    },
+                    {
+                        key: 'community',
+                        title: this.$t('FluentCommunity Spaces'),
+                        calendars: this.calendars.filter(calendar => calendar.meta?.fcom_space_id || calendar.meta?.fcom_global),
+                    },
+                ].filter(group => group.calendars.length);
             },
             isFiltered() {
                 return !!this.query.search || !!this.query.status;
@@ -144,9 +191,12 @@
                     },
                 });
             },
-            // goToCreate() {
-            //     this.$router.push({ name: 'calendar_create' });
-            // },
+            rememberView(view) {
+                Storage.set('calendars_view', view);
+            },
+            goToCreate() {
+                this.$router.push({ name: 'calendar_create' });
+            },
         },
         mounted() {
             this.$changeTitle(this.$t('Calendars'));

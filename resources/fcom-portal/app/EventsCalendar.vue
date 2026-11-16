@@ -127,7 +127,7 @@
 <script>
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
+import { DAY_MS, lastDay, toDayKey, toUtcDay } from '@/utils/date';
 import { timeFormat } from '../utils';
 
 // Month / week / day grid, after the admin EventsGrid; dates come from fcom's own dayjs.
@@ -212,7 +212,7 @@ export default {
 
             this.events.forEach((event) => {
                 const start = toUtcDay(event.start_at_site);
-                const end = toUtcDay(event.end_at_site);
+                const end = toUtcDay(lastDay(event.start_at_site, event.end_at_site));
 
                 for (let day = Math.max(start, first); day <= Math.min(end, last); day += DAY_MS) {
                     const key = toDayKey(day);

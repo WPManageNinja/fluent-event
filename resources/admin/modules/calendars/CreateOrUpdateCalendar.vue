@@ -13,7 +13,7 @@
                     </div>
 
                     <div class="fe-page__actions">
-                        <el-button @click="$goBack">
+                        <el-button @click="$goBack()">
                             {{ $t('Go Back') }}
                         </el-button>
                     </div>
@@ -37,12 +37,13 @@
                                 <el-form-item :label="$t('Title')" required>
                                     <el-input
                                         v-model="calendar.title"
+                                        :maxlength="appVars.calendar_title_max_length"
                                         :placeholder="$t('e.g. Personal')"
                                         @input="deriveSlug"
                                     />
                                 </el-form-item>
 
-                                <el-form-item :label="$t('Slug')">
+                                <el-form-item :label="$t('Slug')" required>
                                     <el-input
                                         ref="slug"
                                         v-model="calendar.slug"
@@ -75,7 +76,7 @@
                                                 'fe-form__swatch--selected':
                                                     calendar.theme_color === color.value,
                                             }"
-                                            :style="{ backgroundColor: color.value }"
+                                            :style="{ '--fe-swatch-color': color.value }"
                                             :aria-label="color.label"
                                             :aria-pressed="calendar.theme_color === color.value"
                                             @click="calendar.theme_color = color.value"
@@ -97,40 +98,16 @@
 
                         <section class="fe-form__section">
                             <div class="fe-form__section-rail">
-                                <h2
-                                    id="fe-calendar-description-label"
-                                    class="fe-form__section-title"
-                                >
-                                    {{ $t('Description') }}
-                                </h2>
-                                <p class="fe-form__section-desc">
-                                    {{ $t('Optional. Shown on the calendar page, above its events.') }}
-                                </p>
-                            </div>
-
-                            <div class="fe-form__section-fields">
-                                <WpEditor
-                                    v-model="calendar.description"
-                                    :height="280"
-                                    media-buttons
-                                    quick-tags
-                                    aria-labelledby="fe-calendar-description-label"
-                                />
-                            </div>
-                        </section>
-
-                        <section class="fe-form__section">
-                            <div class="fe-form__section-rail">
                                 <h2 class="fe-form__section-title">{{ $t('Visibility') }}</h2>
                                 <p class="fe-form__section-desc">
-                                    {{ $t('Draft calendars stay hidden from visitors and cannot take new events.') }}
+                                    {{ $t('Choose who can find this calendar.') }}
                                 </p>
                             </div>
 
                             <div class="fe-form__section-fields">
                                 <el-radio-group
                                     v-model="calendar.status"
-                                    class="fe-form__state"
+                                    class="fe-form__choices"
                                     :aria-label="$t('Status')"
                                 >
                                     <el-radio
@@ -139,7 +116,8 @@
                                         :value="option.value"
                                         border
                                     >
-                                        {{ option.label }}
+                                        <span class="fe-form__choice-title">{{ option.label }}</span>
+                                        <span class="fe-form__hint">{{ option.hint }}</span>
                                     </el-radio>
                                 </el-radio-group>
                             </div>
@@ -167,14 +145,12 @@
 
 <script type="text/javascript">
     import en from 'element-plus/dist/locale/en.mjs';
-    import WpEditor from '@/components/WpEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     export default {
         name: 'CreateOrUpdateCalendar',
         components: {
-            WpEditor,
             ErrorState,
             Skeleton,
         },
@@ -241,9 +217,8 @@
                 return {
                     title: '',
                     slug: '',
-                    description: '',
                     status: this.$calendarStatuses()[0].value,
-                    theme_color: this.themeColors[0].value,
+                    theme_color: this.appVars.calendar_default_color,
                 };
             },
             fetchCalendar() {
@@ -251,15 +226,15 @@
 
                 this.$requestServer({
                     path: `calendars/${this.calendarId}`,
+                    notFoundPage: true,
                     onSuccess: response => {
                         this.error = '';
                         this.calendar = {
                             title: response.calendar.title,
                             slug: response.calendar.slug,
-                            description: response.calendar.description,
                             status: response.calendar.status,
                             theme_color: response.calendar.meta?.theme_color?.toLowerCase()
-                                || this.themeColors[0].value,
+                                || this.appVars.calendar_default_color,
                         };
                         this.selectColor(this.calendar.theme_color);
                         this.original = { ...this.calendar };
@@ -269,6 +244,12 @@
                 });
             },
             selectColor(color) {
+                // The picker emits an empty value for text it can't parse; taking it added a blank swatch and saved the default.
+                if (!/^#[0-9a-f]{6}$/i.test(color || '')) {
+                    this.$notifyError(this.$t('Theme color must be a hex value like #0099ff.'));
+                    return;
+                }
+
                 if (!this.colorOptions.some(option => option.value === color)) {
                     this.customColors.push(color);
                 }
@@ -283,9 +264,9 @@
             unlockSlug() {
                 this.$confirm(
                     this.$t('Existing links to this calendar will be affected. Do you still want to change the slug?'),
-                    this.$t('Change slug'),
+                    this.$t('Change Slug'),
                     {
-                        confirmButtonText: this.$t('Change slug'),
+                        confirmButtonText: this.$t('Change Slug'),
                         cancelButtonText: this.$t('Cancel'),
                         type: 'warning',
                     }
@@ -309,7 +290,6 @@
                     payload: {
                         title: this.calendar.title,
                         slug: this.$slugify(this.calendar.slug),
-                        description: this.calendar.description,
                         status: this.calendar.status,
                         theme_color: this.calendar.theme_color,
                     },
@@ -318,7 +298,7 @@
                     successNotify: true,
                     errorNotify: true,
                     onSuccess: response => {
-                        this.$router.push({
+                        this.$goBack({
                             name: 'calendar_detail',
                             params: { id: this.calendarId || response.calendar.id },
                         });

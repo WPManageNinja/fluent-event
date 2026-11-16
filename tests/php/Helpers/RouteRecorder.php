@@ -39,6 +39,11 @@ class RouteRecorder
         return new self($this->prefix, $policy, $this->collected);
     }
 
+    public function withDefaultPolicy()
+    {
+        return $this->withPolicy('Policy');
+    }
+
     public function group($callback)
     {
         $callback($this);
@@ -86,9 +91,9 @@ class RouteRecorder
         return $this->annotate('params', $param, 'alphaNumDash');
     }
 
-    public function rateLimitPerMinute($limit)
+    public function before(...$middleware)
     {
-        return $this->annotate('meta', 'rate_limit_per_minute', $limit);
+        return $this->annotate('meta', 'before', array_map('get_class', $middleware));
     }
 
     /**

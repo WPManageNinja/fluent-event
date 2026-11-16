@@ -87,6 +87,13 @@
         min-width: 0;
     }
 
+    &__toggle-actions {
+        display: flex;
+        flex: none;
+        align-items: center;
+        gap: var(--fe-space-3, 12px);
+    }
+
     &__toggle-title {
         display: block;
         font-size: var(--fe-text-sm, 14px);
@@ -271,6 +278,7 @@
         padding: 0;
         border: none;
         border-radius: 50%;
+        background-color: var(--fe-swatch-color, transparent);
         box-shadow: inset 0 0 0 1px var(--fe-primary-border, #eaecf0);
         cursor: pointer;
 
@@ -359,6 +367,29 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
+}
+
+.fe-community-mark {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--fe-radius-sm, 4px);
+
+    // wp-admin's `a:focus` adds a box-shadow ring on top of the outline below.
+    &:focus {
+        box-shadow: none;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+        outline-offset: 2px;
+    }
+
+    &__logo {
+        width: 100%;
+        height: 100%;
+    }
 }
 
 .fe-pagination {
@@ -491,6 +522,20 @@
         margin-bottom: var(--fe-space-4, 16px);
     }
 
+    &__toolbar-end {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+
+        @media screen and (max-width: 782px) {
+            width: 100%;
+
+            .fe-calendars__search {
+                flex: 1;
+            }
+        }
+    }
+
     &__search {
         max-width: 300px;
 
@@ -504,7 +549,7 @@
 
         .el-form-item + .el-form-item {
             padding-top: var(--fe-space-3, 12px);
-            border-top: 1px solid var(--fe-secondary-bg, #f3f5fa);
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
         }
     }
 
@@ -532,97 +577,141 @@
         }
     }
 
-    &__grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: var(--fe-space-3, 12px);
-
-        @media screen and (max-width: 991px) {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        @media screen and (max-width: 768px) {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        @media screen and (max-width: 575px) {
-            grid-template-columns: 1fr;
-        }
+    &__group + &__group {
+        margin-top: var(--fe-space-6, 24px);
     }
 
-    &__card {
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-primary-bg, #ffffff);
-        overflow: hidden;
-    }
-
-    &__card-cover {
-        position: relative;
-        display: flex;
-        align-items: flex-end;
-        height: 64px;
-        padding: 0 var(--fe-space-4, 16px);
-        background-color: var(--fe-active-bg, #f0f0f1);
-
-        &::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(150deg, currentColor 0%, transparent 118%);
-            opacity: var(--fe-cover-tint, 0.36);
-        }
-    }
-
-    &__card-mark {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        place-items: center;
-        width: 40px;
-        height: 40px;
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-primary-bg, #ffffff);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
-        font-size: var(--fe-text-base, 16px);
-        font-weight: 700;
-        line-height: 1;
-        text-transform: capitalize;
-        transform: translateY(50%);
-    }
-
-    &__card-body {
-        display: flex;
-        flex-direction: column;
-        gap: var(--fe-space-2, 8px);
-        padding: var(--fe-space-6, 24px) var(--fe-space-4, 16px) var(--fe-space-4, 16px);
-    }
-
-    &__card-head {
+    &__group-head {
         display: flex;
         align-items: center;
         gap: var(--fe-space-2, 8px);
+        margin-bottom: var(--fe-space-2, 8px);
     }
 
-    &__card-title {
+    &__group-logo {
+        width: 16px;
+        height: 16px;
+        border-radius: var(--fe-radius-sm, 4px);
+    }
+
+    &__group-title {
         margin: 0;
         font-size: var(--fe-text-base, 16px);
         font-weight: 600;
-        line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
-        flex: 1;
+    }
+
+    &__group-count {
+        color: var(--fe-secondary-text, #525866);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-primary-bg, #ffffff);
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: var(--fe-space-4, 16px);
+        margin: 0;
+        padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        cursor: pointer;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+
+        &:hover {
+            background-color: var(--fe-hover-bg, #f9fafb);
+        }
+
+        // The status, counts and buttons don't open the calendar.
+        [data-row-click="off"] {
+            cursor: default;
+        }
+
+        @media screen and (max-width: 782px) {
+            grid-template-columns: minmax(0, 1fr) auto;
+
+            .fe-calendars__row-stats {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                gap: var(--fe-space-3, 12px);
+
+                > * {
+                    width: auto;
+                }
+            }
+        }
+    }
+
+    &__list--cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+        gap: var(--fe-space-4, 16px);
+        border: 0;
+        background-color: transparent;
+
+        .fe-calendars__row {
+            grid-template-columns: minmax(0, 1fr) auto;
+            row-gap: var(--fe-space-5, 20px);
+            padding: var(--fe-space-5, 20px);
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius, 8px);
+            background-color: var(--fe-primary-bg, #ffffff);
+
+            &:last-child {
+                border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+            }
+        }
+
+        .fe-calendars__row-stats {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            gap: var(--fe-space-3, 12px);
+
+            > * {
+                width: auto;
+            }
+        }
+    }
+
+    &__row-main {
+        display: grid;
+        gap: 2px;
         min-width: 0;
     }
 
-    &__card-head .fe-action-popover__trigger {
-        margin-left: auto;
+    &__row-name {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        min-width: 0;
     }
 
-    &__card-link {
-        display: block;
+    &__swatch {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+    }
+
+    &__row-link {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        color: inherit;
+        font-size: var(--fe-text-base, 16px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+        text-decoration: none;
 
         &:hover {
             color: var(--fe-primary-text, #19283a);
@@ -630,27 +719,57 @@
         }
     }
 
-    &__card-slug {
-        margin: 0;
+    &__row-slug {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         font-size: var(--fe-text-xs, 12px);
-        color: var(--fe-secondary-text, #525866);
+        color: var(--fe-tertiary-text, #6b7280);
     }
 
-    &__card-meta {
+    &__row-stats {
         display: flex;
-        flex-wrap: wrap;
-        gap: var(--fe-space-2, 8px);
+        align-items: center;
+        white-space: nowrap;
+        color: var(--fe-secondary-text, #525866);
     }
 
-    &__card-stat {
-        padding: var(--fe-space-1, 4px) var(--fe-space-2, 8px);
-        border-radius: var(--fe-radius-sm, 4px);
-        background-color: var(--fe-active-bg, #f0f0f1);
-        font-size: var(--fe-text-xs, 12px);
-        color: var(--fe-secondary-text, #525866);
+    &__row-status {
+        width: 90px;
+    }
+
+    &__status-tag {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    &__status-arrow {
+        margin-left: 2px;
+        vertical-align: -1px;
+    }
+
+    // Element Plus loads after us, so the modifier repeats its base to outrank `.el-dropdown-menu__item`.
+    &__status-option.fe-calendars__status-option--active {
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__row-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        width: 110px;
+        font-variant-numeric: tabular-nums;
+
+        .el-icon {
+            color: var(--fe-tertiary-text, #6b7280);
+        }
+    }
+
+    &__row-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
     }
 }
 
@@ -790,6 +909,15 @@
         display: block;
         max-width: 100%;
         overflow-x: auto;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 6px 12px;
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        text-align: left;
+        vertical-align: top;
     }
 
     > :first-child { margin-top: 0; }
@@ -844,191 +972,104 @@
         border: 0;
         border-top: 1px solid var(--fe-primary-border, #eaecf0);
     }
+
+    code {
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: var(--fe-secondary-bg, #f3f5fa);
+        font-size: 0.9em;
+    }
+
+    pre {
+        padding: 12px 14px;
+        border-radius: var(--fe-radius, 8px);
+        background: var(--fe-secondary-bg, #f3f5fa);
+
+        code {
+            padding: 0;
+            background: none;
+        }
+    }
 }
 
 .fe-calendar-detail {
-    &__mast {
-        margin-bottom: var(--fe-space-5, 20px);
-    }
+    // Identity, meta and actions on one row; the actions drop below on narrow screens.
+    &__head {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: start;
+        gap: var(--fe-space-4, 16px);
+        margin-bottom: var(--fe-space-4, 16px);
 
-    &__cover {
-        position: relative;
-        height: 150px;
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-active-bg, #f0f0f1);
-        background-position: center;
-        background-size: cover;
-        overflow: hidden;
+        @media screen and (max-width: 782px) {
+            grid-template-columns: auto minmax(0, 1fr);
 
-        // Same tint as fe-calendars__card-cover — `color` carries the theme hue.
-        &::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(150deg, currentColor 0%, transparent 118%);
-            opacity: var(--fe-cover-tint, 0.36);
+            .fe-calendar-detail__actions {
+                grid-column: 1 / -1;
+            }
         }
     }
 
-    &__edit.el-button {
-        position: absolute;
-        top: var(--fe-space-3, 12px);
-        right: var(--fe-space-3, 12px);
-        z-index: 1;
-    }
-
     &__mark {
-        position: relative;
-        z-index: 1;
         display: grid;
         place-items: center;
-        width: 72px;
-        height: 72px;
-        border: 4px solid var(--fe-secondary-bg, #f3f5fa);
+        width: 48px;
+        height: 48px;
         border-radius: var(--fe-radius-lg, 12px);
-        background-color: var(--fe-primary-bg, #ffffff);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+        background-color: var(--fe-active-bg, #f0f0f1);
         color: var(--fe-secondary-text, #525866);
-        font-size: var(--fe-text-2xl, 24px);
+        font-size: var(--fe-text-lg, 18px);
         font-weight: 700;
         line-height: 1;
         text-transform: capitalize;
-
-        // Straddles the cover's bottom-left corner, ringed in the page canvas.
-        margin: -36px 0 0 var(--fe-space-5, 20px);
     }
 
     &__identity {
+        display: grid;
+        gap: var(--fe-space-1, 4px);
         min-width: 0;
-        padding: var(--fe-space-3, 12px) var(--fe-space-5, 20px) 0;
     }
 
     &__title-row {
         display: flex;
         align-items: center;
-        gap: var(--fe-space-3, 12px);
+        gap: var(--fe-space-2, 8px);
         flex-wrap: wrap;
+
+        // A long unbroken title wraps instead of running under the actions.
+        .fe-page__title {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-1, 4px) var(--fe-space-4, 16px);
+        margin: 0;
+        color: var(--fe-text-mid, #565865);
+        font-size: var(--fe-text-xs, 12px);
     }
 
     &__slug {
-        margin: var(--fe-space-1, 4px) 0 0;
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: var(--fe-text-xs, 12px);
-        color: var(--fe-secondary-text, #525866);
+        overflow-wrap: anywhere;
     }
 
-    &__about {
-        margin: 0 0 var(--fe-space-3, 12px);
-        font-size: var(--fe-text-xs, 12px);
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    .fe-dashboard__tiles,
-    .fe-skeleton__tiles {
-        margin-bottom: var(--fe-space-3, 12px);
-    }
-
-    &__events-bar {
+    &__actions {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: var(--fe-space-3, 12px);
-        margin-bottom: var(--fe-space-5, 20px);
-
-        @media screen and (max-width: 782px) {
-            flex-direction: column;
-            align-items: stretch;
-        }
-    }
-
-    &__events-title {
-        margin: 0;
-        font-size: var(--fe-text-xl, 20px);
-        font-weight: 600;
-        line-height: 1.3;
-        color: var(--fe-primary-text, #19283a);
-    }
-
-    &__events-actions {
-        display: flex;
-        align-items: center;
         flex-wrap: wrap;
         gap: var(--fe-space-2, 8px);
 
-        @media screen and (max-width: 782px) {
-            justify-content: space-between;
-        }
-    }
-}
-
-.fe-calendar-tab {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 280px;
-    gap: var(--fe-space-5, 20px);
-    align-items: start;
-
-    @media screen and (max-width: 991px) {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    &__main {
-        min-width: 0;
-    }
-
-    &__aside {
-        position: sticky;
-        top: var(--fe-space-5, 20px);
-
-        .fe-skeleton__panel.el-skeleton__rect {
-            margin-bottom: var(--fe-space-3, 12px);
+        .el-button + .el-button {
+            margin-left: 0;
         }
     }
 
-    &__panel {
-        padding: var(--fe-space-4, 16px);
-        border-radius: var(--fe-radius, 8px);
-        background-color: var(--fe-primary-bg, #ffffff);
-
-        & + & {
-            margin-top: var(--fe-space-3, 12px);
-        }
-    }
-
-    &__panel-title {
-        margin: 0 0 var(--fe-space-3, 12px);
-        font-size: var(--fe-text-xs, 12px);
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    &__panel-empty {
-        margin: 0;
-        font-size: var(--fe-text-sm, 14px);
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    &__facts {
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
-        gap: var(--fe-space-2, 8px) var(--fe-space-4, 16px);
-        margin: 0;
-        font-size: var(--fe-text-xs, 12px);
-
-        dt {
-            color: var(--fe-secondary-text, #525866);
-        }
-
-        dd {
-            margin: 0;
-            text-align: right;
-            color: var(--fe-primary-text, #19283a);
-        }
+    // The tiles' own 12px bottom margin collapses into this; padding or a border here would add to it.
+    &__stats {
+        margin-bottom: var(--fe-space-10, 40px);
     }
 }
 
@@ -1056,6 +1097,23 @@
         gap: var(--fe-space-2, 8px);
     }
 
+    // The dropdown is as wide as the field, so a long calendar name ends in "…" and keeps its status tag.
+    &__calendar-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__calendar-swatch,
+    &__calendar-status {
+        flex-shrink: 0;
+    }
+
+    &__calendar-status {
+        margin-left: auto;
+    }
+
     // Sections are grids that stretch their children; keep the switch at its own width.
     &__venue-switch {
         justify-self: start;
@@ -1080,21 +1138,22 @@
         color: var(--fe-secondary-text, #525866);
     }
 
+    // Element Plus sizes date editors from this variable, in a width rule that loads after ours.
     &__date.el-date-editor {
-        width: 220px;
+        --el-date-editor-width: 220px;
 
         @media screen and (max-width: 782px) {
-            width: auto;
+            --el-date-editor-width: auto;
             flex: 1 1 0;
             min-width: 0;
         }
     }
 
     &__time.el-date-editor {
-        width: 130px;
+        --el-date-editor-width: 130px;
 
         @media screen and (max-width: 782px) {
-            width: auto;
+            --el-date-editor-width: auto;
             flex: 1 1 0;
             min-width: 0;
         }
@@ -1438,22 +1497,14 @@
         height: 18px;
     }
 
-    &__card-title {
-        width: 60%;
+    &__row-title {
+        width: 30%;
         height: 16px;
     }
 
-    &__card-slug {
-        width: 40%;
+    &__row-slug {
+        width: 15%;
         height: 12px;
-        margin-top: var(--fe-space-3, 12px);
-    }
-
-    &__card-mark.el-skeleton__rect {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--fe-radius, 8px);
-        transform: translateY(50%);
     }
 
     &__tag {
@@ -1495,6 +1546,7 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: var(--fe-space-3, 12px);
+        margin-bottom: var(--fe-space-3, 12px);
 
         @media screen and (max-width: 991px) {
             grid-template-columns: repeat(3, 1fr);
@@ -1506,7 +1558,7 @@
     }
 
     &__tile.el-skeleton__rect {
-        height: 88px;
+        height: 130px;
         border-radius: var(--fe-radius, 8px);
     }
 
@@ -1516,26 +1568,10 @@
         border-radius: var(--fe-radius, 8px);
     }
 
-    &__mast {
-        position: relative;
-        margin-bottom: var(--fe-space-5, 20px);
-    }
-
-    &__cover.el-skeleton__rect {
-        height: 150px;
-        border-radius: var(--fe-radius, 8px);
-    }
-
     &__mark.el-skeleton__rect {
-        width: 72px;
-        height: 72px;
-        margin: -36px 0 0 var(--fe-space-5, 20px);
-        border: 4px solid var(--fe-secondary-bg, #f3f5fa);
+        width: 48px;
+        height: 48px;
         border-radius: var(--fe-radius-lg, 12px);
-    }
-
-    &__identity {
-        padding: var(--fe-space-3, 12px) var(--fe-space-5, 20px) 0;
     }
 
     &__slug.el-skeleton__text {
@@ -1741,6 +1777,15 @@
             max-width: 280px;
             flex-shrink: 0;
             margin-left: auto;
+
+            &.fe-dashboard__range--wide {
+                width: 370px;
+                max-width: 370px;
+
+                .el-range-input {
+                    width: 43%;
+                }
+            }
         }
     }
 
@@ -1830,7 +1875,7 @@
 
         .el-form-item + .el-form-item {
             padding-top: var(--fe-space-3, 12px);
-            border-top: 1px solid var(--fe-secondary-bg, #f3f5fa);
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
         }
     }
 
@@ -1865,7 +1910,8 @@
 .fe-events-timeline {
     &__row {
         display: grid;
-        grid-template-columns: 100px 16px minmax(0, 1fr);
+        // Fits the longest default date, "30th September, 2026" (153px); longer custom formats still wrap.
+        grid-template-columns: 160px 16px minmax(0, 1fr);
         column-gap: var(--fe-space-4, 16px);
 
         @media screen and (max-width: 575px) {
@@ -2318,9 +2364,18 @@
         // The calendar badge is the same box, tinted with the calendar's own
         // hue. color-mix is progressive: without it the neutral badge stands.
         &.fe-event-card__badge--calendar {
+            max-width: 100%;
             color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 72%, var(--fe-primary-text, #19283a));
             background-color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 12%, transparent);
         }
+    }
+
+    // One line ending in "…": the badge's height is pinned, so a long calendar name cannot wrap.
+    &__badge-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     &__title {
@@ -2375,18 +2430,25 @@
         color: var(--fe-secondary-text, #525866);
     }
 
-    &__venue {
+    &__venue,
+    &__guests {
         display: inline-flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);
     }
 
-    &__manage {
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px);
+        margin-top: var(--fe-space-3, 12px);
+    }
+
+    &__link {
         display: inline-flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);
         height: 28px;
-        margin-top: var(--fe-space-3, 12px);
         padding: 0 var(--fe-space-3, 12px);
         border-radius: var(--fe-radius-sm, 4px);
         font-size: var(--fe-text-xs, 12px);
@@ -2452,8 +2514,7 @@
             margin-bottom: var(--fe-space-2, 8px);
         }
 
-        .fe-event-card__manage {
-            align-self: flex-start;
+        .fe-event-card__actions {
             margin-top: auto;
         }
 
@@ -2584,12 +2645,14 @@
         color: var(--fe-primary-text, #19283a);
     }
 
+    // "anywhere", not "break-word": only it lets the flex row shrink, so an unbroken venue wraps inside the card.
     &__row-title {
         margin: 0;
         font-size: var(--fe-text-base, 16px);
         font-weight: 500;
         line-height: 1.5;
         color: var(--fe-primary-text, #19283a);
+        overflow-wrap: anywhere;
     }
 
     &__row-link {
@@ -2621,10 +2684,16 @@
         font-size: var(--fe-text-sm, 14px);
         line-height: 1.4;
         color: var(--fe-secondary-text, #525866);
+        overflow-wrap: anywhere;
 
         &--muted {
             font-size: var(--fe-text-xs, 12px);
             color: var(--fe-tertiary-text, #6B7280);
+        }
+
+        // The address is typed in a textarea; keep the lines it was typed on.
+        &.fe-event-overview__row-text--address {
+            white-space: pre-line;
         }
     }
 
@@ -2634,6 +2703,28 @@
         font-size: var(--fe-text-sm, 14px);
         word-break: break-all;
         color: var(--fe-wp-link, #2271b1);
+    }
+
+    &__public {
+        min-width: 0;
+    }
+
+    // The public link and its copy button on one line.
+    &__public-link {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        margin-top: var(--fe-space-1, 4px);
+
+        .fe-event-overview__row-link {
+            margin-top: 0;
+        }
+
+        // Icon-sized: the admin's 36px button height would push the line away from its title.
+        .el-button {
+            height: auto;
+            padding: 0;
+        }
     }
 
     @media screen and (max-width: 782px) {
@@ -2800,10 +2891,10 @@
         gap: var(--fe-space-1, 4px);
     }
 
+    // Wraps inside the column: unwrapped, a long check-in date widens this row's cell and shifts its other columns.
     &__time {
         font-size: var(--fe-text-xs, 12px);
         line-height: 1.3;
-        white-space: nowrap;
         color: var(--fe-secondary-text, #525866);
     }
 
@@ -2997,6 +3088,9 @@
 }
 
 .fe-event-detail {
+    // Inherited by every row: an unbroken title, venue or address would otherwise scroll the drawer sideways.
+    overflow-wrap: anywhere;
+
     > :first-child {
         margin-top: 0;
     }
@@ -3112,6 +3206,10 @@
             font-size: var(--fe-text-xs, 12px);
             color: var(--fe-tertiary-text, #6B7280);
         }
+
+        &.fe-event-detail__row-text--address {
+            white-space: pre-line;
+        }
     }
 
     &__row-link {
@@ -3123,9 +3221,43 @@
         color: var(--fe-wp-link, #2271b1);
     }
 
-    &__action {
-        width: 100%;
+    // Lets the row's text column shrink, so a long link can truncate.
+    &__public {
+        min-width: 0;
+    }
+
+    // The public link and its copy button on one line; a long link ends in an ellipsis.
+    &__public-link {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        margin-top: 2px;
+
+        .fe-event-detail__row-link {
+            min-width: 0;
+            margin-top: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        // Icon-sized: the admin's 36px button height would push the line away from its title.
+        .el-button {
+            flex-shrink: 0;
+            height: auto;
+            padding: 0;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px);
         margin-top: var(--fe-space-5, 20px);
+
+        .el-button + .el-button {
+            margin-left: 0;
+        }
     }
 
     &__section {
@@ -3143,5 +3275,184 @@
 
     &__description {
         color: var(--fe-secondary-text, #525866);
+    }
+}
+
+// Milkdown's editor in our colours, so both modes follow the admin theme. Crepe sets its
+// variables on `.milkdown`; one class deeper wins whichever stylesheet loads last.
+.fe-markdown-editor {
+    // Over the fields below it, so its slash menu and toolbar aren't painted under them.
+    position: relative;
+    z-index: 2;
+    min-height: 240px;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius, 8px);
+    background-color: var(--fe-primary-bg, #ffffff);
+
+    // Crepe drops the editor's own focus outline; the frame shows focus instead.
+    &:focus-within {
+        border-color: var(--fe-border-strong, #808b9c);
+    }
+
+    .milkdown {
+        --crepe-color-background: var(--fe-primary-bg, #ffffff);
+        --crepe-color-on-background: var(--fe-primary-text, #19283a);
+        --crepe-color-surface: var(--fe-secondary-bg, #f3f5fa);
+        --crepe-color-surface-low: var(--fe-hover-bg, #f9fafb);
+        --crepe-color-on-surface: var(--fe-primary-text, #19283a);
+        --crepe-color-on-surface-variant: var(--fe-secondary-text, #525866);
+        --crepe-color-outline: var(--fe-border-strong, #808b9c);
+        --crepe-color-primary: var(--fe-accent, #253241);
+        --crepe-color-secondary: var(--fe-active-bg, #f0f0f1);
+        --crepe-color-on-secondary: var(--fe-primary-text, #19283a);
+        --crepe-color-inverse: var(--fe-primary-text, #19283a);
+        --crepe-color-on-inverse: var(--fe-primary-bg, #ffffff);
+        --crepe-color-inline-code: var(--fe-danger-text, #cf222e);
+        --crepe-color-error: var(--fe-danger-text, #cf222e);
+        --crepe-color-hover: var(--fe-hover-bg, #f9fafb);
+        --crepe-color-selected: var(--fe-active-bg, #f0f0f1);
+        --crepe-color-inline-area: var(--fe-secondary-bg, #f3f5fa);
+        --crepe-font-title: inherit;
+        --crepe-font-default: inherit;
+        --crepe-shadow-1: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        --crepe-shadow-2: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        // The frame paints the background, so its rounded border isn't covered at the corners.
+        background: transparent;
+
+        // Crepe pads for a full page.
+        .ProseMirror {
+            min-height: 240px;
+            padding: 12px 16px;
+
+            // wp-admin's common.css colours headings #1d2327, and Crepe sets none; dark mode needs the editor's.
+            h1, h2, h3, h4, h5, h6 {
+                color: inherit;
+            }
+
+            // Crepe's heading margin would push a first-line heading away from the frame's top.
+            > :first-child {
+                margin-top: 0;
+            }
+
+            // Crepe sizes paragraphs (16px on a 24px line) but not list numbers, which took wp-admin's
+            // 13px and sat high beside the text.
+            milkdown-list-item-block li .label-wrapper {
+                color: var(--fe-secondary-text, #525866);
+
+                .label {
+                    font-size: 16px;
+                    line-height: 24px;
+                }
+
+                svg {
+                    fill: currentColor;
+                }
+            }
+
+            // Crepe indents a quote 40px past its bar; the event page uses 16px.
+            blockquote {
+                padding-left: 16px;
+            }
+        }
+
+        // Crepe's other floating boxes, like the "/" menu below: the selection toolbar, the link
+        // preview and editor, a table column's tools and a code block's language list.
+        milkdown-toolbar,
+        milkdown-link-preview > .link-preview,
+        milkdown-link-edit > .link-edit,
+        milkdown-table-block .cell-handle .button-group,
+        milkdown-code-block .list-wrapper {
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius, 8px);
+            background: var(--fe-primary-bg, #ffffff);
+            box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        }
+
+        // Crepe names the link boxes' icon buttons `.button`, which wp-admin styles as its own (border, 40px height).
+        milkdown-link-preview > .link-preview > .button,
+        milkdown-link-edit > .link-edit > .button {
+            min-height: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+
+            &:hover {
+                background: var(--fe-hover-bg, #f9fafb);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--fe-primary-text, #19283a);
+                outline-offset: 1px;
+            }
+        }
+
+        // As in fcom's editor: no drag handle beside each block; "/" opens the menu.
+        milkdown-block-handle {
+            display: none;
+        }
+
+        // The "/" menu, sized and coloured like the navbar's dropdowns. No group tabs: the list
+        // scrolls, and typing after "/" filters it.
+        milkdown-slash-menu {
+            min-width: 200px;
+            padding: var(--fe-space-2, 8px);
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius, 8px);
+            background: var(--fe-primary-bg, #ffffff);
+            box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+            .tab-group {
+                display: none;
+            }
+
+            .menu-groups {
+                max-height: 320px;
+                padding: 0;
+            }
+
+            .menu-groups .menu-group {
+                h6 {
+                    padding: 6px 12px 4px;
+                    font-size: 11px;
+                    line-height: 16px;
+                    letter-spacing: 0.04em;
+                    color: var(--fe-tertiary-text, #6b7280);
+                }
+
+                li {
+                    min-width: 0;
+                    gap: var(--fe-space-2, 8px);
+                    padding: 8px 12px;
+                    color: var(--fe-secondary-text, #525866);
+
+                    > svg {
+                        width: 18px;
+                        height: 18px;
+                        color: currentColor;
+                        fill: currentColor;
+                    }
+
+                    > span {
+                        font-size: var(--fe-text-sm, 14px);
+                        font-weight: 500;
+                    }
+                }
+
+                li.hover {
+                    background: var(--fe-hover-bg, #f9fafb);
+                    color: var(--fe-primary-text, #19283a);
+                }
+
+                li.active {
+                    background: var(--fe-active-bg, #f0f0f1);
+                    color: var(--fe-accent, #253241);
+                }
+            }
+
+            .menu-groups .menu-group + .menu-group::before {
+                margin: 4px 12px;
+                background: var(--fe-primary-border, #eaecf0);
+            }
+        }
     }
 }

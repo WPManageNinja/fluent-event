@@ -75,15 +75,15 @@
                 }
 
                 if (status === 'going' && notifications.registration_confirmation?.enabled) {
-                    return this.$t('Send confirmation emails');
+                    return this.$t('Send Confirmation Emails');
                 }
 
                 if (['not_going', 'cancelled'].includes(status) && notifications.registration_cancellation?.enabled) {
-                    return this.$t('Send cancellation emails');
+                    return this.$t('Send Cancellation Emails');
                 }
 
                 if (status === 'waitlisted' && notifications.registration_waitlist?.enabled) {
-                    return this.$t('Send waitlist emails');
+                    return this.$t('Send Waitlist Emails');
                 }
 
                 return '';

@@ -6,14 +6,20 @@ import {
     errorMessage,
     eventPhase,
     timeFormat,
+    dateFormat,
     eventStart,
     eventMonth,
     eventDay,
     timezoneOffset,
     isSeated,
     hasEventActions,
-    guestCountLabel
+    guestCountLabel,
+    setPageTitle,
+    localizedDateNames
 } from '../../../resources/fcom-portal/utils';
+import dayjs from 'dayjs';
+import 'dayjs/locale/de';
+import en from 'element-plus/dist/locale/en.mjs';
 
 const respond = (body, status = 200) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
 const sent = () => {
@@ -172,18 +178,21 @@ describe('event time helpers', () => {
         expect(eventPhase({ ...meetup, is_past: true })).toBe('ended');
     });
 
-    it("formats the start in fcom's time format", () => {
-        expect(eventStart(meetup)).toBe('Tue, Oct 20, 2026 · 6:00 PM');
+    it("formats the start in fcom's date and time format", () => {
+        expect(eventStart(meetup)).toBe('October 20, 2026 · 6:00 PM');
 
+        window.fluentComAdmin.date_formatter = 'DD/MM/YYYY';
         window.fluentComAdmin.time_formatter = 'HH:mm';
+        expect(dateFormat()).toBe('DD/MM/YYYY');
         expect(timeFormat()).toBe('HH:mm');
-        expect(eventStart(meetup)).toBe('Tue, Oct 20, 2026 · 18:00');
+        expect(eventStart(meetup)).toBe('20/10/2026 · 18:00');
     });
 
-    it('falls back to a 12-hour clock without fcom vars', () => {
+    it('falls back to a 12-hour clock and a short date without fcom vars', () => {
         delete window.fluentComAdmin;
 
         expect(timeFormat()).toBe('h:mm A');
+        expect(dateFormat()).toBe('MMM D, YYYY');
     });
 
     it('splits the start into a month and unpadded day for the date chip', () => {
@@ -210,20 +219,58 @@ describe('RSVP helpers', () => {
         expect(isSeated({ my_status: null })).toBe(false);
     });
 
-    it('offers actions on RSVP events and on any past event', () => {
+    it('offers actions on RSVP and open events, and on any past event', () => {
         expect(hasEventActions({ entry_type: 'rsvp' })).toBe(true);
-        expect(hasEventActions({ entry_type: 'open' })).toBe(false);
-        expect(hasEventActions({ entry_type: 'open', is_past: true })).toBe(true);
+        expect(hasEventActions({ entry_type: 'open' })).toBe(true);
+        expect(hasEventActions({ entry_type: 'none' })).toBe(false);
+        expect(hasEventActions({ entry_type: 'none', is_past: true })).toBe(true);
     });
 
-    it('shows a going count for RSVP events, zero included', () => {
+    it('shows the going count the server sends, zero included', () => {
         expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 0 })).toBe('0 going');
-        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 12 })).toBe('12 going');
+        expect(guestCountLabel({ entry_type: 'open', guest_count: 12 })).toBe('12 going');
     });
 
-    it('hides the count when the host hid it or the event is open', () => {
+    it('hides the count when the server withholds it', () => {
         expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null })).toBe('');
-        expect(guestCountLabel({ entry_type: 'open', guest_count: 12 })).toBe('');
+        expect(guestCountLabel({ entry_type: 'none' })).toBe('');
+    });
+});
+
+describe('setPageTitle', () => {
+    it("titles the tab the way fcom titles its own pages", () => {
+        window.fluentComAdmin.site_title = 'Acme Community';
+        setPageTitle('All Events');
+
+        expect(document.title).toBe('All Events - Acme Community');
+    });
+
+    it('uses the title alone when the site has none', () => {
+        window.fluentComAdmin.site_title = '';
+        setPageTitle('Create Event');
+
+        expect(document.title).toBe('Create Event');
+    });
+});
+
+describe('localizedDateNames', () => {
+    const german = (...args) => dayjs(...args).locale('de');
+
+    it("names Element Plus's days and months in dayjs's language", () => {
+        const { datepicker } = localizedDateNames(en, german).el;
+
+        expect(Object.values(datepicker.weeks)).toEqual(['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.']);
+        expect(datepicker.weeksFull.mon).toBe('Montag');
+        expect(datepicker.months.mar).toBe('März');
+        expect(datepicker.month12).toBe('Dezember');
+    });
+
+    it('keeps every other string and leaves the English locale untouched', () => {
+        const locale = localizedDateNames(en, german);
+
+        expect(locale.name).toBe('en');
+        expect(locale.el.datepicker.today).toBe('Today');
+        expect(en.el.datepicker.weeks.mon).toBe('Mon');
     });
 
     it('counts against the capacity when the event has one', () => {

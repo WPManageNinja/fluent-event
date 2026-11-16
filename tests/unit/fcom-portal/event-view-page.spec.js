@@ -7,6 +7,7 @@ import EventActions from '../../../resources/fcom-portal/EventActions';
 const meetup = (overrides = {}) => ({
     id: 5,
     title: 'Community meetup',
+    slug: 'community-meetup',
     description: '',
     start_at: '2026-10-20 12:00:00',
     end_at: '2026-10-20 14:00:00',
@@ -26,18 +27,20 @@ const meetup = (overrides = {}) => ({
     ...overrides
 });
 
+// The URL names the space and the event; its post, which fcom reads it by, has a slug of its own.
 const page = async (event, feed = {}) => {
+    fetch.mockResolvedValueOnce(new Response(JSON.stringify({ feed_slug: 'meetup-post' })));
     fetch.mockResolvedValueOnce(new Response(JSON.stringify({
-        feed: { slug: 'community-meetup', space: { slug: 'design' }, fluent_event: event, ...feed }
+        feed: { slug: 'meetup-post', space: { slug: 'design', title: 'Design' }, xprofile: { display_name: 'Jhon Doe', avatar: '' }, fluent_event: event, ...feed }
     })));
-    const router = { push: vi.fn(), back: vi.fn() };
+    const router = { push: vi.fn(), back: vi.fn(), resolve: (route) => ({ href: `/portal/post/${route.params.feed_slug}` }) };
     const wrapper = mount(EventViewPage, {
-        props: { feedSlug: 'community-meetup', router },
+        props: { spaceSlug: 'design', eventSlug: 'community-meetup', router, onFeed: vi.fn() },
         global: { mocks: { $t: t } }
     });
     await flushPromises();
 
-    return { wrapper, vm: wrapper.vm, router };
+    return { wrapper, vm: wrapper.vm, router, onFeed: wrapper.props('onFeed') };
 };
 
 beforeEach(() => {
@@ -55,17 +58,74 @@ afterEach(() => {
 
 describe('EventViewPage', () => {
     describe('loading', () => {
+        it('titles the tab with the event once it loads', async () => {
+            window.fluentComAdmin.site_title = 'Acme Community';
+
+            await page(meetup());
+
+            expect(document.title).toBe('Community meetup - Acme Community');
+        });
+
+        it('leaves the tab title alone when the member left before the event loaded', async () => {
+            document.title = 'All Feeds - Acme Community';
+            fetch.mockResolvedValueOnce(new Response(JSON.stringify({ feed_slug: 'meetup-post' })));
+            let answer;
+            fetch.mockReturnValueOnce(new Promise((resolve) => { answer = resolve; }));
+            const wrapper = mount(EventViewPage, {
+                props: { spaceSlug: 'design', eventSlug: 'community-meetup', router: { push: vi.fn(), back: vi.fn() }, onFeed: vi.fn() },
+                global: { mocks: { $t: t } }
+            });
+            await flushPromises();
+
+            wrapper.unmount();
+            answer(new Response(JSON.stringify({ feed: { slug: 'meetup-post', fluent_event: meetup() } })));
+            await flushPromises();
+
+            expect(document.title).toBe('All Feeds - Acme Community');
+        });
+
         it("reads the event through fcom's post endpoint, so it is visible exactly when its post is", async () => {
             const { wrapper } = await page(meetup());
 
-            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/community-meetup/by-slug');
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/community/events/by-slug?space=design&slug=community-meetup');
+            expect(fetch.mock.calls[1][0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/meetup-post/by-slug');
             expect(wrapper.find('.fe-event-view__title').text()).toBe('Community meetup');
         });
 
-        it('shows the unavailable state when the post is gone', async () => {
-            fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Not found' }), { status: 404 }));
+        it("hands the post to the shell once its Comments card is on the page, for fcom's comment box", async () => {
+            const { wrapper, onFeed } = await page(meetup());
+
+            expect(wrapper.find('#fe-event-view-comments').exists()).toBe(true);
+            expect(onFeed).toHaveBeenCalledWith(expect.objectContaining({ slug: 'meetup-post' }));
+        });
+
+        it('leaves the Comments card out when the post has comments turned off', async () => {
+            const { wrapper, onFeed } = await page(meetup(), { meta: { comments_disabled: 'yes' } });
+
+            expect(wrapper.find('#fe-event-view-comments').exists()).toBe(false);
+            expect(onFeed).not.toHaveBeenCalled();
+        });
+
+        // The event page has no other way back to its post, its author or its space.
+        it('names who posted the event and where, and links to the post', async () => {
+            const { wrapper, router } = await page(meetup());
+            const origin = wrapper.find('.fe-event-view__origin');
+
+            expect(origin.text()).toMatch(/Posted by Jhon Doe in\s+Design/);
+            expect(origin.find('.fe-event-view__origin-space').text()).toBe('Design');
+            expect(origin.find('a').attributes('href')).toBe('/portal/post/meetup-post');
+
+            await origin.find('a').trigger('click');
+            expect(router.push).toHaveBeenCalledWith({ name: 'single_feed', params: { feed_slug: 'meetup-post' } });
+
+            const { wrapper: global } = await page(meetup(), { space: null });
+            expect(global.find('.fe-event-view__origin').text()).toContain('Posted by Jhon Doe on their profile');
+        });
+
+        it('shows the unavailable state when no visible event has that slug in that space', async () => {
+            fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'This event is not available.' }), { status: 404 }));
             const wrapper = mount(EventViewPage, {
-                props: { feedSlug: 'gone', router: {} },
+                props: { spaceSlug: 'design', eventSlug: 'gone', router: {}, onFeed: vi.fn() },
                 global: { mocks: { $t: t } }
             });
             await flushPromises();
@@ -109,12 +169,12 @@ describe('EventViewPage', () => {
             }));
 
             const heading = wrapper.find('.fe-event-view__meta').text();
-            expect(heading).toContain('Tuesday, October 20, 2026');
+            expect(heading).toContain('October 20, 2026');
             expect(heading).toContain('3:00 AM – 4:00 AM (Asia/Dhaka)');
             expect(heading).not.toContain('10:00 PM');
 
             expect(vm.day).toBe('19');
-            expect(vm.dateLabel).toBe('Monday, October 19, 2026');
+            expect(vm.dateLabel).toBe('October 19, 2026');
             expect(vm.localTimeLabel).toBe('Oct 20, 3:00 AM – 4:00 AM (Asia/Dhaka)');
         });
 
@@ -223,7 +283,7 @@ describe('EventViewPage', () => {
             const { wrapper } = await page(meetup({ registration_open: false, registration_opens_at: '2026-10-18 09:00:00' }));
 
             expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('Registration not open yet');
-            expect(wrapper.find('.fe-event-view__notice-desc').text()).toBe('Registration opens Sun, Oct 18, 2026 · 9:00 AM.');
+            expect(wrapper.find('.fe-event-view__notice-desc').text()).toBe('Registration opens October 18, 2026 · 9:00 AM.');
             expect(wrapper.findComponent(EventActions).exists()).toBe(false);
         });
 
@@ -289,7 +349,7 @@ describe('EventViewPage', () => {
         it('says when registration closes while it is open', async () => {
             const { wrapper } = await page(meetup({ registration_closes_at: '2026-10-19 18:00:00' }));
 
-            expect(wrapper.find('.fe-event-view__note').text()).toBe('Registration closes Mon, Oct 19, 2026 · 6:00 PM');
+            expect(wrapper.find('.fe-event-view__note').text()).toBe('Registration closes October 19, 2026 · 6:00 PM');
         });
     });
 
@@ -357,6 +417,13 @@ describe('EventViewPage', () => {
         });
     });
 
+    describe('open', () => {
+        it('offers a member the Register button, then marks them registered', async () => {
+            expect((await page(meetup({ entry_type: 'open' }))).wrapper.find('.fe-event-view__rsvp button').text()).toBe('Register');
+            expect((await page(meetup({ entry_type: 'open', my_status: 'going' }))).wrapper.find('.fe-rsvp__label').text()).toBe('Registered');
+        });
+    });
+
     describe('getting there', () => {
         it('offers a join button only for an http(s) meeting link', async () => {
             const online = (url) => meetup({ venue_type: 'online', online_meeting_url: url });
@@ -381,10 +448,11 @@ describe('EventViewPage', () => {
     });
 
     describe('add to calendar', () => {
-        it('is offered once the member is going, or on any open event', async () => {
+        it('is offered once the member is going, or on any no-entry event', async () => {
             expect((await page(meetup())).vm.canAddToCalendar).toBe(false);
             expect((await page(meetup({ my_status: 'going' }))).vm.canAddToCalendar).toBe(true);
-            expect((await page(meetup({ entry_type: 'open' }))).vm.canAddToCalendar).toBe(true);
+            expect((await page(meetup({ entry_type: 'none' }))).vm.canAddToCalendar).toBe(true);
+            expect((await page(meetup({ entry_type: 'open' }))).vm.canAddToCalendar).toBe(false);
         });
 
         it('is withdrawn once the event has ended', async () => {
@@ -416,8 +484,8 @@ describe('EventViewPage', () => {
         });
 
         it('builds a Google Calendar link in UTC with the venue as location', async () => {
-            const { vm } = await page(meetup({ my_status: 'going' }));
-            const params = new URL(vm.googleCalendarUrl).searchParams;
+            const { wrapper } = await page(meetup({ my_status: 'going' }));
+            const params = new URL(wrapper.find('a.fe-event-view__calendar-link').attributes('href')).searchParams;
 
             expect(params.get('text')).toBe('Community meetup');
             expect(params.get('dates')).toBe('20261020T120000Z/20261020T140000Z');
@@ -430,14 +498,14 @@ describe('EventViewPage', () => {
             expect(vm.place).toBe(window.location.href);
         });
 
-        it('downloads an .ics file named after the post', async () => {
+        it('downloads an .ics file named after the event', async () => {
             vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:ics');
             vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
             let link = null;
             vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
                 link = this;
             });
-            const { wrapper } = await page(meetup({ entry_type: 'open' }));
+            const { wrapper } = await page(meetup({ entry_type: 'none' }));
 
             await wrapper.find('button.fe-event-view__calendar-link').trigger('click');
 
@@ -456,15 +524,14 @@ describe('EventViewPage', () => {
             expect(router.push).not.toHaveBeenCalled();
         });
 
-        it("falls back to the space's events, or all events, on a direct visit", async () => {
-            const inSpace = await page(meetup());
-            await inSpace.wrapper.find('.fe-event-view__back').trigger('click');
+        it('only goes back, with no fixed page, on a direct visit too', async () => {
+            const { wrapper, router } = await page(meetup());
+            window.history.replaceState(null, '');
 
-            const global = await page(meetup(), { space: null });
-            await global.wrapper.find('.fe-event-view__back').trigger('click');
+            await wrapper.find('.fe-event-view__back').trigger('click');
 
-            expect(inSpace.router.push).toHaveBeenCalledWith({ name: 'fe_space_events', params: { space: 'design' } });
-            expect(global.router.push).toHaveBeenCalledWith({ name: 'fe_events' });
+            expect(router.back).toHaveBeenCalled();
+            expect(router.push).not.toHaveBeenCalled();
         });
     });
 });

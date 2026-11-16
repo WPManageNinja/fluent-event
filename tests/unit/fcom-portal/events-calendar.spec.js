@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { t } from '../../../resources/fcom-portal/utils';
+import dayjs from 'dayjs';
+import 'dayjs/locale/de';
+import { provideGlobalConfig } from 'element-plus';
+import en from 'element-plus/dist/locale/en.mjs';
+import { t, localizedDateNames } from '../../../resources/fcom-portal/utils';
 import EventsCalendar from '../../../resources/fcom-portal/app/EventsCalendar.vue';
 
 let nextId = 1;
@@ -12,6 +16,20 @@ const calendar = (props = {}) => mount(EventsCalendar, {
 });
 
 describe('EventsCalendar', () => {
+    it("heads the month grid with the weekday names the portal app provides", () => {
+        const locale = localizedDateNames(en, (...args) => dayjs(...args).locale('de'));
+        const wrapper = mount(EventsCalendar, {
+            props: { events: [], date: '2026-10-14', mode: 'month' },
+            global: {
+                mocks: { $t: t },
+                stubs: { ElCalendar: false },
+                plugins: [{ install: (app) => provideGlobalConfig({ locale }, app) }]
+            }
+        });
+
+        expect(wrapper.findAll('.el-calendar-table thead th').map(th => th.text())).toEqual(['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.']);
+    });
+
     it('places a multi-day event on each day it spans, numbering the days', () => {
         const retreat = event('2026-10-13 18:00:00', '2026-10-15 12:00:00');
         const days = calendar({ events: [retreat], mode: 'month' }).vm.entriesByDay;

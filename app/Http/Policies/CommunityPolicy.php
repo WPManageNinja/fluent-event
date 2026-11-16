@@ -4,7 +4,6 @@ namespace FluentEvent\App\Http\Policies;
 
 use FluentCommunity\App\Models\XProfile;
 use FluentCommunity\App\Services\Helper as FcomHelper;
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\Framework\Http\Request\Request;
 
 /**
@@ -18,7 +17,7 @@ class CommunityPolicy extends Policy
         return $this->portalAllows(get_current_user_id());
     }
 
-    // RSVP is for logged-in members only; their REST cookie nonce is already checked.
+    // Member registration (RSVP or open) is for logged-in members only; their REST cookie nonce is already checked.
     public function register(Request $request, ...$args)
     {
         $userId = get_current_user_id();
@@ -26,17 +25,16 @@ class CommunityPolicy extends Policy
         return $userId > 0 && $this->portalAllows($userId);
     }
 
-    // Only the create-event page asks for the editor, and only event creators reach it.
-    public function getEditorAssets(Request $request, ...$args)
+    // A logged-out visitor on a portal open to visitors; the handler checks the event's nonce.
+    public function registerGuest(Request $request, ...$args)
     {
-        $userId = get_current_user_id();
-
-        return $userId && PermissionManager::userCan('write_events', $userId) && $this->portalAllows($userId);
+        return !get_current_user_id() && $this->portalAllows(0);
     }
 
     private function portalAllows($userId)
     {
-        if (!defined('FLUENT_COMMUNITY_PLUGIN_VERSION')) {
+        // Covers fcom being inactive too: it fires this only while FluentEvent is enabled there.
+        if (!did_action('fluent_community/fluent_event/init')) {
             return false;
         }
 

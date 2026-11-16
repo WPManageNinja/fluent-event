@@ -54,6 +54,9 @@ abstract class TestCase extends BaseTestCase
                 return vsprintf(str_replace(['%s', '%d', '%f'], ["'%s'", '%d', '%f'], $query), $args);
             });
 
+            $wpdb->shouldReceive('esc_like')->andReturnUsing(function ($text) {
+                return addcslashes($text, '_%\\');
+            });
             $wpdb->shouldReceive('get_results')->andReturn([]);
             $wpdb->shouldReceive('get_row')->andReturn(null);
             $wpdb->shouldReceive('get_var')->andReturn(null);
@@ -71,6 +74,7 @@ abstract class TestCase extends BaseTestCase
         Monkey\Functions\when('esc_attr')->returnArg();
         Monkey\Functions\when('esc_url')->returnArg();
         Monkey\Functions\when('wp_kses_post')->returnArg();
+        Monkey\Functions\when('wp_create_nonce')->justReturn('nonce');
 
         // Filters pass their value through, actions do nothing.
         Monkey\Functions\when('apply_filters')->alias(function ($hook, $value = null, ...$args) {

@@ -45,7 +45,7 @@ describe('GuestBulkModal', () => {
     it('offers the email that matches the new status, and only when that email is switched on', () => {
         notifications(true, false);
 
-        expect(modal({ action: 'change_status', status: 'going', label: 'Going' }).vm.emailLabel).toBe('Send confirmation emails');
+        expect(modal({ action: 'change_status', status: 'going', label: 'Going' }).vm.emailLabel).toBe('Send Confirmation Emails');
         expect(modal({ action: 'change_status', status: 'cancelled', label: 'Cancelled' }).vm.emailLabel).toBe('');
         expect(modal({ action: 'change_status', status: 'waitlisted', label: 'Waitlisted' }).vm.emailLabel).toBe('');
         expect(modal({ action: 'change_status', status: 'checked_in', label: 'Checked In' }).vm.emailLabel).toBe('');
@@ -54,7 +54,7 @@ describe('GuestBulkModal', () => {
     it('offers the waitlist email when guests move to the waitlist', () => {
         notifications(false, false, true);
 
-        expect(modal({ action: 'change_status', status: 'waitlisted', label: 'Waitlisted' }).vm.emailLabel).toBe('Send waitlist emails');
+        expect(modal({ action: 'change_status', status: 'waitlisted', label: 'Waitlisted' }).vm.emailLabel).toBe('Send Waitlist Emails');
     });
 
     it('never sends an email the modal did not offer', () => {

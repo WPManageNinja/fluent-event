@@ -19,6 +19,7 @@ require_once __DIR__ . '/logoicon.php';
 
 $app->addAction('admin_menu', 'AdminMenuHandler');
 $app->addAction('in_admin_header', ['AdminMenuHandler', 'removeAdminNotices']);
+$app->addAction('admin_enqueue_scripts', ['AdminMenuHandler', 'enqueueAdminPageAssets']);
 
 $app->addCustomAction('exception', 'ExceptionHandler');
 
@@ -27,17 +28,22 @@ $app->addCustomAction('exception', 'ExceptionHandler');
  */
 $app->addAction('init', 'CPTHandler@registerPostTypes');
 
+(new \FluentEvent\App\Hooks\Handlers\FrontEndHandler())->register();
+(new \FluentEvent\App\Hooks\Handlers\BlockEditorHandler())->register();
+
+$app->addAction('init', 'ActivationHandler@maybeUpgrade');
+
 /**
  * Cascade cleanup rides the deletion actions - never model boot hooks.
  */
 (new \FluentEvent\App\Hooks\Handlers\CleanupHandlers\CleanupHandler())->register();
 
 /**
- * FluentCommunity bridge — only registers while FluentCommunity is active. fcom
- * fires portal_loaded at plugins_loaded@10, so subscribe at include time.
+ * FluentCommunity bridge — fcom fires fluent_event/init (during portal_loaded, plugins_loaded@10)
+ * only once an admin enables FluentEvent in its Features, so subscribe at include time.
  */
-if (did_action('fluent_community/portal_loaded')) {
+if (did_action('fluent_community/fluent_event/init')) {
     \FluentEvent\Modules\FluentCommunity\Bootstrap::register();
 } else {
-    add_action('fluent_community/portal_loaded', ['FluentEvent\Modules\FluentCommunity\Bootstrap', 'register']);
+    add_action('fluent_community/fluent_event/init', ['FluentEvent\Modules\FluentCommunity\Bootstrap', 'register'], 10, 2);
 }

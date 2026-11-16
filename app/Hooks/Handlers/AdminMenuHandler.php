@@ -3,7 +3,8 @@
 namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
-use FluentEvent\App\Services\PermissionManager;
+use FluentEvent\App\Models\Calendar;
+use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -61,24 +62,21 @@ class AdminMenuHandler
      */
     public function add()
     {
-        if (!PermissionManager::hasAnyPermission()) return;
-        $capabilities = PermissionManager::getMenuCapabilities();
-
         add_menu_page(
             __('FluentEvent', 'fluent-event'),
             __('FluentEvent', 'fluent-event'),
-            $capabilities['dashboard'],
+            'manage_options',
             $this->slug,
             [$this, 'render'],
             $this->getMenuIcon(),
             $this->position
         );
 
-        $this->addSubmenu(__('Dashboard', 'fluent-event'), '', $capabilities['dashboard']);
-        // $this->addSubmenu(__('Add New Event', 'fluent-event'), 'events/new', $capabilities['add_event']);
-        $this->addSubmenu(__('Calendars', 'fluent-event'), 'calendars', $capabilities['calendars']);
-        $this->addSubmenu(__('Events', 'fluent-event'), 'events', $capabilities['events']);
-        $this->addSubmenu(__('Settings', 'fluent-event'), 'settings', $capabilities['settings']);
+        $this->addSubmenu(__('Dashboard', 'fluent-event'), '');
+        $this->addSubmenu(__('Add New Event', 'fluent-event'), 'events/new');
+        $this->addSubmenu(__('Calendars', 'fluent-event'), 'calendars');
+        $this->addSubmenu(__('Events', 'fluent-event'), 'events');
+        $this->addSubmenu(__('Settings', 'fluent-event'), 'settings');
     }
 
     /**
@@ -87,19 +85,16 @@ class AdminMenuHandler
      * @param  string $label       Translated menu label.
      * @param  string $route       SPA route appended to the base URL, or '' for
      *                             the parent page itself.
-     * @param  string $capability  Capability required to see this entry.
-     *                             WordPress filters each submenu on its own
-     *                             capability, so entries can differ.
      *
      * @return null
      */
-    protected function addSubmenu($label, $route, $capability)
+    protected function addSubmenu($label, $route)
     {
         add_submenu_page(
             $this->slug,
             $label,
             $label,
-            $capability,
+            'manage_options',
             $route ? esc_url($this->baseUrl . $route) : $this->slug,
             $route ? '' : [$this, 'render']
         );
@@ -118,14 +113,49 @@ class AdminMenuHandler
     }
 
     /**
+     * Set the dark class in <head> before paint, so dark mode has no light flash.
+     *
+     * @return null
+     */
+    protected function enqueueThemeClass()
+    {
+        $script = <<<'JS'
+(function(){var d=document.documentElement,t='';try{t=localStorage.getItem('fluent_theme_mode')||'';}catch(e){}
+var p=t.split(':'),m=(p[0]==='light'||p[0]==='dark')?p[0]:'system',r=p[1]||(m!=='system'?m:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+d.setAttribute('data-fe-theme',m);if(r==='dark'){d.classList.add('fluent_theme_dark','dark');}})();
+JS;
+
+        wp_register_script($this->slug . '_theme_class', false, [], FLUENT_EVENT_PLUGIN_VERSION, false);
+        wp_enqueue_script($this->slug . '_theme_class');
+        wp_add_inline_script($this->slug . '_theme_class', $script);
+    }
+
+    /**
+     * Enqueue the admin page assets before the admin header prints, so the
+     * theme class and stylesheet land in <head> and the PHP topbar paints
+     * already styled.
+     *
+     * @param string $hookSuffix The current admin page.
+     *
+     * @return null
+     */
+    public function enqueueAdminPageAssets($hookSuffix)
+    {
+        if ($hookSuffix !== 'toplevel_page_' . $this->slug) {
+            return;
+        }
+
+        $this->enqueueThemeClass();
+        $this->enqueueAssets($this->slug);
+    }
+
+    /**
      * Render the menu page
-     * 
+     *
      * @return null
      */
     public function render()
     {
-        $this->enqueueAssets($this->slug);
-
         $this->app->view->render('admin.menu', [
             'slug'           => $this->slug,
             'baseUrl'        => $this->baseUrl,
@@ -144,31 +174,23 @@ class AdminMenuHandler
      */
     protected function getMenuItemsList()
     {
-        $items = [
+        return [
             [
                 'key'       => 'dashboard',
                 'label'     => __('Dashboard', 'fluent-event'),
                 'permalink' => $this->baseUrl,
             ],
-        ];
-
-        if (PermissionManager::userCan(['read_calendars', 'write_calendars'])) {
-            $items[] = [
+            [
                 'key'       => 'calendars',
                 'label'     => __('Calendars', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'calendars',
-            ];
-        }
-
-        if (PermissionManager::userCan(['read_events', 'write_events'])) {
-            $items[] = [
+            ],
+            [
                 'key'       => 'events',
                 'label'     => __('Events', 'fluent-event'),
                 'permalink' => $this->baseUrl . 'events',
-            ];
-        }
-
-        return $items;
+            ],
+        ];
     }
 
     /**
@@ -178,10 +200,6 @@ class AdminMenuHandler
      */
     protected function getRightMenuItemsList()
     {
-        if (!PermissionManager::userCan(['read_settings', 'write_settings'])) {
-            return [];
-        }
-
         $children = [
             [
                 'key'       => 'settings_general',
@@ -194,14 +212,6 @@ class AdminMenuHandler
                 'permalink' => $this->baseUrl . 'settings/email-notifications',
             ],
         ];
-
-        if (PermissionManager::userCan(PermissionManager::ALL_DATA)) {
-            $children[] = [
-                'key'       => 'settings_team',
-                'label'     => __('Team', 'fluent-event'),
-                'permalink' => $this->baseUrl . 'settings/team',
-            ];
-        }
 
         return [
             [
@@ -338,18 +348,15 @@ class AdminMenuHandler
     {
         $authUser = get_user_by('ID', get_current_user_id());
 
-        $theme = null;
-        if ($themes = $this->config->get('theme.themes')) {
-            $theme = $themes[$this->config->get('theme.default')] ?? null;
-        }
-
         wp_localize_script($slug . '_admin_app', 'fluentEventAdmin', [
             'env'           => $this->app->env(),
             'slug'          => $slug,
-            'theme'         => $theme,
             'user_locale'   => get_locale(),
             'timezone'      => wp_timezone_string(),
             'start_of_week' => (int) get_option('start_of_week', 0),
+            'calendar_default_color' => Calendar::DEFAULT_THEME_COLOR,
+            'calendar_title_max_length' => Calendar::titleMaxLength(),
+            'event_venue_max_length' => Event::venueMaxLength(),
             'general_settings' => Settings::get(),
             'email_notifications' => Settings::get(Settings::EMAIL_NOTIFICATIONS),
             'date_format'      => DateTimeHelper::convertToDayJsFormat(get_option('date_format')),
@@ -362,13 +369,12 @@ class AdminMenuHandler
             'name'          => $this->config->get('app.name'),
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
             'logoUrl'       => Enqueue::getStaticFilePath('images/logo.svg'),
+            'fcom_logo'     => Enqueue::getStaticFilePath('images/fluent-community.svg'),
             'me'            => [
                 'id'          => $authUser->ID ?? null,
                 'email'       => $authUser->user_email ?? null,
                 'full_name'   => $authUser->display_name ?? null,
                 'avatar'      => get_avatar_url($authUser->ID ?? 0),
-                'is_admin'    => current_user_can('manage_options'),
-                'permissions' => PermissionManager::getUserPermissions(),
             ],
             'i18n'          => $this->getTranslationLabels($context),
         ]);

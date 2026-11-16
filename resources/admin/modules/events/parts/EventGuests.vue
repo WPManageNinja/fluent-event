@@ -11,7 +11,6 @@
                 />
 
                 <el-button
-                    v-if="$userCan('write_guests')"
                     type="primary"
                     @click="openCreate"
                 >
@@ -32,7 +31,7 @@
 
         <ErrorState v-else-if="error" :message="error" @retry="fetchGuests" />
 
-        <el-empty v-else-if="!rows.length" :description="$t('No guests yet.')" />
+        <el-empty v-else-if="!rows.length" :description="emptyMessage" />
 
         <template v-else>
             <div
@@ -43,7 +42,7 @@
                 :aria-busy="loading"
             >
                 <div class="fe-guests__row fe-guests__row--head" role="row">
-                    <span v-if="canWrite" class="fe-guests__select" role="columnheader">
+                    <span class="fe-guests__select" role="columnheader">
                         <el-checkbox
                             :model-value="allSelected"
                             :indeterminate="!allSelected && selectedIds.length > 0"
@@ -108,7 +107,7 @@
                 </div>
 
                 <div v-for="row in rows" :key="row.id" class="fe-guests__row" role="row">
-                    <span v-if="canWrite" class="fe-guests__select" role="cell">
+                    <span class="fe-guests__select" role="cell">
                         <el-checkbox
                             :model-value="selectedIds.includes(row.id)"
                             :aria-label="$t('Select %s', row.name)"
@@ -137,16 +136,7 @@
                     <p class="fe-guests__source" role="cell">{{ row.sourceLabel }}</p>
 
                     <div class="fe-guests__stage" role="cell">
-                        <el-tag
-                            v-if="!$userCan('write_guests')"
-                            class="fe-guests__tag"
-                            :type="row.tagType"
-                            size="small"
-                        >
-                            {{ row.statusLabel }}
-                        </el-tag>
-
-                        <ActionPopover v-else :width="160" placement="bottom-end">
+                        <ActionPopover :width="160" placement="bottom-end">
                             <template #trigger>
                                 <el-tag
                                     class="fe-guests__tag"
@@ -287,11 +277,13 @@
             };
         },
         computed: {
-            canWrite() {
-                return this.$userCan('write_guests');
-            },
             allSelected() {
                 return this.guests.length > 0 && this.guests.every(guest => this.selectedIds.includes(guest.id));
+            },
+            emptyMessage() {
+                return this.query.search || this.query.status
+                    ? this.$t('No guests match your search or filter.')
+                    : this.$t('No guests yet.');
             },
             statusLabels() {
                 return {
@@ -339,7 +331,7 @@
                             ? this.$t('at: %s', this.$formatDateTime(guest.checked_in_at))
                             : '',
                         initial: (guest.name || guest.email || '?').charAt(0).toUpperCase(),
-                        sourceLabel: guest.source ? this.$titleCase(guest.source) : '—',
+                        sourceLabel: guest.source ? this.$guestSourceLabel(guest.source) : '—',
                         statusLabel: this.statusLabels[guest.status] || guest.status,
                         tagType: {
                             going: 'success',
@@ -358,20 +350,16 @@
         },
         methods: {
             actionsFor(row) {
-                const actions = [
-                    { label: this.$t('View'), action: () => this.openDetails(row) },
-                ];
+                const actions = [{ label: this.$t('View'), action: () => this.openDetails(row) }];
 
-                if (this.$userCan('write_guests') && row.status === 'waitlisted') {
+                if (row.status === 'waitlisted') {
                     actions.push({ label: this.$t('Move to Going'), action: () => this.changeStatus(row, 'going', () => {}) });
                 }
 
-                if (this.$userCan('write_guests')) {
-                    actions.push(
-                        { label: this.$t('Edit'), action: () => this.openEdit(row) },
-                        { label: this.$t('Delete'), type: 'danger', action: () => this.promptDelete(row) },
-                    );
-                }
+                actions.push(
+                    { label: this.$t('Edit'), action: () => this.openEdit(row) },
+                    { label: this.$t('Delete'), type: 'danger', action: () => this.promptDelete(row) },
+                );
 
                 return actions;
             },
@@ -399,18 +387,26 @@
                     errorState: null,
                     successNotify: true,
                     errorNotify: true,
-                    onSuccess: response => {
-                        this.onGuestSaved(response.guest);
-                    },
+                    onSuccess: response => this.onGuestSaved(response.guest),
                 });
             },
+            // No refetch: the tab counts move with the saved guest, and its row stays in the current tab until the next load.
             onGuestSaved(guest) {
                 const index = this.guests.findIndex(item => item.id === guest.id);
+                const previous = index !== -1 ? this.guests[index].status : null;
 
                 if (index !== -1) {
                     this.guests.splice(index, 1, guest);
                 } else {
                     this.guests.unshift(guest);
+                    this.counts.all = (this.counts.all || 0) + 1;
+                }
+
+                if (previous !== guest.status) {
+                    if (previous) {
+                        this.counts[previous] = Math.max(0, (this.counts[previous] || 0) - 1);
+                    }
+                    this.counts[guest.status] = (this.counts[guest.status] || 0) + 1;
                 }
             },
             toggleGuest(id) {

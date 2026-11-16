@@ -1,7 +1,12 @@
 import dayjs from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import isoWeek from 'dayjs/plugin/isoWeek';
 
 dayjs.extend(updateLocale);
+dayjs.extend(advancedFormat);
+// advancedFormat's week tokens ("W", "GGGG") call isoWeek() and throw without it.
+dayjs.extend(isoWeek);
 
 /** One day in milliseconds. */
 export const DAY_MS = 86400000;
@@ -11,12 +16,23 @@ export const toUtcDay = (value) => Date.parse(`${value.slice(0, 10)}T00:00:00Z`)
 export const toDayKey = (time) => new Date(time).toISOString().slice(0, 10);
 
 /**
+ * The date an event ends on, 'YYYY-MM-DD': one ending at exactly midnight ends the day before,
+ * as calendars show it (22:00 → 00:00 is one evening, not two days).
+ * @param  {string} start
+ * @param  {string} end
+ * @returns {string}
+ */
+export const lastDay = (start, end) => (end > start && /[ T]00:00(:00)?$/.test(end)
+    ? toDayKey(toUtcDay(end) - DAY_MS)
+    : end.slice(0, 10));
+
+/**
  * Inclusive day span between two bounds; 1 when both fall on the same date.
  * @param  {string} start
  * @param  {string} end
  * @returns {number}
  */
-export const daySpan = (start, end) => (toUtcDay(end) - toUtcDay(start)) / DAY_MS + 1;
+export const daySpan = (start, end) => (toUtcDay(lastDay(start, end)) - toUtcDay(start)) / DAY_MS + 1;
 
 // WordPress "Week Starts On" for our dayjs (Element Plus reads it) and, in the portal, fcom's window.dayjs.
 export function applyWeekStart(value, hostDayjs) {
@@ -25,6 +41,23 @@ export function applyWeekStart(value, hostDayjs) {
 
     dayjs.updateLocale('en', { weekStart });
     hostDayjs?.updateLocale('en', { weekStart });
+}
+
+// Element Plus writes a picked date with our dayjs, which only knows English. Lend it the host's language
+// (fcom's dayjs has the site's), keeping the week start above; returns the name Element Plus should use.
+export function borrowLocale(hostDayjs) {
+    const name = hostDayjs.locale();
+    const locale = hostDayjs.Ls[name];
+
+    if (!locale) {
+        return 'en';
+    }
+
+    if (name !== 'en') {
+        dayjs.locale({ ...locale, weekStart: dayjs.Ls.en.weekStart }, null, true);
+    }
+
+    return name;
 }
 
 // "Add to calendar" files (.ics).

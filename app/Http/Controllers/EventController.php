@@ -4,6 +4,7 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\PostService;
 use FluentEvent\App\Utils\DateTimeHelper;
@@ -28,6 +29,8 @@ class EventController extends Controller
                     $query->select(['id', 'title', 'meta']);
                 },
             ])
+            // The cards' "N guests": every guest row, as on the calendars list.
+            ->withCount('guests')
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->byCalendar($request->getSafe('calendar_id', 'intval'))
             ->byStatus($request->getSafe('status', 'sanitize_text_field'))
@@ -41,11 +44,19 @@ class EventController extends Controller
 
         $paginate = !$isWindow || $request->getSafe('paginate', 'rest_sanitize_boolean', true);
 
-        return [
+        $data = [
             'events' => $paginate
                 ? $events->paginate(EventRequest::perPage($request))
                 : $events->get()
         ];
+
+        /**
+         * The admin events list, for add-ons to append fields to each event.
+         *
+         * @param array $data    ['events' => paginator or collection of Event]
+         * @param array $request The request parameters.
+         */
+        return apply_filters('fluent_event/events_api_response', $data, $request->all());
     }
 
     public function getEvent(Request $request, $id)
@@ -61,9 +72,30 @@ class EventController extends Controller
             ])
             ->findOrFail($id);
 
-        return [
-            'event' => $event->append('description')
+        $data = [
+            'event'      => $event->append('description'),
+            'public_url' => EventPageService::url($event),
         ];
+
+        /**
+         * One event, as the admin form and the portal edit page load it, for add-ons to append fields.
+         *
+         * @param array $data  ['event' => Event, 'public_url' => string]
+         * @param Event $event
+         */
+        return apply_filters('fluent_event/event_api_response', $data, $event);
+    }
+
+    // The portal edit page is addressed by the event's slug, as its view page is.
+    public function getEventBySlug(Request $request)
+    {
+        $slug = $request->getSafe('slug', 'sanitize_title');
+
+        $eventId = $slug ? Event::query()->whereHas('post', function ($query) use ($slug) {
+            $query->where('post_name', $slug);
+        })->value('id') : null;
+
+        return $this->getEvent($request, (int) $eventId);
     }
 
     public function createEvent(Request $request)

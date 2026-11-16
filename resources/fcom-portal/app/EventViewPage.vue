@@ -11,7 +11,7 @@
                     <span>{{ $t('Back') }}</span>
                 </button>
 
-                <event-menu :event="event"></event-menu>
+                <event-menu :event="event" :router="router"></event-menu>
             </div>
 
             <img v-if="event.cover_url" class="fe-event-view__cover" :src="event.cover_url" alt=""/>
@@ -35,15 +35,29 @@
                                     <VideoCamera v-if="isOnline"/>
                                     <MapLocation v-else/>
                                 </el-icon>
-                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In person')) }}</span>
+                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In Person')) }}</span>
                             </li>
                         </ul>
+
+                        <p class="fe-event-view__origin">
+                            <img v-if="feed.xprofile && feed.xprofile.avatar" class="fe-event-view__origin-avatar" :src="feed.xprofile.avatar" alt=""/>
+                            <span v-if="feed.space">{{ $t('Posted by %s in', author) }} <strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong></span>
+                            <span v-else>{{ $t('Posted by %s on their profile', author) }}</span>
+                            <span aria-hidden="true">·</span>
+                            <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
+                        </p>
                     </div>
 
                     <div class="fe-event-view__body">
                         <section v-if="event.description" class="fe-event-view__card">
                             <h2 class="fe-event-view__section-title">{{ $t('About This Event') }}</h2>
                             <div class="fe-event-view__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
+                        </section>
+
+                        <!-- fcom's own comment box for the post, teleported in by the route shell. -->
+                        <section v-if="commentsOpen" class="fe-event-view__card">
+                            <h2 class="fe-event-view__section-title">{{ $t('Comments') }}</h2>
+                            <div id="fe-event-view-comments" class="fe-event-view__comments"></div>
                         </section>
                     </div>
                 </div>
@@ -132,11 +146,11 @@
                     <div v-if="canAddToCalendar" class="fe-event-view__calendar">
                         <span class="fe-event-view__calendar-label">{{ $t('Add to calendar') }}</span>
                         <div class="fe-event-view__calendar-links">
-                            <a class="fe-event-view__calendar-link" :href="googleCalendarUrl" target="_blank" rel="noopener noreferrer">
+                            <a class="fe-event-view__calendar-link" :href="googleCalendarLink(event, summary, place)" target="_blank" rel="noopener noreferrer">
                                 <span class="fe-event-view__calendar-icon" aria-hidden="true" v-html="icons.GOOGLE"></span> <!-- coding-rules-scan:ignore — static SVG constant from icons.js -->
                                 {{ $t('Google Calendar') }}
                             </a>
-                            <button type="button" class="fe-event-view__calendar-link" @click="saveToCalendar">
+                            <button type="button" class="fe-event-view__calendar-link" @click="saveIcs(event, summary, place)">
                                 <span class="fe-event-view__calendar-icon" aria-hidden="true" v-html="icons.APPLE"></span> <!-- coding-rules-scan:ignore — static SVG constant from icons.js -->
                                 {{ $t('Apple / Outlook') }}
                             </button>
@@ -150,8 +164,8 @@
 
 <script>
 import { ArrowLeft, Calendar, CircleClose, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventPhase, guestCountLabel, isSeated, portalVars, siteDateTime, timeFormat } from '../utils';
-import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, setPageTitle, siteDateTime, timeFormat } from '../utils';
+import { lastDay } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
@@ -159,13 +173,18 @@ import EventMenu from '../EventMenu';
 const dayjs = (value) => window.dayjs(value);
 const utc = (value) => window.dayjs.utc(value);
 
-// The event on its own page, read through fcom's post endpoint so it is visible exactly when its post is.
+// The event on its own page, inside its space or at the portal's top level when community-wide,
+// read through fcom's post endpoint so it is visible exactly when its post is.
 export default {
     name: 'EventViewPage',
     components: { ArrowLeft, Calendar, CircleClose, Clock, MapLocation, Ticket, VideoCamera, EventActions, EventMenu },
     props: {
-        feedSlug: { type: String, required: true },
+        // Empty for a community-wide event.
+        spaceSlug: { type: String, default: '' },
+        eventSlug: { type: String, required: true },
         router: { type: Object, required: true },
+        // Hands the post to the shell, which renders fcom's comment box for it.
+        onFeed: { type: Function, required: true },
     },
     data() {
         return {
@@ -174,11 +193,21 @@ export default {
             feed: null,
             error: '',
             icons: { APPLE, GOOGLE },
+            requestId: 0,
         };
     },
     computed: {
         isOnline() {
             return this.event.venue_type === 'online';
+        },
+        author() {
+            return (this.feed.xprofile || {}).display_name || '';
+        },
+        commentsOpen() {
+            return (this.feed.meta || {}).comments_disabled !== 'yes';
+        },
+        postRoute() {
+            return { name: 'single_feed', params: { feed_slug: this.feed.slug } };
         },
         month() {
             return dayjs(this.event.start_at_local).format('MMM');
@@ -231,16 +260,18 @@ export default {
         isFullForMe() {
             return this.event.is_full && !isSeated(this.event);
         },
-        // Waitlisted and cancelled are the host's to change; the member gets a notice, not an RSVP.
+        // Waitlisted is the host's to change, and so is cancelled on an RSVP; the member gets a notice, not an RSVP.
+        // An open event's member who cancelled may register again.
         isHostOwned() {
-            return ['waitlisted', 'cancelled'].includes(this.event.my_status);
+            return this.event.my_status === 'waitlisted'
+                || (this.event.my_status === 'cancelled' && this.event.entry_type === 'rsvp');
         },
         canJoinWaitlist() {
             return this.isFullForMe && !!this.event.waitlist && this.phase !== 'ended' && !this.isHostOwned;
         },
         // Before registration opens or after it closes; a member already going keeps the RSVP to give up the seat.
         registrationShut() {
-            return this.event.entry_type === 'rsvp'
+            return ['rsvp', 'open'].includes(this.event.entry_type)
                 && this.phase !== 'ended'
                 && !this.event.registration_open
                 && !isSeated(this.event)
@@ -254,7 +285,7 @@ export default {
             return this.$t('Registration closes %s', siteDateTime(this.event.registration_closes_at));
         },
         notice() {
-            if (this.event.my_status === 'cancelled') {
+            if (this.event.my_status === 'cancelled' && this.isHostOwned) {
                 return {
                     icon: 'cancelled',
                     title: this.$t('Your registration has been cancelled'),
@@ -314,15 +345,15 @@ export default {
         },
         // The status above already says Ended, so an ended event gets no RSVP slot; a full one keeps it only to join the waitlist.
         hasActions() {
-            return this.event.entry_type === 'rsvp'
-                && this.phase !== 'ended'
+            return this.phase !== 'ended'
+                && hasEventActions(this.event)
                 && !this.isHostOwned
                 && !this.registrationShut
                 && (!this.isFullForMe || this.canJoinWaitlist);
         },
-        // Once someone is going, or for open events anyone can attend.
+        // Once someone is going, or for a no-entry event anyone can attend.
         canAddToCalendar() {
-            return this.phase !== 'ended' && (this.event.entry_type === 'open' || isSeated(this.event));
+            return this.phase !== 'ended' && (this.event.entry_type === 'none' || isSeated(this.event));
         },
         place() {
             if (this.isOnline) {
@@ -342,75 +373,71 @@ export default {
 
             return `${text.slice(0, 600)}\n\n${window.location.href}`;
         },
-        googleCalendarUrl() {
-            const params = new URLSearchParams({
-                action: 'TEMPLATE',
-                text: this.event.title,
-                dates: `${icsStamp(this.event.start_at)}/${icsStamp(this.event.end_at)}`,
-                details: this.summary,
-                location: this.place,
-            });
-
-            return `https://calendar.google.com/calendar/render?${params.toString()}`;
-        },
     },
     mounted() {
         this.fetchEvent();
     },
+    // A read still on its way must not title the next page's tab.
+    beforeUnmount() {
+        this.requestId++;
+    },
     methods: {
+        googleCalendarLink,
+        saveIcs,
         applyResponse(response) {
             this.event = { ...this.event, ...response.event };
         },
         dateRange(start, end) {
             const from = dayjs(start);
+            const last = lastDay(start, end);
 
-            if (from.isSame(dayjs(end), 'day')) {
-                return from.format('dddd, MMMM D, YYYY');
+            if (start.slice(0, 10) === last) {
+                return from.format(dateFormat());
             }
 
-            return `${from.format('MMM D')} – ${dayjs(end).format('MMM D, YYYY')}`;
+            return `${from.format('MMM D')} – ${dayjs(last).format('MMM D, YYYY')}`;
         },
         timeRange(start, end, zone) {
-            const format = dayjs(start).isSame(dayjs(end), 'day') ? timeFormat() : `MMM D, ${timeFormat()}`;
+            const format = start.slice(0, 10) === lastDay(start, end) ? timeFormat() : `MMM D, ${timeFormat()}`;
             const range = `${dayjs(start).format(format)} – ${dayjs(end).format(format)}`;
 
             return zone ? `${range} (${zone})` : range;
         },
         async fetchEvent() {
-            try {
-                const response = await communityApi.get(`feeds/${this.feedSlug}/by-slug`);
+            const requestId = ++this.requestId;
+            let feed = null;
 
-                this.feed = response.feed;
-                this.event = response.feed.fluent_event || null;
+            try {
+                // The URL carries the event's own slug; its post's slug is what fcom reads it by.
+                const { feed_slug: feedSlug } = await eventsApi.get('community/events/by-slug', { space: this.spaceSlug, slug: this.eventSlug });
+                const response = await communityApi.get(`feeds/${feedSlug}/by-slug`);
+
+                // The member left before both answers came back: the tab belongs to the page open now.
+                if (requestId !== this.requestId) {
+                    return;
+                }
+
+                feed = response.feed;
+                this.feed = feed;
+                this.event = feed.fluent_event || null;
+
+                if (this.event) {
+                    setPageTitle(this.event.title);
+                }
             } catch (error) {
                 this.event = null;
             } finally {
                 this.loading = false;
             }
-        },
-        saveToCalendar() {
-            const text = buildIcs({
-                id: this.event.id,
-                title: this.event.title,
-                start_at: this.event.start_at,
-                end_at: this.event.end_at,
-                description: this.summary,
-                location: this.place,
-                url: window.location.href,
-            });
 
-            downloadIcs(text, `${this.feedSlug}.ics`);
-        },
-        // Back to wherever the member came from; a direct visit falls back to the space's Events tab.
-        goBack() {
-            if (window.history.state && window.history.state.back) {
-                this.router.back();
-                return;
+            // Once the Comments card is on the page to take it. The raw post: fcom tracks it with its own Vue.
+            if (this.event && this.commentsOpen) {
+                await this.$nextTick();
+                this.onFeed(feed);
             }
-
-            const space = this.feed.space;
-
-            this.router.push(space ? { name: 'fe_space_events', params: { space: space.slug } } : { name: 'fe_events' });
+        },
+        goBack() {
+            this.router.back();
         },
     },
 };

@@ -1,11 +1,8 @@
 import { capitalize } from 'vue';
 import dayjs from 'dayjs';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
 import Rest from '@/utils/http/Rest.js';
 import { applyWeekStart } from '@/utils/date';
 import { ElNotification, ElMessageBox } from 'element-plus';
-
-dayjs.extend(advancedFormat);
 
 const config = window.fluentEventAdmin;
 
@@ -54,14 +51,9 @@ const slugify = function (text) {
         .replace(/^-+|-+$/g, '');
 };
 
-const eventStatuses = [
+const statusTypes = [
     { value: 'public', type: 'success' },
-    { value: 'private', type: 'primary' },
-    { value: 'draft', type: 'info' },
-];
-
-const calendarStatuses = [
-    { value: 'public', type: 'success' },
+    { value: 'unlisted', type: 'warning' },
     { value: 'private', type: 'primary' },
     { value: 'draft', type: 'info' },
 ];
@@ -95,19 +87,26 @@ export default {
         $alert:ElMessageBox.alert,
         $confirm:ElMessageBox.confirm,
         $capitalize: capitalize,
-        $goBack() {
+        // A page opened straight from a link has nothing in the app behind it, so it goes to `fallback`.
+        $goBack(fallback) {
+            if (fallback && !window.history.state?.back) {
+                this.$router.push(fallback);
+                return;
+            }
+
             this.$router.back();
         },
         $convertToText: convertToText,
         $titleCase: titleCase,
         $eventStatusType(status) {
-            return eventStatuses.find(item => item.value === status)?.type || 'info';
+            return statusTypes.find(item => item.value === status)?.type || 'info';
         },
         $eventStatuses() {
             return [
-                { value: 'public', label: this.$t('Public') },
-                { value: 'private', label: this.$t('Private') },
-                { value: 'draft', label: this.$t('Draft') },
+                { value: 'public', label: this.$t('Public'), hint: this.$t('Anyone can find it.') },
+                { value: 'unlisted', label: this.$t('Unlisted'), hint: this.$t('Only accessible via direct link.') },
+                { value: 'private', label: this.$t('Private'), hint: this.$t('No public page.') },
+                { value: 'draft', label: this.$t('Draft'), hint: this.$t('Not ready yet.') },
             ];
         },
         $eventStatusLabel(status) {
@@ -123,6 +122,11 @@ export default {
                 {
                     value: 'open',
                     label: this.$t('Open'),
+                    hint: this.$t('Guests register with their name and email, no login needed.'),
+                },
+                {
+                    value: 'none',
+                    label: this.$t('None'),
                     hint: this.$t('Nobody registers. Anyone who can see the event sees all of it, meeting link included.'),
                 },
             ];
@@ -130,15 +134,21 @@ export default {
         $entryTypeLabel(type) {
             return this.$entryTypes().find(item => item.value === type)?.label || type;
         },
-        $calendarStatusType(status) {
-            return calendarStatuses.find(item => item.value === status)?.type || 'info';
+        $guestSourceLabel(source) {
+            const labels = {
+                manual: this.$t('Manual'),
+                wordpress_pages: this.$t('WordPress Pages'),
+                fluent_community: this.$t('FluentCommunity'),
+            };
+
+            return labels[source] || titleCase(source);
         },
+        $calendarStatusType(status) {
+            return statusTypes.find(item => item.value === status)?.type || 'info';
+        },
+        // Unlisted is for events only: a calendar has no page of its own to share by link.
         $calendarStatuses() {
-            return [
-                { value: 'public', label: this.$t('Public') },
-                { value: 'private', label: this.$t('Private') },
-                { value: 'draft', label: this.$t('Draft') },
-            ];
+            return this.$eventStatuses().filter(item => item.value !== 'unlisted');
         },
         $calendarStatusLabel(status) {
             return this.$calendarStatuses().find(item => item.value === status)?.label || status;
@@ -226,7 +236,9 @@ export default {
                 return notify('warning', this.$t('Error'), e.message || this.$t('Request aborted.'));
             }
 
-            const message = e?.message || convertToText(e?.errors, ' ') || fallbackMessage;
+            // One message per field: an empty email fails both "required" and "email", which would read as two.
+            const firstPerField = errors => errors && Object.values(errors).map(rules => (rules && typeof rules === 'object' ? Object.values(rules)[0] : rules));
+            const message = e?.message || convertToText(firstPerField(e?.errors), ' ') || fallbackMessage;
 
             notify('error', this.$t('Error'), message || fallbackMessage);
         },
@@ -259,24 +271,9 @@ export default {
                 return 'capitalize';
             }
         },
-        $userCan(permission, options = {}) {
-            const me = config.me || {};
-
-            if (me.is_admin) return true;
-
-            const granted = me.permissions || [];
-
-            if (granted.includes('manage_all_data')) return true;
-
-            const keys = Array.isArray(permission) ? permission : [permission];
-
-            return options.match_type === 'any'
-                ? keys.some(key => granted.includes(key))
-                : keys.every(key => granted.includes(key));
-        },
         $requestServer(req) {
             // destructure object
-            const { method = 'get', path, payload, onSuccess, onError, onFinally, successNotify = false, fallbackSuccessMessage, errorNotify = false, fallbackErrorMessage, loadingState = 'loading', errorState = 'error' } = req;
+            const { method = 'get', path, payload, onSuccess, onError, onFinally, successNotify = false, fallbackSuccessMessage, errorNotify = false, fallbackErrorMessage, loadingState = 'loading', errorState = 'error', notFoundPage = false } = req;
 
             // state safety check if available
             if ((loadingState && this[loadingState] === undefined) || 
@@ -300,6 +297,7 @@ export default {
             if (!counters) requestSeq.set(this, counters = {});
             const seq = counters[key] = (counters[key] || 0) + 1;
             const isLatest = () => counters[key] === seq;
+            const fromPage = notFoundPage ? this.$route.fullPath : null;
 
             Rest[method](path, payload)
                 .then(response => {
@@ -313,6 +311,14 @@ export default {
                 })
                 .catch(error => {
                     if (!isLatest()) return;
+                    // A record that is gone gets the 404 page at its own address; retrying can't bring it back.
+                    if (notFoundPage && error?.status === 404) {
+                        // Only while the page that asked is still open: the admin may have moved on before the answer came.
+                        if (this.$route.fullPath === fromPage) {
+                            this.$router.replace({ name: 'notfound', params: { pathMatch: this.$route.path.slice(1).split('/') }, query: this.$route.query });
+                        }
+                        return;
+                    }
                     if(errorState) {
                         this[errorState] = error?.message || this.$t('Something went wrong');
                     }

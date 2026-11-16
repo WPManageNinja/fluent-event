@@ -42,7 +42,8 @@ In `wp_fe_meta`:
 - **Site/portal title.**
 - **Logo** — separate **light** and **dark** variants.
 - **Logo permalink** — where clicking the logo goes (default / custom URL).
-- **Portal slug / base URL.**
+- **All Events Page** — the page holding `[fluent_events]` or the events block, picked from a page search or made by the "+" beside it (a page holding the block). 0 until the admin picks one; activation creates no pages. Event pages work either way.
+- **Event Slug** — the start of every event's address, `/{event_slug}/{post-slug}/`, default `event`. `/{event_slug}/` redirects to the All Events Page, or lists events itself when none is set. Changing it moves every event link.
 - **Access level** — who can access the portal: `public`, `logged-in only`, or `role-based` (pick roles).
 - _(Expandable — more general keys added later.)_
 

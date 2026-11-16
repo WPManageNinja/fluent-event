@@ -8,7 +8,6 @@ use FluentEvent\App\Utils\DateTimeHelper;
 
 class ReportService
 {
-    const LIVE_EVENT_STATUSES = ['public', 'private'];
     const DAILY_SPAN_LIMIT = 92;
 
     public static function getStats()
@@ -16,7 +15,7 @@ class ReportService
         $now = gmdate(DateTimeHelper::FORMAT);
 
         $events = Event::query()
-            ->whereIn('status', self::LIVE_EVENT_STATUSES)
+            ->whereIn('status', Event::LIVE_STATUSES)
             ->toBase()
             ->selectRaw(
                 'COUNT(*) AS total,'
@@ -79,20 +78,24 @@ class ReportService
         return ['stats' => $stats];
     }
 
+    // Admin tiles: every event and guest in the calendar, drafts included, so they match its Events tab.
     public static function getCalendarStats($calendarId)
     {
         $now = gmdate(DateTimeHelper::FORMAT);
 
-        $liveEvents = function () use ($calendarId) {
-            return Event::query()
-                ->whereIn('status', self::LIVE_EVENT_STATUSES)
-                ->where('calendar_id', $calendarId);
+        $events = function () use ($calendarId) {
+            return Event::query()->where('calendar_id', $calendarId);
         };
 
-        $totalEvents = $liveEvents()->count();
-        $upcomingEvents = $liveEvents()->where('start_at', '>', $now)->count();
-        $totalGuests = self::guestQuery($calendarId)->count();
-        $checkedInGuests = self::guestQuery($calendarId)->where('status', 'checked_in')->count();
+        $guests = function () use ($calendarId) {
+            return Guest::query()->where('calendar_id', $calendarId);
+        };
+
+        $totalEvents = $events()->count();
+        // The tab's Upcoming rule (Event::scopeByPeriod): not ended yet, so an event in progress counts.
+        $upcomingEvents = $events()->where('end_at', '>=', $now)->count();
+        $totalGuests = $guests()->count();
+        $checkedInGuests = $guests()->where('status', 'checked_in')->count();
 
         return [
             'total_events' => self::tile(
@@ -228,7 +231,7 @@ class ReportService
     private static function guestQuery($calendarId = 0)
     {
         $query = Guest::query()->whereHas('event', function ($query) {
-            $query->whereIn('status', self::LIVE_EVENT_STATUSES);
+            $query->whereIn('status', Event::LIVE_STATUSES);
         });
 
         if ($calendarId) {
@@ -241,7 +244,7 @@ class ReportService
     private static function eventQuery($calendarId = 0)
     {
         $query = Event::query()
-            ->whereIn('status', self::LIVE_EVENT_STATUSES)
+            ->whereIn('status', Event::LIVE_STATUSES)
             ->with([
                 'post' => function ($query) {
                     $query->select(['ID', 'post_title']);

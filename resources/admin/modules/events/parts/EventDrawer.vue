@@ -6,7 +6,22 @@
         :title="$t('Event Details')"
         @update:model-value="$emit('update:modelValue', $event)"
     >
-        <div v-if="event" class="fe-event-detail">
+        <!-- On a failed load the list's copy may be stale, so the error replaces the whole body. -->
+        <ErrorState
+            v-if="loadError === 'missing'"
+            :title="$t('This event no longer exists')"
+            :message="$t('It has been removed from the events list.')"
+        >
+            <template #action>
+                <el-button type="primary" @click="close">{{ $t('Close') }}</el-button>
+            </template>
+        </ErrorState>
+        <ErrorState
+            v-else-if="loadError"
+            :message="$t('Could not load this event. Please try again.')"
+            @retry="loadEvent(event)"
+        />
+        <div v-else-if="event" class="fe-event-detail">
             <img
                 v-if="coverUrl"
                 class="fe-event-detail__cover"
@@ -21,6 +36,50 @@
             </div>
 
             <h2 class="fe-event-detail__title">{{ event.title }}</h2>
+
+            <div class="fe-event-detail__row">
+                <div class="fe-event-detail__date-box">
+                    <span class="fe-event-detail__date-month">{{ month }}</span>
+                    <span class="fe-event-detail__date-day">{{ day }}</span>
+                </div>
+
+                <div>
+                    <p class="fe-event-detail__row-title">{{ fullDate }}</p>
+                    <p class="fe-event-detail__row-text">{{ $formatTimeRange(event) }}</p>
+                    <p v-if="showSiteTime" class="fe-event-detail__row-text fe-event-detail__row-text--muted">{{ $formatTimeRange(event, 'site') }}</p>
+                </div>
+            </div>
+
+            <div class="fe-event-detail__row">
+                <span class="fe-event-detail__row-icon">
+                    <el-icon aria-hidden="true">
+                        <VideoCamera v-if="isOnline" />
+                        <LocationInformation v-else />
+                    </el-icon>
+                </span>
+
+                <div v-if="isOnline">
+                    <p class="fe-event-detail__row-title">{{ $t('Online Event') }}</p>
+                    <a
+                        v-if="meetingUrl"
+                        class="fe-event-detail__row-link"
+                        :href="meetingUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ meetingUrl }}
+                    </a>
+                </div>
+
+                <div v-else>
+                    <p class="fe-event-detail__row-title">
+                        {{ event.meta?.venue || $t('No venue yet') }}
+                    </p>
+                    <p v-if="event.meta?.address" class="fe-event-detail__row-text fe-event-detail__row-text--address">
+                        {{ event.meta.address }}
+                    </p>
+                </div>
+            </div>
 
             <div v-if="event.calendar" class="fe-event-detail__row">
                 <span class="fe-event-detail__row-icon">
@@ -48,57 +107,53 @@
                 </div>
             </div>
 
-            <div class="fe-event-detail__row">
-                <div class="fe-event-detail__date-box">
-                    <span class="fe-event-detail__date-month">{{ month }}</span>
-                    <span class="fe-event-detail__date-day">{{ day }}</span>
-                </div>
-
-                <div>
-                    <p class="fe-event-detail__row-title">{{ fullDate }}</p>
-                    <p class="fe-event-detail__row-text">{{ $formatTimeRange(event) }}</p>
-                    <p v-if="showSiteTime" class="fe-event-detail__row-text fe-event-detail__row-text--muted">{{ $formatTimeRange(event, 'site') }}</p>
-                </div>
-            </div>
-
-            <div class="fe-event-detail__row">
+            <div v-if="publicUrl" class="fe-event-detail__row">
                 <span class="fe-event-detail__row-icon">
-                    <el-icon aria-hidden="true">
-                        <VideoCamera v-if="isOnline" />
-                        <LocationInformation v-else />
-                    </el-icon>
+                    <el-icon aria-hidden="true"><Link /></el-icon>
                 </span>
 
-                <div v-if="isOnline">
-                    <p class="fe-event-detail__row-title">{{ $t('Online event') }}</p>
-                    <a
-                        v-if="meetingUrl"
-                        class="fe-event-detail__row-link"
-                        :href="meetingUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        {{ meetingUrl }}
-                    </a>
-                </div>
+                <div class="fe-event-detail__public">
+                    <p class="fe-event-detail__row-title">{{ $t('Public Page') }}</p>
 
-                <div v-else>
-                    <p class="fe-event-detail__row-title">
-                        {{ event.meta?.venue || $t('No venue yet') }}
-                    </p>
-                    <p v-if="event.meta?.address" class="fe-event-detail__row-text">
-                        {{ event.meta.address }}
-                    </p>
+                    <div class="fe-event-detail__public-link">
+                        <a
+                            class="fe-event-detail__row-link"
+                            :href="publicUrl"
+                            :title="publicUrl"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            {{ publicUrl }}
+                        </a>
+
+                        <el-button
+                            link
+                            :aria-label="$t('Copy Link')"
+                            :title="$t('Copy Link')"
+                            @click="copyPublicUrl"
+                        >
+                            <el-icon><CopyDocument /></el-icon>
+                        </el-button>
+                    </div>
                 </div>
             </div>
 
-            <el-button
-                class="fe-event-detail__action"
-                type="primary"
-                @click="goToDetail"
-            >
-                {{ $t('View Full Details') }}
-            </el-button>
+            <!-- Links, so a modified click or the context menu can open them in a new tab. -->
+            <div class="fe-event-detail__actions">
+                <el-button
+                    type="primary"
+                    tag="router-link"
+                    :to="{ name: 'event_detail', params: { id: event.id } }"
+                    @click="close"
+                >
+                    {{ $t('View Full Details') }}
+                </el-button>
+
+                <el-button tag="router-link" :to="{ name: 'event_edit', params: { id: event.id } }" @click="close">
+                    <el-icon aria-hidden="true"><EditPen /></el-icon>
+                    <span>{{ $t('Edit Event') }}</span>
+                </el-button>
+            </div>
 
             <div v-if="loadingDescription || description" class="fe-event-detail__section">
                 <h3 class="fe-event-detail__section-title">{{ $t('Description') }}</h3>
@@ -111,16 +166,21 @@
 </template>
 
 <script type="text/javascript">
-    import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
-    import { daySpan } from '@/utils/date';
+    import { CopyDocument, EditPen, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { daySpan, lastDay } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
+    import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     export default {
         name: 'EventDrawer',
         components: {
             Drawer,
+            ErrorState,
             Skeleton,
+            CopyDocument,
+            EditPen,
+            Link,
             LocationInformation,
             TopRight,
             VideoCamera,
@@ -135,11 +195,13 @@
                 default: null,
             },
         },
-        emits: ['update:modelValue'],
+        emits: ['update:modelValue', 'missing'],
         data() {
             return {
                 description: '',
                 loadingDescription: false,
+                loadError: '',
+                publicUrl: '',
             };
         },
         watch: {
@@ -147,19 +209,7 @@
             event: {
                 immediate: true,
                 handler(event) {
-                    this.description = '';
-
-                    if (!event) return;
-
-                    // One loading state, so a slow answer for an event opened earlier is dropped.
-                    this.$requestServer({
-                        path: `events/${event.id}`,
-                        loadingState: 'loadingDescription',
-                        errorState: null,
-                        onSuccess: response => {
-                            this.description = response.event.description;
-                        },
-                    });
+                    this.loadEvent(event);
                 },
             },
         },
@@ -182,7 +232,7 @@
                 }
 
                 const start = this.$formatDate(this.event.start_at_local, 'MMM D');
-                const end = this.$formatDate(this.event.end_at_local, 'MMM D, YYYY');
+                const end = this.$formatDate(lastDay(this.event.start_at_local, this.event.end_at_local), 'MMM D, YYYY');
 
                 return `${start} – ${end}`;
             },
@@ -200,12 +250,41 @@
             },
         },
         methods: {
+            loadEvent(event) {
+                this.description = '';
+                this.loadError = '';
+                this.publicUrl = '';
+
+                if (!event) return;
+
+                // One loading state, so a slow answer for an event opened earlier is dropped.
+                this.$requestServer({
+                    path: `events/${event.id}`,
+                    loadingState: 'loadingDescription',
+                    errorState: null,
+                    onSuccess: response => {
+                        this.description = response.event.description;
+                        // As on the event page: only a public or unlisted event in a public calendar has a public page.
+                        const { status, calendar } = response.event;
+                        this.publicUrl = ['public', 'unlisted'].includes(status) && calendar?.status === 'public' ? response.public_url : '';
+                    },
+                    onError: error => {
+                        // A deleted event can't come back, so the list drops it too; anything else is worth a retry.
+                        this.loadError = error?.status === 404 ? 'missing' : 'failed';
+
+                        if (this.loadError === 'missing') {
+                            this.$emit('missing');
+                        }
+                    },
+                });
+            },
             close() {
                 this.$emit('update:modelValue', false);
             },
-            goToDetail() {
-                this.close();
-                this.$router.push({ name: 'event_detail', params: { id: this.event.id } });
+            copyPublicUrl() {
+                navigator.clipboard.writeText(this.publicUrl)
+                    .then(() => this.$notifySuccess(this.$t('Link copied.')))
+                    .catch(() => this.$notifyError(this.$t('The link could not be copied.')));
             },
         },
     };

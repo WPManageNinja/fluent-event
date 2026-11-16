@@ -120,6 +120,16 @@ class Enqueue
     }
 
     /**
+     * Whether the site loads the mirrored (.rtl.css) stylesheets.
+     *
+     * @return bool
+     */
+    public static function isRtl()
+    {
+        return static::$enqueuer::isRtl();
+    }
+
+    /**
      * Resolve a static asset to an absolute URL (plugin_dir_url + path)
      * without touching the build manifest. Used for images, fonts, or any
      * asset that isn't part of the Vite build graph.

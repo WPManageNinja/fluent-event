@@ -17,7 +17,7 @@
                     :style="{ '--fe-calendar-hue': calendarColor }"
                 >
                     <span class="fe-color-swatch fe-event-card__swatch"></span>
-                    {{ event.calendar.title }}
+                    <span class="fe-event-card__badge-label" :title="event.calendar.title">{{ event.calendar.title }}</span>
                 </span>
             </div>
 
@@ -38,23 +38,57 @@
                     {{ $eventStatusLabel(event.status) }}
                 </el-tag>
 
+                <el-tooltip
+                    v-if="feedUrl"
+                    :content="$t('Open the community post in a new tab')"
+                    :trigger="['hover', 'focus']"
+                    placement="top"
+                >
+                    <a
+                        class="fe-community-mark"
+                        :href="feedUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :aria-label="$t('Open the community post in a new tab')"
+                        @click.stop
+                    >
+                        <img class="fe-community-mark__logo" :src="appVars.fcom_logo" alt="" />
+                    </a>
+                </el-tooltip>
+
                 <span class="fe-event-card__venue">
                     <el-icon aria-hidden="true">
                         <VideoCamera v-if="isOnline" />
                         <MapLocation v-else />
                     </el-icon>
-                    {{ isOnline ? $t('Online') : $t('In person') }}
+                    {{ isOnline ? $t('Online') : $t('In Person') }}
+                </span>
+
+                <span class="fe-event-card__guests">
+                    <el-icon aria-hidden="true"><User /></el-icon>
+                    {{ $_n('%d guest', '%d guests', event.guests_count || 0) }}
                 </span>
             </div>
 
-            <router-link
-                class="fe-event-card__manage"
-                :to="{ name: 'event_detail', params: { id: event.id } }"
-                @click.stop
-            >
-                {{ $t('Manage Event') }}
-                <el-icon aria-hidden="true"><TopRight /></el-icon>
-            </router-link>
+            <div class="fe-event-card__actions">
+                <router-link
+                    class="fe-event-card__link"
+                    :to="{ name: 'event_detail', params: { id: event.id } }"
+                    @click.stop
+                >
+                    {{ $t('Manage Event') }}
+                    <el-icon aria-hidden="true"><TopRight /></el-icon>
+                </router-link>
+
+                <router-link
+                    class="fe-event-card__link"
+                    :to="{ name: 'event_edit', params: { id: event.id } }"
+                    @click.stop
+                >
+                    <el-icon aria-hidden="true"><EditPen /></el-icon>
+                    {{ $t('Edit Event') }}
+                </router-link>
+            </div>
         </div>
 
         <img
@@ -71,15 +105,17 @@
 </template>
 
 <script type="text/javascript">
-    import { Calendar, MapLocation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { Calendar, EditPen, MapLocation, TopRight, User, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
 
     export default {
         name: 'EventCard',
         components: {
             Calendar,
+            EditPen,
             MapLocation,
             TopRight,
+            User,
             VideoCamera,
         },
         props: {
@@ -122,6 +158,9 @@
             },
             coverUrl() {
                 return this.$httpUrl(this.event.meta?.cover_url);
+            },
+            feedUrl() {
+                return this.$httpUrl(this.event.feed_url);
             },
         },
     };

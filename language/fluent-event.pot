@@ -1,0 +1,2867 @@
+# Copyright (C) 2026 WPManageNinja LLC
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: FluentEvent 1.0.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/fluent-event\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-15T15:02:18+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: fluent-event\n"
+
+#. Plugin Name of the plugin
+#: fluent-event.php
+#: app/Hooks/Handlers/AdminMenuHandler.php:66
+#: app/Hooks/Handlers/AdminMenuHandler.php:67
+msgid "FluentEvent"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: fluent-event.php
+msgid "https://fluentevent.com"
+msgstr ""
+
+#. Description of the plugin
+#: fluent-event.php
+msgid "Event management plugin for WordPress."
+msgstr ""
+
+#. Author of the plugin
+#: fluent-event.php
+msgid "WPManageNinja LLC"
+msgstr ""
+
+#: app/CPT/EventPost.php:84
+msgctxt "post type general name"
+msgid "Events"
+msgstr ""
+
+#: app/CPT/EventPost.php:85
+msgctxt "post type singular name"
+msgid "Event"
+msgstr ""
+
+#: app/CPT/EventPost.php:86
+#: app/Hooks/Handlers/AdminMenuHandler.php:76
+msgid "Add New Event"
+msgstr ""
+
+#: app/CPT/EventPost.php:87
+#: app/Hooks/Handlers/FrontEndHandler.php:246
+#: config/i18n.php:172
+#: Modules/FluentCommunity/PortalHandler.php:228
+msgid "Edit Event"
+msgstr ""
+
+#: app/CPT/EventPost.php:88
+msgid "View Event"
+msgstr ""
+
+#: app/CPT/EventPost.php:89
+msgid "Search Events"
+msgstr ""
+
+#: app/CPT/EventPost.php:90
+#: config/i18n.php:281
+#: Modules/FluentCommunity/PortalHandler.php:267
+msgid "No events found"
+msgstr ""
+
+#: app/Hooks/Handlers/AdminMenuHandler.php:75
+#: app/Hooks/Handlers/AdminMenuHandler.php:180
+#: config/i18n.php:138
+msgid "Dashboard"
+msgstr ""
+
+#: app/Hooks/Handlers/AdminMenuHandler.php:77
+#: app/Hooks/Handlers/AdminMenuHandler.php:185
+#: app/Views/portal/events.php:86
+#: config/i18n.php:101
+msgid "Calendars"
+msgstr ""
+
+#: app/Hooks/Handlers/AdminMenuHandler.php:78
+#: app/Hooks/Handlers/AdminMenuHandler.php:190
+#: app/Hooks/Handlers/FrontEndHandler.php:285
+#: app/Hooks/Handlers/FrontEndHandler.php:310
+#: config/i18n.php:236
+#: Modules/FluentCommunity/PortalHandler.php:73
+#: Modules/FluentCommunity/PortalHandler.php:97
+#: Modules/FluentCommunity/PortalHandler.php:128
+#: Modules/FluentCommunity/PortalHandler.php:240
+msgid "Events"
+msgstr ""
+
+#: app/Hooks/Handlers/AdminMenuHandler.php:79
+#: app/Hooks/Handlers/AdminMenuHandler.php:219
+#: config/i18n.php:346
+msgid "Settings"
+msgstr ""
+
+#: app/Hooks/Handlers/AdminMenuHandler.php:206
+#: config/i18n.php:248
+msgid "General"
+msgstr ""
+
+#: app/Hooks/Handlers/AdminMenuHandler.php:211
+#: config/i18n.php:178
+msgid "Email Notifications"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:152
+#: resources/blocks/events/index.jsx:23
+msgid "10:00 AM – 12:00 PM"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:153
+#: resources/blocks/event-parts/index.jsx:69
+msgid "12 going"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:154
+#: resources/blocks/events/index.jsx:25
+msgid "3:00 PM – 4:00 PM"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:155
+#: resources/blocks/events/index.jsx:24
+msgid "6:00 PM – 8:00 PM"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:156
+#: resources/blocks/event-parts/index.jsx:79
+msgid "A link to the open event’s calendar."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:157
+#: resources/blocks/events/index.jsx:274
+msgid "A list of your public events, as cards, a timeline or a calendar."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:158
+#: app/Views/portal/event-part.php:42
+#: Modules/FluentCommunity/PortalHandler.php:201
+#: resources/blocks/event-parts/index.jsx:48
+msgid "About This Event"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:159
+#: app/Hooks/Handlers/FrontEndHandler.php:478
+#: app/Views/portal/events.php:65
+#: config/i18n.php:84
+#: Modules/FluentCommunity/PortalHandler.php:205
+#: resources/blocks/events/index.jsx:107
+#: resources/blocks/events/index.jsx:118
+#: resources/blocks/events/index.jsx:257
+msgid "All"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:160
+#: resources/blocks/events/index.jsx:223
+msgid "All calendars"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:161
+#: resources/blocks/events/index.jsx:277
+msgid "calendar"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:162
+#: app/Views/portal/events.php:73
+#: config/i18n.php:96
+#: Modules/FluentCommunity/PortalHandler.php:211
+#: resources/blocks/event-parts/index.jsx:42
+#: resources/blocks/events/index.jsx:11
+msgid "Calendar"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:163
+#: app/Views/portal/events.php:71
+#: config/i18n.php:104
+#: Modules/FluentCommunity/PortalHandler.php:214
+#: resources/blocks/events/index.jsx:9
+msgid "Cards"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:164
+#: resources/blocks/events/index.jsx:24
+msgid "City Library"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:165
+#: resources/blocks/events/index.jsx:23
+msgid "Community Hall"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:166
+#: resources/blocks/event-parts/index.jsx:29
+msgid "Cover image"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:167
+#: app/Views/portal/events.php:45
+#: config/i18n.php:142
+#: Modules/FluentCommunity/PortalHandler.php:222
+#: resources/blocks/events/index.jsx:167
+msgid "Day"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:168
+#: resources/blocks/event-parts/index.jsx:96
+#: resources/blocks/event/index.jsx:65
+msgid "event"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:169
+#: resources/blocks/event/index.jsx:22
+#: resources/blocks/event/index.jsx:24
+msgid "Event"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:170
+#: resources/blocks/event-parts/index.jsx:79
+msgid "Event Calendar"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:171
+#: resources/blocks/event-parts/index.jsx:76
+msgid "Event Cover"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:172
+#: resources/blocks/event-parts/index.jsx:33
+#: resources/blocks/event-parts/index.jsx:62
+msgid "Event date"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:173
+#: resources/blocks/event-parts/index.jsx:80
+msgid "Event Description"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:174
+#: resources/blocks/event-parts/index.jsx:78
+msgid "Event Meta"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:175
+#: resources/blocks/event-parts/index.jsx:81
+msgid "Event Registration"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:176
+#: resources/blocks/event-parts/index.jsx:30
+msgid "Event title"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:177
+#: resources/blocks/event-parts/index.jsx:77
+msgid "Event Title"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:178
+#: resources/blocks/events/index.jsx:277
+msgid "events"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:179
+#: resources/blocks/events/index.jsx:215
+msgid "Events list"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:180
+#: resources/blocks/events/index.jsx:253
+msgid "Events shown first"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:181
+#: resources/blocks/events/index.jsx:217
+msgid "First calendar"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:182
+#: resources/blocks/event/index.jsx:61
+msgid "Fluent Event"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:183
+#: resources/blocks/events/index.jsx:273
+msgid "Fluent Events"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:184
+#: resources/blocks/events/index.jsx:23
+msgid "Hands-on Design Workshop"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:185
+#: resources/blocks/events/index.jsx:248
+msgid "Hide"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:186
+#: resources/blocks/events/index.jsx:18
+msgid "Meetups"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:187
+#: app/Views/portal/events.php:43
+#: config/i18n.php:270
+#: Modules/FluentCommunity/PortalHandler.php:263
+#: resources/blocks/events/index.jsx:165
+msgid "Month"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:188
+#: resources/blocks/events/index.jsx:24
+msgid "Monthly Community Meetup"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:189
+#: resources/blocks/event/index.jsx:62
+msgid "One event with its details and registration."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:190
+#: app/Hooks/Handlers/FrontEndHandler.php:583
+#: app/Hooks/Handlers/FrontEndHandler.php:609
+#: app/Views/portal/event-side.php:212
+#: config/i18n.php:296
+#: Modules/FluentCommunity/PortalHandler.php:274
+#: resources/blocks/event-parts/index.jsx:35
+#: resources/blocks/events/index.jsx:25
+msgid "Online"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:191
+#: app/Views/portal/events.php:67
+#: config/i18n.php:308
+#: Modules/FluentCommunity/PortalHandler.php:279
+#: resources/blocks/events/index.jsx:107
+#: resources/blocks/events/index.jsx:258
+msgid "Past"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:192
+#: resources/blocks/events/index.jsx:25
+msgid "Product Launch Livestream"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:193
+#: app/Views/portal/event-side.php:73
+#: app/Views/portal/event-side.php:112
+#: app/Views/portal/event-side.php:130
+#: Modules/FluentCommunity/PortalHandler.php:288
+#: resources/blocks/event-parts/index.jsx:68
+msgid "Register"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:194
+#: resources/blocks/event/index.jsx:65
+msgid "registration"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:195
+#: resources/blocks/events/index.jsx:112
+msgid "Sample events: the page shows your public events here."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:196
+#: app/Views/portal/events.php:122
+#: app/Views/portal/events.php:123
+#: config/i18n.php:333
+#: Modules/FluentCommunity/PortalHandler.php:292
+#: resources/blocks/events/index.jsx:135
+#: resources/blocks/events/index.jsx:136
+msgid "Search events"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:197
+#: resources/blocks/event/index.jsx:27
+msgid "Select an event"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:198
+#: resources/blocks/events/index.jsx:247
+msgid "Show"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:199
+#: resources/blocks/events/index.jsx:229
+msgid "Show calendar pills"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:200
+#: resources/blocks/event-parts/index.jsx:34
+#: resources/blocks/event-parts/index.jsx:63
+msgid "Start – end time"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:201
+#: resources/blocks/events/index.jsx:219
+msgid "The calendar picked first. Visitors can switch with the calendar pills."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:202
+#: resources/blocks/event-parts/index.jsx:50
+msgid "The event’s description shows here."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:203
+#: resources/blocks/event-parts/index.jsx:76
+msgid "The open event’s cover image."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:204
+#: resources/blocks/event-parts/index.jsx:78
+msgid "The open event’s date, time and place."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:205
+#: resources/blocks/event-parts/index.jsx:80
+msgid "The open event’s description."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:206
+#: resources/blocks/event-parts/index.jsx:77
+msgid "The open event’s title."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:207
+#: app/Views/portal/events.php:72
+#: config/i18n.php:379
+#: Modules/FluentCommunity/PortalHandler.php:308
+#: resources/blocks/events/index.jsx:10
+msgid "Timeline"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:208
+#: app/Views/portal/events.php:177
+#: config/i18n.php:383
+#: Modules/FluentCommunity/PortalHandler.php:313
+#: resources/blocks/events/index.jsx:171
+msgid "Today"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:209
+#: app/Views/portal/events.php:66
+#: config/i18n.php:389
+#: Modules/FluentCommunity/PortalHandler.php:315
+#: resources/blocks/event-parts/index.jsx:66
+#: resources/blocks/events/index.jsx:107
+#: resources/blocks/events/index.jsx:256
+msgid "Upcoming"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:210
+#: resources/blocks/events/index.jsx:237
+#: resources/blocks/events/index.jsx:246
+msgid "Use the setting"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:211
+#: config/i18n.php:402
+#: resources/blocks/events/index.jsx:234
+msgid "View"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:212
+#: resources/blocks/events/index.jsx:243
+msgid "View switcher"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:213
+#: resources/blocks/events/index.jsx:19
+msgid "Webinars"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:214
+#: app/Views/portal/events.php:44
+#: config/i18n.php:413
+#: Modules/FluentCommunity/PortalHandler.php:323
+#: resources/blocks/events/index.jsx:166
+msgid "Week"
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:215
+#: resources/blocks/event-parts/index.jsx:81
+msgid "When and where, and the Register button."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:216
+#: resources/blocks/events/index.jsx:220
+msgid "With the pills hidden, the list stays on this calendar."
+msgstr ""
+
+#: app/Hooks/Handlers/BlockEditorHandler.php:217
+#: resources/blocks/events/index.jsx:17
+msgid "Workshops"
+msgstr ""
+
+#: app/Hooks/Handlers/CleanupHandlers/CleanupHandler.php:74
+msgid "The event could not be deleted. Please try again."
+msgstr ""
+
+#: app/Hooks/Handlers/FrontEndHandler.php:83
+msgid "Single Event"
+msgstr ""
+
+#: app/Hooks/Handlers/FrontEndHandler.php:84
+msgid "Events Archive"
+msgstr ""
+
+#. translators: %s: calendar title
+#: app/Hooks/Handlers/FrontEndHandler.php:312
+#, php-format
+msgid "Events from %s."
+msgstr ""
+
+#. translators: %s: calendar title
+#: app/Hooks/Handlers/FrontEndHandler.php:312
+msgid "Events from our calendars."
+msgstr ""
+
+#: app/Hooks/Handlers/FrontEndHandler.php:410
+msgid "This event doesn’t exist, or it isn’t open to the public."
+msgstr ""
+
+#: app/Hooks/Handlers/FrontEndHandler.php:583
+#: app/Hooks/Handlers/FrontEndHandler.php:609
+#: app/Views/portal/event-side.php:212
+msgid "In person"
+msgstr ""
+
+#. translators: 1: start, 2: end (each a time, or a date and time)
+#: app/Hooks/Handlers/FrontEndHandler.php:607
+#: app/Utils/DateTimeHelper.php:162
+#: app/Utils/DateTimeHelper.php:173
+#, php-format
+msgctxt "time range"
+msgid "%1$s – %2$s"
+msgstr ""
+
+#. translators: 1: start date, 2: end date
+#: app/Hooks/Handlers/FrontEndHandler.php:642
+#: app/Utils/DateTimeHelper.php:155
+#, php-format
+msgctxt "date range"
+msgid "%1$s – %2$s"
+msgstr ""
+
+#: app/Http/Controllers/CalendarController.php:92
+msgid "Calendar has been successfully created"
+msgstr ""
+
+#: app/Http/Controllers/CalendarController.php:114
+msgid "Calendar has been successfully updated"
+msgstr ""
+
+#: app/Http/Controllers/CalendarController.php:130
+msgid "Calendar has been successfully deleted"
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:133
+#: app/Http/Controllers/CommunityEventController.php:145
+#: app/Http/Controllers/CommunityEventController.php:218
+#: app/Http/Controllers/PortalEventController.php:29
+#: Modules/FluentCommunity/PortalHandler.php:307
+msgid "This event is not available."
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:156
+msgid "Please choose going or not going."
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:163
+msgid "You are not registered for this event."
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:176
+msgid "Your registration just changed. Please try again."
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:180
+msgid "This email is already registered for this event."
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:195
+msgid "Registration cancelled."
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:197
+msgid "RSVP updated. You're not going."
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:199
+msgid "RSVP updated. You're going!"
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:201
+#: app/Http/Controllers/CommunityEventController.php:231
+#: app/Http/Controllers/CommunityEventController.php:248
+#: app/Http/Controllers/PortalEventController.php:38
+#: app/Http/Controllers/PortalEventController.php:59
+msgid "You are registered."
+msgstr ""
+
+#: app/Http/Controllers/CommunityEventController.php:222
+#: app/Http/Controllers/PortalEventController.php:74
+msgid "This form has expired. Please reload the page and try again."
+msgstr ""
+
+#: app/Http/Controllers/DashboardController.php:21
+msgid "Welcome to the dashboard."
+msgstr ""
+
+#: app/Http/Controllers/EventController.php:110
+msgid "Event has been successfully created"
+msgstr ""
+
+#: app/Http/Controllers/EventController.php:158
+msgid "Event has been successfully updated"
+msgstr ""
+
+#: app/Http/Controllers/EventController.php:176
+msgid "Event has been successfully deleted"
+msgstr ""
+
+#: app/Http/Controllers/GuestController.php:64
+msgid "Guest has been successfully saved"
+msgstr ""
+
+#: app/Http/Controllers/GuestController.php:110
+msgid "Guest has been successfully updated"
+msgstr ""
+
+#: app/Http/Controllers/GuestController.php:134
+msgid "Guest has been successfully deleted"
+msgstr ""
+
+#: app/Http/Controllers/SettingsController.php:37
+#: app/Http/Controllers/SettingsController.php:38
+#: app/Http/Requests/SettingsRequest.php:111
+msgid "Choose a published page."
+msgstr ""
+
+#: app/Http/Controllers/SettingsController.php:54
+#: app/Http/Controllers/SettingsController.php:164
+#: app/Http/Controllers/SettingsController.php:188
+msgid "Settings have been saved."
+msgstr ""
+
+#: app/Http/Controllers/SettingsController.php:99
+msgid "The page could not be created."
+msgstr ""
+
+#: app/Http/Controllers/SettingsController.php:107
+msgid "The page has been created."
+msgstr ""
+
+#: app/Http/Controllers/SettingsController.php:136
+msgid "(no title)"
+msgstr ""
+
+#: app/Http/Controllers/SettingsController.php:207
+msgid "Community Meetup"
+msgstr ""
+
+#. translators: sample guest name shown in the email preview
+#: app/Http/Controllers/SettingsController.php:212
+msgid "Jane Doe"
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:42
+msgid "Title is required."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:43
+msgid "Title must be text."
+msgstr ""
+
+#. translators: %d: the longest title allowed, in characters
+#: app/Http/Requests/CalendarRequest.php:45
+#, php-format
+msgid "Title cannot exceed %d characters."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:46
+msgid "Slug is required."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:47
+msgid "Slug must be text."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:48
+msgid "Slug cannot exceed 191 characters."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:49
+msgid "This slug is already taken."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:50
+#: app/Http/Requests/EventRequest.php:112
+msgid "Status is required."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:51
+msgid "Status must be text."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:52
+msgid "Status must be public, private or draft."
+msgstr ""
+
+#: app/Http/Requests/CalendarRequest.php:53
+#: config/i18n.php:373
+msgid "Theme color must be a hex value like #0099ff."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:81
+msgid "Start must be a valid date and time."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:82
+msgid "End must be a valid date and time."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:95
+#: Modules/FluentCommunity/PortalHandler.php:232
+msgid "End must be after the start."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:106
+msgid "Please choose a calendar for this event."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:107
+msgid "The selected calendar no longer exists."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:108
+#: Modules/FluentCommunity/PortalHandler.php:239
+msgid "Event title is required."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:109
+msgid "Event title must be text."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:110
+msgid "Event title cannot exceed 255 characters."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:111
+msgid "Event Description must be text."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:113
+msgid "Status must be public, unlisted, private or draft."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:114
+msgid "Start date and time are required."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:115
+msgid "End date and time are required."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:116
+msgid "Timezone cannot exceed 64 characters."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:117
+msgid "Location type is required."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:118
+msgid "Location type must be offline or online."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:119
+msgid "Cover image must be a valid URL."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:120
+#: Modules/FluentCommunity/PortalHandler.php:207
+msgid "An online event needs a meeting link."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:121
+msgid "Meeting link must be a valid http or https URL."
+msgstr ""
+
+#. translators: %d: the longest venue name allowed, in characters
+#: app/Http/Requests/EventRequest.php:123
+#, php-format
+msgid "Venue name cannot exceed %d characters."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:124
+msgid "Address cannot exceed 500 characters."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:125
+msgid "Registration type is required."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:126
+msgid "Registration must be RSVP, open or none."
+msgstr ""
+
+#: app/Http/Requests/EventRequest.php:127
+msgid "Show guest count must be yes or no."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:58
+msgid "Name is required."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:59
+msgid "Name must be text."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:60
+msgid "Name cannot exceed 255 characters."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:61
+msgid "Email is required."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:62
+msgid "Please provide a valid email address."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:63
+msgid "Email cannot exceed 191 characters."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:64
+msgid "A guest with this email is already on this event."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:65
+msgid "The WordPress user must be a valid id."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:66
+msgid "The selected WordPress user no longer exists."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:67
+msgid "This WordPress user is already a guest on this event."
+msgstr ""
+
+#: app/Http/Requests/GuestRequest.php:68
+msgid "Status must be going, not going, checked in or cancelled."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:73
+msgid "The guest reminder time is required."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:77
+msgid "The reminder time must be a whole number."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:81
+msgid "The reminder time must be at least 1."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:87
+msgid "The reminder must be between 5 minutes and 30 days before the event."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:96
+msgid "The from name is required."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:97
+msgid "The from email address is required."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:98
+msgid "The from email must be a valid email address."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:99
+msgid "The reply-to email must be a valid email address."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:100
+msgid "The guest reminder settings are required."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:101
+msgid "Choose whether guest reminders are on or off."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:102
+msgid "Add an guest email reminder."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:103
+msgid "Guest email reminders must be a list."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:104
+msgid "Max guest email reminder reached."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:105
+msgid "Choose minutes, hours or days for the reminder."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:106
+msgid "The reminder unit must be minutes, hours or days."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:108
+msgid "Choose a default events view."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:109
+msgid "The default events view must be cards, timeline or calendar."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:110
+msgid "The view switch option must be yes or no."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:112
+msgid "Enter an event slug."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:113
+msgid "The event slug can only use letters, numbers, hyphens and underscores."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:114
+msgid "The event slug cannot exceed 100 characters."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:115
+#: app/Http/Requests/SettingsRequest.php:116
+msgid "Choose which page to create."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:117
+msgid "Enter a page title."
+msgstr ""
+
+#: app/Http/Requests/SettingsRequest.php:118
+msgid "The page title cannot exceed 255 characters."
+msgstr ""
+
+#: app/Services/CalendarService.php:36
+msgid "Community"
+msgstr ""
+
+#. translators: %s: time until the event starts, e.g. "3 days"
+#: app/Services/EventPageService.php:92
+#: Modules/FluentCommunity/PortalHandler.php:234
+msgid "Ended"
+msgstr ""
+
+#. translators: %s: time until the event starts, e.g. "3 days"
+#: app/Services/EventPageService.php:92
+#, php-format
+msgid "Starts in %s"
+msgstr ""
+
+#. translators: %s: number of guests going
+#: app/Services/EventPageService.php:94
+#: Modules/FluentCommunity/PortalHandler.php:199
+#, php-format
+msgid "%s going"
+msgstr ""
+
+#. translators: %s is the event title
+#: app/Services/EventReminderService.php:244
+#, php-format
+msgid "You are registered for %s"
+msgstr ""
+
+#. translators: 1: event title, 2: formatted start date/time, 3: timezone
+#: app/Services/EventReminderService.php:246
+#, php-format
+msgid "You are registered for %1$s on %2$s (%3$s)."
+msgstr ""
+
+#. translators: %s is the event title
+#: app/Services/EventReminderService.php:249
+#, php-format
+msgid "Your registration for %s is cancelled"
+msgstr ""
+
+#. translators: 1: event title, 2: formatted start date/time, 3: timezone
+#: app/Services/EventReminderService.php:251
+#, php-format
+msgid "Your registration for %1$s on %2$s (%3$s) has been cancelled."
+msgstr ""
+
+#. translators: %s is the event title
+#: app/Services/EventReminderService.php:254
+#, php-format
+msgid "Reminder: %s is coming up"
+msgstr ""
+
+#. translators: 1: event title, 2: formatted start date/time, 3: timezone
+#: app/Services/EventReminderService.php:256
+#, php-format
+msgid "This is a friendly reminder that %1$s starts on %2$s (%3$s)."
+msgstr ""
+
+#. translators: %s is the meeting link
+#: app/Services/EventReminderService.php:324
+#, php-format
+msgid "Join online: %s"
+msgstr ""
+
+#: app/Services/EventReminderService.php:334
+msgid "See you there!"
+msgstr ""
+
+#. translators: %s is the guest's name
+#: app/Services/EventReminderService.php:349
+#, php-format
+msgid "Hi %s,"
+msgstr ""
+
+#: app/Services/EventReminderService.php:350
+msgid "there"
+msgstr ""
+
+#: app/Services/PluginManager/PluginUpdater.php:145
+msgid "Check Update"
+msgstr ""
+
+#: app/Services/PluginManager/PluginUpdater.php:269
+msgid "No data found for this plugin"
+msgstr ""
+
+#: app/Services/PluginManager/PluginUpdater.php:320
+msgid "The update could not be verified because its checksum is missing, so it was not installed. Please try again later, and contact support if this keeps happening."
+msgstr ""
+
+#: app/Services/PluginManager/PluginUpdater.php:365
+msgid "The downloaded update does not match its published checksum, so it was not installed. Please try again, and contact support if this keeps happening."
+msgstr ""
+
+#: app/Services/PostService.php:35
+#: app/Services/PostService.php:55
+msgid "The event could not be saved. Please try again."
+msgstr ""
+
+#: app/Services/RegistrationService.php:24
+msgid "This event does not take registrations."
+msgstr ""
+
+#: app/Services/RegistrationService.php:28
+msgid "This event has already ended."
+msgstr ""
+
+#: app/Services/ReportService.php:37
+#: app/Services/ReportService.php:102
+msgid "Total Events"
+msgstr ""
+
+#: app/Services/ReportService.php:42
+#: app/Services/ReportService.php:107
+#: config/i18n.php:390
+msgid "Upcoming Events"
+msgstr ""
+
+#: app/Services/ReportService.php:47
+#: config/i18n.php:295
+msgid "Ongoing Events"
+msgstr ""
+
+#: app/Services/ReportService.php:52
+msgid "Completed Events"
+msgstr ""
+
+#: app/Services/ReportService.php:57
+#: app/Services/ReportService.php:112
+#: app/Services/ReportService.php:162
+msgid "Total Guests"
+msgstr ""
+
+#: app/Services/ReportService.php:62
+msgid "Going Guests"
+msgstr ""
+
+#: app/Services/ReportService.php:67
+#: app/Services/ReportService.php:117
+msgid "Checked In Guests"
+msgstr ""
+
+#: app/Services/ReportService.php:72
+msgid "Cancelled Guests"
+msgstr ""
+
+#: app/Services/ReportService.php:166
+#: config/i18n.php:110
+msgid "Checked In"
+msgstr ""
+
+#: app/Services/ReportService.php:170
+#: config/i18n.php:103
+msgid "Cancelled"
+msgstr ""
+
+#: app/Views/admin/menu.php:23
+msgid "Toggle menu"
+msgstr ""
+
+#: app/Views/admin/menu.php:59
+#: app/Views/admin/menu.php:60
+#: app/Views/admin/menu.php:75
+msgid "Color theme"
+msgstr ""
+
+#: app/Views/admin/menu.php:78
+msgid "Light"
+msgstr ""
+
+#: app/Views/admin/menu.php:79
+msgid "Dark"
+msgstr ""
+
+#: app/Views/admin/menu.php:80
+msgid "System"
+msgstr ""
+
+#: app/Views/portal/event-side.php:33
+#: config/i18n.php:316
+#: Modules/FluentCommunity/PortalHandler.php:290
+msgid "Registration"
+msgstr ""
+
+#: app/Views/portal/event-side.php:35
+#: Modules/FluentCommunity/PortalHandler.php:296
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: app/Views/portal/event-side.php:59
+#: Modules/FluentCommunity/PortalHandler.php:249
+msgid "Happening now"
+msgstr ""
+
+#: app/Views/portal/event-side.php:69
+#: Modules/FluentCommunity/PortalHandler.php:289
+msgid "Registered"
+msgstr ""
+
+#: app/Views/portal/event-side.php:69
+#: app/Views/portal/event-side.php:85
+#: config/i18n.php:251
+#: Modules/FluentCommunity/PortalHandler.php:246
+msgid "Going"
+msgstr ""
+
+#: app/Views/portal/event-side.php:77
+#: Modules/FluentCommunity/PortalHandler.php:253
+msgid "Interested?"
+msgstr ""
+
+#: app/Views/portal/event-side.php:81
+#: config/i18n.php:216
+#: Modules/FluentCommunity/PortalHandler.php:287
+msgid "RSVP"
+msgstr ""
+
+#: app/Views/portal/event-side.php:115
+#: app/Views/portal/event-side.php:183
+#: config/i18n.php:117
+msgid "Close"
+msgstr ""
+
+#: app/Views/portal/event-side.php:120
+#: config/i18n.php:272
+#: Modules/FluentCommunity/PortalHandler.php:265
+msgid "Name"
+msgstr ""
+
+#: app/Views/portal/event-side.php:123
+#: config/i18n.php:174
+#: Modules/FluentCommunity/PortalHandler.php:229
+msgid "Email"
+msgstr ""
+
+#: app/Views/portal/event-side.php:150
+#: app/Views/portal/event-side.php:220
+#: Modules/FluentCommunity/PortalHandler.php:254
+msgid "Join online"
+msgstr ""
+
+#: app/Views/portal/event-side.php:153
+#: Modules/FluentCommunity/PortalHandler.php:280
+msgid "Please register for the event to see the meeting link."
+msgstr ""
+
+#: app/Views/portal/event-side.php:159
+#: app/Views/portal/event-side.php:226
+#: Modules/FluentCommunity/PortalHandler.php:203
+msgid "Add to calendar"
+msgstr ""
+
+#: app/Views/portal/event-side.php:164
+#: app/Views/portal/event-side.php:230
+#: Modules/FluentCommunity/PortalHandler.php:247
+msgid "Google Calendar"
+msgstr ""
+
+#: app/Views/portal/event-side.php:168
+#: app/Views/portal/event-side.php:234
+#: Modules/FluentCommunity/PortalHandler.php:208
+msgid "Apple / Outlook"
+msgstr ""
+
+#: app/Views/portal/event-side.php:190
+#: Modules/FluentCommunity/PortalHandler.php:330
+msgid "You're registered"
+msgstr ""
+
+#: app/Views/portal/event-side.php:190
+msgid "You're going"
+msgstr ""
+
+#: app/Views/portal/event-side.php:241
+#: Modules/FluentCommunity/PortalHandler.php:227
+msgid "Done"
+msgstr ""
+
+#. translators: %d: the day number within a multi-day event
+#: app/Views/portal/events.php:56
+#: config/i18n.php:144
+#: Modules/FluentCommunity/PortalHandler.php:224
+#, php-format
+msgid "Day %d"
+msgstr ""
+
+#: app/Views/portal/events.php:77
+msgid "No events yet."
+msgstr ""
+
+#: app/Views/portal/events.php:78
+msgid "No upcoming events."
+msgstr ""
+
+#: app/Views/portal/events.php:79
+msgid "No past events."
+msgstr ""
+
+#. translators: %d: number of calendars that didn't fit in the row
+#: app/Views/portal/events.php:105
+#, php-format
+msgid "More (%d)"
+msgstr ""
+
+#: app/Views/portal/events.php:111
+msgid "More calendars"
+msgstr ""
+
+#: app/Views/portal/events.php:131
+msgid "Show events"
+msgstr ""
+
+#: app/Views/portal/events.php:143
+#: config/i18n.php:361
+#: Modules/FluentCommunity/PortalHandler.php:304
+msgid "Switch between card, timeline and calendar view"
+msgstr ""
+
+#: app/Views/portal/events.php:162
+#: config/i18n.php:363
+#: Modules/FluentCommunity/PortalHandler.php:305
+msgid "Switch between month, week and day view"
+msgstr ""
+
+#: app/Views/portal/events.php:173
+msgid "Change dates"
+msgstr ""
+
+#: app/Views/portal/events.php:174
+#: app/Views/portal/events.php:378
+#: config/i18n.php:310
+#: Modules/FluentCommunity/PortalHandler.php:286
+msgid "Previous"
+msgstr ""
+
+#: app/Views/portal/events.php:178
+#: app/Views/portal/events.php:391
+#: config/i18n.php:275
+#: Modules/FluentCommunity/PortalHandler.php:266
+msgid "Next"
+msgstr ""
+
+#. translators: %d: number of further events that day
+#: app/Views/portal/events.php:245
+#, php-format
+msgid "+%d more"
+msgstr ""
+
+#: app/Views/portal/events.php:305
+msgid "No events match your search."
+msgstr ""
+
+#: app/Views/portal/events.php:374
+msgid "Pages"
+msgstr ""
+
+#. translators: 1: current page, 2: number of pages
+#: app/Views/portal/events.php:385
+#, php-format
+msgid "Page %1$d of %2$d"
+msgstr ""
+
+#: app/Views/portal/not-found.php:12
+#: config/i18n.php:306
+msgid "Page not found"
+msgstr ""
+
+#: app/Views/portal/not-found.php:14
+msgid "Browse events"
+msgstr ""
+
+#. translators: %d is the number of rows shown per page
+#: config/i18n.php:47
+#, php-format
+msgid "%d / page"
+msgstr ""
+
+#. translators: %d is a number of days
+#: config/i18n.php:49
+#, php-format
+msgid "%d days"
+msgstr ""
+
+#. translators: %d is 1, the number of events
+#: config/i18n.php:51
+#, php-format
+msgid "%d event"
+msgstr ""
+
+#. translators: %d is a number of events
+#: config/i18n.php:53
+#, php-format
+msgid "%d events"
+msgstr ""
+
+#. translators: %d is 1, the number of guests
+#: config/i18n.php:55
+#, php-format
+msgid "%d guest"
+msgstr ""
+
+#. translators: %d is a number of guests
+#: config/i18n.php:57
+#, php-format
+msgid "%d guests"
+msgstr ""
+
+#. translators: %d: the number of further events on that day
+#: config/i18n.php:59
+#: Modules/FluentCommunity/PortalHandler.php:197
+#, php-format
+msgid "%d more"
+msgstr ""
+
+#. translators: 1: number of reminders set, 2: most reminders allowed
+#: config/i18n.php:61
+#, php-format
+msgid "%1$d of %2$d"
+msgstr ""
+
+#. translators: 1: tab or filter label, 2: number of items
+#: config/i18n.php:63
+#, php-format
+msgid "%1$s (%2$d)"
+msgstr ""
+
+#. translators: %s is the guest's name
+#: config/i18n.php:65
+#, php-format
+msgid "%s will be removed from this event. This cannot be undone."
+msgstr ""
+
+#. translators: 1: filter name, 2: selected filter value
+#: config/i18n.php:67
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#: config/i18n.php:68
+msgid "A calendar holds your events. Give it a title and you can start adding events to it."
+msgstr ""
+
+#: config/i18n.php:69
+msgid "A calendar holds your events. You need one before you can add an event."
+msgstr ""
+
+#: config/i18n.php:70
+#: Modules/FluentCommunity/PortalHandler.php:200
+msgid "A venue for in-person events, a link for online ones."
+msgstr ""
+
+#. translators: %s is the name of the item the actions apply to
+#: config/i18n.php:72
+#, php-format
+msgid "Actions for %s"
+msgstr ""
+
+#: config/i18n.php:73
+msgid "Add"
+msgstr ""
+
+#: config/i18n.php:74
+#: Modules/FluentCommunity/PortalHandler.php:202
+msgid "Add a cover image"
+msgstr ""
+
+#: config/i18n.php:75
+msgid "Add a custom color"
+msgstr ""
+
+#: config/i18n.php:76
+msgid "Add Page"
+msgstr ""
+
+#: config/i18n.php:77
+msgid "Add Reminder"
+msgstr ""
+
+#: config/i18n.php:78
+msgid "Add Description"
+msgstr ""
+
+#: config/i18n.php:79
+msgid "Add Event"
+msgstr ""
+
+#: config/i18n.php:80
+msgid "Add Guest"
+msgstr ""
+
+#: config/i18n.php:81
+msgid "Add this shortcode to the page:"
+msgstr ""
+
+#: config/i18n.php:82
+#: Modules/FluentCommunity/PortalHandler.php:204
+msgid "Address"
+msgstr ""
+
+#: config/i18n.php:83
+msgid "Advanced"
+msgstr ""
+
+#: config/i18n.php:85
+msgid "All Events Page"
+msgstr ""
+
+#: config/i18n.php:86
+msgid "Amber"
+msgstr ""
+
+#: config/i18n.php:87
+msgid "An event needs a calendar to live in, and there are none yet."
+msgstr ""
+
+#: config/i18n.php:88
+msgid "Anyone can find it."
+msgstr ""
+
+#: config/i18n.php:89
+msgid "Apply"
+msgstr ""
+
+#. translators: %s is the formatted check-in date and time
+#: config/i18n.php:91
+#, php-format
+msgid "at: %s"
+msgstr ""
+
+#: config/i18n.php:92
+msgid "Back to Dashboard"
+msgstr ""
+
+#: config/i18n.php:93
+#: Modules/FluentCommunity/PortalHandler.php:210
+msgid "Basics"
+msgstr ""
+
+#: config/i18n.php:94
+msgid "Breadcrumb"
+msgstr ""
+
+#: config/i18n.php:95
+msgid "Bullet list"
+msgstr ""
+
+#. translators: %s is the translated calendar status
+#: config/i18n.php:98
+#, php-format
+msgid "Calendar status: %s"
+msgstr ""
+
+#. translators: %s is the calendar title
+#: config/i18n.php:100
+#, php-format
+msgid "Calendar: %s"
+msgstr ""
+
+#: config/i18n.php:102
+msgid "Cancel"
+msgstr ""
+
+#: config/i18n.php:105
+msgid "Change"
+msgstr ""
+
+#: config/i18n.php:106
+msgid "Change Cover Image"
+msgstr ""
+
+#: config/i18n.php:107
+msgid "Change Slug"
+msgstr ""
+
+#. translators: %s is the guest's name
+#: config/i18n.php:109
+#, php-format
+msgid "Change status of %s"
+msgstr ""
+
+#: config/i18n.php:111
+msgid "Choose a calendar"
+msgstr ""
+
+#: config/i18n.php:112
+msgid "Choose how to identify the guest"
+msgstr ""
+
+#: config/i18n.php:113
+msgid "Choose image"
+msgstr ""
+
+#: config/i18n.php:114
+msgid "Choose who can find this calendar."
+msgstr ""
+
+#: config/i18n.php:115
+msgid "Choose who can find this event."
+msgstr ""
+
+#: config/i18n.php:116
+#: Modules/FluentCommunity/PortalHandler.php:216
+msgid "Click to add a cover image"
+msgstr ""
+
+#: config/i18n.php:118
+msgid "Code"
+msgstr ""
+
+#: config/i18n.php:119
+msgid "Color"
+msgstr ""
+
+#: config/i18n.php:120
+msgid "Confirm"
+msgstr ""
+
+#: config/i18n.php:121
+msgid "Copy link"
+msgstr ""
+
+#: config/i18n.php:122
+msgid "Copy shortcode"
+msgstr ""
+
+#: config/i18n.php:123
+msgid "Could not load this event. Please try again."
+msgstr ""
+
+#: config/i18n.php:124
+#: Modules/FluentCommunity/PortalHandler.php:219
+msgid "Cover Image"
+msgstr ""
+
+#. translators: %s is the event title
+#: config/i18n.php:126
+#, php-format
+msgid "Cover image of %s"
+msgstr ""
+
+#: config/i18n.php:127
+msgid "Create a Calendar"
+msgstr ""
+
+#: config/i18n.php:128
+msgid "Create a new page"
+msgstr ""
+
+#: config/i18n.php:129
+msgid "Create Calendar"
+msgstr ""
+
+#: config/i18n.php:130
+#: Modules/FluentCommunity/PortalHandler.php:220
+msgid "Create Event"
+msgstr ""
+
+#: config/i18n.php:131
+msgid "Create your first calendar"
+msgstr ""
+
+#. translators: %s is the date the calendar was created
+#: config/i18n.php:133
+#, php-format
+msgid "Created %s"
+msgstr ""
+
+#. translators: 1: date the calendar was created, 2: the creator's name
+#: config/i18n.php:135
+#, php-format
+msgid "Created %1$s by %2$s"
+msgstr ""
+
+#: config/i18n.php:136
+msgid "Cyan"
+msgstr ""
+
+#: config/i18n.php:137
+msgid "Danger Zone"
+msgstr ""
+
+#: config/i18n.php:139
+msgid "Date"
+msgstr ""
+
+#: config/i18n.php:140
+#: Modules/FluentCommunity/PortalHandler.php:221
+msgid "Date and Time"
+msgstr ""
+
+#: config/i18n.php:141
+msgid "Date Range"
+msgstr ""
+
+#: config/i18n.php:145
+msgid "Days Before"
+msgstr ""
+
+#: config/i18n.php:146
+msgid "Deep Lilac"
+msgstr ""
+
+#: config/i18n.php:147
+msgid "Default Events List View"
+msgstr ""
+
+#: config/i18n.php:148
+msgid "Delete"
+msgstr ""
+
+#: config/i18n.php:149
+msgid "Delete Calendar"
+msgstr ""
+
+#: config/i18n.php:150
+msgid "Delete Event"
+msgstr ""
+
+#: config/i18n.php:151
+msgid "Delete Guest"
+msgstr ""
+
+#: config/i18n.php:152
+msgid "Delete this calendar"
+msgstr ""
+
+#: config/i18n.php:153
+msgid "Delete this event"
+msgstr ""
+
+#: config/i18n.php:154
+msgid "Deleting this calendar also permanently deletes all of its events and their guests. This cannot be undone."
+msgstr ""
+
+#: config/i18n.php:155
+msgid "Deleting an event is permanent. The event and all of its data — guests and settings — are removed for good and cannot be undone."
+msgstr ""
+
+#: config/i18n.php:156
+#: Modules/FluentCommunity/PortalHandler.php:225
+msgid "Describe the event, or type / to add images, lists and more"
+msgstr ""
+
+#: config/i18n.php:157
+#: Modules/FluentCommunity/PortalHandler.php:226
+msgid "Description"
+msgstr ""
+
+#: config/i18n.php:158
+msgid "Disable View Change Option"
+msgstr ""
+
+#: config/i18n.php:159
+msgid "Divider"
+msgstr ""
+
+#: config/i18n.php:160
+msgid "Draft"
+msgstr ""
+
+#: config/i18n.php:161
+#: Modules/FluentCommunity/PortalHandler.php:331
+msgid "e.g. Friday Q&A"
+msgstr ""
+
+#: config/i18n.php:162
+msgid "e.g. Jane Cooper"
+msgstr ""
+
+#: config/i18n.php:163
+msgid "e.g. jane@example.com"
+msgstr ""
+
+#: config/i18n.php:164
+#: Modules/FluentCommunity/PortalHandler.php:332
+msgid "e.g. Kingsway Hall"
+msgstr ""
+
+#: config/i18n.php:165
+msgid "e.g. Personal"
+msgstr ""
+
+#: config/i18n.php:166
+msgid "e.g. personal"
+msgstr ""
+
+#: config/i18n.php:167
+msgid "e.g. your business name"
+msgstr ""
+
+#. translators: %s is the event URL slug setting, e.g. event
+#: config/i18n.php:169
+#, php-format
+msgid "Each event opens at /%s/event-name/."
+msgstr ""
+
+#: config/i18n.php:170
+msgid "Edit"
+msgstr ""
+
+#: config/i18n.php:171
+msgid "Edit Calendar"
+msgstr ""
+
+#: config/i18n.php:173
+msgid "Edit Guest"
+msgstr ""
+
+#: config/i18n.php:175
+msgid "Email *"
+msgstr ""
+
+#: config/i18n.php:176
+msgid "Email Footer for Event Related Emails"
+msgstr ""
+
+#: config/i18n.php:177
+msgid "Email guests a reminder before an event starts."
+msgstr ""
+
+#: config/i18n.php:179
+msgid "Event Slug"
+msgstr ""
+
+#: config/i18n.php:180
+msgid "Existing links to this calendar will be affected. Do you still want to change the slug?"
+msgstr ""
+
+#: config/i18n.php:181
+msgid "Guest Emails"
+msgstr ""
+
+#: config/i18n.php:182
+msgid "Confirmation Email"
+msgstr ""
+
+#: config/i18n.php:183
+msgid "Heading 1"
+msgstr ""
+
+#: config/i18n.php:184
+msgid "Heading 2"
+msgstr ""
+
+#: config/i18n.php:185
+msgid "Heading 3"
+msgstr ""
+
+#: config/i18n.php:186
+msgid "Heading 4"
+msgstr ""
+
+#: config/i18n.php:187
+msgid "Heading 5"
+msgstr ""
+
+#: config/i18n.php:188
+msgid "Heading 6"
+msgstr ""
+
+#: config/i18n.php:189
+msgid "Image"
+msgstr ""
+
+#: config/i18n.php:190
+msgid "Its calendar is not public, so this event has no public page."
+msgstr ""
+
+#: config/i18n.php:191
+msgid "Link copied."
+msgstr ""
+
+#: config/i18n.php:192
+msgid "No languages found"
+msgstr ""
+
+#: config/i18n.php:193
+msgid "Numbered list"
+msgstr ""
+
+#: config/i18n.php:194
+msgid "Only public and unlisted events have a public page."
+msgstr ""
+
+#: config/i18n.php:195
+msgid "or paste an image link"
+msgstr ""
+
+#: config/i18n.php:196
+msgid "Paste a link"
+msgstr ""
+
+#: config/i18n.php:197
+msgid "Preview"
+msgstr ""
+
+#: config/i18n.php:198
+msgid "Public Page"
+msgstr ""
+
+#: config/i18n.php:199
+msgid "Quote"
+msgstr ""
+
+#: config/i18n.php:200
+msgid "Search languages"
+msgstr ""
+
+#: config/i18n.php:201
+msgid "Select a page"
+msgstr ""
+
+#: config/i18n.php:202
+msgid "Send a confirmation email when a guest registers"
+msgstr ""
+
+#: config/i18n.php:203
+msgid "Email guests a confirmation when they register for an event."
+msgstr ""
+
+#: config/i18n.php:204
+msgid "Guests get no email when they register."
+msgstr ""
+
+#: config/i18n.php:205
+msgid "No public page."
+msgstr ""
+
+#: config/i18n.php:206
+msgid "Not ready yet."
+msgstr ""
+
+#: config/i18n.php:207
+msgid "Only accessible via direct link."
+msgstr ""
+
+#: config/i18n.php:208
+msgid "Send Confirmation Email"
+msgstr ""
+
+#: config/i18n.php:209
+msgid "Send Cancellation Email"
+msgstr ""
+
+#: config/i18n.php:210
+msgid "Cancellation Email"
+msgstr ""
+
+#: config/i18n.php:211
+msgid "Send an email when a registration is cancelled"
+msgstr ""
+
+#: config/i18n.php:212
+msgid "Email guests when they cancel or an admin cancels their registration."
+msgstr ""
+
+#: config/i18n.php:213
+msgid "Guests get no email when their registration is cancelled."
+msgstr ""
+
+#: config/i18n.php:214
+msgid "Shortcode copied."
+msgstr ""
+
+#: config/i18n.php:215
+#: Modules/FluentCommunity/PortalHandler.php:294
+msgid "Show how many guests are going"
+msgstr ""
+
+#: config/i18n.php:217
+#: Modules/FluentCommunity/PortalHandler.php:277
+msgid "Open"
+msgstr ""
+
+#: config/i18n.php:218
+#: Modules/FluentCommunity/PortalHandler.php:272
+msgid "None"
+msgstr ""
+
+#: config/i18n.php:219
+msgid "Registration Type"
+msgstr ""
+
+#: config/i18n.php:220
+#: Modules/FluentCommunity/PortalHandler.php:259
+msgid "Logged-in members say whether they are going."
+msgstr ""
+
+#: config/i18n.php:221
+#: Modules/FluentCommunity/PortalHandler.php:248
+msgid "Guests register with their name and email, no login needed."
+msgstr ""
+
+#: config/i18n.php:222
+#: Modules/FluentCommunity/PortalHandler.php:271
+msgid "Nobody registers. Anyone who can see the event sees all of it, meeting link included."
+msgstr ""
+
+#: config/i18n.php:223
+msgid "Emerald Green"
+msgstr ""
+
+#: config/i18n.php:224
+#: Modules/FluentCommunity/PortalHandler.php:230
+msgid "End"
+msgstr ""
+
+#: config/i18n.php:225
+#: Modules/FluentCommunity/PortalHandler.php:231
+msgid "End date"
+msgstr ""
+
+#: config/i18n.php:226
+#: Modules/FluentCommunity/PortalHandler.php:233
+msgid "End time"
+msgstr ""
+
+#. translators: %s is the formatted end date and time
+#: config/i18n.php:228
+#, php-format
+msgid "Ends %s"
+msgstr ""
+
+#: config/i18n.php:229
+msgid "Enter Page Title"
+msgstr ""
+
+#: config/i18n.php:230
+msgid "Enter Manually"
+msgstr ""
+
+#: config/i18n.php:231
+#: Modules/FluentCommunity/PortalHandler.php:235
+msgid "Entry Type"
+msgstr ""
+
+#: config/i18n.php:232
+#: Modules/FluentCommunity/PortalHandler.php:236
+msgid "Error"
+msgstr ""
+
+#: config/i18n.php:233
+#: Modules/FluentCommunity/PortalHandler.php:237
+msgid "Event cover image"
+msgstr ""
+
+#: config/i18n.php:234
+msgid "Event Details"
+msgstr ""
+
+#: config/i18n.php:235
+#: Modules/FluentCommunity/PortalHandler.php:238
+msgid "Event Name"
+msgstr ""
+
+#: config/i18n.php:237
+msgid "Events live inside a calendar. Pick one, say when it happens, and publish."
+msgstr ""
+
+#: config/i18n.php:238
+msgid "Events show up here once they end."
+msgstr ""
+
+#: config/i18n.php:239
+msgid "Filter"
+msgstr ""
+
+#: config/i18n.php:240
+msgid "Filter calendars by status"
+msgstr ""
+
+#: config/i18n.php:241
+msgid "Filter events by period"
+msgstr ""
+
+#: config/i18n.php:242
+msgid "Filter guests by stage"
+msgstr ""
+
+#: config/i18n.php:243
+msgid "FluentCommunity"
+msgstr ""
+
+#: config/i18n.php:244
+msgid "FluentCommunity Spaces"
+msgstr ""
+
+#: config/i18n.php:245
+msgid "From"
+msgstr ""
+
+#: config/i18n.php:246
+msgid "From Email Address"
+msgstr ""
+
+#: config/i18n.php:247
+msgid "From Name"
+msgstr ""
+
+#: config/i18n.php:249
+msgid "General Settings"
+msgstr ""
+
+#: config/i18n.php:250
+msgid "Go Back"
+msgstr ""
+
+#: config/i18n.php:252
+msgid "Guest Details"
+msgstr ""
+
+#: config/i18n.php:253
+msgid "Guest Trends"
+msgstr ""
+
+#: config/i18n.php:254
+msgid "Guests"
+msgstr ""
+
+#: config/i18n.php:255
+msgid "Hours Before"
+msgstr ""
+
+#: config/i18n.php:256
+#: Modules/FluentCommunity/PortalHandler.php:250
+msgid "How guests join and what they see."
+msgstr ""
+
+#: config/i18n.php:257
+msgid "Identifies this calendar in links. Changing it later breaks existing ones."
+msgstr ""
+
+#: config/i18n.php:258
+msgid "Identity"
+msgstr ""
+
+#: config/i18n.php:259
+#: Modules/FluentCommunity/PortalHandler.php:252
+msgid "In Person"
+msgstr ""
+
+#: config/i18n.php:260
+msgid "It has been removed from the events list."
+msgstr ""
+
+#: config/i18n.php:261
+msgid "Items per page"
+msgstr ""
+
+#: config/i18n.php:262
+msgid "Last Updated"
+msgstr ""
+
+#: config/i18n.php:263
+msgid "Lime Green"
+msgstr ""
+
+#: config/i18n.php:264
+msgid "List"
+msgstr ""
+
+#: config/i18n.php:265
+msgid "Loading…"
+msgstr ""
+
+#: config/i18n.php:266
+msgid "Manage Event"
+msgstr ""
+
+#: config/i18n.php:267
+msgid "Manual"
+msgstr ""
+
+#: config/i18n.php:268
+#: Modules/FluentCommunity/PortalHandler.php:260
+msgid "Meeting Link"
+msgstr ""
+
+#: config/i18n.php:269
+msgid "Minutes Before"
+msgstr ""
+
+#: config/i18n.php:271
+msgid "More"
+msgstr ""
+
+#: config/i18n.php:273
+msgid "Name *"
+msgstr ""
+
+#: config/i18n.php:274
+msgid "New events will show up here."
+msgstr ""
+
+#: config/i18n.php:276
+msgid "No"
+msgstr ""
+
+#: config/i18n.php:277
+msgid "No calendars found"
+msgstr ""
+
+#: config/i18n.php:278
+msgid "No calendars match your search."
+msgstr ""
+
+#: config/i18n.php:279
+msgid "No description yet"
+msgstr ""
+
+#: config/i18n.php:280
+msgid "No events are running right now."
+msgstr ""
+
+#: config/i18n.php:282
+msgid "No events match your search or filters."
+msgstr ""
+
+#: config/i18n.php:283
+#: Modules/FluentCommunity/PortalHandler.php:268
+msgid "No events yet"
+msgstr ""
+
+#: config/i18n.php:284
+msgid "No guest activity in this period."
+msgstr ""
+
+#: config/i18n.php:285
+msgid "No guest will get a reminder before an event starts."
+msgstr ""
+
+#: config/i18n.php:286
+msgid "No guests joined yet."
+msgstr ""
+
+#: config/i18n.php:287
+msgid "No guests match your search or filter."
+msgstr ""
+
+#: config/i18n.php:288
+msgid "No guests yet."
+msgstr ""
+
+#: config/i18n.php:289
+#: Modules/FluentCommunity/PortalHandler.php:269
+msgid "No past events"
+msgstr ""
+
+#: config/i18n.php:290
+#: Modules/FluentCommunity/PortalHandler.php:270
+msgid "No upcoming events"
+msgstr ""
+
+#: config/i18n.php:291
+msgid "No venue yet"
+msgstr ""
+
+#: config/i18n.php:292
+msgid "Not Going"
+msgstr ""
+
+#: config/i18n.php:293
+msgid "Not set"
+msgstr ""
+
+#: config/i18n.php:294
+msgid "Notification"
+msgstr ""
+
+#: config/i18n.php:297
+msgid "Online Event"
+msgstr ""
+
+#: config/i18n.php:298
+#: Modules/FluentCommunity/PortalHandler.php:275
+msgid "Only http and https links are accepted."
+msgstr ""
+
+#. translators: %s is the calendar title
+#: config/i18n.php:300
+#, php-format
+msgid "Open %s"
+msgstr ""
+
+#: config/i18n.php:301
+msgid "Open the community post in a new tab"
+msgstr ""
+
+#: config/i18n.php:302
+msgid "Open your community space in a new tab"
+msgstr ""
+
+#: config/i18n.php:303
+#: Modules/FluentCommunity/PortalHandler.php:278
+msgid "Optional. Shown on the event page."
+msgstr ""
+
+#: config/i18n.php:304
+msgid "Overview"
+msgstr ""
+
+#: config/i18n.php:305
+msgid "Page Not Found"
+msgstr ""
+
+#: config/i18n.php:307
+msgid "Page Title"
+msgstr ""
+
+#: config/i18n.php:309
+msgid "Prev"
+msgstr ""
+
+#: config/i18n.php:311
+msgid "Private"
+msgstr ""
+
+#: config/i18n.php:312
+msgid "Public"
+msgstr ""
+
+#: config/i18n.php:313
+msgid "Public Pages"
+msgstr ""
+
+#: config/i18n.php:314
+msgid "Purple"
+msgstr ""
+
+#: config/i18n.php:315
+msgid "Red-Orange"
+msgstr ""
+
+#: config/i18n.php:317
+msgid "Reminder Emails"
+msgstr ""
+
+#: config/i18n.php:318
+msgid "Reminders"
+msgstr ""
+
+#: config/i18n.php:319
+msgid "Reminder time"
+msgstr ""
+
+#: config/i18n.php:320
+msgid "Reminder unit"
+msgstr ""
+
+#: config/i18n.php:321
+#: Modules/FluentCommunity/PortalHandler.php:291
+msgid "Remove cover image"
+msgstr ""
+
+#: config/i18n.php:322
+msgid "Remove reminder"
+msgstr ""
+
+#: config/i18n.php:323
+msgid "Replies to event emails go to this address instead of the from address."
+msgstr ""
+
+#: config/i18n.php:324
+msgid "Reply-To Email (Optional)"
+msgstr ""
+
+#: config/i18n.php:325
+msgid "Reply-To Name (Optional)"
+msgstr ""
+
+#: config/i18n.php:326
+msgid "Request aborted."
+msgstr ""
+
+#: config/i18n.php:327
+msgid "Reset Calendar"
+msgstr ""
+
+#: config/i18n.php:328
+msgid "Responded"
+msgstr ""
+
+#: config/i18n.php:329
+msgid "Save Settings"
+msgstr ""
+
+#: config/i18n.php:330
+msgid "Schedule"
+msgstr ""
+
+#: config/i18n.php:331
+msgid "Search by name or email"
+msgstr ""
+
+#: config/i18n.php:332
+msgid "Search calendars"
+msgstr ""
+
+#: config/i18n.php:334
+msgid "Search guests"
+msgstr ""
+
+#: config/i18n.php:335
+msgid "Select a cover image"
+msgstr ""
+
+#: config/i18n.php:336
+msgid "Select an image"
+msgstr ""
+
+#: config/i18n.php:337
+msgid "Select media"
+msgstr ""
+
+#: config/i18n.php:338
+msgid "Send reminder emails to guests"
+msgstr ""
+
+#: config/i18n.php:339
+msgid "Preview the confirmation email"
+msgstr ""
+
+#: config/i18n.php:340
+msgid "Preview the cancellation email"
+msgstr ""
+
+#: config/i18n.php:341
+msgid "Preview the reminder email"
+msgstr ""
+
+#: config/i18n.php:342
+msgid "Email Preview"
+msgstr ""
+
+#: config/i18n.php:343
+msgid "Subject"
+msgstr ""
+
+#: config/i18n.php:344
+msgid "Sent right after a guest registers or cancels."
+msgstr ""
+
+#: config/i18n.php:345
+msgid "Sent to registered guests before the event starts."
+msgstr ""
+
+#: config/i18n.php:347
+msgid "Shown at the bottom of every event email. You may include your business name, address, or why the recipient got this email."
+msgstr ""
+
+#: config/i18n.php:348
+#: Modules/FluentCommunity/PortalHandler.php:295
+msgid "Shown at the top of the event page and on event cards."
+msgstr ""
+
+#: config/i18n.php:349
+msgid "Own calendars"
+msgstr ""
+
+#: config/i18n.php:350
+msgid "Slug"
+msgstr ""
+
+#: config/i18n.php:351
+msgid "Something went wrong"
+msgstr ""
+
+#: config/i18n.php:352
+msgid "Source"
+msgstr ""
+
+#: config/i18n.php:353
+#: Modules/FluentCommunity/PortalHandler.php:298
+msgid "Start"
+msgstr ""
+
+#: config/i18n.php:354
+#: Modules/FluentCommunity/PortalHandler.php:299
+msgid "Start date"
+msgstr ""
+
+#: config/i18n.php:355
+#: Modules/FluentCommunity/PortalHandler.php:300
+msgid "Start time"
+msgstr ""
+
+#. translators: %s: when the event starts, as a date and time or as a relative time such as "in 3 days"
+#: config/i18n.php:357
+#: Modules/FluentCommunity/PortalHandler.php:302
+#, php-format
+msgid "Starts %s"
+msgstr ""
+
+#: config/i18n.php:358
+msgid "Status"
+msgstr ""
+
+#: config/i18n.php:359
+#: Modules/FluentCommunity/PortalHandler.php:303
+msgid "Street, city, country"
+msgstr ""
+
+#: config/i18n.php:360
+msgid "Success"
+msgstr ""
+
+#: config/i18n.php:362
+msgid "Switch between list and card view"
+msgstr ""
+
+#: config/i18n.php:364
+msgid "Text"
+msgstr ""
+
+#: config/i18n.php:365
+msgid "The description tells guests what this event is about."
+msgstr ""
+
+#: config/i18n.php:366
+msgid "The link could not be copied."
+msgstr ""
+
+#: config/i18n.php:367
+msgid "The name and color people see wherever this calendar appears."
+msgstr ""
+
+#: config/i18n.php:368
+msgid "The page you are looking for does not exist."
+msgstr ""
+
+#: config/i18n.php:369
+msgid "The selected view is used for everyone. They cannot switch to a different view."
+msgstr ""
+
+#: config/i18n.php:370
+msgid "The shortcode could not be copied."
+msgstr ""
+
+#: config/i18n.php:371
+msgid "The WordPress media library is unavailable."
+msgstr ""
+
+#: config/i18n.php:372
+msgid "Theme color"
+msgstr ""
+
+#: config/i18n.php:374
+msgid "This calendar belongs to a FluentCommunity space."
+msgstr ""
+
+#: config/i18n.php:375
+msgid "This calendar holds community-wide events."
+msgstr ""
+
+#: config/i18n.php:376
+msgid "This event and all of its data will be permanently deleted."
+msgstr ""
+
+#: config/i18n.php:377
+msgid "This event no longer exists"
+msgstr ""
+
+#: config/i18n.php:378
+msgid "This page doesn’t contain the shortcode or block yet."
+msgstr ""
+
+#: config/i18n.php:380
+#: Modules/FluentCommunity/PortalHandler.php:309
+msgid "Timezone"
+msgstr ""
+
+#: config/i18n.php:381
+msgid "Title"
+msgstr ""
+
+#: config/i18n.php:382
+msgid "To"
+msgstr ""
+
+#: config/i18n.php:384
+msgid "Top Events"
+msgstr ""
+
+#: config/i18n.php:385
+msgid "Try Again"
+msgstr ""
+
+#. translators: %s is the calendar or event title the user must type
+#: config/i18n.php:387
+#, php-format
+msgid "Type \"%s\" to confirm (without quotes)."
+msgstr ""
+
+#: config/i18n.php:388
+msgid "Unlisted"
+msgstr ""
+
+#: config/i18n.php:391
+msgid "Upcoming events will be shown here."
+msgstr ""
+
+#: config/i18n.php:392
+msgid "Update Calendar"
+msgstr ""
+
+#: config/i18n.php:393
+#: Modules/FluentCommunity/PortalHandler.php:316
+msgid "Update Event"
+msgstr ""
+
+#: config/i18n.php:394
+msgid "Update Guest"
+msgstr ""
+
+#: config/i18n.php:395
+msgid "Update the calendar details. Events already in it are not affected."
+msgstr ""
+
+#: config/i18n.php:396
+msgid "Update the event details. Guests already registered are not affected."
+msgstr ""
+
+#: config/i18n.php:397
+msgid "Use this image"
+msgstr ""
+
+#: config/i18n.php:398
+msgid "Use this media"
+msgstr ""
+
+#: config/i18n.php:399
+msgid "Users can switch to the view they prefer."
+msgstr ""
+
+#: config/i18n.php:400
+#: Modules/FluentCommunity/PortalHandler.php:317
+msgid "Venue Name"
+msgstr ""
+
+#: config/i18n.php:401
+#: Modules/FluentCommunity/PortalHandler.php:318
+msgid "Venue Type"
+msgstr ""
+
+#. translators: %s: the event title
+#: config/i18n.php:404
+#: Modules/FluentCommunity/PortalHandler.php:320
+#, php-format
+msgid "View %s"
+msgstr ""
+
+#: config/i18n.php:405
+msgid "View actions"
+msgstr ""
+
+#: config/i18n.php:406
+msgid "View Full Details"
+msgstr ""
+
+#: config/i18n.php:407
+msgid "View in Community"
+msgstr ""
+
+#: config/i18n.php:408
+msgid "Visibility"
+msgstr ""
+
+#: config/i18n.php:409
+msgid "Vivid Blue"
+msgstr ""
+
+#: config/i18n.php:410
+msgid "vs previous period"
+msgstr ""
+
+#: config/i18n.php:411
+msgid "Warning"
+msgstr ""
+
+#: config/i18n.php:412
+msgid "We could not load this. Please try again."
+msgstr ""
+
+#: config/i18n.php:414
+msgid "Welcome to Fluent Event"
+msgstr ""
+
+#: config/i18n.php:415
+msgid "What the event is called and which calendar it belongs to."
+msgstr ""
+
+#: config/i18n.php:416
+msgid "What the reply-to email is for"
+msgstr ""
+
+#: config/i18n.php:417
+#: Modules/FluentCommunity/PortalHandler.php:326
+msgid "When the event starts and ends."
+msgstr ""
+
+#: config/i18n.php:418
+msgid "WordPress Pages"
+msgstr ""
+
+#: config/i18n.php:419
+msgid "WordPress User"
+msgstr ""
+
+#: config/i18n.php:420
+msgid "WordPress User *"
+msgstr ""
+
+#: config/i18n.php:421
+msgid "WP User"
+msgstr ""
+
+#: config/i18n.php:422
+msgid "Write a caption"
+msgstr ""
+
+#: config/i18n.php:423
+msgid "Yes"
+msgstr ""
+
+#: Modules/FluentCommunity/FeedHandler.php:66
+msgid "You are not allowed to create events."
+msgstr ""
+
+#: Modules/FluentCommunity/FeedHandler.php:77
+msgid "Events can only be posted in discussion spaces."
+msgstr ""
+
+#: Modules/FluentCommunity/FeedHandler.php:142
+msgid "Events can only be moved to discussion spaces."
+msgstr ""
+
+#: Modules/FluentCommunity/FeedHandler.php:269
+msgid "This event is no longer available."
+msgstr ""
+
+#: Modules/FluentCommunity/FeedHandler.php:415
+msgid "Please check the event details."
+msgstr ""
+
+#: Modules/FluentCommunity/FeedHandler.php:431
+msgid "Community-wide events need global posts, which are turned off in FluentCommunity settings."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:206
+msgid "All Events"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:209
+msgid "Back"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:212
+msgid "Cancel registration"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:213
+msgid "Cancel your registration?"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:215
+msgid "Choose a space for this event."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:217
+msgid "Comments"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:218
+msgid "Community-wide"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:241
+msgid "Events from across the community will show up here."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:242
+msgid "Events posted in this space will show up here."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:243
+msgid "Events that have ended will show up here."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:244
+msgid "Feed Post"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:245
+msgid "Global posts are turned off in FluentCommunity settings."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:251
+msgid "In a space"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:255
+msgid "Keep it"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:256
+msgid "Load more"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:257
+msgid "Loading event"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:258
+msgid "Log in to RSVP"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:261
+msgid "Members can RSVP once this post is published."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:262
+msgid "Members can register once this post is published."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:264
+msgid "More actions"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:273
+msgid "Not going"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:276
+msgid "Only members of the space can see it."
+msgstr ""
+
+#. translators: %s: member's name; the space's name follows, in bold
+#: Modules/FluentCommunity/PortalHandler.php:282
+#, php-format
+msgid "Posted by %s in"
+msgstr ""
+
+#. translators: %s: member's name
+#: Modules/FluentCommunity/PortalHandler.php:284
+#, php-format
+msgid "Posted by %s on their profile"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:285
+msgid "Posted on your profile, outside any space. Everyone in the community can see it."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:293
+msgid "Select a space"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:297
+msgid "Space"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:306
+msgid "There are no spaces you can post in."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:310
+msgid "To change the post text or its space, edit the post itself."
+msgstr ""
+
+#. translators: a menu path in FluentCommunity's admin; keep the names as FluentCommunity shows them
+#: Modules/FluentCommunity/PortalHandler.php:312
+msgid "To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:314
+msgid "Try a different search term."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:321
+msgid "View in FluentEvent"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:322
+msgid "View post"
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:324
+msgid "What members see in the feed, above the event."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:325
+msgid "What the event is called."
+msgstr ""
+
+#: Modules/FluentCommunity/PortalHandler.php:327
+msgid "Where do you want to post this event?"
+msgstr ""
+
+#. translators: %s: event title
+#: Modules/FluentCommunity/PortalHandler.php:329
+#, php-format
+msgid "You will lose your spot for %s. You can register again later."
+msgstr ""

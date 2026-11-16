@@ -34,6 +34,10 @@ Rule: when adding a route to a `withPolicy(...)` group, ensure either —
 
 Never let a destructive action rely on the `verifyRequest` fallback.
 
+**The exception is the base `Policy`** (`withDefaultPolicy()`): its `verifyRequest()` is
+`manage_options`, the admin routes' only check, so every action may use it. The free plugin
+has no team permissions; the admin API is for site administrators only.
+
 ## Param constraints
 
 Use inline validators — `->int('event_id')`, `->alphaNumDash('eventSlug')`,

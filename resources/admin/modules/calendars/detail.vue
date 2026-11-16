@@ -10,96 +10,90 @@
                     <router-link class="fe-page__breadcrumb-link" :to="{ name: 'calendars' }">
                         {{ $t('Calendars') }}
                     </router-link>
-
                     <el-icon class="fe-page__breadcrumb-separator" aria-hidden="true">
                         <ArrowRight />
                     </el-icon>
                 </nav>
 
-                <div class="fe-calendar-detail__mast">
-                    <div class="fe-calendar-detail__cover" :style="coverStyle">
-                        <el-button
-                            v-if="$userCan('write_calendars')"
-                            class="fe-calendar-detail__edit"
-                            @click="goToEdit"
-                        >
-                            {{ $t('Edit Calendar') }}
-                        </el-button>
-                    </div>
-
-                    <span
-                        class="fe-calendar-detail__mark"
-                        :style="markStyle"
-                        aria-hidden="true"
-                    >
+                <header class="fe-calendar-detail__head">
+                    <span class="fe-calendar-detail__mark" :style="markStyle" aria-hidden="true">
                         {{ initials }}
                     </span>
 
                     <div class="fe-calendar-detail__identity">
                         <div class="fe-calendar-detail__title-row">
                             <h1 class="fe-page__title">{{ calendar.title }}</h1>
-
                             <el-tag
-                                v-if="calendar.status && calendar.status !== 'public'"
+                                v-if="calendar.status"
                                 class="capitalize"
                                 :type="$calendarStatusType(calendar.status)"
                                 size="small"
                             >
                                 {{ $calendarStatusLabel(calendar.status) }}
                             </el-tag>
+                            <el-tooltip
+                                v-if="calendar.meta?.fcom_space_id || calendar.meta?.fcom_global"
+                                :content="communityMarkLabel"
+                                :trigger="['hover', 'focus']"
+                                placement="top"
+                            >
+                                <a
+                                    v-if="spaceHref"
+                                    class="fe-community-mark"
+                                    :href="spaceHref"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    :aria-label="communityMarkLabel"
+                                >
+                                    <img class="fe-community-mark__logo" :src="appVars.fcom_logo" alt="" />
+                                </a>
+                                <span
+                                    v-else
+                                    class="fe-community-mark"
+                                    role="img"
+                                    tabindex="0"
+                                    :aria-label="communityMarkLabel"
+                                >
+                                    <img class="fe-community-mark__logo" :src="appVars.fcom_logo" alt="" />
+                                </span>
+                            </el-tooltip>
                         </div>
 
-                        <p class="fe-calendar-detail__slug">{{ calendar.slug }}</p>
+                        <p class="fe-calendar-detail__meta">
+                            <span class="fe-calendar-detail__slug">{{ calendar.slug }}</span>
+                            <span v-if="createdLine">{{ createdLine }}</span>
+                        </p>
                     </div>
+
+                    <div class="fe-calendar-detail__actions">
+                        <el-button @click="goToEdit">
+                            {{ $t('Edit') }}
+                        </el-button>
+                        <el-button type="primary" @click="goToEventCreate">
+                            {{ $t('Add Event') }}
+                        </el-button>
+                    </div>
+                </header>
+
+                <div class="fe-calendar-detail__stats">
+                    <StatGroups :stats="stats" />
                 </div>
 
                 <Tabs v-model="tab" :tabs="tabs">
-                    <template #overview>
-                        <CalendarTabLayout :calendar="calendar" :upcoming-events="upcomingEvents">
-                            <StatGroups v-if="hasStats" :stats="stats" />
-
-                            <div class="fe-card">
-                                <template v-if="calendar.description">
-                                    <p class="fe-calendar-detail__about">{{ $t('About this calendar') }}</p>
-
-                                    <div class="fe-rich-text" v-html="calendar.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in CalendarController::getCalendar() -->
-                                </template>
-
-                                <el-empty v-else :description="$t('No description yet.')" />
-                            </div>
-                        </CalendarTabLayout>
-                    </template>
-
                     <template #events>
-                        <CalendarTabLayout :calendar="calendar" :upcoming-events="upcomingEvents">
-                            <div class="fe-calendar-detail__events-bar">
-                                <h2 class="fe-calendar-detail__events-title">{{ $t('Events') }}</h2>
-
-                                <div class="fe-calendar-detail__events-actions">
-                                    <SegmentedSwitch
-                                        v-model="period"
-                                        :options="periods"
-                                        :label="$t('Filter events by period')"
-                                    />
-
-                                    <!-- <el-button
-                                        v-if="$userCan('write_events')"
-                                        type="primary"
-                                        @click="goToEventCreate"
-                                    >
-                                        {{ $t('Add Event') }}
-                                    </el-button> -->
-                                </div>
-                            </div>
-
-                            <EventsView :period="period" :calendar-id="calendarId" />
-                        </CalendarTabLayout>
+                        <EventsView :period="period" :calendar-id="calendarId">
+                            <template #toolbar>
+                                <SegmentedSwitch
+                                    v-model="period"
+                                    :options="periods"
+                                    :label="$t('Filter events by period')"
+                                />
+                            </template>
+                        </EventsView>
                     </template>
 
                     <template #settings>
-                        <CalendarTabLayout :calendar="calendar" :upcoming-events="upcomingEvents">
-                            <CalendarDangerZone :calendar="calendar" @deleted="goToList" />
-                        </CalendarTabLayout>
+                        <CalendarDangerZone :calendar="calendar" @deleted="goToList" />
                     </template>
                 </Tabs>
             </template>
@@ -115,7 +109,6 @@
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import EventsView from '@/modules/events/parts/EventsView.vue';
     import StatGroups from '@/modules/dashboard/parts/StatGroups.vue';
-    import CalendarTabLayout from './parts/CalendarTabLayout.vue';
     import CalendarDangerZone from './parts/CalendarDangerZone.vue';
 
     export default {
@@ -128,35 +121,25 @@
             SegmentedSwitch,
             EventsView,
             StatGroups,
-            CalendarTabLayout,
             CalendarDangerZone,
         },
         data() {
             return {
                 loading: true,
                 error: '',
-                tab: 'overview',
+                tab: 'events',
                 period: 'upcoming',
                 calendar: {},
                 stats: {},
-                upcomingEvents: [],
+                spaceUrl: '',
             };
         },
         computed: {
             tabs() {
-                const tabs = [
-                    { value: 'overview', label: this.$t('Overview') },
+                return [
+                    { value: 'events', label: this.$t('Events') },
+                    { value: 'settings', label: this.$t('Settings') },
                 ];
-
-                if (this.$userCan(['read_events', 'write_events'], { match_type: 'any' })) {
-                    tabs.push({ value: 'events', label: this.$t('Events') });
-                }
-
-                if (this.$userCan('write_calendars')) {
-                    tabs.push({ value: 'settings', label: this.$t('Settings') });
-                }
-
-                return tabs;
             },
             periods() {
                 return [
@@ -165,24 +148,34 @@
                     { value: 'past', label: this.$t('Past') },
                 ];
             },
-            hasStats() {
-                return Object.keys(this.stats).length > 0;
+            spaceHref() {
+                return /^https?:\/\//.test(this.spaceUrl) ? this.spaceUrl : '';
+            },
+            communityMarkLabel() {
+                if (this.calendar.meta?.fcom_global) {
+                    return this.$t('This calendar holds community-wide events.');
+                }
+
+                return this.spaceHref
+                    ? this.$t('Open your community space in a new tab')
+                    : this.$t('This calendar belongs to a FluentCommunity space.');
+            },
+            createdLine() {
+                if (!this.calendar.created_at) {
+                    return '';
+                }
+
+                const date = this.$formatDate(this.calendar.created_at);
+
+                return this.calendar.creator_name
+                    ? this.$t('Created %s by %s', date, this.calendar.creator_name)
+                    : this.$t('Created %s', date);
             },
             calendarId() {
                 return Number(this.$route.params.id);
             },
             initials() {
                 return (this.calendar.title || '').trim().slice(0, 2);
-            },
-            coverStyle() {
-                const color = this.calendar.meta?.theme_color;
-                const cover = this.calendar.meta?.cover_url;
-
-                if (cover) {
-                    return { backgroundImage: `url(${cover})` };
-                }
-
-                return color ? { color } : {};
             },
             markStyle() {
                 const color = this.calendar.meta?.theme_color;
@@ -211,16 +204,17 @@
             fetchCalendar() {
                 this.$requestServer({
                     path: `calendars/${this.$route.params.id}`,
+                    notFoundPage: true,
                     onSuccess: response => {
                         this.calendar = response.calendar;
                         this.stats = response.stats || {};
-                        this.upcomingEvents = response.upcoming_events || [];
+                        this.spaceUrl = response.space_url || '';
                         this.$changeTitle(this.calendar.title);
                     },
                     onError: () => {
                         this.calendar = {};
                         this.stats = {};
-                        this.upcomingEvents = [];
+                        this.spaceUrl = '';
                     },
                 });
             },
@@ -230,12 +224,12 @@
                     params: { id: this.$route.params.id },
                 });
             },
-            // goToEventCreate() {
-            //     this.$router.push({
-            //         name: 'event_create',
-            //         query: { calendar_id: this.calendarId },
-            //     });
-            // },
+            goToEventCreate() {
+                this.$router.push({
+                    name: 'event_create',
+                    query: { calendar_id: this.calendarId },
+                });
+            },
             goToList() {
                 this.$router.push({ name: 'calendars' });
             },

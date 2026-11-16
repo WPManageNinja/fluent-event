@@ -37,6 +37,8 @@ class HookRegistrationTest extends TestCase
             $recorder->addFilter($hook, $callback, $priority);
             return true;
         });
+
+        Functions\when('add_shortcode')->justReturn(true);
     }
 
     private function load($file)
@@ -71,27 +73,49 @@ class HookRegistrationTest extends TestCase
         }
     }
 
-    public function test_the_community_bridge_waits_for_fluentcommunity_to_load()
+    public function test_the_community_bridge_waits_for_fluentcommunity_to_enable_it()
     {
         $recorder = $this->load('actions.php');
 
         $this->assertSame(
             [[Bootstrap::class, 'register']],
-            array_column($recorder->on('fluent_community/portal_loaded'), 'callback')
+            array_column($recorder->on('fluent_community/fluent_event/init'), 'callback')
         );
-        $this->assertEmpty($recorder->on('fluent_community/feed/before_deleted'), 'Feed hooks registered before fcom loaded');
+        $this->assertEmpty($recorder->on('fluent_community/portal_loaded'), 'The bridge must not load on fcom alone');
+        $this->assertEmpty($recorder->on('fluent_community/feed/before_deleted'), 'Feed hooks registered before fcom enabled FluentEvent');
     }
 
-    public function test_the_community_bridge_registers_at_once_when_fluentcommunity_already_loaded()
+    public function test_the_community_bridge_registers_at_once_when_fluentcommunity_already_enabled_it()
     {
         Functions\when('did_action')->alias(function ($hook) {
-            return $hook === 'fluent_community/portal_loaded' ? 1 : 0;
+            return $hook === 'fluent_community/fluent_event/init' ? 1 : 0;
         });
 
         $recorder = $this->load('actions.php');
 
-        $this->assertEmpty($recorder->on('fluent_community/portal_loaded'));
+        $this->assertEmpty($recorder->on('fluent_community/fluent_event/init'));
         $this->assertNotEmpty($recorder->on('fluent_community/feed/before_deleted'));
+    }
+
+    /**
+     * The alias stands in for fcom's class for this process only.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function test_a_bridge_registered_late_still_uses_fluentcommunitys_events_slug()
+    {
+        \Mockery::mock('alias:FluentCommunity\Modules\Integrations\Integrations')
+            ->shouldReceive('getFluentEventSettings')
+            ->andReturn(['enable_fluent_event' => 'yes', 'route_slug' => 'meetups']);
+
+        Functions\when('did_action')->alias(function ($hook) {
+            return $hook === 'fluent_community/fluent_event/init' ? 1 : 0;
+        });
+
+        [$entry] = $this->load('actions.php')->on('fluent_community/app_route_paths');
+
+        $this->assertSame(['meetups'], $entry['callback'][0]->addRoutePath([]));
     }
 
     public function test_every_queued_job_has_a_listener()
@@ -159,6 +183,13 @@ class HookRegistrationTest extends TestCase
         $this->assertNotEmpty($hooks, 'Found no queued jobs; the scan is broken');
 
         return $hooks;
+    }
+
+    public function test_a_plugin_update_is_picked_up_on_the_next_request()
+    {
+        $callbacks = array_column($this->load('actions.php')->on('init'), 'callback');
+
+        $this->assertContains('ActivationHandler@maybeUpgrade', $callbacks);
     }
 
     private function priorityOf(array $entries, array $callback)

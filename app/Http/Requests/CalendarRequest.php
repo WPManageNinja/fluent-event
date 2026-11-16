@@ -13,27 +13,26 @@ class CalendarRequest extends BaseRequest
     const SANITIZERS = [
         'title'       => 'sanitize_text_field',
         'slug'        => 'sanitize_title',
-        'description' => 'wp_kses_post',
         'status'      => 'sanitize_text_field',
         'theme_color' => 'sanitize_hex_color',
     ];
     const RULES = [
-        'title'       => 'required|string|max:255',
-        'slug'        => 'required|string|max:255|unique:fe_calendars,slug',
-        'description' => 'nullable|string',
+        'title'       => 'required|string',
+        'slug'        => 'required|string|max:191|unique:fe_calendars,slug',
         'status'      => 'required|string|in:' . Calendar::STATUSES,
-        'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{3}([A-Fa-f0-9]{3})?$/',
+        // Six digits only: the admin works out a readable text colour from #rrggbb, and no picker sends #rgb.
+        'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{6}$/',
     ];
 
     public static function createRules()
     {
-        return self::RULES;
+        return array_merge(self::RULES, ['title' => 'required|string|max:' . Calendar::titleMaxLength()]);
     }
 
     public static function updateRules($currentCalendarId)
     {
-        return array_merge(self::RULES, [
-            'slug' => 'required|string|max:255|unique:fe_calendars,slug,' . $currentCalendarId . ',id',
+        return array_merge(self::createRules(), [
+            'slug' => 'required|string|max:191|unique:fe_calendars,slug,' . $currentCalendarId . ',id',
         ]);
     }
 
@@ -42,12 +41,12 @@ class CalendarRequest extends BaseRequest
         return [
             'title.required'      => __('Title is required.', 'fluent-event'),
             'title.string'        => __('Title must be text.', 'fluent-event'),
-            'title.max'           => __('Title cannot exceed 255 characters.', 'fluent-event'),
+            /* translators: %d: the longest title allowed, in characters */
+            'title.max'           => sprintf(__('Title cannot exceed %d characters.', 'fluent-event'), Calendar::titleMaxLength()),
             'slug.required'       => __('Slug is required.', 'fluent-event'),
             'slug.string'         => __('Slug must be text.', 'fluent-event'),
-            'slug.max'            => __('Slug cannot exceed 255 characters.', 'fluent-event'),
+            'slug.max'            => __('Slug cannot exceed 191 characters.', 'fluent-event'),
             'slug.unique'         => __('This slug is already taken.', 'fluent-event'),
-            'description.string'  => __('Description must be text.', 'fluent-event'),
             'status.required'     => __('Status is required.', 'fluent-event'),
             'status.string'       => __('Status must be text.', 'fluent-event'),
             'status.in'           => __('Status must be public, private or draft.', 'fluent-event'),
@@ -57,7 +56,13 @@ class CalendarRequest extends BaseRequest
 
     public static function sanitize($data)
     {
+        $color = Arr::get($data, 'theme_color');
         $data = parent::sanitize($data);
+
+        // sanitize_hex_color() nulls a bad colour, which `nullable` then passes as "no change"; keep it so the rule rejects it.
+        if (is_scalar($color) && (string) $color !== '' && empty($data['theme_color'])) {
+            $data['theme_color'] = sanitize_text_field((string) $color);
+        }
 
         if (empty($data['slug'])) {
             $data['slug'] = sanitize_title(Arr::get($data, 'title', ''));

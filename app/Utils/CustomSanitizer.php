@@ -6,8 +6,26 @@ use FluentEvent\Framework\Support\Sanitizer;
 
 class CustomSanitizer extends Sanitizer
 {
+    // sanitize_email() and the email rule's is_email() both throw on a list, a 500 that names the file
+    // and line under WP_DEBUG; empty, it fails as a missing email.
+    public static function sanitizeEmail($arg)
+    {
+        return is_scalar($arg) ? sanitize_email($arg) : '';
+    }
+
+    // Never printed as is: only the HTML rendered from it reaches a page, after kses.
+    public static function markdown($arg)
+    {
+        return is_scalar($arg) ? str_replace(["\r\n", "\r"], "\n", wp_check_invalid_utf8((string) $arg)) : '';
+    }
+
     public static function webUrl($arg)
     {
+        // Cast to a string, a list reads "Array" and saves as http://Array; left as is, the url rule rejects it.
+        if (!is_scalar($arg)) {
+            return $arg;
+        }
+
         $url = esc_url_raw(trim((string) $arg), ['http', 'https']) ?: '';
 
         // esc_url_raw leaves non-ASCII as is (an upload named "Feature – 2"), and the url rule

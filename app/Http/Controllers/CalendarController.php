@@ -4,7 +4,6 @@ namespace FluentEvent\App\Http\Controllers;
 
 use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Services\ReportService;
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Http\Requests\CalendarRequest;
 use FluentEvent\Framework\Http\Request\Request;
 
@@ -29,10 +28,18 @@ class CalendarController extends Controller
             ->orderBy($orderBy, $orderType)
             ->get();
 
-        return [
+        $data = [
             'calendars' => $calendars,
             'counts'    => ['all' => array_sum($counts)] + $counts,
         ];
+
+        /**
+         * The admin calendars list, for add-ons to append fields to each calendar.
+         *
+         * @param array $data    ['calendars' => collection of Calendar, 'counts' => array]
+         * @param array $request The request parameters.
+         */
+        return apply_filters('fluent_event/calendars_api_response', $data, $request->all());
     }
 
     // Dropdowns only need the id, title and colour: no counts.
@@ -42,7 +49,7 @@ class CalendarController extends Controller
 
         return [
             'calendars' => Calendar::query()
-                ->select(['id', 'title', 'meta'])
+                ->select(['id', 'title', 'status', 'meta'])
                 ->searchBy($request->getSafe('search', 'sanitize_text_field'))
                 ->byStatus($request->getSafe('status', 'sanitize_text_field'))
                 ->orderBy($orderBy, $orderType)
@@ -54,35 +61,21 @@ class CalendarController extends Controller
     {
         $calendar = Calendar::query()->findOrFail($id);
 
-        $calendar->description = wp_kses_post($calendar->description);
-
         $creator = get_userdata($calendar->created_by);
         $calendar->creator_name = $creator ? $creator->display_name : '';
 
-        $canReadEvents = PermissionManager::userCan(['read_events', 'write_events']);
-        $canReadGuests = PermissionManager::userCan(['read_guests', 'write_guests']);
+        $data = [
+            'calendar' => $calendar,
+            'stats'    => ReportService::getCalendarStats($calendar->id),
+        ];
 
-        $response = ['calendar' => $calendar];
-
-        if ($canReadEvents || $canReadGuests) {
-            $stats = ReportService::getCalendarStats($calendar->id);
-
-            if (!$canReadEvents) {
-                unset($stats['total_events'], $stats['upcoming_events']);
-            }
-
-            if (!$canReadGuests) {
-                unset($stats['total_guests'], $stats['checked_in_guests']);
-            }
-
-            $response['stats'] = $stats;
-        }
-
-        if ($canReadEvents) {
-            $response['upcoming_events'] = ReportService::getUpcomingEvents(3, $calendar->id);
-        }
-
-        return $response;
+        /**
+         * One calendar's admin payload, for add-ons to append fields to.
+         *
+         * @param array $data    ['calendar' => Calendar, 'stats' => array]
+         * @param array $request The request parameters.
+         */
+        return apply_filters('fluent_event/calendar_api_response', $data, $request->all());
     }
 
     public function createCalendar(Request $request)

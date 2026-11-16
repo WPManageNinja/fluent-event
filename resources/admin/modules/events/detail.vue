@@ -5,7 +5,8 @@
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchEvent" />
 
-            <template v-else>
+            <!-- A 404 leaves the event empty while the not-found page replaces this route. -->
+            <template v-else-if="event.id">
                 <div class="fe-page__header">
                     <div>
                         <nav class="fe-page__breadcrumb" :aria-label="$t('Breadcrumb')">
@@ -26,7 +27,6 @@
 
                     <div class="fe-page__actions">
                         <el-button
-                            v-if="$userCan('write_events')"
                             @click="goToEdit"
                         >
                             {{ $t('Edit Event') }}
@@ -87,7 +87,7 @@
                                     </span>
 
                                     <div v-if="isOnline">
-                                        <p class="fe-event-overview__row-title">{{ $t('Online event') }}</p>
+                                        <p class="fe-event-overview__row-title">{{ $t('Online Event') }}</p>
 
                                         <a
                                             v-if="meetingUrl"
@@ -105,7 +105,7 @@
                                             {{ event.meta?.venue || $t('No venue yet') }}
                                         </p>
 
-                                        <p v-if="event.meta?.address" class="fe-event-overview__row-text">
+                                        <p v-if="event.meta?.address" class="fe-event-overview__row-text fe-event-overview__row-text--address">
                                             {{ event.meta.address }}
                                         </p>
                                     </div>
@@ -139,10 +139,44 @@
 
                                         <p
                                             v-if="calendarStatus"
-                                            class="fe-event-overview__row-text capitalize"
+                                            class="fe-event-overview__row-text"
                                         >
-                                            {{ $t('Status: %s', $calendarStatusLabel(calendarStatus)) }}
+                                            {{ $t('Calendar status: %s', $calendarStatusLabel(calendarStatus)) }}
                                         </p>
+                                    </div>
+                                </div>
+
+                                <div class="fe-event-overview__row">
+                                    <span class="fe-event-overview__icon">
+                                        <el-icon aria-hidden="true"><Link /></el-icon>
+                                    </span>
+
+                                    <div class="fe-event-overview__public">
+                                        <p class="fe-event-overview__row-title">{{ $t('Public Page') }}</p>
+
+                                        <p v-if="publicPageNote" class="fe-event-overview__row-text">
+                                            {{ publicPageNote }}
+                                        </p>
+
+                                        <div v-else class="fe-event-overview__public-link">
+                                            <a
+                                                class="fe-event-overview__row-link"
+                                                :href="publicUrl"
+                                                target="_blank"
+                                                rel="noopener"
+                                            >
+                                                {{ publicUrl }}
+                                            </a>
+
+                                            <el-button
+                                                link
+                                                :aria-label="$t('Copy Link')"
+                                                :title="$t('Copy Link')"
+                                                @click="copyPublicUrl"
+                                            >
+                                                <el-icon><CopyDocument /></el-icon>
+                                            </el-button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -159,7 +193,7 @@
                             :title="$t('No description yet')"
                             :message="$t('The description tells guests what this event is about.')"
                         >
-                            <template v-if="$userCan('write_events')" #action>
+                            <template #action>
                                 <el-button @click="goToEdit">{{ $t('Add Description') }}</el-button>
                             </template>
                         </EmptyState>
@@ -181,8 +215,8 @@
 </template>
 
 <script type="text/javascript">
-    import { ArrowRight, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
-    import { daySpan } from '@/utils/date';
+    import { ArrowRight, CopyDocument, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { daySpan, lastDay } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import ErrorState from '@/components/ErrorState.vue';
@@ -194,6 +228,8 @@
         name: 'EventDetail',
         components: {
             ArrowRight,
+            CopyDocument,
+            Link,
             LocationInformation,
             TopRight,
             VideoCamera,
@@ -210,30 +246,33 @@
                 error: '',
                 tab: 'overview',
                 event: {},
+                publicUrl: '',
             };
         },
         computed: {
             tabs() {
-                const tabs = [
+                return [
                     { value: 'overview', label: this.$t('Overview') },
                     { value: 'description', label: this.$t('Description') },
+                    { value: 'guests', label: this.$t('Guests') },
+                    { value: 'settings', label: this.$t('Settings') },
                 ];
-
-                if (this.$userCan(['read_guests', 'write_guests'], { match_type: 'any' })) {
-                    tabs.push({ value: 'guests', label: this.$t('Guests') });
-                }
-
-                if (this.$userCan('write_events')) {
-                    tabs.push({ value: 'settings', label: this.$t('Settings') });
-                }
-
-                return tabs;
             },
             isOnline() {
                 return this.event.venue_type === 'online';
             },
             calendarStatus() {
                 return this.event.calendar?.status || '';
+            },
+            // Why an event has no public page.
+            publicPageNote() {
+                if (!['public', 'unlisted'].includes(this.event.status)) {
+                    return this.$t('Only public and unlisted events have a public page.');
+                }
+
+                return this.calendarStatus === 'public'
+                    ? ''
+                    : this.$t('Its calendar is not public, so this event has no public page.');
             },
             calendarColor() {
                 return this.$calendarColor(this.event.calendar);
@@ -253,7 +292,7 @@
                 }
 
                 const start = this.$formatDate(this.event.start_at_local, 'MMM D');
-                const end = this.$formatDate(this.event.end_at_local, 'MMM D, YYYY');
+                const end = this.$formatDate(lastDay(this.event.start_at_local, this.event.end_at_local), 'MMM D, YYYY');
 
                 return `${start} – ${end}`;
             },
@@ -271,14 +310,21 @@
             fetchEvent() {
                 this.$requestServer({
                     path: `events/${this.$route.params.id}`,
+                    notFoundPage: true,
                     onSuccess: response => {
                         this.event = response.event;
+                        this.publicUrl = response.public_url;
                         this.$changeTitle(this.event.title);
                     },
                     onError: () => {
                         this.event = {};
                     },
                 });
+            },
+            copyPublicUrl() {
+                navigator.clipboard.writeText(this.publicUrl)
+                    .then(() => this.$notifySuccess(this.$t('Link copied.')))
+                    .catch(() => this.$notifyError(this.$t('The link could not be copied.')));
             },
             goToEdit() {
                 this.$router.push({

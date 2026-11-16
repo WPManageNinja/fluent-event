@@ -24,11 +24,11 @@ const warnHandler = (message, instance, trace) => {
     }
 };
 
-const eventsPage = async (props = {}) => {
+const eventsPage = async (props = {}, stubs = {}) => {
     const router = { push: vi.fn() };
     const wrapper = mount(EventsPage, {
         props: { router, ...props },
-        global: { mocks: { $t: t }, config: { warnHandler } }
+        global: { mocks: { $t: t }, config: { warnHandler }, stubs }
     });
     await flushPromises();
 
@@ -97,6 +97,14 @@ describe('EventsPage', () => {
     });
 
     describe('loading', () => {
+        it('titles the browser tab', async () => {
+            window.fluentComAdmin.site_title = 'Acme Community';
+
+            await eventsPage();
+
+            expect(document.title).toBe('All Events - Acme Community');
+        });
+
         it("loads the first page of the tab for the member's space", async () => {
             await eventsPage({ spaceSlug: 'design' });
 
@@ -204,29 +212,89 @@ describe('EventsPage', () => {
     });
 
     describe('events in the list', () => {
-        it('keeps the post link when an RSVP hands back the event', async () => {
-            fetch.mockResolvedValueOnce(json(listResponse([{ id: 5, post_slug: 'meetup', my_status: null }])));
+        it('keeps the space when an RSVP hands back the event', async () => {
+            fetch.mockResolvedValueOnce(json(listResponse([{ id: 5, space_slug: 'design', my_status: null }])));
             const { vm } = await eventsPage();
 
             vm.applyResponse(vm.events[0], { event: { id: 5, my_status: 'going' } });
 
-            expect(vm.events[0]).toEqual({ id: 5, post_slug: 'meetup', my_status: 'going' });
+            expect(vm.events[0]).toEqual({ id: 5, space_slug: 'design', my_status: 'going' });
         });
 
-        it("opens an event on its post's event page", async () => {
+        it("opens an event on its page inside its space", async () => {
             const { vm, router } = await eventsPage();
 
-            vm.openEvent({ id: 5, post_slug: 'meetup' });
+            vm.openEvent({ id: 5, slug: 'community-meetup', space_slug: 'design' });
 
-            expect(router.push).toHaveBeenCalledWith({ name: 'fe_event_view', params: { feed_slug: 'meetup' } });
+            expect(router.push).toHaveBeenCalledWith({ name: 'fe_event_view', params: { space: 'design', event_slug: 'community-meetup' } });
         });
 
-        it('offers Create new event only inside a space to members who may create', async () => {
+        it('opens a community-wide event on its top-level page', async () => {
+            const { vm, router } = await eventsPage();
+
+            vm.openEvent({ id: 6, slug: 'town-hall', space_slug: '' });
+
+            expect(router.push).toHaveBeenCalledWith({ name: 'fe_global_event_view', params: { event_slug: 'town-hall' } });
+        });
+
+        describe('space line', () => {
+            const events = [
+                { id: 5, title: 'Launch party', space_slug: 'design', space: { title: 'Design Team', logo: '', emoji: '🎨', shape_svg: '' } },
+                { id: 6, title: 'Town hall', space_slug: '', space: null },
+            ];
+
+            it('puts each event\'s space above its title on All Events, and Community-wide on one with no space', async () => {
+                fetch.mockResolvedValueOnce(json(listResponse(events)));
+                const { wrapper } = await eventsPage();
+                const lines = wrapper.findAll('.fe-event-item__space');
+
+                expect(lines.map(line => line.find('.fe-event-item__space-name').text())).toEqual(['Design Team', 'Community-wide']);
+                expect(lines[0].find('.fe-event-item__space-icon').text()).toBe('🎨');
+                expect(lines[0].element.nextElementSibling.classList.contains('fe-event-item__head')).toBe(true);
+            });
+
+            it('opens the event from its cover, with or without an image', async () => {
+                fetch.mockResolvedValueOnce(json(listResponse([
+                    { id: 5, title: 'Launch party', slug: 'launch-party', space_slug: 'design', cover_url: 'https://example.test/cover.jpg' },
+                    { id: 6, title: 'Town hall', slug: 'town-hall', space_slug: '', cover_url: '' },
+                ])));
+                const { wrapper, router } = await eventsPage();
+                const covers = wrapper.findAll('.fe-event-item__cover');
+
+                await covers[0].trigger('click');
+                await covers[1].trigger('click');
+
+                expect(router.push.mock.calls).toEqual([
+                    [{ name: 'fe_event_view', params: { space: 'design', event_slug: 'launch-party' } }],
+                    [{ name: 'fe_global_event_view', params: { event_slug: 'town-hall' } }],
+                ]);
+            });
+
+            it("shows no space line inside a space's own Events tab", async () => {
+                fetch.mockResolvedValueOnce(json(listResponse(events)));
+                const { wrapper } = await eventsPage({ spaceSlug: 'design' });
+
+                expect(wrapper.findAll('.fe-event-item__space')).toHaveLength(0);
+            });
+        });
+
+        it('offers Create Event, in a space or on all events, to members who may create', async () => {
             expect((await eventsPage({ spaceSlug: 'design' })).vm.canCreate).toBe(true);
-            expect((await eventsPage()).vm.canCreate).toBe(false);
+            expect((await eventsPage()).vm.canCreate).toBe(true);
 
             window.fluentEventFcomPortal.can_create_events = false;
             expect((await eventsPage({ spaceSlug: 'design' })).vm.canCreate).toBe(false);
+            expect((await eventsPage()).vm.canCreate).toBe(false);
+        });
+
+        it('creates in the current space, or lets the composer ask on all events', async () => {
+            const inSpace = await eventsPage({ spaceSlug: 'design' });
+            inSpace.vm.createEvent();
+            expect(inSpace.router.push).toHaveBeenCalledWith({ name: 'fe_create_event', query: { space: 'design' } });
+
+            const allEvents = await eventsPage();
+            allEvents.vm.createEvent();
+            expect(allEvents.router.push).toHaveBeenCalledWith({ name: 'fe_create_event', query: {} });
         });
 
         it('explains an empty list by the search, or by the tab', async () => {

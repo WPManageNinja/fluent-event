@@ -7,7 +7,6 @@ use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Services\EventService;
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\Framework\Http\Request\Request;
 use PHPUnit\Framework\TestCase as BaseTestCase;
@@ -123,7 +122,6 @@ abstract class IntegrationTestCase extends BaseTestCase
         // The framework binds Request as a singleton and array_merges each dispatch into it,
         // so without a fresh one a later request sees an earlier one's parameters.
         $this->resetFrameworkRequest();
-        $this->resetStaticProperty(PermissionManager::class, 'cache');
 
         $config = App::make('config');
         $namespace = '/' . $config->get('app.rest_namespace') . '/' . $config->get('app.rest_version');
@@ -153,10 +151,9 @@ abstract class IntegrationTestCase extends BaseTestCase
     protected function actAs($userId)
     {
         wp_set_current_user($userId);
-        $this->resetStaticProperty(PermissionManager::class, 'cache');
     }
 
-    protected function createUser($role = 'editor', array $permissions = [])
+    protected function createUser($role = 'editor')
     {
         $unique = strtolower(wp_generate_password(10, false, false));
 
@@ -170,16 +167,28 @@ abstract class IntegrationTestCase extends BaseTestCase
 
         $this->assertIsInt($userId, is_wp_error($userId) ? $userId->get_error_message() : 'wp_insert_user failed');
 
-        if ($permissions) {
-            PermissionManager::attachPermissions($userId, $permissions);
-        }
-
         return $userId;
     }
 
     protected function createAdmin()
     {
         return $this->createUser('administrator');
+    }
+
+    // The All Events Page, published and set: [fluent_events] at `fe-test-fluent-events-*`.
+    protected function createPublicPages()
+    {
+        $ids = ['events_page_id' => wp_insert_post([
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            'post_title'   => '',
+            'post_name'    => 'fe-test-fluent-events-' . strtolower(wp_generate_password(6, false, false)),
+            'post_content' => '[fluent_events]',
+        ])];
+
+        Settings::update(Settings::GENERAL, $ids);
+
+        return $ids;
     }
 
     protected function createCalendar(array $overrides = [])
@@ -224,7 +233,7 @@ abstract class IntegrationTestCase extends BaseTestCase
             'name'        => 'Guest ' . $unique,
             'email'       => 'guest_' . $unique . '@example.test',
             'status'      => 'going',
-            'source'      => 'admin',
+            'source'      => 'manual',
         ], $overrides));
     }
 
@@ -236,7 +245,7 @@ abstract class IntegrationTestCase extends BaseTestCase
         return array_merge([
             'calendar_id'      => $event->calendar_id,
             'title'            => $event->title,
-            'description'      => $event->description,
+            'description_md'   => (string) (((array) $event->meta)['description_md'] ?? ''),
             'status'           => $event->status,
             'start_at'         => $event->start_at_local,
             'end_at'           => $event->end_at_local,
@@ -304,7 +313,6 @@ abstract class IntegrationTestCase extends BaseTestCase
     // Rows these static caches hold were read inside a transaction that is now gone.
     private function resetStaticCaches()
     {
-        $this->resetStaticProperty(PermissionManager::class, 'cache');
         $this->resetStaticProperty(Settings::class, 'stored');
     }
 

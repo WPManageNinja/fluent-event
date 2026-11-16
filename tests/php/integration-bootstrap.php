@@ -47,6 +47,17 @@ $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_HOST'] ?? 'authlab.test';
 $_SERVER['REQUEST_URI'] = $_SERVER['REQUEST_URI'] ?? '/';
 $_SERVER['HTTPS'] = 'on';
 
+// The community bridge waits for fcom's "Enable FluentEvent" switch; the suite runs with it on,
+// whatever this site has saved. Pre-seeded the way WordPress allows before plugin.php loads.
+$GLOBALS['wp_filter']['fluent_community/portal_loaded'][99][] = [
+    'function'      => function ($app) {
+        if (!did_action('fluent_community/fluent_event/init')) {
+            do_action('fluent_community/fluent_event/init', $app);
+        }
+    },
+    'accepted_args' => 1,
+];
+
 require_once $wpPath . '/wp-load.php';
 
 if (!defined('FLUENT_EVENT_PLUGIN_VERSION')) {

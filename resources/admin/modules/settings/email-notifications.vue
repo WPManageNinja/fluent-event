@@ -18,7 +18,7 @@
                 <div class="fe-form__section-fields">
                     <div class="fe-form__toggle">
                         <div class="fe-form__toggle-text">
-                            <span class="fe-form__toggle-title">{{ $t('Confirmation email') }}</span>
+                            <span class="fe-form__toggle-title">{{ $t('Confirmation Email') }}</span>
                             <span class="fe-form__hint">
                                 {{ confirmation.enabled
                                     ? $t('Email guests a confirmation when they register for an event.')
@@ -26,16 +26,26 @@
                             </span>
                         </div>
 
-                        <el-switch
-                            v-model="confirmation.enabled"
-                            :disabled="!$userCan('write_settings')"
-                            :aria-label="$t('Send a confirmation email when a guest registers')"
-                        />
+                        <div class="fe-form__toggle-actions">
+                            <el-button
+                                link
+                                :aria-label="$t('Preview the confirmation email')"
+                                :title="$t('Preview the confirmation email')"
+                                @click="previewEmail('confirmation')"
+                            >
+                                <el-icon><View /></el-icon>
+                            </el-button>
+
+                            <el-switch
+                                v-model="confirmation.enabled"
+                                :aria-label="$t('Send a confirmation email when a guest registers')"
+                            />
+                        </div>
                     </div>
 
                     <div class="fe-form__toggle">
                         <div class="fe-form__toggle-text">
-                            <span class="fe-form__toggle-title">{{ $t('Cancellation email') }}</span>
+                            <span class="fe-form__toggle-title">{{ $t('Cancellation Email') }}</span>
                             <span class="fe-form__hint">
                                 {{ cancellation.enabled
                                     ? $t('Email guests when they cancel or an admin cancels their registration.')
@@ -43,16 +53,26 @@
                             </span>
                         </div>
 
-                        <el-switch
-                            v-model="cancellation.enabled"
-                            :disabled="!$userCan('write_settings')"
-                            :aria-label="$t('Send an email when a registration is cancelled')"
-                        />
+                        <div class="fe-form__toggle-actions">
+                            <el-button
+                                link
+                                :aria-label="$t('Preview the cancellation email')"
+                                :title="$t('Preview the cancellation email')"
+                                @click="previewEmail('cancellation')"
+                            >
+                                <el-icon><View /></el-icon>
+                            </el-button>
+
+                            <el-switch
+                                v-model="cancellation.enabled"
+                                :aria-label="$t('Send an email when a registration is cancelled')"
+                            />
+                        </div>
                     </div>
 
                     <div class="fe-form__toggle">
                         <div class="fe-form__toggle-text">
-                            <span class="fe-form__toggle-title">{{ $t('Waitlist email') }}</span>
+                            <span class="fe-form__toggle-title">{{ $t('Waitlist Email') }}</span>
                             <span class="fe-form__hint">
                                 {{ waitlist.enabled
                                     ? $t('Email guests when they join the waitlist of a full event or an admin moves them to it.')
@@ -60,11 +80,21 @@
                             </span>
                         </div>
 
-                        <el-switch
-                            v-model="waitlist.enabled"
-                            :disabled="!$userCan('write_settings')"
-                            :aria-label="$t('Send an email when a guest is waitlisted')"
-                        />
+                        <div class="fe-form__toggle-actions">
+                            <el-button
+                                link
+                                :aria-label="$t('Preview the waitlist email')"
+                                :title="$t('Preview the waitlist email')"
+                                @click="previewEmail('waitlist')"
+                            >
+                                <el-icon><View /></el-icon>
+                            </el-button>
+
+                            <el-switch
+                                v-model="waitlist.enabled"
+                                :aria-label="$t('Send an email when a guest is waitlisted')"
+                            />
+                        </div>
                     </div>
                 </div>
             </section>
@@ -78,7 +108,7 @@
                 <div class="fe-form__section-fields">
                     <div class="fe-form__toggle">
                         <div class="fe-form__toggle-text">
-                            <span class="fe-form__toggle-title">{{ $t('Reminder emails') }}</span>
+                            <span class="fe-form__toggle-title">{{ $t('Reminder Emails') }}</span>
                             <span class="fe-form__hint">
                                 {{ reminder.enabled
                                     ? $t('Email guests a reminder before an event starts.')
@@ -86,11 +116,21 @@
                             </span>
                         </div>
 
-                        <el-switch
-                            v-model="reminder.enabled"
-                            :disabled="!$userCan('write_settings')"
-                            :aria-label="$t('Send reminder emails to guests')"
-                        />
+                        <div class="fe-form__toggle-actions">
+                            <el-button
+                                link
+                                :aria-label="$t('Preview the reminder email')"
+                                :title="$t('Preview the reminder email')"
+                                @click="previewEmail('reminder')"
+                            >
+                                <el-icon><View /></el-icon>
+                            </el-button>
+
+                            <el-switch
+                                v-model="reminder.enabled"
+                                :aria-label="$t('Send reminder emails to guests')"
+                            />
+                        </div>
                     </div>
 
                     <div v-if="reminder.enabled" class="fe-form__panel">
@@ -105,14 +145,12 @@
                                     v-model="time.value"
                                     class="fe-form__number"
                                     :controls="false"
-                                    :disabled="!$userCan('write_settings')"
                                     :aria-label="$t('Reminder time')"
                                 />
 
                                 <el-select
                                     v-model="time.unit"
                                     class="fe-form__unit"
-                                    :disabled="!$userCan('write_settings')"
                                     :aria-label="$t('Reminder unit')"
                                 >
                                     <el-option
@@ -124,7 +162,7 @@
                                 </el-select>
 
                                 <el-button
-                                    v-if="$userCan('write_settings') && times.length > 1"
+                                    v-if="times.length > 1"
                                     link
                                     :aria-label="$t('Remove reminder')"
                                     :title="$t('Remove reminder')"
@@ -134,16 +172,16 @@
                                 </el-button>
                             </div>
 
-                            <el-button v-if="$userCan('write_settings') && times.length < maxTimes" link @click="addTime">
+                            <el-button v-if="times.length < maxTimes" link @click="addTime">
                                 <el-icon><Plus /></el-icon>
-                                <span>{{ $t('Add reminder') }}</span>
+                                <span>{{ $t('Add Reminder') }}</span>
                             </el-button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <div v-if="$userCan('write_settings')" class="fe-form__actions">
+            <div class="fe-form__actions">
                 <el-button
                     type="primary"
                     native-type="submit"
@@ -154,11 +192,29 @@
                 </el-button>
             </div>
         </el-form>
+
+        <el-dialog v-model="preview.visible" :title="$t('Email Preview')" width="680px" append-to-body>
+            <div v-loading="previewLoading" class="fe-email-preview">
+                <p v-if="preview.subject" class="fe-email-preview__subject">
+                    <span class="fe-email-preview__label">{{ $t('Subject') }}</span>
+                    {{ preview.subject }}
+                </p>
+
+                <!-- Sandboxed: the email renders with its own styles and runs no script in the admin. -->
+                <iframe
+                    v-if="preview.html"
+                    class="fe-email-preview__frame"
+                    :srcdoc="preview.html"
+                    :title="$t('Email Preview')"
+                    sandbox=""
+                />
+            </div>
+        </el-dialog>
     </section>
 </template>
 
 <script type="text/javascript">
-    import { Close, Plus } from '@element-plus/icons-vue';
+    import { Close, Plus, View } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
@@ -167,6 +223,7 @@
         components: {
             Close,
             Plus,
+            View,
             ErrorState,
             Skeleton,
         },
@@ -181,14 +238,16 @@
                 reminder: { enabled: true },
                 times: [{ value: 24, unit: 'hours' }],
                 maxTimes: 5,
+                preview: { visible: false, subject: '', html: '' },
+                previewLoading: false,
             };
         },
         computed: {
             timeUnits() {
                 return [
-                    { value: 'minutes', label: this.$t('Minutes before') },
-                    { value: 'hours', label: this.$t('Hours before') },
-                    { value: 'days', label: this.$t('Days before') },
+                    { value: 'minutes', label: this.$t('Minutes Before') },
+                    { value: 'hours', label: this.$t('Hours Before') },
+                    { value: 'days', label: this.$t('Days Before') },
                 ];
             },
         },
@@ -198,6 +257,23 @@
             },
             removeTime(index) {
                 this.times.splice(index, 1);
+            },
+            previewEmail(type) {
+                this.preview = { visible: true, subject: '', html: '' };
+
+                this.$requestServer({
+                    path: `settings/email-notifications/preview/${type}`,
+                    loadingState: 'previewLoading',
+                    errorState: null,
+                    errorNotify: true,
+                    onSuccess: response => {
+                        this.preview.subject = response.subject;
+                        this.preview.html = response.html;
+                    },
+                    onError: () => {
+                        this.preview.visible = false;
+                    },
+                });
             },
             setSettings(settings) {
                 this.confirmation = { enabled: settings.registration_confirmation.enabled };

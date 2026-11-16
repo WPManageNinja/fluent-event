@@ -7,7 +7,7 @@
                 class="fcom_primary_button"
                 @click="createEvent"
             >
-                {{ $t('Create new event') }}
+                {{ $t('Create Event') }}
             </el-button>
         </div>
 
@@ -87,8 +87,9 @@
                     class="fe-event-item"
                     :class="{ 'fe-event-item--card': view === 'cards' }"
                 >
-                    <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt=""/>
-                    <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true">
+                    <!-- A mouse shortcut to the title link, which stays the keyboard and screen-reader route. -->
+                    <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt="" @click="openEvent(event)"/>
+                    <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true" @click="openEvent(event)">
                         <el-icon><Calendar/></el-icon>
                     </span>
 
@@ -100,11 +101,27 @@
                     </span>
 
                     <div class="fe-event-item__info">
+                        <!-- All Events only: inside a space every event is that space's. -->
+                        <span v-if="!spaceSlug" class="fe-event-item__space">
+                            <span class="fe-event-item__space-icon" aria-hidden="true">
+                                <template v-if="event.space">
+                                    <img v-if="event.space.logo" class="fe-event-item__space-logo" :src="event.space.logo" alt=""/>
+                                    <template v-else-if="event.space.emoji">{{ event.space.emoji }}</template>
+                                    <span v-else-if="event.space.shape_svg" class="fe-event-item__space-shape" v-html="event.space.shape_svg"></span><!-- coding-rules-scan:ignore — fcom's space icon, run through fcom's CustomSanitizer::sanitizeSvg server-side, as fcom's sidebar renders it -->
+                                    <el-icon v-else><UserFilled/></el-icon>
+                                </template>
+                                <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                                    <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" stroke="currentColor" stroke-width="1.8"/>
+                                </svg>
+                            </span>
+                            <span class="fe-event-item__space-name">{{ event.space ? event.space.title : $t('Community-wide') }}</span>
+                        </span>
                         <div class="fe-event-item__head">
                             <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openEvent(event)">
                                 <span class="fe-event-item__title-text">{{ event.title }}</span>
                             </a>
-                            <event-menu class="fe-event-item__menu" :event="event"></event-menu>
+                            <event-menu class="fe-event-item__menu" :event="event" :router="router"></event-menu>
                         </div>
                         <span class="fe-event-item__meta fe-event-item__meta--date">{{ startDate(event) }}</span>
                         <span class="fe-event-item__meta fe-event-item__meta--venue">
@@ -112,7 +129,7 @@
                                 <VideoCamera v-if="event.venue_type === 'online'"/>
                                 <MapLocation v-else/>
                             </el-icon>
-                            {{ event.venue_type === 'online' ? $t('Online') : $t('In person') }}
+                            {{ event.venue_type === 'online' ? $t('Online') : $t('In Person') }}
                         </span>
                         <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
                     </div>
@@ -136,10 +153,10 @@
 </template>
 
 <script>
-import { Calendar, Grid, MapLocation, Search, Tickets, VideoCamera } from '@element-plus/icons-vue';
+import { Calendar, Grid, MapLocation, Search, Tickets, UserFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
-import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart } from '../utils';
+import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart, setPageTitle } from '../utils';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
 import EventsCalendar from './EventsCalendar.vue';
@@ -148,7 +165,7 @@ const dayjs = (value) => window.dayjs(value);
 
 export default {
     name: 'EventsPage',
-    components: { Calendar, MapLocation, Search, VideoCamera, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
+    components: { Calendar, MapLocation, Search, UserFilled, VideoCamera, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
     props: {
         spaceSlug: { type: String, default: '' },
         router: { type: Object, required: true },
@@ -178,7 +195,7 @@ export default {
     },
     computed: {
         canCreate() {
-            return !!this.spaceSlug && !!portalVars().can_create_events;
+            return !!portalVars().can_create_events;
         },
         views() {
             return [
@@ -223,6 +240,11 @@ export default {
         },
     },
     mounted() {
+        // A space's tab keeps the space's name, as fcom's other space tabs do.
+        if (!this.spaceSlug) {
+            setPageTitle(this.$t('All Events'));
+        }
+
         this.reload();
     },
     methods: {
@@ -294,9 +316,9 @@ export default {
             }
         },
         createEvent() {
-            this.router.push({ name: 'fe_space_create_event', params: { space: this.spaceSlug } });
+            this.router.push({ name: 'fe_create_event', query: this.spaceSlug ? { space: this.spaceSlug } : {} });
         },
-        // The register response carries the event payload only; keep the post link the list already has.
+        // The register response carries the event payload only; keep the space the list already has.
         applyResponse(event, response) {
             const index = this.events.indexOf(event);
 
@@ -305,7 +327,11 @@ export default {
             }
         },
         openEvent(event) {
-            this.router.push({ name: 'fe_event_view', params: { feed_slug: event.post_slug } });
+            const route = event.space_slug
+                ? { name: 'fe_event_view', params: { space: event.space_slug, event_slug: event.slug } }
+                : { name: 'fe_global_event_view', params: { event_slug: event.slug } };
+
+            this.router.push(route);
         },
     },
 };

@@ -5,6 +5,7 @@ namespace FluentEvent\Modules\FluentCommunity;
 use FluentCommunity\App\Models\Activity as FcomActivity;
 use FluentCommunity\App\Models\BaseSpace as FcomBaseSpace;
 use FluentCommunity\App\Models\Feed as FcomFeed;
+use FluentCommunity\App\Services\FeedsHelper as FcomFeedsHelper;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Models\Calendar;
@@ -13,7 +14,6 @@ use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\EventService;
-use FluentEvent\App\Services\PermissionManager;
 use FluentEvent\Facade\DB;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Framework\Validator\ValidationException;
@@ -32,17 +32,28 @@ class FeedHandler
 
     public function register()
     {
+        add_filter('fluent_community/feed/message_required', [$this, 'captionRequired'], 10, 3);
         add_filter('fluent_community/feed/new_feed_data_type_event', [$this, 'validateNewPost'], 10, 2);
         add_action('fluent_community/feed/just_created_type_event', [$this, 'createEvent'], 10, 2);
         add_filter('fluent_community/feed/update_feed_data_type_event', [$this, 'validatePostUpdate'], 10, 3);
         add_filter('fluent_community/feed/update_data', [$this, 'keepEventLink'], 10, 2);
         add_action('fluent_community/feed/updated', [$this, 'followSpaceMove'], 10, 2);
         add_action('fluent_event/event/calendar_changed', [$this, 'followCalendarChange']);
-        add_action('fluent_community/feed/before_deleted', [$this, 'deleteEvent']);
+        add_action('fluent_community/feed/before_deleted', [$this, 'parkEvent']);
         // Before CleanupHandler (priority 10) wipes the event's fe_meta, which holds the post link.
         add_action('fluent_event/event/before_deleted', [$this, 'unlinkPost'], 5);
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);
+        add_filter('fluent_event/events_api_response', [$this, 'addFeedUrls']);
+        add_filter('fluent_event/event_api_response', [$this, 'addFeedUrl']);
+    }
+
+    // The event card is the post's content, so its caption is optional, when posting and when editing.
+    public function captionRequired($required, $requestData, $existingFeed = null)
+    {
+        $contentType = $existingFeed ? $existingFeed->content_type : Arr::get($requestData, 'content_type');
+
+        return $contentType === CommunityEvents::CONTENT_TYPE ? false : $required;
     }
 
     public function validateNewPost($data, $requestData)
@@ -51,13 +62,18 @@ class FeedHandler
             return $data;
         }
 
-        if (!PermissionManager::userCan('write_events', get_current_user_id())) {
+        if (!current_user_can('manage_options')) {
             return new \WP_Error('fluent_event_forbidden', __('You are not allowed to create events.', 'fluent-event'));
         }
 
-        $space = FcomBaseSpace::query()->find((int) Arr::get($data, 'space_id'));
+        // No space is a post on the author's profile: a community-wide event.
+        $spaceId = (int) Arr::get($data, 'space_id');
 
-        if (!CommunityEvents::isDiscussionSpace($space)) {
+        if (!$spaceId && !FcomHelper::hasGlobalPost()) {
+            return $this->globalPostsOffError();
+        }
+
+        if ($spaceId && !CommunityEvents::isDiscussionSpace(FcomBaseSpace::query()->find($spaceId))) {
             return new \WP_Error('fluent_event_space', __('Events can only be posted in discussion spaces.', 'fluent-event'));
         }
 
@@ -73,39 +89,40 @@ class FeedHandler
 
     public function createEvent($feed, $requestData)
     {
-        $input = $this->eventInput($requestData);
-        $input['calendar_id'] = $this->spaceCalendar($feed->space_id)->id;
-
-        $input['cover_url'] = $this->claimMedia(Arr::get($input, 'cover_url'), $feed, 'event_cover');
-
-        // Images added to the description are fcom uploads too, and need the same claim.
-        $input['description'] = preg_replace_callback('/(<img\b[^>]*\bsrc=)(["\'])(.*?)\2/i', function ($match) use ($feed) {
-            $url = $this->claimMedia(html_entity_decode($match[3]), $feed, 'event_description');
-
-            return $match[1] . $match[2] . esc_attr($url) . $match[2];
-        }, (string) Arr::get($input, 'description', ''));
-
-        $data = EventRequest::format($input);
-
         try {
-            $event = EventService::createEvent($data, $feed->user_id);
+            $input = $this->eventInput($requestData);
+            $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
+
+            $data = EventRequest::format($input);
+
+            // The event and both links between it and the post land together: the post renders its card
+            // from meta.event_id, so an event the post can't find is lost.
+            $event = DB::transaction(function () use ($data, $feed) {
+                $event = EventService::createEvent($data, $feed->user_id);
+
+                Meta::query()->create([
+                    'object_type' => Meta::OBJECT_TYPE_EVENT,
+                    'object_id'   => $event->id,
+                    'meta_key'    => CommunityEvents::FEED_META_KEY,
+                    'value'       => (int) $feed->id,
+                ]);
+
+                $meta = (array) $feed->meta;
+                $meta['event_id'] = (int) $event->id;
+                $feed->meta = $meta;
+
+                if (!$feed->save()) {
+                    throw new \RuntimeException('The event post could not be linked to its event.');
+                }
+
+                return $event;
+            });
         } catch (\Throwable $e) {
-            // An event post without its event would only render a dead card.
+            // fcom saved the post before this hook. Without its event it would only render a dead card,
+            // and a second try with the same text would be refused as a duplicate.
             $feed->delete();
             throw $e;
         }
-
-        $meta = (array) $feed->meta;
-        $meta['event_id'] = (int) $event->id;
-        $feed->meta = $meta;
-        $feed->save();
-
-        Meta::query()->create([
-            'object_type' => Meta::OBJECT_TYPE_EVENT,
-            'object_id'   => $event->id,
-            'meta_key'    => CommunityEvents::FEED_META_KEY,
-            'value'       => (int) $feed->id,
-        ]);
 
         do_action('fluent_event/event/created', $event);
     }
@@ -116,8 +133,8 @@ class FeedHandler
             return $data;
         }
 
-        if (Arr::get($requestData, 'move_to_profile')) {
-            return new \WP_Error('fluent_event_space', __('An event post must stay in a discussion space.', 'fluent-event'));
+        if (Arr::get($requestData, 'move_to_profile') && !FcomHelper::hasGlobalPost()) {
+            return $this->globalPostsOffError();
         }
 
         if ($newSpaceId = (int) Arr::get($requestData, 'new_space_id')) {
@@ -148,7 +165,7 @@ class FeedHandler
 
     public function followSpaceMove($feed, $dirty)
     {
-        if (!array_key_exists('space_id', (array) $dirty) || !$feed->space_id) {
+        if (!array_key_exists('space_id', (array) $dirty)) {
             return;
         }
 
@@ -158,7 +175,7 @@ class FeedHandler
             return;
         }
 
-        $calendarId = (int) $this->spaceCalendar($feed->space_id)->id;
+        $calendarId = (int) $this->calendarFor($feed->space_id)->id;
 
         if ((int) $event->calendar_id === $calendarId) {
             return;
@@ -182,11 +199,12 @@ class FeedHandler
             return;
         }
 
-        $calendar = Calendar::query()->find($event->calendar_id);
-        $space = FcomBaseSpace::query()->find((int) Arr::get((array) $calendar->meta, CalendarService::SPACE_META_KEY));
+        $calendarMeta = (array) Calendar::query()->find($event->calendar_id)->meta;
+        $space = FcomBaseSpace::query()->find((int) Arr::get($calendarMeta, CalendarService::SPACE_META_KEY));
+        $isGlobal = Arr::get($calendarMeta, CalendarService::GLOBAL_META_KEY) === true;
 
-        // A calendar with no space has nowhere to hold the post, so the post lets go of the event.
-        if (!CommunityEvents::isDiscussionSpace($space)) {
+        // A site calendar has nowhere to hold the post, so the post lets go of the event.
+        if (!$isGlobal && !CommunityEvents::isDiscussionSpace($space)) {
             DB::transaction(function () use ($event) {
                 $this->unlinkPost($event);
 
@@ -200,22 +218,26 @@ class FeedHandler
             return;
         }
 
-        if ((int) $feed->space_id === (int) $space->id) {
+        // The Community calendar holds events posted outside any space.
+        $spaceId = $isGlobal ? null : (int) $space->id;
+
+        if ((int) $feed->space_id === (int) $spaceId) {
             return;
         }
 
-        DB::transaction(function () use ($feed, $space) {
-            $feed->space_id = $space->id;
+        DB::transaction(function () use ($feed, $spaceId) {
+            $feed->space_id = $spaceId;
             $feed->save();
 
-            FcomActivity::query()->where('feed_id', $feed->id)->update(['space_id' => $space->id]);
+            FcomActivity::query()->where('feed_id', $feed->id)->update(['space_id' => $spaceId]);
 
             // Topics are space-scoped; the old space's topics do not carry over.
             $feed->terms()->where('taxonomy_name', 'post_topic')->detach();
         });
     }
 
-    public function deleteEvent($feed)
+    // Deleting a post is a moderation call, not an event one: the event keeps its guests as a draft.
+    public function parkEvent($feed)
     {
         $event = Event::query()->find(CommunityEvents::eventIdOf($feed));
 
@@ -224,12 +246,10 @@ class FeedHandler
         }
 
         DB::transaction(function () use ($event) {
-            do_action('fluent_event/event/before_deleted', $event);
-
-            $event->delete();
+            CommunityEvents::parkEvent($event);
         });
 
-        do_action('fluent_event/event/deleted', $event);
+        do_action('fluent_event/event/updated', $event);
     }
 
     // An event deleted from the admin or with its calendar leaves the post as a plain one.
@@ -243,7 +263,58 @@ class FeedHandler
 
         $feed->content_type = 'text';
         $feed->meta = Arr::except((array) $feed->meta, ['event_id']);
+
+        // The event card was the post's content and its caption is optional, so an empty one would leave a blank post.
+        if (trim((string) $feed->message) === '') {
+            $feed->message = $event->title ?: __('This event is no longer available.', 'fluent-event');
+            $feed->message_rendered = wp_kses_post(FcomFeedsHelper::mdToHtml($feed->message));
+        }
+
         $feed->save();
+    }
+
+    // The portal edit page links here: the post's text and space are edited on the post itself.
+    public function addFeedUrl($data)
+    {
+        $this->addFeedUrls(['events' => [$data['event']]]);
+
+        return $data;
+    }
+
+    public function addFeedUrls($data)
+    {
+        $eventIds = [];
+
+        foreach ($data['events'] as $event) {
+            $eventIds[] = $event->id;
+        }
+
+        if (!$eventIds) {
+            return $data;
+        }
+
+        $feedIds = Meta::query()
+            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+            ->whereIn('object_id', $eventIds)
+            ->where('meta_key', CommunityEvents::FEED_META_KEY)
+            ->pluck('value', 'object_id')
+            ->toArray();
+
+        if (!$feedIds) {
+            return $data;
+        }
+
+        $feeds = FcomFeed::query()->with(['space'])->whereIn('id', $feedIds)->get()->keyBy('id');
+
+        foreach ($data['events'] as $event) {
+            $feed = $feeds->get((int) Arr::get($feedIds, $event->id));
+
+            if ($feed && CommunityEvents::eventIdOf($feed) === (int) $event->id) {
+                $event->feed_url = esc_url_raw($feed->getPermalink());
+            }
+        }
+
+        return $data;
     }
 
     public function preloadEvents($config, $feeds)
@@ -283,14 +354,18 @@ class FeedHandler
         } else {
             // A single post is the event page, the one view that shows the description.
             $event = Event::query()->with(['post'])->find($eventId);
-            $formatted = CommunityEvents::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
+            $formatted = EventService::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
         }
 
         if ($formatted && !in_array($feed->status, ['published', 'unlisted'], true)) {
             $formatted['registration_open'] = false;
+            // Told apart from a closed registration window, which also turns registration_open off.
+            $formatted['is_unpublished'] = true;
         }
 
         $feed->fluent_event = $formatted;
+        // fcom's views show a post's featured image; an event post's is its event's cover.
+        $feed->featured_image = $formatted ? ($formatted['cover_url'] ?: null) : null;
 
         return $feed;
     }
@@ -304,39 +379,17 @@ class FeedHandler
         }
 
         $events = Event::query()->with(['post'])->whereIn('id', $eventIds)->get()->all();
-        $formatted = CommunityEvents::formatEvents($events);
+        $formatted = EventService::formatEvents($events);
 
         foreach ($eventIds as $eventId) {
             $this->formattedEvents[$eventId] = $formatted[$eventId] ?? null;
         }
     }
 
-    // fcom's cron deletes an unclaimed upload after two hours; tying it to the post also
-    // retires it with the post. An active upload already belongs to something else.
-    protected function claimMedia($url, $feed, $source)
-    {
-        $media = FcomHelper::getMediaFromUrl($url);
-
-        if (!$media) {
-            return $url;
-        }
-
-        if (!$media->is_active) {
-            $media->update([
-                'is_active'     => true,
-                'user_id'       => $feed->user_id,
-                'feed_id'       => $feed->id,
-                'object_source' => $source,
-            ]);
-        }
-
-        return $media->public_url;
-    }
-
     protected function eventInput($requestData)
     {
         $input = EventRequest::sanitize((array) Arr::get($requestData, 'event', []));
-        $input['status'] = 'public';
+        $input['status'] = 'private';
 
         return $input;
     }
@@ -375,14 +428,24 @@ class FeedHandler
         return new \WP_Error('fluent_event_invalid', $message, $errors);
     }
 
-    protected function spaceCalendar($spaceId)
+    protected function globalPostsOffError()
     {
-        if ($calendar = CalendarService::findBySpace($spaceId)) {
+        return new \WP_Error('fluent_event_space', __('Community-wide events need global posts, which are turned off in FluentCommunity settings.', 'fluent-event'));
+    }
+
+    // The space's own calendar, or the Community calendar for a post outside any space.
+    protected function calendarFor($spaceId)
+    {
+        if ($calendar = $spaceId ? CalendarService::findBySpace($spaceId) : CalendarService::findGlobal()) {
             return $calendar;
         }
 
-        $space = FcomBaseSpace::query()->find($spaceId);
-        $calendar = CalendarService::createForSpace($spaceId, $space->title, $space->slug);
+        if ($spaceId) {
+            $space = FcomBaseSpace::query()->find($spaceId);
+            $calendar = CalendarService::createForSpace($spaceId, $space->title, $space->slug);
+        } else {
+            $calendar = CalendarService::createGlobal();
+        }
 
         do_action('fluent_event/calendar/created', $calendar);
 

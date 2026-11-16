@@ -9,6 +9,8 @@
     );
     overflow-y: auto;
     overflow-x: hidden;
+    // A long wp-admin menu makes the page scrollable; a wheel over the app must not move it.
+    overscroll-behavior: contain;
     z-index: 1;
     
     &__body {
@@ -28,7 +30,7 @@
 }
 
 .fe-page {
-    width: var(--fe-page-width, 1350px);
+    width: var(--fe-page-width, 1260px);
     max-width: 100%;
     margin: 0 auto;
 
@@ -81,6 +83,7 @@
         font-weight: 600;
         line-height: 1.3;
         color: var(--fe-primary-text, #19283a);
+        overflow-wrap: anywhere;
     }
 
     &__subtitle {

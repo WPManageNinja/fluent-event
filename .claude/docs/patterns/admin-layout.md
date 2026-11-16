@@ -199,29 +199,32 @@ more work than keeping a parallel file from the start.
 
 ## Dark mode
 
-Affiliate does it without JS state:
+The switch matches the FluentCommunity portal: a topbar menu with **Light**, **Dark** and
+**System**. System follows the device's `prefers-color-scheme` and changes live with it.
 
-- Two logos in the DOM (`.fa_light_logo`, `.fa_dark_logo`), CSS shows one.
-- Two inline SVGs for the toggle icon (`.fa_light_icon`, `.fa_dark_icon`), same trick.
-- `toggleColorMode()` flips a class on a root element; the token block does the rest.
+- Two logos in the DOM (`.fe-navbar__logo-img--light`, `--dark`), CSS shows one.
+- The trigger holds three inline SVGs (`Icon::SUN`, `Icon::MOON`, `Icon::SYSTEM`); CSS shows
+  the one for the picked mode, read from `html[data-fe-theme]`.
+- The menu reuses the navbar dropdown (`toggleNavbarDropdown`). Its items are
+  `role="menuitemradio"` with `aria-checked`; opening it focuses the checked item, the arrow
+  keys move between items, and Escape returns focus to the trigger.
+- `setColorMode(mode)` stores the pick and writes the resolved classes on `<html>`; the
+  token block does the rest.
 
-**We copied it.** `ThemeSwitcher.vue` — an `el-dropdown` with light/dark/system and a table
-of EP colour variables — is deleted. The toggle is a PHP `<button>` in the navbar calling
-`toggleColorMode()`, with `Icon::SUN` / `Icon::MOON` swapped by CSS transform, and both logo
-`<img>`s in the DOM.
+**The mode is shared with every Fluent plugin** (spec:
+`fluent-invoice/specs/fluent-theme-mode-spec.md`; fluent-cart and fluent-booking are the
+references):
 
-Two places we diverge from affiliate, both deliberate:
+- Stored in `localStorage.fluent_theme_mode` as `light`, `dark`, `system:dark` or
+  `system:light`. Readers take the part before the colon; no value means `system`.
+- The dark state is the `fluent_theme_dark` class on `<html>` and `<body>`, plus `dark` on
+  `<html>`, which our stylesheets and EP's own `dark/css-vars.css` target.
+- The `storage` event picks up a change from another tab or plugin. A pick here is also
+  posted on the `fluent_theme_changed:<origin>` BroadcastChannel, which FluentCart listens to.
 
-- **`<html>` is the only state carrier.** Affiliate also writes the class onto
-  `#wpbody-content`, but no stylesheet in either plugin reads it — every dark selector is
-  `html.dark`, EP's own `dark/css-vars.css` included. We write one element.
-- **`light` and `dark` are mutually exclusive.** Toggling only `dark` while a restore path
-  adds `light` leaves both classes on the element.
-
-Persisted as `localStorage.fe_color_mode`. `toggleColorMode` lives in
-[app.js](../../../resources/admin/app.js), which is enqueued in the footer — so, exactly as
-in affiliate, the button is inert until that bundle parses and a dark-mode user sees one
-light frame first. Fixing it means inlining the apply in the view or on `admin_head`.
+`AdminMenuHandler::enqueueThemeClass()` prints the classes in `<head>` before paint, so a
+dark-mode user sees no light frame. The rest lives in
+[app.js](../../../resources/admin/app.js).
 
 The light logo is `logo.svg` (dark wordmark), the dark one `logo-dark.svg` (white
 wordmark) — the only difference is the text fill.

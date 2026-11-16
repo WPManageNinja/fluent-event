@@ -76,85 +76,43 @@
         </template>
     </el-skeleton>
 
-    <el-skeleton v-else-if="type === 'team_settings'" v-for="row in rowCount" :key="`team-${row}`" animated>
-        <template #template>
-            <div class="fe-team__member">
-                <el-skeleton-item variant="circle" class="fe-team__skeleton-avatar" />
-
-                <div class="fe-team__identity">
-                    <el-skeleton-item variant="text" class="fe-team__skeleton-name" />
-                    <el-skeleton-item variant="text" class="fe-team__skeleton-email" />
-                </div>
-
-                <div class="fe-team__actions">
-                    <el-skeleton-item variant="rect" class="fe-team__skeleton-action" />
-                    <el-skeleton-item variant="rect" class="fe-team__skeleton-action" />
-                </div>
-
-                <div class="fe-team__permissions">
-                    <el-skeleton-item variant="text" class="fe-team__skeleton-tag" />
-                    <el-skeleton-item variant="text" class="fe-team__skeleton-tag" />
-                    <el-skeleton-item variant="text" class="fe-team__skeleton-tag" />
-                </div>
-            </div>
-        </template>
-    </el-skeleton>
-
     <el-skeleton v-else-if="type === 'calendar_detail'" animated>
         <template #template>
             <el-skeleton-item variant="text" class="fe-skeleton__breadcrumb" />
 
-            <div class="fe-skeleton__mast">
-                <el-skeleton-item variant="rect" class="fe-skeleton__cover" />
+            <!-- Mirrors the real header, stat strip and tabs so nothing shifts on load. -->
+            <div class="fe-calendar-detail__head">
                 <el-skeleton-item variant="rect" class="fe-skeleton__mark" />
 
-                <div class="fe-skeleton__identity">
+                <div class="fe-calendar-detail__identity">
                     <el-skeleton-item variant="h1" class="fe-skeleton__title" />
                     <el-skeleton-item variant="text" class="fe-skeleton__slug" />
+                </div>
+
+                <el-skeleton-item variant="rect" class="fe-skeleton__button" />
+            </div>
+
+            <div class="fe-calendar-detail__stats">
+                <div class="fe-skeleton__tiles">
+                    <el-skeleton-item
+                        v-for="tile in 4"
+                        :key="`tile-${tile}`"
+                        variant="rect"
+                        class="fe-skeleton__tile"
+                    />
                 </div>
             </div>
 
             <div class="fe-skeleton__tabs">
                 <el-skeleton-item
-                    v-for="tab in 3"
+                    v-for="tab in 2"
                     :key="tab"
                     variant="rect"
                     class="fe-skeleton__tab"
                 />
             </div>
 
-            <!-- Mirrors the real two-column tab layout so nothing shifts on load. -->
-            <div class="fe-calendar-tab">
-                <div class="fe-calendar-tab__main">
-                    <div class="fe-skeleton__tiles">
-                        <el-skeleton-item
-                            v-for="tile in 4"
-                            :key="`stat-${tile}`"
-                            variant="rect"
-                            class="fe-skeleton__tile"
-                        />
-                    </div>
-
-                    <div class="fe-card">
-                        <el-skeleton-item
-                            v-for="line in 6"
-                            :key="line"
-                            variant="text"
-                            class="fe-skeleton__line"
-                        />
-                        <el-skeleton-item variant="text" class="fe-skeleton__line fe-skeleton__line--short" />
-                    </div>
-                </div>
-
-                <div class="fe-calendar-tab__aside">
-                    <el-skeleton-item
-                        v-for="panel in 2"
-                        :key="`panel-${panel}`"
-                        variant="rect"
-                        class="fe-skeleton__panel fe-skeleton__panel--short"
-                    />
-                </div>
-            </div>
+            <el-skeleton-item variant="rect" class="fe-skeleton__panel" />
         </template>
     </el-skeleton>
 
@@ -290,31 +248,18 @@
         </template>
     </el-skeleton>
 
-    <div v-else-if="type === 'calendar-grid'" class="fe-calendars__grid">
-        <div v-for="card in rowCount" :key="card" class="fe-calendars__card">
+    <ul v-else-if="type === 'calendar-list'" class="fe-calendars__list">
+        <li v-for="row in rowCount" :key="row" class="fe-calendars__row">
             <el-skeleton animated>
                 <template #template>
-                    <div class="fe-calendars__card-cover">
-                        <el-skeleton-item variant="rect" class="fe-skeleton__card-mark" />
-                    </div>
-
-                    <div class="fe-calendars__card-body">
-                        <el-skeleton-item variant="text" class="fe-skeleton__card-title" />
-                        <el-skeleton-item variant="text" class="fe-skeleton__card-slug" />
-
-                        <div class="fe-calendars__card-meta">
-                            <el-skeleton-item
-                                v-for="tag in 3"
-                                :key="tag"
-                                variant="text"
-                                class="fe-skeleton__tag"
-                            />
-                        </div>
+                    <div class="fe-calendars__row-main">
+                        <el-skeleton-item variant="text" class="fe-skeleton__row-title" />
+                        <el-skeleton-item variant="text" class="fe-skeleton__row-slug" />
                     </div>
                 </template>
             </el-skeleton>
-        </div>
-    </div>
+        </li>
+    </ul>
 
     <el-skeleton v-else-if="type === 'calendar-form'" animated>
         <template #template>
@@ -434,7 +379,7 @@ export default {
                 'event-calendar': 6,
                 'event-cards': 6,
                 'event-form': 4,
-                'calendar-grid': 6,
+                'calendar-list': 6,
                 'calendar-form': 2,
                 plain: 4
             }

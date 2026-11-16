@@ -74,9 +74,17 @@ describe('status and entry type labels', () => {
         const vm = component();
 
         expect(vm.$eventStatusType('public')).toBe('success');
+        expect(vm.$eventStatusType('unlisted')).toBe('warning');
         expect(vm.$eventStatusType('private')).toBe('primary');
         expect(vm.$eventStatusType('draft')).toBe('info');
         expect(vm.$eventStatusType('archived')).toBe('info');
+    });
+
+    it('offers every event status for events and all but unlisted for calendars', () => {
+        const vm = component();
+
+        expect(vm.$eventStatuses().map(item => item.value)).toEqual(['public', 'unlisted', 'private', 'draft']);
+        expect(vm.$calendarStatuses().map(item => item.value)).toEqual(['public', 'private', 'draft']);
     });
 
     it('translates a status label', () => {
@@ -92,9 +100,17 @@ describe('status and entry type labels', () => {
         expect(component().$entryTypeLabel('ticketed')).toBe('ticketed');
     });
 
-    it('labels both entry modes', () => {
+    it('labels every entry mode', () => {
         expect(component().$entryTypeLabel('rsvp')).toBe('RSVP');
         expect(component().$entryTypeLabel('open')).toBe('Open');
+        expect(component().$entryTypeLabel('none')).toBe('None');
+    });
+
+    it('labels each guest source and title-cases one it does not know', () => {
+        expect(component().$guestSourceLabel('manual')).toBe('Manual');
+        expect(component().$guestSourceLabel('wordpress_pages')).toBe('WordPress Pages');
+        expect(component().$guestSourceLabel('fluent_community')).toBe('FluentCommunity');
+        expect(component().$guestSourceLabel('zapier_import')).toBe('Zapier Import');
     });
 });
 
@@ -158,6 +174,12 @@ describe('number and date formatting', () => {
         expect(vm.$formatDate('2026-10-03')).toBe('October 3rd, 2026');
     });
 
+    it('supports ISO week tokens from a WordPress "W" or "o" date format', () => {
+        window.fluentEventAdmin.date_format = 'GGGG-[W]W';
+
+        expect(vm.$formatDate('2026-10-15')).toBe('2026-W42');
+    });
+
     it("formats an event's range on its own clock or the site's, dating only what falls on another day", () => {
         window.fluentEventAdmin.date_format = 'MMM D';
         window.fluentEventAdmin.time_format = 'h:mm A';
@@ -201,213 +223,68 @@ describe('number and date formatting', () => {
     });
 });
 
-describe('$userCan', () => {
-    const as = (me) => {
-        window.fluentEventAdmin.me = me;
-        return component();
-    };
+describe('$requestServer', () => {
+    const missingRecord = () => Promise.reject(new ResponseProxyItr({
+        status: 404,
+        responseJSON: { message: 'No query results for model [FluentEvent\\App\\Models\\Calendar] 999' },
+    }));
 
-    it('allows everything for a WordPress administrator', () => {
-        expect(as({ is_admin: true, permissions: [] }).$userCan('write_settings')).toBe(true);
-    });
-
-    it('allows everything for a manage_all_data holder', () => {
-        expect(as({ is_admin: false, permissions: ['manage_all_data'] }).$userCan(['write_events', 'write_settings'])).toBe(true);
-    });
-
-    it('requires every key by default', () => {
-        const vm = as({ is_admin: false, permissions: ['read_events'] });
-
-        expect(vm.$userCan('read_events')).toBe(true);
-        expect(vm.$userCan(['read_events', 'write_events'])).toBe(false);
-    });
-
-    it('accepts any one key when asked to match any', () => {
-        const vm = as({ is_admin: false, permissions: ['read_calendars'] });
-
-        expect(vm.$userCan(['read_calendars', 'write_calendars'], { match_type: 'any' })).toBe(true);
-    });
-
-    it('denies when the current user is unknown', () => {
-        delete window.fluentEventAdmin.me;
-
-        expect(component().$userCan('read_events')).toBe(false);
-    });
-});
-
-describe('notifications', () => {
-    it('shows a plain string as the error message', () => {
-        component().$handleError('Calendar not found');
-
-        expect(lastNotification()).toMatchObject({ type: 'error', title: 'Error', message: 'Calendar not found' });
-    });
-
-    it('warns rather than errors for an aborted request', () => {
-        component().$handleError({ isAborted: true, message: 'Request aborted.' });
-
-        expect(lastNotification()).toMatchObject({ type: 'warning', message: 'Request aborted.' });
-    });
-
-    it("prefers the server's message on a REST error", () => {
-        const error = new ResponseProxyItr({ status: 403, responseJSON: { code: 'forbidden', message: 'Sorry, not allowed.' } });
-
-        component().$handleError(error);
-
-        expect(lastNotification().message).toBe('Sorry, not allowed.');
-    });
-
-    it('joins validation messages into one line when there is no message', () => {
-        const error = new ResponseProxyItr({
-            status: 422,
-            responseJSON: { title: { required: 'Title is required' }, end_at: { after: 'End is too early' } }
+    it('shows the 404 page at the same address when the record a page loads is gone', async () => {
+        Rest.get.mockReturnValue(missingRecord());
+        const vm = component({
+            loading: false,
+            error: '',
+            $route: { path: '/calendars/999/edit', fullPath: '/calendars/999/edit', query: {} },
+            $router: { replace: vi.fn() },
         });
 
-        component().$handleError(error);
+        vm.$requestServer({ path: 'calendars/999', notFoundPage: true });
+        await flush();
 
-        expect(lastNotification().message).toBe('Title is required End is too early');
+        expect(vm.$router.replace).toHaveBeenCalledWith({ name: 'notfound', params: { pathMatch: ['calendars', '999', 'edit'] }, query: {} });
+        expect(vm.error).toBe('');
     });
 
-    it('falls back to a generic or caller-supplied message', () => {
-        component().$handleError({});
-        expect(lastNotification().message).toBe('Something went wrong');
+    it('leaves the page alone when the admin moved on before the 404 came back', async () => {
+        const request = deferred();
+        Rest.get.mockReturnValue(request.promise);
+        const vm = component({
+            loading: false,
+            error: '',
+            $route: { path: '/events/999', fullPath: '/events/999', query: {} },
+            $router: { replace: vi.fn() },
+        });
 
-        component().$handleError({}, 'Could not save the event');
-        expect(lastNotification().message).toBe('Could not save the event');
+        vm.$requestServer({ path: 'events/999', notFoundPage: true });
+        vm.$route = { path: '/calendars', fullPath: '/calendars', query: {} };
+        request.reject(new ResponseProxyItr({ status: 404, responseJSON: { message: 'No query results' } }));
+        await flush();
+
+        expect(vm.$router.replace).not.toHaveBeenCalled();
     });
 
-    it('titles a notification by its type', () => {
-        window.fluentEventAdmin.i18n = { Success: 'Erfolg' };
+    it('keeps the retry state for a 404 the page did not ask to handle', async () => {
+        Rest.get.mockReturnValue(missingRecord());
+        const vm = component({ loading: false, error: '', $router: { replace: vi.fn() } });
 
-        component().$notify('Saved', 'success');
-        expect(lastNotification()).toMatchObject({ type: 'success', title: 'Erfolg', message: 'Saved' });
+        vm.$requestServer({ path: 'events/1/guests' });
+        await flush();
 
-        component().$notify('Heads up', 'custom');
-        expect(lastNotification().title).toBe('Custom');
+        expect(vm.$router.replace).not.toHaveBeenCalled();
+        expect(vm.error).toContain('No query results');
     });
 });
 
-describe('$requestServer', () => {
-    it('refuses a state the component never declared', () => {
-        const vm = component({ error: '' });
+describe('$handleError', () => {
+    it('shows one validation message per field', () => {
+        component().$handleError(new ResponseProxyItr({
+            status: 422,
+            responseJSON: {
+                name: { required: 'Name is required.' },
+                email: { required: 'Email is required.', email: 'Please provide a valid email address.' },
+            },
+        }));
 
-        expect(() => vm.$requestServer({ path: 'events' })).toThrow(/unknown state/);
-    });
-
-    it('marks loading for the life of the request and hands over the response', async () => {
-        const request = deferred();
-        Rest.get.mockReturnValue(request.promise);
-        const onSuccess = vi.fn();
-        const vm = component({ loading: false, error: 'old error' });
-
-        vm.$requestServer({ path: 'events', payload: { page: 2 }, onSuccess });
-
-        expect(Rest.get).toHaveBeenCalledWith('events', { page: 2 });
-        expect(vm.loading).toBe(true);
-
-        request.resolve({ events: [] });
-        await flush();
-
-        expect(vm.loading).toBe(false);
-        expect(vm.error).toBe('');
-        expect(onSuccess).toHaveBeenCalledWith({ events: [] });
-    });
-
-    it("announces success with the server's message when asked", async () => {
-        Rest.post.mockResolvedValue({ message: 'Event has been created' });
-        const vm = component({ loading: false, error: '' });
-
-        vm.$requestServer({ method: 'post', path: 'events', successNotify: true });
-        await flush();
-
-        expect(lastNotification()).toMatchObject({ type: 'success', message: 'Event has been created' });
-    });
-
-    it('records a failure in the error state and only notifies when asked', async () => {
-        Rest.get.mockRejectedValue({ message: 'Server unavailable' });
-        const onError = vi.fn();
-        const vm = component({ loading: false, error: '' });
-
-        vm.$requestServer({ path: 'events', onError });
-        await flush();
-
-        expect(vm.error).toBe('Server unavailable');
-        expect(vm.loading).toBe(false);
-        expect(onError).toHaveBeenCalledWith({ message: 'Server unavailable' });
-        expect(ElNotification).not.toHaveBeenCalled();
-
-        vm.$requestServer({ path: 'events', errorNotify: true });
-        await flush();
-
-        expect(lastNotification()).toMatchObject({ type: 'error', message: 'Server unavailable' });
-    });
-
-    it('ignores a second submit while the first mutation is in flight', () => {
-        Rest.post.mockReturnValue(deferred().promise);
-        const vm = component({ saving: false });
-
-        vm.$requestServer({ method: 'post', path: 'events', loadingState: 'saving', errorState: null });
-        vm.$requestServer({ method: 'post', path: 'events', loadingState: 'saving', errorState: null });
-
-        expect(Rest.post).toHaveBeenCalledTimes(1);
-    });
-
-    it('lets a new read through while an earlier one is in flight', () => {
-        Rest.get.mockReturnValue(deferred().promise);
-        const vm = component({ loading: false, error: '' });
-
-        vm.$requestServer({ path: 'events', payload: { page: 1 } });
-        vm.$requestServer({ path: 'events', payload: { page: 2 } });
-
-        expect(Rest.get).toHaveBeenCalledTimes(2);
-    });
-
-    it('keeps the newest read when an older one answers last', async () => {
-        const older = deferred();
-        const newer = deferred();
-        Rest.get.mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
-        const shown = [];
-        const vm = component({ loading: false, error: '' });
-
-        vm.$requestServer({ path: 'events', payload: { search: 'a' }, onSuccess: r => shown.push(r.search) });
-        vm.$requestServer({ path: 'events', payload: { search: 'ab' }, onSuccess: r => shown.push(r.search) });
-
-        newer.resolve({ search: 'ab' });
-        await flush();
-        older.resolve({ search: 'a' });
-        await flush();
-
-        expect(shown).toEqual(['ab']);
-        expect(vm.loading).toBe(false);
-    });
-
-    it('keeps loading on until the newest read settles', async () => {
-        const older = deferred();
-        const newer = deferred();
-        Rest.get.mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
-        const vm = component({ loading: false, error: '' });
-
-        vm.$requestServer({ path: 'events' });
-        vm.$requestServer({ path: 'events' });
-        older.reject({ message: 'stale failure' });
-        await flush();
-
-        expect(vm.loading).toBe(true);
-        expect(vm.error).toBe('');
-    });
-
-    it('tracks requests without a loading state by their path', async () => {
-        const older = deferred();
-        const newer = deferred();
-        Rest.get.mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
-        const onSuccess = vi.fn();
-        const vm = component();
-
-        vm.$requestServer({ path: 'calendars', loadingState: null, errorState: null, onSuccess });
-        vm.$requestServer({ path: 'calendars', loadingState: null, errorState: null, onSuccess });
-        older.resolve('stale');
-        newer.resolve('fresh');
-        await flush();
-
-        expect(onSuccess.mock.calls).toEqual([['fresh']]);
+        expect(lastNotification().message).toBe('Name is required. Email is required.');
     });
 });

@@ -17,7 +17,6 @@ class Calendar extends Model
     protected $fillable = [
         'title',
         'slug',
-        'description',
         'status',
         'meta',
     ];
@@ -46,6 +45,18 @@ class Calendar extends Model
         return $this->hasMany(Guest::class, 'calendar_id', 'id');
     }
 
+    // Capped at 255: the title column is VARCHAR(255).
+    public static function titleMaxLength()
+    {
+        return min(255, max(1, (int) apply_filters('fluent_event/calendar_title_max_length', 100)));
+    }
+
+    public function getTitleAttribute($title)
+    {
+        // Plain text, as Event's title: sanitize_text_field() stores a lone "<" as "&lt;". Every sink must escape it.
+        return strtr((string) $title, ['&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', '&#039;' => "'"]);
+    }
+
     public static function defaultMeta()
     {
         return [
@@ -71,10 +82,11 @@ class Calendar extends Model
         return $query;
     }
 
+    /** @param string|string[] $status */
     public function scopeByStatus($query, $status)
     {
         if ($status) {
-            $query->where('status', $status);
+            $query->whereIn('status', (array) $status);
         }
 
         return $query;

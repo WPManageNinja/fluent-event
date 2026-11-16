@@ -7,7 +7,7 @@
         @update:model-value="$emit('update:modelValue', $event)"
         @open="resetForm"
     >
-        <el-form class="fe-form" label-position="top" @submit.prevent="save">
+        <el-form class="fe-form" label-position="top" require-asterisk-position="right" @submit.prevent="save">
             <el-form-item>
                 <SegmentedSwitch
                     v-model="mode"
@@ -17,7 +17,7 @@
                 />
             </el-form-item>
 
-            <el-form-item v-if="mode === 'wp_user'" :label="$t('WordPress user *')">
+            <el-form-item v-if="mode === 'wp_user'" :label="$t('WordPress User')" required>
                 <el-select
                     v-model="selectedUserId"
                     filterable
@@ -37,11 +37,11 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item :label="$t('Name *')">
+            <el-form-item :label="$t('Name')" required>
                 <el-input v-model="form.name" :placeholder="$t('e.g. Jane Cooper')" />
             </el-form-item>
 
-            <el-form-item :label="$t('Email *')">
+            <el-form-item :label="$t('Email')" required>
                 <el-input
                     v-model="form.email"
                     type="email"
@@ -126,8 +126,8 @@
             },
             modes() {
                 return [
-                    { value: 'manual', label: this.$t('Enter manually') },
-                    { value: 'wp_user', label: this.$t('WordPress user') },
+                    { value: 'manual', label: this.$t('Enter Manually') },
+                    { value: 'wp_user', label: this.$t('WordPress User') },
                 ];
             },
             title() {
@@ -138,9 +138,9 @@
             },
             emailLabel() {
                 const notifications = window.fluentEventAdmin?.email_notifications || {};
-                const confirmation = notifications.registration_confirmation?.enabled ? this.$t('Send confirmation email') : '';
-                const cancellation = notifications.registration_cancellation?.enabled ? this.$t('Send cancellation email') : '';
-                const waitlist = notifications.registration_waitlist?.enabled ? this.$t('Send waitlist email') : '';
+                const confirmation = notifications.registration_confirmation?.enabled ? this.$t('Send Confirmation Email') : '';
+                const cancellation = notifications.registration_cancellation?.enabled ? this.$t('Send Cancellation Email') : '';
+                const waitlist = notifications.registration_waitlist?.enabled ? this.$t('Send Waitlist Email') : '';
 
                 if (this.isEditing && this.form.status === this.guest.status) {
                     return '';

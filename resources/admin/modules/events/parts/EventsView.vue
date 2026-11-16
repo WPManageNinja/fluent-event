@@ -9,6 +9,8 @@
                 @search="refetch"
             />
 
+            <slot name="toolbar" />
+
             <SegmentedSwitch
                 v-if="!viewLocked"
                 v-model="view"
@@ -43,7 +45,7 @@
                                 </el-radio-group>
                             </el-form-item>
 
-                            <el-form-item v-if="showCalendarFilter" :label="$t('Calendar')">
+                            <el-form-item v-if="showCalendar" :label="$t('Calendar')">
                                 <el-select v-model="pendingFilters.calendar_id" filterable>
                                     <el-option :label="$t('All')" :value="0" />
                                     <el-option
@@ -55,7 +57,7 @@
                                 </el-select>
                             </el-form-item>
 
-                            <el-form-item v-if="!isCalendar" :label="$t('Date range')">
+                            <el-form-item v-if="!isCalendar" :label="$t('Date Range')">
                                 <el-date-picker
                                     v-model="pendingFilters.dates"
                                     type="daterange"
@@ -127,7 +129,7 @@
             />
         </div>
 
-        <EventDrawer v-model="drawerOpen" :event="activeEvent" />
+        <EventDrawer v-model="drawerOpen" :event="activeEvent" @missing="refetch" />
     </div>
 </template>
 
@@ -223,11 +225,6 @@
             },
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
-            },
-            showCalendarFilter() {
-                return this.showCalendar && this.$userCan(
-                    ['read_calendars', 'write_calendars'], { match_type: 'any' }
-                );
             },
             views() {
                 return [
@@ -387,7 +384,7 @@
                 this.fetchEvents();
             },
             syncFilters() {
-                if (this.showCalendarFilter && !this.calendars.length) {
+                if (this.showCalendar && !this.calendars.length) {
                     this.fetchCalendars();
                 }
 

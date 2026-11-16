@@ -1,4 +1,5 @@
 // Shared by the event card (which runs on FluentCommunity's Vue) and the lazy page app.
+import { buildIcs, downloadIcs, icsStamp } from '@/utils/date';
 
 export const portalVars = () => window.fluentEventFcomPortal || {};
 
@@ -10,6 +11,24 @@ export function t(text, ...args) {
         const value = position ? args[parseInt(position, 10) - 1] : args[index++];
         return value === undefined ? match : value;
     });
+}
+
+// Our Element Plus speaks English; its calendar and date picker take day and month names from fcom's dayjs, in the site's language.
+export function localizedDateNames(locale, dayjs) {
+    const datepicker = { ...locale.el.datepicker, weeks: {}, weeksFull: {}, months: {} };
+
+    ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].forEach((key, day) => {
+        datepicker.weeks[key] = dayjs().day(day).format('ddd');
+        datepicker.weeksFull[key] = dayjs().day(day).format('dddd');
+    });
+
+    ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].forEach((key, month) => {
+        const date = dayjs().date(1).month(month);
+        datepicker.months[key] = date.format('MMM');
+        datepicker[`month${month + 1}`] = date.format('MMMM');
+    });
+
+    return { ...locale, el: { ...locale.el, datepicker } };
 }
 
 // One REST client for the portal: FluentEvent routes and FluentCommunity's own feed routes.
@@ -49,7 +68,16 @@ async function request(base, method, route, data) {
 export const eventsApi = {
     get: (route, data) => request(portalVars().rest_url, 'GET', route, data),
     post: (route, data) => request(portalVars().rest_url, 'POST', route, data),
+    patch: (route, data) => request(portalVars().rest_url, 'PATCH', route, data),
 };
+
+// Event covers and description images are media library attachments: the event owns them, not its post.
+export async function uploadMedia(file) {
+    const data = new FormData();
+    data.append('file', file);
+
+    return (await request(portalVars().wp_rest_url, 'POST', 'media', data)).source_url;
+}
 
 export const communityApi = {
     get: (route, data) => request(window.fluentComAdmin.rest.url, 'GET', route, data),
@@ -94,11 +122,16 @@ export function timeFormat() {
     return (window.fluentComAdmin && window.fluentComAdmin.time_formatter) || 'h:mm A';
 }
 
+// fcom's date format: the site's WordPress setting as a dayjs pattern.
+export function dateFormat() {
+    return (window.fluentComAdmin && window.fluentComAdmin.date_formatter) || 'MMM D, YYYY';
+}
+
 // A *_site value, read on the site's clock like every list.
 export function siteDateTime(value) {
     const time = dayjs(value);
 
-    return `${time.format('ddd, MMM D, YYYY')} · ${time.format(timeFormat())}`;
+    return `${time.format(dateFormat())} · ${time.format(timeFormat())}`;
 }
 
 export function eventStart(event) {
@@ -123,17 +156,44 @@ export function timezoneOffset(zone, date = new Date()) {
     }
 }
 
+// The event page passes its description and place; the registration dialog has neither to hand.
+export function googleCalendarLink(event, details, location) {
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: event.title,
+        dates: `${icsStamp(event.start_at)}/${icsStamp(event.end_at)}`,
+        details,
+        location,
+    });
+
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+export function saveIcs(event, details, location) {
+    const text = buildIcs({
+        id: event.id,
+        title: event.title,
+        start_at: event.start_at,
+        end_at: event.end_at,
+        description: details,
+        location,
+        url: window.location.href,
+    });
+
+    downloadIcs(text, `${event.slug}.ics`);
+}
+
 export function isSeated(event) {
     return ['going', 'checked_in'].includes(event.my_status);
 }
 
-// Only RSVP takes part; an open event is view-only.
+// RSVP and open events take registrations here; none takes nobody.
 export function hasEventActions(event) {
-    return event.is_past || event.entry_type === 'rsvp';
+    return event.is_past || ['rsvp', 'open'].includes(event.entry_type);
 }
 
 export function guestCountLabel(event) {
-    if (event.entry_type !== 'rsvp' || event.guest_count === null || event.guest_count === undefined) {
+    if (event.guest_count === null || event.guest_count === undefined) {
         return '';
     }
 
@@ -142,4 +202,9 @@ export function guestCountLabel(event) {
     }
 
     return t('%s going', event.guest_count);
+}
+
+// fcom titles its own pages "<title> - <site>"; ours would keep the previous page's tab title.
+export function setPageTitle(title) {
+    document.title = [title, (window.fluentComAdmin || {}).site_title].filter(Boolean).join(' - ');
 }
