@@ -3,7 +3,7 @@
         <div :class="{ fhr_content_layout: !spaceSlug }">
             <!-- All Events wears fcom's page header bar, like Spaces and Courses. -->
             <div v-if="!spaceSlug" class="fhr_content_layout_header">
-                <h1 class="fhr_page_title">{{ $t('All Events') }}</h1>
+                <h1 class="fhr_page_title">{{ $t('Events') }}</h1>
                 <div class="fhr_page_actions">
                     <div class="object_menu">
                         <ul class="fcom_space_menu_ul">

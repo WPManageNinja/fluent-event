@@ -218,7 +218,7 @@ describe('EventsPage', () => {
             const { wrapper } = await eventsPage();
             const bar = wrapper.find('.fhr_content_layout_header');
 
-            expect(bar.find('.fhr_page_title').text()).toBe('All Events');
+            expect(bar.find('.fhr_page_title').text()).toBe('Events');
             expect(tabLinks(wrapper).map(link => link.text())).toEqual(['All', 'Upcoming', 'Past']);
             expect(bar.find('.router-link-exact-active').text()).toBe('Upcoming');
             expect(bar.find('.fcom_primary_button').exists()).toBe(true);
