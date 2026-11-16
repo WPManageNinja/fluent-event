@@ -563,6 +563,49 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(0, (int) $this->rest('GET', "events/{$empty->id}")['data']['event']['guests_count']);
     }
 
+    // The Overview's Registration section: seats and the waitlist counted by status, beside every guest.
+    public function test_one_event_comes_with_its_seat_and_waitlist_counts()
+    {
+        $event = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 5, 'waitlist' => 'yes']);
+
+        foreach (['going', 'checked_in', 'waitlisted', 'not_going', 'cancelled'] as $status) {
+            $this->createGuest($event, ['status' => $status]);
+        }
+
+        $loaded = $this->rest('GET', "events/{$event->id}")['data']['event'];
+
+        $this->assertSame(5, (int) $loaded['guests_count']);
+        $this->assertSame(2, (int) $loaded['seats_count']);
+        $this->assertSame(1, (int) $loaded['waitlisted_count']);
+    }
+
+    // Read on the server's clock, so the Overview never trusts the browser's. Every event here starts in 3 days.
+    public function test_one_event_comes_with_the_state_of_its_registration_window()
+    {
+        $cases = [
+            'no limits'             => [[], 'open'],
+            'closes the day before' => [['registration_closes' => ['value' => 1, 'unit' => 'days']], 'open'],
+            'opens a day before'    => [['registration_opens' => ['value' => 1, 'unit' => 'days']], 'not_open'],
+            'closed a week before'  => [['registration_closes' => ['value' => 7, 'unit' => 'days']], 'closed'],
+        ];
+
+        foreach ($cases as $case => [$meta, $state]) {
+            $event = $this->createEvent([], ['entry_type' => 'rsvp'] + $meta);
+            $window = $this->rest('GET', "events/{$event->id}")['data']['registration_window'];
+
+            $this->assertSame($state, $window['state'], $case);
+            $this->assertSame(isset($meta['registration_opens']), $window['opens_at'] !== null, $case);
+            $this->assertSame(isset($meta['registration_closes']), $window['closes_at'] !== null, $case);
+        }
+
+        $ended = $this->createEvent([
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-3 hours')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-1 hour')),
+        ], ['entry_type' => 'rsvp']);
+
+        $this->assertSame('ended', $this->rest('GET', "events/{$ended->id}")['data']['registration_window']['state']);
+    }
+
     public function test_the_event_list_filters_by_calendar()
     {
         $mine = $this->createEvent();

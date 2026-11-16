@@ -259,7 +259,6 @@ return [
             'RSVP' => __('RSVP', 'fluent-event'),
             'Open' => __('Open', 'fluent-event'),
             'None' => __('None', 'fluent-event'),
-            'Registration Type' => __('Registration Type', 'fluent-event'),
             'Logged-in members say whether they are going.' => __('Logged-in members say whether they are going.', 'fluent-event'),
             'Guests register with their name and email, no login needed.' => __('Guests register with their name and email, no login needed.', 'fluent-event'),
             'Nobody registers. Anyone who can see the event sees all of it, meeting link included.' => __('Nobody registers. Anyone who can see the event sees all of it, meeting link included.', 'fluent-event'),
@@ -356,6 +355,42 @@ return [
             'Purple' => __('Purple', 'fluent-event'),
             'Red-Orange' => __('Red-Orange', 'fluent-event'),
             'Registration' => __('Registration', 'fluent-event'),
+            /* translators: %d is the number of guests holding a seat */
+            '%d going' => __('%d going', 'fluent-event'),
+            /* translators: 1: guests holding a seat, 2: the event's capacity */
+            '%1$s of %2$s going' => __('%1$s of %2$s going', 'fluent-event'),
+            'Open registration' => __('Open registration', 'fluent-event'),
+            'No registration' => __('No registration', 'fluent-event'),
+            'No limit' => __('No limit', 'fluent-event'),
+            /* translators: %d is 1, the number of seats left */
+            '%d spot left' => __('%d spot left', 'fluent-event'),
+            /* translators: %d is a number of seats left */
+            '%d spots left' => __('%d spots left', 'fluent-event'),
+            'Full' => __('Full', 'fluent-event'),
+            'Waitlist' => __('Waitlist', 'fluent-event'),
+            /* translators: the event's waitlist is switched on */
+            'On' => __('On', 'fluent-event'),
+            /* translators: the event's waitlist is switched off */
+            'Off' => __('Off', 'fluent-event'),
+            /* translators: %d is the number of guests on the waitlist */
+            '%d waiting' => __('%d waiting', 'fluent-event'),
+            'Guest count' => __('Guest count', 'fluent-event'),
+            /* translators: guests can see how many are going */
+            'Shown' => __('Shown', 'fluent-event'),
+            /* translators: guests cannot see how many are going */
+            'Hidden' => __('Hidden', 'fluent-event'),
+            'Nobody registers for this event; admins can still add guests.' => __('Nobody registers for this event; admins can still add guests.', 'fluent-event'),
+            'Registration open' => __('Registration open', 'fluent-event'),
+            'Registration not open yet' => __('Registration not open yet', 'fluent-event'),
+            'Registration closed' => __('Registration closed', 'fluent-event'),
+            'Until the event ends' => __('Until the event ends', 'fluent-event'),
+            'The event has ended' => __('The event has ended', 'fluent-event'),
+            /* translators: %s is the date and time registration opens */
+            'Opens %s' => __('Opens %s', 'fluent-event'),
+            /* translators: %s is the date and time registration closes */
+            'Closes %s' => __('Closes %s', 'fluent-event'),
+            /* translators: %s is the date and time registration closed */
+            'Closed %s' => __('Closed %s', 'fluent-event'),
             'Reminder Emails' => __('Reminder Emails', 'fluent-event'),
             'Reminders' => __('Reminders', 'fluent-event'),
             'Reminder time' => __('Reminder time', 'fluent-event'),

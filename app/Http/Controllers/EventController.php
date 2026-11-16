@@ -70,19 +70,46 @@ class EventController extends Controller
                     $query->select(['id', 'title', 'status', 'meta']);
                 },
             ])
-            // The Overview's "N guests", counted as on the list cards.
-            ->withCount('guests')
+            // The Overview's "N guests", counted as on the list cards, and its Registration seats.
+            ->withCount([
+                'guests',
+                'guests as seats_count'      => function ($query) {
+                    $query->whereIn('status', Event::SEAT_STATUSES);
+                },
+                'guests as waitlisted_count' => function ($query) {
+                    $query->where('status', 'waitlisted');
+                },
+            ])
             ->findOrFail($id);
+
+        [$opensAt, $closesAt] = Event::registrationWindow($event);
+        $now = time();
+
+        if ($event->end_at < gmdate(DateTimeHelper::FORMAT)) {
+            $windowState = 'ended';
+        } elseif ($opensAt && $now < $opensAt) {
+            $windowState = 'not_open';
+        } elseif ($closesAt && $now >= $closesAt) {
+            $windowState = 'closed';
+        } else {
+            $windowState = 'open';
+        }
 
         $data = [
             'event'      => $event->append('description'),
             'public_url' => EventPageService::url($event),
+            // Worked out here, so the Overview reads the server's clock, not the browser's. Times are in site time.
+            'registration_window' => [
+                'state'     => $windowState,
+                'opens_at'  => $opensAt ? DateTimeHelper::timestampToSite($opensAt) : null,
+                'closes_at' => $closesAt ? DateTimeHelper::timestampToSite($closesAt) : null,
+            ],
         ];
 
         /**
          * One event, as the admin form and the portal edit page load it, for add-ons to append fields.
          *
-         * @param array $data  ['event' => Event, 'public_url' => string]
+         * @param array $data  ['event' => Event, 'public_url' => string, 'registration_window' => array]
          * @param Event $event
          */
         return apply_filters('fluent_event/event_api_response', $data, $event);
