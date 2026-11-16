@@ -56,12 +56,10 @@
                                         </el-tag>
                                     </div>
 
-                                    <div v-if="event.meta?.entry_type" class="fe-event-overview__badge">
-                                        <span class="fe-event-overview__badge-label">{{ $t('Registration Type') }}</span>
+                                    <div class="fe-event-overview__badge">
+                                        <span class="fe-event-overview__badge-label">{{ $t('Guests') }}</span>
 
-                                        <span class="fe-badge">
-                                            {{ $entryTypeLabel(event.meta.entry_type) }}
-                                        </span>
+                                        <span class="fe-badge">{{ guestCountLabel }}</span>
                                     </div>
                                 </div>
 
@@ -179,6 +177,39 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="fe-event-overview__row">
+                                    <span class="fe-event-overview__icon">
+                                        <el-icon aria-hidden="true"><Ticket /></el-icon>
+                                    </span>
+
+                                    <div>
+                                        <p class="fe-event-overview__row-title">{{ registrationTitle }}</p>
+
+                                        <p class="fe-event-overview__row-text fe-event-overview__notes">
+                                            <template v-for="(note, index) in registrationNotes" :key="note.text">
+                                                <span v-if="index" aria-hidden="true">·</span>
+
+                                                <span class="fe-event-overview__note">
+                                                    {{ note.text }}
+                                                    <el-tag v-if="note.success" type="success" size="small">{{ note.badge }}</el-tag>
+                                                    <span v-else-if="note.badge" class="fe-badge">{{ note.badge }}</span>
+                                                </span>
+                                            </template>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div v-if="windowRow" class="fe-event-overview__row">
+                                    <span class="fe-event-overview__icon">
+                                        <el-icon aria-hidden="true"><Clock /></el-icon>
+                                    </span>
+
+                                    <div>
+                                        <p class="fe-event-overview__row-title">{{ windowRow.title }}</p>
+                                        <p class="fe-event-overview__row-text">{{ windowRow.text }}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -215,7 +246,7 @@
 </template>
 
 <script type="text/javascript">
-    import { ArrowRight, CopyDocument, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { ArrowRight, Clock, CopyDocument, Link, LocationInformation, Ticket, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import Skeleton from '@/components/Skeleton.vue';
@@ -228,9 +259,11 @@
         name: 'EventDetail',
         components: {
             ArrowRight,
+            Clock,
             CopyDocument,
             Link,
             LocationInformation,
+            Ticket,
             TopRight,
             VideoCamera,
             Tabs,
@@ -247,9 +280,90 @@
                 tab: 'overview',
                 event: {},
                 publicUrl: '',
+                registrationWindow: null,
             };
         },
         computed: {
+            // As on the list cards: every guest of the event, from the event's own response.
+            guestCountLabel() {
+                return this.$_n('%d guest', '%d guests', this.event.guests_count || 0);
+            },
+            entryType() {
+                return this.event.meta?.entry_type || 'none';
+            },
+            takesRegistrations() {
+                return ['rsvp', 'open'].includes(this.entryType);
+            },
+            capacity() {
+                return parseInt(this.event.meta?.capacity, 10) || 0;
+            },
+            // Seats are going and checked-in guests, as the capacity counts them.
+            registrationTitle() {
+                if (!this.takesRegistrations) {
+                    return this.$t('No registration');
+                }
+
+                const seats = this.event.seats_count || 0;
+                const type = this.entryType === 'rsvp' ? this.$t('RSVP') : this.$t('Open registration');
+                const going = this.capacity ? this.$t('%1$s of %2$s going', seats, this.capacity) : this.$t('%d going', seats);
+
+                return `${type} · ${going}`;
+            },
+            registrationNotes() {
+                const waiting = this.event.waitlisted_count || 0;
+                // Guests waitlisted before the settings changed are still waiting, so they always show.
+                const waitingNotes = waiting ? [{ text: this.$t('%d waiting', waiting) }] : [];
+
+                if (!this.takesRegistrations) {
+                    return [{ text: this.$t('Nobody registers for this event; admins can still add guests.') }, ...waitingNotes];
+                }
+
+                const notes = [];
+
+                if (this.capacity) {
+                    const left = this.capacity - (this.event.seats_count || 0);
+                    const waitlistOn = this.event.meta?.waitlist === 'yes';
+
+                    notes.push({ text: left > 0 ? this.$_n('%d spot left', '%d spots left', left) : this.$t('Full') });
+                    notes.push({ text: this.$t('Waitlist'), badge: waitlistOn ? this.$t('On') : this.$t('Off'), success: waitlistOn });
+                } else {
+                    notes.push({ text: this.$t('No limit') });
+                }
+
+                notes.push(...waitingNotes);
+
+                const countShown = this.event.meta?.show_guest_count === 'yes';
+
+                notes.push({ text: this.$t('Guest count'), badge: countShown ? this.$t('Shown') : this.$t('Hidden'), success: countShown });
+
+                return notes;
+            },
+            windowRow() {
+                const window = this.registrationWindow;
+
+                if (!this.takesRegistrations || !window) {
+                    return null;
+                }
+
+                if (window.state === 'ended') {
+                    return { title: this.$t('Registration closed'), text: this.$t('The event has ended') };
+                }
+
+                if (window.state === 'closed') {
+                    return { title: this.$t('Registration closed'), text: this.$t('Closed %s', this.$formatDateTime(window.closes_at)) };
+                }
+
+                if (window.state === 'not_open') {
+                    return { title: this.$t('Registration not open yet'), text: this.$t('Opens %s', this.$formatDateTime(window.opens_at)) };
+                }
+
+                return {
+                    title: this.$t('Registration open'),
+                    text: window.closes_at
+                        ? this.$t('Closes %s', this.$formatDateTime(window.closes_at))
+                        : this.$t('Until the event ends'),
+                };
+            },
             tabs() {
                 return [
                     { value: 'overview', label: this.$t('Overview') },
@@ -314,6 +428,7 @@
                     onSuccess: response => {
                         this.event = response.event;
                         this.publicUrl = response.public_url;
+                        this.registrationWindow = response.registration_window || null;
                         this.$changeTitle(this.event.title);
                     },
                     onError: () => {
