@@ -14,4 +14,8 @@ class User extends Model
     protected $table = 'users';
 
     protected $primaryKey = 'ID';
+
+    protected $fillable = [];
+
+    protected $guarded = ['*'];
 }

@@ -16,6 +16,10 @@ class Post extends Model
 
     protected $primaryKey = 'ID';
 
+    protected $fillable = [];
+
+    protected $guarded = ['*'];
+
     protected static function booted()
     {
         static::addGlobalScope('post_type', function ($query) {
