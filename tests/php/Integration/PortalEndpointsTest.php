@@ -82,9 +82,15 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame(200, $this->registerGuest($event, ['website' => 'https://spam.example.test'])['status']);
         $this->assertCount(0, $this->guestsOf($event));
 
-        $this->registerGuest($event);
-        $this->assertSame(422, $this->registerGuest($event, ['name' => 'Someone else'])['status']);
+        $first = $this->registerGuest($event);
+        $again = $this->registerGuest($event, ['name' => 'Someone else']);
+
+        // The same answer as a new registration, so the form does not tell a stranger who registered.
+        $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
+        $this->assertSame($first['data']['message'], $again['data']['message']);
+        $this->assertSame($first['data']['status'], $again['data']['status']);
         $this->assertCount(1, $this->guestsOf($event));
+        $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
     }
 
     public function test_only_events_the_page_opens_take_registrations()

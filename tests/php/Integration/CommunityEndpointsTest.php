@@ -410,10 +410,14 @@ class CommunityEndpointsTest extends IntegrationTestCase
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->asVisitorOnAPublicPortal();
-        $this->registerGuest($event);
+        $first = $this->registerGuest($event);
+        $again = $this->registerGuest($event, ['name' => 'Someone else']);
 
-        $this->assertSame(422, $this->registerGuest($event, ['name' => 'Someone else'])['status']);
+        // The same answer as a new registration, so the form does not tell a stranger who registered.
+        $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
+        $this->assertSame($first['data'], $again['data']);
         $this->assertCount(1, $this->guestsOf($event));
+        $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
     }
 
     public function test_the_visitor_form_is_for_visitors_on_open_events_only()

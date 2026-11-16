@@ -39,6 +39,13 @@ class PortalEventController extends Controller
         }
 
         $data = GuestRequest::sanitize(Arr::only($request->all(), ['name', 'email']));
+
+        // An email already on the event gets the same answer as a new one and saves nothing, so the
+        // form does not tell a stranger who registered.
+        if (RegistrationService::hasGuestEmail($event, (string) Arr::get($data, 'email', ''))) {
+            return $this->registered($event, 'going');
+        }
+
         $this->validate(
             $data,
             Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
@@ -51,13 +58,18 @@ class PortalEventController extends Controller
 
         RegistrationService::queueEmail($guest, null);
 
+        return $this->registered($event, $guest->status);
+    }
+
+    private function registered(Event $event, $status)
+    {
         $seats = EventService::seatCounts([$event->id]);
         // A visitor has no account to read their row back by, so the card is drawn as going.
-        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false);
+        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $status, false, false);
 
         return [
             'message' => __('You are registered.', 'fluent-event'),
-            'status'  => $guest->status,
+            'status'  => $status,
             'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), true),
         ];
     }
