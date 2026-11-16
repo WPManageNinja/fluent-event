@@ -232,6 +232,19 @@ class CommunityEventController extends Controller
         }
 
         $data = GuestRequest::sanitize(Arr::only($request->all(), ['name', 'email']));
+
+        // Validate first, so bad input fails alike for every email.
+        $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
+
+        // A repeated email gets the new-registration answer, saving nothing.
+        if (RegistrationService::hasGuestEmail($event, $data['email'])) {
+            return [
+                'message'            => __('You are registered.', 'fluent-event'),
+                'status'             => 'going',
+                'online_meeting_url' => self::meetingUrlFor($event, 'going'),
+            ];
+        }
+
         $this->validate(
             $data,
             Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
