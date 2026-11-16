@@ -37,32 +37,6 @@
 
             <h2 class="fe-event-detail__title">{{ event.title }}</h2>
 
-            <div v-if="event.calendar" class="fe-event-detail__row">
-                <span class="fe-event-detail__row-icon">
-                    <span
-                        class="fe-color-swatch fe-event-detail__swatch"
-                        :style="{ background: calendarColor }"
-                    ></span>
-                </span>
-
-                <div>
-                    <router-link
-                        class="fe-event-detail__row-link-title"
-                        :to="{ name: 'calendar_detail', params: { id: event.calendar.id } }"
-                        :title="$t('Open %s', event.calendar.title)"
-                        @click="close"
-                    >
-                        <span class="fe-event-detail__row-title">{{ event.calendar.title }}</span>
-
-                        <el-icon class="fe-event-detail__row-link-icon" aria-hidden="true">
-                            <TopRight />
-                        </el-icon>
-                    </router-link>
-
-                    <p class="fe-event-detail__row-text">{{ $t('Calendar') }}</p>
-                </div>
-            </div>
-
             <div class="fe-event-detail__row">
                 <div class="fe-event-detail__date-box">
                     <span class="fe-event-detail__date-month">{{ month }}</span>
@@ -104,6 +78,32 @@
                     <p v-if="event.meta?.address" class="fe-event-detail__row-text fe-event-detail__row-text--address">
                         {{ event.meta.address }}
                     </p>
+                </div>
+            </div>
+
+            <div v-if="event.calendar" class="fe-event-detail__row">
+                <span class="fe-event-detail__row-icon">
+                    <span
+                        class="fe-color-swatch fe-event-detail__swatch"
+                        :style="{ background: calendarColor }"
+                    ></span>
+                </span>
+
+                <div>
+                    <router-link
+                        class="fe-event-detail__row-link-title"
+                        :to="{ name: 'calendar_detail', params: { id: event.calendar.id } }"
+                        :title="$t('Open %s', event.calendar.title)"
+                        @click="close"
+                    >
+                        <span class="fe-event-detail__row-title">{{ event.calendar.title }}</span>
+
+                        <el-icon class="fe-event-detail__row-link-icon" aria-hidden="true">
+                            <TopRight />
+                        </el-icon>
+                    </router-link>
+
+                    <p class="fe-event-detail__row-text">{{ $t('Calendar') }}</p>
                 </div>
             </div>
 
