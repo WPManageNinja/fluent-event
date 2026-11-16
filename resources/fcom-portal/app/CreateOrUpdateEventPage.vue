@@ -258,7 +258,7 @@
                             </figcaption>
                             <img
                                 class="fe-start-display-help__image"
-                                :src="startDisplayExamples[option.value]"
+                                :src="exampleImage(option.value)"
                                 :alt="$t('%s on the event page', option.label)"
                             >
                         </figure>
@@ -531,6 +531,10 @@ export default {
         this.$refs.titleInput.focus();
     },
     methods: {
+        // The dark screenshots while the page is dark; read each render, so the dialog follows a theme switch.
+        exampleImage(value) {
+            return this.startDisplayExamples[document.documentElement.classList.contains('dark') ? `${value}_dark` : value];
+        },
         // Checked before fcom's composer is touched, since opening it moves the focus to its title; the server still validates.
         submit() {
             const error = this.validateEvent();

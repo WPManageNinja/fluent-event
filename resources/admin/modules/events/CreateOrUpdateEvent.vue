@@ -183,7 +183,7 @@
                                     </figcaption>
                                     <img
                                         class="fe-start-display-help__image"
-                                        :src="appVars.start_display_examples[option.value]"
+                                        :src="exampleImage(option.value)"
                                         :alt="$t('%s on the event page', option.label)"
                                     >
                                 </figure>
@@ -570,6 +570,10 @@
             },
         },
         methods: {
+            // The dark screenshots while the page is dark; read each render, so the dialog follows a theme switch.
+            exampleImage(value) {
+                return this.appVars.start_display_examples[document.documentElement.classList.contains('dark') ? `${value}_dark` : value];
+            },
             initForm(event = null) {
                 const meta = event?.meta || {};
                 const start = event ? dayjs(event.start_at_local) : dayjs().add(1, 'hour').startOf('hour');

@@ -374,6 +374,8 @@ JS;
             'start_display_examples' => [
                 'relative'  => Enqueue::getStaticFilePath('images/start-display-relative.png'),
                 'countdown' => Enqueue::getStaticFilePath('images/start-display-countdown.png'),
+                'relative_dark'  => Enqueue::getStaticFilePath('images/start-display-relative-dark.png'),
+                'countdown_dark' => Enqueue::getStaticFilePath('images/start-display-countdown-dark.png'),
             ],
             'me'            => [
                 'id'          => $authUser->ID ?? null,
