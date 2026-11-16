@@ -3420,11 +3420,54 @@
         line-height: 1.5;
         color: var(--fe-secondary-text, #525866);
     }
+}
 
-    &__image {
-        display: block;
-        width: 100%;
-        max-width: 320px;
-        height: auto;
+// StartDisplayPreview: a choice drawn as it shows on the event page.
+.fe-start-preview {
+    max-width: 320px;
+    padding: var(--fe-space-4, 16px);
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius-lg, 12px);
+
+    &__status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+        background: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__countdown {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--fe-space-2, 8px);
+    }
+
+    &__unit {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        padding: 8px 4px;
+        border-radius: var(--fe-radius, 8px);
+        background: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__value {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__label {
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        text-transform: uppercase;
+        color: var(--fe-secondary-text, #525866);
     }
 }

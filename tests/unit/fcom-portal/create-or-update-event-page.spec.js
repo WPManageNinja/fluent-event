@@ -416,5 +416,16 @@ describe('CreateOrUpdateEventPage', () => {
             expect(compile('resources/fcom-portal/fcom-portal.scss').css)
                 .toMatch(/\.fe-start-display-help\.el-dialog\s*\{\s*max-width:\s*calc\(100vw - 24px\)/);
         });
+
+        // Drawn with the page's own markup, so the plugin ships no screenshots and the help follows the theme.
+        it('draws each choice as it shows on the event page', async () => {
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, {}, { ElDialog: { template: '<div><slot /></div>' } });
+            const previews = wrapper.findAll('.fe-start-display-help__item .fe-start-preview');
+
+            expect(previews.map((preview) => preview.attributes('aria-label'))).toEqual(['Time Left on the event page', 'Countdown on the event page']);
+            expect(previews[0].find('.fe-start-preview__status').text()).toBe('Starts in 2 days');
+            expect(previews[1].findAll('.fe-start-preview__label').map((label) => label.text())).toEqual(['Days', 'Hours', 'Minutes', 'Seconds']);
+            expect(wrapper.find('.fe-start-display-help__item img').exists()).toBe(false);
+        });
     });
 });

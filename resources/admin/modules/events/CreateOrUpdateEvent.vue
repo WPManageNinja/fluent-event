@@ -171,6 +171,7 @@
                                 :title="$t('Start Time Display')"
                                 width="560px"
                                 append-to-body
+                                destroy-on-close
                             >
                                 <figure
                                     v-for="option in startDisplays"
@@ -181,11 +182,11 @@
                                         <span class="fe-start-display-help__title">{{ option.label }}</span>
                                         <span class="fe-start-display-help__text">{{ option.details }}</span>
                                     </figcaption>
-                                    <img
-                                        class="fe-start-display-help__image"
-                                        :src="startDisplayExample(option.value)"
-                                        :alt="$t('%s on the event page', option.label)"
-                                    >
+                                    <StartDisplayPreview
+                                        :value="option.value"
+                                        role="img"
+                                        :aria-label="$t('%s on the event page', option.label)"
+                                    />
                                 </figure>
                             </el-dialog>
                         </div>
@@ -435,11 +436,11 @@
 <script type="text/javascript">
     import dayjs from 'dayjs';
     import { MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
-    import { startDisplayExample } from '@/utils/startDisplayExamples';
     import MarkdownEditor from '@/components/MarkdownEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     const config = window.fluentEventAdmin;
@@ -456,6 +457,7 @@
             ErrorState,
             MediaPicker,
             SegmentedSwitch,
+            StartDisplayPreview,
             Skeleton,
         },
         data() {
@@ -571,7 +573,6 @@
             },
         },
         methods: {
-            startDisplayExample,
             initForm(event = null) {
                 const meta = event?.meta || {};
                 const start = event ? dayjs(event.start_at_local) : dayjs().add(1, 'hour').startOf('hour');
