@@ -108,6 +108,29 @@ Not in this version. Both are on the roadmap.
 4. Optional: add the `[fluent_events]` shortcode or the Fluent Events block to a page to list your events.
 5. Optional: if you use FluentCommunity, turn on FluentEvent in FluentCommunity's Features settings.
 
+== Source code ==
+
+The plugin includes its full, uncompiled source code in the `resources/` folder: the Vue, JavaScript and SCSS files. `package.json`, `package-lock.json`, `vite.config.js` and the scripts in `resources/vite/` hold the build setup.
+
+The files in `assets/` are built from this source. To build them again:
+
+1. Install Node.js 18 or later.
+2. In the plugin folder, run `npm ci`.
+3. Run `npm run build`.
+
+== External services ==
+
+FluentEvent connects to one external service, and only when a person clicks a link.
+
+= Google Calendar =
+
+The event page and the registration confirmation show an "Add to Google Calendar" link. FluentEvent sends no data to Google on its own. When a person clicks the link, their browser opens Google Calendar with the event's title, start and end time, description, location and page URL in the link, so Google can create the calendar entry.
+
+* Terms of Service: https://policies.google.com/terms
+* Privacy Policy: https://policies.google.com/privacy
+
+The other "Add to calendar" option downloads an .ics file that the site creates. It sends no data to any service.
+
 == Changelog ==
 
 = 1.0.5 (Date: Nov 16, 2026) =
@@ -129,7 +152,6 @@ Not in this version. Both are on the roadmap.
 - Fixed: PHP Deprecation Notice on the Admin Page
 
 = 1.0.1 (Date: Nov 13, 2026) =
-- Added: Automatic Plugin Updates With Checksum Verification
 - Added: RTL Language Support
 - Added: View in FluentEvent Link in the Community Event Menu
 
