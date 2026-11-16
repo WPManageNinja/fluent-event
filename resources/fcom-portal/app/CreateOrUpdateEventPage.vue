@@ -258,7 +258,7 @@
                             </figcaption>
                             <img
                                 class="fe-start-display-help__image"
-                                :src="exampleImage(option.value)"
+                                :src="startDisplayExample(option.value)"
                                 :alt="$t('%s on the event page', option.label)"
                             >
                         </figure>
@@ -373,6 +373,7 @@ import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+import { startDisplayExample } from '@/utils/startDisplayExamples';
 import { dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
@@ -501,9 +502,6 @@ export default {
                 },
             ];
         },
-        startDisplayExamples() {
-            return portalVars().start_display_examples || {};
-        },
         entryTypes() {
             return [
                 { value: 'rsvp', label: this.$t('RSVP'), hint: this.$t('Logged-in members say whether they are going.') },
@@ -531,10 +529,7 @@ export default {
         this.$refs.titleInput.focus();
     },
     methods: {
-        // The dark screenshots while the page is dark; read each render, so the dialog follows a theme switch.
-        exampleImage(value) {
-            return this.startDisplayExamples[document.documentElement.classList.contains('dark') ? `${value}_dark` : value];
-        },
+        startDisplayExample,
         // Checked before fcom's composer is touched, since opening it moves the focus to its title; the server still validates.
         submit() {
             const error = this.validateEvent();

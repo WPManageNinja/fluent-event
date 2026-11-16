@@ -183,7 +183,7 @@
                                     </figcaption>
                                     <img
                                         class="fe-start-display-help__image"
-                                        :src="exampleImage(option.value)"
+                                        :src="startDisplayExample(option.value)"
                                         :alt="$t('%s on the event page', option.label)"
                                     >
                                 </figure>
@@ -435,6 +435,7 @@
 <script type="text/javascript">
     import dayjs from 'dayjs';
     import { MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
+    import { startDisplayExample } from '@/utils/startDisplayExamples';
     import MarkdownEditor from '@/components/MarkdownEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
@@ -570,10 +571,7 @@
             },
         },
         methods: {
-            // The dark screenshots while the page is dark; read each render, so the dialog follows a theme switch.
-            exampleImage(value) {
-                return this.appVars.start_display_examples[document.documentElement.classList.contains('dark') ? `${value}_dark` : value];
-            },
+            startDisplayExample,
             initForm(event = null) {
                 const meta = event?.meta || {};
                 const start = event ? dayjs(event.start_at_local) : dayjs().add(1, 'hour').startOf('hour');

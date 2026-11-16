@@ -142,6 +142,8 @@ export default defineConfig(({ mode, command }) => {
         server: {
             port: devPort,
             strictPort: true,
+            // Imported images and fonts load from the dev server, not the WordPress site the page is on.
+            origin: `http://localhost:${devPort}`,
             cors: {
                 origin: '*',
                 methods: ['GET'],
