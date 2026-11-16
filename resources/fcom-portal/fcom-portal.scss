@@ -2453,7 +2453,9 @@
         letter-spacing: 0.02em;
         white-space: nowrap;
         text-transform: uppercase;
-        color: var(--fcom-secondary-text, #525866);
+        // Half way to the primary text: the default dark skin's secondary text on a tile is 3.61:1, too faint at 9px.
+        color: var(--fcom-primary-text, #19283a);
+        color: color-mix(in srgb, var(--fcom-primary-text, #19283a) 50%, var(--fcom-secondary-text, #525866));
     }
 }
 
