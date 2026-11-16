@@ -39,11 +39,6 @@ return function($file) {
             do_action('fluent_event/loaded', $app);
         });
 
-        // Absent from the WordPress.org build (`./build.sh --wporg`), which WordPress.org updates.
-        if (class_exists(\FluentEvent\App\Services\PluginManager\PluginUpdater::class)) {
-            \FluentEvent\App\Services\PluginManager\PluginUpdater::register($file);
-        }
-
         return $app;
 
     } catch (Throwable $e) {
