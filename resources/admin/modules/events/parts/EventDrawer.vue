@@ -107,34 +107,52 @@
                 </div>
             </div>
 
-            <!-- Links, so a modified click or the context menu can open them in a new tab. -->
-            <el-button
-                class="fe-event-detail__action"
-                type="primary"
-                tag="router-link"
-                :to="{ name: 'event_detail', params: { id: event.id } }"
-                @click="close"
-            >
-                {{ $t('View Full Details') }}
-            </el-button>
+            <div v-if="publicUrl" class="fe-event-detail__row">
+                <span class="fe-event-detail__row-icon">
+                    <el-icon aria-hidden="true"><Link /></el-icon>
+                </span>
 
-            <div class="fe-event-detail__shortcuts">
+                <div class="fe-event-detail__public">
+                    <p class="fe-event-detail__row-title">{{ $t('Public Page') }}</p>
+
+                    <div class="fe-event-detail__public-link">
+                        <a
+                            class="fe-event-detail__row-link"
+                            :href="publicUrl"
+                            :title="publicUrl"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            {{ publicUrl }}
+                        </a>
+
+                        <el-button
+                            link
+                            :aria-label="$t('Copy Link')"
+                            :title="$t('Copy Link')"
+                            @click="copyPublicUrl"
+                        >
+                            <el-icon><CopyDocument /></el-icon>
+                        </el-button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Links, so a modified click or the context menu can open them in a new tab. -->
+            <div class="fe-event-detail__actions">
+                <el-button
+                    type="primary"
+                    tag="router-link"
+                    :to="{ name: 'event_detail', params: { id: event.id } }"
+                    @click="close"
+                >
+                    {{ $t('View Full Details') }}
+                </el-button>
+
                 <el-button tag="router-link" :to="{ name: 'event_edit', params: { id: event.id } }" @click="close">
                     <el-icon aria-hidden="true"><EditPen /></el-icon>
                     <span>{{ $t('Edit Event') }}</span>
                 </el-button>
-
-                <template v-if="publicUrl">
-                    <el-button tag="a" :href="publicUrl" target="_blank" rel="noopener">
-                        <el-icon aria-hidden="true"><TopRight /></el-icon>
-                        <span>{{ $t('Public Page') }}</span>
-                    </el-button>
-
-                    <el-button @click="copyPublicUrl">
-                        <el-icon aria-hidden="true"><CopyDocument /></el-icon>
-                        <span>{{ $t('Copy Link') }}</span>
-                    </el-button>
-                </template>
             </div>
 
             <div v-if="loadingDescription || description" class="fe-event-detail__section">
@@ -148,7 +166,7 @@
 </template>
 
 <script type="text/javascript">
-    import { CopyDocument, EditPen, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { CopyDocument, EditPen, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
     import ErrorState from '@/components/ErrorState.vue';
@@ -162,6 +180,7 @@
             Skeleton,
             CopyDocument,
             EditPen,
+            Link,
             LocationInformation,
             TopRight,
             VideoCamera,

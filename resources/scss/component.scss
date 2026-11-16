@@ -3148,22 +3148,39 @@
         color: var(--fe-wp-link, #2271b1);
     }
 
-    &__action {
-        width: 100%;
-        margin-top: var(--fe-space-5, 20px);
+    // Lets the row's text column shrink, so a long link can truncate.
+    &__public {
+        min-width: 0;
     }
 
-    // Edit, and for an event with a public page, open and copy it: one row, stacked on a phone.
-    &__shortcuts {
-        display: grid;
-        grid-auto-columns: minmax(0, 1fr);
-        grid-auto-flow: column;
-        gap: var(--fe-space-2, 8px);
-        margin-top: var(--fe-space-2, 8px);
+    // The public link and its copy button on one line; a long link ends in an ellipsis.
+    &__public-link {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-1, 4px);
+        margin-top: 2px;
 
-        @media screen and (max-width: 575px) {
-            grid-auto-flow: row;
+        .fe-event-detail__row-link {
+            min-width: 0;
+            margin-top: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
+
+        // Icon-sized: the admin's 36px button height would push the line away from its title.
+        .el-button {
+            flex-shrink: 0;
+            height: auto;
+            padding: 0;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px);
+        margin-top: var(--fe-space-5, 20px);
 
         .el-button + .el-button {
             margin-left: 0;

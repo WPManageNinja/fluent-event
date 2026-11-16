@@ -121,14 +121,14 @@ describe('EventDrawer', () => {
         expect(wrapper.find('.fe-event-detail__description').html()).toContain('<p>Bring snacks</p>');
     });
 
-    describe('shortcuts', () => {
+    describe('public page and actions', () => {
         const loaded = (status, calendarStatus) => ({
             event: { id: 1, status, calendar: { status: calendarStatus }, description: '' },
             public_url: 'https://site.test/events/meetup/'
         });
-        const shortcuts = wrapper => wrapper.findAll('.fe-event-detail__shortcuts button').map(button => button.text());
+        const publicLink = wrapper => wrapper.find('.fe-event-detail__public-link');
 
-        it('opens and copies the public page of a public or unlisted event in a public calendar', async () => {
+        it('shows and copies the public page of a public or unlisted event in a public calendar', async () => {
             const writeText = vi.fn().mockResolvedValue();
             Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
             Rest.get.mockResolvedValue(loaded('unlisted', 'public'));
@@ -136,11 +136,11 @@ describe('EventDrawer', () => {
             const wrapper = drawer();
             await flushPromises();
 
-            expect(shortcuts(wrapper)).toEqual(['Edit Event', 'Public Page', 'Copy Link']);
-            const [, open, copy] = wrapper.findAll('.fe-event-detail__shortcuts button');
-            expect(open.attributes()).toMatchObject({ href: 'https://site.test/events/meetup/', target: '_blank' });
+            const link = publicLink(wrapper).find('a');
+            expect(link.text()).toBe('https://site.test/events/meetup/');
+            expect(link.attributes()).toMatchObject({ href: 'https://site.test/events/meetup/', target: '_blank' });
 
-            await copy.trigger('click');
+            await publicLink(wrapper).find('button').trigger('click');
             expect(writeText).toHaveBeenCalledWith('https://site.test/events/meetup/');
         });
 
@@ -148,13 +148,13 @@ describe('EventDrawer', () => {
             ['a private event', 'private', 'public'],
             ['a draft', 'draft', 'public'],
             ['an event in a private calendar', 'public', 'private']
-        ])('offers only Edit for %s, which has no public page', async (_, status, calendarStatus) => {
+        ])('leaves the public page out for %s, which has none', async (_, status, calendarStatus) => {
             Rest.get.mockResolvedValue(loaded(status, calendarStatus));
 
             const wrapper = drawer();
             await flushPromises();
 
-            expect(shortcuts(wrapper)).toEqual(['Edit Event']);
+            expect(publicLink(wrapper).exists()).toBe(false);
         });
 
         it('links the full page and the edit page, so either opens in a new tab too, and closes on a click', async () => {
@@ -163,8 +163,9 @@ describe('EventDrawer', () => {
             const wrapper = drawer();
             await flushPromises();
 
-            const view = wrapper.find('.fe-event-detail__action');
-            const edit = wrapper.find('.fe-event-detail__shortcuts button');
+            const [view, edit] = wrapper.findAll('.fe-event-detail__actions button');
+            expect(view.text()).toBe('View Full Details');
+            expect(edit.text()).toBe('Edit Event');
             expect(JSON.parse(view.attributes('data-to'))).toEqual({ name: 'event_detail', params: { id: 1 } });
             expect(JSON.parse(edit.attributes('data-to'))).toEqual({ name: 'event_edit', params: { id: 1 } });
 
