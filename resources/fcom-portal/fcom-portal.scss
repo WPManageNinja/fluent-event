@@ -1588,6 +1588,12 @@
         --el-date-editor-width: 130px;
     }
 
+    // fcom's theme gives every `li` a 6px bottom margin; Element Plus scrolls the spinner by a row's CSS
+    // height, so the rows drifted off the selection band.
+    &__time-pop .el-time-spinner__item {
+        margin: 0;
+    }
+
     // Spans the date and time inputs above it.
     &__timezone.el-select {
         width: 362px;

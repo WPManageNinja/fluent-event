@@ -200,6 +200,7 @@
                             <el-time-picker
                                 v-model="event[bound.timeKey]"
                                 class="fe-create-event__time"
+                                popper-class="fe-create-event__time-pop"
                                 :format="timeFormat"
                                 value-format="HH:mm"
                                 :clearable="false"
