@@ -3,6 +3,34 @@
 // card, and this posts the form and swaps in the card it gets back. A page can hold several events and lists
 // (shortcodes, blocks), so each step acts on the card or list it was started from.
 
+import { padPart, startCountdown } from '@/utils/countdown';
+
+// An event page's countdown to its start; at 0 the "Happening now" badge takes its place.
+export function startCountdowns(root = document) {
+    root.querySelectorAll('[data-fe-countdown]').forEach((countdown) => {
+        const values = countdown.querySelectorAll('[data-unit]');
+        let stop = () => {};
+
+        stop = startCountdown(countdown.dataset.feCountdown * 1000, (parts) => {
+            // A registration swaps the card, and its countdown with it.
+            if (!countdown.isConnected) {
+                return stop();
+            }
+
+            values.forEach((value) => {
+                value.textContent = padPart(parts[value.dataset.unit]);
+            });
+
+            if (parts.done) {
+                const badge = document.createElement('span');
+                badge.className = 'fe-live-badge';
+                badge.textContent = countdown.dataset.liveLabel;
+                countdown.replaceWith(badge);
+            }
+        });
+    });
+}
+
 // The endpoint's own message, else the first validation error: the framework sends those keyed by
 // field then rule, at the top level.
 export function errorMessage(data, fallback) {
@@ -49,6 +77,7 @@ function swap(card, html) {
     const next = document.querySelectorAll('[data-fe-card]')[index];
     const focus = next.querySelector('[data-fe-focus]');
     focus && focus.focus();
+    startCountdowns(next);
 
     return next;
 }
@@ -225,3 +254,4 @@ window.addEventListener('resize', () => {
 
 document.querySelectorAll('[data-fe-chips]').forEach((root) => fitChips(root));
 revealActiveChip();
+startCountdowns();

@@ -90,6 +90,8 @@ class EventPageService
             'phase'            => $phase,
             /* translators: %s: time until the event starts, e.g. "3 days" */
             'status_label'     => $phase === 'ended' ? __('Ended', 'fluent-event') : sprintf(__('Starts in %s', 'fluent-event'), human_time_diff(time(), $start)),
+            // The start as a Unix timestamp when the host chose a countdown; portal.js ticks it down.
+            'countdown_to'     => $phase === 'upcoming' && $formatted['start_display'] === 'countdown' ? $start : null,
             /* translators: %s: number of guests going */
             'count_label'      => $formatted['guest_count'] === null ? '' : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
             'meeting_link'     => $meetingLink,

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { errorMessage, submitForm, showEvents, fitChips } from '../../../resources/portal/portal';
+import { errorMessage, submitForm, showEvents, fitChips, startCountdowns } from '../../../resources/portal/portal';
 
 const respond = (body, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -381,5 +381,32 @@ describe('several events and lists on one page', () => {
 
         await vi.waitFor(() => expect(document.querySelectorAll('.events')[1].textContent).toBe('Second, filtered'));
         expect(document.querySelectorAll('.events')[0].textContent).toBe('First list');
+    });
+});
+
+describe('countdown to the start', () => {
+    afterEach(() => {
+        vi.useRealTimers();
+        document.body.innerHTML = '';
+    });
+
+    it('ticks down each second and gives way to the "Happening now" badge at 0', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(0);
+        document.body.innerHTML = `
+            <div data-fe-countdown="2" data-live-label="Happening now">
+                <span data-unit="days"></span><span data-unit="hours"></span><span data-unit="minutes"></span><span data-unit="seconds"></span>
+            </div>`;
+        const values = () => [...document.querySelectorAll('[data-unit]')].map((value) => value.textContent);
+
+        startCountdowns();
+        expect(values()).toEqual(['00', '00', '00', '02']);
+
+        vi.advanceTimersByTime(1000);
+        expect(values()).toEqual(['00', '00', '00', '01']);
+
+        vi.advanceTimersByTime(1000);
+        expect(document.querySelector('[data-fe-countdown]')).toBeNull();
+        expect(document.querySelector('.fe-live-badge').textContent).toBe('Happening now');
     });
 });

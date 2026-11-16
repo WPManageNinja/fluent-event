@@ -2395,3 +2395,36 @@
         color: var(--fcom-danger, #d63638);
     }
 }
+
+// The event page's countdown to the start, when the host picked it over "Starts in…".
+.fe-countdown {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+
+    &__unit {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        padding: 8px 4px;
+        border-radius: 8px;
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__value {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__label {
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        text-transform: uppercase;
+        color: var(--fcom-secondary-text, #525866);
+    }
+}

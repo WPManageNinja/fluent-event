@@ -91,6 +91,17 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringContainsString('Add to calendar', $none);
     }
 
+    // The host may count down to the start instead of "Starts in …"; portal.js ticks it from the start's timestamp.
+    public function test_an_upcoming_event_counts_down_to_its_start_when_the_host_chose_it()
+    {
+        $countdown = $this->createEvent([], ['start_display' => 'countdown']);
+        $body = $this->page($countdown)['body'];
+
+        $this->assertStringContainsString('data-fe-countdown="' . strtotime($countdown->start_at . ' UTC') . '"', $body);
+        $this->assertStringNotContainsString('Starts in', $body);
+        $this->assertStringContainsString('Starts in', $this->page($this->createEvent())['body']);
+    }
+
     // The page doesn't know its viewers: a going member and staff get the visitor's card, with nothing prefilled.
     public function test_logged_in_viewers_see_the_page_as_a_visitor()
     {
