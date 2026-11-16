@@ -4,7 +4,7 @@ Tags: events, event calendar, rsvp, event registration, fluentcommunity
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -109,6 +109,13 @@ Not in this version. Both are on the roadmap.
 5. Optional: if you use FluentCommunity, turn on FluentEvent in FluentCommunity's Features settings.
 
 == Changelog ==
+
+= 1.0.2 (Date: Nov 15, 2026) =
+- Fixed: Unstyled Flash When the Admin Page Opens
+- Fixed: Tables Not Created on Older MySQL and MariaDB
+- Fixed: Missing Tables Not Created Again After an Update
+- Fixed: Community Event Post Left Without Its Event
+- Fixed: Event Cover Missing in Community Card View
 
 = 1.0.1 (Date: Nov 13, 2026) =
 - Added: Automatic Plugin Updates With Checksum Verification

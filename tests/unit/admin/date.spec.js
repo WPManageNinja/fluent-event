@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { mount } from '@vue/test-utils';
 import dayjs from 'dayjs';
-import { DAY_MS, toUtcDay, toDayKey, daySpan, lastDay, icsStamp, buildIcs, downloadIcs } from '@/utils/date';
+import es from 'dayjs/locale/es';
+import { ElDatePicker, provideGlobalConfig } from 'element-plus';
+import en from 'element-plus/dist/locale/en.mjs';
+import { DAY_MS, toUtcDay, toDayKey, daySpan, lastDay, icsStamp, buildIcs, downloadIcs, applyWeekStart, borrowLocale } from '@/utils/date';
 
 const encoder = new TextEncoder();
 const bytes = (line) => encoder.encode(line).length;
@@ -169,5 +173,39 @@ describe('downloadIcs', () => {
         expect(clicked.download).toBe('meetup.ics');
         expect(clicked.href).toBe('blob:fake-ics');
         expect(revoke).toHaveBeenCalledWith('blob:fake-ics');
+    });
+});
+
+describe('borrowLocale', () => {
+    // Spanish data under a name our dayjs has never seen, so only borrowLocale() can have registered it.
+    const host = { locale: () => 'xx', Ls: { xx: { ...es, name: 'xx' } } };
+
+    afterEach(() => {
+        dayjs.updateLocale('en', { weekStart: 0 });
+    });
+
+    it("lends our dayjs the host's language, keeping the WordPress week start", () => {
+        applyWeekStart(6);
+
+        expect(borrowLocale(host)).toBe('xx');
+        expect(dayjs('2026-11-14').locale('xx').format('Do MMMM, YYYY')).toBe('14º noviembre, 2026');
+        expect(dayjs('2026-11-14').locale('xx').$locale().weekStart).toBe(6);
+    });
+
+    it('stays on English when the host has no language data for its locale', () => {
+        expect(borrowLocale({ locale: () => 'zz', Ls: {} })).toBe('en');
+    });
+
+    it('makes Element Plus write a picked date in that language', () => {
+        const name = borrowLocale(host);
+        const wrapper = mount(ElDatePicker, {
+            props: { modelValue: '2026-11-14', type: 'date', format: 'Do MMMM, YYYY', valueFormat: 'YYYY-MM-DD' },
+            global: {
+                stubs: { ElInput: false, ElIcon: false, ElTooltip: false },
+                plugins: [{ install: (app) => provideGlobalConfig({ locale: { ...en, name } }, app) }]
+            }
+        });
+
+        expect(wrapper.find('input').element.value).toBe('14º noviembre, 2026');
     });
 });

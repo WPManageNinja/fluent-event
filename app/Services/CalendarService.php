@@ -78,7 +78,9 @@ class CalendarService
 
     public static function uniqueSlug($slug, $ignoreId = 0)
     {
-        $base = sanitize_title($slug) ?: 'calendar';
+        // The column holds 191 characters, and a community space slug can be longer. Room is left for "-N",
+        // and a cut through a %-encoded character drops its partial escape.
+        $base = rtrim(preg_replace('/%[0-9a-f]?$/i', '', substr(sanitize_title($slug), 0, 180)), '-') ?: 'calendar';
         $slug = $base;
         $suffix = 2;
 

@@ -29,7 +29,7 @@ class GuestRequest extends BaseRequest
     ];
     const RULES = [
         'name'   => 'required|string|max:255',
-        'email'  => 'required|email|max:192',
+        'email'  => 'required|email|max:191',
         'status' => 'nullable|string|in:' . Guest::STATUSES,
         'user_id' => 'nullable|integer|exists:users,ID',
     ];
@@ -37,7 +37,7 @@ class GuestRequest extends BaseRequest
     public static function createRules($eventId)
     {
         return array_merge(self::RULES, [
-            'email'   => 'required|email|max:192|unique:fe_guests,email,NULL,id,event_id,' . $eventId,
+            'email'   => 'required|email|max:191|unique:fe_guests,email,NULL,id,event_id,' . $eventId,
             'user_id' => 'nullable|integer|exists:users,ID|unique:fe_guests,user_id,NULL,id,event_id,' . $eventId,
         ]);
     }
@@ -47,7 +47,7 @@ class GuestRequest extends BaseRequest
         // Updates are partial, so name and email are required only when sent.
         return array_merge(self::RULES, [
             'name'    => 'sometimes|required|string|max:255',
-            'email'   => 'sometimes|required|email|max:192|unique:fe_guests,email,' . $currentGuestId . ',id,event_id,' . $eventId,
+            'email'   => 'sometimes|required|email|max:191|unique:fe_guests,email,' . $currentGuestId . ',id,event_id,' . $eventId,
             'user_id' => 'nullable|integer|exists:users,ID|unique:fe_guests,user_id,' . $currentGuestId . ',id,event_id,' . $eventId,
         ]);
     }
@@ -60,7 +60,7 @@ class GuestRequest extends BaseRequest
             'name.max'       => __('Name cannot exceed 255 characters.', 'fluent-event'),
             'email.required' => __('Email is required.', 'fluent-event'),
             'email.email'    => __('Please provide a valid email address.', 'fluent-event'),
-            'email.max'      => __('Email cannot exceed 192 characters.', 'fluent-event'),
+            'email.max'      => __('Email cannot exceed 191 characters.', 'fluent-event'),
             'email.unique'   => __('A guest with this email is already on this event.', 'fluent-event'),
             'user_id.integer' => __('The WordPress user must be a valid id.', 'fluent-event'),
             'user_id.exists' => __('The selected WordPress user no longer exists.', 'fluent-event'),
