@@ -2390,7 +2390,8 @@
         color: var(--fe-secondary-text, #525866);
     }
 
-    &__venue {
+    &__venue,
+    &__guests {
         display: inline-flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);

@@ -63,6 +63,11 @@
                     </el-icon>
                     {{ isOnline ? $t('Online') : $t('In Person') }}
                 </span>
+
+                <span class="fe-event-card__guests">
+                    <el-icon aria-hidden="true"><User /></el-icon>
+                    {{ $_n('%d guest', '%d guests', event.guests_count || 0) }}
+                </span>
             </div>
 
             <div class="fe-event-card__actions">
@@ -100,7 +105,7 @@
 </template>
 
 <script type="text/javascript">
-    import { Calendar, EditPen, MapLocation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { Calendar, EditPen, MapLocation, TopRight, User, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan } from '@/utils/date';
 
     export default {
@@ -110,6 +115,7 @@
             EditPen,
             MapLocation,
             TopRight,
+            User,
             VideoCamera,
         },
         props: {
