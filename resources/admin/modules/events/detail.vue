@@ -63,6 +63,12 @@
                                             {{ $entryTypeLabel(event.meta.entry_type) }}
                                         </span>
                                     </div>
+
+                                    <div class="fe-event-overview__badge">
+                                        <span class="fe-event-overview__badge-label">{{ $t('Guests') }}</span>
+
+                                        <span class="fe-badge">{{ guestCountLabel }}</span>
+                                    </div>
                                 </div>
 
                                 <div class="fe-event-overview__row">
@@ -250,6 +256,10 @@
             };
         },
         computed: {
+            // As on the list cards: every guest of the event, from the event's own response.
+            guestCountLabel() {
+                return this.$_n('%d guest', '%d guests', this.event.guests_count || 0);
+            },
             tabs() {
                 return [
                     { value: 'overview', label: this.$t('Overview') },

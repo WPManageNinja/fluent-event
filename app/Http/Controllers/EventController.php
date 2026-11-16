@@ -70,6 +70,8 @@ class EventController extends Controller
                     $query->select(['id', 'title', 'status', 'meta']);
                 },
             ])
+            // The Overview's "N guests", counted as on the list cards.
+            ->withCount('guests')
             ->findOrFail($id);
 
         $data = [
