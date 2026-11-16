@@ -786,7 +786,6 @@ class FrontEndHandler
 
         ob_start();
         ?>
-        <script>
             (function (choices) {
                 var params = new URLSearchParams(location.search);
                 var changed = false;
@@ -815,9 +814,8 @@ class FrontEndHandler
                     location.replace(location.pathname + '?' + params.toString() + location.hash);
                 }
             })(<?php echo wp_json_encode($choices); ?>);
-        </script>
         <?php
 
-        return (string) ob_get_clean();
+        return wp_get_inline_script_tag((string) ob_get_clean());
     }
 }
