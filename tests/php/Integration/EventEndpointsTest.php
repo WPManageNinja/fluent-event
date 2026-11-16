@@ -549,6 +549,20 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(0, (int) $listed[$empty->id]);
     }
 
+    // The Overview's "N guests" comes with the event, counted as on the list cards.
+    public function test_a_single_event_counts_all_its_guests()
+    {
+        $event = $this->createEvent();
+        $empty = $this->createEvent(['calendar_id' => $event->calendar_id]);
+
+        foreach (['going', 'checked_in', 'not_going', 'cancelled'] as $status) {
+            $this->createGuest($event, ['status' => $status]);
+        }
+
+        $this->assertSame(4, (int) $this->rest('GET', "events/{$event->id}")['data']['event']['guests_count']);
+        $this->assertSame(0, (int) $this->rest('GET', "events/{$empty->id}")['data']['event']['guests_count']);
+    }
+
     public function test_the_event_list_filters_by_calendar()
     {
         $mine = $this->createEvent();
