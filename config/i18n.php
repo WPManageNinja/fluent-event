@@ -206,16 +206,59 @@ return [
             'Only accessible via direct link.' => __('Only accessible via direct link.', 'fluent-event'),
             'Send Confirmation Email' => __('Send Confirmation Email', 'fluent-event'),
             'Send Cancellation Email' => __('Send Cancellation Email', 'fluent-event'),
+            'Send Waitlist Email' => __('Send Waitlist Email', 'fluent-event'),
+            'Send Confirmation Emails' => __('Send Confirmation Emails', 'fluent-event'),
+            'Send Cancellation Emails' => __('Send Cancellation Emails', 'fluent-event'),
+            'Send Waitlist Emails' => __('Send Waitlist Emails', 'fluent-event'),
+            /* translators: %d is 1, the number of selected guests */
+            '%d guest selected' => __('%d guest selected', 'fluent-event'),
+            /* translators: %d is a number of selected guests */
+            '%d guests selected' => __('%d guests selected', 'fluent-event'),
+            'Change status' => __('Change status', 'fluent-event'),
+            'Clear selection' => __('Clear selection', 'fluent-event'),
+            'Select all guests on this page' => __('Select all guests on this page', 'fluent-event'),
+            /* translators: %s is a guest's name */
+            'Select %s' => __('Select %s', 'fluent-event'),
+            /* translators: %d is 1, the number of guests to delete */
+            'Delete %d Guest' => __('Delete %d Guest', 'fluent-event'),
+            /* translators: %d is a number of guests to delete */
+            'Delete %d Guests' => __('Delete %d Guests', 'fluent-event'),
+            /* translators: %d is 1, the number of guests whose status changes */
+            'Change Status of %d Guest' => __('Change Status of %d Guest', 'fluent-event'),
+            /* translators: %d is a number of guests whose status changes */
+            'Change Status of %d Guests' => __('Change Status of %d Guests', 'fluent-event'),
+            'The selected guests will be removed from this event. This cannot be undone.' => __('The selected guests will be removed from this event. This cannot be undone.', 'fluent-event'),
+            /* translators: %s is the status the guests move to, e.g. Going */
+            'The selected guests will be moved to %s.' => __('The selected guests will be moved to %s.', 'fluent-event'),
             'Cancellation Email' => __('Cancellation Email', 'fluent-event'),
             'Send an email when a registration is cancelled' => __('Send an email when a registration is cancelled', 'fluent-event'),
             'Email guests when they cancel or an admin cancels their registration.' => __('Email guests when they cancel or an admin cancels their registration.', 'fluent-event'),
             'Guests get no email when their registration is cancelled.' => __('Guests get no email when their registration is cancelled.', 'fluent-event'),
+            'Waitlist Email' => __('Waitlist Email', 'fluent-event'),
+            'Send an email when a guest is waitlisted' => __('Send an email when a guest is waitlisted', 'fluent-event'),
+            'Email guests when they join the waitlist of a full event or an admin moves them to it.' => __('Email guests when they join the waitlist of a full event or an admin moves them to it.', 'fluent-event'),
+            'Guests get no email when they are waitlisted.' => __('Guests get no email when they are waitlisted.', 'fluent-event'),
             'Shortcode copied.' => __('Shortcode copied.', 'fluent-event'),
             'Show how many guests are going' => __('Show how many guests are going', 'fluent-event'),
+            'Capacity' => __('Capacity', 'fluent-event'),
+            'Unlimited' => __('Unlimited', 'fluent-event'),
+            'How many guests can be going at once. Leave empty for no limit.' => __('How many guests can be going at once. Leave empty for no limit.', 'fluent-event'),
+            'Let guests join a waitlist when the event is full' => __('Let guests join a waitlist when the event is full', 'fluent-event'),
+            'Registration window' => __('Registration window', 'fluent-event'),
+            'Guest control' => __('Guest control', 'fluent-event'),
+            'Seats, the waitlist and the guest count guests see.' => __('Seats, the waitlist and the guest count guests see.', 'fluent-event'),
+            'When guests can start joining.' => __('When guests can start joining.', 'fluent-event'),
+            'If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.' => __('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.', 'fluent-event'),
+            /* translators: label for when registration opens */
+            'Opens' => __('Opens', 'fluent-event'),
+            /* translators: label for when registration closes */
+            'Closes' => __('Closes', 'fluent-event'),
+            'Time before the event starts' => __('Time before the event starts', 'fluent-event'),
+            'Waitlisted' => __('Waitlisted', 'fluent-event'),
+            'Move to Going' => __('Move to Going', 'fluent-event'),
             'RSVP' => __('RSVP', 'fluent-event'),
             'Open' => __('Open', 'fluent-event'),
             'None' => __('None', 'fluent-event'),
-            'Registration Type' => __('Registration Type', 'fluent-event'),
             'Logged-in members say whether they are going.' => __('Logged-in members say whether they are going.', 'fluent-event'),
             'Guests register with their name and email, no login needed.' => __('Guests register with their name and email, no login needed.', 'fluent-event'),
             'Nobody registers. Anyone who can see the event sees all of it, meeting link included.' => __('Nobody registers. Anyone who can see the event sees all of it, meeting link included.', 'fluent-event'),
@@ -312,6 +355,42 @@ return [
             'Purple' => __('Purple', 'fluent-event'),
             'Red-Orange' => __('Red-Orange', 'fluent-event'),
             'Registration' => __('Registration', 'fluent-event'),
+            /* translators: %d is the number of guests holding a seat */
+            '%d going' => __('%d going', 'fluent-event'),
+            /* translators: 1: guests holding a seat, 2: the event's capacity */
+            '%1$s of %2$s going' => __('%1$s of %2$s going', 'fluent-event'),
+            'Open registration' => __('Open registration', 'fluent-event'),
+            'No registration' => __('No registration', 'fluent-event'),
+            'No limit' => __('No limit', 'fluent-event'),
+            /* translators: %d is 1, the number of seats left */
+            '%d spot left' => __('%d spot left', 'fluent-event'),
+            /* translators: %d is a number of seats left */
+            '%d spots left' => __('%d spots left', 'fluent-event'),
+            'Full' => __('Full', 'fluent-event'),
+            'Waitlist' => __('Waitlist', 'fluent-event'),
+            /* translators: the event's waitlist is switched on */
+            'On' => __('On', 'fluent-event'),
+            /* translators: the event's waitlist is switched off */
+            'Off' => __('Off', 'fluent-event'),
+            /* translators: %d is the number of guests on the waitlist */
+            '%d waiting' => __('%d waiting', 'fluent-event'),
+            'Guest count' => __('Guest count', 'fluent-event'),
+            /* translators: guests can see how many are going */
+            'Shown' => __('Shown', 'fluent-event'),
+            /* translators: guests cannot see how many are going */
+            'Hidden' => __('Hidden', 'fluent-event'),
+            'Nobody registers for this event; admins can still add guests.' => __('Nobody registers for this event; admins can still add guests.', 'fluent-event'),
+            'Registration open' => __('Registration open', 'fluent-event'),
+            'Registration not open yet' => __('Registration not open yet', 'fluent-event'),
+            'Registration closed' => __('Registration closed', 'fluent-event'),
+            'Until the event ends' => __('Until the event ends', 'fluent-event'),
+            'The event has ended' => __('The event has ended', 'fluent-event'),
+            /* translators: %s is the date and time registration opens */
+            'Opens %s' => __('Opens %s', 'fluent-event'),
+            /* translators: %s is the date and time registration closes */
+            'Closes %s' => __('Closes %s', 'fluent-event'),
+            /* translators: %s is the date and time registration closed */
+            'Closed %s' => __('Closed %s', 'fluent-event'),
             'Reminder Emails' => __('Reminder Emails', 'fluent-event'),
             'Reminders' => __('Reminders', 'fluent-event'),
             'Reminder time' => __('Reminder time', 'fluent-event'),
@@ -336,10 +415,14 @@ return [
             'Send reminder emails to guests' => __('Send reminder emails to guests', 'fluent-event'),
             'Preview the confirmation email' => __('Preview the confirmation email', 'fluent-event'),
             'Preview the cancellation email' => __('Preview the cancellation email', 'fluent-event'),
+            'Preview the waitlist email' => __('Preview the waitlist email', 'fluent-event'),
             'Preview the reminder email' => __('Preview the reminder email', 'fluent-event'),
             'Email Preview' => __('Email Preview', 'fluent-event'),
             'Subject' => __('Subject', 'fluent-event'),
-            'Sent right after a guest registers or cancels.' => __('Sent right after a guest registers or cancels.', 'fluent-event'),
+            'Minutes before' => __('Minutes before', 'fluent-event'),
+            'Hours before' => __('Hours before', 'fluent-event'),
+            'Days before' => __('Days before', 'fluent-event'),
+            'Sent right after a guest registers, is waitlisted or cancels.' => __('Sent right after a guest registers, is waitlisted or cancels.', 'fluent-event'),
             'Sent to registered guests before the event starts.' => __('Sent to registered guests before the event starts.', 'fluent-event'),
             'Settings' => __('Settings', 'fluent-event'),
             'Shown at the bottom of every event email. You may include your business name, address, or why the recipient got this email.' => __('Shown at the bottom of every event email. You may include your business name, address, or why the recipient got this email.', 'fluent-event'),

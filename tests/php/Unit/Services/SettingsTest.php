@@ -36,12 +36,13 @@ class SettingsTest extends TestCase
         $this->assertSame(30 * DAY_IN_SECONDS, Settings::MAX_REMINDER_TIME);
     }
 
-    public function test_out_of_the_box_guests_get_confirmations_cancellations_and_a_day_ahead_reminder()
+    public function test_out_of_the_box_guests_get_confirmations_cancellations_waitlist_notices_and_a_day_ahead_reminder()
     {
         $emails = Settings::DEFAULTS[Settings::EMAIL_NOTIFICATIONS];
 
         $this->assertTrue($emails['registration_confirmation']['enabled']);
         $this->assertTrue($emails['registration_cancellation']['enabled']);
+        $this->assertTrue($emails['registration_waitlist']['enabled']);
         $this->assertSame([['value' => 24, 'unit' => 'hours']], $emails['reminder_to_guest']['times']);
     }
 

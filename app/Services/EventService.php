@@ -131,6 +131,9 @@ class EventService
         $isRegistered = in_array($myStatus, Event::SEAT_STATUSES, true);
         $isPast = $event->end_at < gmdate(DateTimeHelper::FORMAT);
         $hasMeetingUrl = $event->venue_type === 'online' && !empty($meta['online_meeting_url']);
+        $capacity = $takesRegistrations ? (int) $meta['capacity'] : 0;
+        [$opensAt, $closesAt] = $takesRegistrations ? Event::registrationWindow($event) : [null, null];
+        $now = time();
 
         return [
             'id'                 => (int) $event->id,
@@ -153,9 +156,15 @@ class EventService
             'online_meeting_url' => $hasMeetingUrl && ($meta['entry_type'] === 'none' || $isRegistered || $isStaff) ? $meta['online_meeting_url'] : '',
             'entry_type'         => $meta['entry_type'],
             'guest_count'        => $takesRegistrations && $meta['show_guest_count'] === 'yes' ? $seats : null,
+            'capacity'           => $capacity ?: null,
+            'is_full'            => $capacity > 0 && $seats >= $capacity,
+            'waitlist'           => $capacity > 0 && $meta['waitlist'] === 'yes',
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
-            'registration_open'  => $takesRegistrations && !$isPast,
+            'registration_open'  => $takesRegistrations && !$isPast && (!$opensAt || $now >= $opensAt) && (!$closesAt || $now < $closesAt),
+            // In site time, like start_at_site; each only while that moment is still ahead.
+            'registration_opens_at'  => $opensAt > $now ? DateTimeHelper::timestampToSite($opensAt) : null,
+            'registration_closes_at' => $closesAt > $now ? DateTimeHelper::timestampToSite($closesAt) : null,
             // Bound to the event: a visitor's open registration sends it back.
             'register_nonce'     => $meta['entry_type'] === 'open' && !$isPast ? wp_create_nonce('fe_guest_register_' . $event->id) : '',
             'edit_url'           => $canEdit ? self::editUrl($event->id) : '',

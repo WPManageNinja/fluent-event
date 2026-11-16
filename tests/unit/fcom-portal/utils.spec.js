@@ -272,4 +272,9 @@ describe('localizedDateNames', () => {
         expect(locale.el.datepicker.today).toBe('Today');
         expect(en.el.datepicker.weeks.mon).toBe('Mon');
     });
+
+    it('counts against the capacity when the event has one', () => {
+        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 12, capacity: 50 })).toBe('12 out of 50 going');
+        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null, capacity: 50 })).toBe('');
+    });
 });

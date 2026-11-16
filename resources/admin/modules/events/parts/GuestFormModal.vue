@@ -140,12 +140,9 @@
                 const notifications = window.fluentEventAdmin?.email_notifications || {};
                 const confirmation = notifications.registration_confirmation?.enabled ? this.$t('Send Confirmation Email') : '';
                 const cancellation = notifications.registration_cancellation?.enabled ? this.$t('Send Cancellation Email') : '';
+                const waitlist = notifications.registration_waitlist?.enabled ? this.$t('Send Waitlist Email') : '';
 
-                if (!this.isEditing) {
-                    return this.form.status === 'going' ? confirmation : '';
-                }
-
-                if (this.form.status === this.guest.status) {
+                if (this.isEditing && this.form.status === this.guest.status) {
                     return '';
                 }
 
@@ -153,7 +150,11 @@
                     return confirmation;
                 }
 
-                if (['not_going', 'cancelled'].includes(this.form.status)) {
+                if (this.form.status === 'waitlisted') {
+                    return waitlist;
+                }
+
+                if (this.isEditing && ['not_going', 'cancelled'].includes(this.form.status)) {
                     return cancellation;
                 }
 

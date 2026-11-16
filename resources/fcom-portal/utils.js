@@ -127,10 +127,15 @@ export function dateFormat() {
     return (window.fluentComAdmin && window.fluentComAdmin.date_formatter) || 'MMM D, YYYY';
 }
 
-export function eventStart(event) {
-    const start = dayjs(event.start_at_site);
+// A *_site value, read on the site's clock like every list.
+export function siteDateTime(value) {
+    const time = dayjs(value);
 
-    return `${start.format(dateFormat())} · ${start.format(timeFormat())}`;
+    return `${time.format(dateFormat())} · ${time.format(timeFormat())}`;
+}
+
+export function eventStart(event) {
+    return siteDateTime(event.start_at_site);
 }
 
 export function eventMonth(event) {
@@ -190,6 +195,10 @@ export function hasEventActions(event) {
 export function guestCountLabel(event) {
     if (event.guest_count === null || event.guest_count === undefined) {
         return '';
+    }
+
+    if (event.capacity) {
+        return t('%1$s out of %2$s going', event.guest_count, event.capacity);
     }
 
     return t('%s going', event.guest_count);

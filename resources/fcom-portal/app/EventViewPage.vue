@@ -79,10 +79,51 @@
                     <span v-if="phase === 'live'" class="fe-live-badge">{{ $t('Happening now') }}</span>
                     <span v-else class="fe-event-view__status" :class="`fe-event-view__status--${phase}`">{{ statusLabel }}</span>
 
-                    <div v-if="hasActions || countLabel" class="fe-event-view__rsvp">
-                        <event-actions v-if="hasActions" :event="event" @done="applyResponse" @error="error = $event"></event-actions>
-                        <span v-if="countLabel" class="fe-event-view__count">{{ countLabel }}</span>
+                    <div v-if="showMeter" class="fe-capacity">
+                        <div class="fe-capacity__head">
+                            <span>{{ countLabel }}</span>
+                            <span v-if="!isFullForMe && phase !== 'ended'" class="fe-capacity__status">{{ capacityStatus }}</span>
+                        </div>
+                        <div
+                            class="fe-capacity__track"
+                            role="progressbar"
+                            aria-valuemin="0"
+                            :aria-valuemax="event.capacity"
+                            :aria-valuenow="event.guest_count"
+                            :aria-valuetext="countLabel"
+                            :aria-label="$t('Capacity')"
+                        >
+                            <span class="fe-capacity__fill" :style="{ width: `${capacityPercent}%` }"></span>
+                        </div>
                     </div>
+
+                    <div
+                        v-if="notice"
+                        class="fe-event-view__notice"
+                        :class="{
+                            'fe-event-view__notice--cancelled': notice.icon === 'cancelled',
+                            'fe-event-view__notice--waiting': notice.icon === 'waiting',
+                        }"
+                    >
+                        <span class="fe-event-view__notice-icon" aria-hidden="true">
+                            <el-icon>
+                                <Clock v-if="notice.icon === 'waiting' || notice.icon === 'upcoming'"/>
+                                <CircleClose v-else-if="notice.icon === 'cancelled'"/>
+                                <Ticket v-else/>
+                            </el-icon>
+                        </span>
+                        <div class="fe-event-view__notice-text">
+                            <span class="fe-event-view__notice-title">{{ notice.title }}</span>
+                            <span class="fe-event-view__notice-desc">{{ notice.desc }}</span>
+                        </div>
+                    </div>
+
+                    <div v-if="hasActions || (countLabel && !showMeter)" class="fe-event-view__rsvp">
+                        <event-actions v-if="hasActions" :event="event" @done="applyResponse" @error="error = $event"></event-actions>
+                        <span v-if="countLabel && !showMeter" class="fe-event-view__count">{{ countLabel }}</span>
+                    </div>
+
+                    <p v-if="closesLabel" class="fe-event-view__note">{{ closesLabel }}</p>
 
                     <p v-if="error" class="fe-event-view__error" role="alert">{{ error }}</p>
 
@@ -122,8 +163,8 @@
 </template>
 
 <script>
-import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, setPageTitle, timeFormat } from '../utils';
+import { ArrowLeft, Calendar, CircleClose, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, setPageTitle, siteDateTime, timeFormat } from '../utils';
 import { lastDay } from '@/utils/date';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
@@ -136,7 +177,7 @@ const utc = (value) => window.dayjs.utc(value);
 // read through fcom's post endpoint so it is visible exactly when its post is.
 export default {
     name: 'EventViewPage',
-    components: { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera, EventActions, EventMenu },
+    components: { ArrowLeft, Calendar, CircleClose, Clock, MapLocation, Ticket, VideoCamera, EventActions, EventMenu },
     props: {
         // Empty for a community-wide event.
         spaceSlug: { type: String, default: '' },
@@ -216,9 +257,99 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        // The status above already says Ended, so an ended event gets no RSVP slot of its own here.
+        isFullForMe() {
+            return this.event.is_full && !isSeated(this.event);
+        },
+        // Waitlisted is the host's to change, and so is cancelled on an RSVP; the member gets a notice, not an RSVP.
+        // An open event's member who cancelled may register again.
+        isHostOwned() {
+            return this.event.my_status === 'waitlisted'
+                || (this.event.my_status === 'cancelled' && this.event.entry_type === 'rsvp');
+        },
+        canJoinWaitlist() {
+            return this.isFullForMe && !!this.event.waitlist && this.phase !== 'ended' && !this.isHostOwned;
+        },
+        // Before registration opens or after it closes; a member already going keeps the RSVP to give up the seat.
+        registrationShut() {
+            return ['rsvp', 'open'].includes(this.event.entry_type)
+                && this.phase !== 'ended'
+                && !this.event.registration_open
+                && !isSeated(this.event)
+                && !this.isHostOwned;
+        },
+        closesLabel() {
+            if (!this.event.registration_open || !this.event.registration_closes_at) {
+                return '';
+            }
+
+            return this.$t('Registration closes %s', siteDateTime(this.event.registration_closes_at));
+        },
+        notice() {
+            if (this.event.my_status === 'cancelled' && this.isHostOwned) {
+                return {
+                    icon: 'cancelled',
+                    title: this.$t('Your registration has been cancelled'),
+                    desc: this.$t('Contact the host if you would still like to attend.'),
+                };
+            }
+
+            if (this.event.my_status === 'waitlisted' && this.phase !== 'ended') {
+                return {
+                    icon: 'waiting',
+                    title: this.$t('You are on the waitlist'),
+                    desc: this.$t('If a seat opens up, you will be moved to going.'),
+                };
+            }
+
+            if (this.registrationShut) {
+                return this.event.registration_opens_at
+                    ? {
+                        icon: 'upcoming',
+                        title: this.$t('Registration not open yet'),
+                        desc: this.$t('Registration opens %s.', siteDateTime(this.event.registration_opens_at)),
+                    }
+                    : {
+                        icon: 'full',
+                        title: this.$t('Registration closed'),
+                        desc: this.$t('This event is no longer taking registrations.'),
+                    };
+            }
+
+            if (!this.isFullForMe) {
+                return null;
+            }
+
+            return {
+                icon: 'full',
+                title: this.$t('Event full'),
+                desc: this.canJoinWaitlist
+                    ? this.$t('Join the waitlist to be moved to going if a seat opens up.')
+                    : this.$t('This event is full and no longer taking registrations.'),
+            };
+        },
+        // Only a capped event whose host shows the count; an ended one keeps it as a record of how full it got.
+        showMeter() {
+            return !!this.event.capacity && !!this.countLabel;
+        },
+        capacityPercent() {
+            return Math.min(100, Math.round((this.event.guest_count / this.event.capacity) * 100));
+        },
+        capacityStatus() {
+            if (this.event.is_full) {
+                return this.$t('Event full');
+            }
+
+            const left = this.event.capacity - this.event.guest_count;
+
+            return left === 1 ? this.$t('1 spot left') : this.$t('%d spots left', left);
+        },
+        // The status above already says Ended, so an ended event gets no RSVP slot; a full one keeps it only to join the waitlist.
         hasActions() {
-            return this.phase !== 'ended' && hasEventActions(this.event);
+            return this.phase !== 'ended'
+                && hasEventActions(this.event)
+                && !this.isHostOwned
+                && !this.registrationShut
+                && (!this.isFullForMe || this.canJoinWaitlist);
         },
         // Once someone is going, or for a no-entry event anyone can attend.
         canAddToCalendar() {

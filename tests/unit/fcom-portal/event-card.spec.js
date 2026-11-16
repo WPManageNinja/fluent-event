@@ -6,6 +6,7 @@ import EventActions from '../../../resources/fcom-portal/EventActions';
 
 const meetup = (overrides = {}) => ({
     id: 5,
+    registration_open: true,
     title: 'Community meetup',
     start_at: '2026-10-20 12:00:00',
     end_at: '2026-10-20 14:00:00',
@@ -220,21 +221,20 @@ describe('EventCard', () => {
 
     describe('on a post that is not published yet', () => {
         it('notes when members can RSVP', () => {
-            const wrapper = card({ slug: 'later', fluent_event: meetup({ registration_open: false }) });
+            const wrapper = card({ slug: 'later', fluent_event: meetup({ registration_open: false, is_unpublished: true }) });
 
             expect(wrapper.find('.fe-event-card__note').text()).toBe('Members can RSVP once this post is published.');
         });
 
         it('says register for an open event', () => {
-            const wrapper = card({ slug: 'later', fluent_event: meetup({ entry_type: 'open', registration_open: false }) });
+            const wrapper = card({ slug: 'later', fluent_event: meetup({ entry_type: 'open', registration_open: false, is_unpublished: true }) });
 
             expect(wrapper.find('.fe-event-card__note').text()).toBe('Members can register once this post is published.');
         });
 
-        it('leaves a published post as it was', () => {
-            const wrapper = card({ slug: 'now', fluent_event: meetup({ registration_open: true }) });
-
-            expect(wrapper.find('.fe-event-card__note').exists()).toBe(false);
+        it('leaves a published post as it was, a closed registration window included', () => {
+            expect(card({ slug: 'now', fluent_event: meetup({ registration_open: true }) }).find('.fe-event-card__note').exists()).toBe(false);
+            expect(card({ slug: 'now', fluent_event: meetup({ registration_open: false }) }).find('.fe-event-card__note').exists()).toBe(false);
         });
     });
 });

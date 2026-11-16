@@ -199,12 +199,12 @@ class ReportService
             ->get();
     }
 
-    // Events ranked by guest count — cancelled and not-going guests don't count toward the rank.
+    // Events ranked by guests holding a seat — not going, cancelled and waitlisted don't count.
     public static function getTopEvents($limit = 5)
     {
         $rows = self::guestQuery()
             ->selectRaw('event_id, COUNT(*) AS guests_count')
-            ->whereNotIn('status', ['cancelled', 'not_going'])
+            ->whereIn('status', Event::SEAT_STATUSES)
             ->groupBy('event_id')
             ->orderByDesc('guests_count')
             ->limit($limit)

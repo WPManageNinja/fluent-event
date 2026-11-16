@@ -106,7 +106,9 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   to add-ons). The card is a string template on fcom's own Vue.
 - REST, `fluent-event/v2/community/*`:
   - `GET events` — the events list, filtered to visible posts in SQL.
-  - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute.
+  - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute. A
+    `going` to a full event lands as `waitlisted` when its waitlist is on, else 422. Outside the
+    registration window only a member already going may answer, and only to give up the seat.
   - `GET editor-assets` — the WordPress editor markup for the create-event page; site administrators only.
 
 ## fcom extension points (event-agnostic)
@@ -129,9 +131,9 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   start `private`, like their calendars. Both statuses show in the admin and can be changed there.
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
   effect on the upcoming landing page.
-- **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit; each answer shows a
+- **Entry types:** `rsvp` (logged-in members, going / not going, up to the event's capacity; each answer shows a
   success toast with the server's message, "RSVP updated. You're going!" / "RSVP updated. You're not going."), `open`
-  (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
+  (a **Register** button that opens a name + email popover, up to the event's capacity; a logged-in member's arrives filled in
   from the account, name editable, email locked. After registering, a **You're registered** dialog
   shows the event (cover, date, place) and Add to calendar links, and a **✓ Registered** badge replaces
   the button. A member's badge is a menu (like RSVP's) with **Cancel registration**: a confirm, then status `cancelled`
@@ -143,9 +145,27 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   offset, plus the site's clock when that reads differently.
 - **Guest count:** shown only for `rsvp` and `open` events whose **Show guest count** switch is on, and then
   to everyone, admins included. The switch alone decides; nobody gets an override. It counts
-  `going` and `checked_in` guests.
+  `going` and `checked_in` guests, and reads `12 out of 50 going` when the event has a capacity.
 - **Ended:** the event page says Ended once, in its status; the RSVP slot is dropped on an ended
   event (any entry type), and the guest count stays.
+- **Capacity** (`rsvp` and `open`): with the count shown, the event page meters a capped event (`7 out of 10 going`, a
+  fill bar, `3 spots left`). An ended event keeps the count and bar, without the spots left, and
+  the full notice only if it filled up. Once seats reach the capacity, anyone without a seat loses the
+  RSVP / Register button: the event page shows an **Event full** notice in its place (count shown or not, like
+  Luma's sold-out state; with the count shown it sits under the full meter), and the feed card and events list show **Event full** as plain
+  text with a ticket icon. Neutral colours: full is a state, not an error. The member and visitor register endpoints
+  refuse a new sign-up (422). Guests already going keep their seat and can still give it up.
+- **Waitlist:** a per-event switch (`meta.waitlist`, off by default, only with a capacity). When on,
+  a full event offers a single **Join waitlist** button (no dropdown; on an `open` event it opens the same
+  name + email popover); the sign-up lands as `waitlisted`, which holds no seat, sees no meeting link and gets no
+  reminders. Admins filter by Waitlisted and use **Move to Going** (one guest or in bulk). There is no
+  auto-promote: a freed seat goes to whoever signs up first.
+- **Member-owned vs host-owned status:** the RSVP dropdown is only for `going` / `not_going`
+  (`checked_in` shows as Going). `waitlisted` is the host's to change, and so is `cancelled` on an `rsvp`
+  event: the event page shows a notice ("You are on the waitlist"; "Your registration has been cancelled" in a
+  danger tone), cards and lists show plain "Waitlisted" / "Cancelled" text, and the register
+  endpoint refuses the member's own change with 422. On an `open` event a member who cancelled their own
+  registration can register again.
 - **Meeting link:** an online `rsvp` or `open` event shows it to its registered guests (`going` or
   `checked_in`) and to site administrators; an online `none` event
   shows it to everyone who can see the post.
@@ -156,6 +176,13 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   - Visitors (`open` only, `register-guest`): logged out, on a portal open to visitors. Guarded by
     a nonce bound to the event, a 5-per-minute IP rate limit and a hidden honeypot field; the
     email must be new to the event. The guest row has no `user_id`.
+  - **Window:** `meta.registration_opens` / `registration_closes`, each `{value, unit}` before the
+    start (null = open once published / until the event ends), set in both event forms with a
+    preview of the date they work out to. Being offsets, they move with the event. It binds members
+    and visitors alike. Before it opens the event page shows "Registration not open yet" with the
+    opening time, and cards show "Opens …"; after it closes both say "Registration closed". While
+    open, the page shows "Registration closes …". A member already going (or checked in) keeps the
+    RSVP to give up the seat; admins can add guests any time.
   - One guest row per member per event. A row an admin added under the member's email is
     claimed, not duplicated; an email already registered to another member is refused.
   - Saying *going* again keeps a checked-in guest checked in.
@@ -184,5 +211,5 @@ slug; `fluent_event/community/route_paths` can still move any single route:
 
 ## Out of scope
 
-Ticketed mode, waitlists, recurring events in posts, host notifications per registration,
+Ticketed mode, recurring events in posts, host notifications per registration,
 schema.org markup.

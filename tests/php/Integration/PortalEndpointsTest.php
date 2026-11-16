@@ -39,6 +39,35 @@ class PortalEndpointsTest extends IntegrationTestCase
         return $this->createEvent(['venue_type' => 'online'], ['entry_type' => $entryType, 'online_meeting_url' => 'https://meet.example.test/fe-room']);
     }
 
+    // The public page holds the same seat limits as the portal: no seat past the capacity, the waitlist when it has one.
+    public function test_a_visitor_is_refused_a_full_event_or_waitlisted_when_it_has_a_waitlist()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 1]);
+        $this->createGuest($full);
+
+        $this->assertSame(422, $this->registerGuest($full)['status']);
+        $this->assertCount(1, $this->guestsOf($full));
+
+        $withWaitlist = $this->createEvent([], ['entry_type' => 'open', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($withWaitlist);
+
+        $response = $this->registerGuest($withWaitlist);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('waitlisted', $response['data']['status']);
+        $waitlisted = Guest::query()->where('event_id', $withWaitlist->id)->where('status', 'waitlisted')->first();
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_waitlist', [(int) $waitlisted->id]));
+    }
+
+    public function test_a_visitor_is_refused_outside_the_registration_window()
+    {
+        // The event starts in 3 days and registration closed a week before the start.
+        $event = $this->createEvent([], ['entry_type' => 'rsvp', 'registration_closes' => ['value' => 7, 'unit' => 'days']]);
+
+        $this->assertSame(422, $this->registerGuest($event)['status']);
+        $this->assertCount(0, $this->guestsOf($event));
+    }
+
     public function test_a_visitor_says_going_to_an_rsvp_event_by_name_and_email()
     {
         $event = $this->onlineEvent('rsvp');

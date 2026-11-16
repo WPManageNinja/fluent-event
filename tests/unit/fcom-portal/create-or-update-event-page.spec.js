@@ -25,6 +25,7 @@ const createPage = async (Page = CreateOrUpdateEventPage, extraProps = {}, extra
             stubs: {
                 ElFormItem: { template: '<div><slot /></div>' },
                 ElInput: { template: '<input />', methods: { focus() {} } },
+                ElInputNumber: { template: '<input />' },
                 ...extraStubs
             },
             config: { warnHandler }
@@ -89,7 +90,8 @@ describe('CreateOrUpdateEventPage', () => {
 
         it('picks the space on the page, starting from the linked one, and reports it to the shell', async () => {
             const { wrapper, vm, props } = await createPage();
-            const select = () => wrapper.findComponent({ name: 'ElSelect' });
+            // The space field's own select: the registration window has selects of its own.
+            const select = () => wrapper.find('.fe-create-event__space').findComponent({ name: 'ElSelect' });
 
             expect(vm.space).toBe('design');
             select().vm.$emit('change', 'design');
@@ -97,7 +99,7 @@ describe('CreateOrUpdateEventPage', () => {
 
             vm.placement = 'global';
             await flushPromises();
-            expect(select().exists()).toBe(false);
+            expect(wrapper.find('.fe-create-event__space').exists()).toBe(false);
         });
 
         it("starts with no space when the linked one isn't one the member can post in", async () => {
@@ -251,7 +253,11 @@ describe('CreateOrUpdateEventPage', () => {
                 address: '',
                 cover_url: 'https://example.test/uploads/walk.png',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                capacity: 25,
+                waitlist: 'yes',
+                registration_opens: { value: 2, unit: 'days' },
+                registration_closes: null
             }
         };
 
@@ -268,6 +274,7 @@ describe('CreateOrUpdateEventPage', () => {
                     stubs: {
                         ElFormItem: { template: '<div><slot /></div>' },
                         ElInput: { template: '<input />', methods: { focus() {} } },
+                        ElInputNumber: { template: '<input />' },
                         ElButton: { template: '<button><slot /></button>' }
                     },
                     config: { warnHandler }
@@ -303,7 +310,11 @@ describe('CreateOrUpdateEventPage', () => {
                 online_meeting_url: 'https://meet.example.test/walk',
                 cover_url: 'https://example.test/uploads/walk.png',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                capacity: 25,
+                waitlist: 'yes',
+                registration_opens: { value: 2, unit: 'days' },
+                registration_closes: null
             });
             expect(props.onLoaded).toHaveBeenCalledWith(stored);
         });
@@ -356,7 +367,11 @@ describe('CreateOrUpdateEventPage', () => {
                 venue: '',
                 address: '',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                capacity: 25,
+                waitlist: 'yes',
+                registration_opens: { value: 2, unit: 'days' },
+                registration_closes: null
             });
             expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'Event has been successfully updated' });
             expect(props.router.back).toHaveBeenCalled();

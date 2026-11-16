@@ -176,6 +176,10 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
         }
 
+        if (is_string($registered)) {
+            return $this->sendError(['message' => $registered], 422);
+        }
+
         if (!$registered) {
             return $this->sendError(['message' => __('This email is already registered for this event.', 'fluent-event')], 422);
         }
@@ -195,6 +199,8 @@ class CommunityEventController extends Controller
             $message = __('Registration cancelled.', 'fluent-event');
         } elseif ($guest->status === 'not_going') {
             $message = __("RSVP updated. You're not going.", 'fluent-event');
+        } elseif ($guest->status === 'waitlisted') {
+            $message = __('You are on the waitlist.', 'fluent-event');
         } elseif ($entryType === 'rsvp') {
             $message = __("RSVP updated. You're going!", 'fluent-event');
         } else {
@@ -240,12 +246,16 @@ class CommunityEventController extends Controller
 
         $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id]);
 
+        if (is_string($guest)) {
+            return $this->sendError(['message' => $guest], 422);
+        }
+
         do_action('fluent_event/guest/created', $guest);
 
         RegistrationService::queueEmail($guest, null);
 
         return [
-            'message'            => __('You are registered.', 'fluent-event'),
+            'message'            => $guest->status === 'waitlisted' ? __('You are on the waitlist.', 'fluent-event') : __('You are registered.', 'fluent-event'),
             'status'             => $guest->status,
             'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
         ];

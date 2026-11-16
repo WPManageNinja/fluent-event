@@ -193,8 +193,13 @@ class PortalHandler
     protected function strings()
     {
         return [
+            /* translators: 1: number of guests going, 2: the event's capacity */
+            '%1$s out of %2$s going' => __('%1$s out of %2$s going', 'fluent-event'),
             /* translators: %d: the number of further events on that day */
             '%d more' => __('%d more', 'fluent-event'),
+            /* translators: %d: seats still open on a capped event */
+            '%d spots left' => __('%d spots left', 'fluent-event'),
+            '1 spot left' => __('1 spot left', 'fluent-event'),
             /* translators: %s: number of guests going */
             '%s going' => __('%s going', 'fluent-event'),
             'A venue for in-person events, a link for online ones.' => __('A venue for in-person events, a link for online ones.', 'fluent-event'),
@@ -209,11 +214,14 @@ class PortalHandler
             'Back' => __('Back', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
+            'Cancelled' => __('Cancelled', 'fluent-event'),
+            'Capacity' => __('Capacity', 'fluent-event'),
             'Cancel registration' => __('Cancel registration', 'fluent-event'),
             'Cancel your registration?' => __('Cancel your registration?', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
             'Choose a space for this event.' => __('Choose a space for this event.', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
+            'Contact the host if you would still like to attend.' => __('Contact the host if you would still like to attend.', 'fluent-event'),
             'Comments' => __('Comments', 'fluent-event'),
             'Community-wide' => __('Community-wide', 'fluent-event'),
             'Cover Image' => __('Cover Image', 'fluent-event'),
@@ -232,6 +240,7 @@ class PortalHandler
             'End must be after the start.' => __('End must be after the start.', 'fluent-event'),
             'End time' => __('End time', 'fluent-event'),
             'Ended' => __('Ended', 'fluent-event'),
+            'Event full' => __('Event full', 'fluent-event'),
             'Entry Type' => __('Entry Type', 'fluent-event'),
             'Error' => __('Error', 'fluent-event'),
             'Event cover image' => __('Event cover image', 'fluent-event'),
@@ -248,6 +257,34 @@ class PortalHandler
             'Guests register with their name and email, no login needed.' => __('Guests register with their name and email, no login needed.', 'fluent-event'),
             'Happening now' => __('Happening now', 'fluent-event'),
             'How guests join and what they see.' => __('How guests join and what they see.', 'fluent-event'),
+            'How many guests can be going at once. Leave empty for no limit.' => __('How many guests can be going at once. Leave empty for no limit.', 'fluent-event'),
+            'If a seat opens up, you will be moved to going.' => __('If a seat opens up, you will be moved to going.', 'fluent-event'),
+            'Join the waitlist to be moved to going if a seat opens up.' => __('Join the waitlist to be moved to going if a seat opens up.', 'fluent-event'),
+            'Join waitlist' => __('Join waitlist', 'fluent-event'),
+            'Let guests join a waitlist when the event is full' => __('Let guests join a waitlist when the event is full', 'fluent-event'),
+            'Registration window' => __('Registration window', 'fluent-event'),
+            'Guest control' => __('Guest control', 'fluent-event'),
+            'Seats, the waitlist and the guest count guests see.' => __('Seats, the waitlist and the guest count guests see.', 'fluent-event'),
+            'When guests can start joining.' => __('When guests can start joining.', 'fluent-event'),
+            'If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.' => __('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.', 'fluent-event'),
+            /* translators: label for when registration opens */
+            'Opens' => __('Opens', 'fluent-event'),
+            /* translators: label for when registration closes */
+            'Closes' => __('Closes', 'fluent-event'),
+            'Not set' => __('Not set', 'fluent-event'),
+            'Time before the event starts' => __('Time before the event starts', 'fluent-event'),
+            /* translators: %s is the date and time registration opens */
+            'Opens %s' => __('Opens %s', 'fluent-event'),
+            'Minutes before' => __('Minutes before', 'fluent-event'),
+            'Hours before' => __('Hours before', 'fluent-event'),
+            'Days before' => __('Days before', 'fluent-event'),
+            'Registration closed' => __('Registration closed', 'fluent-event'),
+            'Registration not open yet' => __('Registration not open yet', 'fluent-event'),
+            /* translators: %s is the date and time registration opens */
+            'Registration opens %s.' => __('Registration opens %s.', 'fluent-event'),
+            /* translators: %s is the date and time registration closes */
+            'Registration closes %s' => __('Registration closes %s', 'fluent-event'),
+            'This event is no longer taking registrations.' => __('This event is no longer taking registrations.', 'fluent-event'),
             'In a space' => __('In a space', 'fluent-event'),
             'In Person' => __('In Person', 'fluent-event'),
             'Interested?' => __('Interested?', 'fluent-event'),
@@ -303,6 +340,7 @@ class PortalHandler
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
             'Switch between month, week and day view' => __('Switch between month, week and day view', 'fluent-event'),
+            'This event is full and no longer taking registrations.' => __('This event is full and no longer taking registrations.', 'fluent-event'),
             'There are no spaces you can post in.' => __('There are no spaces you can post in.', 'fluent-event'),
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
@@ -312,18 +350,22 @@ class PortalHandler
             'To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.' => __('To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
             'Try a different search term.' => __('Try a different search term.', 'fluent-event'),
+            'Unlimited' => __('Unlimited', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
             'Update Event' => __('Update Event', 'fluent-event'),
             'Venue Name' => __('Venue Name', 'fluent-event'),
             'Venue Type' => __('Venue Type', 'fluent-event'),
             /* translators: %s: the event title */
             'View %s' => __('View %s', 'fluent-event'),
+            'Waitlisted' => __('Waitlisted', 'fluent-event'),
             'View in FluentEvent' => __('View in FluentEvent', 'fluent-event'),
             'View post' => __('View post', 'fluent-event'),
             'Week' => __('Week', 'fluent-event'),
             'What members see in the feed, above the event.' => __('What members see in the feed, above the event.', 'fluent-event'),
             'What the event is called.' => __('What the event is called.', 'fluent-event'),
             'When the event starts and ends.' => __('When the event starts and ends.', 'fluent-event'),
+            'You are on the waitlist' => __('You are on the waitlist', 'fluent-event'),
+            'Your registration has been cancelled' => __('Your registration has been cancelled', 'fluent-event'),
             'Where do you want to post this event?' => __('Where do you want to post this event?', 'fluent-event'),
             /* translators: %s: event title */
             'You will lose your spot for %s. You can register again later.' => __('You will lose your spot for %s. You can register again later.', 'fluent-event'),

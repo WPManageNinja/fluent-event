@@ -294,21 +294,92 @@
                             <span class="fe-create-event__hint">{{ option.hint }}</span>
                         </el-radio>
                     </el-radio-group>
-
-                    <div v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-create-event__switch-row">
-                        <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
-                            {{ $t('Show how many guests are going') }}
-                        </label>
-
-                        <el-switch
-                            id="fe-create-event-show-guest-count"
-                            v-model="event.show_guest_count"
-                            active-value="yes"
-                            inactive-value="no"
-                        />
-                    </div>
                 </div>
             </section>
+
+            <template v-if="['rsvp', 'open'].includes(event.entry_type)">
+                <section class="fe-create-event__section">
+                    <div>
+                        <h2 class="fe-create-event__section-title">{{ $t('Registration window') }}</h2>
+                        <p class="fe-create-event__section-desc">{{ $t('When guests can start joining.') }}</p>
+                    </div>
+
+                    <div class="fe-create-event__section-fields fe-create-event__limits">
+                        <RegistrationLimitField
+                            id="fe-create-event-registration-opens"
+                            v-model="event.registration_opens"
+                            kind="opens"
+                            :start="`${event.start_date} ${event.start_time}`"
+                            :time-format="timeFormat"
+                        />
+
+                        <RegistrationLimitField
+                            id="fe-create-event-registration-closes"
+                            v-model="event.registration_closes"
+                            kind="closes"
+                            :start="`${event.start_date} ${event.start_time}`"
+                            :time-format="timeFormat"
+                        />
+
+                        <el-alert
+                            class="fe-create-event__limits-note"
+                            type="info"
+                            :title="$t('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.')"
+                            :closable="false"
+                            show-icon
+                        />
+                    </div>
+                </section>
+
+                <section class="fe-create-event__section">
+                    <div>
+                        <h2 class="fe-create-event__section-title">{{ $t('Guest control') }}</h2>
+                        <p class="fe-create-event__section-desc">{{ $t('Seats, the waitlist and the guest count guests see.') }}</p>
+                    </div>
+
+                    <div class="fe-create-event__section-fields">
+                        <div class="fe-create-event__switch-row">
+                            <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
+                                {{ $t('Show how many guests are going') }}
+                            </label>
+
+                            <el-switch
+                                id="fe-create-event-show-guest-count"
+                                v-model="event.show_guest_count"
+                                active-value="yes"
+                                inactive-value="no"
+                            />
+                        </div>
+
+                        <el-form-item :label="$t('Capacity')" label-position="top" for="fe-create-event-capacity">
+                            <el-input-number
+                                id="fe-create-event-capacity"
+                                v-model="event.capacity"
+                                class="fe-create-event__capacity"
+                                align="left"
+                                :min="1"
+                                step-strictly
+                                :controls="false"
+                                :placeholder="$t('Unlimited')"
+                            />
+                            <span class="fe-create-event__hint">{{ $t('How many guests can be going at once. Leave empty for no limit.') }}</span>
+                        </el-form-item>
+
+                        <div v-if="event.capacity" class="fe-create-event__switch-row">
+                            <label class="fe-create-event__switch-text" for="fe-create-event-waitlist">
+                                {{ $t('Let guests join a waitlist when the event is full') }}
+                            </label>
+
+                            <el-switch
+                                id="fe-create-event-waitlist"
+                                v-model="event.waitlist"
+                                active-value="yes"
+                                inactive-value="no"
+                            />
+                        </div>
+                    </div>
+                </section>
+            </template>
         </div>
 
         <div v-if="editable" class="fe-create-event__actions">
@@ -328,12 +399,13 @@
 import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
+import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import { dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
     name: 'CreateOrUpdateEventPage',
-    components: { ArrowLeft, Delete, Picture, SegmentedSwitch },
+    components: { ArrowLeft, Delete, Picture, RegistrationLimitField, SegmentedSwitch },
     props: {
         router: { type: Object, required: true },
         // The edit route passes these instead of the create-only props below.
@@ -381,6 +453,10 @@ export default {
                 cover_url: '',
                 entry_type: 'rsvp',
                 show_guest_count: 'yes',
+                capacity: null,
+                waitlist: 'no',
+                registration_opens: null,
+                registration_closes: null,
             },
             uploading: false,
             saving: false,
@@ -411,6 +487,10 @@ export default {
                 cover_url: event.cover_url,
                 entry_type: event.entry_type,
                 show_guest_count: event.show_guest_count,
+                capacity: event.capacity || 0,
+                waitlist: event.waitlist,
+                registration_opens: event.registration_opens,
+                registration_closes: event.registration_closes,
             };
         },
         bounds() {
@@ -503,6 +583,10 @@ export default {
                     cover_url: meta.cover_url || '',
                     entry_type: meta.entry_type || '',
                     show_guest_count: meta.show_guest_count || 'yes',
+                    capacity: meta.capacity || null,
+                    waitlist: meta.waitlist || 'no',
+                    registration_opens: meta.registration_opens || null,
+                    registration_closes: meta.registration_closes || null,
                 };
                 this.loadedEvent = event;
             } catch (error) {

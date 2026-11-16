@@ -325,6 +325,28 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertInstanceOf(\WP_Error::class, $this->validate(['space_id' => $spaceId], $endsBeforeItStarts));
     }
 
+    public function test_a_posted_event_keeps_its_registration_window_and_one_closing_first_is_refused()
+    {
+        $spaceId = $this->createSpace();
+        $window = ['registration_opens' => ['value' => 5, 'unit' => 'days'], 'registration_closes' => ['value' => 3, 'unit' => 'hours']];
+        $request = $this->postRequest($window);
+
+        $data = $this->validate(['space_id' => $spaceId], $request);
+        $this->assertNotWPError($data);
+        $feed = $this->savePost($data);
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+
+        $event = Event::query()->find((int) FcomFeed::query()->find($feed->id)->meta['event_id']);
+        $this->assertSame($window['registration_opens'], $event->meta['registration_opens']);
+        $this->assertSame($window['registration_closes'], $event->meta['registration_closes']);
+
+        $closesFirst = $this->postRequest([
+            'registration_opens'  => ['value' => 1, 'unit' => 'hours'],
+            'registration_closes' => ['value' => 1, 'unit' => 'days'],
+        ]);
+        $this->assertInstanceOf(\WP_Error::class, $this->validate(['space_id' => $spaceId], $closesFirst));
+    }
+
     public function test_a_community_wide_post_files_its_event_in_the_one_private_community_calendar()
     {
         $this->setGlobalPosts(true);

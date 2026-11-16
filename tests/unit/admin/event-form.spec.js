@@ -63,7 +63,7 @@ describe('CreateOrUpdateEvent', () => {
             window.fluentEventAdmin.timezone = 'Asia/Dhaka';
             const { vm } = form();
 
-            expect(vm.event).toMatchObject({ status: 'public', entry_type: 'rsvp', show_guest_count: 'yes', timezone: 'Asia/Dhaka' });
+            expect(vm.event).toMatchObject({ status: 'public', entry_type: 'rsvp', show_guest_count: 'no', capacity: null, waitlist: 'no', timezone: 'Asia/Dhaka' });
         });
 
         it("uses the browser's timezone when the site's is not a real zone", () => {
@@ -103,7 +103,16 @@ describe('CreateOrUpdateEvent', () => {
                     end_at_local: '2026-11-02 21:00:00',
                     timezone: 'Europe/Berlin',
                     venue_type: 'online',
-                    meta: { online_meeting_url: 'https://meet.example.test/x', entry_type: 'open', show_guest_count: 'no', description_md: 'Chapter **4**' }
+                    meta: {
+                        online_meeting_url: 'https://meet.example.test/x',
+                        entry_type: 'open',
+                        show_guest_count: 'no',
+                        description_md: 'Chapter **4**',
+                        capacity: 40,
+                        waitlist: 'yes',
+                        registration_opens: { value: 7, unit: 'days' },
+                        registration_closes: null
+                    }
                 }
             });
 
@@ -117,7 +126,11 @@ describe('CreateOrUpdateEvent', () => {
                 timezone: 'Europe/Berlin',
                 online_meeting_url: 'https://meet.example.test/x',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                capacity: 40,
+                waitlist: 'yes',
+                registration_opens: { value: 7, unit: 'days' },
+                registration_closes: null
             });
         });
 
@@ -220,6 +233,24 @@ describe('CreateOrUpdateEvent', () => {
             vm.saveEvent();
 
             expect(request('events').payload).toMatchObject({ title: '', calendar_id: null, end_at: '2026-10-20 17:00:00' });
+        });
+
+        it('sends an emptied capacity as 0, the unlimited value', () => {
+            const { vm, request } = form();
+            filled(vm, { capacity: null });
+
+            vm.saveEvent();
+
+            expect(request('events').payload.capacity).toBe(0);
+        });
+
+        it('sends the registration limits as set, with null for no limit', () => {
+            const { vm, request } = form();
+            filled(vm, { registration_opens: { value: 3, unit: 'days' }, registration_closes: null });
+
+            vm.saveEvent();
+
+            expect(request('events').payload).toMatchObject({ registration_opens: { value: 3, unit: 'days' }, registration_closes: null });
         });
 
         describe('when the server rejects it', () => {

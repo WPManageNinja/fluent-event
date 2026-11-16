@@ -1,5 +1,5 @@
-import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
-import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE } from './icons';
+import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs, siteDateTime } from './utils';
+import { APPLE, CHECK, CHEVRON, CLOCK, CROSS, GOOGLE, TICKET } from './icons';
 
 /*
  * The RSVP dropdown, or an open event's Register form (no undo): a member's arrives filled in,
@@ -35,7 +35,32 @@ export default {
                 return 'going';
             }
 
-            return this.event.my_status === 'not_going' ? 'not_going' : '';
+            return ['not_going', 'waitlisted', 'cancelled'].includes(this.event.my_status) ? this.event.my_status : '';
+        },
+        // The member answers only going / not going; any other status is the host's or the waitlist's to change.
+        // An open event's member who cancelled may register again, so their cancelled shows no label.
+        stateLabel() {
+            if (this.status === 'cancelled' && this.event.entry_type === 'open') {
+                return '';
+            }
+
+            return { waitlisted: t('Waitlisted'), cancelled: t('Cancelled') }[this.status] || '';
+        },
+        registerLabel() {
+            return this.isFullForMe && this.event.waitlist ? t('Join waitlist') : t('Register');
+        },
+        isFullForMe() {
+            return !!this.event.is_full && this.status !== 'going';
+        },
+        // Outside the registration window only a member already going keeps the RSVP, to give up the seat.
+        registrationNote() {
+            if (this.status === 'going' || this.event.registration_open) {
+                return '';
+            }
+
+            return this.event.registration_opens_at
+                ? t('Opens %s', siteDateTime(this.event.registration_opens_at))
+                : t('Registration closed');
         },
     },
     beforeUnmount() {
@@ -93,7 +118,14 @@ export default {
                 const done = this.withStatus(response);
                 this.close();
                 this.$emit('done', done);
-                this.showRegistered(done.event);
+
+                // A waitlisted guest holds no seat, so there is nothing to add to a calendar yet.
+                if (done.status === 'waitlisted') {
+                    const { ElNotification } = await import('element-plus');
+                    ElNotification({ type: 'success', message: done.message });
+                } else {
+                    this.showRegistered(done.event);
+                }
             } catch (error) {
                 this.formError = errorMessage(error);
             } finally {
@@ -208,6 +240,23 @@ export default {
         <div class="fe-event-actions">
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
 
+            <span v-else-if="stateLabel" class="fe-event-actions__state" :class="'fe-event-actions__state--' + status">
+                <span v-if="status === 'waitlisted'" class="fe-event-actions__state-icon" aria-hidden="true">${CLOCK}</span>
+                <span v-else class="fe-event-actions__state-icon" aria-hidden="true">${CROSS}</span>
+                {{ stateLabel }}
+            </span>
+
+            <span v-else-if="registrationNote" class="fe-event-actions__state">
+                <span v-if="event.registration_opens_at" class="fe-event-actions__state-icon" aria-hidden="true">${CLOCK}</span>
+                <span v-else class="fe-event-actions__state-icon" aria-hidden="true">${TICKET}</span>
+                {{ registrationNote }}
+            </span>
+
+            <span v-else-if="isFullForMe && !event.waitlist" class="fe-event-actions__state">
+                <span class="fe-event-actions__state-icon" aria-hidden="true">${TICKET}</span>
+                {{ t('Event full') }}
+            </span>
+
             <template v-else-if="event.entry_type === 'open'">
                 <!-- A visitor isn't recognised again after a reload, so only a member's badge opens a menu to cancel. -->
                 <div v-if="status === 'going' && isLoggedIn" class="fe-rsvp">
@@ -245,7 +294,7 @@ export default {
                         aria-haspopup="dialog"
                         :aria-expanded="open ? 'true' : 'false'"
                         @click.stop="toggle"
-                    >{{ t('Register') }}</button>
+                    >{{ registerLabel }}</button>
 
                     <form
                         v-if="open"
@@ -264,12 +313,21 @@ export default {
 
                         <p v-if="formError" class="fe-guest-register__error" role="alert">{{ formError }}</p>
 
-                        <button type="submit" class="el-button fcom_primary_button" :disabled="busy">{{ t('Register') }}</button>
+                        <button type="submit" class="el-button fcom_primary_button" :disabled="busy">{{ registerLabel }}</button>
                     </form>
                 </div>
             </template>
 
             <a v-else-if="!isLoggedIn" class="el-button fcom_primary_button" :href="loginUrl()" @click="$event.currentTarget.href = loginUrl()">{{ t('Log in to RSVP') }}</a>
+
+            <!-- The server files it as waitlisted while the event is full. -->
+            <button
+                v-else-if="isFullForMe"
+                type="button"
+                class="el-button fcom_primary_button fe-event-actions__join"
+                :disabled="busy"
+                @click="choose('going')"
+            >{{ t('Join waitlist') }}</button>
 
             <div v-else class="fe-rsvp">
                 <button

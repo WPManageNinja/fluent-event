@@ -34,7 +34,7 @@ One handler per subsystem. `CleanupHandler`, `RateLimitHandler`, `NotificationEv
 fluent_event/calendar/created
 fluent_event/calendar/updated
 fluent_event/event/deleted
-fluent_event/guest/rsvp_recorded
+fluent_event/guest/created
 ```
 
 fcom's real ones: `space/joined`, `space/updated`, `space/user_left`,
@@ -62,6 +62,23 @@ gets to see what was removed. A `deleted` hook taking `$id` while its three sibl
 
 **Emit `before_deleted` and `deleted` as a pair** whenever a delete has listeners worth
 serving — the first for work needing related rows still present, the second for cleanup.
+
+### Shipped — guest bulk hooks
+
+A guest-list bulk action and an event delete each write guests with one query, so they fire
+one hook for the whole set instead of the per-guest ones (and no model events). The event
+always comes first, whichever path fires the hook:
+
+```php
+fluent_event/guest/before_bulk_deleted  // $event, $guests — rows still exist
+fluent_event/guest/bulk_deleted         // $event, $guests — rows gone, models in memory
+fluent_event/guest/bulk_updated         // $event, $guests, $previousStatuses [id => status] — changed guests only
+```
+
+`bulk_deleted` fires for a guest-list bulk delete (the selected guests) and for an event
+delete (all of its guests). A removal fires either `guest/deleted` (one guest) or
+`guest/bulk_deleted`, never both, so a listener that must see every removal hooks both. Same
+for `guest/updated` and `guest/bulk_updated`.
 
 **Filters — `fluent_event/<thing>`,** named for the value being filtered, not an event:
 

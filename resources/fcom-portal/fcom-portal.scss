@@ -288,6 +288,34 @@
         color: var(--fcom-secondary-text, #525866);
     }
 
+    // A state, not a refusal: plain text where the RSVP would be (Event full, Waitlisted, Cancelled).
+    &__state {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--fcom-secondary-text, #525866);
+
+        &.fe-event-actions__state--cancelled {
+            color: var(--fcom-danger, #d63638);
+        }
+
+        &.fe-event-actions__state--waitlisted {
+            color: color-mix(in srgb, var(--el-color-warning, #e6a23c) 75%, var(--fcom-primary-text, #19283a));
+        }
+    }
+
+    &__state-icon {
+        display: inline-flex;
+        font-size: 16px;
+
+        svg {
+            width: 1em;
+            height: 1em;
+        }
+    }
+
     &__badge-icon {
         display: inline-flex;
         color: var(--el-color-success, #67c23a);
@@ -379,7 +407,7 @@
         color: var(--fcom-primary-text, #19283a);
         cursor: pointer;
 
-        &:hover {
+        &:hover:not(:disabled) {
             background: var(--fcom-active-bg, #f0f3f5);
         }
 
@@ -460,6 +488,41 @@
         &.fe-rsvp__option--danger {
             color: var(--el-color-danger, #f56c6c);
         }
+    }
+}
+
+// The event page's seat meter for a capped event.
+.fe-capacity {
+    display: grid;
+    gap: 6px;
+
+    &__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__status {
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__track {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__fill {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--fcom-primary-button, #2b2e33);
     }
 }
 
@@ -1228,6 +1291,36 @@
     }
 }
 
+// Same component as the admin event form's, on fcom's tokens.
+.fe-registration-limit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+
+    &__value.el-input-number {
+        width: 120px;
+    }
+
+    &__unit.el-select {
+        width: 160px;
+    }
+
+    // fcom's number box is taller than its select; stretch the select to match it.
+    &__unit .el-select__wrapper {
+        height: 100%;
+    }
+
+    &__hint {
+        display: block;
+        width: 100%;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+}
+
 // Same component as the admin view switch, on fcom's tokens.
 .fe-switch {
     position: relative;
@@ -1443,6 +1536,17 @@
         .el-form-item {
             margin-bottom: 0;
         }
+    }
+
+    // Side by side while both fit, stacked once fcom's column gets narrow.
+    &__limits {
+        grid-template-columns: repeat(auto-fit, minmax(288px, 1fr));
+    }
+
+    &__limits-note.el-alert--info {
+        --el-alert-bg-color: var(--fcom-primary-bg, #ffffff);
+        grid-column: 1 / -1;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
     }
 
     &__cover {
@@ -1686,6 +1790,11 @@
         font-size: 14px;
         color: var(--fcom-primary-text, #19283a);
         cursor: pointer;
+    }
+
+    &__capacity.el-input-number {
+        width: 220px;
+        max-width: 100%;
     }
 
 
@@ -2213,6 +2322,13 @@
         @media (max-width: 900px) {
             position: static;
         }
+
+        // Same size as the RSVP trigger it stands in for.
+        .fe-event-actions .fe-event-actions__join.el-button {
+            min-width: 150px;
+            height: 34px;
+            margin: 0;
+        }
     }
 
     &__when {
@@ -2367,6 +2483,78 @@
         flex: none;
         margin-top: 2px;
         font-size: 18px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    // Event full, waitlisted or cancelled: takes the RSVP's place.
+    // Outlined, not filled, so it never reads as the venue panel below it.
+    &__notice {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+
+        // Unlike full or waitlisted, a cancelled registration is bad news for this member.
+        &.fe-event-view__notice--cancelled {
+            border-color: var(--fcom-danger, #d63638);
+            border-color: color-mix(in srgb, var(--fcom-danger, #d63638) 45%, transparent);
+
+            .fe-event-view__notice-icon {
+                color: var(--fcom-danger, #d63638);
+                background: color-mix(in srgb, var(--fcom-danger, #d63638) 14%, transparent);
+            }
+
+            .fe-event-view__notice-title {
+                color: var(--fcom-danger, #d63638);
+            }
+        }
+
+        // Pending, not refused: amber reads as "still in line".
+        &.fe-event-view__notice--waiting {
+            border-color: var(--el-color-warning, #e6a23c);
+            border-color: color-mix(in srgb, var(--el-color-warning, #e6a23c) 50%, transparent);
+
+            .fe-event-view__notice-icon {
+                color: var(--el-color-warning, #e6a23c);
+                background: color-mix(in srgb, var(--el-color-warning, #e6a23c) 16%, transparent);
+            }
+
+            // Mixed toward the text colour so the amber holds contrast in light mode too.
+            .fe-event-view__notice-title {
+                color: color-mix(in srgb, var(--el-color-warning, #e6a23c) 75%, var(--fcom-primary-text, #19283a));
+            }
+        }
+    }
+
+    &__notice-icon {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        font-size: 18px;
+        color: var(--fcom-secondary-text, #525866);
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__notice-text {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+        line-height: 1.45;
+    }
+
+    &__notice-title {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    &__notice-desc {
+        font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
     }
 

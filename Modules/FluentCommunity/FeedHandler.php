@@ -359,6 +359,8 @@ class FeedHandler
 
         if ($formatted && !in_array($feed->status, ['published', 'unlisted'], true)) {
             $formatted['registration_open'] = false;
+            // Told apart from a closed registration window, which also turns registration_open off.
+            $formatted['is_unpublished'] = true;
         }
 
         $feed->fluent_event = $formatted;

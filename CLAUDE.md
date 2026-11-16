@@ -31,7 +31,7 @@ Three things people get wrong:
 Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going; on the public event page anyone can also say Going by name + email, final),
 `open` (a Register button opening a name + email popover — prefilled for members, email locked; a Registered badge after; in the portal a member can cancel it (`cancelled`) and register again, a visitor's is final) or
 `none` (view-only: nobody registers, every viewer sees the whole event, meeting link included;
-admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp` and `open`. RSVP has no seat limit. `ticketed` is a documented future
+admins can still add, edit and remove guests, who get the usual emails). `show_guest_count` sits beside it for `rsvp` and `open`, and so does `capacity`: the most guests going at once (0 = unlimited); admins can add guests past it. With `waitlist` on, a full event files a sign-up as `waitlisted` (no seat, no meeting link, no reminders). `registration_opens` / `registration_closes` (`{value, unit}` before the start, null = no limit) bound when guests can sign up; one already going can still give up the seat. The public landing pages enforce all three. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.
 
 Statuses: events are `public | unlisted | private | draft`, calendars `public | private | draft`.

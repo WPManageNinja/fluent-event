@@ -57,7 +57,7 @@ export default {
         },
         // A scheduled or pending post: the server takes answers once it is published.
         unpublishedNote() {
-            if (this.event.registration_open !== false || this.event.is_past) {
+            if (!this.event.is_unpublished || this.event.is_past) {
                 return '';
             }
 

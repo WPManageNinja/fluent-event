@@ -47,6 +47,10 @@ class PortalEventController extends Controller
 
         $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages']);
 
+        if (is_string($guest)) {
+            return $this->sendError(['message' => $guest], 422);
+        }
+
         do_action('fluent_event/guest/created', $guest);
 
         RegistrationService::queueEmail($guest, null);
@@ -56,7 +60,7 @@ class PortalEventController extends Controller
         $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $guest->status, false, false);
 
         return [
-            'message' => __('You are registered.', 'fluent-event'),
+            'message' => $guest->status === 'waitlisted' ? __('You are on the waitlist.', 'fluent-event') : __('You are registered.', 'fluent-event'),
             'status'  => $guest->status,
             'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), true),
         ];

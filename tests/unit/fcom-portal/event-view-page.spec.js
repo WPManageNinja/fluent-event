@@ -23,6 +23,7 @@ const meetup = (overrides = {}) => ({
     entry_type: 'rsvp',
     my_status: null,
     is_past: false,
+    registration_open: true,
     ...overrides
 });
 
@@ -205,6 +206,196 @@ describe('EventViewPage', () => {
             const { wrapper } = await page(meetup());
 
             expect(wrapper.find('.fe-live-badge').text()).toBe('Happening now');
+        });
+    });
+
+    describe('capacity', () => {
+        const capped = (going, capacity = 10) => meetup({ guest_count: going, capacity, is_full: going >= capacity });
+
+        it('meters the seats taken and counts the ones left', async () => {
+            const { wrapper } = await page(capped(7));
+
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('7 out of 10 going3 spots left');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 70%');
+            expect(wrapper.find('.fe-event-view__count').exists()).toBe(false);
+        });
+
+        it('says one spot in the singular', async () => {
+            const { wrapper } = await page(capped(9));
+
+            expect(wrapper.find('.fe-capacity__status').text()).toBe('1 spot left');
+        });
+
+        it('tells a member without a seat the event is full in place of the RSVP, under a full meter', async () => {
+            const { wrapper } = await page(capped(10));
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('Event full');
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('10 out of 10 going');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.find('.fe-event-view__count').exists()).toBe(false);
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it('says the event is full even when the host hides the count, with no meter', async () => {
+            const { wrapper } = await page(meetup({ guest_count: null, capacity: 10, is_full: true }));
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(true);
+            expect(wrapper.find('.fe-capacity').exists()).toBe(false);
+        });
+
+        it('keeps the full meter and the RSVP for a guest who holds a seat', async () => {
+            const { wrapper } = await page({ ...capped(10), my_status: 'going' });
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+            expect(wrapper.find('.fe-capacity__status').text()).toBe('Event full');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        const ended = (event) => ({ ...event, start_at: '2026-10-10 12:00:00', end_at: '2026-10-10 14:00:00', is_past: true });
+
+        it('keeps the meter on an ended event, without spots left or a full notice while seats were left', async () => {
+            const { wrapper } = await page(ended(capped(7)));
+
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('7 out of 10 going');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 70%');
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+        });
+
+        it('keeps the full notice on an ended event that filled up', async () => {
+            const { wrapper } = await page(ended(capped(10)));
+
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(true);
+        });
+
+        it('shows no meter when the host hides the count or set no capacity', async () => {
+            expect((await page(meetup({ guest_count: null, capacity: 10 }))).wrapper.find('.fe-capacity').exists()).toBe(false);
+
+            const uncapped = (await page(meetup({ guest_count: 4, capacity: null }))).wrapper;
+            expect(uncapped.find('.fe-capacity').exists()).toBe(false);
+            expect(uncapped.find('.fe-event-view__count').text()).toBe('4 going');
+        });
+    });
+
+    describe('registration window', () => {
+        it('tells a member when registration opens, in place of the RSVP', async () => {
+            const { wrapper } = await page(meetup({ registration_open: false, registration_opens_at: '2026-10-18 09:00:00' }));
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('Registration not open yet');
+            expect(wrapper.find('.fe-event-view__notice-desc').text()).toBe('Registration opens October 18, 2026 · 9:00 AM.');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it('says registration closed before saying the event is full', async () => {
+            const { wrapper } = await page(meetup({ registration_open: false, capacity: 10, guest_count: 10, is_full: true }));
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('Registration closed');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it('keeps the RSVP for a member already going once registration closes', async () => {
+            const { wrapper } = await page(meetup({ registration_open: false, my_status: 'going' }));
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        it('tells a member who said not going that registration has not opened', async () => {
+            const { wrapper } = await page(meetup({ registration_open: false, registration_opens_at: '2026-10-18 09:00:00', my_status: 'not_going' }));
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('Registration not open yet');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it('says registration closed in place of Join waitlist on a full event', async () => {
+            const { wrapper } = await page(meetup({ registration_open: false, capacity: 10, guest_count: 10, is_full: true, waitlist: true }));
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('Registration closed');
+            expect(wrapper.text()).not.toContain('Join waitlist');
+        });
+
+        it('still tells a waitlisted member where they stand once registration closes', async () => {
+            const { wrapper } = await page(meetup({ registration_open: false, my_status: 'waitlisted' }));
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('You are on the waitlist');
+        });
+
+        it('says nothing about registration once the event has ended', async () => {
+            const { wrapper } = await page(meetup({
+                start_at: '2026-10-10 12:00:00', end_at: '2026-10-10 14:00:00', is_past: true,
+                registration_open: false, registration_closes_at: null
+            }));
+
+            expect(wrapper.text()).not.toContain('Registration');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it('keeps the RSVP while the event is under way and registration has no closing time', async () => {
+            vi.setSystemTime(new Date('2026-10-20T13:00:00Z'));
+            const { wrapper } = await page(meetup());
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+            expect(wrapper.find('.fe-event-view__note').exists()).toBe(false);
+        });
+
+        it('shows no closing time once registration is shut', async () => {
+            const { wrapper } = await page(meetup({ registration_open: false, registration_closes_at: '2026-10-19 18:00:00' }));
+
+            expect(wrapper.find('.fe-event-view__note').exists()).toBe(false);
+        });
+
+        it('says when registration closes while it is open', async () => {
+            const { wrapper } = await page(meetup({ registration_closes_at: '2026-10-19 18:00:00' }));
+
+            expect(wrapper.find('.fe-event-view__note').text()).toBe('Registration closes October 19, 2026 · 6:00 PM');
+        });
+    });
+
+    describe('waitlist', () => {
+        const full = (overrides = {}) => meetup({ guest_count: 10, capacity: 10, is_full: true, waitlist: true, ...overrides });
+
+        it('invites a member without a seat to join the waitlist', async () => {
+            const { wrapper } = await page(full());
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('Event full');
+            expect(wrapper.find('.fe-event-view__notice-desc').text()).toBe('Join the waitlist to be moved to going if a seat opens up.');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        it.each([
+            ['full', true],
+            ['with a seat free', false],
+        ])('tells a waitlisted member where they stand, %s, with no RSVP', async (label, isFull) => {
+            const { wrapper } = await page(full({ my_status: 'waitlisted', is_full: isFull }));
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('You are on the waitlist');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it.each([
+            ['full', true],
+            ['with a seat free', false],
+        ])('tells a cancelled member their registration is cancelled, %s, with no RSVP', async (label, isFull) => {
+            const { wrapper } = await page(full({ my_status: 'cancelled', is_full: isFull }));
+
+            expect(wrapper.find('.fe-event-view__notice--cancelled .fe-event-view__notice-title').text()).toBe('Your registration has been cancelled');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it('keeps a checked-in guest on the normal Going RSVP', async () => {
+            const { wrapper } = await page(full({ my_status: 'checked_in' }));
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+            expect(wrapper.find('.fe-rsvp__label').text()).toBe('Going');
+        });
+
+        it('closes the waitlist once the event has ended', async () => {
+            const { wrapper } = await page(full({ start_at: '2026-10-10 12:00:00', end_at: '2026-10-10 14:00:00', is_past: true }));
+
+            expect(wrapper.find('.fe-event-view__notice-desc').text()).toBe('This event is full and no longer taking registrations.');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
         });
     });
 

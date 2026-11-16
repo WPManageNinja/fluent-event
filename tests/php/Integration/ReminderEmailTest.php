@@ -172,6 +172,7 @@ class ReminderEmailTest extends IntegrationTestCase
         $checkedIn = $this->createGuest($event, ['status' => 'checked_in']);
         $this->createGuest($event, ['status' => 'not_going']);
         $this->createGuest($event, ['status' => 'cancelled']);
+        $this->createGuest($event, ['status' => 'waitlisted']);
 
         EventReminderService::scheduleReminders($event);
         EventReminderService::sendReminders($event->id, self::DAY);
@@ -238,6 +239,33 @@ class ReminderEmailTest extends IntegrationTestCase
 
         EventReminderService::sendConfirmation($notGoing->id);
         EventReminderService::sendConfirmation($draftGuest->id);
+
+        $this->assertNoMailSent();
+    }
+
+    public function test_a_waitlisted_guest_is_told_without_the_meeting_link()
+    {
+        $event = $this->createEvent(['venue_type' => 'online'], ['online_meeting_url' => 'https://meet.example.test/secret']);
+        $guest = $this->createGuest($event, ['status' => 'waitlisted']);
+
+        EventReminderService::sendWaitlist($guest->id);
+
+        $this->assertMailSentTo($guest->email);
+        $this->assertStringContainsString('waitlist', $this->sentMail[0]['subject']);
+        $this->assertStringNotContainsString('meet.example.test', $this->sentMail[0]['message']);
+    }
+
+    public function test_no_waitlist_email_when_switched_off_or_the_guest_already_has_a_seat()
+    {
+        $promoted = $this->createGuest($this->createEvent(), ['status' => 'going']);
+        EventReminderService::sendWaitlist($promoted->id);
+
+        $waitlisted = $this->createGuest($this->createEvent(), ['status' => 'waitlisted']);
+        Settings::update(Settings::EMAIL_NOTIFICATIONS, array_merge(
+            Settings::DEFAULTS[Settings::EMAIL_NOTIFICATIONS],
+            ['registration_waitlist' => ['enabled' => false]]
+        ));
+        EventReminderService::sendWaitlist($waitlisted->id);
 
         $this->assertNoMailSent();
     }

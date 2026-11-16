@@ -104,6 +104,104 @@ class RequestRulesTest extends TestCase
         $this->assertSame('rsvp', $formatted['meta']['entry_type']);
     }
 
+    public function test_a_capacity_is_a_whole_number_and_none_means_unlimited()
+    {
+        $this->assertSame('nullable|integer|min:0', EventRequest::RULES['capacity']);
+        $this->assertSame(25, EventRequest::sanitize(['capacity' => '25'])['capacity']);
+        $this->assertSame(0, EventRequest::format($this->eventInput())['meta']['capacity']);
+    }
+
+    public function test_a_waitlist_is_yes_or_no_and_off_by_default()
+    {
+        $this->assertSame('nullable|string|in:yes,no', EventRequest::RULES['waitlist']);
+        $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['waitlist']);
+    }
+
+    public function test_a_registration_limit_is_checked_only_once_the_host_sets_one()
+    {
+        $this->assertArrayNotHasKey('registration_opens.value', EventRequest::rules($this->eventInput()));
+
+        $rules = EventRequest::rules($this->eventInput(['registration_opens' => ['value' => 2, 'unit' => 'days']]));
+
+        $this->assertSame('required|integer|min:0', $rules['registration_opens.value']);
+        $this->assertSame('required|in:minutes,hours,days', $rules['registration_opens.unit']);
+        $this->assertArrayNotHasKey('registration_closes.value', $rules);
+    }
+
+    public function test_a_registration_limit_keeps_only_its_offset_and_empty_means_no_limit()
+    {
+        $meta = EventRequest::format($this->eventInput([
+            'registration_opens'  => ['value' => 2, 'unit' => 'days', 'extra' => 'dropped'],
+            'registration_closes' => null,
+        ]))['meta'];
+
+        $this->assertSame(['value' => 2, 'unit' => 'days'], $meta['registration_opens']);
+        $this->assertNull($meta['registration_closes']);
+        $this->assertNull(EventRequest::format($this->eventInput())['meta']['registration_opens']);
+    }
+
+    /**
+     * @dataProvider registrationWindows
+     */
+    public function test_registration_must_close_after_it_opens($opens, $closes, $isValid)
+    {
+        $data = ['start_at' => '2026-11-10 18:00', 'end_at' => '2026-11-10 20:00', 'registration_opens' => $opens, 'registration_closes' => $closes];
+
+        try {
+            EventRequest::validateDateWindow($data);
+            $this->assertTrue($isValid, 'The registration window was accepted');
+        } catch (ValidationException $e) {
+            $this->assertFalse($isValid, 'The registration window was refused');
+            $this->assertArrayHasKey('registration_closes', $e->errors());
+        }
+    }
+
+    /**
+     * An update may send one side of the window; the other keeps its saved offset.
+     *
+     * @dataProvider partialWindowUpdates
+     */
+    public function test_an_update_checks_the_window_it_will_store($submitted, $isValid)
+    {
+        $data = array_merge(['start_at' => '2026-11-10 18:00', 'end_at' => '2026-11-10 20:00'], $submitted);
+        $saved = ['registration_opens' => ['value' => 1, 'unit' => 'hours'], 'registration_closes' => null];
+
+        try {
+            EventRequest::validateDateWindow($data, $saved);
+            $this->assertTrue($isValid, 'The registration window was accepted');
+        } catch (ValidationException $e) {
+            $this->assertFalse($isValid, 'The registration window was refused');
+            $this->assertArrayHasKey('registration_closes', $e->errors());
+        }
+    }
+
+    public function partialWindowUpdates()
+    {
+        return [
+            'closes before the saved opening'      => [['registration_closes' => ['value' => 1, 'unit' => 'days']], false],
+            'closes after the saved opening'       => [['registration_closes' => ['value' => 30, 'unit' => 'minutes']], true],
+            'saved opening cleared in the same go' => [['registration_opens' => null, 'registration_closes' => ['value' => 1, 'unit' => 'days']], true],
+            'neither side sent'                    => [[], true],
+        ];
+    }
+
+    public function registrationWindows()
+    {
+        return [
+            'opens a week out, closes an hour out' => [['value' => 7, 'unit' => 'days'], ['value' => 1, 'unit' => 'hours'], true],
+            'closes before it opens'               => [['value' => 1, 'unit' => 'hours'], ['value' => 2, 'unit' => 'days'], false],
+            'opens and closes together'            => [['value' => 60, 'unit' => 'minutes'], ['value' => 1, 'unit' => 'hours'], false],
+            'only a closing time'                  => [null, ['value' => 0, 'unit' => 'hours'], true],
+            'only an opening time'                 => [['value' => 3, 'unit' => 'days'], null, true],
+            'no limits'                            => [null, null, true],
+            'opens at the start, no closing time'  => [['value' => 0, 'unit' => 'minutes'], null, true],
+            'both at the start'                    => [['value' => 0, 'unit' => 'days'], ['value' => 0, 'unit' => 'minutes'], false],
+            'a day against 24 hours'               => [['value' => 1, 'unit' => 'days'], ['value' => 24, 'unit' => 'hours'], false],
+            'a day against 23 hours'               => [['value' => 1, 'unit' => 'days'], ['value' => 23, 'unit' => 'hours'], true],
+            '90 minutes against an hour'           => [['value' => 90, 'unit' => 'minutes'], ['value' => 1, 'unit' => 'hours'], true],
+        ];
+    }
+
     public function test_the_description_is_rendered_from_its_markdown_and_the_markdown_kept()
     {
         $markdown = "**Bring** a tripod&#x20;\n\n- warm layer\n\n<script>alert(1)</script>\n\n![1.00](https://x.test/a.png \"Sunset\")\n\n![0.43](https://x.test/b.png)\n\n![1.50](https://x.test/c.png)";

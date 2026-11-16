@@ -340,21 +340,100 @@
                                     </el-radio>
                                 </el-radio-group>
                             </el-form-item>
-
-                            <div v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-form__switch-row" data-field="show_guest_count">
-                                <label class="fe-form__switch-text" for="fe-event-show-guest-count">
-                                    {{ $t('Show how many guests are going') }}
-                                </label>
-
-                                <el-switch
-                                    id="fe-event-show-guest-count"
-                                    v-model="event.show_guest_count"
-                                    active-value="yes"
-                                    inactive-value="no"
-                                />
-                            </div>
                         </div>
                     </section>
+
+                    <template v-if="['rsvp', 'open'].includes(event.entry_type)">
+                        <section class="fe-form__section">
+                            <div class="fe-form__section-rail">
+                                <h2 class="fe-form__section-title">{{ $t('Registration window') }}</h2>
+                                <p class="fe-form__section-desc">
+                                    {{ $t('When guests can start joining.') }}
+                                </p>
+                            </div>
+
+                            <div class="fe-form__section-fields fe-event-form__limits">
+                                <RegistrationLimitField
+                                    id="fe-event-registration-opens"
+                                    v-model="event.registration_opens"
+                                    kind="opens"
+                                    :start="eventStart"
+                                    :time-format="timeFormat"
+                                    data-field="registration_opens"
+                                />
+
+                                <RegistrationLimitField
+                                    id="fe-event-registration-closes"
+                                    v-model="event.registration_closes"
+                                    kind="closes"
+                                    :start="eventStart"
+                                    :time-format="timeFormat"
+                                    data-field="registration_closes"
+                                />
+
+                                <el-alert
+                                    class="fe-event-form__limits-note"
+                                    type="info"
+                                    :title="$t('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.')"
+                                    :closable="false"
+                                    show-icon
+                                />
+                            </div>
+                        </section>
+
+                        <section class="fe-form__section">
+                            <div class="fe-form__section-rail">
+                                <h2 class="fe-form__section-title">{{ $t('Guest control') }}</h2>
+                                <p class="fe-form__section-desc">
+                                    {{ $t('Seats, the waitlist and the guest count guests see.') }}
+                                </p>
+                            </div>
+
+                            <div class="fe-form__section-fields">
+                                <div class="fe-form__switch-row" data-field="show_guest_count">
+                                    <label class="fe-form__switch-text" for="fe-event-show-guest-count">
+                                        {{ $t('Show how many guests are going') }}
+                                    </label>
+
+                                    <el-switch
+                                        id="fe-event-show-guest-count"
+                                        v-model="event.show_guest_count"
+                                        active-value="yes"
+                                        inactive-value="no"
+                                    />
+                                </div>
+
+                                <el-form-item :label="$t('Capacity')" for="fe-event-capacity" data-field="capacity">
+                                    <el-input-number
+                                        id="fe-event-capacity"
+                                        v-model="event.capacity"
+                                        class="fe-event-form__capacity"
+                                        align="left"
+                                        :min="1"
+                                        step-strictly
+                                        :controls="false"
+                                        :placeholder="$t('Unlimited')"
+                                    />
+                                    <span class="fe-form__hint">
+                                        {{ $t('How many guests can be going at once. Leave empty for no limit.') }}
+                                    </span>
+                                </el-form-item>
+
+                                <div v-if="event.capacity" class="fe-form__switch-row" data-field="waitlist">
+                                    <label class="fe-form__switch-text" for="fe-event-waitlist">
+                                        {{ $t('Let guests join a waitlist when the event is full') }}
+                                    </label>
+
+                                    <el-switch
+                                        id="fe-event-waitlist"
+                                        v-model="event.waitlist"
+                                        active-value="yes"
+                                        inactive-value="no"
+                                    />
+                                </div>
+                            </div>
+                        </section>
+                    </template>
 
                     <div class="fe-form__actions fe-form__actions--bar">
                         <el-button
@@ -378,6 +457,7 @@
     import MarkdownEditor from '@/components/MarkdownEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
+    import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
@@ -393,6 +473,7 @@
             MarkdownEditor,
             ErrorState,
             MediaPicker,
+            RegistrationLimitField,
             SegmentedSwitch,
             Skeleton,
         },
@@ -422,6 +503,9 @@
             },
             isEditing() {
                 return !!this.eventId;
+            },
+            eventStart() {
+                return `${this.event.start_date} ${this.event.start_time}`;
             },
             pageTitle() {
                 return this.isEditing ? this.$t('Edit Event') : this.$t('Create Event');
@@ -513,7 +597,11 @@
                     address: meta.address || '',
                     cover_url: meta.cover_url || '',
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
-                    show_guest_count: meta.show_guest_count || 'yes',
+                    show_guest_count: event ? (meta.show_guest_count || 'yes') : 'no',
+                    capacity: meta.capacity || null,
+                    waitlist: meta.waitlist || 'no',
+                    registration_opens: meta.registration_opens || null,
+                    registration_closes: meta.registration_closes || null,
                 };
             },
             loadForm() {
@@ -612,6 +700,10 @@
                         address: this.event.address,
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
+                        capacity: this.event.capacity || 0,
+                        waitlist: this.event.waitlist,
+                        registration_opens: this.event.registration_opens,
+                        registration_closes: this.event.registration_closes,
                     },
                     loadingState: 'saving',
                     errorState: null,

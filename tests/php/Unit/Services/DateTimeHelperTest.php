@@ -40,6 +40,13 @@ class DateTimeHelperTest extends TestCase
         $this->assertSame('2026-10-15 10:00:00', DateTimeHelper::convertFromUtc('2026-10-15 04:00:00', 'Asia/Dhaka'));
     }
 
+    public function test_a_timestamp_converts_to_site_time()
+    {
+        Functions\when('wp_timezone_string')->justReturn('Asia/Dhaka');
+
+        $this->assertSame('2026-10-15 10:00:00', DateTimeHelper::timestampToSite(strtotime('2026-10-15 04:00:00 UTC')));
+    }
+
     public function test_conversion_follows_daylight_saving()
     {
         // US clocks went forward on 2026-03-08: EST is UTC-5 before, EDT is UTC-4 after.

@@ -237,6 +237,24 @@ class EventReminderService
         do_action('fluent_event/guest/cancellation_sent', $guest, $event);
     }
 
+    public static function sendWaitlist($guestId)
+    {
+        if (empty(Settings::get(Settings::EMAIL_NOTIFICATIONS)['registration_waitlist']['enabled'])) return;
+
+        $guest = Guest::query()->find((int) $guestId);
+
+        if (!$guest || $guest->status !== 'waitlisted' || !is_email($guest->email)) return;
+
+        $event = Event::query()->find($guest->event_id);
+
+        if (!$event || $event->status === 'draft') return;
+
+        $email = self::buildEmail('waitlist', $event, $guest);
+        Mailer::send($guest->email, $email['subject'], $email['body']);
+
+        do_action('fluent_event/guest/waitlist_sent', $guest, $event);
+    }
+
     public static function buildEmail($type, $event, $guest)
     {
         if ($type === 'confirmation') {
@@ -249,6 +267,12 @@ class EventReminderService
             $subject = __('Your registration for %s is cancelled', 'fluent-event');
             /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
             $body = self::buildGreeting($event, $guest, __('Your registration for %1$s on %2$s (%3$s) has been cancelled.', 'fluent-event'));
+        } elseif ($type === 'waitlist') {
+            /* translators: %s is the event title */
+            $subject = __('You are on the waitlist for %s', 'fluent-event');
+            // A waitlisted guest has no seat, so like a cancellation it stops before the meeting link.
+            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+            $body = self::buildGreeting($event, $guest, __('You are on the waitlist for %1$s on %2$s (%3$s). The event is full, so you do not have a seat yet.', 'fluent-event'));
         } else {
             /* translators: %s is the event title */
             $subject = __('Reminder: %s is coming up', 'fluent-event');
