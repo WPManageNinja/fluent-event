@@ -207,7 +207,7 @@
 
                     <template #guests>
                         <div class="fe-card">
-                            <EventGuests :event-id="event.id" @changed="fetchGuestCounts" />
+                            <EventGuests :event-id="event.id" />
                         </div>
                     </template>
 
