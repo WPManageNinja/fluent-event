@@ -53,10 +53,13 @@ function declared(css, selector, property) {
 describe('community countdown labels', () => {
     const css = compile('resources/fcom-portal/fcom-portal.scss').css;
 
+    // The event page's countdown, and the event form help's drawing of it.
+    const blocks = ['.fe-countdown', '.fe-start-preview'];
+
     // At 9px the labels need 4.5:1; the default dark skin's secondary text on a tile was 3.61:1.
-    it.each(Object.keys(SKINS))('read at 4.5:1 or more on a tile in the default %s skin', (name) => {
-        const label = resolve(declared(css, '.fe-countdown__label', 'color'), SKINS[name]);
-        const tile = resolve(declared(css, '.fe-countdown__unit', 'background'), SKINS[name]);
+    it.each(blocks.flatMap((block) => Object.keys(SKINS).map((name) => [block, name])))('%s labels read at 4.5:1 or more on a tile in the default %s skin', (block, name) => {
+        const label = resolve(declared(css, `${block}__label`, 'color'), SKINS[name]);
+        const tile = resolve(declared(css, `${block}__unit`, 'background'), SKINS[name]);
 
         expect(contrast(label, tile)).toBeGreaterThanOrEqual(4.5);
     });

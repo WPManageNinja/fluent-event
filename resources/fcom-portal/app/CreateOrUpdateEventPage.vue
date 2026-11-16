@@ -257,11 +257,11 @@
                                 <span class="fe-start-display-help__title">{{ option.label }}</span>
                                 <span class="fe-start-display-help__text">{{ option.details }}</span>
                             </figcaption>
-                            <img
-                                class="fe-start-display-help__image"
-                                :src="startDisplayExample(option.value)"
-                                :alt="$t('%s on the event page', option.label)"
-                            >
+                            <StartDisplayPreview
+                                :value="option.value"
+                                role="img"
+                                :aria-label="$t('%s on the event page', option.label)"
+                            />
                         </figure>
                     </el-dialog>
                 </div>
@@ -374,12 +374,12 @@ import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-import { startDisplayExample } from '@/utils/startDisplayExamples';
+import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
 import { dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
     name: 'CreateOrUpdateEventPage',
-    components: { ArrowLeft, Delete, Picture, QuestionFilled, SegmentedSwitch },
+    components: { ArrowLeft, Delete, Picture, QuestionFilled, SegmentedSwitch, StartDisplayPreview },
     props: {
         router: { type: Object, required: true },
         // The edit route passes these instead of the create-only props below.
@@ -530,7 +530,6 @@ export default {
         this.$refs.titleInput.focus();
     },
     methods: {
-        startDisplayExample,
         // Checked before fcom's composer is touched, since opening it moves the focus to its title; the server still validates.
         submit() {
             const error = this.validateEvent();

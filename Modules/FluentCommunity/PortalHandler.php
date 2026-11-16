@@ -342,6 +342,7 @@ class PortalHandler
             'What the two choices look like' => __('What the two choices look like', 'fluent-event'),
             /* translators: %s is a choice name, "Time Left" or "Countdown"; the alt text of its example screenshot */
             '%s on the event page' => __('%s on the event page', 'fluent-event'),
+            'Starts in 2 days' => __('Starts in 2 days', 'fluent-event'),
             'Days' => __('Days', 'fluent-event'),
             'Hours' => __('Hours', 'fluent-event'),
             'Minutes' => __('Minutes', 'fluent-event'),
