@@ -245,6 +245,24 @@
                                     </div>
                                 </div>
                             </el-form-item>
+
+                            <el-form-item :label="$t('Before It Starts')" data-field="start_display">
+                                <el-radio-group
+                                    v-model="event.start_display"
+                                    class="fe-form__choices"
+                                    :aria-label="$t('Before It Starts')"
+                                >
+                                    <el-radio
+                                        v-for="option in startDisplays"
+                                        :key="option.value"
+                                        :value="option.value"
+                                        border
+                                    >
+                                        <span class="fe-form__choice-title">{{ option.label }}</span>
+                                        <span class="fe-form__hint">{{ option.hint }}</span>
+                                    </el-radio>
+                                </el-radio-group>
+                            </el-form-item>
                         </div>
                     </section>
 
@@ -443,6 +461,12 @@
                     { value: 'online', label: this.$t('Online'), icon: VideoCamera },
                 ];
             },
+            startDisplays() {
+                return [
+                    { value: 'relative', label: this.$t('Time Left'), hint: this.$t('A short line, like "Starts in 3 days".') },
+                    { value: 'countdown', label: this.$t('Countdown'), hint: this.$t('Days, hours, minutes and seconds, ticking down to the start.') },
+                ];
+            },
             bounds() {
                 return [
                     {
@@ -514,6 +538,7 @@
                     cover_url: meta.cover_url || '',
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
                     show_guest_count: meta.show_guest_count || 'yes',
+                    start_display: meta.start_display || 'relative',
                 };
             },
             loadForm() {
@@ -612,6 +637,7 @@
                         address: this.event.address,
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
+                        start_display: this.event.start_display,
                     },
                     loadingState: 'saving',
                     errorState: null,
