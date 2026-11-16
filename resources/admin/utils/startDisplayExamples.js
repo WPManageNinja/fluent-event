@@ -1,4 +1,4 @@
-// The "Before It Starts" help's screenshots, for the admin and the community event forms.
+// The "Start Time Display" help's screenshots, for the admin and the community event forms.
 import relative from '../images/start-display-relative.png';
 import countdown from '../images/start-display-countdown.png';
 import relativeDark from '../images/start-display-relative-dark.png';

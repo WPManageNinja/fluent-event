@@ -226,7 +226,7 @@
             <section class="fe-create-event__section">
                 <div>
                     <h2 class="fe-create-event__section-title fe-create-event__section-title--info">
-                        {{ $t('Before It Starts') }}
+                        {{ $t('Start Time Display') }}
                         <button
                             type="button"
                             class="fe-create-event__info"
@@ -243,7 +243,7 @@
                     <el-radio-group
                         v-model="event.start_display"
                         class="fe-create-event__choices"
-                        :aria-label="$t('Before It Starts')"
+                        :aria-label="$t('Start Time Display')"
                     >
                         <el-radio v-for="option in startDisplays" :key="option.value" :value="option.value" border>
                             <span class="fe-create-event__choice-title">{{ option.label }}</span>
@@ -251,7 +251,7 @@
                         </el-radio>
                     </el-radio-group>
 
-                    <el-dialog v-model="startDisplayHelp" class="fe-start-display-help" :title="$t('Before It Starts')" width="560px" append-to-body>
+                    <el-dialog v-model="startDisplayHelp" class="fe-start-display-help" :title="$t('Start Time Display')" width="560px" append-to-body>
                         <figure v-for="option in startDisplays" :key="option.value" class="fe-start-display-help__item">
                             <figcaption class="fe-start-display-help__caption">
                                 <span class="fe-start-display-help__title">{{ option.label }}</span>

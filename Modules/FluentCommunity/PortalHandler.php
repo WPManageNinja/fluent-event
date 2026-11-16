@@ -330,8 +330,8 @@ class PortalHandler
             "You're registered" => __("You're registered", 'fluent-event'),
             'e.g. Friday Q&A' => __('e.g. Friday Q&A', 'fluent-event'),
             'e.g. Kingsway Hall' => __('e.g. Kingsway Hall', 'fluent-event'),
-            // The event start's countdown and the event form's "Before It Starts" choice.
-            'Before It Starts' => __('Before It Starts', 'fluent-event'),
+            // The event start's countdown and the event form's "Start Time Display" choice.
+            'Start Time Display' => __('Start Time Display', 'fluent-event'),
             'How the event page shows the time until the start.' => __('How the event page shows the time until the start.', 'fluent-event'),
             'Time Left' => __('Time Left', 'fluent-event'),
             'Countdown' => __('Countdown', 'fluent-event'),

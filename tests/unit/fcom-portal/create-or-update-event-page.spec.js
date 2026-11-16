@@ -407,7 +407,7 @@ describe('CreateOrUpdateEventPage', () => {
         });
     });
 
-    describe('"Before It Starts" help', () => {
+    describe('"Start Time Display" help', () => {
         // The dialog is 560px; fcom's styles cap only its own dialogs, so on a phone it ran off the screen.
         it('keeps the help dialog inside a phone screen', async () => {
             const { wrapper } = await createPage();
