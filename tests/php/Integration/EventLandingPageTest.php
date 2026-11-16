@@ -91,6 +91,36 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringContainsString('Add to calendar', $none);
     }
 
+    // A full event shows no Register button, only why; with a waitlist the button joins it instead.
+    public function test_a_full_event_shows_its_capacity_in_place_of_register()
+    {
+        $capped = ['entry_type' => 'open', 'capacity' => 2, 'show_guest_count' => 'yes'];
+
+        $open = $this->createEvent([], $capped);
+        $this->createGuest($open);
+        $body = $this->page($open)['body'];
+
+        $this->assertStringContainsString('1 spot left', $body);
+        $this->assertStringContainsString('popovertarget="fe-register-' . $open->id . '"', $body);
+
+        $full = $this->createEvent([], $capped);
+        $this->createGuest($full);
+        $this->createGuest($full);
+        $body = $this->page($full)['body'];
+
+        $this->assertStringContainsString('This event is full and no longer taking registrations.', $body);
+        $this->assertStringNotContainsString('popovertarget="fe-register-' . $full->id . '"', $body);
+
+        $waitlist = $this->createEvent([], ['waitlist' => 'yes'] + $capped);
+        $this->createGuest($waitlist);
+        $this->createGuest($waitlist);
+        $body = $this->page($waitlist)['body'];
+
+        $this->assertStringContainsString('Join the waitlist to be moved to going if a seat opens up.', $body);
+        $this->assertStringContainsString('popovertarget="fe-register-' . $waitlist->id . '"', $body);
+        $this->assertStringContainsString('Join waitlist', $body);
+    }
+
     // The page doesn't know its viewers: a going member and staff get the visitor's card, with nothing prefilled.
     public function test_logged_in_viewers_see_the_page_as_a_visitor()
     {

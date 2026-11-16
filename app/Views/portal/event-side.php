@@ -14,8 +14,11 @@
  * @var string     $phase            upcoming|live|ended
  * @var string     $status_label
  * @var string     $count_label
+ * @var array|null $meter            percent, status; the count against the capacity, when both show.
+ * @var array|null $notice           type (full|waiting), title, text.
  * @var string     $meeting_link     http(s) only; empty unless this viewer may see it.
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
+ * @var bool       $join_waitlist    The event is full, so registering joins its waitlist.
  * @var array|null $add_to_calendar  google, ics, filename.
  * @var bool       $just_registered  Drawn only in the registration's answer, which portal.js opens.
  */
@@ -27,6 +30,7 @@ $fluentEventId = (int) $event['id'];
 $fluentEventOpen = 'open' === $event['entry_type'];
 // ✓ Going and ✓ Registered are final: there is no account to change them from.
 $fluentEventDone = $registration && $registration['is_going'];
+$fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __( 'Register', 'fluent-event' );
 ?>
 <aside
     class="fe-event-page__card fe-event-page__side"
@@ -61,16 +65,51 @@ $fluentEventDone = $registration && $registration['is_going'];
         <span class="fe-event-page__status fe-event-page__status--<?php echo esc_attr( $phase ); ?>"><?php echo esc_html( $status_label ); ?></span>
     <?php endif; ?>
 
-    <?php if ( $registration || $count_label ) : ?>
+    <?php if ( $meter ) : ?>
+        <div class="fe-capacity">
+            <div class="fe-capacity__head">
+                <span><?php echo esc_html( $count_label ); ?></span>
+                <?php if ( $meter['status'] ) : ?>
+                    <span class="fe-capacity__status"><?php echo esc_html( $meter['status'] ); ?></span>
+                <?php endif; ?>
+            </div>
+            <div
+                class="fe-capacity__track"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="<?php echo esc_attr( $event['capacity'] ); ?>"
+                aria-valuenow="<?php echo esc_attr( $event['guest_count'] ); ?>"
+                aria-valuetext="<?php echo esc_attr( $count_label ); ?>"
+                aria-label="<?php esc_attr_e( 'Capacity', 'fluent-event' ); ?>"
+            >
+                <span class="fe-capacity__fill" style="width: <?php echo esc_attr( $meter['percent'] ); ?>%"></span>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ( $notice ) : ?>
+        <?php // Focused after joining the waitlist, like the ✓ badge after registering. ?>
+        <div class="fe-event-page__notice fe-event-page__notice--<?php echo esc_attr( $notice['type'] ); ?>" tabindex="-1" data-fe-focus>
+            <span class="fe-event-page__notice-icon">
+                <?php echo 'waiting' === $notice['type'] ? Icon::CLOCK : Icon::TICKET; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constants ?>
+            </span>
+            <span class="fe-event-page__notice-text">
+                <span class="fe-event-page__notice-title"><?php echo esc_html( $notice['title'] ); ?></span>
+                <span class="fe-event-page__notice-desc"><?php echo esc_html( $notice['text'] ); ?></span>
+            </span>
+        </div>
+    <?php endif; ?>
+
+    <?php if ( $registration || ( $count_label && ! $meter ) ) : ?>
         <div class="fe-event-page__rsvp">
             <?php if ( $fluentEventDone ) : ?>
                 <span class="fe-event-page__badge" tabindex="-1" data-fe-focus>
                     <span class="fe-event-page__badge-icon"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php echo esc_html( $fluentEventOpen ? __( 'Registered', 'fluent-event' ) : __( 'Going', 'fluent-event' ) ); ?>
                 </span>
-            <?php elseif ( $registration && $fluentEventOpen ) : ?>
+            <?php elseif ( $registration && ( $fluentEventOpen || $join_waitlist ) ) : ?>
                 <button type="button" class="fe-event-page__button" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>" data-fe-focus>
-                    <?php esc_html_e( 'Register', 'fluent-event' ); ?>
+                    <?php echo esc_html( $fluentEventAction ); ?>
                 </button>
             <?php elseif ( $registration ) : ?>
                 <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
@@ -87,7 +126,7 @@ $fluentEventDone = $registration && $registration['is_going'];
                 </div>
             <?php endif; ?>
 
-            <?php if ( $count_label ) : ?>
+            <?php if ( $count_label && ! $meter ) : ?>
                 <span class="fe-event-page__count"><?php echo esc_html( $count_label ); ?></span>
             <?php endif; ?>
         </div>
@@ -109,7 +148,7 @@ $fluentEventDone = $registration && $registration['is_going'];
         >
             <div class="fe-register__head">
                 <div>
-                    <h2 class="fe-register__title" id="fe-register-title-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( 'Register', 'fluent-event' ); ?></h2>
+                    <h2 class="fe-register__title" id="fe-register-title-<?php echo esc_attr( $fluentEventId ); ?>"><?php echo esc_html( $fluentEventAction ); ?></h2>
                     <p class="fe-register__event"><?php echo esc_html( $event['title'] ); ?></p>
                 </div>
                 <button type="button" class="fe-register__close" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" aria-label="<?php esc_attr_e( 'Close', 'fluent-event' ); ?>">
@@ -127,7 +166,7 @@ $fluentEventDone = $registration && $registration['is_going'];
 
             <p class="fe-register__error" role="alert"></p>
 
-            <button type="submit" class="fe-event-page__button"><?php esc_html_e( 'Register', 'fluent-event' ); ?></button>
+            <button type="submit" class="fe-event-page__button"><?php echo esc_html( $fluentEventAction ); ?></button>
         </form>
     <?php endif; ?>
 
@@ -149,7 +188,7 @@ $fluentEventDone = $registration && $registration['is_going'];
                 <?php echo Icon::VIDEO; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                 <span><?php esc_html_e( 'Join online', 'fluent-event' ); ?></span>
             </a>
-        <?php elseif ( $event['has_meeting_url'] ) : ?>
+        <?php elseif ( $event['has_meeting_url'] && $registration ) : ?>
             <p class="fe-event-page__note"><?php esc_html_e( 'Please register for the event to see the meeting link.', 'fluent-event' ); ?></p>
         <?php endif; ?>
     <?php endif; ?>
