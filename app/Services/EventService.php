@@ -153,6 +153,7 @@ class EventService
             'online_meeting_url' => $hasMeetingUrl && ($meta['entry_type'] === 'none' || $isRegistered || $isStaff) ? $meta['online_meeting_url'] : '',
             'entry_type'         => $meta['entry_type'],
             'guest_count'        => $takesRegistrations && $meta['show_guest_count'] === 'yes' ? $seats : null,
+            'start_display'      => $meta['start_display'],
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
             'registration_open'  => $takesRegistrations && !$isPast,

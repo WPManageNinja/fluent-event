@@ -335,6 +335,24 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $response['status']);
     }
 
+    // Saved with the event and kept when a form that doesn't know it (the community one) saves again.
+    public function test_the_start_display_is_saved_and_only_takes_its_two_choices()
+    {
+        $event = $this->createEvent();
+
+        $this->assertSame('relative', $this->rest('GET', "events/{$event->id}")['data']['event']['meta']['start_display']);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_display' => 'countdown']));
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Renamed']));
+        $this->assertSame('countdown', Event::find($event->id)->meta['start_display']);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_display' => 'flip']));
+        $this->assertSame(422, $response['status']);
+        $this->assertSame(['in'], array_keys($response['data']['start_display']));
+    }
+
     public function test_script_in_an_event_description_is_saved_as_text()
     {
         $event = $this->createEvent();
