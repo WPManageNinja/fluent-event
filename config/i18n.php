@@ -93,7 +93,6 @@ return [
             'at: %s' => __('at: %s', 'fluent-event'),
             'Back to Dashboard' => __('Back to Dashboard', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
-            'Before It Starts' => __('Before It Starts', 'fluent-event'),
             'Breadcrumb' => __('Breadcrumb', 'fluent-event'),
             'Bullet list' => __('Bullet list', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
@@ -358,6 +357,7 @@ return [
             'Start' => __('Start', 'fluent-event'),
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
+            'Start Time Display' => __('Start Time Display', 'fluent-event'),
             /* translators: %s: when the event starts, as a date and time or as a relative time such as "in 3 days" */
             'Starts %s' => __('Starts %s', 'fluent-event'),
             'Status' => __('Status', 'fluent-event'),

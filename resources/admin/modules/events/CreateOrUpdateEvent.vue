@@ -168,7 +168,7 @@
 
                             <el-dialog
                                 v-model="startDisplayHelp"
-                                :title="$t('Before It Starts')"
+                                :title="$t('Start Time Display')"
                                 width="560px"
                                 append-to-body
                             >
@@ -274,7 +274,7 @@
                     <section class="fe-form__section" data-field="start_display">
                         <div class="fe-form__section-rail">
                             <h2 class="fe-form__section-title fe-form__section-title--info">
-                                {{ $t('Before It Starts') }}
+                                {{ $t('Start Time Display') }}
                                 <button
                                     type="button"
                                     class="fe-form__label-info"
@@ -293,7 +293,7 @@
                             <el-radio-group
                                 v-model="event.start_display"
                                 class="fe-form__choices"
-                                :aria-label="$t('Before It Starts')"
+                                :aria-label="$t('Start Time Display')"
                             >
                                 <el-radio
                                     v-for="option in startDisplays"
