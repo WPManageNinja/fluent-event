@@ -330,6 +330,23 @@ class PortalHandler
             "You're registered" => __("You're registered", 'fluent-event'),
             'e.g. Friday Q&A' => __('e.g. Friday Q&A', 'fluent-event'),
             'e.g. Kingsway Hall' => __('e.g. Kingsway Hall', 'fluent-event'),
+            // The event start's countdown and the event form's "Before It Starts" choice.
+            'Before It Starts' => __('Before It Starts', 'fluent-event'),
+            'How the event page shows the time until the start.' => __('How the event page shows the time until the start.', 'fluent-event'),
+            'Time Left' => __('Time Left', 'fluent-event'),
+            'Countdown' => __('Countdown', 'fluent-event'),
+            'A short line, like "Starts in 3 days".' => __('A short line, like "Starts in 3 days".', 'fluent-event'),
+            'Days, hours, minutes and seconds, ticking down to the start.' => __('Days, hours, minutes and seconds, ticking down to the start.', 'fluent-event'),
+            'A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".' => __('A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".', 'fluent-event'),
+            'Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.' => __('Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.', 'fluent-event'),
+            'What the two choices look like' => __('What the two choices look like', 'fluent-event'),
+            /* translators: %s is a choice name, "Time Left" or "Countdown"; the alt text of its example screenshot */
+            '%s on the event page' => __('%s on the event page', 'fluent-event'),
+            'Days' => __('Days', 'fluent-event'),
+            'Hours' => __('Hours', 'fluent-event'),
+            'Minutes' => __('Minutes', 'fluent-event'),
+            'Seconds' => __('Seconds', 'fluent-event'),
+            'Time until the event starts' => __('Time until the event starts', 'fluent-event'),
         ];
     }
 }

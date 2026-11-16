@@ -1428,6 +1428,34 @@
         color: var(--fcom-primary-text, #19283a);
     }
 
+    // A section title with a help button beside it.
+    &__section-title--info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__info {
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--fcom-secondary-text, #525866);
+
+        &:hover {
+            color: var(--fcom-primary-text, #19283a);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 1px;
+            border-radius: 50%;
+        }
+    }
+
     &__section-desc {
         margin: 4px 0 0;
         font-size: 12px;
@@ -2393,5 +2421,82 @@
         margin: 0;
         font-size: 13px;
         color: var(--fcom-danger, #d63638);
+    }
+}
+
+// The event page's countdown to the start, when the host picked it over "Starts in…".
+.fe-countdown {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+
+    &__unit {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        padding: 8px 4px;
+        border-radius: 8px;
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__value {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__label {
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        text-transform: uppercase;
+        // Half way to the primary text: the default dark skin's secondary text on a tile is 3.61:1, too faint at 9px.
+        color: var(--fcom-primary-text, #19283a);
+        color: color-mix(in srgb, var(--fcom-primary-text, #19283a) 50%, var(--fcom-secondary-text, #525866));
+    }
+}
+
+// The event form's "Before It Starts" help: each choice above how it looks on the event page.
+.fe-start-display-help {
+    // fcom caps only its own dialogs, so without this the 560px dialog runs off a phone screen.
+    &.el-dialog {
+        max-width: calc(100vw - 24px);
+    }
+
+    &__item {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+    }
+
+    &__item + &__item {
+        margin-top: 20px;
+    }
+
+    &__caption {
+        display: grid;
+        gap: 2px;
+    }
+
+    &__title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__text {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__image {
+        display: block;
+        width: 100%;
+        max-width: 320px;
+        height: auto;
     }
 }

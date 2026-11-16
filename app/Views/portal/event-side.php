@@ -13,6 +13,8 @@
  * @var string     $local_time_label
  * @var string     $phase            upcoming|live|ended
  * @var string     $status_label
+ * @var int|null   $countdown_to     The start, as a Unix timestamp, when the event page counts down to it.
+ * @var int        $ends_at          The end, as a Unix timestamp.
  * @var string     $count_label
  * @var string     $meeting_link     http(s) only; empty unless this viewer may see it.
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
@@ -57,6 +59,24 @@ $fluentEventDone = $registration && $registration['is_going'];
 
     <?php if ( 'live' === $phase ) : ?>
         <span class="fe-live-badge"><?php esc_html_e( 'Happening now', 'fluent-event' ); ?></span>
+    <?php elseif ( $countdown_to ) : ?>
+        <?php // portal.js fills it in and ticks it down, then puts the "Happening now" badge (or Ended, past the end) in its place at 0. ?>
+        <div
+            class="fe-countdown"
+            role="timer"
+            aria-label="<?php esc_attr_e( 'Time until the event starts', 'fluent-event' ); ?>"
+            data-fe-countdown="<?php echo esc_attr( $countdown_to ); ?>"
+            data-fe-countdown-end="<?php echo esc_attr( $ends_at ); ?>"
+            data-live-label="<?php esc_attr_e( 'Happening now', 'fluent-event' ); ?>"
+            data-ended-label="<?php esc_attr_e( 'Ended', 'fluent-event' ); ?>"
+        >
+            <?php foreach ( [ 'days' => __( 'Days', 'fluent-event' ), 'hours' => __( 'Hours', 'fluent-event' ), 'minutes' => __( 'Minutes', 'fluent-event' ), 'seconds' => __( 'Seconds', 'fluent-event' ) ] as $fluentEventUnit => $fluentEventUnitLabel ) : ?>
+                <span class="fe-countdown__unit">
+                    <span class="fe-countdown__value" data-unit="<?php echo esc_attr( $fluentEventUnit ); ?>">--</span>
+                    <span class="fe-countdown__label"><?php echo esc_html( $fluentEventUnitLabel ); ?></span>
+                </span>
+            <?php endforeach; ?>
+        </div>
     <?php else : ?>
         <span class="fe-event-page__status fe-event-page__status--<?php echo esc_attr( $phase ); ?>"><?php echo esc_html( $status_label ); ?></span>
     <?php endif; ?>

@@ -67,6 +67,8 @@ return [
             '%s: %s' => __('%1$s: %2$s', 'fluent-event'),
             'A calendar holds your events. Give it a title and you can start adding events to it.' => __('A calendar holds your events. Give it a title and you can start adding events to it.', 'fluent-event'),
             'A calendar holds your events. You need one before you can add an event.' => __('A calendar holds your events. You need one before you can add an event.', 'fluent-event'),
+            /* translators: the hint under the "Time Left" choice; keep the example in quotes */
+            'A short line, like "Starts in 3 days".' => __('A short line, like "Starts in 3 days".', 'fluent-event'),
             'A venue for in-person events, a link for online ones.' => __('A venue for in-person events, a link for online ones.', 'fluent-event'),
             /* translators: %s is the name of the item the actions apply to */
             'Actions for %s' => __('Actions for %s', 'fluent-event'),
@@ -91,6 +93,7 @@ return [
             'at: %s' => __('at: %s', 'fluent-event'),
             'Back to Dashboard' => __('Back to Dashboard', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
+            'Before It Starts' => __('Before It Starts', 'fluent-event'),
             'Breadcrumb' => __('Breadcrumb', 'fluent-event'),
             'Bullet list' => __('Bullet list', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
@@ -121,6 +124,7 @@ return [
             'Copy Link' => __('Copy Link', 'fluent-event'),
             'Copy shortcode' => __('Copy shortcode', 'fluent-event'),
             'Could not load this event. Please try again.' => __('Could not load this event. Please try again.', 'fluent-event'),
+            'Countdown' => __('Countdown', 'fluent-event'),
             'Cover Image' => __('Cover Image', 'fluent-event'),
             /* translators: %s is the event title */
             'Cover image of %s' => __('Cover image of %s', 'fluent-event'),
@@ -143,6 +147,8 @@ return [
             /* translators: %d: the day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
             'Days Before' => __('Days Before', 'fluent-event'),
+            'Days, hours, minutes and seconds, ticking down to the start.' => __('Days, hours, minutes and seconds, ticking down to the start.', 'fluent-event'),
+            'Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.' => __('Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.', 'fluent-event'),
             'Deep Lilac' => __('Deep Lilac', 'fluent-event'),
             'Default Events List View' => __('Default Events List View', 'fluent-event'),
             'Delete' => __('Delete', 'fluent-event'),
@@ -180,6 +186,7 @@ return [
             'Guest Emails' => __('Guest Emails', 'fluent-event'),
             'Confirmation Email' => __('Confirmation Email', 'fluent-event'),
             'Heading 1' => __('Heading 1', 'fluent-event'),
+            'How the event page shows the time until the start.' => __('How the event page shows the time until the start.', 'fluent-event'),
             'Heading 2' => __('Heading 2', 'fluent-event'),
             'Heading 3' => __('Heading 3', 'fluent-event'),
             'Heading 4' => __('Heading 4', 'fluent-event'),
@@ -374,9 +381,14 @@ return [
             'This event and all of its data will be permanently deleted.' => __('This event and all of its data will be permanently deleted.', 'fluent-event'),
             'This event no longer exists' => __('This event no longer exists', 'fluent-event'),
             'This page doesn’t contain the shortcode or block yet.' => __('This page doesn’t contain the shortcode or block yet.', 'fluent-event'),
+            'Time Left' => __('Time Left', 'fluent-event'),
+            'A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".' => __('A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
+            /* translators: %s is a choice name, "Time Left" or "Countdown"; the alt text of its example screenshot */
+            '%s on the event page' => __('%s on the event page', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
             'Title' => __('Title', 'fluent-event'),
+            'What the two choices look like' => __('What the two choices look like', 'fluent-event'),
             'To' => __('To', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
             'Top Events' => __('Top Events', 'fluent-event'),

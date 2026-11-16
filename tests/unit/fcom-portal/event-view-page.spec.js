@@ -200,6 +200,41 @@ describe('EventViewPage', () => {
             expect(wrapper.find('.fe-event-view__status').text()).toBe('Starts in 6 days');
         });
 
+        it('ticks a countdown instead when the host chose one, and turns live at 0', async () => {
+            // The interval too this time; flushPromises still needs the real setTimeout.
+            vi.useRealTimers();
+            vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+            vi.setSystemTime(new Date('2026-10-20T11:59:58Z'));
+            const { wrapper } = await page(meetup({ start_display: 'countdown' }));
+            const values = () => wrapper.findAll('.fe-countdown__value').map((value) => value.text());
+
+            expect(values()).toEqual(['00', '00', '00', '02']);
+            expect(wrapper.find('.fe-event-view__status').exists()).toBe(false);
+
+            vi.advanceTimersByTime(2000);
+            await flushPromises();
+
+            expect(wrapper.find('.fe-countdown').exists()).toBe(false);
+            expect(wrapper.find('.fe-live-badge').text()).toBe('Happening now');
+        });
+
+        // A suspended tab can miss the whole event between two ticks; reaching 0 then must not mean live.
+        it('lands on Ended, not live, when the countdown finishes after the event is over', async () => {
+            vi.useRealTimers();
+            vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+            vi.setSystemTime(new Date('2026-10-20T11:59:58Z'));
+            const { wrapper } = await page(meetup({ start_display: 'countdown', entry_type: 'none' }));
+
+            // The event runs 12:00 to 14:00; the next tick comes at 15:00.
+            vi.setSystemTime(new Date('2026-10-20T15:00:00Z'));
+            vi.advanceTimersByTime(1000);
+            await flushPromises();
+
+            expect(wrapper.find('.fe-live-badge').exists()).toBe(false);
+            expect(wrapper.find('.fe-event-view__status').text()).toBe('Ended');
+            expect(wrapper.find('.fe-event-view__calendar').exists()).toBe(false);
+        });
+
         it('marks an event in progress as happening now', async () => {
             vi.setSystemTime(new Date('2026-10-20T13:00:00Z'));
             const { wrapper } = await page(meetup());

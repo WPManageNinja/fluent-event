@@ -253,6 +253,13 @@
         color: var(--fe-primary-text, #19283a);
     }
 
+    // A section title with a help button beside it.
+    &__section-title--info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
     &__section-desc {
         margin: var(--fe-space-1, 4px) 0 0;
         font-size: var(--fe-text-xs, 12px);
@@ -3382,5 +3389,42 @@
                 background: var(--fe-primary-border, #eaecf0);
             }
         }
+    }
+}
+
+// The event form's "Before It Starts" help: each choice above how it looks on the event page.
+.fe-start-display-help {
+    &__item {
+        display: grid;
+        gap: var(--fe-space-2, 8px);
+        margin: 0;
+    }
+
+    &__item + &__item {
+        margin-top: var(--fe-space-5, 20px);
+    }
+
+    &__caption {
+        display: grid;
+        gap: 2px;
+    }
+
+    &__title {
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__text {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__image {
+        display: block;
+        width: 100%;
+        max-width: 320px;
+        height: auto;
     }
 }
