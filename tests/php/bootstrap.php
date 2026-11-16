@@ -15,6 +15,7 @@ date_default_timezone_set('UTC');
 
 // From fluent-event.php, which can't be loaded here (ABSPATH guard, plugin_dir_path() at file scope).
 define('FLUENT_EVENT_PLUGIN_VERSION', '1.0.0');
+define('FLUENT_EVENT_DB_VERSION', '1.0.1');
 define('FLUENT_EVENT_PLUGIN_DIR', dirname(__DIR__, 2) . '/');
 define('FLUENT_EVENT_PLUGIN_URL', 'https://example.com/wp-content/plugins/fluent-events/');
 define('FLUENT_EVENT_DIR_FILE', FLUENT_EVENT_PLUGIN_DIR . 'fluent-event.php');

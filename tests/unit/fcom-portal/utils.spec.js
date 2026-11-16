@@ -14,8 +14,12 @@ import {
     isSeated,
     hasEventActions,
     guestCountLabel,
-    setPageTitle
+    setPageTitle,
+    localizedDateNames
 } from '../../../resources/fcom-portal/utils';
+import dayjs from 'dayjs';
+import 'dayjs/locale/de';
+import en from 'element-plus/dist/locale/en.mjs';
 
 const respond = (body, status = 200) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
 const sent = () => {
@@ -246,5 +250,26 @@ describe('setPageTitle', () => {
         setPageTitle('Create Event');
 
         expect(document.title).toBe('Create Event');
+    });
+});
+
+describe('localizedDateNames', () => {
+    const german = (...args) => dayjs(...args).locale('de');
+
+    it("names Element Plus's days and months in dayjs's language", () => {
+        const { datepicker } = localizedDateNames(en, german).el;
+
+        expect(Object.values(datepicker.weeks)).toEqual(['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.']);
+        expect(datepicker.weeksFull.mon).toBe('Montag');
+        expect(datepicker.months.mar).toBe('März');
+        expect(datepicker.month12).toBe('Dezember');
+    });
+
+    it('keeps every other string and leaves the English locale untouched', () => {
+        const locale = localizedDateNames(en, german);
+
+        expect(locale.name).toBe('en');
+        expect(locale.el.datepicker.today).toBe('Today');
+        expect(en.el.datepicker.weeks.mon).toBe('Mon');
     });
 });

@@ -26,7 +26,7 @@ USE `default_schema` ;
 CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_calendars` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(255) NOT NULL,
-  `slug` VARCHAR(255) NOT NULL,
+  `slug` VARCHAR(191) NOT NULL,
   `description` TEXT NULL DEFAULT NULL COMMENT 'optional, no UI or endpoint sets it',
   `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft',
   `meta` LONGTEXT NULL DEFAULT NULL COMMENT 'logo_url, cover_url, managers, preferences',
@@ -44,9 +44,9 @@ DEFAULT CHARACTER SET = utf8mb4;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_meta` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `object_type` VARCHAR(64) NOT NULL COMMENT 'option | user | calendar | event',
+  `object_type` VARCHAR(50) NOT NULL COMMENT 'option | user | calendar | event',
   `object_id` BIGINT UNSIGNED NULL DEFAULT NULL,
-  `meta_key` VARCHAR(255) NOT NULL,
+  `meta_key` VARCHAR(191) NOT NULL,
   `value` LONGTEXT NULL DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_guests` (
   `group_id` VARCHAR(64) NOT NULL COMMENT 'rows sharing this value are one order',
   `is_buyer` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'one per group_id, carries order and payment',
   `name` VARCHAR(255) NULL DEFAULT NULL,
-  `email` VARCHAR(192) NULL DEFAULT NULL,
+  `email` VARCHAR(191) NULL DEFAULT NULL,
   `user_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'wp_users.ID when logged in',
   `status` VARCHAR(64) NOT NULL COMMENT 'going | not_going | checked_in | cancelled',
   `hash` VARCHAR(64) NULL DEFAULT NULL COMMENT 'per-ticket token, wp_generate_password',

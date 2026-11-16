@@ -29,6 +29,8 @@ class EventController extends Controller
                     $query->select(['id', 'title', 'meta']);
                 },
             ])
+            // The cards' "N guests": every guest row, as on the calendars list.
+            ->withCount('guests')
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->byCalendar($request->getSafe('calendar_id', 'intval'))
             ->byStatus($request->getSafe('status', 'sanitize_text_field'))

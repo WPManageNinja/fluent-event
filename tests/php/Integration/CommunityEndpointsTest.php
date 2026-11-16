@@ -527,6 +527,21 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame($description, $single->fluent_event['description']);
     }
 
+    // fcom's card view shows a post's featured image; an event post's is its event's cover, in lists and alone.
+    public function test_an_event_post_carries_its_events_cover_as_its_featured_image()
+    {
+        $cover = 'https://example.test/cover.jpg';
+        [, $withCover] = $this->communityEvent([], ['cover_url' => $cover]);
+        [, $withoutCover] = $this->communityEvent();
+
+        $page = FcomFeedsHelper::transformFeedsCollection(FcomFeed::query()->whereIn('id', [$withCover->id, $withoutCover->id])->get())->keyBy('id');
+        $single = FcomFeedsHelper::transformFeed(FcomFeed::query()->find($withCover->id));
+
+        $this->assertSame($cover, $page[$withCover->id]->featured_image);
+        $this->assertNull($page[$withoutCover->id]->featured_image);
+        $this->assertSame($cover, $single->featured_image);
+    }
+
     // An end before the start is no calendar window, so it pages like any other list.
     public function test_a_reversed_date_window_still_pages()
     {

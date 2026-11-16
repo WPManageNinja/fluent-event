@@ -107,13 +107,53 @@
                 </div>
             </div>
 
-            <el-button
-                class="fe-event-detail__action"
-                type="primary"
-                @click="goToDetail"
-            >
-                {{ $t('View Full Details') }}
-            </el-button>
+            <div v-if="publicUrl" class="fe-event-detail__row">
+                <span class="fe-event-detail__row-icon">
+                    <el-icon aria-hidden="true"><Link /></el-icon>
+                </span>
+
+                <div class="fe-event-detail__public">
+                    <p class="fe-event-detail__row-title">{{ $t('Public Page') }}</p>
+
+                    <div class="fe-event-detail__public-link">
+                        <a
+                            class="fe-event-detail__row-link"
+                            :href="publicUrl"
+                            :title="publicUrl"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            {{ publicUrl }}
+                        </a>
+
+                        <el-button
+                            link
+                            :aria-label="$t('Copy Link')"
+                            :title="$t('Copy Link')"
+                            @click="copyPublicUrl"
+                        >
+                            <el-icon><CopyDocument /></el-icon>
+                        </el-button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Links, so a modified click or the context menu can open them in a new tab. -->
+            <div class="fe-event-detail__actions">
+                <el-button
+                    type="primary"
+                    tag="router-link"
+                    :to="{ name: 'event_detail', params: { id: event.id } }"
+                    @click="close"
+                >
+                    {{ $t('View Full Details') }}
+                </el-button>
+
+                <el-button tag="router-link" :to="{ name: 'event_edit', params: { id: event.id } }" @click="close">
+                    <el-icon aria-hidden="true"><EditPen /></el-icon>
+                    <span>{{ $t('Edit Event') }}</span>
+                </el-button>
+            </div>
 
             <div v-if="loadingDescription || description" class="fe-event-detail__section">
                 <h3 class="fe-event-detail__section-title">{{ $t('Description') }}</h3>
@@ -126,7 +166,7 @@
 </template>
 
 <script type="text/javascript">
-    import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { CopyDocument, EditPen, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
     import ErrorState from '@/components/ErrorState.vue';
@@ -138,6 +178,9 @@
             Drawer,
             ErrorState,
             Skeleton,
+            CopyDocument,
+            EditPen,
+            Link,
             LocationInformation,
             TopRight,
             VideoCamera,
@@ -158,6 +201,7 @@
                 description: '',
                 loadingDescription: false,
                 loadError: '',
+                publicUrl: '',
             };
         },
         watch: {
@@ -209,6 +253,7 @@
             loadEvent(event) {
                 this.description = '';
                 this.loadError = '';
+                this.publicUrl = '';
 
                 if (!event) return;
 
@@ -219,6 +264,9 @@
                     errorState: null,
                     onSuccess: response => {
                         this.description = response.event.description;
+                        // As on the event page: only a public or unlisted event in a public calendar has a public page.
+                        const { status, calendar } = response.event;
+                        this.publicUrl = ['public', 'unlisted'].includes(status) && calendar?.status === 'public' ? response.public_url : '';
                     },
                     onError: error => {
                         // A deleted event can't come back, so the list drops it too; anything else is worth a retry.
@@ -233,9 +281,10 @@
             close() {
                 this.$emit('update:modelValue', false);
             },
-            goToDetail() {
-                this.close();
-                this.$router.push({ name: 'event_detail', params: { id: this.event.id } });
+            copyPublicUrl() {
+                navigator.clipboard.writeText(this.publicUrl)
+                    .then(() => this.$notifySuccess(this.$t('Link copied.')))
+                    .catch(() => this.$notifyError(this.$t('The link could not be copied.')));
             },
         },
     };

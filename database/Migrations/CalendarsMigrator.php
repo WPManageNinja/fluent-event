@@ -22,7 +22,7 @@ class CalendarsMigrator
         $sql = "CREATE TABLE $table (
         `id` BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `title` VARCHAR(255) NOT NULL,
-        `slug` VARCHAR(255) NOT NULL,
+        `slug` VARCHAR(191) NOT NULL,
         `description` TEXT NULL COMMENT 'optional, no UI or endpoint sets it',
         `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft',
         `meta` LONGTEXT NULL COMMENT 'logo_url, cover_url, managers, preferences',

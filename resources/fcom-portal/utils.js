@@ -13,6 +13,24 @@ export function t(text, ...args) {
     });
 }
 
+// Our Element Plus speaks English; its calendar and date picker take day and month names from fcom's dayjs, in the site's language.
+export function localizedDateNames(locale, dayjs) {
+    const datepicker = { ...locale.el.datepicker, weeks: {}, weeksFull: {}, months: {} };
+
+    ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].forEach((key, day) => {
+        datepicker.weeks[key] = dayjs().day(day).format('ddd');
+        datepicker.weeksFull[key] = dayjs().day(day).format('dddd');
+    });
+
+    ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].forEach((key, month) => {
+        const date = dayjs().date(1).month(month);
+        datepicker.months[key] = date.format('MMM');
+        datepicker[`month${month + 1}`] = date.format('MMMM');
+    });
+
+    return { ...locale, el: { ...locale.el, datepicker } };
+}
+
 // One REST client for the portal: FluentEvent routes and FluentCommunity's own feed routes.
 async function request(base, method, route, data) {
     const fcomRest = (window.fluentComAdmin && window.fluentComAdmin.rest) || {};
