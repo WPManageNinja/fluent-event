@@ -7,7 +7,7 @@
         @update:model-value="$emit('update:modelValue', $event)"
         @open="resetForm"
     >
-        <el-form class="fe-form" label-position="top" @submit.prevent="save">
+        <el-form class="fe-form" label-position="top" require-asterisk-position="right" @submit.prevent="save">
             <el-form-item>
                 <SegmentedSwitch
                     v-model="mode"
@@ -17,7 +17,7 @@
                 />
             </el-form-item>
 
-            <el-form-item v-if="mode === 'wp_user'" :label="$t('WordPress User *')">
+            <el-form-item v-if="mode === 'wp_user'" :label="$t('WordPress User')" required>
                 <el-select
                     v-model="selectedUserId"
                     filterable
@@ -37,11 +37,11 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item :label="$t('Name *')">
+            <el-form-item :label="$t('Name')" required>
                 <el-input v-model="form.name" :placeholder="$t('e.g. Jane Cooper')" />
             </el-form-item>
 
-            <el-form-item :label="$t('Email *')">
+            <el-form-item :label="$t('Email')" required>
                 <el-input
                     v-model="form.email"
                     type="email"
