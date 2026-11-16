@@ -3,38 +3,31 @@ import EventDetail from '@/modules/events/detail.vue';
 
 const { computed, methods } = EventDetail;
 
-const summary = (counts) => computed.guestSummary.call({
-    guestCounts: counts,
-    $t: (text, count) => text.replace('%d', count)
+const label = (event) => computed.guestCountLabel.call({
+    event,
+    $_n: (single, plural, count) => (count === 1 ? single : plural).replace('%d', count)
 });
 
-const counts = (going, checkedIn) => ({ all: going + checkedIn, going, not_going: 2, checked_in: checkedIn, cancelled: 0 });
-
-// The Overview's guest numbers: going counts everyone coming, as the list cards do.
-describe('Event page guest summary', () => {
-    it('counts checked-in guests as going and names them too', () => {
-        expect(summary(counts(9, 3))).toBe('12 going · 3 checked in');
+// The Overview's "N guests" comes with the event, counted as on the list cards.
+describe('Event page guest count', () => {
+    it('shows every guest of the event, as the list cards do', () => {
+        expect(label({ guests_count: 12 })).toBe('12 guests');
+        expect(label({ guests_count: 1 })).toBe('1 guest');
     });
 
-    it('shows only going while nobody has checked in, zero included', () => {
-        expect(summary(counts(5, 0))).toBe('5 going');
-        expect(summary(counts(0, 0))).toBe('0 going');
+    it('shows 0 guests while the event has none', () => {
+        expect(label({ guests_count: 0 })).toBe('0 guests');
+        expect(label({})).toBe('0 guests');
     });
 
-    it('shows nothing before the counts arrive', () => {
-        expect(summary(null)).toBe('');
-    });
+    it('loads the event and its count with a single request', () => {
+        const ctx = { $route: { params: { id: 7 } }, $requestServer: vi.fn(), $changeTitle: vi.fn() };
 
-    // A view-only event still has guests: from an earlier entry type, or added by an admin.
-    it.each(['rsvp', 'open', 'none'])("reads the counts of an %s event from the guests list, without touching the page's own loading state", (entryType) => {
-        const ctx = { event: { meta: { entry_type: entryType } }, $route: { params: { id: 7 } }, $requestServer: vi.fn() };
+        methods.fetchEvent.call(ctx);
+        ctx.$requestServer.mock.calls[0][0].onSuccess({ event: { title: 'Meetup', guests_count: 4 }, public_url: '' });
 
-        methods.fetchGuestCounts.call(ctx);
-
-        expect(ctx.$requestServer).toHaveBeenCalledWith(expect.objectContaining({
-            path: 'events/7/guests', payload: { per_page: 1 }, loadingState: null, errorState: null
-        }));
-        ctx.$requestServer.mock.calls[0][0].onSuccess({ counts: counts(1, 1) });
-        expect(ctx.guestCounts).toEqual(counts(1, 1));
+        expect(ctx.$requestServer).toHaveBeenCalledTimes(1);
+        expect(ctx.$requestServer.mock.calls[0][0].path).toBe('events/7');
+        expect(ctx.event.guests_count).toBe(4);
     });
 });
