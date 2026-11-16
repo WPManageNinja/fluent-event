@@ -76,7 +76,7 @@ if "$makePot"; then
     # PortalHandler::strings(), BlockEditorHandler::strings()); assets/ holds built copies only.
     command -v wp >/dev/null || die "wp (WP-CLI) not found."
     wp i18n make-pot . "language/$SLUG.pot" --slug="$SLUG" --domain="$SLUG" \
-        --exclude=assets,builds,dev,tests,test,plugin-check,node_modules,vendor,.claude,.agent,.playwright-mcp \
+        --exclude=assets,builds,dev,dev-docs-repo,tests,test,plugin-check,node_modules,vendor,.claude,.agent,.playwright-mcp \
         || die "wp i18n make-pot failed."
 fi
 
