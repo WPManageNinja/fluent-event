@@ -93,7 +93,7 @@ class RegistrationService
         return [$guest, $previousStatus, false];
     }
 
-    // Whether a guest row on the event already has this email, whoever registered it.
+    // Whether any guest on the event has this email.
     public static function hasGuestEmail(Event $event, $email)
     {
         return $email !== '' && Guest::query()->where('event_id', $event->id)->where('email', $email)->exists();

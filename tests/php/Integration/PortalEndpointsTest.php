@@ -85,12 +85,29 @@ class PortalEndpointsTest extends IntegrationTestCase
         $first = $this->registerGuest($event);
         $again = $this->registerGuest($event, ['name' => 'Someone else']);
 
-        // The same answer as a new registration, so the form does not tell a stranger who registered.
+        // Same answer as a new registration.
         $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
         $this->assertSame($first['data']['message'], $again['data']['message']);
         $this->assertSame($first['data']['status'], $again['data']['status']);
         $this->assertCount(1, $this->guestsOf($event));
         $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
+    }
+
+    // A bad name fails alike for registered and new emails.
+    public function test_an_invalid_name_does_not_tell_registered_emails_apart()
+    {
+        $event = $this->createEvent();
+        $this->registerGuest($event);
+
+        foreach (['', str_repeat('a', 256)] as $name) {
+            $registered = $this->registerGuest($event, ['name' => $name]);
+            $unknown = $this->registerGuest($event, ['name' => $name, 'email' => 'nobody@example.test']);
+
+            $this->assertSame(422, $registered['status'], wp_json_encode($registered['data']));
+            $this->assertSame($unknown['status'], $registered['status']);
+        }
+
+        $this->assertCount(1, $this->guestsOf($event));
     }
 
     public function test_only_events_the_page_opens_take_registrations()

@@ -233,9 +233,11 @@ class CommunityEventController extends Controller
 
         $data = GuestRequest::sanitize(Arr::only($request->all(), ['name', 'email']));
 
-        // An email already on the event gets the same answer as a new one and saves nothing, so the
-        // form does not tell a stranger who registered.
-        if (RegistrationService::hasGuestEmail($event, (string) Arr::get($data, 'email', ''))) {
+        // Validate first, so bad input fails alike for every email.
+        $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
+
+        // A repeated email gets the new-registration answer, saving nothing.
+        if (RegistrationService::hasGuestEmail($event, $data['email'])) {
             return [
                 'message'            => __('You are registered.', 'fluent-event'),
                 'status'             => 'going',
