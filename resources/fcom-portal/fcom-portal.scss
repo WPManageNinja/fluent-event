@@ -513,9 +513,13 @@
         border-radius: 12px;
     }
 
+    // All Events renders fcom's own page frame (header bar + .fcom_max_layout body), edge to edge.
+    &.fe-fcom-portal-page--events {
+        padding: 0;
+    }
+
     // Same frame as fcom's wide pages (the .fcom_max_layout body), so it matches the space Events tab.
     // An event inside a space gets it from the space layout; a community-wide one has none, so it takes this.
-    &.fe-fcom-portal-page--events,
     &.fe-fcom-portal-page--create_event,
     &.fe-fcom-portal-page--global_event_view {
         box-sizing: border-box;
