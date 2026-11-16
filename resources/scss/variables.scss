@@ -1,5 +1,5 @@
 body {
-    --fe-navbar-height: 65px;
+    --fe-navbar-height: 64px;
     --fe-page-width-lg: 100%;
     --fe-page-width: 1260px;
     --fe-page-width-sm: 980px;
@@ -52,6 +52,7 @@ body {
 
     --fe-shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.12);
     --fe-shadow-card-hover: 0 2px 8px rgba(28, 39, 50, 0.09);
+    --fe-shadow-navbar: 0 0 20px rgba(28, 39, 50, 0.08);
     --fe-cover-tint: 0.36;
     --fe-card-hover-bg: #ffffff;
     --fe-card-line: transparent;
@@ -139,6 +140,7 @@ html.dark body {
     --fe-disabled-bg: #253241;
     --fe-shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.25);
     --fe-shadow-card-hover: 0 2px 10px rgba(0, 0, 0, 0.4);
+    --fe-shadow-navbar: 0 0 4px rgba(8, 11, 16, 0.6);
     --fe-cover-tint: 0.2;
     --fe-card-hover-bg: #1C2732;
     --fe-card-line: #2C3C4E;
