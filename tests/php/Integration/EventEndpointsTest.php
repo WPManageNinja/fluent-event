@@ -415,8 +415,8 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('<p>Written by the integration suite; rolled back.</p>', $single['description']);
     }
 
-    // The cards' "N going": going and checked-in guests count, not going and cancelled ones don't.
-    public function test_the_event_list_counts_the_guests_going_to_each_event()
+    // The cards' "N guests": every guest counts, not going and cancelled included.
+    public function test_the_event_list_counts_all_guests_of_each_event()
     {
         $event = $this->createEvent();
         $empty = $this->createEvent(['calendar_id' => $event->calendar_id]);
@@ -425,9 +425,9 @@ class EventEndpointsTest extends IntegrationTestCase
             $this->createGuest($event, ['status' => $status]);
         }
 
-        $listed = array_column($this->rest('GET', 'events', ['calendar_id' => $event->calendar_id])['data']['events']['data'], 'going_count', 'id');
+        $listed = array_column($this->rest('GET', 'events', ['calendar_id' => $event->calendar_id])['data']['events']['data'], 'guests_count', 'id');
 
-        $this->assertSame(3, (int) $listed[$event->id]);
+        $this->assertSame(5, (int) $listed[$event->id]);
         $this->assertSame(0, (int) $listed[$empty->id]);
     }
 

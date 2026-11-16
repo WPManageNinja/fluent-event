@@ -64,9 +64,9 @@
                     {{ isOnline ? $t('Online') : $t('In Person') }}
                 </span>
 
-                <span v-if="takesRegistrations" class="fe-event-card__going">
+                <span v-if="takesRegistrations" class="fe-event-card__guests">
                     <el-icon aria-hidden="true"><User /></el-icon>
-                    {{ $t('%d going', event.going_count || 0) }}
+                    {{ $_n('%d guest', '%d guests', event.guests_count || 0) }}
                 </span>
             </div>
 

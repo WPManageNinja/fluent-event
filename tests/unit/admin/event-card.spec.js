@@ -22,19 +22,23 @@ const card = (overrides = {}, meta = {}) => mount(EventCard, {
     }
 });
 
-// The list's "N going": the guests coming, at a glance, without opening each event.
+// The list's "N guests": every guest of the event, at a glance, without opening it.
 describe('EventCard', () => {
-    it.each(['rsvp', 'open'])('shows how many are going to an %s event', (entryType) => {
-        const wrapper = card({ going_count: 12 }, { entry_type: entryType });
+    it.each(['rsvp', 'open'])('shows how many guests an %s event has', (entryType) => {
+        const wrapper = card({ guests_count: 12 }, { entry_type: entryType });
 
-        expect(wrapper.find('.fe-event-card__going').text()).toBe('12 going');
+        expect(wrapper.find('.fe-event-card__guests').text()).toBe('12 guests');
     });
 
-    it('shows 0 going while an event takes guests but has none yet', () => {
-        expect(card({ going_count: 0 }).find('.fe-event-card__going').text()).toBe('0 going');
+    it('uses the singular for one guest', () => {
+        expect(card({ guests_count: 1 }).find('.fe-event-card__guests').text()).toBe('1 guest');
+    });
+
+    it('shows 0 guests while an event takes guests but has none yet', () => {
+        expect(card({ guests_count: 0 }).find('.fe-event-card__guests').text()).toBe('0 guests');
     });
 
     it('shows no count for a view-only event, where nobody registers', () => {
-        expect(card({ going_count: 0 }, { entry_type: 'none' }).find('.fe-event-card__going').exists()).toBe(false);
+        expect(card({ guests_count: 0 }, { entry_type: 'none' }).find('.fe-event-card__guests').exists()).toBe(false);
     });
 });
