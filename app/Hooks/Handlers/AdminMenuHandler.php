@@ -49,8 +49,8 @@ class AdminMenuHandler
         $this->app = App::make();
         $this->config = $this->app->config;
         $this->slug = $this->config->get('app.slug');
-        $this->baseUrl = $this->app->applyFilters(
-            'fluent_connector_base_url',
+        $this->baseUrl = apply_filters(
+            'fluent_event/admin_base_url',
             admin_url('admin.php?page=' . $this->slug . '#/')
         );
     }
