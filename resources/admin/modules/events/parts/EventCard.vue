@@ -64,7 +64,7 @@
                     {{ isOnline ? $t('Online') : $t('In Person') }}
                 </span>
 
-                <span v-if="takesRegistrations" class="fe-event-card__guests">
+                <span class="fe-event-card__guests">
                     <el-icon aria-hidden="true"><User /></el-icon>
                     {{ $_n('%d guest', '%d guests', event.guests_count || 0) }}
                 </span>
@@ -136,10 +136,6 @@
         computed: {
             isOnline() {
                 return this.event.venue_type === 'online';
-            },
-            // A view-only event takes no guests, so it has no count to show.
-            takesRegistrations() {
-                return ['rsvp', 'open'].includes(this.event.meta?.entry_type);
             },
             date() {
                 return this.$formatDate(this.event.start_at_site);

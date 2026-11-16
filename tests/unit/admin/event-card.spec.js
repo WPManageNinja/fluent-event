@@ -24,7 +24,8 @@ const card = (overrides = {}, meta = {}) => mount(EventCard, {
 
 // The list's "N guests": every guest of the event, at a glance, without opening it.
 describe('EventCard', () => {
-    it.each(['rsvp', 'open'])('shows how many guests an %s event has', (entryType) => {
+    // A view-only event still shows its count: guests from an earlier entry type, or added by an admin, stay its guests.
+    it.each(['rsvp', 'open', 'none'])('shows how many guests an %s event has', (entryType) => {
         const wrapper = card({ guests_count: 12 }, { entry_type: entryType });
 
         expect(wrapper.find('.fe-event-card__guests').text()).toBe('12 guests');
@@ -34,11 +35,7 @@ describe('EventCard', () => {
         expect(card({ guests_count: 1 }).find('.fe-event-card__guests').text()).toBe('1 guest');
     });
 
-    it('shows 0 guests while an event takes guests but has none yet', () => {
+    it('shows 0 guests while an event has none yet', () => {
         expect(card({ guests_count: 0 }).find('.fe-event-card__guests').text()).toBe('0 guests');
-    });
-
-    it('shows no count for a view-only event, where nobody registers', () => {
-        expect(card({ guests_count: 0 }, { entry_type: 'none' }).find('.fe-event-card__guests').exists()).toBe(false);
     });
 });
