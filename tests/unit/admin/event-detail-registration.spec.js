@@ -61,6 +61,16 @@ describe('Event page registration', () => {
             .toBe('No limit · Guest count [Shown+]');
     });
 
+    // Guests waitlisted before the waitlist, capacity or entry type changed are still waiting.
+    it('shows waiting guests whatever the settings are now', () => {
+        expect(overview({ seats_count: 6, waitlisted_count: 2, meta: { entry_type: 'open', capacity: 8, waitlist: 'no' } }).text())
+            .toBe('2 spots left · Waitlist [Off] · 2 waiting · Guest count [Hidden]');
+        expect(overview({ waitlisted_count: 1, meta: { entry_type: 'rsvp', capacity: 0 } }).text())
+            .toBe('No limit · 1 waiting · Guest count [Hidden]');
+        expect(overview({ waitlisted_count: 2, meta: { entry_type: 'none' } }).text())
+            .toBe('Nobody registers for this event; admins can still add guests. · 2 waiting');
+    });
+
     it('says nobody registers for a view-only event, and shows no window', () => {
         const event = { meta: { entry_type: 'none' } };
 

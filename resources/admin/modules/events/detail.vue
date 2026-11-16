@@ -310,26 +310,27 @@
                 return `${type} · ${going}`;
             },
             registrationNotes() {
+                const waiting = this.event.waitlisted_count || 0;
+                // Guests waitlisted before the settings changed are still waiting, so they always show.
+                const waitingNotes = waiting ? [{ text: this.$t('%d waiting', waiting) }] : [];
+
                 if (!this.takesRegistrations) {
-                    return [{ text: this.$t('Nobody registers for this event; admins can still add guests.') }];
+                    return [{ text: this.$t('Nobody registers for this event; admins can still add guests.') }, ...waitingNotes];
                 }
 
                 const notes = [];
 
                 if (this.capacity) {
                     const left = this.capacity - (this.event.seats_count || 0);
-                    const waiting = this.event.waitlisted_count || 0;
                     const waitlistOn = this.event.meta?.waitlist === 'yes';
 
                     notes.push({ text: left > 0 ? this.$_n('%d spot left', '%d spots left', left) : this.$t('Full') });
                     notes.push({ text: this.$t('Waitlist'), badge: waitlistOn ? this.$t('On') : this.$t('Off'), success: waitlistOn });
-
-                    if (waitlistOn && waiting) {
-                        notes.push({ text: this.$t('%d waiting', waiting) });
-                    }
                 } else {
                     notes.push({ text: this.$t('No limit') });
                 }
+
+                notes.push(...waitingNotes);
 
                 const countShown = this.event.meta?.show_guest_count === 'yes';
 
