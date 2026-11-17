@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 use FluentEvent\Framework\Foundation\Application;
 use FluentEvent\App\Hooks\Handlers\ActivationHandler;

@@ -21,7 +21,7 @@
  * @var array|null $add_to_calendar  google, ics, filename.
  * @var bool       $just_registered  Drawn only in the registration's answer, which portal.js opens.
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+defined('ABSPATH') || exit;
 
 use FluentEvent\App\Services\Icon;
 
