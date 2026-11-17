@@ -148,13 +148,13 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Fixed: Link Button Text Hidden on Focus
 - Fixed: PHP Deprecation Notice on the Admin Page
 - Fixed: Events Page Error on a Bad Calendar Link
-- Updated: Plugin Updates Now Come From WordPress.org
 - Security: Public Registration Forms No Longer Show Who Registered
 - Security: Guest Emails Greet Visitors Without Their Typed Name
 - Security: More Reliable Rate Limit on Public Registration
 - Security: Stricter Sanitizing of Email Notification Settings
 
 = 1.0.1 (Date: Nov 13, 2026) =
+- Added: Automatic Plugin Updates With Checksum Verification
 - Added: RTL Language Support
 - Added: View in FluentEvent Link in the Community Event Menu
 
