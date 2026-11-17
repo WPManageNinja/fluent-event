@@ -232,6 +232,42 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame($this->member, $guests[0]->user_id);
     }
 
+    /**
+     * @dataProvider visitorRowStatuses
+     */
+    public function test_a_member_claiming_a_visitor_row_replaces_the_typed_name($status)
+    {
+        [$event] = $this->communityEvent();
+        $member = get_userdata($this->member);
+        $this->createGuest($event, [
+            'name'   => 'Verify at evil.example',
+            'email'  => $member->user_email,
+            'status' => $status,
+            'source' => 'fluent_community',
+        ]);
+
+        $this->assertSame(200, $this->rsvp($event, 'going')['status']);
+
+        $guest = $this->guestsOf($event)[0];
+        $this->assertSame($this->member, $guest->user_id);
+        $this->assertSame($member->display_name, $guest->name);
+    }
+
+    public function visitorRowStatuses()
+    {
+        return ['already going' => ['going'], 'coming back after a cancel' => ['cancelled']];
+    }
+
+    public function test_a_member_claiming_an_admin_added_row_keeps_the_admins_name()
+    {
+        [$event] = $this->communityEvent();
+        $this->createGuest($event, ['name' => 'Name From Admin', 'email' => get_userdata($this->member)->user_email]);
+
+        $this->rsvp($event, 'going');
+
+        $this->assertSame('Name From Admin', $this->guestsOf($event)[0]->name);
+    }
+
     public function test_an_email_already_registered_to_another_member_is_refused()
     {
         [$event] = $this->communityEvent();
@@ -410,9 +446,31 @@ class CommunityEndpointsTest extends IntegrationTestCase
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->asVisitorOnAPublicPortal();
+        $first = $this->registerGuest($event);
+        $again = $this->registerGuest($event, ['name' => 'Someone else']);
+
+        // Same answer as a new registration.
+        $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
+        $this->assertSame($first['data'], $again['data']);
+        $this->assertCount(1, $this->guestsOf($event));
+        $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
+    }
+
+    // A bad name fails alike for registered and new emails.
+    public function test_an_invalid_name_does_not_tell_registered_emails_apart()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->asVisitorOnAPublicPortal();
         $this->registerGuest($event);
 
-        $this->assertSame(422, $this->registerGuest($event, ['name' => 'Someone else'])['status']);
+        foreach (['', str_repeat('a', 256)] as $name) {
+            $registered = $this->registerGuest($event, ['name' => $name]);
+            $unknown = $this->registerGuest($event, ['name' => $name, 'email' => 'nobody@example.test']);
+
+            $this->assertSame(422, $registered['status'], wp_json_encode($registered['data']));
+            $this->assertSame($unknown['status'], $registered['status']);
+        }
+
         $this->assertCount(1, $this->guestsOf($event));
     }
 

@@ -202,7 +202,10 @@ class Vite extends Enqueuer
 
             foreach ($file['css'] as $key => $path) {
                 wp_enqueue_style(
-                    $file['file'] . '_' . $key . '_css', static::styleUrl($assetPath . $path), [], null
+                    'fluent-event-' . sanitize_title($file['file']) . '-' . $key,
+                    static::styleUrl($assetPath . $path),
+                    [],
+                    FLUENT_EVENT_PLUGIN_VERSION
                 );
             }
         }

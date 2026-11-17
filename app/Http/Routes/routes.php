@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 $router->namespace('FluentEvent\App\Http\Controllers')
 	->withDefaultPolicy()

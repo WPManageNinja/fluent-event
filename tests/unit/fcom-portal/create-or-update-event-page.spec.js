@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
+import { compile } from 'sass';
 import { ElNotification } from 'element-plus';
 import { t } from '../../../resources/fcom-portal/utils';
 import CreateOrUpdateEventPage from '../../../resources/fcom-portal/app/CreateOrUpdateEventPage.vue';
@@ -121,7 +122,8 @@ describe('CreateOrUpdateEventPage', () => {
             end_at: '2026-10-14 11:00:00',
             venue_type: 'offline',
             entry_type: 'rsvp',
-            show_guest_count: 'yes'
+            show_guest_count: 'yes',
+            start_display: 'relative'
         }));
         // The description comes from fcom's editor, which the shell owns; the page sends none.
         expect(props.onChange.mock.calls[0][0]).not.toHaveProperty('description');
@@ -251,7 +253,8 @@ describe('CreateOrUpdateEventPage', () => {
                 address: '',
                 cover_url: 'https://example.test/uploads/walk.png',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                start_display: 'countdown'
             }
         };
 
@@ -303,7 +306,8 @@ describe('CreateOrUpdateEventPage', () => {
                 online_meeting_url: 'https://meet.example.test/walk',
                 cover_url: 'https://example.test/uploads/walk.png',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                start_display: 'countdown'
             });
             expect(props.onLoaded).toHaveBeenCalledWith(stored);
         });
@@ -356,7 +360,8 @@ describe('CreateOrUpdateEventPage', () => {
                 venue: '',
                 address: '',
                 entry_type: 'open',
-                show_guest_count: 'no'
+                show_guest_count: 'no',
+                start_display: 'countdown'
             });
             expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'Event has been successfully updated' });
             expect(props.router.back).toHaveBeenCalled();
@@ -399,6 +404,28 @@ describe('CreateOrUpdateEventPage', () => {
             await mountEdit(undefined, { eventSlug: '../../wp/v2/users/me' });
 
             expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=..%2F..%2Fwp%2Fv2%2Fusers%2Fme');
+        });
+    });
+
+    describe('"Start Time Display" help', () => {
+        // The dialog is 560px; fcom's styles cap only its own dialogs, so on a phone it ran off the screen.
+        it('keeps the help dialog inside a phone screen', async () => {
+            const { wrapper } = await createPage();
+
+            expect(wrapper.findComponent({ name: 'ElDialog' }).classes()).toContain('fe-start-display-help');
+            expect(compile('resources/fcom-portal/fcom-portal.scss').css)
+                .toMatch(/\.fe-start-display-help\.el-dialog\s*\{\s*max-width:\s*calc\(100vw - 24px\)/);
+        });
+
+        // Drawn with the page's own markup, so the plugin ships no screenshots and the help follows the theme.
+        it('draws each choice as it shows on the event page', async () => {
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, {}, { ElDialog: { template: '<div><slot /></div>' } });
+            const previews = wrapper.findAll('.fe-start-display-help__item .fe-start-preview');
+
+            expect(previews.map((preview) => preview.attributes('aria-label'))).toEqual(['Time Left on the event page', 'Countdown on the event page']);
+            expect(previews[0].find('.fe-start-preview__status').text()).toBe('Starts in 2 days');
+            expect(previews[1].findAll('.fe-start-preview__label').map((label) => label.text())).toEqual(['Days', 'Hours', 'Minutes', 'Seconds']);
+            expect(wrapper.find('.fe-start-display-help__item img').exists()).toBe(false);
         });
     });
 });

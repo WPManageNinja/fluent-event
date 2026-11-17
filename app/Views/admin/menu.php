@@ -11,7 +11,7 @@
  * @var array  $menuItems      Center topbar items.
  * @var array  $rightMenuItems Right topbar items (may carry 'children').
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+defined('ABSPATH') || exit;
 
 use FluentEvent\App\Services\Icon;
 ?>

@@ -1888,3 +1888,36 @@ html.dark .fe-portal {
         box-shadow: 0 0 0 6px transparent;
     }
 }
+
+// The event page's countdown to the start, when the host picked it over "Starts in…".
+.fe-countdown {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--fe-space-2, 8px);
+
+    &__unit {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        padding: var(--fe-space-2, 8px) 4px;
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__value {
+        color: var(--fe-primary-text, #19283a);
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__label {
+        color: var(--fe-secondary-text, #525866);
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        text-transform: uppercase;
+    }
+}

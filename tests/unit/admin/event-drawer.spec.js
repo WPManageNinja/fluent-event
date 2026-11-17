@@ -5,6 +5,7 @@ import main from '@/mixins/main';
 import Skeleton from '@/components/Skeleton.vue';
 import ErrorState from '@/components/ErrorState.vue';
 import EventDrawer from '@/modules/events/parts/EventDrawer.vue';
+import EventShareModal from '@/modules/events/parts/EventShareModal.vue';
 
 vi.mock('@/utils/http/Rest.js', () => ({
     default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() }
@@ -37,7 +38,8 @@ const drawer = () => mount(EventDrawer, {
         stubs: {
             Drawer: { template: '<div><slot /></div>' },
             ElResult: { template: '<div><slot name="extra" /></div>' },
-            ElButton: { props: ['to'], emits: ['click'], template: '<button :data-to="to && JSON.stringify(to)" @click="$emit(\'click\')"><slot /></button>' }
+            ElButton: { props: ['to', 'disabled'], emits: ['click'], template: '<button :data-to="to && JSON.stringify(to)" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>' },
+            EventShareModal: true
         }
     }
 });
@@ -121,40 +123,34 @@ describe('EventDrawer', () => {
         expect(wrapper.find('.fe-event-detail__description').html()).toContain('<p>Bring snacks</p>');
     });
 
-    describe('public page and actions', () => {
+    describe('share and actions', () => {
         const loaded = (status, calendarStatus) => ({
             event: { id: 1, status, calendar: { status: calendarStatus }, description: '' },
-            public_url: 'https://site.test/events/meetup/'
+            public_url: 'https://site.test/events/meetup/',
+            shortcode: '[fluent_event event="meetup"]'
         });
-        const publicLink = wrapper => wrapper.find('.fe-event-detail__public-link');
+        const shareButton = wrapper => wrapper.findAll('.fe-event-detail__actions button').find(button => button.text() === 'Share');
 
-        it('shows and copies the public page of a public or unlisted event in a public calendar', async () => {
-            const writeText = vi.fn().mockResolvedValue();
-            Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
-            Rest.get.mockResolvedValue(loaded('unlisted', 'public'));
+        // The list's copy of the event has no calendar status, so the modal waits for the loaded one.
+        it('hands the loaded event, its link and shortcode to the share modal', async () => {
+            const request = deferred();
+            Rest.get.mockReturnValue(request.promise);
 
             const wrapper = drawer();
+            expect(shareButton(wrapper).attributes('disabled')).toBeDefined();
+            expect(wrapper.findComponent(EventShareModal).exists()).toBe(false);
+
+            request.resolve(loaded('unlisted', 'public'));
             await flushPromises();
+            await shareButton(wrapper).trigger('click');
 
-            const link = publicLink(wrapper).find('a');
-            expect(link.text()).toBe('https://site.test/events/meetup/');
-            expect(link.attributes()).toMatchObject({ href: 'https://site.test/events/meetup/', target: '_blank' });
-
-            await publicLink(wrapper).find('button').trigger('click');
-            expect(writeText).toHaveBeenCalledWith('https://site.test/events/meetup/');
-        });
-
-        it.each([
-            ['a private event', 'private', 'public'],
-            ['a draft', 'draft', 'public'],
-            ['an event in a private calendar', 'public', 'private']
-        ])('leaves the public page out for %s, which has none', async (_, status, calendarStatus) => {
-            Rest.get.mockResolvedValue(loaded(status, calendarStatus));
-
-            const wrapper = drawer();
-            await flushPromises();
-
-            expect(publicLink(wrapper).exists()).toBe(false);
+            const modal = wrapper.findComponent(EventShareModal);
+            expect(modal.props()).toMatchObject({
+                modelValue: true,
+                event: { id: 1, status: 'unlisted', calendar: { status: 'public' } },
+                publicUrl: 'https://site.test/events/meetup/',
+                shortcode: '[fluent_event event="meetup"]'
+            });
         });
 
         it('links the full page and the edit page, so either opens in a new tab too, and closes on a click', async () => {

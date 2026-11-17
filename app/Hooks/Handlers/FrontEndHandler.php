@@ -372,10 +372,18 @@ class FrontEndHandler
     // The list page's calendar from its link, for its title, canonical and description.
     protected function urlCalendar()
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
-        $slug = sanitize_title(wp_unslash($_GET[self::CALENDAR_VAR] ?? ''));
+        $slug = $this->calendarFromUrl();
 
         return $slug === '' ? null : Calendar::query()->byStatus('public')->where('slug', $slug)->first();
+    }
+
+    // A link like ?fe_calendar[]=x sends an array, which sanitize_title() cannot take on PHP 8.
+    protected function calendarFromUrl()
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
+        $value = isset($_GET[self::CALENDAR_VAR]) ? wp_unslash($_GET[self::CALENDAR_VAR]) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized below once known to be a string.
+
+        return is_string($value) ? sanitize_title($value) : '';
     }
 
     // A public or unlisted event in a public calendar: what an event's address opens.
@@ -421,7 +429,7 @@ class FrontEndHandler
         $preset = sanitize_title($atts['calendar']);
         // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
         // A chip's link names its calendar, "All" included once a preset would otherwise come back; hidden chips leave the list fixed.
-        $picked = $showChips && isset($_GET[self::CALENDAR_VAR]) ? sanitize_title(wp_unslash($_GET[self::CALENDAR_VAR])) : $preset;
+        $picked = $showChips && isset($_GET[self::CALENDAR_VAR]) ? $this->calendarFromUrl() : $preset;
         $calendar = $picked === '' ? null : $calendars->firstWhere('slug', $picked);
         // A fixed calendar that isn't public lists nothing; with the chips showing, the list falls back to All.
         $calendarIds = $calendar ? [$calendar->id] : (!$showChips && $preset !== '' ? [0] : $calendars->pluck('id')->all());
@@ -778,7 +786,6 @@ class FrontEndHandler
 
         ob_start();
         ?>
-        <script>
             (function (choices) {
                 var params = new URLSearchParams(location.search);
                 var changed = false;
@@ -807,9 +814,8 @@ class FrontEndHandler
                     location.replace(location.pathname + '?' + params.toString() + location.hash);
                 }
             })(<?php echo wp_json_encode($choices); ?>);
-        </script>
         <?php
 
-        return (string) ob_get_clean();
+        return wp_get_inline_script_tag((string) ob_get_clean());
     }
 }

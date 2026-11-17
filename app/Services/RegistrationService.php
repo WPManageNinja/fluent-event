@@ -67,6 +67,12 @@ class RegistrationService
 
         $previousStatus = $guest->status;
 
+        // Claiming a visitor's row drops the name they typed, which emails would otherwise greet the member with.
+        $claim = ['user_id' => $user->ID];
+        if (!$guest->user_id && $guest->source !== 'manual') {
+            $claim['name'] = $name ?: $user->display_name;
+        }
+
         // Going again keeps a checked-in guest checked in.
         $newStatus = in_array($status, ['not_going', 'cancelled'], true) || !in_array($previousStatus, Event::SEAT_STATUSES, true)
             ? $status
@@ -76,7 +82,7 @@ class RegistrationService
         // reports it, so only one sends the email; the other gets the row back unchanged.
         if ($newStatus !== $previousStatus) {
             $claimed = Guest::query()->where('id', $guest->id)->where('status', $previousStatus)
-                ->update(['status' => $newStatus, 'user_id' => $user->ID]);
+                ->update(array_merge($claim, ['status' => $newStatus]));
 
             $guest = Guest::query()->find($guest->id);
 
@@ -87,10 +93,16 @@ class RegistrationService
             return [$guest, $claimed ? $previousStatus : $guest->status, false];
         }
 
-        $guest->user_id = $user->ID;
+        $guest->fill($claim);
         $guest->save();
 
         return [$guest, $previousStatus, false];
+    }
+
+    // Whether any guest on the event has this email.
+    public static function hasGuestEmail(Event $event, $email)
+    {
+        return $email !== '' && Guest::query()->where('event_id', $event->id)->where('email', $email)->exists();
     }
 
     /**

@@ -5,7 +5,7 @@
  *
  * @var string $fluentEventPart cover|title|meta|calendar|description
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+defined('ABSPATH') || exit;
 
 use FluentEvent\App\Services\Icon;
 ?>

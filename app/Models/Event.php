@@ -62,6 +62,8 @@ class Event extends Model
             'address'            => '',
             'entry_type'         => '',
             'show_guest_count'   => 'yes',
+            // How the event page shows the time until the start: relative ("Starts in 3 days") or a live countdown.
+            'start_display'      => 'relative',
             // The description's markdown, as written in the editor; the post holds its rendered HTML.
             'description_md'     => '',
         ];
