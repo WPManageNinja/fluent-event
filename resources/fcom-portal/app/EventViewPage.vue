@@ -77,6 +77,12 @@
                     </div>
 
                     <span v-if="phase === 'live'" class="fe-live-badge">{{ $t('Happening now') }}</span>
+                    <div v-else-if="countdown && !countdown.done" class="fe-countdown" role="timer" :aria-label="$t('Time until the event starts')">
+                        <span v-for="unit in countdownUnits" :key="unit.key" class="fe-countdown__unit">
+                            <span class="fe-countdown__value">{{ unit.value }}</span>
+                            <span class="fe-countdown__label">{{ unit.label }}</span>
+                        </span>
+                    </div>
                     <span v-else class="fe-event-view__status" :class="`fe-event-view__status--${phase}`">{{ statusLabel }}</span>
 
                     <div v-if="hasActions || countLabel" class="fe-event-view__rsvp">
@@ -125,6 +131,7 @@
 import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
 import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, setPageTitle, timeFormat } from '../utils';
 import { lastDay } from '@/utils/date';
+import { padPart, startCountdown } from '@/utils/countdown';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
@@ -153,6 +160,8 @@ export default {
             error: '',
             icons: { APPLE, GOOGLE },
             requestId: 0,
+            countdown: null,
+            stopCountdown: null,
         };
     },
     computed: {
@@ -199,8 +208,17 @@ export default {
 
             return `${dayjs(start).format(`MMM D, ${timeFormat()}`)} – ${dayjs(end).format(endFormat)} (${portalVars().timezone})`;
         },
+        // The countdown reaching 0 is the start, so the page turns live without a reload; a tab that slept
+        // through the whole event lands on Ended instead.
         phase() {
-            return eventPhase(this.event);
+            const phase = eventPhase(this.event);
+
+            return this.countdown && this.countdown.done && phase !== 'ended' ? 'live' : phase;
+        },
+        countdownUnits() {
+            const labels = { days: this.$t('Days'), hours: this.$t('Hours'), minutes: this.$t('Minutes'), seconds: this.$t('Seconds') };
+
+            return Object.keys(labels).map((key) => ({ key, label: labels[key], value: padPart(this.countdown[key]) }));
         },
         statusLabel() {
             if (this.phase === 'ended') {
@@ -249,6 +267,7 @@ export default {
     // A read still on its way must not title the next page's tab.
     beforeUnmount() {
         this.requestId++;
+        this.stopCountdown && this.stopCountdown();
     },
     methods: {
         googleCalendarLink,
@@ -292,6 +311,12 @@ export default {
 
                 if (this.event) {
                     setPageTitle(this.event.title);
+                }
+
+                if (this.event && this.event.start_display === 'countdown' && this.phase === 'upcoming') {
+                    this.stopCountdown = startCountdown(utc(this.event.start_at).valueOf(), (parts) => {
+                        this.countdown = parts;
+                    });
                 }
             } catch (error) {
                 this.event = null;

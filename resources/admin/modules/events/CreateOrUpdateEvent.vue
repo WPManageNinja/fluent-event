@@ -165,6 +165,30 @@
                                     <span class="fe-form__hint">{{ option.hint }}</span>
                                 </el-radio>
                             </el-radio-group>
+
+                            <el-dialog
+                                v-model="startDisplayHelp"
+                                :title="$t('Start Time Display')"
+                                width="560px"
+                                append-to-body
+                                destroy-on-close
+                            >
+                                <figure
+                                    v-for="option in startDisplays"
+                                    :key="option.value"
+                                    class="fe-start-display-help__item"
+                                >
+                                    <figcaption class="fe-start-display-help__caption">
+                                        <span class="fe-start-display-help__title">{{ option.label }}</span>
+                                        <span class="fe-start-display-help__text">{{ option.details }}</span>
+                                    </figcaption>
+                                    <StartDisplayPreview
+                                        :value="option.value"
+                                        role="img"
+                                        :aria-label="$t('%s on the event page', option.label)"
+                                    />
+                                </figure>
+                            </el-dialog>
                         </div>
                     </section>
 
@@ -245,6 +269,43 @@
                                     </div>
                                 </div>
                             </el-form-item>
+                        </div>
+                    </section>
+
+                    <section class="fe-form__section" data-field="start_display">
+                        <div class="fe-form__section-rail">
+                            <h2 class="fe-form__section-title fe-form__section-title--info">
+                                {{ $t('Start Time Display') }}
+                                <button
+                                    type="button"
+                                    class="fe-form__label-info"
+                                    :aria-label="$t('What the two choices look like')"
+                                    @click="startDisplayHelp = true"
+                                >
+                                    <el-icon><QuestionFilled /></el-icon>
+                                </button>
+                            </h2>
+                            <p class="fe-form__section-desc">
+                                {{ $t('How the event page shows the time until the start.') }}
+                            </p>
+                        </div>
+
+                        <div class="fe-form__section-fields">
+                            <el-radio-group
+                                v-model="event.start_display"
+                                class="fe-form__choices"
+                                :aria-label="$t('Start Time Display')"
+                            >
+                                <el-radio
+                                    v-for="option in startDisplays"
+                                    :key="option.value"
+                                    :value="option.value"
+                                    border
+                                >
+                                    <span class="fe-form__choice-title">{{ option.label }}</span>
+                                    <span class="fe-form__hint">{{ option.hint }}</span>
+                                </el-radio>
+                            </el-radio-group>
                         </div>
                     </section>
 
@@ -374,11 +435,12 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
-    import { MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
+    import { MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
     import MarkdownEditor from '@/components/MarkdownEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     const config = window.fluentEventAdmin;
@@ -390,10 +452,12 @@
         name: 'CreateOrUpdateEvent',
         components: {
             Picture,
+            QuestionFilled,
             MarkdownEditor,
             ErrorState,
             MediaPicker,
             SegmentedSwitch,
+            StartDisplayPreview,
             Skeleton,
         },
         data() {
@@ -403,6 +467,7 @@
                 calendarError: '',
                 eventError: '',
                 saving: false,
+                startDisplayHelp: false,
                 calendars: [],
                 event: {},
             };
@@ -441,6 +506,22 @@
                 return [
                     { value: 'offline', label: this.$t('In Person'), icon: MapLocation },
                     { value: 'online', label: this.$t('Online'), icon: VideoCamera },
+                ];
+            },
+            startDisplays() {
+                return [
+                    {
+                        value: 'relative',
+                        label: this.$t('Time Left'),
+                        hint: this.$t('A short line, like "Starts in 3 days".'),
+                        details: this.$t('A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".'),
+                    },
+                    {
+                        value: 'countdown',
+                        label: this.$t('Countdown'),
+                        hint: this.$t('Days, hours, minutes and seconds, ticking down to the start.'),
+                        details: this.$t('Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.'),
+                    },
                 ];
             },
             bounds() {
@@ -514,6 +595,7 @@
                     cover_url: meta.cover_url || '',
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
                     show_guest_count: meta.show_guest_count || 'yes',
+                    start_display: meta.start_display || 'relative',
                 };
             },
             loadForm() {
@@ -612,6 +694,7 @@
                         address: this.event.address,
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
+                        start_display: this.event.start_display,
                     },
                     loadingState: 'saving',
                     errorState: null,

@@ -3,7 +3,7 @@
  * An event's own address, or the events archive, in a classic theme: its header and footer around ours.
  * Block themes get the same from the single-fe_event and archive-fe_event templates.
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+defined('ABSPATH') || exit;
 
 $fluentEventPage = new \FluentEvent\App\Hooks\Handlers\FrontEndHandler();
 

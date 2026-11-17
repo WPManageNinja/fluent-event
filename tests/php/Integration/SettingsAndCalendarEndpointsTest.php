@@ -230,6 +230,23 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $this->rest('POST', 'settings/email-notifications', $this->reminders($times))['status']);
     }
 
+    public function test_email_notification_settings_store_only_their_known_keys()
+    {
+        $payload = $this->reminders([['value' => 2, 'unit' => 'hours', 'extra' => '<script>x</script>']]);
+        $payload['registration_confirmation']['extra'] = '<script>x</script>';
+        $payload['reminder_to_guest']['extra'] = '<script>x</script>';
+        $payload['unknown'] = '<script>x</script>';
+
+        $response = $this->rest('POST', 'settings/email-notifications', $payload);
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $this->assertSame([
+            'registration_confirmation' => ['enabled' => true],
+            'registration_cancellation' => ['enabled' => true],
+            'reminder_to_guest'         => ['enabled' => true, 'times' => [['value' => 2, 'unit' => 'hours']]],
+        ], Settings::get(Settings::EMAIL_NOTIFICATIONS));
+    }
+
     public function test_saving_reminder_settings_requeues_every_upcoming_event()
     {
         $response = $this->rest('POST', 'settings/email-notifications', $this->reminders([['value' => 2, 'unit' => 'hours']]));

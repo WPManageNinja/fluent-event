@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 return [
 
@@ -67,6 +67,8 @@ return [
             '%s: %s' => __('%1$s: %2$s', 'fluent-event'),
             'A calendar holds your events. Give it a title and you can start adding events to it.' => __('A calendar holds your events. Give it a title and you can start adding events to it.', 'fluent-event'),
             'A calendar holds your events. You need one before you can add an event.' => __('A calendar holds your events. You need one before you can add an event.', 'fluent-event'),
+            /* translators: the hint under the "Time Left" choice; keep the example in quotes */
+            'A short line, like "Starts in 3 days".' => __('A short line, like "Starts in 3 days".', 'fluent-event'),
             'A venue for in-person events, a link for online ones.' => __('A venue for in-person events, a link for online ones.', 'fluent-event'),
             /* translators: %s is the name of the item the actions apply to */
             'Actions for %s' => __('Actions for %s', 'fluent-event'),
@@ -78,6 +80,13 @@ return [
             'Add Description' => __('Add Description', 'fluent-event'),
             'Add Event' => __('Add Event', 'fluent-event'),
             'Add Guest' => __('Add Guest', 'fluent-event'),
+            'Add this shortcode to any page or post to show this event.' => __('Add this shortcode to any page or post to show this event.', 'fluent-event'),
+            'Add to Block' => __('Add to Block', 'fluent-event'),
+            'In the block editor, add the Fluent Event block, then pick this event in its settings.' => __('In the block editor, add the Fluent Event block, then pick this event in its settings.', 'fluent-event'),
+            'The block inserter with the Fluent Event block selected' => __('The block inserter with the Fluent Event block selected', 'fluent-event'),
+            'Anyone with this link can open the event page.' => __('Anyone with this link can open the event page.', 'fluent-event'),
+            'Share' => __('Share', 'fluent-event'),
+            'Share Event' => __('Share Event', 'fluent-event'),
             'Add this shortcode to the page:' => __('Add this shortcode to the page:', 'fluent-event'),
             'Address' => __('Address', 'fluent-event'),
             'Advanced' => __('Advanced', 'fluent-event'),
@@ -121,6 +130,7 @@ return [
             'Copy Link' => __('Copy Link', 'fluent-event'),
             'Copy shortcode' => __('Copy shortcode', 'fluent-event'),
             'Could not load this event. Please try again.' => __('Could not load this event. Please try again.', 'fluent-event'),
+            'Countdown' => __('Countdown', 'fluent-event'),
             'Cover Image' => __('Cover Image', 'fluent-event'),
             /* translators: %s is the event title */
             'Cover image of %s' => __('Cover image of %s', 'fluent-event'),
@@ -142,7 +152,10 @@ return [
             'Day' => __('Day', 'fluent-event'),
             /* translators: %d: the day number within a multi-day event */
             'Day %d' => __('Day %d', 'fluent-event'),
+            'Days' => __('Days', 'fluent-event'),
             'Days Before' => __('Days Before', 'fluent-event'),
+            'Days, hours, minutes and seconds, ticking down to the start.' => __('Days, hours, minutes and seconds, ticking down to the start.', 'fluent-event'),
+            'Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.' => __('Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.', 'fluent-event'),
             'Deep Lilac' => __('Deep Lilac', 'fluent-event'),
             'Default Events List View' => __('Default Events List View', 'fluent-event'),
             'Delete' => __('Delete', 'fluent-event'),
@@ -180,6 +193,8 @@ return [
             'Guest Emails' => __('Guest Emails', 'fluent-event'),
             'Confirmation Email' => __('Confirmation Email', 'fluent-event'),
             'Heading 1' => __('Heading 1', 'fluent-event'),
+            'Hours' => __('Hours', 'fluent-event'),
+            'How the event page shows the time until the start.' => __('How the event page shows the time until the start.', 'fluent-event'),
             'Heading 2' => __('Heading 2', 'fluent-event'),
             'Heading 3' => __('Heading 3', 'fluent-event'),
             'Heading 4' => __('Heading 4', 'fluent-event'),
@@ -188,6 +203,7 @@ return [
             'Image' => __('Image', 'fluent-event'),
             'Its calendar is not public, so this event has no public page.' => __('Its calendar is not public, so this event has no public page.', 'fluent-event'),
             'Link copied.' => __('Link copied.', 'fluent-event'),
+            'Minutes' => __('Minutes', 'fluent-event'),
             'No languages found' => __('No languages found', 'fluent-event'),
             'Numbered list' => __('Numbered list', 'fluent-event'),
             'Only public and unlisted events have a public page.' => __('Only public and unlisted events have a public page.', 'fluent-event'),
@@ -197,6 +213,7 @@ return [
             'Public Page' => __('Public Page', 'fluent-event'),
             'Quote' => __('Quote', 'fluent-event'),
             'Search languages' => __('Search languages', 'fluent-event'),
+            'Seconds' => __('Seconds', 'fluent-event'),
             'Select a page' => __('Select a page', 'fluent-event'),
             'Send a confirmation email when a guest registers' => __('Send a confirmation email when a guest registers', 'fluent-event'),
             'Email guests a confirmation when they register for an event.' => __('Email guests a confirmation when they register for an event.', 'fluent-event'),
@@ -210,6 +227,7 @@ return [
             'Send an email when a registration is cancelled' => __('Send an email when a registration is cancelled', 'fluent-event'),
             'Email guests when they cancel or an admin cancels their registration.' => __('Email guests when they cancel or an admin cancels their registration.', 'fluent-event'),
             'Guests get no email when their registration is cancelled.' => __('Guests get no email when their registration is cancelled.', 'fluent-event'),
+            'Shortcode' => __('Shortcode', 'fluent-event'),
             'Shortcode copied.' => __('Shortcode copied.', 'fluent-event'),
             'Show how many guests are going' => __('Show how many guests are going', 'fluent-event'),
             'RSVP' => __('RSVP', 'fluent-event'),
@@ -351,8 +369,10 @@ return [
             'Start' => __('Start', 'fluent-event'),
             'Start date' => __('Start date', 'fluent-event'),
             'Start time' => __('Start time', 'fluent-event'),
+            'Start Time Display' => __('Start Time Display', 'fluent-event'),
             /* translators: %s: when the event starts, as a date and time or as a relative time such as "in 3 days" */
             'Starts %s' => __('Starts %s', 'fluent-event'),
+            'Starts in 2 days' => __('Starts in 2 days', 'fluent-event'),
             'Status' => __('Status', 'fluent-event'),
             'Street, city, country' => __('Street, city, country', 'fluent-event'),
             'Success' => __('Success', 'fluent-event'),
@@ -374,9 +394,14 @@ return [
             'This event and all of its data will be permanently deleted.' => __('This event and all of its data will be permanently deleted.', 'fluent-event'),
             'This event no longer exists' => __('This event no longer exists', 'fluent-event'),
             'This page doesn’t contain the shortcode or block yet.' => __('This page doesn’t contain the shortcode or block yet.', 'fluent-event'),
+            'Time Left' => __('Time Left', 'fluent-event'),
+            'A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".' => __('A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
+            /* translators: %s is a choice name, "Time Left" or "Countdown"; the alt text of its example screenshot */
+            '%s on the event page' => __('%s on the event page', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
             'Title' => __('Title', 'fluent-event'),
+            'What the two choices look like' => __('What the two choices look like', 'fluent-event'),
             'To' => __('To', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
             'Top Events' => __('Top Events', 'fluent-event'),

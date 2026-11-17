@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 // Use favicon from resources/images/favicon.png in dev mode
 $app->addAction('admin_head', function () use ($app) {
@@ -17,7 +17,9 @@ $app->addAction('admin_head', function () use ($app) {
 });
 
 // Add style for menu icon (WP left navigation bar)
-$app->addAction('admin_head', function() use ($app) {
+$app->addAction('admin_enqueue_scripts', function() use ($app) {
     $slug = sanitize_key($app->config->get('app.slug'));
-    echo '<style>li.toplevel_page_' . esc_html($slug) . ' .wp-menu-image img { width: 20px; height: 20px; }</style>';
+    wp_register_style('fluent-event-menu-icon', false, [], FLUENT_EVENT_PLUGIN_VERSION);
+    wp_enqueue_style('fluent-event-menu-icon');
+    wp_add_inline_style('fluent-event-menu-icon', 'li.toplevel_page_' . $slug . ' .wp-menu-image img { width: 20px; height: 20px; }');
 });

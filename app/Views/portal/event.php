@@ -15,7 +15,7 @@
  * @var string $site_time
  * @var string $side           The rendered side card (portal/event-side.php).
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+defined('ABSPATH') || exit;
 ?>
 <div class="fe-event-page">
     <?php $fluentEventPart = 'cover'; include __DIR__ . '/event-part.php'; ?>
