@@ -56,6 +56,10 @@ class PortalEventController extends Controller
 
         $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages']);
 
+        if (is_string($guest)) {
+            return $this->sendError(['message' => $guest], 422);
+        }
+
         do_action('fluent_event/guest/created', $guest);
 
         RegistrationService::queueEmail($guest, null);

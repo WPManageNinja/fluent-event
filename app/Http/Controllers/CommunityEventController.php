@@ -176,6 +176,10 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
         }
 
+        if (is_string($registered)) {
+            return $this->sendError(['message' => $registered], 422);
+        }
+
         if (!$registered) {
             return $this->sendError(['message' => __('This email is already registered for this event.', 'fluent-event')], 422);
         }
@@ -252,6 +256,10 @@ class CommunityEventController extends Controller
         );
 
         $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id]);
+
+        if (is_string($guest)) {
+            return $this->sendError(['message' => $guest], 422);
+        }
 
         do_action('fluent_event/guest/created', $guest);
 

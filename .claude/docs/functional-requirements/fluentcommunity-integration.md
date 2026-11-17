@@ -129,7 +129,11 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   start `private`, like their calendars. Both statuses show in the admin and can be changed there.
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
   effect on the upcoming landing page.
-- **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit; each answer shows a
+- **Capacity:** `meta.capacity` caps `going` + `checked_in` guests on `rsvp` and `open` events (0 = unlimited).
+  A full event shows **Event full** in place of the RSVP or Register button and refuses a new one (422); a guest
+  already going keeps their seat and can still give it up, and admins can add guests past it. With the guest count
+  on, the event page shows a meter ("7 out of 10 going", spots left).
+- **Entry types:** `rsvp` (logged-in members, going / not going, up to the event's capacity; each answer shows a
   success toast with the server's message, "RSVP updated. You're going!" / "RSVP updated. You're not going."), `open`
   (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
   from the account, name editable, email locked. After registering, a **You're registered** dialog

@@ -296,4 +296,11 @@ class RequestRulesTest extends TestCase
 
         $this->assertSame(['2026-10-04', '2026-10-10'], [$start, $end]);
     }
+
+    public function test_a_capacity_is_a_whole_number_and_none_means_unlimited()
+    {
+        $this->assertSame('nullable|integer|min:0', EventRequest::RULES['capacity']);
+        $this->assertSame(25, EventRequest::sanitize(['capacity' => '25'])['capacity']);
+        $this->assertSame(0, EventRequest::format($this->eventInput())['meta']['capacity']);
+    }
 }
