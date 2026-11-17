@@ -1,5 +1,5 @@
 import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
-import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE } from './icons';
+import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE, TICKET } from './icons';
 
 /*
  * The RSVP dropdown, or an open event's Register form (no undo): a member's arrives filled in,
@@ -36,6 +36,10 @@ export default {
             }
 
             return this.event.my_status === 'not_going' ? 'not_going' : '';
+        },
+        // A guest already going keeps their RSVP on a full event, to give up the seat.
+        isFullForMe() {
+            return !!this.event.is_full && this.status !== 'going';
         },
     },
     beforeUnmount() {
@@ -207,6 +211,11 @@ export default {
     template: `
         <div class="fe-event-actions">
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
+
+            <span v-else-if="isFullForMe" class="fe-event-actions__state">
+                <span class="fe-event-actions__state-icon" aria-hidden="true">${TICKET}</span>
+                {{ t('Event full') }}
+            </span>
 
             <template v-else-if="event.entry_type === 'open'">
                 <!-- A visitor isn't recognised again after a reload, so only a member's badge opens a menu to cancel. -->

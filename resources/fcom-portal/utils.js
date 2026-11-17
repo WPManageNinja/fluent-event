@@ -192,6 +192,10 @@ export function guestCountLabel(event) {
         return '';
     }
 
+    if (event.capacity) {
+        return t('%1$s out of %2$s going', event.guest_count, event.capacity);
+    }
+
     return t('%s going', event.guest_count);
 }
 

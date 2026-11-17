@@ -44,6 +44,20 @@ describe('EventActions', () => {
         expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
     });
 
+    it('says Event full in place of the RSVP for a member without a seat', () => {
+        wrapper = actions(rsvp({ is_full: true, my_status: 'not_going' }));
+
+        expect(wrapper.find('.fe-event-actions__state').text()).toBe('Event full');
+        expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
+    });
+
+    it('keeps the RSVP for a guest who already holds a seat on a full event', () => {
+        wrapper = actions(rsvp({ is_full: true, my_status: 'checked_in' }));
+
+        expect(wrapper.find('.fe-rsvp__label').text()).toBe('Going');
+        expect(wrapper.find('.fe-rsvp__trigger').attributes('disabled')).toBeUndefined();
+    });
+
     it("opens a member's Register form filled in, email locked, and registers on submit", async () => {
         window.fluentEventFcomPortal.user = { name: 'Rafi', email: 'rafi@example.test' };
         wrapper = actions(rsvp({ entry_type: 'open' }));
