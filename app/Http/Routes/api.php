@@ -10,7 +10,6 @@ use FluentEvent\App\Http\Controllers\CalendarController;
 use FluentEvent\App\Http\Controllers\SettingsController;
 use FluentEvent\App\Http\Controllers\CommunityEventController;
 use FluentEvent\App\Http\Controllers\PortalEventController;
-use FluentEvent\App\Http\Middleware\Throttle;
 
 $router->withDefaultPolicy()->group(function ($router) {
     $router->get('/dashboard', 'DashboardController@get');
@@ -69,14 +68,11 @@ $router->prefix('events')->withDefaultPolicy()->group(function ($router) {
 $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($router) {
     $router->get('/events', [CommunityEventController::class, 'getEvents']);
     $router->get('/events/by-slug', [CommunityEventController::class, 'getEventBySlug']);
-    $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])
-        ->int('id')->before(new Throttle(10));
-    $router->post('/events/{id}/register-guest', [CommunityEventController::class, 'registerGuest'])
-        ->int('id')->before(new Throttle(5));
+    $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])->int('id');
+    $router->post('/events/{id}/register-guest', [CommunityEventController::class, 'registerGuest'])->int('id');
 });
 
 // The public event page's registration form.
 $router->prefix('portal')->withPolicy('PortalPolicy')->group(function ($router) {
-    $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])
-        ->int('id')->before(new Throttle(5));
+    $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])->int('id');
 });
