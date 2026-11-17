@@ -1,152 +1,178 @@
 <template>
-    <div class="fe-events-page">
-        <div class="fe-events-page__header">
-            <h1 class="fe-events-page__title">{{ spaceSlug ? $t('Events') : $t('All Events') }}</h1>
-            <el-button
-                v-if="canCreate"
-                class="fcom_primary_button"
-                @click="createEvent"
-            >
-                {{ $t('Create Event') }}
-            </el-button>
-        </div>
-
-        <el-tabs v-model="tab" class="fe-events-page__tabs" @tab-change="changeTab">
-            <el-tab-pane :label="$t('All')" name="all"/>
-            <el-tab-pane :label="$t('Upcoming')" name="upcoming"/>
-            <el-tab-pane :label="$t('Past')" name="past"/>
-        </el-tabs>
-
-        <div class="fe-events-page__toolbar">
-            <el-input
-                v-model="search"
-                class="fe-events-page__search"
-                clearable
-                :placeholder="$t('Search events')"
-                :aria-label="$t('Search events')"
-                @keydown.enter="reload"
-                @clear="reload"
-            >
-                <template #prefix>
-                    <el-icon><Search/></el-icon>
-                </template>
-            </el-input>
-
-            <segmented-switch
-                v-if="!viewLocked"
-                v-model="view"
-                :options="views"
-                :label="$t('Switch between card, timeline and calendar view')"
-            />
-        </div>
-
-        <p v-if="error" class="fe-events-page__error" role="alert">{{ error }}</p>
-
-        <events-calendar
-            v-if="view === 'calendar'"
-            v-model:mode="calendarMode"
-            v-loading="loading"
-            :events="events"
-            :date="calendarDate"
-            @change-date="calendarDate = $event"
-            @open="openEvent"
-        />
-
-        <div
-            v-else
-            v-loading="loading"
-            class="fe-events-page__list"
-            :class="{ 'fe-events-page__list--cards': view === 'cards', 'fe-events-page__list--timeline': view === 'timeline' }"
-        >
-            <div v-if="!loading && !events.length" class="fe-events-page__empty">
-                <span class="fe-events-page__empty-icon" aria-hidden="true">
-                    <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
-                        <path d="M6.66667 1.66699V4.16699M13.3333 1.66699V4.16699M2.5 7.50033H17.5M4.16667 3.33366H15.8333C16.7538 3.33366 17.5 4.07985 17.5 5.00033V16.667C17.5 17.5875 16.7538 18.3337 15.8333 18.3337H4.16667C3.24619 18.3337 2.5 17.5875 2.5 16.667V5.00033C2.5 4.07985 3.24619 3.33366 4.16667 3.33366Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </span>
-
-                <h2 class="fe-events-page__empty-title">{{ emptyState.title }}</h2>
-                <p class="fe-events-page__empty-text">{{ emptyState.text }}</p>
-            </div>
-
-            <div
-                v-for="event in events"
-                :key="event.id"
-                class="fe-events-page__row"
-                :class="{ 'fe-events-page__row--timeline': view === 'timeline' }"
-            >
-                <template v-if="view === 'timeline'">
-                    <div class="fe-events-page__gutter">
-                        <span class="fe-events-page__date">{{ timelineDate(event) }}</span>
-                        <span class="fe-events-page__weekday">{{ weekday(event) }}</span>
-                    </div>
-                    <span class="fe-events-page__dot" aria-hidden="true"></span>
-                </template>
-
-                <div
-                    class="fe-event-item"
-                    :class="{ 'fe-event-item--card': view === 'cards' }"
-                >
-                    <!-- A mouse shortcut to the title link, which stays the keyboard and screen-reader route. -->
-                    <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt="" @click="openEvent(event)"/>
-                    <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true" @click="openEvent(event)">
-                        <el-icon><Calendar/></el-icon>
-                    </span>
-
-                    <span v-if="view === 'cards' && isLive(event)" class="fe-event-item__live fe-live-badge">{{ $t('Happening now') }}</span>
-
-                    <span v-if="view === 'cards'" class="fe-event-item__date fe-date-chip" aria-hidden="true">
-                        <span class="fe-date-chip__month">{{ month(event) }}</span>
-                        <span class="fe-date-chip__day">{{ day(event) }}</span>
-                    </span>
-
-                    <div class="fe-event-item__info">
-                        <!-- All Events only: inside a space every event is that space's. -->
-                        <span v-if="!spaceSlug" class="fe-event-item__space">
-                            <span class="fe-event-item__space-icon" aria-hidden="true">
-                                <template v-if="event.space">
-                                    <img v-if="event.space.logo" class="fe-event-item__space-logo" :src="event.space.logo" alt=""/>
-                                    <template v-else-if="event.space.emoji">{{ event.space.emoji }}</template>
-                                    <span v-else-if="event.space.shape_svg" class="fe-event-item__space-shape" v-html="event.space.shape_svg"></span><!-- coding-rules-scan:ignore — fcom's space icon, run through fcom's CustomSanitizer::sanitizeSvg server-side, as fcom's sidebar renders it -->
-                                    <el-icon v-else><UserFilled/></el-icon>
-                                </template>
-                                <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
-                                    <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" stroke="currentColor" stroke-width="1.8"/>
-                                </svg>
-                            </span>
-                            <span class="fe-event-item__space-name">{{ event.space ? event.space.title : $t('Community-wide') }}</span>
-                        </span>
-                        <div class="fe-event-item__head">
-                            <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openEvent(event)">
-                                <span class="fe-event-item__title-text">{{ event.title }}</span>
-                            </a>
-                            <event-menu class="fe-event-item__menu" :event="event" :router="router"></event-menu>
-                        </div>
-                        <span class="fe-event-item__meta fe-event-item__meta--date">{{ startDate(event) }}</span>
-                        <span class="fe-event-item__meta fe-event-item__meta--venue">
-                            <el-icon aria-hidden="true">
-                                <VideoCamera v-if="event.venue_type === 'online'"/>
-                                <MapLocation v-else/>
-                            </el-icon>
-                            {{ event.venue_type === 'online' ? $t('Online') : $t('In Person') }}
-                        </span>
-                        <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
-                    </div>
-
-                    <div v-if="hasActions(event)" class="fe-event-item__actions">
-                        <span v-if="countLabel(event)" class="fe-event-item__count">{{ countLabel(event) }}</span>
-                        <event-actions
-                            :event="event"
-                            @done="applyResponse(event, $event)"
-                            @error="errors[event.id] = $event"
-                        ></event-actions>
+    <div class="fe-events-page" :class="{ 'fcom_feeds fcom_single_layout fcom_max_layout': !spaceSlug }">
+        <div :class="{ fhr_content_layout: !spaceSlug }">
+            <!-- All Events wears fcom's page header bar, like Spaces and Courses. -->
+            <div v-if="!spaceSlug" class="fhr_content_layout_header">
+                <h1 class="fhr_page_title">{{ $t('Events') }}</h1>
+                <div class="fhr_page_actions">
+                    <div class="object_menu">
+                        <ul class="fcom_space_menu_ul">
+                            <li v-for="item in tabs" :key="item.name">
+                                <a
+                                    href="#"
+                                    :class="{ 'router-link-exact-active': tab === item.name }"
+                                    :aria-current="tab === item.name ? 'page' : null"
+                                    @click.prevent="selectTab(item.name)"
+                                >{{ item.label }}</a>
+                            </li>
+                            <li v-if="canCreate">
+                                <el-button class="fcom_primary_button" @click="createEvent">{{ $t('Create Event') }}</el-button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
-            <div v-if="currentPage < lastPage" class="fe-events-page__more">
-                <el-button class="fcom_secondary_button" :loading="loading" @click="fetchEvents(currentPage + 1)">{{ $t('Load more') }}</el-button>
+            <div :class="{ 'fhr_content_layout_body no_bg_layout': !spaceSlug }">
+                <template v-if="spaceSlug">
+                    <div class="fe-events-page__header">
+                        <h1 class="fe-events-page__title">{{ $t('Events') }}</h1>
+                        <el-button
+                            v-if="canCreate"
+                            class="fcom_primary_button"
+                            @click="createEvent"
+                        >
+                            {{ $t('Create Event') }}
+                        </el-button>
+                    </div>
+
+                    <el-tabs v-model="tab" class="fe-events-page__tabs" @tab-change="changeTab">
+                        <el-tab-pane v-for="item in tabs" :key="item.name" :label="item.label" :name="item.name"/>
+                    </el-tabs>
+                </template>
+
+                <div class="fe-events-page__toolbar">
+                    <el-input
+                        v-model="search"
+                        class="fe-events-page__search"
+                        clearable
+                        :placeholder="$t('Search events')"
+                        :aria-label="$t('Search events')"
+                        @keydown.enter="reload"
+                        @clear="reload"
+                    >
+                        <template #prefix>
+                            <el-icon><Search/></el-icon>
+                        </template>
+                    </el-input>
+
+                    <segmented-switch
+                        v-if="!viewLocked"
+                        v-model="view"
+                        :options="views"
+                        :label="$t('Switch between card, timeline and calendar view')"
+                    />
+                </div>
+
+                <p v-if="error" class="fe-events-page__error" role="alert">{{ error }}</p>
+
+                <events-calendar
+                    v-if="view === 'calendar'"
+                    v-model:mode="calendarMode"
+                    v-loading="loading"
+                    :events="events"
+                    :date="calendarDate"
+                    @change-date="calendarDate = $event"
+                    @open="openEvent"
+                />
+
+                <div
+                    v-else
+                    v-loading="loading"
+                    class="fe-events-page__list"
+                    :class="{ 'fe-events-page__list--cards': view === 'cards', 'fe-events-page__list--timeline': view === 'timeline' }"
+                >
+                    <div v-if="!loading && !events.length" class="fe-events-page__empty">
+                        <span class="fe-events-page__empty-icon" aria-hidden="true">
+                            <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
+                                <path d="M6.66667 1.66699V4.16699M13.3333 1.66699V4.16699M2.5 7.50033H17.5M4.16667 3.33366H15.8333C16.7538 3.33366 17.5 4.07985 17.5 5.00033V16.667C17.5 17.5875 16.7538 18.3337 15.8333 18.3337H4.16667C3.24619 18.3337 2.5 17.5875 2.5 16.667V5.00033C2.5 4.07985 3.24619 3.33366 4.16667 3.33366Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+
+                        <h2 class="fe-events-page__empty-title">{{ emptyState.title }}</h2>
+                        <p class="fe-events-page__empty-text">{{ emptyState.text }}</p>
+                    </div>
+
+                    <div
+                        v-for="event in events"
+                        :key="event.id"
+                        class="fe-events-page__row"
+                        :class="{ 'fe-events-page__row--timeline': view === 'timeline' }"
+                    >
+                        <template v-if="view === 'timeline'">
+                            <div class="fe-events-page__gutter">
+                                <span class="fe-events-page__date">{{ timelineDate(event) }}</span>
+                                <span class="fe-events-page__weekday">{{ weekday(event) }}</span>
+                            </div>
+                            <span class="fe-events-page__dot" aria-hidden="true"></span>
+                        </template>
+
+                        <div
+                            class="fe-event-item"
+                            :class="{ 'fe-event-item--card': view === 'cards' }"
+                        >
+                            <!-- A mouse shortcut to the title link, which stays the keyboard and screen-reader route. -->
+                            <img v-if="event.cover_url" class="fe-event-item__cover" :src="event.cover_url" alt="" @click="openEvent(event)"/>
+                            <span v-else class="fe-event-item__cover fe-event-item__cover--empty" aria-hidden="true" @click="openEvent(event)">
+                                <el-icon><Calendar/></el-icon>
+                            </span>
+
+                            <span v-if="view === 'cards' && isLive(event)" class="fe-event-item__live fe-live-badge">{{ $t('Happening now') }}</span>
+
+                            <span v-if="view === 'cards'" class="fe-event-item__date fe-date-chip" aria-hidden="true">
+                                <span class="fe-date-chip__month">{{ month(event) }}</span>
+                                <span class="fe-date-chip__day">{{ day(event) }}</span>
+                            </span>
+
+                            <div class="fe-event-item__info">
+                                <!-- All Events only: inside a space every event is that space's. -->
+                                <span v-if="!spaceSlug" class="fe-event-item__space">
+                                    <span class="fe-event-item__space-icon" aria-hidden="true">
+                                        <template v-if="event.space">
+                                            <img v-if="event.space.logo" class="fe-event-item__space-logo" :src="event.space.logo" alt=""/>
+                                            <template v-else-if="event.space.emoji">{{ event.space.emoji }}</template>
+                                            <span v-else-if="event.space.shape_svg" class="fe-event-item__space-shape" v-html="event.space.shape_svg"></span><!-- coding-rules-scan:ignore — fcom's space icon, run through fcom's CustomSanitizer::sanitizeSvg server-side, as fcom's sidebar renders it -->
+                                            <el-icon v-else><UserFilled/></el-icon>
+                                        </template>
+                                        <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                                            <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" stroke="currentColor" stroke-width="1.8"/>
+                                        </svg>
+                                    </span>
+                                    <span class="fe-event-item__space-name">{{ event.space ? event.space.title : $t('Community-wide') }}</span>
+                                </span>
+                                <div class="fe-event-item__head">
+                                    <a href="#" class="fe-event-item__title" :title="event.title" @click.prevent="openEvent(event)">
+                                        <span class="fe-event-item__title-text">{{ event.title }}</span>
+                                    </a>
+                                    <event-menu class="fe-event-item__menu" :event="event" :router="router"></event-menu>
+                                </div>
+                                <span class="fe-event-item__meta fe-event-item__meta--date">{{ startDate(event) }}</span>
+                                <span class="fe-event-item__meta fe-event-item__meta--venue">
+                                    <el-icon aria-hidden="true">
+                                        <VideoCamera v-if="event.venue_type === 'online'"/>
+                                        <MapLocation v-else/>
+                                    </el-icon>
+                                    {{ event.venue_type === 'online' ? $t('Online') : $t('In Person') }}
+                                </span>
+                                <p v-if="errors[event.id]" class="fe-event-item__error" role="alert">{{ errors[event.id] }}</p>
+                            </div>
+
+                            <div v-if="hasActions(event)" class="fe-event-item__actions">
+                                <span v-if="countLabel(event)" class="fe-event-item__count">{{ countLabel(event) }}</span>
+                                <event-actions
+                                    :event="event"
+                                    @done="applyResponse(event, $event)"
+                                    @error="errors[event.id] = $event"
+                                ></event-actions>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentPage < lastPage" class="fe-events-page__more">
+                        <el-button class="fcom_secondary_button" :loading="loading" @click="fetchEvents(currentPage + 1)">{{ $t('Load more') }}</el-button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -196,6 +222,13 @@ export default {
     computed: {
         canCreate() {
             return !!portalVars().can_create_events;
+        },
+        tabs() {
+            return [
+                { name: 'all', label: this.$t('All') },
+                { name: 'upcoming', label: this.$t('Upcoming') },
+                { name: 'past', label: this.$t('Past') },
+            ];
         },
         views() {
             return [
@@ -268,6 +301,12 @@ export default {
         changeTab() {
             Storage.set('portal_events_tab', this.tab);
             this.reload();
+        },
+        selectTab(tab) {
+            if (tab !== this.tab) {
+                this.tab = tab;
+                this.changeTab();
+            }
         },
         async fetchEvents(page) {
             const requestId = ++this.requestId;
