@@ -115,9 +115,11 @@ abstract class IntegrationTestCase extends BaseTestCase
     /**
      * Dispatch a REST request in-process, as the current user.
      *
+     * @param callable|null $beforeAllowHeader Runs between the dispatch and the Allow-header pass,
+     *                                         to stand in for a parallel request.
      * @return array{status: int, data: array}
      */
-    protected function rest($method, $route, array $params = [])
+    protected function rest($method, $route, array $params = [], $beforeAllowHeader = null)
     {
         // The framework binds Request as a singleton and array_merges each dispatch into it,
         // so without a fresh one a later request sees an earlier one's parameters.
@@ -140,6 +142,14 @@ abstract class IntegrationTestCase extends BaseTestCase
         }
 
         $response = rest_do_request($request);
+
+        if ($beforeAllowHeader) {
+            $beforeAllowHeader();
+        }
+
+        // Over HTTP, WordPress runs the route's permission callback again to build the Allow header.
+        $response = rest_send_allow_header($response, rest_get_server(), $request);
+
         $data = rest_get_server()->response_to_data($response, false);
 
         return [
