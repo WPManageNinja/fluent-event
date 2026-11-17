@@ -232,6 +232,42 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame($this->member, $guests[0]->user_id);
     }
 
+    /**
+     * @dataProvider visitorRowStatuses
+     */
+    public function test_a_member_claiming_a_visitor_row_replaces_the_typed_name($status)
+    {
+        [$event] = $this->communityEvent();
+        $member = get_userdata($this->member);
+        $this->createGuest($event, [
+            'name'   => 'Verify at evil.example',
+            'email'  => $member->user_email,
+            'status' => $status,
+            'source' => 'fluent_community',
+        ]);
+
+        $this->assertSame(200, $this->rsvp($event, 'going')['status']);
+
+        $guest = $this->guestsOf($event)[0];
+        $this->assertSame($this->member, $guest->user_id);
+        $this->assertSame($member->display_name, $guest->name);
+    }
+
+    public function visitorRowStatuses()
+    {
+        return ['already going' => ['going'], 'coming back after a cancel' => ['cancelled']];
+    }
+
+    public function test_a_member_claiming_an_admin_added_row_keeps_the_admins_name()
+    {
+        [$event] = $this->communityEvent();
+        $this->createGuest($event, ['name' => 'Name From Admin', 'email' => get_userdata($this->member)->user_email]);
+
+        $this->rsvp($event, 'going');
+
+        $this->assertSame('Name From Admin', $this->guestsOf($event)[0]->name);
+    }
+
     public function test_an_email_already_registered_to_another_member_is_refused()
     {
         [$event] = $this->communityEvent();
