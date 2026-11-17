@@ -402,7 +402,35 @@
                                 </el-radio-group>
                             </el-form-item>
 
-                            <div v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-form__switch-row" data-field="show_guest_count">
+                        </div>
+                    </section>
+
+                    <section v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-form__section">
+                        <div class="fe-form__section-rail">
+                            <h2 class="fe-form__section-title">{{ $t('Guest control') }}</h2>
+                            <p class="fe-form__section-desc">
+                                {{ $t('Seats and the guest count guests see.') }}
+                            </p>
+                        </div>
+
+                        <div class="fe-form__section-fields">
+                            <el-form-item :label="$t('Capacity')" for="fe-event-capacity" data-field="capacity">
+                                <el-input-number
+                                    id="fe-event-capacity"
+                                    v-model="event.capacity"
+                                    class="fe-event-form__capacity"
+                                    align="left"
+                                    :min="1"
+                                    step-strictly
+                                    :controls="false"
+                                    :placeholder="$t('Unlimited')"
+                                />
+                                <span class="fe-form__hint">
+                                    {{ $t('How many guests can be going at once. Leave empty for no limit.') }}
+                                </span>
+                            </el-form-item>
+
+                            <div class="fe-form__switch-row" data-field="show_guest_count">
                                 <label class="fe-form__switch-text" for="fe-event-show-guest-count">
                                     {{ $t('Show how many guests are going') }}
                                 </label>
@@ -595,6 +623,7 @@
                     cover_url: meta.cover_url || '',
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
                     show_guest_count: meta.show_guest_count || 'yes',
+                    capacity: meta.capacity || null,
                     start_display: meta.start_display || 'relative',
                 };
             },
@@ -694,6 +723,7 @@
                         address: this.event.address,
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
+                        capacity: this.event.capacity || 0,
                         start_display: this.event.start_display,
                     },
                     loadingState: 'saving',

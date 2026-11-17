@@ -1166,6 +1166,11 @@
             min-width: 0;
         }
     }
+
+    &__capacity.el-input-number {
+        width: 220px;
+        max-width: 100%;
+    }
 }
 
 .fe-media-picker {
