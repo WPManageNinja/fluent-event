@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 // Use favicon from resources/images/favicon.png in dev mode
 $app->addAction('admin_head', function () use ($app) {

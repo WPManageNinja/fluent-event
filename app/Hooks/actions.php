@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 require_once __DIR__ . '/logoicon.php';
 
