@@ -98,6 +98,39 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
     }
 
+    public function test_a_visitor_who_said_not_going_comes_back_on_the_same_row()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $existing = $this->createGuest($event, ['name' => 'Name Before', 'email' => 'visitor@example.test', 'status' => 'not_going']);
+
+        $response = $this->registerGuest($event, ['name' => 'Someone else']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('going', $response['data']['status']);
+        $this->assertStringContainsString(esc_html__("You're going", 'fluent-event'), $response['data']['html']);
+        $guests = $this->guestsOf($event);
+        $this->assertCount(1, $guests);
+        $this->assertSame((int) $existing->id, (int) $guests[0]->id);
+        $this->assertSame('going', $guests[0]->status);
+        $this->assertSame('Name Before', $guests[0]->name);
+    }
+
+    public function test_a_visitor_an_admin_cancelled_is_told_so()
+    {
+        $event = $this->onlineEvent('open');
+        $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'cancelled']);
+
+        $response = $this->registerGuest($event);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(__('Your registration was cancelled by the host.', 'fluent-event'), $response['data']['message']);
+        $this->assertNull($response['data']['status']);
+        $this->assertStringContainsString('fe-register-success--warning', $response['data']['html']);
+        $this->assertStringContainsString(esc_html__('Your registration was cancelled by the host', 'fluent-event'), $response['data']['html']);
+        $this->assertStringNotContainsString('meet.example.test', $response['data']['html']);
+        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
+    }
+
     // A bad name fails alike for registered and new emails.
     public function test_an_invalid_name_does_not_tell_registered_emails_apart()
     {

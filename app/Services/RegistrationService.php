@@ -36,8 +36,9 @@ class RegistrationService
      * under their email.
      *
      * @param array $source source and source_id for a new row.
-     * @return array|null|false [Guest, previous status, created]; null when another account holds the email; false
-     *                          when the row changed under this request to something other than what it asked for.
+     * @return array|null|false|string [Guest, previous status, created]; null when another account holds the email;
+     *                                 'cancelled' when an admin cancelled the row; false when the row changed under this
+     *                                 request to something other than what it asked for.
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
@@ -46,6 +47,11 @@ class RegistrationService
 
         if ($guest && $guest->user_id && (int) $guest->user_id !== (int) $user->ID) {
             return null;
+        }
+
+        // Only an admin cancels, and the guest can't undo it on their own.
+        if ($guest && $guest->status === 'cancelled') {
+            return 'cancelled';
         }
 
         if (!$guest) {
@@ -74,7 +80,7 @@ class RegistrationService
         }
 
         // Going again keeps a checked-in guest checked in.
-        $newStatus = in_array($status, ['not_going', 'cancelled'], true) || !in_array($previousStatus, Event::SEAT_STATUSES, true)
+        $newStatus = $status === 'not_going' || !in_array($previousStatus, Event::SEAT_STATUSES, true)
             ? $status
             : $previousStatus;
 
@@ -99,20 +105,50 @@ class RegistrationService
         return [$guest, $previousStatus, false];
     }
 
-    // Whether any guest on the event has this email.
-    public static function hasGuestEmail(Event $event, $email)
+    // The row this email already holds on the event, if any.
+    public static function guestByEmail(Event $event, $email)
     {
-        return $email !== '' && Guest::query()->where('event_id', $event->id)->where('email', $email)->exists();
+        return $email === '' ? null : Guest::query()->where('event_id', $event->id)->where('email', $email)->first();
+    }
+
+    // Why a guest can't register again on their own: their row already holds a place, or an admin cancelled it.
+    // '' for a row they marked not going, which registering takes back to going.
+    public static function repeatRefusal(Guest $guest)
+    {
+        if ($guest->status === 'not_going') {
+            return '';
+        }
+
+        return $guest->status === 'cancelled' ? 'cancelled' : 'already_registered';
+    }
+
+    // What a refused repeat registration is told.
+    public static function refusalMessage($refusal)
+    {
+        return $refusal === 'cancelled'
+            ? __('Your registration was cancelled by the host.', 'fluent-event')
+            : __('This email is already registered for this event.', 'fluent-event');
     }
 
     /**
-     * A logged-out visitor's registration by name and email, already validated. Always going.
+     * A logged-out visitor's registration by name and email, already validated. Always going: the email's
+     * not-going row comes back on, keeping its name; otherwise a new row.
      *
-     * @param array $source source and source_id.
+     * @param array      $source source and source_id.
+     * @param Guest|null $guest  The email's not-going row.
+     * @return array [Guest, its status before, or null when created]
      */
-    public static function registerVisitor(Event $event, array $data, array $source)
+    public static function registerVisitor(Event $event, array $data, array $source, $guest = null)
     {
-        return Guest::create(array_merge($source, [
+        if ($guest) {
+            // Claimed against "not going", so two requests coming back together send one confirmation.
+            $claimed = Guest::query()->where('id', $guest->id)->where('status', 'not_going')->update(['status' => 'going']);
+            $guest = Guest::query()->find($guest->id);
+
+            return [$guest, $claimed ? 'not_going' : $guest->status];
+        }
+
+        return [Guest::create(array_merge($source, [
             'event_id'    => $event->id,
             'calendar_id' => $event->calendar_id,
             'group_id'    => wp_generate_password(32, false, false),
@@ -120,7 +156,7 @@ class RegistrationService
             'name'        => $data['name'],
             'email'       => $data['email'],
             'status'      => 'going',
-        ]));
+        ])), null];
     }
 
     // Confirmation on becoming going, cancellation on leaving it, each as Settings > Emails allows.

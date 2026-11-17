@@ -48,39 +48,48 @@ class PortalEventController extends Controller
         // Validate first, so bad input fails alike for every email.
         $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
 
-        // A repeated email is warned, and nothing is saved.
-        if (RegistrationService::hasGuestEmail($event, $data['email'])) {
-            return $this->registered($event, null);
+        $guest = RegistrationService::guestByEmail($event, $data['email']);
+
+        // A repeated email is warned with nothing saved, unless its row said not going: that comes back on.
+        if ($guest && ($refusal = RegistrationService::repeatRefusal($guest))) {
+            return $this->registered($event, null, $refusal);
         }
 
-        $this->validate(
-            $data,
-            Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
-            GuestRequest::messages()
-        );
+        if (!$guest) {
+            $this->validate(
+                $data,
+                Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
+                GuestRequest::messages()
+            );
+        }
 
-        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages']);
+        [$guest, $previousStatus] = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages'], $guest);
 
-        do_action('fluent_event/guest/created', $guest);
+        if ($previousStatus === null) {
+            do_action('fluent_event/guest/created', $guest);
+        } elseif ($previousStatus !== $guest->status) {
+            do_action('fluent_event/guest/updated', $guest, $previousStatus);
+        }
 
-        RegistrationService::queueEmail($guest, null);
+        RegistrationService::queueEmail($guest, $previousStatus);
 
         return $this->registered($event, $guest->status);
     }
 
     /**
-     * @param string|null $status The new guest's status, or null when the email was already registered.
+     * @param string|null $status  The guest's status, or null when the registration was refused.
+     * @param string      $refusal Why it was refused: 'already_registered' or 'cancelled'.
      */
-    private function registered(Event $event, $status)
+    private function registered(Event $event, $status, $refusal = '')
     {
         $seats = EventService::seatCounts([$event->id]);
-        // A visitor has no account to read their row back by: a new guest's card is drawn as going, a repeat's as before.
+        // A visitor has no account to read their row back by: a registration's card is drawn as going, a refusal's as before.
         $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $status, false, false);
 
         return [
-            'message' => $status ? __('You are registered.', 'fluent-event') : __('This email is already registered for this event.', 'fluent-event'),
+            'message' => $refusal ? RegistrationService::refusalMessage($refusal) : __('You are registered.', 'fluent-event'),
             'status'  => $status,
-            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), $status ? 'registered' : 'already'),
+            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), $refusal ?: 'registered'),
         ];
     }
 

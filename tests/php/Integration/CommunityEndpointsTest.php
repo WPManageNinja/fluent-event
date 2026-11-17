@@ -255,7 +255,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
 
     public function visitorRowStatuses()
     {
-        return ['already going' => ['going'], 'coming back after a cancel' => ['cancelled']];
+        return ['already going' => ['going'], 'coming back after not going' => ['not_going']];
     }
 
     public function test_a_member_claiming_an_admin_added_row_keeps_the_admins_name()
@@ -285,6 +285,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
 
         [$open] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->assertSame('You are registered.', $this->rsvp($open, 'going')['data']['message']);
+        $this->assertSame("You're no longer going.", $this->rsvp($open, 'not_going')['data']['message']);
     }
 
     public function test_a_member_registers_for_an_open_event_and_gets_the_email()
@@ -302,27 +303,17 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guests[0]->id]));
     }
 
-    // Open has no undo in the portal; only an admin removes its guests.
-    public function test_an_open_event_takes_no_not_going()
+    public function test_a_member_says_not_going_to_an_open_event_and_can_register_again()
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->rsvp($event, 'going');
 
-        $this->assertSame(422, $this->rsvp($event, 'not_going')['status']);
-        $this->assertSame('going', $this->guestsOf($event)[0]->status);
-    }
-
-    public function test_a_member_cancels_an_open_registration_and_can_register_again()
-    {
-        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
-        $this->rsvp($event, 'going');
-
-        $response = $this->rsvp($event, 'cancelled');
+        $response = $this->rsvp($event, 'not_going');
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
-        $this->assertSame('Registration cancelled.', $response['data']['message']);
+        $this->assertSame("You're no longer going.", $response['data']['message']);
         $guest = $this->guestsOf($event)[0];
-        $this->assertSame('cancelled', $guest->status);
+        $this->assertSame('not_going', $guest->status);
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
 
         $this->assertSame(200, $this->rsvp($event, 'going')['status']);
@@ -330,22 +321,22 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $this->guestsOf($event)[0]->status);
     }
 
-    public function test_a_checked_in_member_who_cancels_gets_the_cancellation_email()
+    public function test_a_checked_in_member_who_says_not_going_gets_the_cancellation_email()
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->rsvp($event, 'going');
         Guest::query()->where('event_id', $event->id)->update(['status' => 'checked_in']);
 
-        $this->assertSame(200, $this->rsvp($event, 'cancelled')['status']);
+        $this->assertSame(200, $this->rsvp($event, 'not_going')['status']);
 
         $guest = $this->guestsOf($event)[0];
-        $this->assertSame('cancelled', $guest->status);
+        $this->assertSame('not_going', $guest->status);
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
     }
 
-    // Two tabs cancelling together: the other tab's update lands first, so this request's claim on
+    // Two tabs saying not going together: the other tab's update lands first, so this request's claim on
     // "going" finds nothing to change and must not send a second email.
-    public function test_a_cancel_that_loses_the_race_sends_no_second_email()
+    public function test_a_not_going_that_loses_the_race_sends_no_second_email()
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->rsvp($event, 'going');
@@ -355,20 +346,20 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->addTestFilter('query', function ($query) use (&$raced, $guestId) {
             if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'going'") !== false) {
                 $raced = true;
-                $this->wpdb->update($this->table('fe_guests'), ['status' => 'cancelled'], ['id' => $guestId]);
+                $this->wpdb->update($this->table('fe_guests'), ['status' => 'not_going'], ['id' => $guestId]);
             }
 
             return $query;
         });
 
-        $this->assertSame(200, $this->rsvp($event, 'cancelled')['status']);
+        $this->assertSame(200, $this->rsvp($event, 'not_going')['status']);
         $this->assertTrue($raced, 'The claim query never ran');
-        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
+        $this->assertSame('not_going', $this->guestsOf($event)[0]->status);
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [$guestId]));
     }
 
-    // An admin checks the member in while their cancel is in flight: the cancel must say so, not report success.
-    public function test_a_cancel_overtaken_by_a_check_in_asks_to_try_again()
+    // An admin checks the member in while their not going is in flight: it must say so, not report success.
+    public function test_a_not_going_overtaken_by_a_check_in_asks_to_try_again()
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->rsvp($event, 'going');
@@ -384,7 +375,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
             return $query;
         });
 
-        $response = $this->rsvp($event, 'cancelled');
+        $response = $this->rsvp($event, 'not_going');
 
         $this->assertTrue($raced, 'The claim query never ran');
         $this->assertSame(409, $response['status']);
@@ -392,17 +383,36 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [$guestId]));
     }
 
-    // A cancel with nothing to cancel would otherwise create a cancelled row; RSVP answers not going instead.
-    public function test_only_a_held_open_registration_can_be_cancelled()
+    // Only an admin cancels. An open event's not going gives up a held registration, never makes a row from nothing.
+    public function test_members_answer_going_or_not_going_and_never_cancel()
     {
         [$open] = $this->communityEvent([], ['entry_type' => 'open']);
-        $this->assertSame(422, $this->rsvp($open, 'cancelled')['status']);
+        $this->assertSame(422, $this->rsvp($open, 'not_going')['status']);
         $this->assertCount(0, $this->guestsOf($open));
+        $this->rsvp($open, 'going');
+        $this->assertSame(422, $this->rsvp($open, 'cancelled')['status']);
+        $this->assertSame('going', $this->guestsOf($open)[0]->status);
 
         [$rsvp] = $this->communityEvent();
         $this->rsvp($rsvp, 'going');
         $this->assertSame(422, $this->rsvp($rsvp, 'cancelled')['status']);
         $this->assertSame('going', $this->guestsOf($rsvp)[0]->status);
+    }
+
+    // An admin's cancel stands: the member is told so, and neither answer changes it.
+    public function test_a_member_an_admin_cancelled_cannot_undo_it()
+    {
+        [$event] = $this->communityEvent();
+        $this->createGuest($event, ['email' => get_userdata($this->member)->user_email, 'user_id' => $this->member, 'status' => 'cancelled']);
+
+        foreach (['going', 'not_going'] as $status) {
+            $response = $this->rsvp($event, $status);
+
+            $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+            $this->assertSame(['message' => __('Your registration was cancelled by the host.', 'fluent-event'), 'status' => null, 'refusal' => 'cancelled'], $response['data']);
+        }
+
+        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
     }
 
     public function test_a_visitor_registers_for_an_open_event_by_name_and_email()
@@ -451,10 +461,41 @@ class CommunityEndpointsTest extends IntegrationTestCase
 
         // Warned that the email is already registered: no status, no meeting link.
         $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
-        $this->assertSame(['message' => __('This email is already registered for this event.', 'fluent-event'), 'status' => null], $again['data']);
+        $this->assertSame(['message' => __('This email is already registered for this event.', 'fluent-event'), 'status' => null, 'refusal' => 'already_registered'], $again['data']);
         $this->assertSame('going', $first['data']['status']);
         $this->assertCount(1, $this->guestsOf($event));
         $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
+    }
+
+    public function test_a_visitor_who_said_not_going_comes_back_on_the_same_row()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->asVisitorOnAPublicPortal();
+        $existing = $this->createGuest($event, ['name' => 'Name Before', 'email' => 'visitor@example.test', 'status' => 'not_going']);
+
+        $response = $this->registerGuest($event, ['name' => 'Someone else']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('going', $response['data']['status']);
+        $guests = $this->guestsOf($event);
+        $this->assertCount(1, $guests);
+        $this->assertSame((int) $existing->id, (int) $guests[0]->id);
+        $this->assertSame('going', $guests[0]->status);
+        $this->assertSame('Name Before', $guests[0]->name);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $existing->id]));
+    }
+
+    public function test_a_visitor_an_admin_cancelled_is_told_so()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $this->asVisitorOnAPublicPortal();
+        $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'cancelled']);
+
+        $response = $this->registerGuest($event);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(['message' => __('Your registration was cancelled by the host.', 'fluent-event'), 'status' => null, 'refusal' => 'cancelled'], $response['data']);
+        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
     }
 
     // A bad name fails alike for registered and new emails.
