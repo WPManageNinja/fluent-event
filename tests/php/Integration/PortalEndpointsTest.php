@@ -57,7 +57,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertStringContainsString('https://meet.example.test/fe-room', $response['data']['html']);
         $this->assertStringNotContainsString('data-fe-status', $response['data']['html']);
         // With the confirmation the page opens over it.
-        $this->assertStringContainsString('data-fe-registered', $response['data']['html']);
+        $this->assertStringContainsString('data-fe-answer', $response['data']['html']);
         $this->assertStringContainsString(esc_html__("You're going", 'fluent-event'), $response['data']['html']);
     }
 
@@ -85,10 +85,14 @@ class PortalEndpointsTest extends IntegrationTestCase
         $first = $this->registerGuest($event);
         $again = $this->registerGuest($event, ['name' => 'Someone else']);
 
-        // Same answer as a new registration.
+        // Warned that the email is already registered, and nothing is saved.
         $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
-        $this->assertSame($first['data']['message'], $again['data']['message']);
-        $this->assertSame($first['data']['status'], $again['data']['status']);
+        $this->assertSame(__('This email is already registered for this event.', 'fluent-event'), $again['data']['message']);
+        $this->assertNull($again['data']['status']);
+        $this->assertStringContainsString('fe-register-success--warning', $again['data']['html']);
+        $this->assertStringContainsString(esc_html__('This email is already registered', 'fluent-event'), $again['data']['html']);
+        $this->assertStringNotContainsString(esc_html__("You're going", 'fluent-event'), $again['data']['html']);
+        $this->assertStringNotContainsString('fe-register-success--warning', $first['data']['html']);
         $this->assertCount(1, $this->guestsOf($event));
         $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
     }

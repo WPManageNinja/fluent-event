@@ -104,6 +104,11 @@ class Icon
         . '<path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>'
         . '</svg>';
 
+    // The already-registered warning.
+    const WARNING = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
+        . '<path d="M8 3.5v5.5M8 12.25v.25" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'
+        . '</svg>';
+
     const CROSS = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
         . '<path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'
         . '</svg>';
