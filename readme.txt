@@ -120,7 +120,7 @@ FluentEvent connects to two external services: the WPManageNinja update server, 
 
 = WPManageNinja update server =
 
-When WordPress checks for plugin updates, FluentEvent asks the WPManageNinja update server (fluentapi.wpmanageninja.com) for the latest version. The request sends the plugin slug, the installed version and the site URL. The update server uses them to find the new version and its download link.
+When WordPress checks for plugin updates, when an admin opens the plugin's details or clicks Check Update, and when an update is installed, FluentEvent contacts the WPManageNinja update server (fluentapi.wpmanageninja.com). The version check sends the plugin slug, the installed version and the site URL. The update server uses them to find the new version and its download link. The update package is then downloaded from the link that the server returns.
 
 * Terms and Conditions: https://wpmanageninja.com/terms-and-conditions/
 * Privacy Policy: https://wpmanageninja.com/privacy/
