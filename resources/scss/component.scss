@@ -832,6 +832,96 @@
     }
 }
 
+// The event's settings, read-only, above the danger zone: each setting's name, then what it is set to.
+.fe-event-settings {
+    margin-bottom: var(--fe-space-5, 20px);
+    padding: 0;
+    overflow: hidden;
+
+    // Same bar as the danger zone's title, so the two cards read as a pair.
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--fe-space-3, 12px);
+        padding: var(--fe-space-3, 12px) var(--fe-space-5, 20px);
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        background-color: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__title {
+        margin: 0;
+        font-size: var(--fe-text-base, 16px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__list {
+        margin: 0;
+        padding: 0 var(--fe-space-5, 20px);
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        align-items: center;
+        gap: var(--fe-space-4, 16px);
+        min-height: 52px;
+        padding: var(--fe-space-3, 12px) 0;
+        font-size: var(--fe-text-sm, 14px);
+
+        & + .fe-event-settings__row {
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
+        }
+
+        @media screen and (max-width: 575px) {
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--fe-space-1, 4px);
+        }
+    }
+
+    &__label {
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__value {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--fe-space-2, 8px) var(--fe-space-5, 20px);
+        margin: 0;
+        font-weight: 500;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__meter {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-3, 12px);
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 400;
+        font-variant-numeric: tabular-nums;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__track {
+        display: block;
+        width: 140px;
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background-color: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__fill {
+        display: block;
+        min-width: 6px;
+        height: 100%;
+        border-radius: inherit;
+        background-color: var(--fe-primary-button, #2b2e33);
+    }
+}
+
 .fe-danger-zone {
     border: 1px solid var(--el-color-danger, #f56c6c);
     border-radius: var(--fe-radius, 8px);
