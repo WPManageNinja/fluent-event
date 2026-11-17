@@ -10,8 +10,9 @@
     justify-content: space-between;
     padding: 0 var(--fe-gutter, 30px);
     background-color: var(--fe-primary-bg, #ffffff);
-    border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
-    height: var(--fe-navbar-height, 65px);
+    // A shadow instead of a border, as in FluentCart and FluentPlayer.
+    box-shadow: var(--fe-shadow-navbar, 0 0 20px rgba(28, 39, 50, 0.08));
+    height: var(--fe-navbar-height, 64px);
     
     @media (max-width: 600px) {
         position: sticky;

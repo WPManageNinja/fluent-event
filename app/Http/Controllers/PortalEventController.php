@@ -6,6 +6,7 @@ use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\EventService;
+use FluentEvent\App\Services\RateLimiter;
 use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\Framework\Http\Request\Request;
 use FluentEvent\Framework\Support\Arr;
@@ -19,6 +20,10 @@ class PortalEventController extends Controller
     // Anyone, logged in or not, as a visitor: by name and email, on an RSVP or open event. Always going, with no undo.
     public function registerGuest(Request $request, $id)
     {
+        if (RateLimiter::isSpamming('register_guest', 5)) {
+            return $this->tooManyRequests();
+        }
+
         if (!$this->cameFromThePage($request, $id)) {
             return $this->expired();
         }
