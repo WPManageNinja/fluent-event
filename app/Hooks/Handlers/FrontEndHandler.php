@@ -380,8 +380,7 @@ class FrontEndHandler
     // A link like ?fe_calendar[]=x sends an array, which sanitize_title() cannot take on PHP 8.
     protected function calendarFromUrl()
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
-        $value = isset($_GET[self::CALENDAR_VAR]) ? wp_unslash($_GET[self::CALENDAR_VAR]) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized below once known to be a string.
+        $value = isset($_GET[self::CALENDAR_VAR]) ? wp_unslash($_GET[self::CALENDAR_VAR]) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only page state from the link; sanitized below once known to be a string.
 
         return is_string($value) ? sanitize_title($value) : '';
     }
