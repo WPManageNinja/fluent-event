@@ -963,8 +963,9 @@
         color: var(--fe-primary-text, #19283a);
     }
 
-    &__input {
-        display: block;
+    // .el-input sets inline-flex and loads after us, so this needs its class to win.
+    &__input.el-input {
+        display: flex;
         max-width: 480px;
         margin-bottom: var(--fe-space-4, 16px);
 
