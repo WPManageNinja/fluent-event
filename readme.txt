@@ -133,10 +133,11 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 
 == Changelog ==
 
-= 1.0.5 (Date: Nov 16, 2026) =
+= 1.0.5 (Date: Nov 17, 2026) =
 - Added: Live Countdown to an Event's Start
 - Added: Guest Count on Admin Event Cards
 - Added: Edit and Share Buttons in Event Details
+- Added: Share Event Modal With the Link, Shortcode and Block
 - Improved: Guest Count in the Event Page Overview Tab
 - Improved: Required Field Marks in the Add Guest Form
 - Improved: Event Drawer Rows in the Event Page Order
@@ -150,6 +151,12 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Fixed: Portal Calendar and Date Picker Dates Not Translated
 - Fixed: Link Button Text Hidden on Focus
 - Fixed: PHP Deprecation Notice on the Admin Page
+- Fixed: Events Page Error on a Bad Calendar Link
+- Updated: Plugin Updates Now Come From WordPress.org
+- Security: Public Registration Forms No Longer Show Who Registered
+- Security: Guest Emails Greet Visitors Without Their Typed Name
+- Security: More Reliable Rate Limit on Public Registration
+- Security: Stricter Sanitizing of Email Notification Settings
 
 = 1.0.1 (Date: Nov 13, 2026) =
 - Added: RTL Language Support
