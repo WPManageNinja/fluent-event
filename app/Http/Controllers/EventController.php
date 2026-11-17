@@ -64,7 +64,7 @@ class EventController extends Controller
         $event = Event::query()
             ->with([
                 'post'        => function ($query) {
-                    $query->select(['ID', 'post_title', 'post_content']);
+                    $query->select(['ID', 'post_title', 'post_content', 'post_name']);
                 },
                 'calendar'    => function ($query) {
                     $query->select(['id', 'title', 'status', 'meta']);
@@ -77,12 +77,13 @@ class EventController extends Controller
         $data = [
             'event'      => $event->append('description'),
             'public_url' => EventPageService::url($event),
+            'shortcode'  => '[fluent_event event="' . $event->post->post_name . '"]',
         ];
 
         /**
          * One event, as the admin form and the portal edit page load it, for add-ons to append fields.
          *
-         * @param array $data  ['event' => Event, 'public_url' => string]
+         * @param array $data  ['event' => Event, 'public_url' => string, 'shortcode' => string]
          * @param Event $event
          */
         return apply_filters('fluent_event/event_api_response', $data, $event);

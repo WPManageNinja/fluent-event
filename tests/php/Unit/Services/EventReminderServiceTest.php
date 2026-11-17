@@ -96,6 +96,26 @@ class EventReminderServiceTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider greetedGuests
+     */
+    public function test_only_a_visitor_registration_is_greeted_without_the_typed_name($guest, $expected)
+    {
+        $greeting = $this->callProtected(EventReminderService::class, 'buildGreeting', [$this->event(), (object) $guest, '%1$s']);
+
+        $this->assertStringContainsString($expected, $greeting);
+    }
+
+    public function greetedGuests()
+    {
+        return [
+            'visitor on a page'      => [['name' => 'Click evil.example', 'user_id' => null, 'source' => 'wordpress_pages'], 'Hi there,'],
+            'visitor in a community' => [['name' => 'Click evil.example', 'user_id' => null, 'source' => 'fluent_community'], 'Hi there,'],
+            'member'                 => [['name' => 'Rafi', 'user_id' => 7, 'source' => 'fluent_community'], 'Hi Rafi,'],
+            'added by an admin'      => [['name' => 'Rafi', 'user_id' => null, 'source' => 'manual'], 'Hi Rafi,'],
+        ];
+    }
+
     public function test_a_guest_without_a_name_is_greeted_generically()
     {
         $greeting = $this->callProtected(EventReminderService::class, 'buildGreeting', [$this->event(), (object) ['name' => ''], '%1$s']);

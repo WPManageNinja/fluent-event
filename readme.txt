@@ -4,7 +4,7 @@ Tags: events, event calendar, rsvp, event registration, fluentcommunity
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -110,12 +110,23 @@ Not in this version. Both are on the roadmap.
 
 == Changelog ==
 
-= 1.0.2 (Date: Nov 15, 2026) =
+= 1.0.5 (Date: Nov 16, 2026) =
+- Added: Live Countdown to an Event's Start
+- Added: Guest Count on Admin Event Cards
+- Added: Edit and Share Buttons in Event Details
+- Improved: Guest Count in the Event Page Overview Tab
+- Improved: Required Field Marks in the Add Guest Form
+- Improved: Event Drawer Rows in the Event Page Order
 - Fixed: Unstyled Flash When the Admin Page Opens
 - Fixed: Tables Not Created on Older MySQL and MariaDB
+- Fixed: Meta Table Not Created on MyISAM Databases
 - Fixed: Missing Tables Not Created Again After an Update
 - Fixed: Community Event Post Left Without Its Event
 - Fixed: Event Cover Missing in Community Card View
+- Fixed: Community Time Picker Rows Misaligned
+- Fixed: Portal Calendar and Date Picker Dates Not Translated
+- Fixed: Link Button Text Hidden on Focus
+- Fixed: PHP Deprecation Notice on the Admin Page
 
 = 1.0.1 (Date: Nov 13, 2026) =
 - Added: Automatic Plugin Updates With Checksum Verification

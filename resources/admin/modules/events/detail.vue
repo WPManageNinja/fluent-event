@@ -26,6 +26,11 @@
                     </div>
 
                     <div class="fe-page__actions">
+                        <el-button @click="shareVisible = true">
+                            <el-icon aria-hidden="true"><Share /></el-icon>
+                            <span>{{ $t('Share') }}</span>
+                        </el-button>
+
                         <el-button
                             @click="goToEdit"
                         >
@@ -151,40 +156,6 @@
                                         </p>
                                     </div>
                                 </div>
-
-                                <div class="fe-event-overview__row">
-                                    <span class="fe-event-overview__icon">
-                                        <el-icon aria-hidden="true"><Link /></el-icon>
-                                    </span>
-
-                                    <div class="fe-event-overview__public">
-                                        <p class="fe-event-overview__row-title">{{ $t('Public Page') }}</p>
-
-                                        <p v-if="publicPageNote" class="fe-event-overview__row-text">
-                                            {{ publicPageNote }}
-                                        </p>
-
-                                        <div v-else class="fe-event-overview__public-link">
-                                            <a
-                                                class="fe-event-overview__row-link"
-                                                :href="publicUrl"
-                                                target="_blank"
-                                                rel="noopener"
-                                            >
-                                                {{ publicUrl }}
-                                            </a>
-
-                                            <el-button
-                                                link
-                                                :aria-label="$t('Copy Link')"
-                                                :title="$t('Copy Link')"
-                                                @click="copyPublicUrl"
-                                            >
-                                                <el-icon><CopyDocument /></el-icon>
-                                            </el-button>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </template>
@@ -215,13 +186,20 @@
                         <EventDangerZone :event="event" @deleted="goToList" />
                     </template>
                 </Tabs>
+
+                <EventShareModal
+                    v-model="shareVisible"
+                    :event="event"
+                    :public-url="publicUrl"
+                    :shortcode="shortcode"
+                />
             </template>
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
-    import { ArrowRight, CopyDocument, Link, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { ArrowRight, LocationInformation, Share, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import Skeleton from '@/components/Skeleton.vue';
@@ -229,14 +207,14 @@
     import EmptyState from '@/components/EmptyState.vue';
     import EventGuests from './parts/EventGuests.vue';
     import EventDangerZone from './parts/EventDangerZone.vue';
+    import EventShareModal from './parts/EventShareModal.vue';
 
     export default {
         name: 'EventDetail',
         components: {
             ArrowRight,
-            CopyDocument,
-            Link,
             LocationInformation,
+            Share,
             TopRight,
             VideoCamera,
             Tabs,
@@ -245,6 +223,7 @@
             EmptyState,
             EventGuests,
             EventDangerZone,
+            EventShareModal,
         },
         data() {
             return {
@@ -253,6 +232,8 @@
                 tab: 'overview',
                 event: {},
                 publicUrl: '',
+                shortcode: '',
+                shareVisible: false,
             };
         },
         computed: {
@@ -273,16 +254,6 @@
             },
             calendarStatus() {
                 return this.event.calendar?.status || '';
-            },
-            // Why an event has no public page.
-            publicPageNote() {
-                if (!['public', 'unlisted'].includes(this.event.status)) {
-                    return this.$t('Only public and unlisted events have a public page.');
-                }
-
-                return this.calendarStatus === 'public'
-                    ? ''
-                    : this.$t('Its calendar is not public, so this event has no public page.');
             },
             calendarColor() {
                 return this.$calendarColor(this.event.calendar);
@@ -324,17 +295,13 @@
                     onSuccess: response => {
                         this.event = response.event;
                         this.publicUrl = response.public_url;
+                        this.shortcode = response.shortcode;
                         this.$changeTitle(this.event.title);
                     },
                     onError: () => {
                         this.event = {};
                     },
                 });
-            },
-            copyPublicUrl() {
-                navigator.clipboard.writeText(this.publicUrl)
-                    .then(() => this.$notifySuccess(this.$t('Link copied.')))
-                    .catch(() => this.$notifyError(this.$t('The link could not be copied.')));
             },
             goToEdit() {
                 this.$router.push({

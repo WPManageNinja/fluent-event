@@ -49,8 +49,8 @@ class AdminMenuHandler
         $this->app = App::make();
         $this->config = $this->app->config;
         $this->slug = $this->config->get('app.slug');
-        $this->baseUrl = $this->app->applyFilters(
-            'fluent_connector_base_url',
+        $this->baseUrl = apply_filters(
+            'fluent_event/admin_base_url',
             admin_url('admin.php?page=' . $this->slug . '#/')
         );
     }
@@ -370,6 +370,7 @@ JS;
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
             'logoUrl'       => Enqueue::getStaticFilePath('images/logo.svg'),
             'fcom_logo'     => Enqueue::getStaticFilePath('images/fluent-community.svg'),
+            'block_inserter_image' => Enqueue::getStaticFilePath('images/block-inserter.webp'),
             'me'            => [
                 'id'          => $authUser->ID ?? null,
                 'email'       => $authUser->user_email ?? null,

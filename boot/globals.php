@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 /**
  ***** DO NOT CALL ANY FUNCTIONS DIRECTLY FROM THIS FILE ******

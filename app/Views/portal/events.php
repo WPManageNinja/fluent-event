@@ -21,7 +21,7 @@
  * @var int    $last_page
  * @var array  $grid           Calendar view: FrontEndHandler::calendarGrid().
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+defined('ABSPATH') || exit;
 
 use FluentEvent\App\Services\Icon;
 

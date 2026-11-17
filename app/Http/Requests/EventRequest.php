@@ -25,6 +25,7 @@ class EventRequest extends BaseRequest
         'address',
         'entry_type',
         'show_guest_count',
+        'start_display',
         'description_md',
     ];
     const SANITIZERS = [
@@ -42,6 +43,7 @@ class EventRequest extends BaseRequest
         'address'            => 'sanitize_textarea_field',
         'entry_type'         => 'sanitize_text_field',
         'show_guest_count'   => 'sanitize_text_field',
+        'start_display'      => 'sanitize_text_field',
     ];
     const RULES = [
         'calendar_id'        => 'required|exists:fe_calendars,id',
@@ -59,6 +61,7 @@ class EventRequest extends BaseRequest
         'address'            => 'nullable|string|max:500',
         'entry_type'         => 'required|string|in:' . Event::ENTRY_TYPES,
         'show_guest_count'   => 'nullable|string|in:yes,no',
+        'start_display'      => 'nullable|string|in:relative,countdown',
     ];
 
     public static function rules($data)
@@ -125,6 +128,7 @@ class EventRequest extends BaseRequest
             'entry_type.required'         => __('Registration type is required.', 'fluent-event'),
             'entry_type.in'               => __('Registration must be RSVP, open or none.', 'fluent-event'),
             'show_guest_count.in'         => __('Show guest count must be yes or no.', 'fluent-event'),
+            'start_display.in'            => __('Before the start must show the time left or a countdown.', 'fluent-event'),
         ];
     }
 

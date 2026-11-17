@@ -82,8 +82,31 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame(200, $this->registerGuest($event, ['website' => 'https://spam.example.test'])['status']);
         $this->assertCount(0, $this->guestsOf($event));
 
+        $first = $this->registerGuest($event);
+        $again = $this->registerGuest($event, ['name' => 'Someone else']);
+
+        // Same answer as a new registration.
+        $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
+        $this->assertSame($first['data']['message'], $again['data']['message']);
+        $this->assertSame($first['data']['status'], $again['data']['status']);
+        $this->assertCount(1, $this->guestsOf($event));
+        $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
+    }
+
+    // A bad name fails alike for registered and new emails.
+    public function test_an_invalid_name_does_not_tell_registered_emails_apart()
+    {
+        $event = $this->createEvent();
         $this->registerGuest($event);
-        $this->assertSame(422, $this->registerGuest($event, ['name' => 'Someone else'])['status']);
+
+        foreach (['', str_repeat('a', 256)] as $name) {
+            $registered = $this->registerGuest($event, ['name' => $name]);
+            $unknown = $this->registerGuest($event, ['name' => $name, 'email' => 'nobody@example.test']);
+
+            $this->assertSame(422, $registered['status'], wp_json_encode($registered['data']));
+            $this->assertSame($unknown['status'], $registered['status']);
+        }
+
         $this->assertCount(1, $this->guestsOf($event));
     }
 

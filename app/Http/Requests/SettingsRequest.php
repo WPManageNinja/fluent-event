@@ -17,11 +17,6 @@ class SettingsRequest extends BaseRequest
         'reply_to_name'            => 'sanitize_text_field',
         'reply_to_email'           => 'sanitize_email',
         'email_footer'             => 'wp_kses_post',
-        'registration_confirmation.enabled' => 'rest_sanitize_boolean',
-        'registration_cancellation.enabled' => 'rest_sanitize_boolean',
-        'reminder_to_guest.enabled'       => 'rest_sanitize_boolean',
-        'reminder_to_guest.times.*.value' => 'absint',
-        'reminder_to_guest.times.*.unit'  => 'sanitize_key',
     ];
 
     // `sometimes`: the view settings and the public pages save from separate boxes, each sending only its own fields.
@@ -88,6 +83,30 @@ class SettingsRequest extends BaseRequest
                 }
             }],
         ]);
+    }
+
+    // Rebuilt from the known keys, so nothing else sent inside these settings is stored.
+    public static function emailNotifications($data)
+    {
+        $settings = [];
+
+        foreach (['registration_confirmation', 'registration_cancellation'] as $key) {
+            if (is_array(Arr::get($data, $key))) {
+                $settings[$key] = ['enabled' => Arr::isTrue($data, $key . '.enabled')];
+            }
+        }
+
+        $settings['reminder_to_guest'] = [
+            'enabled' => Arr::isTrue($data, 'reminder_to_guest.enabled'),
+            'times'   => array_map(function ($reminder) {
+                return [
+                    'value' => absint(Arr::get((array) $reminder, 'value')),
+                    'unit'  => sanitize_key((string) Arr::get((array) $reminder, 'unit')),
+                ];
+            }, array_values((array) Arr::get($data, 'reminder_to_guest.times', []))),
+        ];
+
+        return $settings;
     }
 
     public static function messages()

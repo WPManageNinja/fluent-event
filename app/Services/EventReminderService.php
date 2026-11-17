@@ -344,10 +344,14 @@ class EventReminderService
             strtotime($event->start_at_local)
         );
 
+        // A visitor's typed name is unverified, and the address may not be theirs.
+        $isVisitor = empty($guest->user_id) && ($guest->source ?? 'manual') !== 'manual';
+        $name = $isVisitor ? '' : $guest->name;
+
         $body = '<p>' . sprintf(
             /* translators: %s is the guest's name */
             esc_html__('Hi %s,', 'fluent-event'),
-            esc_html($guest->name ?: __('there', 'fluent-event'))
+            esc_html($name ?: __('there', 'fluent-event'))
         ) . '</p>';
 
         $body .= '<p>' . sprintf(
