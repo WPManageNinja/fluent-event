@@ -41,7 +41,7 @@
 
                         <p class="fe-event-view__origin">
                             <img v-if="feed.xprofile && feed.xprofile.avatar" class="fe-event-view__origin-avatar" :src="feed.xprofile.avatar" alt=""/>
-                            <span v-if="feed.space">{{ $t('Posted by %s in', author) }} <strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong></span>
+                            <span v-if="feed.space">{{ postedIn[0] }}<strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong>{{ postedIn[1] }}</span>
                             <span v-else>{{ $t('Posted by %s on their profile', author) }}</span>
                             <span aria-hidden="true">·</span>
                             <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
@@ -170,6 +170,12 @@ export default {
         },
         author() {
             return (this.feed.xprofile || {}).display_name || '';
+        },
+        // One string, so a language can put the space anywhere; split around it to keep the name bold without v-html.
+        postedIn() {
+            const [before, after = ''] = this.$t('Posted by %1$s in %2$s', this.author, '\u0000').split('\u0000');
+
+            return [before, after];
         },
         commentsOpen() {
             return (this.feed.meta || {}).comments_disabled !== 'yes';

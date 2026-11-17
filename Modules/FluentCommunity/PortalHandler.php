@@ -278,8 +278,8 @@ class PortalHandler
             'Optional. Shown on the event page.' => __('Optional. Shown on the event page.', 'fluent-event'),
             'Past' => __('Past', 'fluent-event'),
             'Please register for the event to see the meeting link.' => __('Please register for the event to see the meeting link.', 'fluent-event'),
-            /* translators: %s: member's name; the space's name follows, in bold */
-            'Posted by %s in' => __('Posted by %s in', 'fluent-event'),
+            /* translators: 1: member's name, 2: space name (shown in bold) */
+            'Posted by %1$s in %2$s' => __('Posted by %1$s in %2$s', 'fluent-event'),
             /* translators: %s: member's name */
             'Posted by %s on their profile' => __('Posted by %s on their profile', 'fluent-event'),
             'Posted on your profile, outside any space. Everyone in the community can see it.' => __('Posted on your profile, outside any space. Everyone in the community can see it.', 'fluent-event'),
