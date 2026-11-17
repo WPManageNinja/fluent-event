@@ -2672,28 +2672,6 @@
         color: var(--fe-wp-link, #2271b1);
     }
 
-    &__public {
-        min-width: 0;
-    }
-
-    // The public link and its copy button on one line.
-    &__public-link {
-        display: flex;
-        align-items: center;
-        gap: var(--fe-space-1, 4px);
-        margin-top: var(--fe-space-1, 4px);
-
-        .fe-event-overview__row-link {
-            margin-top: 0;
-        }
-
-        // Icon-sized: the admin's 36px button height would push the line away from its title.
-        .el-button {
-            height: auto;
-            padding: 0;
-        }
-    }
-
     @media screen and (max-width: 782px) {
         flex-direction: column;
         gap: var(--fe-space-5, 20px);
@@ -2707,6 +2685,77 @@
         &__info {
             width: 100%;
         }
+    }
+}
+
+.fe-share-modal {
+    &__title {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+    }
+
+    &__note,
+    &__text {
+        margin: 0 0 var(--fe-space-3, 12px);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__note {
+        margin-bottom: 0;
+    }
+
+    // The shortcode is the button's label, so it must wrap rather than overflow the dialog.
+    .fe-share-modal__shortcode {
+        height: auto;
+        max-width: 100%;
+        padding: var(--fe-space-2, 8px) var(--fe-space-3, 12px);
+        white-space: normal;
+        text-align: left;
+    }
+
+    &__shortcode-text {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: var(--fe-text-sm, 14px);
+        overflow-wrap: anywhere;
+    }
+
+    &__link {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+
+        .el-button + .el-button {
+            margin-left: 0;
+        }
+    }
+
+    &__url {
+        flex: 1;
+        min-width: 0;
+        box-sizing: border-box;
+        height: var(--fe-control-height, 36px);
+        padding: 0 var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: calc(var(--fe-control-height, 36px) - 2px);
+        color: var(--fe-primary-text, #19283a);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    // A screenshot of the light block editor, in either admin theme; the border keeps its edge on light.
+    &__image {
+        display: block;
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
     }
 }
 

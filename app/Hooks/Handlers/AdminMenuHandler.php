@@ -370,6 +370,7 @@ JS;
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
             'logoUrl'       => Enqueue::getStaticFilePath('images/logo.svg'),
             'fcom_logo'     => Enqueue::getStaticFilePath('images/fluent-community.svg'),
+            'block_inserter_image' => Enqueue::getStaticFilePath('images/block-inserter.webp'),
             'me'            => [
                 'id'          => $authUser->ID ?? null,
                 'email'       => $authUser->user_email ?? null,
