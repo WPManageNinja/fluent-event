@@ -112,18 +112,13 @@ Not in this version. Both are on the roadmap.
 
 = 1.1.0 (Date: Nov 17, 2026) =
 - Added: Share Event Modal With the Public Page Link, Shortcode and Block
-- Added: Share Button in the Event Drawer
-- Improved: WordPress.org Guidelines Compliance
-- Fixed: Events Page Error on a Bad Calendar Link
-- Security: Hardened the Public Registration Form
-
-= 1.0.5 (Date: Nov 16, 2026) =
 - Added: Live Countdown to an Event's Start
 - Added: Guest Count on Admin Event Cards
 - Added: Edit and Share Buttons in Event Details
 - Improved: Guest Count in the Event Page Overview Tab
 - Improved: Required Field Marks in the Add Guest Form
 - Improved: Event Drawer Rows in the Event Page Order
+- Improved: WordPress.org Guidelines Compliance
 - Fixed: Unstyled Flash When the Admin Page Opens
 - Fixed: Tables Not Created on Older MySQL and MariaDB
 - Fixed: Meta Table Not Created on MyISAM Databases
@@ -134,6 +129,8 @@ Not in this version. Both are on the roadmap.
 - Fixed: Portal Calendar and Date Picker Dates Not Translated
 - Fixed: Link Button Text Hidden on Focus
 - Fixed: PHP Deprecation Notice on the Admin Page
+- Fixed: Events Page Error on a Bad Calendar Link
+- Security: Hardened the Public Registration Form
 
 = 1.0.1 (Date: Nov 13, 2026) =
 - Added: Automatic Plugin Updates With Checksum Verification
