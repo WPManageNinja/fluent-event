@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import dayjs from 'dayjs';
-import es from 'dayjs/locale/es';
 import { ElDatePicker, provideGlobalConfig } from 'element-plus';
 import en from 'element-plus/dist/locale/en.mjs';
-import { DAY_MS, toUtcDay, toDayKey, daySpan, lastDay, icsStamp, buildIcs, downloadIcs, applyWeekStart, borrowLocale } from '@/utils/date';
+import { DAY_MS, toUtcDay, toDayKey, daySpan, lastDay, icsStamp, buildIcs, downloadIcs, applyWeekStart, siteLocale, SITE_LOCALE } from '@/utils/date';
 
 const encoder = new TextEncoder();
 const bytes = (line) => encoder.encode(line).length;
@@ -176,36 +175,54 @@ describe('downloadIcs', () => {
     });
 });
 
-describe('borrowLocale', () => {
-    // Spanish data under a name our dayjs has never seen, so only borrowLocale() can have registered it.
-    const host = { locale: () => 'xx', Ls: { xx: { ...es, name: 'xx' } } };
-
+// fcom's dateTime18n: WordPress-translated names joined with "_", here in Spanish.
+const spanish = {
+    weekdays: 'domingo_lunes_martes_miércoles_jueves_viernes_sábado',
+    weekdaysShort: 'dom_lun_mar_mié_jue_vie_sáb',
+    weekdaysMin: 'do_lu_ma_mi_ju_vi_sá',
+    months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre',
+    monthsShort: 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'
+};
+describe('siteLocale', () => {
     afterEach(() => {
-        dayjs.updateLocale('en', { weekStart: 0 });
+        applyWeekStart(0);
     });
 
-    it("lends our dayjs the host's language, keeping the WordPress week start", () => {
+    it("names the site's days and months in its own locale, keeping the WordPress week start", () => {
         applyWeekStart(6);
 
-        expect(borrowLocale(host)).toBe('xx');
-        expect(dayjs('2026-11-14').locale('xx').format('Do MMMM, YYYY')).toBe('14º noviembre, 2026');
-        expect(dayjs('2026-11-14').locale('xx').$locale().weekStart).toBe(6);
+        expect(siteLocale(spanish)).toBe(SITE_LOCALE);
+        expect(dayjs('2026-11-14').locale(SITE_LOCALE).format('dddd D MMMM, YYYY')).toBe('sábado 14 noviembre, 2026');
+        expect(dayjs('2026-11-14').locale(SITE_LOCALE).format('ddd dd MMM')).toBe('sáb sá nov');
+        expect(dayjs.Ls[SITE_LOCALE].weekStart).toBe(6);
     });
 
-    it('stays on English when the host has no language data for its locale', () => {
-        expect(borrowLocale({ locale: () => 'zz', Ls: {} })).toBe('en');
+    it('leaves "en" alone, since Element Plus keys its picker labels off its short names', () => {
+        siteLocale(spanish);
+
+        expect(dayjs.locale()).toBe('en');
+        expect(dayjs().locale('en').format('ddd MMM')).toMatch(/^[A-Z][a-z]{2} [A-Z][a-z]{2}$/);
+        expect(dayjs.Ls.en.weekdaysShort).toBeUndefined();
+        expect(dayjs.Ls.en.monthsShort).toBeUndefined();
+    });
+
+    it('keeps English for names fcom does not send, and stays on "en" with none', () => {
+        siteLocale({ months: spanish.months });
+
+        expect(dayjs('2026-11-14').locale(SITE_LOCALE).format('dddd D MMMM')).toBe('Saturday 14 noviembre');
+        expect(siteLocale(undefined)).toBe('en');
     });
 
     it('makes Element Plus write a picked date in that language', () => {
-        const name = borrowLocale(host);
+        const name = siteLocale(spanish);
         const wrapper = mount(ElDatePicker, {
-            props: { modelValue: '2026-11-14', type: 'date', format: 'Do MMMM, YYYY', valueFormat: 'YYYY-MM-DD' },
+            props: { modelValue: '2026-11-14', type: 'date', format: 'D MMMM, YYYY', valueFormat: 'YYYY-MM-DD' },
             global: {
                 stubs: { ElInput: false, ElIcon: false, ElTooltip: false },
                 plugins: [{ install: (app) => provideGlobalConfig({ locale: { ...en, name } }, app) }]
             }
         });
 
-        expect(wrapper.find('input').element.value).toBe('14º noviembre, 2026');
+        expect(wrapper.find('input').element.value).toBe('14 noviembre, 2026');
     });
 });

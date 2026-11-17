@@ -43,21 +43,29 @@ export function applyWeekStart(value, hostDayjs) {
     hostDayjs?.updateLocale('en', { weekStart });
 }
 
-// Element Plus writes a picked date with our dayjs, which only knows English. Lend it the host's language
-// (fcom's dayjs has the site's), keeping the week start above; returns the name Element Plus should use.
-export function borrowLocale(hostDayjs) {
-    const name = hostDayjs.locale();
-    const locale = hostDayjs.Ls[name];
+// The site's day and month names from fcom's dateTime18n, for Element Plus to write a picked date with.
+// They go in a copy of "en" under their own name, never into "en" itself: Element Plus keys its picker
+// labels off "en"'s short names, so renaming those breaks the weekday header and the month table.
+// Call after applyWeekStart() so the copy keeps the week start. Returns the name Element Plus should use.
+export const SITE_LOCALE = 'fe-site';
+const DATE_NAME_KEYS = ['weekdays', 'weekdaysShort', 'weekdaysMin', 'months', 'monthsShort'];
 
-    if (!locale) {
+export function siteLocale(dateTime18n) {
+    const names = {};
+
+    DATE_NAME_KEYS.forEach((key) => {
+        if (typeof dateTime18n?.[key] === 'string') {
+            names[key] = dateTime18n[key].split('_');
+        }
+    });
+
+    if (!Object.keys(names).length) {
         return 'en';
     }
 
-    if (name !== 'en') {
-        dayjs.locale({ ...locale, weekStart: dayjs.Ls.en.weekStart }, null, true);
-    }
+    dayjs.locale({ ...dayjs.Ls.en, ...names, name: SITE_LOCALE }, null, true);
 
-    return name;
+    return SITE_LOCALE;
 }
 
 // "Add to calendar" files (.ics).

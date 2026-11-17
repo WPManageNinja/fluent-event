@@ -1,5 +1,5 @@
 import EventCard from './EventCard';
-import { t, portalVars, uploadMedia, localizedDateNames } from './utils';
+import { t, portalVars, uploadMedia, elementLocale } from './utils';
 
 /*
  * Plugs FluentEvent into the FluentCommunity portal through fcom's JS hooks.
@@ -49,7 +49,7 @@ function pageShell(page) {
                 };
             },
             async remount() {
-                const [{ createApp }, { default: Page }, { applyWeekStart, borrowLocale }, { vLoading, provideGlobalConfig }, { default: en }] = await Promise.all([
+                const [{ createApp }, { default: Page }, { applyWeekStart, siteLocale }, { vLoading, provideGlobalConfig }, { default: en }] = await Promise.all([
                     import('vue'),
                     pages[page](),
                     import('@/utils/date'),
@@ -69,7 +69,9 @@ function pageShell(page) {
                 // Its own Vue app: fcom exposes neither its Vue nor Element Plus to add-ons.
                 const app = createApp(Page, this.pageProps());
                 app.config.globalProperties.$t = t;
-                provideGlobalConfig({ locale: { ...localizedDateNames(en, window.dayjs), name: borrowLocale(window.dayjs) } }, app);
+                // Element Plus in the site's language, from the strings and date names fcom translates for itself.
+                const fcom = window.fluentComAdmin || {};
+                provideGlobalConfig({ locale: { ...elementLocale(en, fcom.el_i18n), name: siteLocale(fcom.dateTime18n) } }, app);
                 // The pages' v-loading spinners (list, calendar, cover upload, editor) need it registered here.
                 app.directive('loading', vLoading);
                 app.mount(this.$refs.mount);
