@@ -209,6 +209,7 @@ class PortalHandler
             'Back' => __('Back', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
+            'Calendars' => __('Calendars', 'fluent-event'),
             'Cancel registration' => __('Cancel registration', 'fluent-event'),
             'Cancel your registration?' => __('Cancel your registration?', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
@@ -218,6 +219,7 @@ class PortalHandler
             'Community-wide' => __('Community-wide', 'fluent-event'),
             'Cover Image' => __('Cover Image', 'fluent-event'),
             'Create Event' => __('Create Event', 'fluent-event'),
+            'Dashboard' => __('Dashboard', 'fluent-event'),
             'Date and Time' => __('Date and Time', 'fluent-event'),
             'Day' => __('Day', 'fluent-event'),
             /* translators: %d: the day number within a multi-day event */
@@ -291,6 +293,7 @@ class PortalHandler
             'Remove cover image' => __('Remove cover image', 'fluent-event'),
             'Search events' => __('Search events', 'fluent-event'),
             'Select a space' => __('Select a space', 'fluent-event'),
+            'Settings' => __('Settings', 'fluent-event'),
             'Show how many guests are going' => __('Show how many guests are going', 'fluent-event'),
             'Shown at the top of the event page and on event cards.' => __('Shown at the top of the event page and on event cards.', 'fluent-event'),
             'Something went wrong. Please try again.' => __('Something went wrong. Please try again.', 'fluent-event'),

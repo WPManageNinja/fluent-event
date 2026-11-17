@@ -19,6 +19,18 @@
                                 <el-button class="fcom_primary_button" @click="createEvent">{{ $t('Create Event') }}</el-button>
                             </li>
                         </ul>
+                        <el-popover v-if="adminLinks.length" trigger="click" placement="bottom-end" :width="200" popper-class="fcom_menu_below_nav">
+                            <template #reference>
+                                <el-button class="fcom_dot_menu fcom_header_dot_menu" :aria-label="$t('More actions')" aria-haspopup="menu">
+                                    <el-icon><MoreFilled/></el-icon>
+                                </el-button>
+                            </template>
+                            <ul class="actions_items" role="menu">
+                                <li v-for="item in adminLinks" :key="item.href" role="none">
+                                    <a role="menuitem" :href="item.href" target="_blank" rel="noopener">{{ item.label }}</a>
+                                </li>
+                            </ul>
+                        </el-popover>
                     </div>
                 </div>
             </div>
@@ -179,7 +191,7 @@
 </template>
 
 <script>
-import { Calendar, Grid, MapLocation, Search, Tickets, UserFilled, VideoCamera } from '@element-plus/icons-vue';
+import { Calendar, Grid, MapLocation, MoreFilled, Search, Tickets, UserFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
 import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart, setPageTitle } from '../utils';
@@ -191,7 +203,7 @@ const dayjs = (value) => window.dayjs(value);
 
 export default {
     name: 'EventsPage',
-    components: { Calendar, MapLocation, Search, UserFilled, VideoCamera, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
+    components: { Calendar, MapLocation, MoreFilled, Search, UserFilled, VideoCamera, EventActions, EventMenu, EventsCalendar, SegmentedSwitch },
     props: {
         spaceSlug: { type: String, default: '' },
         router: { type: Object, required: true },
@@ -222,6 +234,16 @@ export default {
     computed: {
         canCreate() {
             return !!portalVars().can_create_events;
+        },
+        // The FluentEvent admin; admin_url is empty for anyone but a site admin, so the menu hides.
+        adminLinks() {
+            const base = portalVars().admin_url;
+
+            return base ? [
+                { label: this.$t('Dashboard'), href: base + '#/' },
+                { label: this.$t('Calendars'), href: base + '#/calendars' },
+                { label: this.$t('Settings'), href: base + '#/settings' },
+            ] : [];
         },
         tabs() {
             return [
