@@ -116,7 +116,14 @@ To build the files in `assets/` again:
 
 == External services ==
 
-FluentEvent connects to one external service, and only when a person clicks a link.
+FluentEvent connects to two external services: the WPManageNinja update server, automatically, and Google Calendar, only when a person clicks a link.
+
+= WPManageNinja update server =
+
+When WordPress checks for plugin updates, FluentEvent asks the WPManageNinja update server (fluentapi.wpmanageninja.com) for the latest version. The request sends the plugin slug, the installed version and the site URL. The update server uses them to find the new version and its download link.
+
+* Terms and Conditions: https://wpmanageninja.com/terms-and-conditions/
+* Privacy Policy: https://wpmanageninja.com/privacy/
 
 = Google Calendar =
 
