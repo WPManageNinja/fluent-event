@@ -4,7 +4,7 @@ Tags: events, event calendar, rsvp, event registration, fluentcommunity
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -109,6 +109,13 @@ Not in this version. Both are on the roadmap.
 5. Optional: if you use FluentCommunity, turn on FluentEvent in FluentCommunity's Features settings.
 
 == Changelog ==
+
+= 1.1.0 (Date: Nov 17, 2026) =
+- Added: Share Event Modal With the Public Page Link, Shortcode and Block
+- Added: Share Button in the Event Drawer
+- Improved: WordPress.org Guidelines Compliance
+- Fixed: Events Page Error on a Bad Calendar Link
+- Security: Hardened the Public Registration Form
 
 = 1.0.5 (Date: Nov 16, 2026) =
 - Added: Live Countdown to an Event's Start
