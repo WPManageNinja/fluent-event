@@ -75,6 +75,19 @@ class EventPageService
         $phase = time() >= $end ? 'ended' : (time() >= $start ? 'live' : 'upcoming');
         $isSeated = in_array($formatted['my_status'], Event::SEAT_STATUSES, true);
         $meetingLink = preg_match('#^https?://#i', $formatted['online_meeting_url']) ? $formatted['online_meeting_url'] : '';
+        $isFull = $formatted['is_full'] && !$isSeated;
+        $isWaitlisted = $formatted['my_status'] === 'waitlisted';
+        $meter = null;
+
+        // Only a capped event whose host shows the count; an ended one keeps it as a record of how full it got.
+        if ($formatted['capacity'] && $formatted['guest_count'] !== null) {
+            $left = $formatted['capacity'] - $formatted['guest_count'];
+            $meter = [
+                'percent' => min(100, (int) round($formatted['guest_count'] / $formatted['capacity'] * 100)),
+                /* translators: %s: number of spots left */
+                'status'  => $phase === 'ended' || $isFull ? '' : ($left > 0 ? sprintf(_n('%s spot left', '%s spots left', $left, 'fluent-event'), number_format_i18n($left)) : __('Event full', 'fluent-event')),
+            ];
+        }
 
         $data = [
             'event'            => $formatted,
@@ -92,14 +105,38 @@ class EventPageService
             'status_label'     => $phase === 'ended' ? __('Ended', 'fluent-event') : sprintf(__('Starts in %s', 'fluent-event'), human_time_diff(time(), $start)),
             /* translators: %s: number of guests going */
             'count_label'      => $formatted['guest_count'] === null ? '' : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
+            'meter'            => $meter,
+            'notice'           => null,
             'meeting_link'     => $meetingLink,
             'registration'     => null,
+            'join_waitlist'    => false,
             'add_to_calendar'  => null,
-            'just_registered'  => $justRegistered,
+            // A guest who joined the waitlist holds no seat, so the card's notice says so instead.
+            'just_registered'  => $justRegistered && $isSeated,
         ];
 
         if ($phase !== 'ended' && in_array($formatted['entry_type'], ['rsvp', 'open'], true)) {
-            $data['registration'] = self::registration($event, $isSeated);
+            // Waitlisted only right after joining: the page doesn't recognise a visitor again.
+            if ($isWaitlisted) {
+                $data['notice'] = [
+                    'type'  => 'waiting',
+                    'title' => __('You are on the waitlist', 'fluent-event'),
+                    'text'  => __('If a seat opens up, you will be moved to going.', 'fluent-event'),
+                ];
+            } elseif ($isFull) {
+                $data['notice'] = [
+                    'type'  => 'full',
+                    'title' => __('Event full', 'fluent-event'),
+                    'text'  => $formatted['waitlist']
+                        ? __('Join the waitlist to be moved to going if a seat opens up.', 'fluent-event')
+                        : __('This event is full and no longer taking registrations.', 'fluent-event'),
+                ];
+            }
+
+            if (!$isWaitlisted && (!$isFull || $formatted['waitlist'])) {
+                $data['registration'] = self::registration($event, $isSeated);
+                $data['join_waitlist'] = $isFull;
+            }
         }
 
         // Once someone is going, or for a no-entry event anyone can attend.

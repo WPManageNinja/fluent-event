@@ -55,6 +55,10 @@ class PortalEndpointsTest extends IntegrationTestCase
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
         $this->assertSame('waitlisted', $response['data']['status']);
+        // The card says so, with no "You're registered" confirmation and no button to register again.
+        $this->assertStringContainsString('You are on the waitlist', $response['data']['html']);
+        $this->assertStringNotContainsString('data-fe-registered', $response['data']['html']);
+        $this->assertStringNotContainsString('popovertarget="fe-register-', $response['data']['html']);
         $waitlisted = Guest::query()->where('event_id', $withWaitlist->id)->where('status', 'waitlisted')->first();
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_waitlist', [(int) $waitlisted->id]));
     }
