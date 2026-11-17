@@ -22,17 +22,18 @@ BUILD_DIR="$ROOT/builds"
 STAGE_ROOT="$BUILD_DIR/.stage"
 STAGE="$STAGE_ROOT/$SLUG"
 
-# resources/, package.json and vite.config.js are the source of assets/. WordPress.org
-# requires the human-readable source of compiled code, and this repo is not public.
-PAYLOAD=(fluent-event.php readme.txt composer.json app assets boot config database language Modules resources package.json vite.config.js)
+# resources/, package.json, package-lock.json and vite.config.js are the source of assets/ and
+# the exact dependencies that build it. WordPress.org requires the human-readable source of
+# compiled code, and this repo is not public.
+PAYLOAD=(fluent-event.php readme.txt composer.json app assets boot config database language Modules resources package.json package-lock.json vite.config.js)
 VENDOR_PACKAGES=(autoload.php composer wpfluent woocommerce)
 
 # Root entries left out on purpose. Only silences the "not shipped" report below.
 NOT_SHIPPED=(
     .agent .claude .distignore .DS_Store .git .gitattributes .gitignore .playwright-mcp .vscode
-    build.sh builds CLAUDE.md composer.lock dev node_modules package-lock.json phpcs.xml
-    phpunit.integration.xml phpunit.xml.dist plugin-check README.md test tests vendor
-    vitest.config.mjs wpf
+    build.sh builds CLAUDE.md composer.lock dev dev-docs-repo node_modules phpcs.xml
+    phpunit.integration.xml phpunit.xml.dist PARITY-GAPS.md plugin-check README.md release-note test tests vendor
+    vitest.config.mjs wpf .gitmodules
 )
 
 # VCS files, editor backups and OS metadata that cp carries into the stage
@@ -175,6 +176,8 @@ VERSION="$(grep -m1 -E '^[[:space:]]*\*?[[:space:]]*Version:' "$STAGE/fluent-eve
 for pattern in "${JUNK[@]}"; do
     find "$STAGE" -name "$pattern" -exec rm -rf {} + 2>/dev/null || true
 done
+# Bundled libraries keep their license files; their own readmes and changelogs are not needed.
+find "$STAGE/vendor" -type f \( -iname "*.md" -o -iname "changelog*" \) -delete
 # macOS extended attributes become ._ files inside the archive on some unzip tools.
 if command -v xattr >/dev/null; then
     xattr -cr "$STAGE" 2>/dev/null || true
