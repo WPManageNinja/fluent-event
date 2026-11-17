@@ -43,9 +43,9 @@ class PortalEventController extends Controller
         // Validate first, so bad input fails alike for every email.
         $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
 
-        // A repeated email gets the new-registration answer, saving nothing.
+        // A repeated email is warned, and nothing is saved.
         if (RegistrationService::hasGuestEmail($event, $data['email'])) {
-            return $this->registered($event, 'going');
+            return $this->registered($event, null);
         }
 
         $this->validate(
@@ -63,16 +63,19 @@ class PortalEventController extends Controller
         return $this->registered($event, $guest->status);
     }
 
+    /**
+     * @param string|null $status The new guest's status, or null when the email was already registered.
+     */
     private function registered(Event $event, $status)
     {
         $seats = EventService::seatCounts([$event->id]);
-        // A visitor has no account to read their row back by, so the card is drawn as going.
+        // A visitor has no account to read their row back by: a new guest's card is drawn as going, a repeat's as before.
         $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $status, false, false);
 
         return [
-            'message' => __('You are registered.', 'fluent-event'),
+            'message' => $status ? __('You are registered.', 'fluent-event') : __('This email is already registered for this event.', 'fluent-event'),
             'status'  => $status,
-            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), true),
+            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), $status ? 'registered' : 'already'),
         ];
     }
 

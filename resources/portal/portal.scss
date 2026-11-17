@@ -1765,6 +1765,19 @@ html.dark .fe-portal {
         font-weight: 700;
     }
 
+    &__text {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    // The already-registered warning: the same popup with an amber mark.
+    &--warning &__check {
+        background-color: color-mix(in srgb, var(--fe-accent-amber, #d97706) 14%, transparent);
+        color: var(--fe-accent-amber, #d97706);
+    }
+
     &__event {
         display: grid;
         grid-template-columns: 64px minmax(0, 1fr);

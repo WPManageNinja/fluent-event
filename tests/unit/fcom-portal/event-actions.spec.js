@@ -93,6 +93,24 @@ describe('EventActions', () => {
         expect(wrapper.emitted('done')).toHaveLength(1);
     });
 
+    it("warns a visitor whose email is already registered, and changes nothing", async () => {
+        window.fluentEventFcomPortal.is_logged_in = false;
+        fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'This email is already registered for this event.', status: null })));
+        wrapper = actions(rsvp({ entry_type: 'open', register_nonce: 'n0nce' }));
+
+        await wrapper.find('button').trigger('click');
+        await wrapper.find('form').trigger('submit');
+        await flushPromises();
+
+        const [content, , settings] = ElMessageBox.alert.mock.calls[0];
+        const [mark, title] = content.children[0].children;
+        expect(mark.props.class).toContain('fe-registered__check--warning');
+        expect(title.children).toBe('This email is already registered');
+        expect(settings).toMatchObject({ customClass: 'fe-registered-box', confirmButtonText: 'OK', closeOnPressEscape: true });
+        expect(wrapper.emitted('done')).toBeUndefined();
+        expect(wrapper.find('form').exists()).toBe(false);
+    });
+
     it("keeps a visitor's form open with the server's reason when refused", async () => {
         window.fluentEventFcomPortal.is_logged_in = false;
         fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'A guest with this email is already on this event.' }), { status: 422 }));

@@ -1820,9 +1820,22 @@
         }
     }
 
+    // The already-registered warning: the same dialog with an amber mark.
+    &__check--warning {
+        background: var(--el-color-warning-light-9, #fdf6ec);
+        color: var(--el-color-warning, #e6a23c);
+    }
+
     &__title {
         font-size: 20px;
         font-weight: 700;
+    }
+
+    &__text {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
     }
 
     &__event {

@@ -449,9 +449,10 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $first = $this->registerGuest($event);
         $again = $this->registerGuest($event, ['name' => 'Someone else']);
 
-        // Same answer as a new registration.
+        // Warned that the email is already registered: no status, no meeting link.
         $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
-        $this->assertSame($first['data'], $again['data']);
+        $this->assertSame(['message' => __('This email is already registered for this event.', 'fluent-event'), 'status' => null], $again['data']);
+        $this->assertSame('going', $first['data']['status']);
         $this->assertCount(1, $this->guestsOf($event));
         $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
     }
