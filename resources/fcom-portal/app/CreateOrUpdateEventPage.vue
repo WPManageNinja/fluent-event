@@ -200,6 +200,7 @@
                             <el-time-picker
                                 v-model="event[bound.timeKey]"
                                 class="fe-create-event__time"
+                                popper-class="fe-create-event__time-pop"
                                 :format="timeFormat"
                                 value-format="HH:mm"
                                 :clearable="false"
@@ -219,6 +220,50 @@
                             />
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <section class="fe-create-event__section">
+                <div>
+                    <h2 class="fe-create-event__section-title fe-create-event__section-title--info">
+                        {{ $t('Start Time Display') }}
+                        <button
+                            type="button"
+                            class="fe-create-event__info"
+                            :aria-label="$t('What the two choices look like')"
+                            @click="startDisplayHelp = true"
+                        >
+                            <el-icon><QuestionFilled /></el-icon>
+                        </button>
+                    </h2>
+                    <p class="fe-create-event__section-desc">{{ $t('How the event page shows the time until the start.') }}</p>
+                </div>
+
+                <div class="fe-create-event__section-fields">
+                    <el-radio-group
+                        v-model="event.start_display"
+                        class="fe-create-event__choices"
+                        :aria-label="$t('Start Time Display')"
+                    >
+                        <el-radio v-for="option in startDisplays" :key="option.value" :value="option.value" border>
+                            <span class="fe-create-event__choice-title">{{ option.label }}</span>
+                            <span class="fe-create-event__hint">{{ option.hint }}</span>
+                        </el-radio>
+                    </el-radio-group>
+
+                    <el-dialog v-model="startDisplayHelp" class="fe-start-display-help" :title="$t('Start Time Display')" width="560px" append-to-body destroy-on-close>
+                        <figure v-for="option in startDisplays" :key="option.value" class="fe-start-display-help__item">
+                            <figcaption class="fe-start-display-help__caption">
+                                <span class="fe-start-display-help__title">{{ option.label }}</span>
+                                <span class="fe-start-display-help__text">{{ option.details }}</span>
+                            </figcaption>
+                            <StartDisplayPreview
+                                :value="option.value"
+                                role="img"
+                                :aria-label="$t('%s on the event page', option.label)"
+                            />
+                        </figure>
+                    </el-dialog>
                 </div>
             </section>
 
@@ -327,13 +372,14 @@
 <script>
 import dayjs from 'dayjs';
 import { ElNotification } from 'element-plus';
-import { ArrowLeft, Delete, MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
+import { ArrowLeft, Delete, MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
 import { dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
     name: 'CreateOrUpdateEventPage',
-    components: { ArrowLeft, Delete, Picture, SegmentedSwitch },
+    components: { ArrowLeft, Delete, Picture, QuestionFilled, SegmentedSwitch, StartDisplayPreview },
     props: {
         router: { type: Object, required: true },
         // The edit route passes these instead of the create-only props below.
@@ -381,9 +427,11 @@ export default {
                 cover_url: '',
                 entry_type: 'rsvp',
                 show_guest_count: 'yes',
+                start_display: 'relative',
             },
             uploading: false,
             saving: false,
+            startDisplayHelp: false,
             loading: !!this.eventSlug,
             loadedEvent: null,
         };
@@ -411,6 +459,7 @@ export default {
                 cover_url: event.cover_url,
                 entry_type: event.entry_type,
                 show_guest_count: event.show_guest_count,
+                start_display: event.start_display,
             };
         },
         bounds() {
@@ -436,6 +485,22 @@ export default {
             return [
                 { value: 'offline', label: this.$t('In Person'), icon: MapLocation },
                 { value: 'online', label: this.$t('Online'), icon: VideoCamera },
+            ];
+        },
+        startDisplays() {
+            return [
+                {
+                    value: 'relative',
+                    label: this.$t('Time Left'),
+                    hint: this.$t('A short line, like "Starts in 3 days".'),
+                    details: this.$t('A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".'),
+                },
+                {
+                    value: 'countdown',
+                    label: this.$t('Countdown'),
+                    hint: this.$t('Days, hours, minutes and seconds, ticking down to the start.'),
+                    details: this.$t('Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.'),
+                },
             ];
         },
         entryTypes() {
@@ -503,6 +568,7 @@ export default {
                     cover_url: meta.cover_url || '',
                     entry_type: meta.entry_type || '',
                     show_guest_count: meta.show_guest_count || 'yes',
+                    start_display: meta.start_display || 'relative',
                 };
                 this.loadedEvent = event;
             } catch (error) {

@@ -58,6 +58,15 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertStringContainsString('/event/' . get_post($event->post_id)->post_name, $url);
     }
 
+    public function test_an_event_carries_the_shortcode_that_embeds_it()
+    {
+        $event = $this->createEvent();
+
+        $shortcode = $this->rest('GET', "events/{$event->id}")['data']['shortcode'];
+
+        $this->assertSame('[fluent_event event="' . get_post($event->post_id)->post_name . '"]', $shortcode);
+    }
+
     public function test_an_event_loads_by_its_slug_as_it_does_by_its_id()
     {
         $event = $this->createEvent();
@@ -333,6 +342,24 @@ class EventEndpointsTest extends IntegrationTestCase
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['calendar_id' => 999999999]));
 
         $this->assertSame(422, $response['status']);
+    }
+
+    // Saved with the event and kept when a form that doesn't know it (the community one) saves again.
+    public function test_the_start_display_is_saved_and_only_takes_its_two_choices()
+    {
+        $event = $this->createEvent();
+
+        $this->assertSame('relative', $this->rest('GET', "events/{$event->id}")['data']['event']['meta']['start_display']);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_display' => 'countdown']));
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Renamed']));
+        $this->assertSame('countdown', Event::find($event->id)->meta['start_display']);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_display' => 'flip']));
+        $this->assertSame(422, $response['status']);
+        $this->assertSame(['in'], array_keys($response['data']['start_display']));
     }
 
     public function test_script_in_an_event_description_is_saved_as_text()
