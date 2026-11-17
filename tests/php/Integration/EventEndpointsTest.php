@@ -58,6 +58,15 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertStringContainsString('/event/' . get_post($event->post_id)->post_name, $url);
     }
 
+    public function test_an_event_carries_the_shortcode_that_embeds_it()
+    {
+        $event = $this->createEvent();
+
+        $shortcode = $this->rest('GET', "events/{$event->id}")['data']['shortcode'];
+
+        $this->assertSame('[fluent_event event="' . get_post($event->post_id)->post_name . '"]', $shortcode);
+    }
+
     public function test_an_event_loads_by_its_slug_as_it_does_by_its_id()
     {
         $event = $this->createEvent();
