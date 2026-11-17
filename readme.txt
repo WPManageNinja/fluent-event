@@ -70,10 +70,6 @@ FluentEvent does not need FluentCommunity. Without it, all other features work.
 
 All strings are translatable. The text domain is `fluent-event`.
 
-= Source code =
-
-The plugin includes the uncompiled source of its JavaScript and styles in the `resources` folder. To build the files in `assets`, run `npm install` and then `npm run build`.
-
 == Frequently Asked Questions ==
 
 = Does FluentEvent need FluentCommunity? =
