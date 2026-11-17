@@ -1,5 +1,5 @@
 import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
-import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE } from './icons';
+import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE, WARNING } from './icons';
 
 /*
  * The RSVP dropdown, or an open event's Register form (no undo): a member's arrives filled in,
@@ -90,8 +90,15 @@ export default {
                         ...this.guest,
                         nonce: this.event.register_nonce,
                     });
-                const done = this.withStatus(response);
                 this.close();
+
+                // A visitor's repeated email comes back without a status: nothing changed, so it is warned, not confirmed.
+                if (!response.status) {
+                    this.showAlreadyRegistered();
+                    return;
+                }
+
+                const done = this.withStatus(response);
                 this.$emit('done', done);
                 this.showRegistered(done.event);
             } catch (error) {
@@ -152,6 +159,23 @@ export default {
             }
 
             this.choose('cancelled');
+        },
+        async showAlreadyRegistered() {
+            const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('element-plus')]);
+
+            ElMessageBox.alert(h('div', { class: 'fe-registered' }, [
+                h('div', { class: 'fe-registered__head' }, [
+                    h('span', { class: 'fe-registered__check fe-registered__check--warning', innerHTML: WARNING }),
+                    h('strong', { class: 'fe-registered__title' }, t('This email is already registered')),
+                    h('p', { class: 'fe-registered__text' }, t('Check your inbox for the confirmation email, or register with a different email.')),
+                ]),
+            ]), '', {
+                customClass: 'fe-registered-box',
+                confirmButtonText: t('OK'),
+                confirmButtonClass: 'fcom_primary_button',
+                closeOnPressEscape: true,
+            }).catch(() => {})
+                .finally(() => this.$refs.trigger && this.$refs.trigger.focus());
         },
         // Registering is a form, so it ends in a dialog: what it was for, and its calendar links.
         async showRegistered(event) {

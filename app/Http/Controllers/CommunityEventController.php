@@ -236,12 +236,11 @@ class CommunityEventController extends Controller
         // Validate first, so bad input fails alike for every email.
         $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
 
-        // A repeated email gets the new-registration answer, saving nothing.
+        // A repeated email is warned, and nothing is saved: no status, so the portal changes nothing.
         if (RegistrationService::hasGuestEmail($event, $data['email'])) {
             return [
-                'message'            => __('You are registered.', 'fluent-event'),
-                'status'             => 'going',
-                'online_meeting_url' => self::meetingUrlFor($event, 'going'),
+                'message' => __('This email is already registered for this event.', 'fluent-event'),
+                'status'  => null,
             ];
         }
 
