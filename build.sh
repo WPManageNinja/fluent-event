@@ -212,7 +212,10 @@ rm -rf "$STAGE_ROOT"
 
 # Source, build setup, dev code and tests never ship. Checked on the archive itself, so a
 # PAYLOAD edit cannot slip one in. Top level only: vendor/wpfluent/framework has its own src/.
-if unzip -Z1 "$ZIP" | grep -qE "^$SLUG/((resources|src|dev|node_modules|tests?)/|package(-lock)?\.json$|vite\.config\.js$)"; then
+# Listed into a variable first: under pipefail, grep -q exiting early makes unzip die of SIGPIPE,
+# which fails the pipeline and skips this check.
+LISTING="$(unzip -Z1 "$ZIP")" || { rm -f "$ZIP"; die "Could not list $ZIP."; }
+if grep -qE "^$SLUG/((resources|src|dev|node_modules|tests?)/|package(-lock)?\.json$|vite\.config\.js$)" <<<"$LISTING"; then
     rm -f "$ZIP"
     die "The zip contains source or dev files that must not ship."
 fi
