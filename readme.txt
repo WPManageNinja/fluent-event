@@ -110,12 +110,12 @@ Not in this version. Both are on the roadmap.
 
 == Source code ==
 
-The plugin includes its full, uncompiled source code in the `resources/` folder: the Vue, JavaScript and SCSS files. `package.json`, `package-lock.json`, `vite.config.js` and the scripts in `resources/vite/` hold the build setup.
+The files in `assets/` are compiled. The uncompiled source (the Vue, JavaScript and SCSS files) and the build setup are on GitHub: https://github.com/WPManageNinja/fluent-event
 
-The files in `assets/` are built from this source. To build them again:
+To build the files in `assets/` again:
 
 1. Install Node.js 18 or later.
-2. In the plugin folder, run `npm ci`.
+2. Clone the repository. In its folder, run `npm ci`.
 3. Run `npm run build`.
 
 == External services ==
