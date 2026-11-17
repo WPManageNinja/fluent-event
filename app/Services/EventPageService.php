@@ -75,6 +75,18 @@ class EventPageService
         $phase = time() >= $end ? 'ended' : (time() >= $start ? 'live' : 'upcoming');
         $isSeated = in_array($formatted['my_status'], Event::SEAT_STATUSES, true);
         $meetingLink = preg_match('#^https?://#i', $formatted['online_meeting_url']) ? $formatted['online_meeting_url'] : '';
+        $isFull = $formatted['is_full'] && !$isSeated;
+        $meter = null;
+
+        // Only a capped event whose host shows the count; an ended one keeps it as a record of how full it got.
+        if ($formatted['capacity'] && $formatted['guest_count'] !== null) {
+            $left = $formatted['capacity'] - $formatted['guest_count'];
+            $meter = [
+                'percent' => min(100, (int) round($formatted['guest_count'] / $formatted['capacity'] * 100)),
+                /* translators: %s: number of spots left */
+                'status'  => $phase === 'ended' || $isFull ? '' : ($left > 0 ? sprintf(_n('%s spot left', '%s spots left', $left, 'fluent-event'), number_format_i18n($left)) : __('Event full', 'fluent-event')),
+            ];
+        }
 
         $data = [
             'event'            => $formatted,
@@ -95,6 +107,8 @@ class EventPageService
             'ends_at'          => $end,
             /* translators: %s: number of guests going */
             'count_label'      => $formatted['guest_count'] === null ? '' : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
+            'meter'            => $meter,
+            'notice'           => null,
             'meeting_link'     => $meetingLink,
             'registration'     => null,
             'add_to_calendar'  => null,
@@ -102,7 +116,15 @@ class EventPageService
         ];
 
         if ($phase !== 'ended' && in_array($formatted['entry_type'], ['rsvp', 'open'], true)) {
-            $data['registration'] = self::registration($event, $isSeated);
+            if ($isFull) {
+                $data['notice'] = [
+                    'type'  => 'full',
+                    'title' => __('Event full', 'fluent-event'),
+                    'text'  => __('This event is full and no longer taking registrations.', 'fluent-event'),
+                ];
+            } else {
+                $data['registration'] = self::registration($event, $isSeated);
+            }
         }
 
         // Once someone is going, or for a no-entry event anyone can attend.

@@ -361,4 +361,25 @@ class EventLandingPageTest extends IntegrationTestCase
 
         return $handler->resolve();
     }
+
+    // A full event shows no Register button, only why.
+    public function test_a_full_event_shows_its_capacity_in_place_of_register()
+    {
+        $capped = ['entry_type' => 'open', 'capacity' => 2, 'show_guest_count' => 'yes'];
+
+        $open = $this->createEvent([], $capped);
+        $this->createGuest($open);
+        $body = $this->page($open)['body'];
+
+        $this->assertStringContainsString('1 spot left', $body);
+        $this->assertStringContainsString('popovertarget="fe-register-' . $open->id . '"', $body);
+
+        $full = $this->createEvent([], $capped);
+        $this->createGuest($full);
+        $this->createGuest($full);
+        $body = $this->page($full)['body'];
+
+        $this->assertStringContainsString('This event is full and no longer taking registrations.', $body);
+        $this->assertStringNotContainsString('popovertarget="fe-register-' . $full->id . '"', $body);
+    }
 }
