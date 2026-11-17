@@ -4,7 +4,7 @@
     min-height: calc(
         100vh
         - var(--wp-admin--admin-bar--height, 32px)
-        - var(--fe-navbar-height, 65px)
+        - var(--fe-navbar-height, 64px)
     );
     margin: calc(-1 * var(--fe-space-5, 20px));
 
@@ -12,7 +12,7 @@
         position: fixed;
         top: calc(
             var(--wp-admin--admin-bar--height, 32px)
-            + var(--fe-navbar-height, 65px)
+            + var(--fe-navbar-height, 64px)
         );
         bottom: 0;
         width: 280px;

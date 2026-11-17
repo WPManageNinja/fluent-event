@@ -23,4 +23,10 @@ abstract class Controller extends BaseController
     {
         return App::make($module);
     }
+
+    // The refusal for an action over its RateLimiter::isSpamming() limit.
+    protected function tooManyRequests()
+    {
+        return $this->sendError(['message' => __('Too many requests. Please try again in a minute.', 'fluent-event')], 429);
+    }
 }

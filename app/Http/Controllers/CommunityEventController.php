@@ -10,6 +10,7 @@ use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\EventService;
+use FluentEvent\App\Services\RateLimiter;
 use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Framework\Http\Request\Request;
@@ -139,6 +140,10 @@ class CommunityEventController extends Controller
     // Members answer an RSVP either way; an open event only registers them (from its form), with no undo.
     public function register(Request $request, $id)
     {
+        if (RateLimiter::isSpamming('rsvp', 10)) {
+            return $this->tooManyRequests();
+        }
+
         [$event, $feed] = CommunityEvents::visibleEvent($id);
 
         if (!$event) {
@@ -212,6 +217,11 @@ class CommunityEventController extends Controller
     // A logged-out visitor registers for an open event by name and email; members use register().
     public function registerGuest(Request $request, $id)
     {
+        // Shares 'register_guest' with the public page's form, so switching forms gives no new allowance.
+        if (RateLimiter::isSpamming('register_guest', 5)) {
+            return $this->tooManyRequests();
+        }
+
         [$event, $feed] = CommunityEvents::visibleEvent($id);
 
         if (!$event) {

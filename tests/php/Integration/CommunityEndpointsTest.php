@@ -193,7 +193,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
     }
 
     // Each flip queues an email, and the framework's limiter lets cookie-authenticated members through.
-    // 10 a minute counts double, as over HTTP WordPress runs the check twice; in-process it runs once, so 20 pass here.
+    // 10 a minute, counted once although WordPress runs the check again for the Allow header.
     public function test_a_member_flipping_their_answer_is_rate_limited()
     {
         [$event] = $this->communityEvent();
@@ -201,14 +201,14 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $statuses = [];
 
         try {
-            for ($i = 0; $i < 21; $i++) {
+            for ($i = 0; $i < 11; $i++) {
                 $statuses[] = $this->rsvp($event, $i % 2 ? 'not_going' : 'going')['status'];
             }
         } finally {
             unset($GLOBALS['wp_rest_auth_cookie']);
         }
 
-        $this->assertSame(array_merge(array_fill(0, 20, 200), [429]), $statuses);
+        $this->assertSame(array_merge(array_fill(0, 10, 200), [429]), $statuses);
     }
 
     public function test_a_checked_in_guest_stays_checked_in_when_saying_going_again()

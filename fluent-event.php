@@ -4,13 +4,12 @@ defined('ABSPATH') or die;
 
 /**
  * Plugin Name: FluentEvent
- * Plugin URI: https://fluentevent.com
- * Description: Event management plugin for WordPress. 
+ * Description: Create events, collect RSVPs and registrations, and send confirmations and reminders to your guests.
  * Version: 1.0.5
  * Requires at least: 6.7
  * Requires PHP: 7.4
  * Author: WPManageNinja LLC
- * Author URI: https://fluentevent.com
+ * Author URI: https://wpmanageninja.com/
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: fluent-event

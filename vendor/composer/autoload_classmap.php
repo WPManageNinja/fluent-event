@@ -15,7 +15,6 @@ return array(
     'FluentEvent\\App\\Hooks\\Handlers\\CleanupHandlers\\CleanupHandler' => $baseDir . '/app/Hooks/Handlers/CleanupHandlers/CleanupHandler.php',
     'FluentEvent\\App\\Hooks\\Handlers\\DeactivationHandler' => $baseDir . '/app/Hooks/Handlers/DeactivationHandler.php',
     'FluentEvent\\App\\Hooks\\Handlers\\EmailNotificationHandler' => $baseDir . '/app/Hooks/Handlers/EmailNotificationHandler.php',
-    'FluentEvent\\App\\Hooks\\Handlers\\ExceptionHandler' => $baseDir . '/app/Hooks/Handlers/ExceptionHandler.php',
     'FluentEvent\\App\\Hooks\\Handlers\\HeartBeat' => $baseDir . '/app/Hooks/Handlers/HeartBeat.php',
     'FluentEvent\\App\\Hooks\\Handlers\\SchedulerHandler' => $baseDir . '/app/Hooks/Handlers/SchedulerHandler.php',
     'FluentEvent\\App\\Http\\Controllers\\CalendarController' => $baseDir . '/app/Http/Controllers/CalendarController.php',

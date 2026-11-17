@@ -2,6 +2,7 @@
 
 namespace FluentEvent\Tests\Integration;
 
+use FluentEvent\App\App;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\Tests\IntegrationTestCase;
@@ -147,7 +148,7 @@ class PortalEndpointsTest extends IntegrationTestCase
     }
 
     // The framework's limiter lets cookie-authenticated requests through; a logged-in viewer is counted all the same.
-    // 5 a minute counts double, as over HTTP WordPress runs the check twice; in-process it runs once, so 10 pass here.
+    // 5 a minute, counted once although WordPress runs the check again for the Allow header.
     public function test_a_logged_in_viewer_is_held_to_the_visitor_rate_limit()
     {
         $event = $this->onlineEvent('rsvp');
@@ -156,15 +157,61 @@ class PortalEndpointsTest extends IntegrationTestCase
         $statuses = [];
 
         try {
-            for ($i = 1; $i <= 11; $i++) {
+            for ($i = 1; $i <= 6; $i++) {
                 $statuses[] = $this->registerGuest($event, ['email' => "flood{$i}@example.test"])['status'];
             }
         } finally {
             unset($GLOBALS['wp_rest_auth_cookie']);
         }
 
-        $this->assertSame(array_merge(array_fill(0, 10, 200), [429]), $statuses);
-        $this->assertCount(10, $this->guestsOf($event));
+        $this->assertSame(array_merge(array_fill(0, 5, 200), [429]), $statuses);
+        $this->assertCount(5, $this->guestsOf($event));
+    }
+
+    // One counter for the whole form: a new event ID is not a new allowance.
+    public function test_the_visitor_rate_limit_covers_every_event_together()
+    {
+        $events = [$this->onlineEvent('rsvp'), $this->onlineEvent('rsvp')];
+        $statuses = [];
+
+        for ($i = 1; $i <= 6; $i++) {
+            $statuses[] = $this->registerGuest($events[$i % 2], ['email' => "spread{$i}@example.test"])['status'];
+        }
+
+        $this->assertSame(array_merge(array_fill(0, 5, 200), [429]), $statuses);
+    }
+
+    // The Allow-header pass must not count again: it would read this request's cached count
+    // and write it back over what parallel requests added meanwhile.
+    public function test_the_allow_header_pass_does_not_lower_the_shared_count()
+    {
+        if (wp_using_ext_object_cache()) {
+            $this->markTestSkipped('Needs transients in the options table.');
+        }
+
+        global $wpdb;
+        $event = $this->onlineEvent('rsvp');
+        $key = App::make('config')->get('app.slug') . '_rate_limit_' . md5('127.0.0.1|register_guest');
+
+        // Parallel requests raise the count in the database while this one is still running.
+        $parallelRequests = function () use ($wpdb, $key) {
+            $wpdb->update(
+                $wpdb->options,
+                ['option_value' => serialize(array_fill(0, 4, time()))],
+                ['option_name' => '_transient_' . $key]
+            );
+        };
+
+        $response = $this->rest('POST', "portal/events/{$event->id}/register-guest", [
+            'name'  => 'Walk-in Visitor',
+            'email' => 'visitor@example.test',
+            'nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
+        ], $parallelRequests);
+
+        wp_cache_delete('_transient_' . $key, 'options');
+
+        $this->assertSame(200, $response['status']);
+        $this->assertCount(4, get_transient($key));
     }
 
     public function test_an_email_sent_as_a_list_is_refused_not_a_server_error()
