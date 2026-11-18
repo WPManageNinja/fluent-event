@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import dayjs from 'dayjs';
 import main from '@/mixins/main';
@@ -113,5 +113,45 @@ describe('EventsGrid', () => {
         await wrapper.find('.fe-events-grid__week-event').trigger('click');
 
         expect(wrapper.emitted('open')).toEqual([[meetup]]);
+    });
+
+    describe('a phone month grid', () => {
+        const pick = async (wrapper, day) => {
+            wrapper.vm.pickDay(day);
+            await wrapper.vm.$nextTick();
+        };
+
+        beforeEach(() => {
+            Element.prototype.scrollIntoView = vi.fn();
+            window.matchMedia = vi.fn(() => ({ matches: false }));
+        });
+
+        it('lists nothing under the grid until a day is tapped', () => {
+            expect(grid({ viewMode: 'month' }).find('.fe-events-grid__agenda').exists()).toBe(false);
+        });
+
+        it("lists the tapped day's events, or that it has none, and brings the list into view", async () => {
+            const meetup = event('2026-10-14 09:00:00', '2026-10-14 10:00:00', { title: 'Meetup' });
+            const wrapper = grid({ viewMode: 'month', events: [meetup] });
+
+            await pick(wrapper, '2026-10-14');
+            expect(wrapper.find('.fe-events-grid__agenda').text()).toContain('Meetup');
+            expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' });
+
+            await wrapper.find('.fe-events-grid__agenda-event').trigger('click');
+            expect(wrapper.emitted('open')).toEqual([[meetup]]);
+
+            await pick(wrapper, '2026-10-15');
+            expect(wrapper.find('.fe-events-grid__agenda-empty').text()).toBe('No events on this day.');
+        });
+
+        it('clears the tapped day when the month changes', async () => {
+            const wrapper = grid({ viewMode: 'month' });
+
+            await pick(wrapper, '2026-10-14');
+            await wrapper.setProps({ month: '2026-11-14' });
+
+            expect(wrapper.find('.fe-events-grid__agenda').exists()).toBe(false);
+        });
     });
 });
