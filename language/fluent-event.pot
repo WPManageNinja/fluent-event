@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-18T09:30:45+00:00\n"
+"POT-Creation-Date: 2026-11-18T13:58:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: fluent-event\n"
@@ -289,12 +289,12 @@ msgstr ""
 
 #: app/Hooks/Handlers/BlockEditorHandler.php:182
 #: resources/blocks/event/index.jsx:61
-msgid "Fluent Event"
+msgid "FluentEvent Single Event"
 msgstr ""
 
 #: app/Hooks/Handlers/BlockEditorHandler.php:183
 #: resources/blocks/events/index.jsx:273
-msgid "Fluent Events"
+msgid "FluentEvent List"
 msgstr ""
 
 #: app/Hooks/Handlers/BlockEditorHandler.php:184
@@ -1598,11 +1598,11 @@ msgid "Add to Block"
 msgstr ""
 
 #: config/i18n.php:85
-msgid "In the block editor, add the Fluent Event block, then pick this event in its settings."
+msgid "In the block editor, add the FluentEvent Single Event block, then pick this event in its settings."
 msgstr ""
 
 #: config/i18n.php:86
-msgid "The block inserter with the Fluent Event block selected"
+msgid "The block inserter with the FluentEvent Single Event block selected"
 msgstr ""
 
 #: config/i18n.php:87
@@ -2896,7 +2896,7 @@ msgid "We could not load this. Please try again."
 msgstr ""
 
 #: config/i18n.php:447
-msgid "Welcome to Fluent Event"
+msgid "Welcome to FluentEvent"
 msgstr ""
 
 #: config/i18n.php:448
