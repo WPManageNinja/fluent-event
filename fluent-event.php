@@ -5,7 +5,7 @@ defined('ABSPATH') or die;
 /**
  * Plugin Name: FluentEvent
  * Description: Create events, collect RSVPs and registrations, and send confirmations and reminders to your guests.
- * Version: 1.0.5
+ * Version: 1.1.0
  * Requires at least: 6.7
  * Requires PHP: 7.4
  * Author: WPManageNinja LLC
@@ -16,7 +16,7 @@ defined('ABSPATH') or die;
  * Domain Path: /language
  */
 
-define('FLUENT_EVENT_PLUGIN_VERSION', '1.0.5');
+define('FLUENT_EVENT_PLUGIN_VERSION', '1.1.0');
 define('FLUENT_EVENT_DB_VERSION', '1.0.1');
 define('FLUENT_EVENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FLUENT_EVENT_PLUGIN_URL', plugin_dir_url(__FILE__));

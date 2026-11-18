@@ -4,7 +4,7 @@ Tags: events, event calendar, rsvp, event registration, fluentcommunity
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,7 +29,11 @@ Each event has one of three entry modes:
 * **Open** — guests click Register and give their name and email.
 * **View only** — nobody registers. Every visitor sees the full event, including the meeting link.
 
-For RSVP and Open events, the online meeting link shows only after a guest registers. You can show or hide the guest count on each event.
+For RSVP and Open events, the online meeting link shows only after a guest registers.
+
+* **Capacity** — set how many guests can be going at once. A full event shows "Event full" and takes no new registrations. Admins can still add guests.
+* **Guest count and spots left** — show how many guests are going, how many spots are left, or both as a progress bar.
+* **Going or not going** — guests answer going or not going. A guest who said not going can register again with the same email. An email that is already registered gets a clear warning.
 
 = Event pages =
 
@@ -42,11 +46,12 @@ For RSVP and Open events, the online meeting link shows only after a guest regis
 
 * Add, edit and remove guests.
 * See who is going, not going, checked in or cancelled.
+* Cancel a guest's registration. Only an admin can cancel, and the guest can't undo it.
 
 = Emails =
 
 * **Registration confirmation** when a guest registers.
-* **Cancellation notice** when a guest cancels.
+* **Cancellation notice** when a guest says not going or you cancel their registration.
 * **Reminders** before the event starts. The default is 24 hours before. You can change the times.
 * **Sender settings** — from name and email, reply-to and an email footer.
 * Turn each email on or off.
@@ -55,6 +60,8 @@ For RSVP and Open events, the online meeting link shows only after a guest regis
 
 * All events in a card, timeline or calendar view, with filters for calendar and date range.
 * Guest statistics and a guest trend chart.
+* A Settings tab on each event with its entry type, capacity and display options.
+* Works on phones, including the calendar.
 
 = FluentCommunity integration =
 
@@ -63,6 +70,7 @@ If you use [FluentCommunity](https://wordpress.org/plugins/fluent-community/), t
 * Site administrators post events in discussion spaces from the post composer.
 * Each space gets its own events calendar.
 * Members see events in the feed and on the space's events page.
+* Site administrators get a menu on the community Events page with links to the FluentEvent dashboard, calendars and settings.
 
 FluentEvent does not need FluentCommunity. Without it, all other features work.
 
@@ -136,14 +144,36 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 
 == Changelog ==
 
-= 1.0.5 (Date: Nov 17, 2026) =
+= 1.1.0 (Date: Nov 18, 2026) =
+- Added: Guest Capacity Limit for RSVP and Open Events
+- Added: Show How Many Spots Are Left
+- Added: Settings Tab on the Admin Event Page
+- Added: Admin Menu on the Community Events Page Header
+- Added: Phone Calendars in the Community and Admin
 - Added: Live Countdown to an Event's Start
 - Added: Guest Count on Admin Event Cards
 - Added: Edit and Share Buttons in Event Details
 - Added: Share Event Modal With the Link, Shortcode and Block
+- Improved: Guests Answer Going or Not Going
+- Improved: Only Admins Cancel a Registration
+- Improved: Registering Again Brings Back a Not-Going Guest
+- Improved: Warning When an Email Is Already Registered
+- Improved: New FluentEvent Logo and Admin Menu Icon
+- Improved: Slimmer Admin Header Matching FluentCart and FluentPlayer
+- Improved: Community Events Page Header Matches Spaces and Courses
+- Improved: Phone Month Calendar Shows a Tapped Day's Events
+- Improved: Event Covers and Timeline Kept on Phones
 - Improved: Guest Count in the Event Page Overview Tab
 - Improved: Required Field Marks in the Add Guest Form
 - Improved: Event Drawer Rows in the Event Page Order
+- Improved: Event Drawer Actions Open in a New Tab
+- Improved: One Copy Icon and Label Across the Admin
+- Improved: Reminder Time Accepts Only Whole Numbers From 1
+- Security: Public Registration and Email Settings Hardening
+- Fixed: Events Unreachable From the Public Month Calendar on Phones
+- Fixed: Event List Running Off Small Phone Screens
+- Fixed: Admin Layout Overflows on Phones
+- Fixed: Delete Button Beside the Danger Zone Input
 - Fixed: Unstyled Flash When the Admin Page Opens
 - Fixed: Tables Not Created on Older MySQL and MariaDB
 - Fixed: Meta Table Not Created on MyISAM Databases
@@ -152,13 +182,11 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Fixed: Event Cover Missing in Community Card View
 - Fixed: Community Time Picker Rows Misaligned
 - Fixed: Portal Calendar and Date Picker Dates Not Translated
+- Fixed: Posted By Line Word Order in Translations
 - Fixed: Link Button Text Hidden on Focus
+- Fixed: Link Colours Lost in the FluentCommunity Page Template
 - Fixed: PHP Deprecation Notice on the Admin Page
 - Fixed: Events Page Error on a Bad Calendar Link
-- Security: Public Registration Forms No Longer Show Who Registered
-- Security: Guest Emails Greet Visitors Without Their Typed Name
-- Security: More Reliable Rate Limit on Public Registration
-- Security: Stricter Sanitizing of Email Notification Settings
 
 = 1.0.1 (Date: Nov 13, 2026) =
 - Added: Automatic Plugin Updates With Checksum Verification
