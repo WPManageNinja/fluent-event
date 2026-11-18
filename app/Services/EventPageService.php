@@ -78,14 +78,15 @@ class EventPageService
         $meetingLink = preg_match('#^https?://#i', $formatted['online_meeting_url']) ? $formatted['online_meeting_url'] : '';
         $isFull = $formatted['is_full'] && !$isSeated;
         $meter = null;
+        $left = (int) $formatted['spots_left'];
+        /* translators: %s: number of spots left */
+        $spotsLabel = $left > 0 && $phase !== 'ended' ? sprintf(_n('%s spot left', '%s spots left', $left, 'fluent-event'), number_format_i18n($left)) : '';
 
-        // Only a capped event whose host shows the count; an ended one keeps it as a record of how full it got.
-        if ($formatted['capacity'] && $formatted['guest_count'] !== null) {
-            $left = $formatted['capacity'] - $formatted['guest_count'];
+        // With both the count and the spots left shown; an ended one keeps it as a record of how full it got.
+        if ($formatted['guest_count'] !== null && $formatted['spots_left'] !== null) {
             $meter = [
                 'percent' => min(100, (int) round($formatted['guest_count'] / $formatted['capacity'] * 100)),
-                /* translators: %s: number of spots left */
-                'status'  => $phase === 'ended' || $isFull ? '' : ($left > 0 ? sprintf(_n('%s spot left', '%s spots left', $left, 'fluent-event'), number_format_i18n($left)) : __('Event full', 'fluent-event')),
+                'status'  => $phase === 'ended' || $isFull ? '' : ($spotsLabel ?: __('Event full', 'fluent-event')),
             ];
         }
 
@@ -106,8 +107,9 @@ class EventPageService
             // The start as a Unix timestamp when the host chose a countdown; portal.js ticks it down.
             'countdown_to'     => $phase === 'upcoming' && $formatted['start_display'] === 'countdown' ? $start : null,
             'ends_at'          => $end,
+            // The going count, or the spots left when only those show.
             /* translators: %s: number of guests going */
-            'count_label'      => $formatted['guest_count'] === null ? '' : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
+            'count_label'      => $formatted['guest_count'] === null ? $spotsLabel : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
             'meter'            => $meter,
             'notice'           => null,
             'meeting_link'     => $meetingLink,

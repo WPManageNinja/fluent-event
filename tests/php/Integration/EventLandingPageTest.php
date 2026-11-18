@@ -365,7 +365,7 @@ class EventLandingPageTest extends IntegrationTestCase
     // A full event shows no Register button, only why.
     public function test_a_full_event_shows_its_capacity_in_place_of_register()
     {
-        $capped = ['entry_type' => 'open', 'capacity' => 2, 'show_guest_count' => 'yes'];
+        $capped = ['entry_type' => 'open', 'capacity' => 2, 'show_guest_count' => 'yes', 'show_spots_left' => 'yes'];
 
         $open = $this->createEvent([], $capped);
         $this->createGuest($open);
@@ -381,5 +381,40 @@ class EventLandingPageTest extends IntegrationTestCase
 
         $this->assertStringContainsString('This event is full and no longer taking registrations.', $body);
         $this->assertStringNotContainsString('popovertarget="fe-register-' . $full->id . '"', $body);
+    }
+
+    // Each switch shows its own line; the meter needs both.
+    public function test_the_guest_count_and_the_spots_left_show_by_their_own_switches()
+    {
+        $capped = function ($count, $spots, $event = []) {
+            $created = $this->createEvent($event, ['entry_type' => 'open', 'capacity' => 3, 'show_guest_count' => $count, 'show_spots_left' => $spots]);
+            $this->createGuest($created);
+
+            return $this->page($created)['body'];
+        };
+
+        $both = $capped('yes', 'yes');
+        $this->assertStringContainsString('fe-capacity__track', $both);
+        $this->assertStringContainsString('2 spots left', $both);
+
+        $countOnly = $capped('yes', 'no');
+        $this->assertStringNotContainsString('fe-capacity__track', $countOnly);
+        $this->assertStringContainsString('1 going', $countOnly);
+        $this->assertStringNotContainsString('spots left', $countOnly);
+
+        $spotsOnly = $capped('no', 'yes');
+        $this->assertStringNotContainsString('fe-capacity__track', $spotsOnly);
+        $this->assertStringContainsString('2 spots left', $spotsOnly);
+        $this->assertStringNotContainsString('1 going', $spotsOnly);
+
+        $neither = $capped('no', 'no');
+        $this->assertStringNotContainsString('spots left', $neither);
+        $this->assertStringNotContainsString('1 going', $neither);
+
+        $ended = $capped('no', 'yes', [
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-2 days')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-2 days +1 hour')),
+        ]);
+        $this->assertStringNotContainsString('spots left', $ended);
     }
 }

@@ -173,6 +173,15 @@ class EventFormatTest extends TestCase
         $this->assertSame(1, $formatted['capacity']);
     }
 
+    public function test_the_spots_left_go_out_only_when_the_host_shows_them()
+    {
+        $this->assertNull($this->format($this->event([], ['capacity' => 10]), 7)['spots_left']);
+        $this->assertSame(3, $this->format($this->event([], ['capacity' => 10, 'show_spots_left' => 'yes']), 7)['spots_left']);
+        // Admins can add guests past the capacity.
+        $this->assertSame(0, $this->format($this->event([], ['capacity' => 2, 'show_spots_left' => 'yes']), 5)['spots_left']);
+        $this->assertNull($this->format($this->event([], ['show_spots_left' => 'yes']), 5)['spots_left']);
+    }
+
     public function test_a_no_entry_event_ignores_a_stored_capacity()
     {
         $formatted = $this->format($this->event([], ['entry_type' => 'none', 'capacity' => 1]), 3);

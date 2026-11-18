@@ -63,6 +63,8 @@ class Event extends Model
             'entry_type'         => '',
             'show_guest_count'   => 'yes',
             'capacity'           => 0, // most guests going at once; 0 = unlimited
+            // Whether guests see the spots left on a capped event; the going count has its own switch.
+            'show_spots_left'    => 'no',
             // How the event page shows the time until the start: relative ("Starts in 3 days") or a live countdown.
             'start_display'      => 'relative',
             // The description's markdown, as written in the editor; the post holds its rendered HTML.

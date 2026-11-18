@@ -303,4 +303,11 @@ class RequestRulesTest extends TestCase
         $this->assertSame(25, EventRequest::sanitize(['capacity' => '25'])['capacity']);
         $this->assertSame(0, EventRequest::format($this->eventInput())['meta']['capacity']);
     }
+
+    public function test_the_spots_left_switch_is_yes_or_no_and_starts_off()
+    {
+        $this->assertSame('nullable|string|in:yes,no', EventRequest::RULES['show_spots_left']);
+        $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['show_spots_left']);
+        $this->assertSame('yes', EventRequest::format($this->eventInput(['show_spots_left' => 'yes']))['meta']['show_spots_left']);
+    }
 }
