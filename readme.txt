@@ -154,17 +154,22 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Added: Guest Count on Admin Event Cards
 - Added: Edit and Share Buttons in Event Details
 - Added: Share Event Modal With the Link, Shortcode and Block
-- Updated: Guests Answer Going or Not Going
-- Updated: Only Admins Cancel a Registration
-- Updated: Registering Again Brings Back a Not-Going Guest
-- Updated: New FluentEvent Logo and Admin Menu Icon
+- Improved: Guests Answer Going or Not Going
+- Improved: Only Admins Cancel a Registration
+- Improved: Registering Again Brings Back a Not-Going Guest
 - Improved: Warning When an Email Is Already Registered
+- Improved: New FluentEvent Logo and Admin Menu Icon
+- Improved: Slimmer Admin Header Matching FluentCart and FluentPlayer
 - Improved: Community Events Page Header Matches Spaces and Courses
 - Improved: Phone Month Calendar Shows a Tapped Day's Events
 - Improved: Event Covers and Timeline Kept on Phones
 - Improved: Guest Count in the Event Page Overview Tab
 - Improved: Required Field Marks in the Add Guest Form
 - Improved: Event Drawer Rows in the Event Page Order
+- Improved: Event Drawer Actions Open in a New Tab
+- Improved: One Copy Icon and Label Across the Admin
+- Improved: Reminder Time Accepts Only Whole Numbers From 1
+- Security: Public Registration and Email Settings Hardening
 - Fixed: Events Unreachable From the Public Month Calendar on Phones
 - Fixed: Event List Running Off Small Phone Screens
 - Fixed: Admin Layout Overflows on Phones
@@ -177,15 +182,11 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Fixed: Event Cover Missing in Community Card View
 - Fixed: Community Time Picker Rows Misaligned
 - Fixed: Portal Calendar and Date Picker Dates Not Translated
+- Fixed: Posted By Line Word Order in Translations
 - Fixed: Link Button Text Hidden on Focus
 - Fixed: Link Colours Lost in the FluentCommunity Page Template
 - Fixed: PHP Deprecation Notice on the Admin Page
 - Fixed: Events Page Error on a Bad Calendar Link
-- Security: Visitor Forms Can't Change a Member's Registration
-- Security: Public Registration Forms No Longer Show Who Registered
-- Security: Guest Emails Greet Visitors Without Their Typed Name
-- Security: More Reliable Rate Limit on Public Registration
-- Security: Stricter Sanitizing of Email Notification Settings
 
 = 1.0.1 (Date: Nov 13, 2026) =
 - Added: Automatic Plugin Updates With Checksum Verification
