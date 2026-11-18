@@ -675,6 +675,7 @@ html.dark .fe-portal {
     }
 
     &__cell {
+        position: relative;
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -684,8 +685,8 @@ html.dark .fe-portal {
         background-color: var(--fe-primary-bg, #ffffff);
     }
 
-    // The neighbouring months' days, faded like the admin's.
-    &__cell--outside > * {
+    // The neighbouring months' days, faded like the admin's; not the day's popover, which opens over the page.
+    &__cell--outside > :not(.fe-month__popover) {
         opacity: 0.5;
     }
 
@@ -803,19 +804,125 @@ html.dark .fe-portal {
         font-weight: 600;
     }
 
-    &__dot {
+    // The whole day is the tap target on a phone, with a bar per event (three at most); wider screens show the chips.
+    &__day-button {
         display: none;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background-color: var(--fe-secondary-text, #525866);
+        position: absolute;
+        inset: 0;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 2px;
+        padding: 0 5px 6px;
+        border: 0;
+        border-radius: 0;
+        background: none;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: -2px;
+        }
+
+        &[aria-pressed="true"] {
+            box-shadow: inset 0 0 0 2px var(--fe-primary-text, #19283a);
+        }
     }
 
-    // Phones show a dot per busy day instead of the chips.
+    &__bar {
+        display: block;
+        height: 3px;
+        border-radius: 2px;
+        background-color: var(--fe-event-color, var(--fe-secondary-text, #525866));
+    }
+
+    // Phones show the tapped day's events under the grid; wider screens show them in the cells.
+    &__agenda {
+        display: none;
+        margin-top: var(--fe-space-5, 20px);
+    }
+
+    &__agenda-day {
+        display: grid;
+        gap: 6px;
+        // Room below when a tap scrolls it into view, and above for a sticky theme header.
+        scroll-margin: 80px 0 16px;
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    &__agenda-date {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin: 0 0 6px;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__agenda-number {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__agenda-weekday {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 13px);
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    // The chip's colour bar and tint, but the title wraps instead of cutting off.
+    &__agenda-event {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 10px 12px;
+        border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 12%, transparent);
+        color: var(--fe-primary-text, #19283a);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.4;
+        text-decoration: none;
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 22%, transparent);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__agenda-event-time {
+        flex-shrink: 0;
+        color: var(--fe-secondary-text, #525866);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__agenda-event-title {
+        min-width: 0;
+        font-weight: 500;
+    }
+
+    &__agenda-empty {
+        margin: 0;
+        padding: 12px 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    // Phones show bars per busy day instead of the chips, and the tapped day's events under the grid.
     @media (max-width: 767px) {
         &__cell {
             align-items: center;
-            min-height: 48px;
+            min-height: 52px;
             padding: 4px;
         }
 
@@ -824,7 +931,11 @@ html.dark .fe-portal {
             display: none;
         }
 
-        &__dot {
+        &__day-button {
+            display: flex;
+        }
+
+        &__agenda {
             display: block;
         }
     }
