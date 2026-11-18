@@ -126,7 +126,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame(__('Your registration was cancelled by the host.', 'fluent-event'), $response['data']['message']);
         $this->assertNull($response['data']['status']);
         $this->assertStringContainsString('fe-register-success--warning', $response['data']['html']);
-        $this->assertStringContainsString(esc_html__('Your registration was cancelled by the host', 'fluent-event'), $response['data']['html']);
+        $this->assertStringContainsString(esc_html__('Your registration was cancelled', 'fluent-event'), $response['data']['html']);
         $this->assertStringNotContainsString('meet.example.test', $response['data']['html']);
         $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
     }

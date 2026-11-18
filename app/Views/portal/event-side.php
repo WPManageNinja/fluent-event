@@ -279,7 +279,7 @@ $fluentEventDone = $registration && $registration['is_going'];
             <div class="fe-register-success__head">
                 <span class="fe-register-success__check"><?php echo Icon::WARNING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                 <h2 class="fe-register-success__title" id="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>">
-                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Your registration was cancelled by the host', 'fluent-event' ) : __( 'This email is already registered', 'fluent-event' ) ); ?>
+                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Your registration was cancelled', 'fluent-event' ) : __( 'This email is already registered', 'fluent-event' ) ); ?>
                 </h2>
                 <p class="fe-register-success__text" id="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>">
                     <?php echo esc_html( 'cancelled' === $answer ? __( 'Contact the host if you want to join again.', 'fluent-event' ) : __( 'Check your inbox for the confirmation email, or register with a different email.', 'fluent-event' ) ); ?>

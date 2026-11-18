@@ -176,7 +176,7 @@ export default {
             ElMessageBox.alert(h('div', { class: 'fe-registered' }, [
                 h('div', { class: 'fe-registered__head' }, [
                     h('span', { class: 'fe-registered__check fe-registered__check--warning', innerHTML: WARNING }),
-                    h('strong', { class: 'fe-registered__title' }, cancelled ? t('Your registration was cancelled by the host') : t('This email is already registered')),
+                    h('strong', { class: 'fe-registered__title' }, cancelled ? t('Your registration was cancelled') : t('This email is already registered')),
                     h('p', { class: 'fe-registered__text' }, cancelled
                         ? t('Contact the host if you want to join again.')
                         : t('Check your inbox for the confirmation email, or register with a different email.')),

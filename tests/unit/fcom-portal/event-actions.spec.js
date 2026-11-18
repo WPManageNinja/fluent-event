@@ -171,7 +171,7 @@ describe('EventActions', () => {
 
         const [content] = ElMessageBox.alert.mock.calls[0];
         const [, title, text] = content.children[0].children;
-        expect(title.children).toBe('Your registration was cancelled by the host');
+        expect(title.children).toBe('Your registration was cancelled');
         expect(text.children).toBe('Contact the host if you want to join again.');
         expect(wrapper.emitted('done')).toBeUndefined();
         expect(ElNotification).not.toHaveBeenCalled();

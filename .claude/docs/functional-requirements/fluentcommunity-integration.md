@@ -141,7 +141,7 @@ slug; `fluent_event/community/route_paths` can still move any single route:
 - **Registering again:** guests only answer going or not going; `cancelled` is set by an admin alone. A
   `not_going` row (member or visitor email) goes back to going with the usual confirmation. Any other row
   gets a warning dialog and nothing changes: "This email is already registered" (going, checked in), or
-  "Your registration was cancelled by the host" (`cancelled`, which the guest can't undo, by either answer).
+  "Your registration was cancelled" (`cancelled`, which the guest can't undo, by either answer).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
   the `from`/`to` filter means site days. The event page shows the event's own clock with its
   offset, plus the site's clock when that reads differently.

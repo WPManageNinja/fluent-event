@@ -33,7 +33,7 @@ Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going 
 `none` (view-only: nobody registers, every viewer sees the whole event, meeting link included;
 admins can still add, edit and remove guests, who get the usual emails). Guests only ever answer going or not going; `cancelled` is set by an admin alone.
 Registering again with an email (or account) already on the event takes a `not_going` row back to going; any other row is
-refused with a warning, "already registered", or "cancelled by the host" for a `cancelled` one, and nothing is saved. `show_guest_count` sits beside it for `rsvp` and `open`. RSVP has no seat limit. `ticketed` is a documented future
+refused with a warning, "already registered", or "registration was cancelled" for a `cancelled` one, and nothing is saved. `show_guest_count` sits beside it for `rsvp` and `open`. RSVP has no seat limit. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.
 
 Statuses: events are `public | unlisted | private | draft`, calendars `public | private | draft`.

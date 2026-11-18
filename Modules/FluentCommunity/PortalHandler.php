@@ -330,7 +330,7 @@ class PortalHandler
             'Where do you want to post this event?' => __('Where do you want to post this event?', 'fluent-event'),
             /* translators: %s: event title */
             'You will lose your spot for %s. You can register again later.' => __('You will lose your spot for %s. You can register again later.', 'fluent-event'),
-            'Your registration was cancelled by the host' => __('Your registration was cancelled by the host', 'fluent-event'),
+            'Your registration was cancelled' => __('Your registration was cancelled', 'fluent-event'),
             "You're registered" => __("You're registered", 'fluent-event'),
             'e.g. Friday Q&A' => __('e.g. Friday Q&A', 'fluent-event'),
             'e.g. Kingsway Hall' => __('e.g. Kingsway Hall', 'fluent-event'),
