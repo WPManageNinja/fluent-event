@@ -214,6 +214,7 @@ class PortalHandler
             'Back' => __('Back', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
+            'Calendars' => __('Calendars', 'fluent-event'),
             'Capacity' => __('Capacity', 'fluent-event'),
             'Guest control' => __('Guest control', 'fluent-event'),
             'Seats and the guest count guests see.' => __('Seats and the guest count guests see.', 'fluent-event'),
@@ -226,6 +227,7 @@ class PortalHandler
             'Community-wide' => __('Community-wide', 'fluent-event'),
             'Cover Image' => __('Cover Image', 'fluent-event'),
             'Create Event' => __('Create Event', 'fluent-event'),
+            'Dashboard' => __('Dashboard', 'fluent-event'),
             'Date and Time' => __('Date and Time', 'fluent-event'),
             'Day' => __('Day', 'fluent-event'),
             /* translators: %d: the day number within a multi-day event */
@@ -303,6 +305,7 @@ class PortalHandler
             'Remove cover image' => __('Remove cover image', 'fluent-event'),
             'Search events' => __('Search events', 'fluent-event'),
             'Select a space' => __('Select a space', 'fluent-event'),
+            'Settings' => __('Settings', 'fluent-event'),
             'Show how many guests are going' => __('Show how many guests are going', 'fluent-event'),
             'Show how many spots are left' => __('Show how many spots are left', 'fluent-event'),
             'Shown at the top of the event page and on event cards.' => __('Shown at the top of the event page and on event cards.', 'fluent-event'),
