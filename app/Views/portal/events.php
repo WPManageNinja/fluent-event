@@ -237,29 +237,13 @@ $fluentEventEmpty = [
                                 <?php $fluentEventEntry( $fluentEventItem, 'fe-month__chip' ); ?>
                             <?php endforeach; ?>
 
-                            <?php if ( $fluentEventDay['entries'] ) : ?>
+                            <?php if ( count( $fluentEventDay['entries'] ) > 3 ) : ?>
                                 <?php $fluentEventPopover = 'fe-month-day-' . $fluentEventDay['date']; ?>
-
-                                <?php if ( count( $fluentEventDay['entries'] ) > 3 ) : ?>
-                                    <button type="button" class="fe-month__more" popovertarget="<?php echo esc_attr( $fluentEventPopover ); ?>">
-                                        <?php
-                                        /* translators: %d: number of further events that day */
-                                        echo esc_html( sprintf( __( '+%d more', 'fluent-event' ), count( $fluentEventDay['entries'] ) - 3 ) );
-                                        ?>
-                                    </button>
-                                <?php endif; ?>
-
-                                <?php // Phones hide the chips and show this dot instead; it opens the same list of the day's events. ?>
-                                <?php
-                                $fluentEventDotLabel = sprintf(
-                                    /* translators: 1: the day, e.g. "Thursday, Dec 3", 2: number of events that day */
-                                    _n( '%1$s: %2$d event', '%1$s: %2$d events', count( $fluentEventDay['entries'] ), 'fluent-event' ),
-                                    $fluentEventDay['label'],
-                                    count( $fluentEventDay['entries'] )
-                                );
-                                ?>
-                                <button type="button" class="fe-month__dot-button" popovertarget="<?php echo esc_attr( $fluentEventPopover ); ?>" aria-label="<?php echo esc_attr( $fluentEventDotLabel ); ?>">
-                                    <span class="fe-month__dot" aria-hidden="true"></span>
+                                <button type="button" class="fe-month__more" popovertarget="<?php echo esc_attr( $fluentEventPopover ); ?>">
+                                    <?php
+                                    /* translators: %d: number of further events that day */
+                                    echo esc_html( sprintf( __( '+%d more', 'fluent-event' ), count( $fluentEventDay['entries'] ) - 3 ) );
+                                    ?>
                                 </button>
 
                                 <div id="<?php echo esc_attr( $fluentEventPopover ); ?>" class="fe-month__popover" popover aria-label="<?php echo esc_attr( $fluentEventDay['label'] ); ?>">
@@ -269,6 +253,41 @@ $fluentEventEmpty = [
                                         <?php $fluentEventEntry( $fluentEventItem, 'fe-month__chip' ); ?>
                                     <?php endforeach; ?>
                                 </div>
+                            <?php endif; ?>
+
+                            <?php // Phones hide the chips: the day shows a bar per event and, tapped, lists them under the grid. ?>
+                            <?php
+                            $fluentEventDayLabel = sprintf(
+                                /* translators: 1: the day, e.g. "Thursday, Dec 3", 2: number of events that day */
+                                _n( '%1$s: %2$d event', '%1$s: %2$d events', count( $fluentEventDay['entries'] ), 'fluent-event' ),
+                                $fluentEventDay['label'],
+                                count( $fluentEventDay['entries'] )
+                            );
+                            ?>
+                            <button type="button" class="fe-month__day-button" data-fe-day="<?php echo esc_attr( $fluentEventDay['date'] ); ?>" aria-pressed="false" aria-controls="fe-month-day-<?php echo esc_attr( $fluentEventDay['date'] ); ?>-events" aria-label="<?php echo esc_attr( $fluentEventDayLabel ); ?>">
+                                <?php foreach ( array_slice( $fluentEventDay['entries'], 0, 3 ) as $fluentEventItem ) : ?>
+                                    <span class="fe-month__bar"<?php echo $fluentEventItem['color'] ? ' style="' . esc_attr( '--fe-event-color: ' . $fluentEventItem['color'] . ';' ) . '"' : ''; ?>></span>
+                                <?php endforeach; ?>
+                            </button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php // Phones only: the tapped day's events, or that there are none. Nothing until a day is tapped. ?>
+                <div class="fe-month__agenda">
+                    <?php foreach ( $grid['days'] as $fluentEventDay ) : ?>
+                        <div class="fe-month__agenda-day" id="fe-month-day-<?php echo esc_attr( $fluentEventDay['date'] ); ?>-events" data-fe-day-events="<?php echo esc_attr( $fluentEventDay['date'] ); ?>" role="region" aria-label="<?php echo esc_attr( $fluentEventDay['label'] ); ?>" hidden>
+                            <p class="fe-month__agenda-date">
+                                <span class="fe-month__agenda-number"><?php echo esc_html( number_format_i18n( $fluentEventDay['number'] ) ); ?></span>
+                                <span class="fe-month__agenda-weekday"><?php echo esc_html( $fluentEventDay['name'] ); ?></span>
+                            </p>
+
+                            <?php foreach ( $fluentEventDay['entries'] as $fluentEventItem ) : ?>
+                                <?php $fluentEventEntry( $fluentEventItem, 'fe-month__agenda-event' ); ?>
+                            <?php endforeach; ?>
+
+                            <?php if ( ! $fluentEventDay['entries'] ) : ?>
+                                <p class="fe-month__agenda-empty"><?php esc_html_e( 'No events on this day.', 'fluent-event' ); ?></p>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>

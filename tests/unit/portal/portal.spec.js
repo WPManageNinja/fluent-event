@@ -266,6 +266,51 @@ describe('calendar navigation', () => {
     });
 });
 
+describe('picking a day in the month grid on a phone', () => {
+    beforeEach(() => {
+        Element.prototype.scrollIntoView = vi.fn();
+        window.matchMedia = vi.fn(() => ({ matches: false }));
+        document.body.innerHTML = `
+            <section class="fe-month">
+                <button data-fe-day="2026-11-24" aria-pressed="false"></button>
+                <button data-fe-day="2026-11-25" aria-pressed="false"></button>
+                <div data-fe-day-events="2026-11-24" hidden>Single Workshop</div>
+                <div data-fe-day-events="2026-11-25" hidden>No events on this day.</div>
+            </section>`;
+    });
+
+    afterEach(() => {
+        document.body.innerHTML = '';
+    });
+
+    const pick = (date) => document.querySelector(`[data-fe-day="${date}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const shown = () => [...document.querySelectorAll('[data-fe-day-events]')].filter((panel) => !panel.hidden).map((panel) => panel.textContent);
+    const pressed = () => [...document.querySelectorAll('[aria-pressed="true"]')].map((day) => day.dataset.feDay);
+
+    it('shows nothing until a day is picked', () => {
+        expect(shown()).toEqual([]);
+    });
+
+    it("marks the picked day and shows only its events, or that it has none", () => {
+        pick('2026-11-24');
+        expect(pressed()).toEqual(['2026-11-24']);
+        expect(shown()).toEqual(['Single Workshop']);
+
+        pick('2026-11-25');
+        expect(pressed()).toEqual(['2026-11-25']);
+        expect(shown()).toEqual(['No events on this day.']);
+    });
+
+    // The list sits under the grid, often below the screen on a phone.
+    it('scrolls the picked day\'s list into view, only as far as it takes', () => {
+        pick('2026-11-24');
+
+        const panel = document.querySelector('[data-fe-day-events="2026-11-24"]');
+        expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' });
+        expect(Element.prototype.scrollIntoView.mock.instances[0]).toBe(panel);
+    });
+});
+
 describe('fitting the chips into one row', () => {
     const row = (selected) => {
         document.body.innerHTML = `
