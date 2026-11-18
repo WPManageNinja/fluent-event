@@ -69,10 +69,12 @@ stays English in every locale. There are three maps:
 Run the check for the two maps that have no test:
 
 ```bash
+bash .claude/skills/release-ready/check-i18n-maps.sh --self-test   # the script itself works
 bash .claude/skills/release-ready/check-i18n-maps.sh
 ```
 
-It lists each key that is missing from its map. Add each missing key to the map, then run it
+It reads keys in single and double quotes, and fails on a template-literal key (`` t(`…`) ``),
+which can't match a map key. It lists each key that is missing from its map. Add each missing key to the map, then run it
 again. The admin map is checked by the test in Step 4; if that test fails, add or remove keys in
 `config/i18n.php`.
 

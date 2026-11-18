@@ -89,11 +89,18 @@ If there is no previous heading (first release), ask the user for the lower boun
 
 ### Step 2 — Collect commits
 
+Scratch files go in a fixed folder inside the gitignored `release-note/X.Y.Z/` folder, never in
+`$TMPDIR` (unset on many Linux sessions). Each command runs in a new shell, so set `SCRATCH`
+again in every command that uses it. Step 7 deletes the folder.
+
 ```bash
+SCRATCH="release-note/X.Y.Z/.scratch"
+mkdir -p "$SCRATCH"
+
 if [ -n "$PREV_REF" ]; then
-  git log "$PREV_REF..HEAD" --no-merges --format='%h%x09%s%x09%b%x1e' > "$TMPDIR/fe_commits.txt"
+  git log "$PREV_REF..HEAD" --no-merges --format='%h%x09%s%x09%b%x1e' > "$SCRATCH/commits.txt"
 else
-  git log --since="$PREV_DATE" --no-merges --format='%h%x09%s%x09%b%x1e' > "$TMPDIR/fe_commits.txt"
+  git log --since="$PREV_DATE" --no-merges --format='%h%x09%s%x09%b%x1e' > "$SCRATCH/commits.txt"
 fi
 ```
 
@@ -164,7 +171,8 @@ build_map() {
       | while read -r c; do echo "$c|$pr"; done
   done
 }
-build_map "$PREV_REF" > "$TMPDIR/fe_prmap.txt"
+SCRATCH="release-note/X.Y.Z/.scratch"
+build_map "$PREV_REF" > "$SCRATCH/prmap.txt"
 ```
 
 A commit can map to more than one PR (a sub-PR merged into a release branch, then the release
@@ -197,6 +205,8 @@ Repo: WPManageNinja/fluent-event
 the table from the block in `readme.txt`. Don't patch rows by hand. Renumber the Notes with it.
 
 ### Step 7 — Print the summary
+
+First delete the scratch folder: `rm -rf release-note/X.Y.Z/.scratch`.
 
 - The block, verbatim.
 - The entry count per prefix.
