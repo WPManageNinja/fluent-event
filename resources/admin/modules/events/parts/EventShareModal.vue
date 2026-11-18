@@ -48,13 +48,13 @@
 
             <template #block>
                 <p class="fe-share-modal__text">
-                    {{ $t('In the block editor, add the Fluent Event block, then pick this event in its settings.') }}
+                    {{ $t('In the block editor, add the FluentEvent Single Event block, then pick this event in its settings.') }}
                 </p>
 
                 <img
                     class="fe-share-modal__image"
                     :src="appVars.block_inserter_image"
-                    :alt="$t('The block inserter with the Fluent Event block selected')"
+                    :alt="$t('The block inserter with the FluentEvent Single Event block selected')"
                 />
             </template>
         </Tabs>

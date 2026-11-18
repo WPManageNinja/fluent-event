@@ -34,8 +34,8 @@ For RSVP and Open events, the online meeting link shows only after a guest regis
 = Event pages =
 
 * **A page for each event** at `/event/<event-slug>/`. You can change the `event` part in the settings.
-* **An event list** — add the `[fluent_events]` shortcode or the Fluent Events block to any page.
-* **A single event** — add the `[fluent_event]` shortcode or the Fluent Event block.
+* **An event list** — add the `[fluent_events]` shortcode or the FluentEvent List block to any page.
+* **A single event** — add the `[fluent_event]` shortcode or the FluentEvent Single Event block.
 * **Add to calendar** — guests add an event to Google Calendar, or to Apple Calendar or Outlook with an `.ics` file.
 
 = Guests =
@@ -101,7 +101,7 @@ Not in this version. Both are on the roadmap.
 1. In Plugins → Add New, search for FluentEvent, then click Install Now. Or upload the `fluent-event` folder to `/wp-content/plugins/`.
 2. Activate FluentEvent on the Plugins screen.
 3. Open FluentEvent in the WordPress admin. Set the email settings and create your first calendar and event.
-4. Optional: add the `[fluent_events]` shortcode or the Fluent Events block to a page to list your events.
+4. Optional: add the `[fluent_events]` shortcode or the FluentEvent List block to a page to list your events.
 5. Optional: if you use FluentCommunity, turn on FluentEvent in FluentCommunity's Features settings.
 
 == Source code ==

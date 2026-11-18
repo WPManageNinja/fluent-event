@@ -58,7 +58,7 @@ function Edit({ attributes, setAttributes }) {
 export default function registerEventBlock() {
     registerBlockType('fluent-event/event', {
         apiVersion: 2,
-        title: __('Fluent Event', 'fluent-event'),
+        title: __('FluentEvent Single Event', 'fluent-event'),
         description: __('One event with its details and registration.', 'fluent-event'),
         category: 'widgets',
         icon: 'calendar',

@@ -19,7 +19,7 @@
                         <div class="fe-dashboard__greeting-text">
                             <h1 class="fe-dashboard__greeting-name">{{ config.me.full_name }}</h1>
                             <p class="fe-dashboard__greeting-note">
-                                {{ $t('Welcome to Fluent Event') }}
+                                {{ $t('Welcome to FluentEvent') }}
                             </p>
                         </div>
                     </header>

@@ -270,7 +270,7 @@ function Edit({ attributes, setAttributes }) {
 export default function registerEventsBlock() {
     registerBlockType('fluent-event/events', {
         apiVersion: 2,
-        title: __('Fluent Events', 'fluent-event'),
+        title: __('FluentEvent List', 'fluent-event'),
         description: __('A list of your public events, as cards, a timeline or a calendar.', 'fluent-event'),
         category: 'widgets',
         icon: 'calendar-alt',

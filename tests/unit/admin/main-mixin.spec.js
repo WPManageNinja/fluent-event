@@ -219,7 +219,7 @@ describe('number and date formatting', () => {
 
         vm.$changeTitle('Events');
 
-        expect(document.title).toBe('Events - Fluent Event');
+        expect(document.title).toBe('Events - FluentEvent');
     });
 });
 
