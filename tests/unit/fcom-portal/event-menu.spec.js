@@ -40,6 +40,23 @@ describe('EventMenu', () => {
         expect(document.activeElement).toBe(item.element);
     });
 
+    // On a phone a short title puts the "⋮" near the left edge; the 200px menu would hang off the screen.
+    it.each([
+        ['left', { left: -23, right: 177 }, 'translateX(31px)'],
+        ['right', { left: 200, right: 400 }, 'translateX(-48px)'],
+    ])('slides back on screen when it would leave the %s edge', async (side, box, transform) => {
+        Object.defineProperty(document.documentElement, 'clientWidth', { value: 360, configurable: true });
+        const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ ...box, top: 0, bottom: 80, width: 200, height: 80 });
+        menu();
+
+        await wrapper.find('button').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.fe-event-menu__pop').element.style.transform).toBe(transform);
+        rect.mockRestore();
+        delete document.documentElement.clientWidth;
+    });
+
     // fcom's document click handler would route the link a second time.
     it('edits inside the portal, without the click reaching the page', async () => {
         menu();

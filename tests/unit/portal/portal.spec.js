@@ -65,12 +65,12 @@ describe('registration', () => {
                 <p class="fe-register__error"></p>
                 <button type="submit">Register</button>
             </form>`);
-        fetch.mockResolvedValue(respond({ html: card('<div popover data-fe-registered>You\'re registered</div>') }));
+        fetch.mockResolvedValue(respond({ html: card('<div popover data-fe-answer>You\'re registered</div>') }));
 
         await submitForm(document.querySelector('form'));
 
         expect(showPopover).toHaveBeenCalledTimes(1);
-        expect(showPopover.mock.instances[0]).toBe(document.querySelector('[data-fe-registered]'));
+        expect(showPopover.mock.instances[0]).toBe(document.querySelector('[data-fe-answer]'));
         delete HTMLElement.prototype.showPopover;
     });
 
@@ -263,6 +263,51 @@ describe('calendar navigation', () => {
         expect(document.querySelector('h2').textContent).toBe('March 2027');
         expect(document.querySelector('[data-fe-results] .fe-skeleton')).not.toBeNull();
         expect(fetch.mock.calls[0][0]).toBe('https://site.test/events/?view=calendar');
+    });
+});
+
+describe('picking a day in the month grid on a phone', () => {
+    beforeEach(() => {
+        Element.prototype.scrollIntoView = vi.fn();
+        window.matchMedia = vi.fn(() => ({ matches: false }));
+        document.body.innerHTML = `
+            <section class="fe-month">
+                <button data-fe-day="2026-11-24" aria-pressed="false"></button>
+                <button data-fe-day="2026-11-25" aria-pressed="false"></button>
+                <div data-fe-day-events="2026-11-24" hidden>Single Workshop</div>
+                <div data-fe-day-events="2026-11-25" hidden>No events on this day.</div>
+            </section>`;
+    });
+
+    afterEach(() => {
+        document.body.innerHTML = '';
+    });
+
+    const pick = (date) => document.querySelector(`[data-fe-day="${date}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const shown = () => [...document.querySelectorAll('[data-fe-day-events]')].filter((panel) => !panel.hidden).map((panel) => panel.textContent);
+    const pressed = () => [...document.querySelectorAll('[aria-pressed="true"]')].map((day) => day.dataset.feDay);
+
+    it('shows nothing until a day is picked', () => {
+        expect(shown()).toEqual([]);
+    });
+
+    it("marks the picked day and shows only its events, or that it has none", () => {
+        pick('2026-11-24');
+        expect(pressed()).toEqual(['2026-11-24']);
+        expect(shown()).toEqual(['Single Workshop']);
+
+        pick('2026-11-25');
+        expect(pressed()).toEqual(['2026-11-25']);
+        expect(shown()).toEqual(['No events on this day.']);
+    });
+
+    // The list sits under the grid, often below the screen on a phone.
+    it('scrolls the picked day\'s list into view, only as far as it takes', () => {
+        pick('2026-11-24');
+
+        const panel = document.querySelector('[data-fe-day-events="2026-11-24"]');
+        expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' });
+        expect(Element.prototype.scrollIntoView.mock.instances[0]).toBe(panel);
     });
 });
 

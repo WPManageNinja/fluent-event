@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: FluentEvent 1.1.0\n"
+"Project-Id-Version: FluentEvent 1.0.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/fluent-event\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-17T06:10:54+00:00\n"
+"POT-Creation-Date: 2026-11-17T08:58:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: fluent-event\n"
@@ -21,20 +21,19 @@ msgstr ""
 msgid "FluentEvent"
 msgstr ""
 
-#. Plugin URI of the plugin
-#. Author URI of the plugin
-#: fluent-event.php
-msgid "https://fluentevent.com"
-msgstr ""
-
 #. Description of the plugin
 #: fluent-event.php
-msgid "Event management plugin for WordPress."
+msgid "Create events, collect RSVPs and registrations, and send confirmations and reminders to your guests."
 msgstr ""
 
 #. Author of the plugin
 #: fluent-event.php
 msgid "WPManageNinja LLC"
+msgstr ""
+
+#. Author URI of the plugin
+#: fluent-event.php
+msgid "https://wpmanageninja.com/"
 msgstr ""
 
 #: app/CPT/EventPost.php:84
@@ -152,7 +151,7 @@ msgid "About This Event"
 msgstr ""
 
 #: app/Hooks/Handlers/BlockEditorHandler.php:159
-#: app/Hooks/Handlers/FrontEndHandler.php:486
+#: app/Hooks/Handlers/FrontEndHandler.php:485
 #: app/Views/portal/events.php:65
 #: config/i18n.php:93
 #: Modules/FluentCommunity/PortalHandler.php:205
@@ -329,8 +328,8 @@ msgid "One event with its details and registration."
 msgstr ""
 
 #: app/Hooks/Handlers/BlockEditorHandler.php:190
-#: app/Hooks/Handlers/FrontEndHandler.php:591
-#: app/Hooks/Handlers/FrontEndHandler.php:617
+#: app/Hooks/Handlers/FrontEndHandler.php:590
+#: app/Hooks/Handlers/FrontEndHandler.php:616
 #: app/Views/portal/event-side.php:232
 #: config/i18n.php:312
 #: Modules/FluentCommunity/PortalHandler.php:274
@@ -527,18 +526,18 @@ msgstr ""
 msgid "Events from our calendars."
 msgstr ""
 
-#: app/Hooks/Handlers/FrontEndHandler.php:418
+#: app/Hooks/Handlers/FrontEndHandler.php:417
 msgid "This event doesn’t exist, or it isn’t open to the public."
 msgstr ""
 
-#: app/Hooks/Handlers/FrontEndHandler.php:591
-#: app/Hooks/Handlers/FrontEndHandler.php:617
+#: app/Hooks/Handlers/FrontEndHandler.php:590
+#: app/Hooks/Handlers/FrontEndHandler.php:616
 #: app/Views/portal/event-side.php:232
 msgid "In person"
 msgstr ""
 
 #. translators: 1: start, 2: end (each a time, or a date and time)
-#: app/Hooks/Handlers/FrontEndHandler.php:615
+#: app/Hooks/Handlers/FrontEndHandler.php:614
 #: app/Utils/DateTimeHelper.php:162
 #: app/Utils/DateTimeHelper.php:173
 #, php-format
@@ -547,7 +546,7 @@ msgid "%1$s – %2$s"
 msgstr ""
 
 #. translators: 1: start date, 2: end date
-#: app/Hooks/Handlers/FrontEndHandler.php:650
+#: app/Hooks/Handlers/FrontEndHandler.php:649
 #: app/Utils/DateTimeHelper.php:155
 #, php-format
 msgctxt "date range"
@@ -566,54 +565,58 @@ msgstr ""
 msgid "Calendar has been successfully deleted"
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:133
-#: app/Http/Controllers/CommunityEventController.php:145
-#: app/Http/Controllers/CommunityEventController.php:218
-#: app/Http/Controllers/PortalEventController.php:29
+#: app/Http/Controllers/CommunityEventController.php:134
+#: app/Http/Controllers/CommunityEventController.php:150
+#: app/Http/Controllers/CommunityEventController.php:228
+#: app/Http/Controllers/PortalEventController.php:34
 #: Modules/FluentCommunity/PortalHandler.php:307
 msgid "This event is not available."
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:156
+#: app/Http/Controllers/CommunityEventController.php:161
 msgid "Please choose going or not going."
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:163
+#: app/Http/Controllers/CommunityEventController.php:168
 msgid "You are not registered for this event."
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:176
+#: app/Http/Controllers/CommunityEventController.php:181
 msgid "Your registration just changed. Please try again."
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:180
+#: app/Http/Controllers/CommunityEventController.php:185
 msgid "This email is already registered for this event."
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:195
+#: app/Http/Controllers/CommunityEventController.php:200
 msgid "Registration cancelled."
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:197
+#: app/Http/Controllers/CommunityEventController.php:202
 msgid "RSVP updated. You're not going."
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:199
+#: app/Http/Controllers/CommunityEventController.php:204
 msgid "RSVP updated. You're going!"
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:201
-#: app/Http/Controllers/CommunityEventController.php:231
-#: app/Http/Controllers/CommunityEventController.php:242
-#: app/Http/Controllers/CommunityEventController.php:261
-#: app/Http/Controllers/PortalEventController.php:38
-#: app/Http/Controllers/PortalEventController.php:73
+#: app/Http/Controllers/CommunityEventController.php:206
+#: app/Http/Controllers/CommunityEventController.php:241
+#: app/Http/Controllers/CommunityEventController.php:252
+#: app/Http/Controllers/CommunityEventController.php:271
+#: app/Http/Controllers/PortalEventController.php:43
+#: app/Http/Controllers/PortalEventController.php:78
 msgid "You are registered."
 msgstr ""
 
-#: app/Http/Controllers/CommunityEventController.php:222
-#: app/Http/Controllers/PortalEventController.php:88
+#: app/Http/Controllers/CommunityEventController.php:232
+#: app/Http/Controllers/PortalEventController.php:93
 msgid "This form has expired. Please reload the page and try again."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:30
+msgid "Too many requests. Please try again in a minute."
 msgstr ""
 
 #: app/Http/Controllers/DashboardController.php:21
@@ -2913,10 +2916,10 @@ msgstr ""
 msgid "Only members of the space can see it."
 msgstr ""
 
-#. translators: %s: member's name; the space's name follows, in bold
+#. translators: 1: member's name, 2: space name (shown in bold)
 #: Modules/FluentCommunity/PortalHandler.php:282
 #, php-format
-msgid "Posted by %s in"
+msgid "Posted by %1$s in %2$s"
 msgstr ""
 
 #. translators: %s: member's name

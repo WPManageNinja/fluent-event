@@ -65,8 +65,9 @@ class EventPageService
      * @param array  $formatted EventService::formatEvent() shape, as a visitor sees it.
      * @param string $url       The event page.
      */
-    // $justRegistered draws the confirmation the page opens right after a registration.
-    public static function sideCard(Event $event, array $formatted, $url, $justRegistered = false)
+    // $answer draws the popup the page opens after a registration: 'registered' confirms it; 'already_registered' and
+    // 'cancelled' warn why it was refused.
+    public static function sideCard(Event $event, array $formatted, $url, $answer = '')
     {
         $siteZone = wp_timezone_string();
         $isOnline = $event->venue_type === 'online';
@@ -75,6 +76,19 @@ class EventPageService
         $phase = time() >= $end ? 'ended' : (time() >= $start ? 'live' : 'upcoming');
         $isSeated = in_array($formatted['my_status'], Event::SEAT_STATUSES, true);
         $meetingLink = preg_match('#^https?://#i', $formatted['online_meeting_url']) ? $formatted['online_meeting_url'] : '';
+        $isFull = $formatted['is_full'] && !$isSeated;
+        $meter = null;
+        $left = (int) $formatted['spots_left'];
+        /* translators: %s: number of spots left */
+        $spotsLabel = $left > 0 && $phase !== 'ended' ? sprintf(_n('%s spot left', '%s spots left', $left, 'fluent-event'), number_format_i18n($left)) : '';
+
+        // With both the count and the spots left shown; an ended one keeps it as a record of how full it got.
+        if ($formatted['guest_count'] !== null && $formatted['spots_left'] !== null) {
+            $meter = [
+                'percent' => min(100, (int) round($formatted['guest_count'] / $formatted['capacity'] * 100)),
+                'status'  => $phase === 'ended' || $isFull ? '' : ($spotsLabel ?: __('Event full', 'fluent-event')),
+            ];
+        }
 
         $data = [
             'event'            => $formatted,
@@ -93,16 +107,27 @@ class EventPageService
             // The start as a Unix timestamp when the host chose a countdown; portal.js ticks it down.
             'countdown_to'     => $phase === 'upcoming' && $formatted['start_display'] === 'countdown' ? $start : null,
             'ends_at'          => $end,
+            // The going count, or the spots left when only those show.
             /* translators: %s: number of guests going */
-            'count_label'      => $formatted['guest_count'] === null ? '' : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
+            'count_label'      => $formatted['guest_count'] === null ? $spotsLabel : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
+            'meter'            => $meter,
+            'notice'           => null,
             'meeting_link'     => $meetingLink,
             'registration'     => null,
             'add_to_calendar'  => null,
-            'just_registered'  => $justRegistered,
+            'answer'           => $answer,
         ];
 
         if ($phase !== 'ended' && in_array($formatted['entry_type'], ['rsvp', 'open'], true)) {
-            $data['registration'] = self::registration($event, $isSeated);
+            if ($isFull) {
+                $data['notice'] = [
+                    'type'  => 'full',
+                    'title' => __('Event full', 'fluent-event'),
+                    'text'  => __('This event is full and no longer taking registrations.', 'fluent-event'),
+                ];
+            } else {
+                $data['registration'] = self::registration($event, $isSeated);
+            }
         }
 
         // Once someone is going, or for a no-entry event anyone can attend.

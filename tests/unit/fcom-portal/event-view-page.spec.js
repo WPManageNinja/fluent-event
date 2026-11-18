@@ -121,6 +121,16 @@ describe('EventViewPage', () => {
             expect(global.find('.fe-event-view__origin').text()).toContain('Posted by Jhon Doe on their profile');
         });
 
+        // Bangla puts the space before the verb; one string lets the translation say so.
+        it('lets a translation put the space name anywhere in the line', async () => {
+            vi.stubGlobal('fluentEventFcomPortal', { ...window.fluentEventFcomPortal, i18n: { 'Posted by %1$s in %2$s': '%1$s %2$s-এ পোস্ট করেছেন' } });
+            const { wrapper } = await page(meetup());
+            const origin = wrapper.find('.fe-event-view__origin');
+
+            expect(origin.text()).toContain('Jhon Doe Design-এ পোস্ট করেছেন');
+            expect(origin.find('.fe-event-view__origin-space').text()).toBe('Design');
+        });
+
         it('shows the unavailable state when no visible event has that slug in that space', async () => {
             fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'This event is not available.' }), { status: 404 }));
             const wrapper = mount(EventViewPage, {
@@ -376,6 +386,105 @@ describe('EventViewPage', () => {
 
             expect(router.back).toHaveBeenCalled();
             expect(router.push).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('capacity', () => {
+        // Both switches on: the count and the spots left.
+        const capped = (going, capacity = 10) => meetup({ guest_count: going, capacity, spots_left: Math.max(0, capacity - going), is_full: going >= capacity });
+
+        it('meters the seats taken and counts the ones left', async () => {
+            const { wrapper } = await page(capped(7));
+
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('7 out of 10 going3 spots left');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 70%');
+            expect(wrapper.find('.fe-event-view__count').exists()).toBe(false);
+        });
+
+        it('says one spot in the singular', async () => {
+            const { wrapper } = await page(capped(9));
+
+            expect(wrapper.find('.fe-capacity__status').text()).toBe('1 spot left');
+        });
+
+        it('tells a member without a seat the event is full in place of the RSVP, under a full meter', async () => {
+            const { wrapper } = await page(capped(10));
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe('Event full');
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('10 out of 10 going');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.find('.fe-event-view__count').exists()).toBe(false);
+            expect(wrapper.findComponent(EventActions).exists()).toBe(false);
+        });
+
+        it('says the event is full even when the host hides the count, with no meter', async () => {
+            const { wrapper } = await page(meetup({ guest_count: null, capacity: 10, is_full: true }));
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(true);
+            expect(wrapper.find('.fe-capacity').exists()).toBe(false);
+        });
+
+        it('keeps the full meter and the RSVP for a guest who holds a seat', async () => {
+            const { wrapper } = await page({ ...capped(10), my_status: 'going' });
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+            expect(wrapper.find('.fe-capacity__status').text()).toBe('Event full');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        // The reply to an answer carries the seats as they stand, so the meter, notice and RSVP move together.
+        it('opens the event again once a guest gives up a seat on a full event', async () => {
+            const { wrapper } = await page({ ...capped(6, 6), my_status: 'going' });
+
+            wrapper.findComponent(EventActions).vm.$emit('done', { event: { ...wrapper.vm.event, my_status: 'not_going', guest_count: 5, spots_left: 1, is_full: false } });
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('5 out of 6 going1 spot left');
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        const ended = (event) => ({ ...event, start_at: '2026-10-10 12:00:00', end_at: '2026-10-10 14:00:00', is_past: true });
+
+        it('keeps the meter on an ended event, without spots left or a full notice while seats were left', async () => {
+            const { wrapper } = await page(ended(capped(7)));
+
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('7 out of 10 going');
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 70%');
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+        });
+
+        it('keeps the full notice on an ended event that filled up', async () => {
+            const { wrapper } = await page(ended(capped(10)));
+
+            expect(wrapper.find('.fe-capacity__fill').attributes('style')).toContain('width: 100%');
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(true);
+        });
+
+        it('shows no meter when the host hides the count or set no capacity', async () => {
+            expect((await page(meetup({ guest_count: null, capacity: 10, spots_left: null }))).wrapper.find('.fe-capacity').exists()).toBe(false);
+
+            const uncapped = (await page(meetup({ guest_count: 4, capacity: null, spots_left: null }))).wrapper;
+            expect(uncapped.find('.fe-capacity').exists()).toBe(false);
+            expect(uncapped.find('.fe-event-view__count').text()).toBe('4 going');
+        });
+
+        it('shows only the going count when the spots left are hidden', async () => {
+            const { wrapper } = await page(meetup({ guest_count: 7, capacity: 10, spots_left: null }));
+
+            expect(wrapper.find('.fe-capacity').exists()).toBe(false);
+            expect(wrapper.find('.fe-event-view__count').text()).toBe('7 going');
+        });
+
+        it('shows only the spots left when the count is hidden, and nothing once the event ends', async () => {
+            const spotsOnly = meetup({ guest_count: null, capacity: 10, spots_left: 3 });
+            const { wrapper } = await page(spotsOnly);
+
+            expect(wrapper.find('.fe-capacity').exists()).toBe(false);
+            expect(wrapper.find('.fe-event-view__count').text()).toBe('3 spots left');
+
+            expect((await page(ended(spotsOnly))).wrapper.find('.fe-event-view__count').exists()).toBe(false);
         });
     });
 });

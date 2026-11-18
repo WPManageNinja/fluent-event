@@ -16,10 +16,13 @@
  * @var int|null   $countdown_to     The start, as a Unix timestamp, when the event page counts down to it.
  * @var int        $ends_at          The end, as a Unix timestamp.
  * @var string     $count_label
+ * @var array|null $meter            percent, status; the count against the capacity, when both show.
+ * @var array|null $notice           type (full), title, text.
  * @var string     $meeting_link     http(s) only; empty unless this viewer may see it.
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
  * @var array|null $add_to_calendar  google, ics, filename.
- * @var bool       $just_registered  Drawn only in the registration's answer, which portal.js opens.
+ * @var string     $answer           'registered', 'already_registered' or 'cancelled' in the registration's answer, which
+ *                                   portal.js opens; '' on the page.
  */
 defined('ABSPATH') || exit;
 
@@ -81,7 +84,39 @@ $fluentEventDone = $registration && $registration['is_going'];
         <span class="fe-event-page__status fe-event-page__status--<?php echo esc_attr( $phase ); ?>"><?php echo esc_html( $status_label ); ?></span>
     <?php endif; ?>
 
-    <?php if ( $registration || $count_label ) : ?>
+    <?php if ( $meter ) : ?>
+        <div class="fe-capacity">
+            <div class="fe-capacity__head">
+                <span><?php echo esc_html( $count_label ); ?></span>
+                <?php if ( $meter['status'] ) : ?>
+                    <span class="fe-capacity__status"><?php echo esc_html( $meter['status'] ); ?></span>
+                <?php endif; ?>
+            </div>
+            <div
+                class="fe-capacity__track"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="<?php echo esc_attr( $event['capacity'] ); ?>"
+                aria-valuenow="<?php echo esc_attr( $event['guest_count'] ); ?>"
+                aria-valuetext="<?php echo esc_attr( $count_label ); ?>"
+                aria-label="<?php esc_attr_e( 'Capacity', 'fluent-event' ); ?>"
+            >
+                <span class="fe-capacity__fill" style="width: <?php echo esc_attr( $meter['percent'] ); ?>%"></span>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ( $notice ) : ?>
+        <div class="fe-event-page__notice fe-event-page__notice--<?php echo esc_attr( $notice['type'] ); ?>">
+            <span class="fe-event-page__notice-icon"><?php echo Icon::TICKET; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+            <span class="fe-event-page__notice-text">
+                <span class="fe-event-page__notice-title"><?php echo esc_html( $notice['title'] ); ?></span>
+                <span class="fe-event-page__notice-desc"><?php echo esc_html( $notice['text'] ); ?></span>
+            </span>
+        </div>
+    <?php endif; ?>
+
+    <?php if ( $registration || ( $count_label && ! $meter ) ) : ?>
         <div class="fe-event-page__rsvp">
             <?php if ( $fluentEventDone ) : ?>
                 <span class="fe-event-page__badge" tabindex="-1" data-fe-focus>
@@ -107,7 +142,7 @@ $fluentEventDone = $registration && $registration['is_going'];
                 </div>
             <?php endif; ?>
 
-            <?php if ( $count_label ) : ?>
+            <?php if ( $count_label && ! $meter ) : ?>
                 <span class="fe-event-page__count"><?php echo esc_html( $count_label ); ?></span>
             <?php endif; ?>
         </div>
@@ -169,7 +204,7 @@ $fluentEventDone = $registration && $registration['is_going'];
                 <?php echo Icon::VIDEO; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                 <span><?php esc_html_e( 'Join online', 'fluent-event' ); ?></span>
             </a>
-        <?php elseif ( $event['has_meeting_url'] ) : ?>
+        <?php elseif ( $event['has_meeting_url'] && $registration ) : ?>
             <p class="fe-event-page__note"><?php esc_html_e( 'Please register for the event to see the meeting link.', 'fluent-event' ); ?></p>
         <?php endif; ?>
     <?php endif; ?>
@@ -191,14 +226,14 @@ $fluentEventDone = $registration && $registration['is_going'];
         </div>
     <?php endif; ?>
 
-    <?php if ( $just_registered ) : ?>
+    <?php if ( 'registered' === $answer ) : ?>
         <div
             id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
             class="fe-register-success"
             popover
             role="dialog"
             aria-labelledby="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>"
-            data-fe-registered
+            data-fe-answer
         >
             <button type="button" class="fe-register__close fe-register-success__close" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" aria-label="<?php esc_attr_e( 'Close', 'fluent-event' ); ?>">
                 <?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
@@ -259,6 +294,34 @@ $fluentEventDone = $registration && $registration['is_going'];
 
             <button type="button" class="fe-event-page__button" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" autofocus>
                 <?php esc_html_e( 'Done', 'fluent-event' ); ?>
+            </button>
+        </div>
+    <?php elseif ( in_array( $answer, array( 'already_registered', 'cancelled' ), true ) ) : ?>
+        <div
+            id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
+            class="fe-register-success fe-register-success--warning"
+            popover
+            role="alertdialog"
+            aria-labelledby="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>"
+            aria-describedby="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>"
+            data-fe-answer
+        >
+            <button type="button" class="fe-register__close fe-register-success__close" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" aria-label="<?php esc_attr_e( 'Close', 'fluent-event' ); ?>">
+                <?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+            </button>
+
+            <div class="fe-register-success__head">
+                <span class="fe-register-success__check"><?php echo Icon::WARNING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                <h2 class="fe-register-success__title" id="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>">
+                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Your registration was cancelled', 'fluent-event' ) : __( 'This email is already registered', 'fluent-event' ) ); ?>
+                </h2>
+                <p class="fe-register-success__text" id="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>">
+                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Contact the host if you want to join again.', 'fluent-event' ) : __( 'Check your inbox for the confirmation email, or register with a different email.', 'fluent-event' ) ); ?>
+                </p>
+            </div>
+
+            <button type="button" class="fe-event-page__button" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" autofocus>
+                <?php esc_html_e( 'OK', 'fluent-event' ); ?>
             </button>
         </div>
     <?php endif; ?>

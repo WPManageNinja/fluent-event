@@ -118,6 +118,8 @@
                                     v-model="time.value"
                                     class="fe-form__number"
                                     :controls="false"
+                                    :min="1"
+                                    :precision="0"
                                     :aria-label="$t('Reminder time')"
                                 />
 

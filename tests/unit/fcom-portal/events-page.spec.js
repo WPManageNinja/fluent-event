@@ -211,6 +211,63 @@ describe('EventsPage', () => {
         });
     });
 
+    describe('header', () => {
+        const tabLinks = wrapper => wrapper.findAll('.fhr_content_layout_header .fcom_space_menu_ul a');
+
+        it("puts the title, tabs and Create Event in fcom's page header bar on All Events, as on Spaces and Courses", async () => {
+            const { wrapper } = await eventsPage();
+            const bar = wrapper.find('.fhr_content_layout_header');
+
+            expect(bar.find('.fhr_page_title').text()).toBe('Events');
+            expect(tabLinks(wrapper).map(link => link.text())).toEqual(['All', 'Upcoming', 'Past']);
+            expect(bar.find('.router-link-exact-active').text()).toBe('Upcoming');
+            expect(bar.find('.fcom_primary_button').exists()).toBe(true);
+            expect(wrapper.find('.fe-events-page__tabs').exists()).toBe(false);
+        });
+
+        it('loads and remembers the tab picked in the bar, and ignores a click on the current one', async () => {
+            const { wrapper } = await eventsPage();
+            const start = fetch.mock.calls.length;
+
+            await tabLinks(wrapper)[2].trigger('click');
+            await flushPromises();
+            await tabLinks(wrapper)[2].trigger('click');
+            await flushPromises();
+
+            expect(fetch.mock.calls.length).toBe(start + 1);
+            expect(query()).toMatchObject({ scope: 'past' });
+            expect(Storage.get('portal_events_tab')).toBe('past');
+            expect(wrapper.find('[aria-current="page"]').text()).toBe('Past');
+        });
+
+        it('gives a site admin the FluentEvent admin links in a "⋯" menu', async () => {
+            window.fluentEventFcomPortal.admin_url = 'https://example.test/wp-admin/admin.php?page=fluent-event';
+            const { wrapper, vm } = await eventsPage();
+
+            expect(wrapper.findComponent({ name: 'ElPopover' }).exists()).toBe(true);
+            expect(vm.adminLinks.map(link => [link.label, link.href])).toEqual([
+                ['Dashboard', 'https://example.test/wp-admin/admin.php?page=fluent-event#/'],
+                ['Calendars', 'https://example.test/wp-admin/admin.php?page=fluent-event#/calendars'],
+                ['Settings', 'https://example.test/wp-admin/admin.php?page=fluent-event#/settings'],
+            ]);
+        });
+
+        // The server sends admin_url to site admins only.
+        it('shows no "⋯" menu to anyone else', async () => {
+            const { wrapper } = await eventsPage();
+
+            expect(wrapper.findComponent({ name: 'ElPopover' }).exists()).toBe(false);
+        });
+
+        it('leaves the bar to the space header inside a space', async () => {
+            const { wrapper } = await eventsPage({ spaceSlug: 'design' });
+
+            expect(wrapper.find('.fhr_content_layout_header').exists()).toBe(false);
+            expect(wrapper.find('.fe-events-page__title').text()).toBe('Events');
+            expect(wrapper.find('.fe-events-page__tabs').exists()).toBe(true);
+        });
+    });
+
     describe('events in the list', () => {
         it('keeps the space when an RSVP hands back the event', async () => {
             fetch.mockResolvedValueOnce(json(listResponse([{ id: 5, space_slug: 'design', my_status: null }])));

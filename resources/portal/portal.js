@@ -95,9 +95,10 @@ export async function submitForm(form) {
     try {
         const next = swap(card, (await send(card, form.action, Object.fromEntries(new FormData(form)))).html);
 
-        // The answer to a registration carries its confirmation, which opens over the new card.
-        const done = next.querySelector('[data-fe-registered]');
-        done && done.showPopover();
+        // The answer to a registration carries its confirmation, or the already-registered warning, which opens over
+        // the new card.
+        const answer = next.querySelector('[data-fe-answer]');
+        answer && answer.showPopover();
     } catch (error) {
         message.textContent = error.message;
         button.disabled = false;
@@ -245,6 +246,27 @@ document.addEventListener('click', (event) => {
 
 window.addEventListener('popstate', () => {
     document.querySelectorAll('[data-fe-events]').forEach((list) => showEvents(location.href, false, undefined, list));
+});
+
+// On a phone the month grid shows bars only; a tapped day is marked and its events (or "none") show under the grid.
+document.addEventListener('click', (event) => {
+    const day = event.target.closest('[data-fe-day]');
+
+    if (!day) {
+        return;
+    }
+
+    const month = day.closest('.fe-month');
+
+    month.querySelectorAll('[data-fe-day]').forEach((other) => other.setAttribute('aria-pressed', other === day ? 'true' : 'false'));
+    month.querySelectorAll('[data-fe-day-events]').forEach((panel) => {
+        panel.hidden = panel.dataset.feDayEvents !== day.dataset.feDay;
+    });
+
+    // The list opens under the grid, often below the screen: bring it in, moving no further than that.
+    const shown = month.querySelector(`[data-fe-day-events="${day.dataset.feDay}"]`);
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    shown && shown.scrollIntoView({ block: 'nearest', behavior: still ? 'auto' : 'smooth' });
 });
 
 let fitting = 0;

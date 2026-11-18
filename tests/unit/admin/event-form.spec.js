@@ -222,6 +222,15 @@ describe('CreateOrUpdateEvent', () => {
             expect(request('events').payload).toMatchObject({ title: '', calendar_id: null, end_at: '2026-10-20 17:00:00' });
         });
 
+        it('sends an emptied capacity as 0, the unlimited value', () => {
+            const { vm, request } = form();
+            filled(vm, { capacity: null });
+
+            vm.saveEvent();
+
+            expect(request('events').payload.capacity).toBe(0);
+        });
+
         describe('when the server rejects it', () => {
             // The real $requestServer and form items, so the toast comes from the path the page takes.
             const rejected = async (status, responseJSON) => {

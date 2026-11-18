@@ -2,7 +2,6 @@
 
 namespace FluentEvent\Tests\Unit\Http;
 
-use FluentEvent\App\Http\Middleware\Throttle;
 use FluentEvent\App\Http\Policies\Policy;
 use FluentEvent\Tests\Helpers\RouteRecorder;
 use FluentEvent\Tests\TestCase;
@@ -110,14 +109,15 @@ class RouteSmokeTest extends TestCase
         }
     }
 
-    // The framework's own limiter lets every logged-in request through, so registration needs ours.
-    public function test_every_registration_endpoint_is_throttled_for_everyone()
+    // Registration is rate-limited in the controller (RateLimiter::isSpamming). Before-middleware runs in the
+    // permission callback, which WordPress runs again for the Allow header, so a count there is taken twice.
+    public function test_no_registration_endpoint_counts_in_the_permission_check()
     {
         foreach (['community/events/{id}/register', 'community/events/{id}/register-guest', 'portal/events/{id}/register-guest'] as $uri) {
             $route = $this->find('POST', $uri);
 
             $this->assertNotNull($route, "POST {$uri} is gone");
-            $this->assertSame([Throttle::class], $route['meta']['before'] ?? null, "POST {$uri} is not throttled");
+            $this->assertEmpty($route['meta']['before'] ?? [], "POST {$uri} runs before-middleware");
         }
     }
 

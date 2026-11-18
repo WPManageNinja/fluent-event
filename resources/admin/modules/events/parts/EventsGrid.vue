@@ -103,11 +103,57 @@
                             </template>
                         </el-popover>
                     </div>
+
+                    <!-- Phones: a bar per event; a tap lists the day's events below. -->
+                    <button
+                        type="button"
+                        class="fe-events-grid__day-button"
+                        :aria-pressed="pickedDay === data.day ? 'true' : 'false'"
+                        :aria-label="$formatDate(data.day, 'dddd, MMM D')"
+                        @click.stop="pickDay(data.day)"
+                    >
+                        <span
+                            v-for="entry in visibleEntries(data.day)"
+                            :key="`bar-${entry.event.id}`"
+                            class="fe-events-grid__bar"
+                            :style="{ '--fe-event-color': entryColor(entry) }"
+                        ></span>
+                    </button>
                 </div>
             </template>
         </el-calendar>
 
-        <div v-else class="fe-events-grid__week">
+        <div
+            v-if="isMonthView && pickedDay"
+            ref="agenda"
+            class="fe-events-grid__agenda"
+            role="region"
+            :aria-label="$formatDate(pickedDay, 'dddd, MMM D')"
+        >
+            <p class="fe-events-grid__agenda-date">
+                <span class="fe-events-grid__agenda-number">{{ dayNumber(pickedDay) }}</span>
+                <span class="fe-events-grid__agenda-weekday">{{ $formatDate(pickedDay, 'ddd') }}</span>
+            </p>
+
+            <button
+                v-for="entry in entriesFor(pickedDay)"
+                :key="`agenda-${entry.event.id}`"
+                type="button"
+                class="fe-events-grid__agenda-event"
+                :style="{ '--fe-event-color': entryColor(entry) }"
+                :aria-label="$t('View %s', entry.event.title)"
+                @click="$emit('open', entry.event)"
+            >
+                <span class="fe-events-grid__agenda-event-time">{{ entryTime(entry) }}</span>
+                <span class="fe-events-grid__agenda-event-title">{{ entry.event.title }}</span>
+            </button>
+
+            <p v-if="!entriesFor(pickedDay).length" class="fe-events-grid__agenda-empty">
+                {{ $t('No events on this day.') }}
+            </p>
+        </div>
+
+        <div v-if="!isMonthView" class="fe-events-grid__week">
             <div class="fe-events-grid__week-head" :style="{ gridTemplateColumns: weekColumns }">
                 <span class="fe-events-grid__week-gutter" aria-hidden="true"></span>
 
@@ -200,6 +246,23 @@
             },
         },
         emits: ['open', 'change-month', 'update:viewMode'],
+        data() {
+            return {
+                // The day tapped on a phone; its events show below the grid.
+                pickedDay: null,
+            };
+        },
+        watch: {
+            // Another month clears the picked day, even one picked from that month's days.
+            month(month, previous) {
+                if (month.slice(0, 7) !== String(previous).slice(0, 7)) {
+                    this.pickedDay = null;
+                }
+            },
+            viewMode() {
+                this.pickedDay = null;
+            },
+        },
         computed: {
             mode: {
                 get() {
@@ -348,6 +411,15 @@
                     height: `${((block.until - block.from) / 60) * HOUR_PX - 2}px`,
                     '--fe-event-color': this.entryColor(block.entry),
                 };
+            },
+            // Scrolls the list into view, no further than needed.
+            pickDay(day) {
+                this.pickedDay = day;
+
+                this.$nextTick(() => {
+                    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    this.$refs.agenda && this.$refs.agenda.scrollIntoView({ block: 'nearest', behavior: still ? 'auto' : 'smooth' });
+                });
             },
             moveStep(step) {
                 this.moveTo(dayjs(this.month).add(step, this.viewMode));

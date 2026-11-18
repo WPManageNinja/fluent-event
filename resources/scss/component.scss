@@ -50,11 +50,15 @@
     }
 
     &__number.el-input-number {
+        flex: none;
         width: 96px;
     }
 
+    // Grows to 200px and wraps under the number when the card is narrow.
     &__unit.el-select {
-        width: 200px;
+        flex: 1 1 112px;
+        max-width: 200px;
+        min-width: 0;
     }
 
     &__times {
@@ -67,6 +71,8 @@
     &__time {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
         gap: var(--fe-space-2, 8px);
     }
 
@@ -104,6 +110,8 @@
 
     &__panel {
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
         gap: var(--fe-space-3, 12px);
         padding: var(--fe-space-4, 16px);
         border: 1px solid var(--fe-primary-border, #eaecf0);
@@ -798,6 +806,12 @@
         line-height: 1.4;
         color: var(--fe-secondary-text, #525866);
 
+        // Four tabs fit a 360px phone.
+        @media screen and (max-width: 480px) {
+            padding-right: var(--fe-space-2, 8px);
+            padding-left: var(--fe-space-2, 8px);
+        }
+
         &::after {
             content: '';
             position: absolute;
@@ -829,6 +843,69 @@
                 background-color: var(--fe-primary-text, #19283a);
             }
         }
+    }
+}
+
+// The event's settings, read-only, above the danger zone: each setting's name, then what it is set to.
+.fe-event-settings {
+    margin-bottom: var(--fe-space-5, 20px);
+    padding: 0;
+    overflow: hidden;
+
+    // Same bar as the danger zone's title, so the two cards read as a pair.
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--fe-space-3, 12px);
+        padding: var(--fe-space-3, 12px) var(--fe-space-5, 20px);
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        background-color: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__title {
+        margin: 0;
+        font-size: var(--fe-text-base, 16px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__list {
+        margin: 0;
+        padding: 0 var(--fe-space-5, 20px);
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        align-items: center;
+        gap: var(--fe-space-4, 16px);
+        min-height: 52px;
+        padding: var(--fe-space-3, 12px) 0;
+        font-size: var(--fe-text-sm, 14px);
+
+        & + .fe-event-settings__row {
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
+        }
+
+        @media screen and (max-width: 575px) {
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--fe-space-1, 4px);
+        }
+    }
+
+    &__label {
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__value {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--fe-space-2, 8px) var(--fe-space-5, 20px);
+        margin: 0;
+        font-weight: 500;
+        color: var(--fe-primary-text, #19283a);
     }
 }
 
@@ -873,8 +950,9 @@
         color: var(--fe-primary-text, #19283a);
     }
 
-    &__input {
-        display: block;
+    // .el-input sets inline-flex and loads after us, so this needs its class to win.
+    &__input.el-input {
+        display: flex;
         max-width: 480px;
         margin-bottom: var(--fe-space-4, 16px);
 
@@ -1165,6 +1243,11 @@
             flex: 1 1 0;
             min-width: 0;
         }
+    }
+
+    &__capacity.el-input-number {
+        width: 220px;
+        max-width: 100%;
     }
 }
 
@@ -1739,15 +1822,15 @@
             margin: 0;
         }
 
+        // Never wider than the card, so a long date format fits on a phone.
         .el-date-editor {
-            width: 280px;
-            max-width: 280px;
-            flex-shrink: 0;
+            --el-date-editor-width: 280px;
+            flex: none;
+            max-width: 100%;
             margin-left: auto;
 
             &.fe-dashboard__range--wide {
-                width: 370px;
-                max-width: 370px;
+                --el-date-editor-width: 370px;
 
                 .el-range-input {
                     width: 43%;
@@ -2030,6 +2113,30 @@
         border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius-lg, 12px);
         background-color: var(--fe-primary-bg, #ffffff);
+
+        // Phones: the week scrolls sideways with the hours pinned left.
+        // The body drops its own vertical scroll, or the pin can't follow.
+        @media screen and (max-width: 767px) {
+            overflow-x: auto;
+
+            .fe-events-grid__week-head,
+            .fe-events-grid__week-body {
+                min-width: 560px;
+            }
+
+            .fe-events-grid__week-body {
+                max-height: none;
+                overflow: visible;
+            }
+
+            .fe-events-grid__week-gutter,
+            .fe-events-grid__week-times {
+                position: sticky;
+                left: 0;
+                z-index: 2;
+                background-color: var(--fe-primary-bg, #ffffff);
+            }
+        }
     }
 
     &__week-head {
@@ -2242,6 +2349,150 @@
         font-size: var(--fe-text-sm, 14px);
         font-weight: 600;
         color: var(--fe-primary-text, #19283a);
+    }
+
+    // Phones: the whole day is the tap target, with up to three bars.
+    &__day-button {
+        display: none;
+        position: absolute;
+        inset: 0;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 2px;
+        padding: 0 5px 6px;
+        border: 0;
+        background: none;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-wp-link, #2271b1);
+            outline-offset: -2px;
+        }
+
+        &[aria-pressed="true"] {
+            box-shadow: inset 0 0 0 2px var(--fe-primary-text, #19283a);
+        }
+    }
+
+    &__bar {
+        display: block;
+        height: 3px;
+        border-radius: 2px;
+        background-color: var(--fe-event-color, var(--fe-secondary-text, #525866));
+    }
+
+    // Phones only: the tapped day's events.
+    &__agenda {
+        display: none;
+        gap: 6px;
+        margin-top: var(--fe-space-5, 20px);
+        // Clears the admin bar and our header when scrolled into view.
+        scroll-margin: 110px 0 16px;
+    }
+
+    &__agenda-date {
+        display: flex;
+        align-items: baseline;
+        gap: var(--fe-space-2, 8px);
+        margin: 0 0 6px;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__agenda-number {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__agenda-weekday {
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    // Like an entry, but the title wraps.
+    &__agenda-event {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 12px;
+        border: 0;
+        border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        background-color: color-mix(
+            in srgb,
+            var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 12%,
+            transparent
+        );
+        cursor: pointer;
+        text-align: left;
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.4;
+        color: var(--fe-primary-text, #19283a);
+
+        &:hover {
+            background-color: color-mix(
+                in srgb,
+                var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 22%,
+                transparent
+            );
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-wp-link, #2271b1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__agenda-event-time {
+        flex-shrink: 0;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__agenda-event-title {
+        min-width: 0;
+        font-weight: 500;
+    }
+
+    &__agenda-empty {
+        margin: 0;
+        padding: var(--fe-space-3, 12px) 0;
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    // Phones: bars instead of entries, and the tapped day's list below.
+    @media screen and (max-width: 767px) {
+        // Outranks vendor.scss, which may load later.
+        .el-calendar-table td .el-calendar-day {
+            height: 52px;
+            min-height: 0;
+        }
+
+        &__cell {
+            position: relative;
+            align-items: center;
+            height: 100%;
+            padding: 6px 4px;
+        }
+
+        &__entries {
+            display: none;
+        }
+
+        &__day-button {
+            display: flex;
+        }
+
+        &__agenda {
+            display: grid;
+        }
     }
 
     &__skeleton-header {

@@ -6,6 +6,7 @@ use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\EventService;
+use FluentEvent\App\Services\RateLimiter;
 use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\Framework\Http\Request\Request;
 use FluentEvent\Framework\Support\Arr;
@@ -19,6 +20,10 @@ class PortalEventController extends Controller
     // Anyone, logged in or not, as a visitor: by name and email, on an RSVP or open event. Always going, with no undo.
     public function registerGuest(Request $request, $id)
     {
+        if (RateLimiter::isSpamming('register_guest', 5)) {
+            return $this->tooManyRequests();
+        }
+
         if (!$this->cameFromThePage($request, $id)) {
             return $this->expired();
         }
@@ -43,36 +48,59 @@ class PortalEventController extends Controller
         // Validate first, so bad input fails alike for every email.
         $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
 
-        // A repeated email gets the new-registration answer, saving nothing.
-        if (RegistrationService::hasGuestEmail($event, $data['email'])) {
-            return $this->registered($event, 'going');
+        $guest = RegistrationService::guestByEmail($event, $data['email']);
+
+        // A repeated email is warned with nothing saved, unless its row said not going and has no account: that comes
+        // back on.
+        if ($guest && ($refusal = RegistrationService::visitorRefusal($guest))) {
+            return $this->registered($event, null, $refusal);
         }
 
-        $this->validate(
-            $data,
-            Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
-            GuestRequest::messages()
-        );
+        if (!$guest) {
+            $this->validate(
+                $data,
+                Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
+                GuestRequest::messages()
+            );
+        }
 
-        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages']);
+        $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages'], $guest);
 
-        do_action('fluent_event/guest/created', $guest);
+        if (is_string($registered)) {
+            return $this->sendError(['message' => $registered], 422);
+        }
 
-        RegistrationService::queueEmail($guest, null);
+        if (!$registered) {
+            return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
+        }
+
+        [$guest, $previousStatus] = $registered;
+
+        if ($previousStatus === null) {
+            do_action('fluent_event/guest/created', $guest);
+        } elseif ($previousStatus !== $guest->status) {
+            do_action('fluent_event/guest/updated', $guest, $previousStatus);
+        }
+
+        RegistrationService::queueEmail($guest, $previousStatus);
 
         return $this->registered($event, $guest->status);
     }
 
-    private function registered(Event $event, $status)
+    /**
+     * @param string|null $status  The guest's status, or null when the registration was refused.
+     * @param string      $refusal Why it was refused: 'already_registered' or 'cancelled'.
+     */
+    private function registered(Event $event, $status, $refusal = '')
     {
         $seats = EventService::seatCounts([$event->id]);
-        // A visitor has no account to read their row back by, so the card is drawn as going.
+        // A visitor has no account to read their row back by: a registration's card is drawn as going, a refusal's as before.
         $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $status, false, false);
 
         return [
-            'message' => __('You are registered.', 'fluent-event'),
+            'message' => $refusal ? RegistrationService::refusalMessage($refusal) : __('You are registered.', 'fluent-event'),
             'status'  => $status,
-            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), true),
+            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), $refusal ?: 'registered'),
         ];
     }
 

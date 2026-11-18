@@ -41,7 +41,7 @@
 
                         <p class="fe-event-view__origin">
                             <img v-if="feed.xprofile && feed.xprofile.avatar" class="fe-event-view__origin-avatar" :src="feed.xprofile.avatar" alt=""/>
-                            <span v-if="feed.space">{{ $t('Posted by %s in', author) }} <strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong></span>
+                            <span v-if="feed.space">{{ postedIn[0] }}<strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong>{{ postedIn[1] }}</span>
                             <span v-else>{{ $t('Posted by %s on their profile', author) }}</span>
                             <span aria-hidden="true">·</span>
                             <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
@@ -85,9 +85,37 @@
                     </div>
                     <span v-else class="fe-event-view__status" :class="`fe-event-view__status--${phase}`">{{ statusLabel }}</span>
 
-                    <div v-if="hasActions || countLabel" class="fe-event-view__rsvp">
+                    <div v-if="showMeter" class="fe-capacity">
+                        <div class="fe-capacity__head">
+                            <span>{{ countLabel }}</span>
+                            <span v-if="!isFullForMe && phase !== 'ended'" class="fe-capacity__status">{{ capacityStatus }}</span>
+                        </div>
+                        <div
+                            class="fe-capacity__track"
+                            role="progressbar"
+                            aria-valuemin="0"
+                            :aria-valuemax="event.capacity"
+                            :aria-valuenow="event.guest_count"
+                            :aria-valuetext="countLabel"
+                            :aria-label="$t('Capacity')"
+                        >
+                            <span class="fe-capacity__fill" :style="{ width: `${capacityPercent}%` }"></span>
+                        </div>
+                    </div>
+
+                    <div v-if="isFullForMe" class="fe-event-view__notice">
+                        <span class="fe-event-view__notice-icon" aria-hidden="true">
+                            <el-icon><Ticket/></el-icon>
+                        </span>
+                        <div class="fe-event-view__notice-text">
+                            <span class="fe-event-view__notice-title">{{ $t('Event full') }}</span>
+                            <span class="fe-event-view__notice-desc">{{ $t('This event is full and no longer taking registrations.') }}</span>
+                        </div>
+                    </div>
+
+                    <div v-if="hasActions || (countLabel && !showMeter)" class="fe-event-view__rsvp">
                         <event-actions v-if="hasActions" :event="event" @done="applyResponse" @error="error = $event"></event-actions>
-                        <span v-if="countLabel" class="fe-event-view__count">{{ countLabel }}</span>
+                        <span v-if="countLabel && !showMeter" class="fe-event-view__count">{{ countLabel }}</span>
                     </div>
 
                     <p v-if="error" class="fe-event-view__error" role="alert">{{ error }}</p>
@@ -128,8 +156,8 @@
 </template>
 
 <script>
-import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, setPageTitle, timeFormat } from '../utils';
+import { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, hasSpotsLeft, isSeated, portalVars, saveIcs, setPageTitle, spotsLeftLabel, timeFormat } from '../utils';
 import { lastDay } from '@/utils/date';
 import { padPart, startCountdown } from '@/utils/countdown';
 import { APPLE, GOOGLE } from '../icons';
@@ -143,7 +171,7 @@ const utc = (value) => window.dayjs.utc(value);
 // read through fcom's post endpoint so it is visible exactly when its post is.
 export default {
     name: 'EventViewPage',
-    components: { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera, EventActions, EventMenu },
+    components: { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera, EventActions, EventMenu },
     props: {
         // Empty for a community-wide event.
         spaceSlug: { type: String, default: '' },
@@ -170,6 +198,12 @@ export default {
         },
         author() {
             return (this.feed.xprofile || {}).display_name || '';
+        },
+        // One string, so a language can put the space anywhere; split around it to keep the name bold without v-html.
+        postedIn() {
+            const [before, after = ''] = this.$t('Posted by %1$s in %2$s', this.author, '\u0000').split('\u0000');
+
+            return [before, after];
         },
         commentsOpen() {
             return (this.feed.meta || {}).comments_disabled !== 'yes';
@@ -234,9 +268,23 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        // The status above already says Ended, so an ended event gets no RSVP slot of its own here.
+        // A guest already going keeps their RSVP on a full event, to give up the seat.
+        isFullForMe() {
+            return !!this.event.is_full && !isSeated(this.event);
+        },
+        // With both the count and the spots left shown; an ended one keeps it as a record of how full it got.
+        showMeter() {
+            return hasSpotsLeft(this.event) && this.event.guest_count !== null && this.event.guest_count !== undefined;
+        },
+        capacityPercent() {
+            return Math.min(100, Math.round((this.event.guest_count / this.event.capacity) * 100));
+        },
+        capacityStatus() {
+            return this.event.is_full ? this.$t('Event full') : spotsLeftLabel(this.event);
+        },
+        // The status above already says Ended, so an ended event gets no RSVP slot; a full one shows its notice instead.
         hasActions() {
-            return this.phase !== 'ended' && hasEventActions(this.event);
+            return this.phase !== 'ended' && hasEventActions(this.event) && !this.isFullForMe;
         },
         // Once someone is going, or for a no-entry event anyone can attend.
         canAddToCalendar() {

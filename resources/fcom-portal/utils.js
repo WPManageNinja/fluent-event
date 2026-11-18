@@ -13,22 +13,17 @@ export function t(text, ...args) {
     });
 }
 
-// Our Element Plus speaks English; its calendar and date picker take day and month names from fcom's dayjs, in the site's language.
-export function localizedDateNames(locale, dayjs) {
-    const datepicker = { ...locale.el.datepicker, weeks: {}, weeksFull: {}, months: {} };
+// Element Plus's built-in strings (date picker, calendar, pagination, select…) in the site's language: fcom
+// translates them for its own app as el_i18n, and we lay the same set over our English locale. A string
+// fcom leaves out keeps its English; the shared locale object is not changed.
+export function elementLocale(locale, translations) {
+    const el = { ...locale.el };
 
-    ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].forEach((key, day) => {
-        datepicker.weeks[key] = dayjs().day(day).format('ddd');
-        datepicker.weeksFull[key] = dayjs().day(day).format('dddd');
+    Object.keys(translations || {}).forEach((group) => {
+        el[group] = { ...el[group], ...translations[group] };
     });
 
-    ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].forEach((key, month) => {
-        const date = dayjs().date(1).month(month);
-        datepicker.months[key] = date.format('MMM');
-        datepicker[`month${month + 1}`] = date.format('MMMM');
-    });
-
-    return { ...locale, el: { ...locale.el, datepicker } };
+    return { ...locale, el };
 }
 
 // One REST client for the portal: FluentEvent routes and FluentCommunity's own feed routes.
@@ -187,12 +182,30 @@ export function hasEventActions(event) {
     return event.is_past || ['rsvp', 'open'].includes(event.entry_type);
 }
 
+// The going count, out of the capacity when the spots left show too; with only the spots left on, those until the end.
 export function guestCountLabel(event) {
     if (event.guest_count === null || event.guest_count === undefined) {
-        return '';
+        return event.is_past ? '' : spotsLeftLabel(event);
+    }
+
+    if (hasSpotsLeft(event)) {
+        return t('%1$s out of %2$s going', event.guest_count, event.capacity);
     }
 
     return t('%s going', event.guest_count);
+}
+
+// Whether the host shows the spots left on this capped event.
+export function hasSpotsLeft(event) {
+    return event.spots_left !== null && event.spots_left !== undefined;
+}
+
+export function spotsLeftLabel(event) {
+    if (!event.spots_left) {
+        return '';
+    }
+
+    return event.spots_left === 1 ? t('1 spot left') : t('%d spots left', event.spots_left);
 }
 
 // fcom titles its own pages "<title> - <site>"; ours would keep the previous page's tab title.

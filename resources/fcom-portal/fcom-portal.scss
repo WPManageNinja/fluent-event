@@ -288,6 +288,26 @@
         color: var(--fcom-secondary-text, #525866);
     }
 
+    // A state, not a refusal: plain text where the RSVP would be (Event full).
+    &__state {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__state-icon {
+        display: inline-flex;
+        font-size: 16px;
+
+        svg {
+            width: 1em;
+            height: 1em;
+        }
+    }
+
     &__badge-icon {
         display: inline-flex;
         color: var(--el-color-success, #67c23a);
@@ -463,6 +483,41 @@
     }
 }
 
+// The event page's seat meter for a capped event.
+.fe-capacity {
+    display: grid;
+    gap: 6px;
+
+    &__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__status {
+        font-weight: 600;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__track {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__fill {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--fcom-primary-button, #2b2e33);
+    }
+}
+
 // The look comes from fcom's own popover classes on the markup; this only places it.
 .fe-event-menu {
     position: relative;
@@ -513,9 +568,13 @@
         border-radius: 12px;
     }
 
+    // All Events renders fcom's own page frame (header bar + .fcom_max_layout body), edge to edge.
+    &.fe-fcom-portal-page--events {
+        padding: 0;
+    }
+
     // Same frame as fcom's wide pages (the .fcom_max_layout body), so it matches the space Events tab.
     // An event inside a space gets it from the space layout; a community-wide one has none, so it takes this.
-    &.fe-fcom-portal-page--events,
     &.fe-fcom-portal-page--create_event,
     &.fe-fcom-portal-page--global_event_view {
         box-sizing: border-box;
@@ -611,12 +670,33 @@
                 margin-bottom: 10px;
             }
 
+            // A phone can't spare a date column: the line keeps a thin rail, the date sits on one line above the card.
             @media (max-width: 640px) {
-                grid-template-columns: 80px 16px minmax(0, 1fr);
+                grid-template-columns: 12px minmax(0, 1fr);
+                column-gap: 12px;
 
-                // Too narrow for a 96px cover beside the details.
-                .fe-event-item__cover {
-                    display: none;
+                .fe-events-page__gutter {
+                    grid-column: 2;
+                    grid-row: 1;
+                    display: flex;
+                    align-items: baseline;
+                    gap: 6px;
+                    padding: 4px 0 8px;
+                }
+
+                .fe-events-page__dot {
+                    grid-column: 1;
+                    grid-row: 1 / span 2;
+
+                    // Level with the date line.
+                    &::before {
+                        top: 11px;
+                    }
+                }
+
+                .fe-event-item {
+                    grid-column: 2;
+                    grid-row: 2;
                 }
             }
         }
@@ -894,11 +974,170 @@
         color: var(--fcom-primary-text, #19283a);
     }
 
+    // Phones: the whole day is the tap target, with up to three bars.
+    &__day-button {
+        display: none;
+        position: absolute;
+        inset: 0;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 2px;
+        padding: 0 5px 6px;
+        border: 0;
+        background: none;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: -2px;
+        }
+
+        &[aria-pressed="true"] {
+            box-shadow: inset 0 0 0 2px var(--fcom-primary-text, #19283a);
+        }
+    }
+
+    &__bar {
+        display: block;
+        height: 3px;
+        border-radius: 2px;
+        background-color: var(--fcom-primary-button, #2b2e33);
+    }
+
+    // Phones only: the tapped day's events.
+    &__agenda {
+        display: none;
+        gap: 6px;
+        margin-top: 20px;
+        // Clears fcom's sticky header and bottom tab bar when scrolled into view.
+        scroll-margin: 80px 0 88px;
+    }
+
+    &__agenda-date {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin: 0 0 6px;
+        color: var(--fcom-primary-text, #19283a);
+    }
+
+    &__agenda-number {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__agenda-weekday {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    // Like an entry, but the title wraps.
+    &__agenda-event {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 12px;
+        border: 0;
+        border-left: 3px solid var(--fcom-primary-button, #2b2e33);
+        border-radius: 4px;
+        background-color: var(--fcom-active-bg, #f0f3f5);
+        background-color: color-mix(in srgb, var(--fcom-primary-button, #2b2e33) 12%, transparent);
+        font-size: 14px;
+        line-height: 1.4;
+        text-align: left;
+        color: var(--fcom-primary-text, #19283a);
+        cursor: pointer;
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--fcom-primary-button, #2b2e33) 22%, transparent);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 1px;
+        }
+    }
+
+    &__agenda-event-time {
+        flex-shrink: 0;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__agenda-event-title {
+        min-width: 0;
+        font-weight: 500;
+    }
+
+    &__agenda-empty {
+        margin: 0;
+        padding: 12px 0;
+        font-size: 14px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    // Phones: bars instead of entries, and the tapped day's list below.
+    @media (max-width: 767px) {
+        .el-calendar-table .el-calendar-day {
+            height: 52px;
+            min-height: 0;
+        }
+
+        &__cell {
+            position: relative;
+            align-items: center;
+            height: 100%;
+            padding: 6px 4px;
+        }
+
+        &__entries {
+            display: none;
+        }
+
+        &__day-button {
+            display: flex;
+        }
+
+        &__agenda {
+            display: grid;
+        }
+    }
+
     &__week {
         overflow: hidden;
         border: 1px solid var(--fcom-primary-border, #e3e8ee);
         border-radius: 8px;
         background-color: var(--fcom-primary-bg, #ffffff);
+
+        // Phones: the week scrolls sideways with the hours pinned left.
+        // The body drops its own vertical scroll, or the pin can't follow.
+        @media (max-width: 767px) {
+            overflow-x: auto;
+
+            .fe-events-calendar__week-head,
+            .fe-events-calendar__week-body {
+                min-width: 560px;
+            }
+
+            .fe-events-calendar__week-body {
+                max-height: none;
+                overflow: visible;
+            }
+
+            .fe-events-calendar__week-head > :first-child,
+            .fe-events-calendar__week-times {
+                position: sticky;
+                left: 0;
+                z-index: 2;
+                background-color: var(--fcom-primary-bg, #ffffff);
+            }
+        }
     }
 
     &__week-head {
@@ -1126,9 +1365,16 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
         margin: 12px -14px -12px;
         padding: 10px 14px;
         border-top: 1px solid var(--fcom-primary-border, #e3e8ee);
+
+        // Sized to its buttons, so a long label drops under the count instead of running off the card.
+        .fe-event-actions {
+            flex: 1 0 auto;
+            width: auto;
+        }
     }
 
     &__count {
@@ -1722,6 +1968,10 @@
         cursor: pointer;
     }
 
+    &__capacity.el-input-number {
+        width: 220px;
+        max-width: 100%;
+    }
 
     // fcom's markdown editor, framed and focused like fcom's inputs; fcom's own CSS styles the editor.
     &__description {
@@ -1820,9 +2070,22 @@
         }
     }
 
+    // The already-registered warning: the same dialog with an amber mark.
+    &__check--warning {
+        background: var(--el-color-warning-light-9, #fdf6ec);
+        color: var(--el-color-warning, #e6a23c);
+    }
+
     &__title {
         font-size: 20px;
         font-weight: 700;
+    }
+
+    &__text {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--fcom-secondary-text, #525866);
     }
 
     &__event {
@@ -2401,6 +2664,46 @@
         flex: none;
         margin-top: 2px;
         font-size: 18px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    // Event full: takes the RSVP's place. Outlined, not filled, so it never reads as the venue panel below it.
+    &__notice {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--fcom-primary-border, #e3e8ee);
+        border-radius: 8px;
+    }
+
+    &__notice-icon {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        font-size: 18px;
+        color: var(--fcom-secondary-text, #525866);
+        background: var(--fcom-active-bg, #f0f3f5);
+    }
+
+    &__notice-text {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+        line-height: 1.45;
+    }
+
+    &__notice-title {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    &__notice-desc {
+        font-size: 13px;
         color: var(--fcom-secondary-text, #525866);
     }
 
