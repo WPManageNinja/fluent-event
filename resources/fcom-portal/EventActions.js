@@ -140,21 +140,17 @@ export default {
                 this.busy = false;
             }
         },
-        // The reply carries only the new status and link; the count and spots left move by this answer alone, and a
-        // reload brings everyone else's.
+        // The reply carries the event's seats as they stand now, so the count, spots left and full state move together.
         withStatus(response) {
-            const wasSeated = isSeated(this.event);
-            const step = wasSeated === isSeated({ my_status: response.status }) ? 0 : (wasSeated ? -1 : 1);
-            const moved = (value, by) => (value === null || value === undefined ? value : value + by);
-
             return {
                 ...response,
                 event: {
                     ...this.event,
                     my_status: response.status,
                     online_meeting_url: response.online_meeting_url,
-                    guest_count: moved(this.event.guest_count, step),
-                    spots_left: moved(this.event.spots_left, -step),
+                    guest_count: response.guest_count,
+                    spots_left: response.spots_left,
+                    is_full: response.is_full,
                 },
             };
         },

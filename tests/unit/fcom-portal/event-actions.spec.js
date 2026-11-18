@@ -23,7 +23,7 @@ const deferredResponse = () => {
 let wrapper;
 
 beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: 'RSVP updated. You\'re going!', status: 'going', online_meeting_url: '' }))));
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: 'RSVP updated. You\'re going!', status: 'going', online_meeting_url: '', guest_count: 4, spots_left: null, is_full: false }))));
     ElNotification.mockClear();
     ElMessageBox.alert.mockReset().mockResolvedValue();
     ElMessageBox.confirm.mockReset().mockResolvedValue();
@@ -153,8 +153,9 @@ describe('EventActions', () => {
     });
 
     it('says not going only once the member confirms', async () => {
-        fetch.mockResolvedValue(new Response(JSON.stringify({ message: "You're no longer going.", status: 'not_going', online_meeting_url: '' })));
-        wrapper = actions(rsvp({ entry_type: 'open', my_status: 'going', guest_count: 12, spots_left: 3, online_meeting_url: 'https://meet.example.test/x' }));
+        // The event was full; the reply brings its seats as they stand once this guest left.
+        fetch.mockResolvedValue(new Response(JSON.stringify({ message: "You're no longer going.", status: 'not_going', online_meeting_url: '', guest_count: 5, spots_left: 1, is_full: false })));
+        wrapper = actions(rsvp({ entry_type: 'open', my_status: 'going', guest_count: 6, spots_left: 0, is_full: true, online_meeting_url: 'https://meet.example.test/x' }));
 
         const pick = async () => {
             await wrapper.find('.fe-rsvp__trigger').trigger('click');
@@ -172,7 +173,7 @@ describe('EventActions', () => {
         expect(ElMessageBox.confirm.mock.calls[1][1]).toBe('Not going anymore?');
         expect(fetch.mock.calls[0][1].body).toBe('{"status":"not_going"}');
         expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: "You're no longer going." });
-        expect(wrapper.emitted('done')[0][0].event).toMatchObject({ my_status: 'not_going', guest_count: 11, spots_left: 4, online_meeting_url: '' });
+        expect(wrapper.emitted('done')[0][0].event).toMatchObject({ my_status: 'not_going', guest_count: 5, spots_left: 1, is_full: false, online_meeting_url: '' });
     });
 
     it('tells a member an admin cancelled so, and changes nothing', async () => {
@@ -273,7 +274,7 @@ describe('EventActions', () => {
         expect(fetch).not.toHaveBeenCalled();
     });
 
-    // The reply carries only the new status; the count moves by this one answer until a reload.
+    // The reply carries the event's seats as they stand now, everyone's answers included.
     it('registers a new answer and hands back the event updated by it', async () => {
         wrapper = actions(rsvp({ guest_count: 3, spots_left: null }));
         await wrapper.find('.fe-rsvp__trigger').trigger('click');

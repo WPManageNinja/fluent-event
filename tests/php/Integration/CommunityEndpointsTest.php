@@ -9,6 +9,7 @@ use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
+use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
 use FluentEvent\Tests\IntegrationTestCase;
 
@@ -645,6 +646,22 @@ class CommunityEndpointsTest extends IntegrationTestCase
 
         $this->assertSame(200, $this->rsvp($event, 'going')['status']);
         $this->assertSame(200, $this->rsvp($event, 'not_going')['status']);
+    }
+
+    // The portal redraws the count, spots left and full state from the reply, so it carries them as they stand.
+    public function test_giving_up_a_seat_on_a_full_event_answers_with_the_seats_now()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open', 'capacity' => 2, 'show_guest_count' => 'yes', 'show_spots_left' => 'yes']);
+        $this->createGuest($event);
+        $this->rsvp($event, 'going');
+
+        $response = $this->rsvp($event, 'not_going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(
+            ['status' => 'not_going', 'guest_count' => 1, 'spots_left' => 1, 'is_full' => false],
+            Arr::only($response['data'], ['status', 'guest_count', 'spots_left', 'is_full'])
+        );
     }
 
     public function test_a_status_other_than_going_or_not_going_is_refused()

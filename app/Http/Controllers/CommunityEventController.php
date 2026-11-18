@@ -214,12 +214,7 @@ class CommunityEventController extends Controller
             $message = __('You are registered.', 'fluent-event');
         }
 
-        // Only what changed: the portal updates its own copy of the event, count included, and a reload brings the rest.
-        return [
-            'message'            => $message,
-            'status'             => $guest->status,
-            'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
-        ];
+        return self::answered($event, $guest->status, $message);
     }
 
     // A logged-out visitor registers for an open event by name and email; members use register().
@@ -289,11 +284,7 @@ class CommunityEventController extends Controller
 
         RegistrationService::queueEmail($guest, $previousStatus);
 
-        return [
-            'message'            => __('You are registered.', 'fluent-event'),
-            'status'             => $guest->status,
-            'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
-        ];
+        return self::answered($event, $guest->status, __('You are registered.', 'fluent-event'));
     }
 
     // A registration refused with nothing saved: no status, so the portal changes nothing and says why.
@@ -306,11 +297,16 @@ class CommunityEventController extends Controller
         ];
     }
 
-    // The link is revealed once a guest holds a seat, as EventService::formatEvent() reveals it.
-    private static function meetingUrlFor(Event $event, $status)
+    // The guest's new status with the event's seats as they stand now, everyone's answers included, so the portal
+    // redraws the count, the spots left and the full state together. The link shows once the guest holds a seat.
+    private static function answered(Event $event, $status, $message)
     {
-        return $event->venue_type === 'online' && in_array($status, Event::SEAT_STATUSES, true)
-            ? (string) Arr::get((array) $event->meta, 'online_meeting_url', '')
-            : '';
+        $seats = EventService::seatCounts([$event->id]);
+        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $status, false, false);
+
+        return array_merge(
+            ['message' => $message, 'status' => $status],
+            Arr::only($formatted, ['online_meeting_url', 'guest_count', 'spots_left', 'is_full'])
+        );
     }
 }

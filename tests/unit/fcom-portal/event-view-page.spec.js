@@ -433,6 +433,18 @@ describe('EventViewPage', () => {
             expect(wrapper.findComponent(EventActions).exists()).toBe(true);
         });
 
+        // The reply to an answer carries the seats as they stand, so the meter, notice and RSVP move together.
+        it('opens the event again once a guest gives up a seat on a full event', async () => {
+            const { wrapper } = await page({ ...capped(6, 6), my_status: 'going' });
+
+            wrapper.findComponent(EventActions).vm.$emit('done', { event: { ...wrapper.vm.event, my_status: 'not_going', guest_count: 5, spots_left: 1, is_full: false } });
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('.fe-capacity__head').text()).toBe('5 out of 6 going1 spot left');
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
         const ended = (event) => ({ ...event, start_at: '2026-10-10 12:00:00', end_at: '2026-10-10 14:00:00', is_past: true });
 
         it('keeps the meter on an ended event, without spots left or a full notice while seats were left', async () => {
