@@ -251,8 +251,9 @@ class CommunityEventController extends Controller
 
         $guest = RegistrationService::guestByEmail($event, $data['email']);
 
-        // A repeated email is refused with nothing saved, unless its row said not going: that comes back on.
-        if ($guest && ($refusal = RegistrationService::repeatRefusal($guest))) {
+        // A repeated email is refused with nothing saved, unless its row said not going and has no account: that comes
+        // back on.
+        if ($guest && ($refusal = RegistrationService::visitorRefusal($guest))) {
             return self::refused($refusal);
         }
 

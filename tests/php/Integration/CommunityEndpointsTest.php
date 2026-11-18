@@ -507,6 +507,20 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $existing->id]));
     }
 
+    public function test_a_visitor_cannot_bring_back_a_members_not_going_row()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $guest = $this->createGuest($event, ['email' => 'visitor@example.test', 'user_id' => $this->member, 'status' => 'not_going']);
+        $this->asVisitorOnAPublicPortal();
+
+        $response = $this->registerGuest($event);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(['message' => __('This email is already registered for this event.', 'fluent-event'), 'status' => null, 'refusal' => 'already_registered'], $response['data']);
+        $this->assertSame('not_going', Guest::query()->find($guest->id)->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guest->id]));
+    }
+
     public function test_a_visitor_an_admin_cancelled_is_told_so()
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);

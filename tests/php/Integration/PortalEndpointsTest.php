@@ -131,6 +131,27 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
     }
 
+    // A row linked to an account changes only from that account: typing its email can't bring it back, even signed in,
+    // as the page treats everyone as a visitor.
+    public function test_a_visitor_cannot_bring_back_a_members_not_going_row()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $member = $this->createUser('subscriber');
+        $guest = $this->createGuest($event, ['email' => 'visitor@example.test', 'user_id' => $member, 'status' => 'not_going']);
+
+        foreach ([0, $member] as $viewer) {
+            $this->actAs($viewer);
+            $response = $this->registerGuest($event);
+
+            $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+            $this->assertSame(__('This email is already registered for this event.', 'fluent-event'), $response['data']['message']);
+            $this->assertNull($response['data']['status']);
+        }
+
+        $this->assertSame('not_going', Guest::query()->find($guest->id)->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guest->id]));
+    }
+
     // An admin cancels the row while the visitor's comeback is in flight: it must not read as registered.
     public function test_a_comeback_overtaken_by_an_admin_cancel_asks_to_try_again()
     {

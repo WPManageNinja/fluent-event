@@ -50,8 +50,9 @@ class PortalEventController extends Controller
 
         $guest = RegistrationService::guestByEmail($event, $data['email']);
 
-        // A repeated email is warned with nothing saved, unless its row said not going: that comes back on.
-        if ($guest && ($refusal = RegistrationService::repeatRefusal($guest))) {
+        // A repeated email is warned with nothing saved, unless its row said not going and has no account: that comes
+        // back on.
+        if ($guest && ($refusal = RegistrationService::visitorRefusal($guest))) {
             return $this->registered($event, null, $refusal);
         }
 

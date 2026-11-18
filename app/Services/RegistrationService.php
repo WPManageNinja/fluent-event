@@ -129,6 +129,13 @@ class RegistrationService
         return $guest->status === 'cancelled' ? 'cancelled' : 'already_registered';
     }
 
+    // A visitor form's answer to an email already on the event. A row linked to an account changes only from that
+    // account, so typing its email can't bring it back from not going.
+    public static function visitorRefusal(Guest $guest)
+    {
+        return self::repeatRefusal($guest) ?: ($guest->user_id ? 'already_registered' : '');
+    }
+
     // What a refused repeat registration is told.
     public static function refusalMessage($refusal)
     {
@@ -142,7 +149,7 @@ class RegistrationService
      * not-going row comes back on, keeping its name; otherwise a new row.
      *
      * @param array      $source source and source_id.
-     * @param Guest|null $guest  The email's not-going row.
+     * @param Guest|null $guest  The email's not-going row, linked to no account.
      * @return array|false|string [Guest, its status before, or null when created]; false when the row changed under
      *                            this request and holds no seat; a message when the event is full.
      */
@@ -154,8 +161,10 @@ class RegistrationService
             }
 
             if ($guest) {
-                // Claimed against "not going", so two requests coming back together send one confirmation.
-                $claimed = Guest::query()->where('id', $guest->id)->where('status', 'not_going')->update(['status' => 'going']);
+                // Claimed against "not going" with no account, so two requests coming back together send one
+                // confirmation, and a row linked to an account meanwhile is left alone.
+                $claimed = Guest::query()->where('id', $guest->id)->where('status', 'not_going')->whereNull('user_id')
+                    ->update(['status' => 'going']);
                 $guest = Guest::query()->find($guest->id);
 
                 // An admin cancelled or deleted the row meanwhile.
