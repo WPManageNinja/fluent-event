@@ -122,5 +122,23 @@ describe('EventsCalendar', () => {
 
             expect(wrapper.find('.fe-events-calendar__agenda').exists()).toBe(false);
         });
+
+        it('clears a day from the previous month when the grid moves to that month', async () => {
+            const wrapper = calendar({ mode: 'month' });
+
+            await pick(wrapper, '2026-09-28');
+            await wrapper.setProps({ date: '2026-09-14' });
+
+            expect(wrapper.find('.fe-events-calendar__agenda').exists()).toBe(false);
+        });
+
+        it('keeps the tapped day when the date moves inside the month', async () => {
+            const wrapper = calendar({ mode: 'month' });
+
+            await pick(wrapper, '2026-10-20');
+            await wrapper.setProps({ date: '2026-10-20' });
+
+            expect(wrapper.find('.fe-events-calendar__agenda').exists()).toBe(true);
+        });
     });
 });

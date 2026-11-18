@@ -253,9 +253,9 @@
             };
         },
         watch: {
-            // A new month clears the picked day.
-            month(month) {
-                if (this.pickedDay && this.pickedDay.slice(0, 7) !== month.slice(0, 7)) {
+            // Another month clears the picked day, even one picked from that month's days.
+            month(month, previous) {
+                if (month.slice(0, 7) !== String(previous).slice(0, 7)) {
                     this.pickedDay = null;
                 }
             },
