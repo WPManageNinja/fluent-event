@@ -223,7 +223,7 @@ export default {
         $changeTitle(title) {
             document.querySelector(
                 'head title'
-            ).textContent = title + ' - ' + titleCase(config.slug);
+            ).textContent = title + ' - ' + config.name;
         },
         $handleError(e, fallback = null) {
             const fallbackMessage = fallback || this.$t('Something went wrong');

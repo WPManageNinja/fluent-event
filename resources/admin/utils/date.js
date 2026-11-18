@@ -116,7 +116,7 @@ export function buildIcs(event) {
     const lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Fluent Events//EN',
+        'PRODID:-//FluentEvent//EN',
         'CALSCALE:GREGORIAN',
         'BEGIN:VEVENT',
         `UID:fluent-event-${event.id}@${window.location.host}`,

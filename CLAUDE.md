@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Fluent Event is a WordPress events plugin: **calendars hold events, events collect guests.**
+FluentEvent is a WordPress events plugin: **calendars hold events, events collect guests.**
 Everything else is detail hanging off that spine.
 
 The full rule of record is [`.claude/rules/`](.claude/rules/README.md), and a PostToolUse hook
