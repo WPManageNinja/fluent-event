@@ -131,8 +131,11 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   effect on the upcoming landing page.
 - **Capacity:** `meta.capacity` caps `going` + `checked_in` guests on `rsvp` and `open` events (0 = unlimited).
   A full event shows **Event full** in place of the RSVP or Register button and refuses a new one (422); a guest
-  already going keeps their seat and can still give it up, and admins can add guests past it. With the guest count
-  on, the event page shows a meter ("7 out of 10 going", spots left).
+  already going keeps their seat and can still give it up, and admins can add guests past it. Two switches decide
+  what guests see: **Show how many guests are going** and **Show how many spots are left** (off by default, only
+  with a capacity). Both on: a meter ("7 out of 10 going", "3 spots left"); count only: "7 going"; spots only:
+  "3 spots left"; neither: nothing until it fills. Event cards follow the same rule, and an ended event shows no
+  spots left.
 - **Entry types:** `rsvp` (logged-in members, going / not going, up to the event's capacity; each answer shows a
   success toast with the server's message, "RSVP updated. You're going!" / "RSVP updated. You're not going."), `open`
   (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
