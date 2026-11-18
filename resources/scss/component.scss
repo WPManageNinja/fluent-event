@@ -806,6 +806,12 @@
         line-height: 1.4;
         color: var(--fe-secondary-text, #525866);
 
+        // Four tabs fit a 360px phone.
+        @media screen and (max-width: 480px) {
+            padding-right: var(--fe-space-2, 8px);
+            padding-left: var(--fe-space-2, 8px);
+        }
+
         &::after {
             content: '';
             position: absolute;
