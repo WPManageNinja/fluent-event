@@ -18,12 +18,6 @@ html.dark .fe-portal {
         all: revert;
     }
 
-    // A link takes the colour its rule sets as --fe-link-color, applied here at 0,3,1: FluentCommunity's page frame
-    // (`.fcom_wp_content a:not(…)`, 0,2,1) and theme link rules would otherwise beat our one-class link rules.
-    a[href]:any-link {
-        color: var(--fe-link-color, inherit);
-    }
-
     *,
     *::before,
     *::after {
@@ -75,7 +69,7 @@ html.dark .fe-portal {
         padding: 0 var(--fe-space-4, 16px);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-primary-button, #2b2e33);
-        --fe-link-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-bg, #ffffff);
         font-size: var(--fe-text-sm, 14px);
         font-weight: 500;
         text-decoration: none;
@@ -184,7 +178,7 @@ html.dark .fe-portal {
         border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: 999px;
         background-color: var(--fe-primary-bg, #ffffff);
-        --fe-link-color: var(--fe-secondary-text, #525866);
+        color: var(--fe-secondary-text, #525866);
         flex-shrink: 0;
         max-width: 260px;
         font-size: 13px;
@@ -192,7 +186,7 @@ html.dark .fe-portal {
         text-decoration: none;
 
         &:hover {
-            --fe-link-color: var(--fe-primary-text, #19283a);
+            color: var(--fe-primary-text, #19283a);
         }
 
         &:focus-visible {
@@ -203,7 +197,7 @@ html.dark .fe-portal {
         &.fe-calendar-chips__chip--active {
             border-color: var(--fe-primary-button, #2b2e33);
             background-color: var(--fe-primary-button, #2b2e33);
-            --fe-link-color: var(--fe-primary-bg, #ffffff);
+            color: var(--fe-primary-bg, #ffffff);
         }
     }
 
@@ -317,7 +311,7 @@ html.dark .fe-portal {
         min-height: 28px;
         padding: 0 var(--fe-space-3, 12px);
         border-radius: 6px;
-        --fe-link-color: var(--fe-secondary-text, #525866);
+        color: var(--fe-secondary-text, #525866);
         font-size: 13px;
         text-decoration: none;
 
@@ -327,7 +321,7 @@ html.dark .fe-portal {
         }
 
         &:hover {
-            --fe-link-color: var(--fe-primary-text, #19283a);
+            color: var(--fe-primary-text, #19283a);
         }
 
         &:focus-visible {
@@ -342,7 +336,7 @@ html.dark .fe-portal {
 
         &.fe-switch__option--active {
             background-color: var(--fe-primary-bg, #ffffff);
-            --fe-link-color: var(--fe-primary-text, #19283a);
+            color: var(--fe-primary-text, #19283a);
             font-weight: 600;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
         }
@@ -532,6 +526,7 @@ html.dark .fe-portal {
 
     // One link per tile for screen readers; its ::after makes the whole tile clickable.
     &__link {
+        color: inherit;
         text-decoration: none;
 
         &::after {
@@ -629,12 +624,12 @@ html.dark .fe-portal {
         place-items: center;
         min-width: 34px;
         height: 34px;
-        --fe-link-color: var(--fe-secondary-text, #525866);
+        color: var(--fe-secondary-text, #525866);
         text-decoration: none;
 
         &:hover {
             background-color: var(--fe-active-bg, #f0f0f1);
-            --fe-link-color: var(--fe-primary-text, #19283a);
+            color: var(--fe-primary-text, #19283a);
         }
 
         &:focus-visible {
@@ -718,7 +713,7 @@ html.dark .fe-portal {
         border-radius: var(--fe-radius-sm, 4px);
         background-color: var(--fe-active-bg, #f0f0f1);
         background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 16%, transparent);
-        --fe-link-color: var(--fe-primary-text, #19283a);
+        color: var(--fe-primary-text, #19283a);
         font-size: 12px;
         line-height: 1.5;
         text-decoration: none;
@@ -889,7 +884,7 @@ html.dark .fe-portal {
         border-radius: var(--fe-radius-sm, 4px);
         background-color: var(--fe-active-bg, #f0f0f1);
         background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 12%, transparent);
-        --fe-link-color: var(--fe-primary-text, #19283a);
+        color: var(--fe-primary-text, #19283a);
         font-size: var(--fe-text-sm, 14px);
         line-height: 1.4;
         text-decoration: none;
@@ -1057,7 +1052,7 @@ html.dark .fe-portal {
         border-radius: var(--fe-radius-sm, 4px);
         background-color: var(--fe-active-bg, #f0f0f1);
         background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 16%, var(--fe-primary-bg, #ffffff));
-        --fe-link-color: var(--fe-primary-text, #19283a);
+        color: var(--fe-primary-text, #19283a);
         font-size: 12px;
         line-height: 1.4;
         text-decoration: none;
@@ -1133,7 +1128,7 @@ html.dark .fe-portal {
         border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-primary-bg, #ffffff);
-        --fe-link-color: var(--fe-primary-text, #19283a);
+        color: var(--fe-primary-text, #19283a);
         font-size: var(--fe-text-sm, 14px);
         text-decoration: none;
 
@@ -1328,7 +1323,7 @@ html.dark .fe-portal {
         }
 
         a {
-            --fe-link-color: var(--fe-accent-blue, #0e7ff1);
+            color: var(--fe-accent-blue, #0e7ff1);
         }
 
         img {
@@ -1509,7 +1504,7 @@ html.dark .fe-portal {
         padding: 6px var(--fe-space-4, 16px);
         border-radius: var(--fe-radius, 8px);
         background-color: var(--fe-primary-button, #2b2e33);
-        --fe-link-color: var(--fe-primary-bg, #ffffff);
+        color: var(--fe-primary-bg, #ffffff);
         font-size: var(--fe-text-sm, 14px);
         font-weight: 500;
         text-decoration: none;
@@ -1565,7 +1560,7 @@ html.dark .fe-portal {
         padding: 6px 10px;
         border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius, 8px);
-        --fe-link-color: var(--fe-primary-text, #19283a);
+        color: var(--fe-primary-text, #19283a);
         font-size: 13px;
         font-weight: 500;
         text-decoration: none;
@@ -2144,5 +2139,56 @@ html.dark .fe-portal {
         letter-spacing: 0.02em;
         white-space: nowrap;
         text-transform: uppercase;
+    }
+}
+
+// FluentCommunity's page template sets every link to `color: inherit` (`.fcom_wp_content a:not(…)`, 0,2,1),
+// above our link rules. Inside it, each link gets its colour back; keep these in step with the rules above.
+.fcom_wp_content .fe-portal {
+    .fe-calendar-chips__chip {
+        color: var(--fe-secondary-text, #525866);
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+        }
+
+        &.fe-calendar-chips__chip--active {
+            color: var(--fe-primary-bg, #ffffff);
+        }
+    }
+
+    .fe-switch__option {
+        color: var(--fe-secondary-text, #525866);
+
+        &:hover,
+        &.fe-switch__option--active {
+            color: var(--fe-primary-text, #19283a);
+        }
+    }
+
+    .fe-calendar-head__step,
+    .fe-calendar-head__today {
+        color: var(--fe-secondary-text, #525866);
+
+        &:hover {
+            color: var(--fe-primary-text, #19283a);
+        }
+    }
+
+    .fe-month__chip,
+    .fe-month__agenda-event,
+    .fe-week__event,
+    .fe-pagination__link,
+    .fe-event-page__calendar-link {
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    .fe-not-found__button,
+    .fe-event-page__join {
+        color: var(--fe-primary-bg, #ffffff);
+    }
+
+    .fe-event-page__description a {
+        color: var(--fe-accent-blue, #0e7ff1);
     }
 }
