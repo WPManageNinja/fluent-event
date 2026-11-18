@@ -150,6 +150,10 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Added: Settings Tab on the Admin Event Page
 - Added: Admin Menu on the Community Events Page Header
 - Added: Phone Calendars in the Community and Admin
+- Added: Live Countdown to an Event's Start
+- Added: Guest Count on Admin Event Cards
+- Added: Edit and Share Buttons in Event Details
+- Added: Share Event Modal With the Link, Shortcode and Block
 - Updated: Guests Answer Going or Not Going
 - Updated: Only Admins Cancel a Registration
 - Updated: Registering Again Brings Back a Not-Going Guest
@@ -157,20 +161,13 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Improved: Community Events Page Header Matches Spaces and Courses
 - Improved: Phone Month Calendar Shows a Tapped Day's Events
 - Improved: Event Covers and Timeline Kept on Phones
+- Improved: Guest Count in the Event Page Overview Tab
+- Improved: Required Field Marks in the Add Guest Form
+- Improved: Event Drawer Rows in the Event Page Order
 - Fixed: Events Unreachable From the Public Month Calendar on Phones
 - Fixed: Event List Running Off Small Phone Screens
 - Fixed: Admin Layout Overflows on Phones
 - Fixed: Delete Button Beside the Danger Zone Input
-- Security: Visitor Forms Can't Change a Member's Registration
-
-= 1.0.5 (Date: Nov 17, 2026) =
-- Added: Live Countdown to an Event's Start
-- Added: Guest Count on Admin Event Cards
-- Added: Edit and Share Buttons in Event Details
-- Added: Share Event Modal With the Link, Shortcode and Block
-- Improved: Guest Count in the Event Page Overview Tab
-- Improved: Required Field Marks in the Add Guest Form
-- Improved: Event Drawer Rows in the Event Page Order
 - Fixed: Unstyled Flash When the Admin Page Opens
 - Fixed: Tables Not Created on Older MySQL and MariaDB
 - Fixed: Meta Table Not Created on MyISAM Databases
@@ -182,6 +179,7 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Fixed: Link Button Text Hidden on Focus
 - Fixed: PHP Deprecation Notice on the Admin Page
 - Fixed: Events Page Error on a Bad Calendar Link
+- Security: Visitor Forms Can't Change a Member's Registration
 - Security: Public Registration Forms No Longer Show Who Registered
 - Security: Guest Emails Greet Visitors Without Their Typed Name
 - Security: More Reliable Rate Limit on Public Registration
