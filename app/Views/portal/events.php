@@ -237,13 +237,29 @@ $fluentEventEmpty = [
                                 <?php $fluentEventEntry( $fluentEventItem, 'fe-month__chip' ); ?>
                             <?php endforeach; ?>
 
-                            <?php if ( count( $fluentEventDay['entries'] ) > 3 ) : ?>
+                            <?php if ( $fluentEventDay['entries'] ) : ?>
                                 <?php $fluentEventPopover = 'fe-month-day-' . $fluentEventDay['date']; ?>
-                                <button type="button" class="fe-month__more" popovertarget="<?php echo esc_attr( $fluentEventPopover ); ?>">
-                                    <?php
-                                    /* translators: %d: number of further events that day */
-                                    echo esc_html( sprintf( __( '+%d more', 'fluent-event' ), count( $fluentEventDay['entries'] ) - 3 ) );
-                                    ?>
+
+                                <?php if ( count( $fluentEventDay['entries'] ) > 3 ) : ?>
+                                    <button type="button" class="fe-month__more" popovertarget="<?php echo esc_attr( $fluentEventPopover ); ?>">
+                                        <?php
+                                        /* translators: %d: number of further events that day */
+                                        echo esc_html( sprintf( __( '+%d more', 'fluent-event' ), count( $fluentEventDay['entries'] ) - 3 ) );
+                                        ?>
+                                    </button>
+                                <?php endif; ?>
+
+                                <?php // Phones hide the chips and show this dot instead; it opens the same list of the day's events. ?>
+                                <?php
+                                $fluentEventDotLabel = sprintf(
+                                    /* translators: 1: the day, e.g. "Thursday, Dec 3", 2: number of events that day */
+                                    _n( '%1$s: %2$d event', '%1$s: %2$d events', count( $fluentEventDay['entries'] ), 'fluent-event' ),
+                                    $fluentEventDay['label'],
+                                    count( $fluentEventDay['entries'] )
+                                );
+                                ?>
+                                <button type="button" class="fe-month__dot-button" popovertarget="<?php echo esc_attr( $fluentEventPopover ); ?>" aria-label="<?php echo esc_attr( $fluentEventDotLabel ); ?>">
+                                    <span class="fe-month__dot" aria-hidden="true"></span>
                                 </button>
 
                                 <div id="<?php echo esc_attr( $fluentEventPopover ); ?>" class="fe-month__popover" popover aria-label="<?php echo esc_attr( $fluentEventDay['label'] ); ?>">
@@ -253,10 +269,6 @@ $fluentEventEmpty = [
                                         <?php $fluentEventEntry( $fluentEventItem, 'fe-month__chip' ); ?>
                                     <?php endforeach; ?>
                                 </div>
-                            <?php endif; ?>
-
-                            <?php if ( $fluentEventDay['entries'] ) : ?>
-                                <span class="fe-month__dot" aria-hidden="true"></span>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>

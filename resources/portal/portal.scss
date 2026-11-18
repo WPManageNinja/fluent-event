@@ -675,6 +675,7 @@ html.dark .fe-portal {
     }
 
     &__cell {
+        position: relative;
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -684,8 +685,8 @@ html.dark .fe-portal {
         background-color: var(--fe-primary-bg, #ffffff);
     }
 
-    // The neighbouring months' days, faded like the admin's.
-    &__cell--outside > * {
+    // The neighbouring months' days, faded like the admin's; not the day's popover, which opens over the page.
+    &__cell--outside > :not(.fe-month__popover) {
         opacity: 0.5;
     }
 
@@ -804,14 +805,32 @@ html.dark .fe-portal {
     }
 
     &__dot {
-        display: none;
+        display: block;
         width: 6px;
         height: 6px;
         border-radius: 50%;
         background-color: var(--fe-secondary-text, #525866);
     }
 
-    // Phones show a dot per busy day instead of the chips.
+    // The whole day is the tap target on a phone; wider screens show the chips instead.
+    &__dot-button {
+        display: none;
+        position: absolute;
+        inset: 0;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0 0 8px;
+        border: 0;
+        background: none;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: -2px;
+        }
+    }
+
+    // Phones show a dot per busy day instead of the chips; tapping the day lists its events.
     @media (max-width: 767px) {
         &__cell {
             align-items: center;
@@ -819,13 +838,22 @@ html.dark .fe-portal {
             padding: 4px;
         }
 
-        &__chip,
+        // Only the chips in the cell: the popover lists the same chips and must keep them.
+        &__cell > &__chip,
         &__more {
             display: none;
         }
 
-        &__dot {
-            display: block;
+        &__dot-button {
+            display: flex;
+        }
+
+        // Centred over the page: beside a 40px day it has no room.
+        &__popover {
+            width: min(320px, calc(100vw - 32px));
+            max-height: 70vh;
+            margin: auto;
+            position-area: none;
         }
     }
 }
