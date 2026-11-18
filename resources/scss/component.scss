@@ -50,11 +50,15 @@
     }
 
     &__number.el-input-number {
+        flex: none;
         width: 96px;
     }
 
+    // Grows to 200px and wraps under the number when the card is narrow.
     &__unit.el-select {
-        width: 200px;
+        flex: 1 1 112px;
+        max-width: 200px;
+        min-width: 0;
     }
 
     &__times {
@@ -67,6 +71,8 @@
     &__time {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
         gap: var(--fe-space-2, 8px);
     }
 
@@ -104,6 +110,8 @@
 
     &__panel {
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
         gap: var(--fe-space-3, 12px);
         padding: var(--fe-space-4, 16px);
         border: 1px solid var(--fe-primary-border, #eaecf0);
@@ -797,6 +805,12 @@
         font-weight: 500;
         line-height: 1.4;
         color: var(--fe-secondary-text, #525866);
+
+        // Four tabs fit a 360px phone.
+        @media screen and (max-width: 480px) {
+            padding-right: var(--fe-space-2, 8px);
+            padding-left: var(--fe-space-2, 8px);
+        }
 
         &::after {
             content: '';
@@ -1739,15 +1753,15 @@
             margin: 0;
         }
 
+        // Never wider than the card, so a long date format fits on a phone.
         .el-date-editor {
-            width: 280px;
-            max-width: 280px;
-            flex-shrink: 0;
+            --el-date-editor-width: 280px;
+            flex: none;
+            max-width: 100%;
             margin-left: auto;
 
             &.fe-dashboard__range--wide {
-                width: 370px;
-                max-width: 370px;
+                --el-date-editor-width: 370px;
 
                 .el-range-input {
                     width: 43%;

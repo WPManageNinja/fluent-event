@@ -8,7 +8,7 @@
                 type="daterange"
                 class="fe-dashboard__range"
                 :class="{ 'fe-dashboard__range--wide': wideDates }"
-                :format="dateFormat"
+                :format="pickerFormat"
                 value-format="YYYY-MM-DD"
                 :clearable="false"
                 :start-placeholder="$t('From')"
@@ -69,6 +69,7 @@
         data() {
             return {
                 loading: false,
+                narrow: false,
                 range: [
                     dayjs().subtract(6, 'day').format('YYYY-MM-DD'),
                     dayjs().format('YYYY-MM-DD'),
@@ -88,9 +89,15 @@
             dateFormat() {
                 return window.fluentEventAdmin?.date_format || 'MMM D, YYYY';
             },
-            // The site's format at its longest month; past 12 characters it outgrows the narrow picker.
+            // Phones get the site's format with short month and day names, so both dates fit.
+            pickerFormat() {
+                return this.narrow
+                    ? this.dateFormat.replace('MMMM', 'MMM').replace('dddd', 'ddd')
+                    : this.dateFormat;
+            },
+            // The format at its longest month; past 12 characters it outgrows the narrow picker.
             wideDates() {
-                return dayjs('2026-09-28').format(this.dateFormat).length > 12;
+                return dayjs('2026-09-28').format(this.pickerFormat).length > 12;
             },
         },
         methods: {
@@ -189,6 +196,9 @@
                     this.chart.resize();
                 }
             },
+            setNarrow(query) {
+                this.narrow = query.matches;
+            },
             disposeChart() {
                 if (this.chart) {
                     this.chart.dispose();
@@ -199,10 +209,15 @@
         created() {
             this.chart = null;
             this.themeObserver = null;
+            this.narrowQuery = null;
         },
         mounted() {
             this.fetchChartData();
             window.addEventListener('resize', this.resizeChart);
+
+            this.narrowQuery = window.matchMedia('(max-width: 480px)');
+            this.setNarrow(this.narrowQuery);
+            this.narrowQuery.addEventListener('change', this.setNarrow);
 
             this.themeObserver = new MutationObserver(this.renderChart);
             this.themeObserver.observe(document.documentElement, {
@@ -212,6 +227,7 @@
         },
         beforeUnmount() {
             window.removeEventListener('resize', this.resizeChart);
+            this.narrowQuery?.removeEventListener('change', this.setNarrow);
             this.themeObserver?.disconnect();
             this.disposeChart();
         },
