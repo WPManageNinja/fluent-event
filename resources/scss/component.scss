@@ -1747,15 +1747,15 @@
             margin: 0;
         }
 
+        // Never wider than the card, so a long date format fits on a phone.
         .el-date-editor {
-            width: 280px;
-            max-width: 280px;
-            flex-shrink: 0;
+            --el-date-editor-width: 280px;
+            flex: none;
+            max-width: 100%;
             margin-left: auto;
 
             &.fe-dashboard__range--wide {
-                width: 370px;
-                max-width: 370px;
+                --el-date-editor-width: 370px;
 
                 .el-range-input {
                     width: 43%;
