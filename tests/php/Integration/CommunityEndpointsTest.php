@@ -211,12 +211,13 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame(array_merge(array_fill(0, 10, 200), [429]), $statuses);
     }
 
-    public function test_a_checked_in_guest_stays_checked_in_when_saying_going_again()
+    public function test_a_checked_in_member_saying_going_again_is_told_so_and_stays_checked_in()
     {
         [$event] = $this->communityEvent();
         $this->createGuest($event, ['user_id' => $this->member, 'email' => get_userdata($this->member)->user_email, 'status' => 'checked_in']);
 
-        $this->assertSame('checked_in', $this->rsvp($event, 'going')['data']['status']);
+        $this->assertSame('already_registered', $this->rsvp($event, 'going')['data']['refusal']);
+        $this->assertSame('checked_in', $this->guestsOf($event)[0]->status);
     }
 
     public function test_a_row_an_admin_added_under_the_members_email_is_claimed_not_duplicated()
@@ -232,17 +233,14 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame($this->member, $guests[0]->user_id);
     }
 
-    /**
-     * @dataProvider visitorRowStatuses
-     */
-    public function test_a_member_claiming_a_visitor_row_replaces_the_typed_name($status)
+    public function test_a_member_claiming_a_visitor_row_replaces_the_typed_name()
     {
         [$event] = $this->communityEvent();
         $member = get_userdata($this->member);
         $this->createGuest($event, [
             'name'   => 'Verify at evil.example',
             'email'  => $member->user_email,
-            'status' => $status,
+            'status' => 'not_going',
             'source' => 'fluent_community',
         ]);
 
@@ -253,15 +251,38 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame($member->display_name, $guest->name);
     }
 
-    public function visitorRowStatuses()
+    /**
+     * @dataProvider seatedStatuses
+     */
+    public function test_a_member_registering_again_on_a_seated_row_is_refused_and_the_row_left_alone($status)
     {
-        return ['already going' => ['going'], 'coming back after not going' => ['not_going']];
+        [$event] = $this->communityEvent([], ['entry_type' => 'open']);
+        $guest = $this->createGuest($event, [
+            'name'   => 'Typed On The Page',
+            'email'  => get_userdata($this->member)->user_email,
+            'status' => $status,
+            'source' => 'wordpress_pages',
+        ]);
+
+        $response = $this->rest('POST', "community/events/{$event->id}/register", ['status' => 'going', 'name' => 'Member Name']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(['message' => __('This email is already registered for this event.', 'fluent-event'), 'status' => null, 'refusal' => 'already_registered'], $response['data']);
+        $row = $this->guestsOf($event)[0];
+        $this->assertSame([$status, 'Typed On The Page'], [$row->status, $row->name]);
+        $this->assertEmpty($row->user_id);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guest->id]));
+    }
+
+    public function seatedStatuses()
+    {
+        return ['going' => ['going'], 'checked in' => ['checked_in']];
     }
 
     public function test_a_member_claiming_an_admin_added_row_keeps_the_admins_name()
     {
         [$event] = $this->communityEvent();
-        $this->createGuest($event, ['name' => 'Name From Admin', 'email' => get_userdata($this->member)->user_email]);
+        $this->createGuest($event, ['name' => 'Name From Admin', 'email' => get_userdata($this->member)->user_email, 'status' => 'not_going']);
 
         $this->rsvp($event, 'going');
 

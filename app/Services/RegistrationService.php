@@ -37,8 +37,8 @@ class RegistrationService
      *
      * @param array $source source and source_id for a new row.
      * @return array|null|false|string [Guest, previous status, created]; null when another account holds the email;
-     *                                 'cancelled' when an admin cancelled the row; false when the row changed under this
-     *                                 request to something other than what it asked for.
+     *                                 a repeatRefusal() reason when the row can't take this answer; false when the row
+     *                                 changed under this request to something other than what it asked for.
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
@@ -49,9 +49,12 @@ class RegistrationService
             return null;
         }
 
-        // Only an admin cancels, and the guest can't undo it on their own.
-        if ($guest && $guest->status === 'cancelled') {
-            return 'cancelled';
+        // Going again is refused unless the row said not going, as for visitors; an admin's cancel stands against
+        // either answer.
+        $refusal = $guest && ($status === 'going' || $guest->status === 'cancelled') ? self::repeatRefusal($guest) : '';
+
+        if ($refusal) {
+            return $refusal;
         }
 
         if (!$guest) {
@@ -79,20 +82,15 @@ class RegistrationService
             $claim['name'] = $name ?: $user->display_name;
         }
 
-        // Going again keeps a checked-in guest checked in.
-        $newStatus = $status === 'not_going' || !in_array($previousStatus, Event::SEAT_STATUSES, true)
-            ? $status
-            : $previousStatus;
-
         // Claimed against the status read above: of two requests making the same change (two tabs), only one
         // reports it, so only one sends the email; the other gets the row back unchanged.
-        if ($newStatus !== $previousStatus) {
+        if ($status !== $previousStatus) {
             $claimed = Guest::query()->where('id', $guest->id)->where('status', $previousStatus)
-                ->update(array_merge($claim, ['status' => $newStatus]));
+                ->update(array_merge($claim, ['status' => $status]));
 
             $guest = Guest::query()->find($guest->id);
 
-            if (!$claimed && $guest->status !== $newStatus) {
+            if (!$claimed && $guest->status !== $status) {
                 return false;
             }
 

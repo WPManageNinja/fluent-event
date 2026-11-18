@@ -182,8 +182,8 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
         }
 
-        if ($registered === 'cancelled') {
-            return self::refused('cancelled');
+        if (is_string($registered)) {
+            return self::refused($registered);
         }
 
         if (!$registered) {
