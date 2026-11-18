@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FluentCommunity - Release Image Template</title>
+<style>
+  /* ================================================================
+     EASY TWEAK ZONE — change colors, fonts, spacing here
+     ================================================================ */
+  :root {
+    --fc-blue: #4561E9;
+    --fc-dark-blue: #2E48C7;
+    --fc-purple: #8AA0F2;
+    --fc-text: #07090C;
+    --fc-muted: #4E5D78;
+    --fc-bg: #FBFBFE;
+    --edd-cyan: #01b7ff;
+    --edd-gray-stroke: #D8D8DE;
+
+    --banner-pad: 80px;
+    --radius-card: 20px;
+    --radius-pill: 999px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #e9e9f2;
+    padding: 40px;
+  }
+
+  /* ================================================================
+     BANNER — 1200 × 630 (standard OG / featured image size)
+     ================================================================ */
+  .banner {
+    width: 1200px;
+    height: 630px;
+    background: var(--fc-bg);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 50, 0.08);
+  }
+
+  /* Decorative background circles */
+  .bg-circle { position: absolute; border-radius: 50%; pointer-events: none; }
+  .bg-circle.c1 { width: 560px; height: 560px; background: var(--fc-blue); opacity: 0.05; top: 410px; left: -340px; }
+  .bg-circle.c2 { width: 560px; height: 560px; background: var(--fc-purple); opacity: 0.14; top: -330px; right: -320px; }
+  .bg-circle.c3 { width: 260px; height: 260px; background: var(--fc-blue); opacity: 0.06; bottom: -70px; right: -35px; }
+
+  /* ================================================================
+     LAYOUT — two columns
+     ================================================================ */
+  .content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding: var(--banner-pad);
+    gap: 30px;
+  }
+
+  .left-col {
+    width: 570px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-col {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ================================================================
+     BADGE — properly padded pill
+     ================================================================ */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 26px;
+    background: white;
+    border: 2px solid var(--fc-blue);
+    border-radius: var(--radius-pill);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--fc-blue);
+    width: fit-content;
+    margin-bottom: 48px;
+    line-height: 1;
+  }
+  .badge .dot {
+    width: 12px;
+    height: 12px;
+    background: var(--fc-blue);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ================================================================
+     TITLE + TAGLINE
+     ================================================================ */
+  .title {
+    font-size: 62px;
+    font-weight: 700;
+    line-height: 1.08;
+    color: var(--fc-text);
+    letter-spacing: -0.02em;
+  }
+  .title .line2 {
+    color: var(--fc-blue);
+    display: block;
+  }
+  .tagline {
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--fc-muted);
+    margin-top: 26px;
+    line-height: 1.4;
+  }
+
+  /* Logo pinned to bottom of left column */
+  .logo { margin-top: auto; }
+  .logo img.logo-img { display: block; height: 58px; width: auto; }
+
+  /* ================================================================
+     RIGHT-SIDE ILLUSTRATION — generic components
+     ================================================================ */
+
+  /* Store cards (used for migration flow, provider cards, etc.) */
+  .store {
+    width: 148px;
+    height: 168px;
+    border-radius: var(--radius-card);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+  }
+  .store.light {
+    background: white;
+    border: 1.5px solid var(--edd-gray-stroke);
+    color: var(--fc-muted);
+  }
+  .store.dark {
+    background: var(--fc-blue);
+    color: white;
+  }
+  .store-name {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  .store-sub {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.75;
+    margin-top: -4px;
+    letter-spacing: 0.01em;
+  }
+  .store-icon { flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+  /* Arrow between cards */
+  .arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--fc-blue);
+  }
+  .arrow-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fc-blue);
+  }
+  .arrow-shape { display: block; }
+
+  /* Illustration container */
+  .illustration {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  /* Checkmark pill badges */
+  .includes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2px;
+  }
+  .includes-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fc-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 10px;
+    max-width: 380px;
+  }
+  .pill {
+    background: white;
+    border: 1px solid #E3E3EE;
+    border-radius: var(--radius-pill);
+    padding: 8px 16px 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fc-blue);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .pill .check {
+    width: 14px;
+    height: 14px;
+    background: var(--fc-blue);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .pill .check svg { display: block; }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="bg-circle c1"></div>
+  <div class="bg-circle c2"></div>
+  <div class="bg-circle c3"></div>
+
+  <div class="content">
+
+    <!-- ========== LEFT: Text ========== -->
+    <div class="left-col">
+
+      <!-- CHANGE: Badge text per release -->
+      <div class="badge">
+        <span class="dot"></span>
+        <span>Release 2.6.0</span>
+      </div>
+
+      <!-- CHANGE: Title per release -->
+      <h1 class="title">
+        Welcome Banners
+        <span class="line2">for Your Courses</span>
+      </h1>
+
+      <!-- CHANGE: Tagline per release -->
+      <p class="tagline">Give every course its own landing page — image or video, headline, and call-to-action buttons.</p>
+
+      <!-- FIXED: FluentCommunity logo (never change) -->
+      <div class="logo">
+        <img class="logo-img" alt="FluentCommunity" src="fc-logo.png">
+      </div>
+    </div>
+
+    <!-- ========== RIGHT: Illustration (CHANGE per release) ========== -->
+    <div class="right-col">
+      <!-- Course Welcome Banner illustration: one course, two views.
+           Enrolled card peeks from behind (welcome-back + progress + dismiss),
+           Not Enrolled landing card sits in front (video + headline + CTAs). -->
+      <div class="illustration" style="position:relative; width:100%; max-width:470px; height:470px; display:block;">
+
+        <!-- ===== BACK CARD: Enrolled view (rotated, peeking top-right) ===== -->
+        <div style="position:absolute; top:0; right:0; width:330px; background:white; border:1.5px solid #E3E3EE; border-radius:18px; padding:18px 20px; transform:rotate(4deg); transform-origin:bottom left; box-shadow:0 8px 24px rgba(0,0,50,0.08);">
+          <!-- view label -->
+          <div style="position:absolute; top:-13px; left:18px; background:#EAF7F0; color:#1F9D61; border:1.5px solid #BCE5D1; border-radius:999px; padding:6px 14px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; line-height:1;">Enrolled</div>
+          <!-- dismiss × -->
+          <div style="position:absolute; top:10px; right:12px; width:22px; height:22px; border-radius:50%; background:#F1F3FA; display:flex; align-items:center; justify-content:center; color:#7B89A8; font-size:13px; font-weight:700; line-height:1;">&times;</div>
+          <!-- welcome back row -->
+          <div style="display:flex; align-items:center; gap:12px; margin-top:6px;">
+            <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--fc-purple), var(--fc-blue)); display:flex; align-items:center; justify-content:center; color:white; font-size:15px; font-weight:700;">A</div>
+            <div>
+              <div style="font-size:16px; font-weight:700; color:var(--fc-text); line-height:1.2;">Welcome back, Alex 👋</div>
+              <div style="font-size:12px; font-weight:500; color:var(--fc-muted); margin-top:2px;">Pick up where you left off</div>
+            </div>
+          </div>
+          <!-- progress -->
+          <div style="margin-top:14px;">
+            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--fc-muted); margin-bottom:6px;">
+              <span>Course progress</span><span style="color:var(--fc-blue);">64%</span>
+            </div>
+            <div style="height:8px; border-radius:6px; background:#E9EDF6; overflow:hidden;">
+              <div style="width:64%; height:100%; border-radius:6px; background:linear-gradient(90deg, var(--fc-blue), var(--fc-purple));"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== FRONT CARD: Not Enrolled landing view ===== -->
+        <div style="position:absolute; left:0; bottom:0; width:390px; background:white; border:1.5px solid #E3E3EE; border-radius:20px; overflow:visible; box-shadow:0 18px 44px rgba(0,0,50,0.13);">
+          <!-- view label -->
+          <div style="position:absolute; top:-13px; left:20px; z-index:2; background:var(--fc-blue); color:white; border-radius:999px; padding:7px 16px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; line-height:1; box-shadow:0 4px 12px rgba(69,97,233,0.35);">Not Enrolled</div>
+
+          <!-- media area -->
+          <div style="position:relative; height:158px; background:linear-gradient(135deg, var(--fc-blue) 0%, var(--fc-purple) 100%); border-radius:18px 18px 0 0; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            <div style="position:absolute; width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,0.10); top:-55px; left:-35px;"></div>
+            <div style="position:absolute; width:110px; height:110px; border-radius:50%; background:rgba(255,255,255,0.08); bottom:-45px; right:-25px;"></div>
+            <!-- play -->
+            <div style="width:54px; height:54px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,50,0.18);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5.5V18.5L19 12L8 5.5Z" fill="#4561E9"/></svg>
+            </div>
+            <!-- media toggle chip: image | video -->
+            <div style="position:absolute; top:12px; right:12px; display:flex; background:rgba(255,255,255,0.92); border-radius:999px; padding:3px; font-size:10px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; line-height:1;">
+              <span style="padding:5px 10px; border-radius:999px; color:#7B89A8;">Image</span>
+              <span style="padding:5px 10px; border-radius:999px; background:var(--fc-blue); color:white;">Video</span>
+            </div>
+          </div>
+
+          <!-- copy area -->
+          <div style="padding:20px 22px 22px;">
+            <div style="font-size:19px; font-weight:700; color:var(--fc-text); line-height:1.25;">Master Your Craft in 6 Weeks</div>
+            <div style="margin-top:11px; display:flex; flex-direction:column; gap:7px;">
+              <div style="height:8px; border-radius:6px; background:#E9EDF6; width:100%;"></div>
+              <div style="height:8px; border-radius:6px; background:#E9EDF6; width:78%;"></div>
+            </div>
+            <!-- CTAs -->
+            <div style="display:flex; gap:10px; margin-top:17px;">
+              <div style="background:var(--fc-blue); color:white; border-radius:10px; padding:11px 20px; font-size:13px; font-weight:700; line-height:1; box-shadow:0 6px 16px rgba(69,97,233,0.30);">Enroll Now</div>
+              <div style="background:white; color:var(--fc-blue); border:1.5px solid var(--fc-blue); border-radius:10px; padding:11px 20px; font-size:13px; font-weight:700; line-height:1;">Free Preview</div>
+            </div>
+            <!-- social proof row -->
+            <div style="display:flex; align-items:center; gap:10px; margin-top:16px;">
+              <div style="display:flex;">
+                <div style="width:26px; height:26px; border-radius:50%; background:#FFB199; border:2px solid white;"></div>
+                <div style="width:26px; height:26px; border-radius:50%; background:#8AA0F2; border:2px solid white; margin-left:-9px;"></div>
+                <div style="width:26px; height:26px; border-radius:50%; background:#63D4A4; border:2px solid white; margin-left:-9px;"></div>
+                <div style="width:26px; height:26px; border-radius:50%; background:#F5C26B; border:2px solid white; margin-left:-9px;"></div>
+              </div>
+              <div style="font-size:11.5px; font-weight:600; color:var(--fc-muted);">2,140 enrolled</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Floating chip: per-course setting ===== -->
+        <div style="position:absolute; right:-10px; bottom:2px; background:white; border:1.5px solid #E3E3EE; border-radius:14px; padding:10px 14px; display:flex; align-items:center; gap:9px; box-shadow:0 10px 26px rgba(0,0,50,0.12);">
+          <div style="width:26px; height:26px; border-radius:8px; background:rgba(69,97,233,0.10); display:flex; align-items:center; justify-content:center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h9" stroke="#4561E9" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </div>
+          <div style="font-size:12px; font-weight:700; color:var(--fc-text); line-height:1.25;">Per-course setup<br><span style="font-weight:500; color:var(--fc-muted);">in Course Edit</span></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
