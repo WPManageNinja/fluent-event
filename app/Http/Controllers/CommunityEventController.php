@@ -264,7 +264,13 @@ class CommunityEventController extends Controller
             );
         }
 
-        [$guest, $previousStatus] = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id], $guest);
+        $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id], $guest);
+
+        if (!$registered) {
+            return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
+        }
+
+        [$guest, $previousStatus] = $registered;
 
         if ($previousStatus === null) {
             do_action('fluent_event/guest/created', $guest);

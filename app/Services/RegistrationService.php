@@ -136,7 +136,8 @@ class RegistrationService
      *
      * @param array      $source source and source_id.
      * @param Guest|null $guest  The email's not-going row.
-     * @return array [Guest, its status before, or null when created]
+     * @return array|false [Guest, its status before, or null when created]; false when the row changed under this
+     *                     request and holds no seat.
      */
     public static function registerVisitor(Event $event, array $data, array $source, $guest = null)
     {
@@ -144,6 +145,11 @@ class RegistrationService
             // Claimed against "not going", so two requests coming back together send one confirmation.
             $claimed = Guest::query()->where('id', $guest->id)->where('status', 'not_going')->update(['status' => 'going']);
             $guest = Guest::query()->find($guest->id);
+
+            // An admin cancelled or deleted the row meanwhile.
+            if (!$claimed && (!$guest || !in_array($guest->status, Event::SEAT_STATUSES, true))) {
+                return false;
+            }
 
             return [$guest, $claimed ? 'not_going' : $guest->status];
         }

@@ -131,6 +131,31 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
     }
 
+    // An admin cancels the row while the visitor's comeback is in flight: it must not read as registered.
+    public function test_a_comeback_overtaken_by_an_admin_cancel_asks_to_try_again()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $guest = $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'not_going']);
+        $raced = false;
+
+        $this->addTestFilter('query', function ($query) use (&$raced, $guest) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'not_going'") !== false) {
+                $raced = true;
+                $this->wpdb->update($this->table('fe_guests'), ['status' => 'cancelled'], ['id' => $guest->id]);
+            }
+
+            return $query;
+        });
+
+        $response = $this->registerGuest($event);
+
+        $this->assertTrue($raced, 'The claim query never ran');
+        $this->assertSame(409, $response['status'], wp_json_encode($response['data']));
+        $this->assertArrayNotHasKey('html', $response['data']);
+        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guest->id]));
+    }
+
     // A bad name fails alike for registered and new emails.
     public function test_an_invalid_name_does_not_tell_registered_emails_apart()
     {
