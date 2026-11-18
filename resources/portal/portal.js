@@ -95,9 +95,10 @@ export async function submitForm(form) {
     try {
         const next = swap(card, (await send(card, form.action, Object.fromEntries(new FormData(form)))).html);
 
-        // The answer to a registration carries its confirmation, which opens over the new card.
-        const done = next.querySelector('[data-fe-registered]');
-        done && done.showPopover();
+        // The answer to a registration carries its confirmation, or the already-registered warning, which opens over
+        // the new card.
+        const answer = next.querySelector('[data-fe-answer]');
+        answer && answer.showPopover();
     } catch (error) {
         message.textContent = error.message;
         button.disabled = false;

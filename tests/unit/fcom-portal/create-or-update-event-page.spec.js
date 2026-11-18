@@ -26,6 +26,7 @@ const createPage = async (Page = CreateOrUpdateEventPage, extraProps = {}, extra
             stubs: {
                 ElFormItem: { template: '<div><slot /></div>' },
                 ElInput: { template: '<input />', methods: { focus() {} } },
+                ElInputNumber: { template: '<input />' },
                 ...extraStubs
             },
             config: { warnHandler }
@@ -254,6 +255,8 @@ describe('CreateOrUpdateEventPage', () => {
                 cover_url: 'https://example.test/uploads/walk.png',
                 entry_type: 'open',
                 show_guest_count: 'no',
+                capacity: 25,
+                show_spots_left: 'yes',
                 start_display: 'countdown'
             }
         };
@@ -271,6 +274,7 @@ describe('CreateOrUpdateEventPage', () => {
                     stubs: {
                         ElFormItem: { template: '<div><slot /></div>' },
                         ElInput: { template: '<input />', methods: { focus() {} } },
+                        ElInputNumber: { template: '<input />' },
                         ElButton: { template: '<button><slot /></button>' }
                     },
                     config: { warnHandler }
@@ -307,6 +311,8 @@ describe('CreateOrUpdateEventPage', () => {
                 cover_url: 'https://example.test/uploads/walk.png',
                 entry_type: 'open',
                 show_guest_count: 'no',
+                capacity: 25,
+                show_spots_left: 'yes',
                 start_display: 'countdown'
             });
             expect(props.onLoaded).toHaveBeenCalledWith(stored);
@@ -361,6 +367,8 @@ describe('CreateOrUpdateEventPage', () => {
                 address: '',
                 entry_type: 'open',
                 show_guest_count: 'no',
+                capacity: 25,
+                show_spots_left: 'yes',
                 start_display: 'countdown'
             });
             expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'Event has been successfully updated' });

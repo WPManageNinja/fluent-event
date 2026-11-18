@@ -25,6 +25,8 @@ class EventRequest extends BaseRequest
         'address',
         'entry_type',
         'show_guest_count',
+        'capacity',
+        'show_spots_left',
         'start_display',
         'description_md',
     ];
@@ -43,6 +45,8 @@ class EventRequest extends BaseRequest
         'address'            => 'sanitize_textarea_field',
         'entry_type'         => 'sanitize_text_field',
         'show_guest_count'   => 'sanitize_text_field',
+        'capacity'           => 'intval',
+        'show_spots_left'    => 'sanitize_text_field',
         'start_display'      => 'sanitize_text_field',
     ];
     const RULES = [
@@ -61,6 +65,8 @@ class EventRequest extends BaseRequest
         'address'            => 'nullable|string|max:500',
         'entry_type'         => 'required|string|in:' . Event::ENTRY_TYPES,
         'show_guest_count'   => 'nullable|string|in:yes,no',
+        'capacity'           => 'nullable|integer|min:0',
+        'show_spots_left'    => 'nullable|string|in:yes,no',
         'start_display'      => 'nullable|string|in:relative,countdown',
     ];
 
@@ -128,6 +134,9 @@ class EventRequest extends BaseRequest
             'entry_type.required'         => __('Registration type is required.', 'fluent-event'),
             'entry_type.in'               => __('Registration must be RSVP, open or none.', 'fluent-event'),
             'show_guest_count.in'         => __('Show guest count must be yes or no.', 'fluent-event'),
+            'capacity.integer'            => __('Capacity must be a whole number.', 'fluent-event'),
+            'capacity.min'                => __('Capacity cannot be negative.', 'fluent-event'),
+            'show_spots_left.in'          => __('Show spots left must be yes or no.', 'fluent-event'),
             'start_display.in'            => __('Before the start must show the time left or a countdown.', 'fluent-event'),
         ];
     }

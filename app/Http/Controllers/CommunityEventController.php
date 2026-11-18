@@ -157,14 +157,15 @@ class CommunityEventController extends Controller
         $entryType = Arr::get((array) $event->meta, 'entry_type');
         $status = $request->getSafe('status', 'sanitize_text_field');
 
-        if (!in_array($status, $entryType === 'open' ? ['going', 'cancelled'] : ['going', 'not_going'], true)) {
+        if (!in_array($status, ['going', 'not_going'], true)) {
             return $this->sendError(['message' => __('Please choose going or not going.', 'fluent-event')], 422);
         }
 
-        // Only a registration the member holds can be cancelled; otherwise a cancelled row would appear from nothing.
+        // An open event's "not going" only gives up a registration the member holds; otherwise a not-going row
+        // would appear from nothing. An RSVP's is an answer of its own.
         $myStatus = Guest::query()->where('event_id', $event->id)->where('user_id', get_current_user_id())->value('status');
 
-        if ($status === 'cancelled' && !in_array($myStatus, Event::SEAT_STATUSES, true)) {
+        if ($status === 'not_going' && $entryType === 'open' && !in_array($myStatus, Event::SEAT_STATUSES, true)) {
             return $this->sendError(['message' => __('You are not registered for this event.', 'fluent-event')], 422);
         }
 
@@ -179,6 +180,15 @@ class CommunityEventController extends Controller
 
         if ($registered === false) {
             return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
+        }
+
+        // A repeat is warned in a dialog; a full event is an error.
+        if (in_array($registered, ['already_registered', 'cancelled'], true)) {
+            return self::refused($registered);
+        }
+
+        if (is_string($registered)) {
+            return $this->sendError(['message' => $registered], 422);
         }
 
         if (!$registered) {
@@ -196,22 +206,15 @@ class CommunityEventController extends Controller
         RegistrationService::queueEmail($guest, $previousStatus);
 
         // The portal shows an RSVP's message as a toast; an open event's registration gets its own dialog.
-        if ($guest->status === 'cancelled') {
-            $message = __('Registration cancelled.', 'fluent-event');
-        } elseif ($guest->status === 'not_going') {
-            $message = __("RSVP updated. You're not going.", 'fluent-event');
+        if ($guest->status === 'not_going') {
+            $message = $entryType === 'rsvp' ? __("RSVP updated. You're not going.", 'fluent-event') : __("You're no longer going.", 'fluent-event');
         } elseif ($entryType === 'rsvp') {
             $message = __("RSVP updated. You're going!", 'fluent-event');
         } else {
             $message = __('You are registered.', 'fluent-event');
         }
 
-        // Only what changed: the portal updates its own copy of the event, count included, and a reload brings the rest.
-        return [
-            'message'            => $message,
-            'status'             => $guest->status,
-            'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
-        ];
+        return self::answered($event, $guest->status, $message);
     }
 
     // A logged-out visitor registers for an open event by name and email; members use register().
@@ -246,39 +249,65 @@ class CommunityEventController extends Controller
         // Validate first, so bad input fails alike for every email.
         $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
 
-        // A repeated email gets the new-registration answer, saving nothing.
-        if (RegistrationService::hasGuestEmail($event, $data['email'])) {
-            return [
-                'message'            => __('You are registered.', 'fluent-event'),
-                'status'             => 'going',
-                'online_meeting_url' => self::meetingUrlFor($event, 'going'),
-            ];
+        $guest = RegistrationService::guestByEmail($event, $data['email']);
+
+        // A repeated email is refused with nothing saved, unless its row said not going and has no account: that comes
+        // back on.
+        if ($guest && ($refusal = RegistrationService::visitorRefusal($guest))) {
+            return self::refused($refusal);
         }
 
-        $this->validate(
-            $data,
-            Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
-            GuestRequest::messages()
-        );
+        if (!$guest) {
+            $this->validate(
+                $data,
+                Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
+                GuestRequest::messages()
+            );
+        }
 
-        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id]);
+        $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id], $guest);
 
-        do_action('fluent_event/guest/created', $guest);
+        if (is_string($registered)) {
+            return $this->sendError(['message' => $registered], 422);
+        }
 
-        RegistrationService::queueEmail($guest, null);
+        if (!$registered) {
+            return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
+        }
 
+        [$guest, $previousStatus] = $registered;
+
+        if ($previousStatus === null) {
+            do_action('fluent_event/guest/created', $guest);
+        } elseif ($previousStatus !== $guest->status) {
+            do_action('fluent_event/guest/updated', $guest, $previousStatus);
+        }
+
+        RegistrationService::queueEmail($guest, $previousStatus);
+
+        return self::answered($event, $guest->status, __('You are registered.', 'fluent-event'));
+    }
+
+    // A registration refused with nothing saved: no status, so the portal changes nothing and says why.
+    private static function refused($refusal)
+    {
         return [
-            'message'            => __('You are registered.', 'fluent-event'),
-            'status'             => $guest->status,
-            'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
+            'message' => RegistrationService::refusalMessage($refusal),
+            'status'  => null,
+            'refusal' => $refusal,
         ];
     }
 
-    // The link is revealed once a guest holds a seat, as EventService::formatEvent() reveals it.
-    private static function meetingUrlFor(Event $event, $status)
+    // The guest's new status with the event's seats as they stand now, everyone's answers included, so the portal
+    // redraws the count, the spots left and the full state together. The link shows once the guest holds a seat.
+    private static function answered(Event $event, $status, $message)
     {
-        return $event->venue_type === 'online' && in_array($status, Event::SEAT_STATUSES, true)
-            ? (string) Arr::get((array) $event->meta, 'online_meeting_url', '')
-            : '';
+        $seats = EventService::seatCounts([$event->id]);
+        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $status, false, false);
+
+        return array_merge(
+            ['message' => $message, 'status' => $status],
+            Arr::only($formatted, ['online_meeting_url', 'guest_count', 'spots_left', 'is_full'])
+        );
     }
 }

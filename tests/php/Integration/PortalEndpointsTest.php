@@ -58,7 +58,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertStringContainsString('https://meet.example.test/fe-room', $response['data']['html']);
         $this->assertStringNotContainsString('data-fe-status', $response['data']['html']);
         // With the confirmation the page opens over it.
-        $this->assertStringContainsString('data-fe-registered', $response['data']['html']);
+        $this->assertStringContainsString('data-fe-answer', $response['data']['html']);
         $this->assertStringContainsString(esc_html__("You're going", 'fluent-event'), $response['data']['html']);
     }
 
@@ -86,12 +86,95 @@ class PortalEndpointsTest extends IntegrationTestCase
         $first = $this->registerGuest($event);
         $again = $this->registerGuest($event, ['name' => 'Someone else']);
 
-        // Same answer as a new registration.
+        // Warned that the email is already registered, and nothing is saved.
         $this->assertSame(200, $again['status'], wp_json_encode($again['data']));
-        $this->assertSame($first['data']['message'], $again['data']['message']);
-        $this->assertSame($first['data']['status'], $again['data']['status']);
+        $this->assertSame(__('This email is already registered for this event.', 'fluent-event'), $again['data']['message']);
+        $this->assertNull($again['data']['status']);
+        $this->assertStringContainsString('fe-register-success--warning', $again['data']['html']);
+        $this->assertStringContainsString(esc_html__('This email is already registered', 'fluent-event'), $again['data']['html']);
+        $this->assertStringNotContainsString(esc_html__("You're going", 'fluent-event'), $again['data']['html']);
+        $this->assertStringNotContainsString('fe-register-success--warning', $first['data']['html']);
         $this->assertCount(1, $this->guestsOf($event));
         $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
+    }
+
+    public function test_a_visitor_who_said_not_going_comes_back_on_the_same_row()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $existing = $this->createGuest($event, ['name' => 'Name Before', 'email' => 'visitor@example.test', 'status' => 'not_going']);
+
+        $response = $this->registerGuest($event, ['name' => 'Someone else']);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('going', $response['data']['status']);
+        $this->assertStringContainsString(esc_html__("You're going", 'fluent-event'), $response['data']['html']);
+        $guests = $this->guestsOf($event);
+        $this->assertCount(1, $guests);
+        $this->assertSame((int) $existing->id, (int) $guests[0]->id);
+        $this->assertSame('going', $guests[0]->status);
+        $this->assertSame('Name Before', $guests[0]->name);
+    }
+
+    public function test_a_visitor_an_admin_cancelled_is_told_so()
+    {
+        $event = $this->onlineEvent('open');
+        $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'cancelled']);
+
+        $response = $this->registerGuest($event);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(__('Your registration was cancelled by the host.', 'fluent-event'), $response['data']['message']);
+        $this->assertNull($response['data']['status']);
+        $this->assertStringContainsString('fe-register-success--warning', $response['data']['html']);
+        $this->assertStringContainsString(esc_html__('Your registration was cancelled', 'fluent-event'), $response['data']['html']);
+        $this->assertStringNotContainsString('meet.example.test', $response['data']['html']);
+        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
+    }
+
+    // A row linked to an account changes only from that account: typing its email can't bring it back, even signed in,
+    // as the page treats everyone as a visitor.
+    public function test_a_visitor_cannot_bring_back_a_members_not_going_row()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $member = $this->createUser('subscriber');
+        $guest = $this->createGuest($event, ['email' => 'visitor@example.test', 'user_id' => $member, 'status' => 'not_going']);
+
+        foreach ([0, $member] as $viewer) {
+            $this->actAs($viewer);
+            $response = $this->registerGuest($event);
+
+            $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+            $this->assertSame(__('This email is already registered for this event.', 'fluent-event'), $response['data']['message']);
+            $this->assertNull($response['data']['status']);
+        }
+
+        $this->assertSame('not_going', Guest::query()->find($guest->id)->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guest->id]));
+    }
+
+    // An admin cancels the row while the visitor's comeback is in flight: it must not read as registered.
+    public function test_a_comeback_overtaken_by_an_admin_cancel_asks_to_try_again()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $guest = $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'not_going']);
+        $raced = false;
+
+        $this->addTestFilter('query', function ($query) use (&$raced, $guest) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'not_going'") !== false) {
+                $raced = true;
+                $this->wpdb->update($this->table('fe_guests'), ['status' => 'cancelled'], ['id' => $guest->id]);
+            }
+
+            return $query;
+        });
+
+        $response = $this->registerGuest($event);
+
+        $this->assertTrue($raced, 'The claim query never ran');
+        $this->assertSame(409, $response['status'], wp_json_encode($response['data']));
+        $this->assertArrayNotHasKey('html', $response['data']);
+        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guest->id]));
     }
 
     // A bad name fails alike for registered and new emails.
@@ -230,5 +313,33 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame(403, $response['status']);
         $this->assertArrayNotHasKey('html', $response['data']);
         $this->assertCount(0, $this->guestsOf($event));
+    }
+
+    // The public page holds the same seat limit as the portal.
+    public function test_a_visitor_is_refused_a_full_event()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 1]);
+        $this->createGuest($full);
+
+        $response = $this->registerGuest($full);
+
+        $this->assertSame(422, $response['status']);
+        $this->assertSame('This event is full.', $response['data']['message']);
+        $this->assertCount(1, $this->guestsOf($full));
+    }
+
+    // Coming back from not going takes a seat like a new registration does.
+    public function test_a_visitor_who_said_not_going_cannot_take_a_seat_once_the_event_is_full()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 1]);
+        $this->createGuest($full);
+        $comeback = $this->createGuest($full, ['email' => 'visitor@example.test', 'status' => 'not_going']);
+
+        $response = $this->registerGuest($full);
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('This event is full.', $response['data']['message']);
+        $this->assertSame('not_going', Guest::query()->find($comeback->id)->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $comeback->id]));
     }
 }

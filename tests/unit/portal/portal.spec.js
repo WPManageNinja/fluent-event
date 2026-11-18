@@ -65,12 +65,12 @@ describe('registration', () => {
                 <p class="fe-register__error"></p>
                 <button type="submit">Register</button>
             </form>`);
-        fetch.mockResolvedValue(respond({ html: card('<div popover data-fe-registered>You\'re registered</div>') }));
+        fetch.mockResolvedValue(respond({ html: card('<div popover data-fe-answer>You\'re registered</div>') }));
 
         await submitForm(document.querySelector('form'));
 
         expect(showPopover).toHaveBeenCalledTimes(1);
-        expect(showPopover.mock.instances[0]).toBe(document.querySelector('[data-fe-registered]'));
+        expect(showPopover.mock.instances[0]).toBe(document.querySelector('[data-fe-answer]'));
         delete HTMLElement.prototype.showPopover;
     });
 

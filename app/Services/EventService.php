@@ -131,6 +131,7 @@ class EventService
         $isRegistered = in_array($myStatus, Event::SEAT_STATUSES, true);
         $isPast = $event->end_at < gmdate(DateTimeHelper::FORMAT);
         $hasMeetingUrl = $event->venue_type === 'online' && !empty($meta['online_meeting_url']);
+        $capacity = $takesRegistrations ? (int) $meta['capacity'] : 0;
 
         return [
             'id'                 => (int) $event->id,
@@ -153,6 +154,10 @@ class EventService
             'online_meeting_url' => $hasMeetingUrl && ($meta['entry_type'] === 'none' || $isRegistered || $isStaff) ? $meta['online_meeting_url'] : '',
             'entry_type'         => $meta['entry_type'],
             'guest_count'        => $takesRegistrations && $meta['show_guest_count'] === 'yes' ? $seats : null,
+            'capacity'           => $capacity ?: null,
+            // Null unless the host shows the spots left on a capped event.
+            'spots_left'         => $capacity > 0 && $meta['show_spots_left'] === 'yes' ? max(0, $capacity - $seats) : null,
+            'is_full'            => $capacity > 0 && $seats >= $capacity,
             'start_display'      => $meta['start_display'],
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
