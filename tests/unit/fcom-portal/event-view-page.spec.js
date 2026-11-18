@@ -390,7 +390,8 @@ describe('EventViewPage', () => {
     });
 
     describe('capacity', () => {
-        const capped = (going, capacity = 10) => meetup({ guest_count: going, capacity, is_full: going >= capacity });
+        // Both switches on: the count and the spots left.
+        const capped = (going, capacity = 10) => meetup({ guest_count: going, capacity, spots_left: Math.max(0, capacity - going), is_full: going >= capacity });
 
         it('meters the seats taken and counts the ones left', async () => {
             const { wrapper } = await page(capped(7));
@@ -450,11 +451,28 @@ describe('EventViewPage', () => {
         });
 
         it('shows no meter when the host hides the count or set no capacity', async () => {
-            expect((await page(meetup({ guest_count: null, capacity: 10 }))).wrapper.find('.fe-capacity').exists()).toBe(false);
+            expect((await page(meetup({ guest_count: null, capacity: 10, spots_left: null }))).wrapper.find('.fe-capacity').exists()).toBe(false);
 
-            const uncapped = (await page(meetup({ guest_count: 4, capacity: null }))).wrapper;
+            const uncapped = (await page(meetup({ guest_count: 4, capacity: null, spots_left: null }))).wrapper;
             expect(uncapped.find('.fe-capacity').exists()).toBe(false);
             expect(uncapped.find('.fe-event-view__count').text()).toBe('4 going');
+        });
+
+        it('shows only the going count when the spots left are hidden', async () => {
+            const { wrapper } = await page(meetup({ guest_count: 7, capacity: 10, spots_left: null }));
+
+            expect(wrapper.find('.fe-capacity').exists()).toBe(false);
+            expect(wrapper.find('.fe-event-view__count').text()).toBe('7 going');
+        });
+
+        it('shows only the spots left when the count is hidden, and nothing once the event ends', async () => {
+            const spotsOnly = meetup({ guest_count: null, capacity: 10, spots_left: 3 });
+            const { wrapper } = await page(spotsOnly);
+
+            expect(wrapper.find('.fe-capacity').exists()).toBe(false);
+            expect(wrapper.find('.fe-event-view__count').text()).toBe('3 spots left');
+
+            expect((await page(ended(spotsOnly))).wrapper.find('.fe-event-view__count').exists()).toBe(false);
         });
     });
 });

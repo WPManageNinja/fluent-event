@@ -157,7 +157,7 @@
 
 <script>
 import { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, setPageTitle, timeFormat } from '../utils';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, hasSpotsLeft, isSeated, portalVars, saveIcs, setPageTitle, spotsLeftLabel, timeFormat } from '../utils';
 import { lastDay } from '@/utils/date';
 import { padPart, startCountdown } from '@/utils/countdown';
 import { APPLE, GOOGLE } from '../icons';
@@ -272,21 +272,15 @@ export default {
         isFullForMe() {
             return !!this.event.is_full && !isSeated(this.event);
         },
-        // Only a capped event whose host shows the count; an ended one keeps it as a record of how full it got.
+        // With both the count and the spots left shown; an ended one keeps it as a record of how full it got.
         showMeter() {
-            return !!this.event.capacity && !!this.countLabel;
+            return hasSpotsLeft(this.event) && this.event.guest_count !== null && this.event.guest_count !== undefined;
         },
         capacityPercent() {
             return Math.min(100, Math.round((this.event.guest_count / this.event.capacity) * 100));
         },
         capacityStatus() {
-            if (this.event.is_full) {
-                return this.$t('Event full');
-            }
-
-            const left = this.event.capacity - this.event.guest_count;
-
-            return left === 1 ? this.$t('1 spot left') : this.$t('%d spots left', left);
+            return this.event.is_full ? this.$t('Event full') : spotsLeftLabel(this.event);
         },
         // The status above already says Ended, so an ended event gets no RSVP slot; a full one shows its notice instead.
         hasActions() {

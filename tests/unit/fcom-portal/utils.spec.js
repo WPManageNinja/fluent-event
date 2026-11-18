@@ -234,9 +234,17 @@ describe('RSVP helpers', () => {
         expect(guestCountLabel({ entry_type: 'none' })).toBe('');
     });
 
-    it('counts against the capacity when the event has one', () => {
-        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 12, capacity: 50 })).toBe('12 out of 50 going');
-        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null, capacity: 50 })).toBe('');
+    it('counts against the capacity only when the spots left show too', () => {
+        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 12, capacity: 50, spots_left: 38 })).toBe('12 out of 50 going');
+        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 12, capacity: 50, spots_left: null })).toBe('12 going');
+        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null, capacity: 50, spots_left: null })).toBe('');
+    });
+
+    it('shows the spots left alone when the count is hidden, until the event ends or fills', () => {
+        expect(guestCountLabel({ guest_count: null, capacity: 50, spots_left: 38 })).toBe('38 spots left');
+        expect(guestCountLabel({ guest_count: null, capacity: 50, spots_left: 1 })).toBe('1 spot left');
+        expect(guestCountLabel({ guest_count: null, capacity: 50, spots_left: 0 })).toBe('');
+        expect(guestCountLabel({ guest_count: null, capacity: 50, spots_left: 38, is_past: true })).toBe('');
     });
 });
 

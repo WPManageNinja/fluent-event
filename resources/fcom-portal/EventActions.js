@@ -140,11 +140,12 @@ export default {
                 this.busy = false;
             }
         },
-        // The reply carries only the new status and link; the count moves by this answer alone, and a reload brings everyone else's.
+        // The reply carries only the new status and link; the count and spots left move by this answer alone, and a
+        // reload brings everyone else's.
         withStatus(response) {
             const wasSeated = isSeated(this.event);
-            const isNowSeated = isSeated({ my_status: response.status });
-            const count = this.event.guest_count;
+            const step = wasSeated === isSeated({ my_status: response.status }) ? 0 : (wasSeated ? -1 : 1);
+            const moved = (value, by) => (value === null || value === undefined ? value : value + by);
 
             return {
                 ...response,
@@ -152,7 +153,8 @@ export default {
                     ...this.event,
                     my_status: response.status,
                     online_meeting_url: response.online_meeting_url,
-                    guest_count: count === null || count === undefined || wasSeated === isNowSeated ? count : count + (isNowSeated ? 1 : -1),
+                    guest_count: moved(this.event.guest_count, step),
+                    spots_left: moved(this.event.spots_left, -step),
                 },
             };
         },

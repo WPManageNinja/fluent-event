@@ -182,16 +182,30 @@ export function hasEventActions(event) {
     return event.is_past || ['rsvp', 'open'].includes(event.entry_type);
 }
 
+// The going count, out of the capacity when the spots left show too; with only the spots left on, those until the end.
 export function guestCountLabel(event) {
     if (event.guest_count === null || event.guest_count === undefined) {
-        return '';
+        return event.is_past ? '' : spotsLeftLabel(event);
     }
 
-    if (event.capacity) {
+    if (hasSpotsLeft(event)) {
         return t('%1$s out of %2$s going', event.guest_count, event.capacity);
     }
 
     return t('%s going', event.guest_count);
+}
+
+// Whether the host shows the spots left on this capped event.
+export function hasSpotsLeft(event) {
+    return event.spots_left !== null && event.spots_left !== undefined;
+}
+
+export function spotsLeftLabel(event) {
+    if (!event.spots_left) {
+        return '';
+    }
+
+    return event.spots_left === 1 ? t('1 spot left') : t('%d spots left', event.spots_left);
 }
 
 // fcom titles its own pages "<title> - <site>"; ours would keep the previous page's tab title.

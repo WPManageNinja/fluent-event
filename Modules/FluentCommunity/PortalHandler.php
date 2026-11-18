@@ -304,6 +304,7 @@ class PortalHandler
             'Search events' => __('Search events', 'fluent-event'),
             'Select a space' => __('Select a space', 'fluent-event'),
             'Show how many guests are going' => __('Show how many guests are going', 'fluent-event'),
+            'Show how many spots are left' => __('Show how many spots are left', 'fluent-event'),
             'Shown at the top of the event page and on event cards.' => __('Shown at the top of the event page and on event cards.', 'fluent-event'),
             'Something went wrong. Please try again.' => __('Something went wrong. Please try again.', 'fluent-event'),
             'Space' => __('Space', 'fluent-event'),
