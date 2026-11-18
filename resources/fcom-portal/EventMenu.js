@@ -12,6 +12,7 @@ export default {
     data() {
         return {
             open: false,
+            shift: 0,
         };
     },
     computed: {
@@ -37,10 +38,24 @@ export default {
             this.listen(this.open);
 
             if (this.open) {
+                this.shift = 0;
                 this.$nextTick(() => {
+                    this.keepOnScreen();
                     const first = this.$el.querySelector('[role="menuitem"]');
                     first && first.focus();
                 });
+            }
+        },
+        // The menu hangs left from the "⋮"; on a phone a short title puts the "⋮" near the left edge, so slide it back in.
+        keepOnScreen() {
+            const box = this.$refs.pop.getBoundingClientRect();
+            const edge = 8;
+            const right = document.documentElement.clientWidth - edge;
+
+            if (box.left < edge) {
+                this.shift = edge - box.left;
+            } else if (box.right > right) {
+                this.shift = right - box.right;
             }
         },
         close() {
@@ -83,7 +98,12 @@ export default {
                 </span>
             </button>
 
-            <div v-if="open" class="el-popover el-popper fcom_menu_below_nav fe-event-menu__pop">
+            <div
+                v-if="open"
+                ref="pop"
+                class="el-popover el-popper fcom_menu_below_nav fe-event-menu__pop"
+                :style="shift ? { transform: 'translateX(' + shift + 'px)' } : null"
+            >
                 <ul class="actions_items" role="menu">
                     <li role="none">
                         <!-- .stop: fcom's document click handler would route the link a second time. -->
