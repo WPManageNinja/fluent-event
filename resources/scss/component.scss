@@ -50,11 +50,15 @@
     }
 
     &__number.el-input-number {
+        flex: none;
         width: 96px;
     }
 
+    // Grows to 200px and wraps under the number when the card is narrow.
     &__unit.el-select {
-        width: 200px;
+        flex: 1 1 112px;
+        max-width: 200px;
+        min-width: 0;
     }
 
     &__times {
@@ -67,6 +71,8 @@
     &__time {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
         gap: var(--fe-space-2, 8px);
     }
 
@@ -104,6 +110,8 @@
 
     &__panel {
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
         gap: var(--fe-space-3, 12px);
         padding: var(--fe-space-4, 16px);
         border: 1px solid var(--fe-primary-border, #eaecf0);
