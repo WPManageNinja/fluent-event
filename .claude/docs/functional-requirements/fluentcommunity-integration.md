@@ -147,7 +147,8 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   admins can still add guests, who get the usual emails).
 - **Registering again:** guests only answer going or not going; `cancelled` is set by an admin alone. A
   `not_going` row (member or visitor email) goes back to going with the usual confirmation, if the event has a
-  seat left (a full event refuses it like a new registration). Any other row
+  seat left (a full event refuses it like a new registration). The public page and the visitor form, which treat
+  everyone as a visitor, can't bring back a row linked to an account: that member answers from the portal. Any other row
   gets a warning dialog and nothing changes: "This email is already registered" (going, checked in), or
   "Your registration was cancelled" (`cancelled`, which the guest can't undo, by either answer).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
