@@ -157,6 +157,7 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Updated: Guests Answer Going or Not Going
 - Updated: Only Admins Cancel a Registration
 - Updated: Registering Again Brings Back a Not-Going Guest
+- Updated: New FluentEvent Logo and Admin Menu Icon
 - Improved: Warning When an Email Is Already Registered
 - Improved: Community Events Page Header Matches Spaces and Courses
 - Improved: Phone Month Calendar Shows a Tapped Day's Events
@@ -177,6 +178,7 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Fixed: Community Time Picker Rows Misaligned
 - Fixed: Portal Calendar and Date Picker Dates Not Translated
 - Fixed: Link Button Text Hidden on Focus
+- Fixed: Link Colours Lost in the FluentCommunity Page Template
 - Fixed: PHP Deprecation Notice on the Admin Page
 - Fixed: Events Page Error on a Bad Calendar Link
 - Security: Visitor Forms Can't Change a Member's Registration
