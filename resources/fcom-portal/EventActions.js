@@ -1,5 +1,5 @@
 import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
-import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE, TICKET } from './icons';
+import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE, TICKET, WARNING } from './icons';
 
 /*
  * The RSVP dropdown, or an open event's Register form (no undo): a member's arrives filled in,
@@ -94,8 +94,15 @@ export default {
                         ...this.guest,
                         nonce: this.event.register_nonce,
                     });
-                const done = this.withStatus(response);
                 this.close();
+
+                // A refused registration comes back without a status: nothing changed, so it is warned, not confirmed.
+                if (!response.status) {
+                    this.showRefusal(response.refusal);
+                    return;
+                }
+
+                const done = this.withStatus(response);
                 this.$emit('done', done);
                 this.showRegistered(done.event);
             } catch (error) {
@@ -115,7 +122,15 @@ export default {
             this.$emit('error', '');
 
             try {
-                const response = this.withStatus(await eventsApi.post(`community/events/${this.event.id}/register`, { status }));
+                const reply = await eventsApi.post(`community/events/${this.event.id}/register`, { status });
+
+                // An admin's cancel stands: the member is told why, and nothing changes.
+                if (!reply.status) {
+                    this.showRefusal(reply.refusal);
+                    return;
+                }
+
+                const response = this.withStatus(reply);
                 this.$emit('done', response);
                 const { ElNotification } = await import('element-plus');
                 ElNotification({ type: 'success', message: response.message });
@@ -141,21 +156,42 @@ export default {
                 },
             };
         },
-        async cancel() {
+        async notGoing() {
             this.close();
             const { ElMessageBox } = await import('element-plus');
 
             try {
                 await ElMessageBox.confirm(
                     t('You will lose your spot for %s. You can register again later.', this.event.title),
-                    t('Cancel your registration?'),
-                    { confirmButtonText: t('Cancel registration'), cancelButtonText: t('Keep it'), confirmButtonClass: 'el-button--danger' },
+                    t('Not going anymore?'),
+                    { confirmButtonText: t('Not going'), cancelButtonText: t('Keep it'), confirmButtonClass: 'el-button--danger' },
                 );
             } catch (dismissed) {
                 return;
             }
 
-            this.choose('cancelled');
+            this.choose('not_going');
+        },
+        // refusal: 'already_registered', or 'cancelled' when an admin cancelled the registration.
+        async showRefusal(refusal) {
+            const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('element-plus')]);
+            const cancelled = refusal === 'cancelled';
+
+            ElMessageBox.alert(h('div', { class: 'fe-registered' }, [
+                h('div', { class: 'fe-registered__head' }, [
+                    h('span', { class: 'fe-registered__check fe-registered__check--warning', innerHTML: WARNING }),
+                    h('strong', { class: 'fe-registered__title' }, cancelled ? t('Your registration was cancelled') : t('This email is already registered')),
+                    h('p', { class: 'fe-registered__text' }, cancelled
+                        ? t('Contact the host if you want to join again.')
+                        : t('Check your inbox for the confirmation email, or register with a different email.')),
+                ]),
+            ]), '', {
+                customClass: 'fe-registered-box',
+                confirmButtonText: t('OK'),
+                confirmButtonClass: 'fcom_primary_button',
+                closeOnPressEscape: true,
+            }).catch(() => {})
+                .finally(() => this.$refs.trigger && this.$refs.trigger.focus());
         },
         // Registering is a form, so it ends in a dialog: what it was for, and its calendar links.
         async showRegistered(event) {
@@ -237,7 +273,7 @@ export default {
                     <div v-if="open" class="el-popover el-popper fcom_menu_below_nav fe-rsvp__pop">
                         <ul class="actions_items" role="menu">
                             <li role="none">
-                                <button type="button" role="menuitem" class="fe-rsvp__option fe-rsvp__option--danger" @click.stop="cancel">{{ t('Cancel registration') }}</button>
+                                <button type="button" role="menuitem" class="fe-rsvp__option fe-rsvp__option--danger" @click.stop="notGoing">{{ t('Not going') }}</button>
                             </li>
                         </ul>
                     </div>

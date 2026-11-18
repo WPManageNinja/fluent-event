@@ -13,22 +13,17 @@ export function t(text, ...args) {
     });
 }
 
-// Our Element Plus speaks English; its calendar and date picker take day and month names from fcom's dayjs, in the site's language.
-export function localizedDateNames(locale, dayjs) {
-    const datepicker = { ...locale.el.datepicker, weeks: {}, weeksFull: {}, months: {} };
+// Element Plus's built-in strings (date picker, calendar, pagination, select…) in the site's language: fcom
+// translates them for its own app as el_i18n, and we lay the same set over our English locale. A string
+// fcom leaves out keeps its English; the shared locale object is not changed.
+export function elementLocale(locale, translations) {
+    const el = { ...locale.el };
 
-    ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].forEach((key, day) => {
-        datepicker.weeks[key] = dayjs().day(day).format('ddd');
-        datepicker.weeksFull[key] = dayjs().day(day).format('dddd');
+    Object.keys(translations || {}).forEach((group) => {
+        el[group] = { ...el[group], ...translations[group] };
     });
 
-    ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].forEach((key, month) => {
-        const date = dayjs().date(1).month(month);
-        datepicker.months[key] = date.format('MMM');
-        datepicker[`month${month + 1}`] = date.format('MMMM');
-    });
-
-    return { ...locale, el: { ...locale.el, datepicker } };
+    return { ...locale, el };
 }
 
 // One REST client for the portal: FluentEvent routes and FluentCommunity's own feed routes.

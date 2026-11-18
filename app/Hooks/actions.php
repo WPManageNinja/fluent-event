@@ -21,8 +21,6 @@ $app->addAction('admin_menu', 'AdminMenuHandler');
 $app->addAction('in_admin_header', ['AdminMenuHandler', 'removeAdminNotices']);
 $app->addAction('admin_enqueue_scripts', ['AdminMenuHandler', 'enqueueAdminPageAssets']);
 
-$app->addCustomAction('exception', 'ExceptionHandler');
-
 /**
  * Registers the fe_event post type. Classification taxonomies come later.
  */

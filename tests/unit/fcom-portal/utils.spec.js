@@ -15,10 +15,8 @@ import {
     hasEventActions,
     guestCountLabel,
     setPageTitle,
-    localizedDateNames
+    elementLocale
 } from '../../../resources/fcom-portal/utils';
-import dayjs from 'dayjs';
-import 'dayjs/locale/de';
 import en from 'element-plus/dist/locale/en.mjs';
 
 const respond = (body, status = 200) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
@@ -258,23 +256,32 @@ describe('setPageTitle', () => {
     });
 });
 
-describe('localizedDateNames', () => {
-    const german = (...args) => dayjs(...args).locale('de');
+describe('elementLocale', () => {
+    // fcom's el_i18n, as it sends it to its own app: whole groups, German here.
+    const german = {
+        datepicker: { today: 'Heute', month3: 'März', weeks: { mon: 'Mo.' }, months: { mar: 'Mär.' } },
+        pagination: { goto: 'Gehe zu' }
+    };
 
-    it("names Element Plus's days and months in dayjs's language", () => {
-        const { datepicker } = localizedDateNames(en, german).el;
+    it("lays fcom's translated Element Plus strings over the English ones", () => {
+        const { el } = elementLocale(en, german);
 
-        expect(Object.values(datepicker.weeks)).toEqual(['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.']);
-        expect(datepicker.weeksFull.mon).toBe('Montag');
-        expect(datepicker.months.mar).toBe('März');
-        expect(datepicker.month12).toBe('Dezember');
+        expect(el.datepicker.today).toBe('Heute');
+        expect(el.datepicker.month3).toBe('März');
+        expect(el.datepicker.weeks.mon).toBe('Mo.');
+        expect(el.pagination.goto).toBe('Gehe zu');
     });
 
-    it('keeps every other string and leaves the English locale untouched', () => {
-        const locale = localizedDateNames(en, german);
+    it('keeps English for what fcom leaves out and leaves the English locale untouched', () => {
+        const locale = elementLocale(en, german);
 
         expect(locale.name).toBe('en');
-        expect(locale.el.datepicker.today).toBe('Today');
-        expect(en.el.datepicker.weeks.mon).toBe('Mon');
+        expect(locale.el.datepicker.now).toBe('Now');
+        expect(locale.el.select.noData).toBe('No data');
+        expect(en.el.datepicker.today).toBe('Today');
+    });
+
+    it('stays English when fcom sends no translations', () => {
+        expect(elementLocale(en, undefined).el).toEqual(en.el);
     });
 });

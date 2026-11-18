@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import dayjs from 'dayjs';
-import 'dayjs/locale/de';
 import { provideGlobalConfig } from 'element-plus';
 import en from 'element-plus/dist/locale/en.mjs';
-import { t, localizedDateNames } from '../../../resources/fcom-portal/utils';
+import { t, elementLocale } from '../../../resources/fcom-portal/utils';
 import EventsCalendar from '../../../resources/fcom-portal/app/EventsCalendar.vue';
 
 let nextId = 1;
@@ -17,7 +15,8 @@ const calendar = (props = {}) => mount(EventsCalendar, {
 
 describe('EventsCalendar', () => {
     it("heads the month grid with the weekday names the portal app provides", () => {
-        const locale = localizedDateNames(en, (...args) => dayjs(...args).locale('de'));
+        const weeks = { sun: 'So.', mon: 'Mo.', tue: 'Di.', wed: 'Mi.', thu: 'Do.', fri: 'Fr.', sat: 'Sa.' };
+        const locale = elementLocale(en, { datepicker: { weeks } });
         const wrapper = mount(EventsCalendar, {
             props: { events: [], date: '2026-10-14', mode: 'month' },
             global: {

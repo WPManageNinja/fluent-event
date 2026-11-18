@@ -138,10 +138,14 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
   from the account, name editable, email locked. After registering, a **You're registered** dialog
   shows the event (cover, date, place) and Add to calendar links, and a **✓ Registered** badge replaces
-  the button. A member's badge is a menu (like RSVP's) with **Cancel registration**: a confirm, then status `cancelled`
+  the button. A member's badge is a menu (like RSVP's) with **Not going**: a confirm, then status `not_going`
   (the cancellation email when on) and the Register button back; a visitor's registration is final
   and shows only until they reload) and `none` (no registration UI for anyone;
   admins can still add guests, who get the usual emails).
+- **Registering again:** guests only answer going or not going; `cancelled` is set by an admin alone. A
+  `not_going` row (member or visitor email) goes back to going with the usual confirmation. Any other row
+  gets a warning dialog and nothing changes: "This email is already registered" (going, checked in), or
+  "Your registration was cancelled" (`cancelled`, which the guest can't undo, by either answer).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
   the `from`/`to` filter means site days. The event page shows the event's own clock with its
   offset, plus the site's clock when that reads differently.

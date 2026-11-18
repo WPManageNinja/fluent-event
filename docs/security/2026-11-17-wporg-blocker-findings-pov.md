@@ -2,7 +2,7 @@
 
 **Purpose:** decide which audit findings block the WordPress.org submission, and track their fixes.
 **Date:** 2026-11-17
-**Revision:** `develop` at `b781dd7`; fix status updated at `cd20137`
+**Revision:** `develop` at `b781dd7`; fix status updated at `bc62b55`
 **Method:** I read every claim again in the source on `develop`, including the vendored framework calls it depends on: `RateLimiter`, `Request::__call` and `Route`. L-1 was proven before and after its fix with an anonymous GET to the local development site. Nothing else ran. No code changed.
 
 ## Summary
@@ -10,9 +10,9 @@
 | ID | Status | My rating | Report | Verdict |
 |---|---|---|---|---|
 | ✅ L-1 | Fixed in #414 | — | Low | Fixed. No action. |
-| 🔴 L-2 | Confirmed | **Low** | Low | Real. Fix with L-4. |
+| ⚠️ L-2 | Fixed in #426 | — | Low | Fixed, with a known gap behind chained proxies. |
 | ⚠️ L-3 | Fixed in #415 | — | Low | Fixed, with a known gap in the guest count. |
-| 🔴 L-4 | Confirmed | **Low** | Low | Real. Small fix. |
+| ✅ L-4 | Fixed in #423 | — | Low | Fixed. No action. |
 | ⏸️ L-5 | Partly true | **Info** | Low | Needs a site setting. Optional hardening. |
 | ✅ L-6 | Fixed in #419 | — | Low | Fixed. No action. |
 | ✅ L-7 | Fixed in #416 | — | Low | Fixed. No action. |
@@ -21,13 +21,13 @@
 | ✅ L-10 | Fixed in #418 | — | Low | Fixed. No action. |
 | ⏸️ L-11 | Paused | **Info** | Low | Likely false positive. Not a blocker for WordPress.org submission. |
 
-**Fix status** on `develop` at `cd20137` (2026-11-17): ✅ fixed, ⚠️ partly fixed or fixed with known gaps, ⏸️ deferred, 🔴 open.
+**Fix status** on `develop` at `bc62b55` (2026-11-17): ✅ fixed, ⚠️ partly fixed or fixed with known gaps, ⏸️ deferred, 🔴 open.
 
-No finding is urgent. L-1 was the only one that broke a page, and #414 fixed it. L-2, L-3 and L-4 can be done anonymously, but none of them reads private data or changes anything a visitor could not already change.
+No finding is urgent. L-1 was the only one that broke a page, and #414 fixed it. L-2, L-3 and L-4 were open to anonymous visitors, and all three are now fixed.
 
 **Submission blockers:** L-6, L-7, L-8 and L-10 are fixed. L-9 is kept by decision, with a reply ready if a reviewer asks. No open finding blocks the WordPress.org submission.
 
-Open, not blockers: L-2 and L-4 (the public registration path). L-5 is optional, and L-11 is paused.
+Open, not blockers: L-5 is optional, and L-11 is paused. The public registration path (L-2, L-3, L-4) is fixed.
 
 ---
 
@@ -47,11 +47,20 @@ Open, not blockers: L-2 and L-4 (the public registration path). L-5 is optional,
 
 ---
 
-## 🔴 L-2. The registration rate limit counts per event, not per visitor
+## ⚠️ L-2. The registration rate limit counts per event, not per visitor
 
-**Concern:** The limit on the public registration form is meant to stop one visitor from sending many registrations. A visitor can get past it: each event has its own limit, every IPv6 address counts separately, and requests sent at the same moment are all let through.
+**Concern (was):** The limit on the public registration form is meant to stop one visitor from sending many registrations. A visitor could get past it: each event had its own limit, every IPv6 address counted separately, and requests sent at the same moment were all let through.
 
-**Fix:** Count per visitor for the whole form, not per event. Treat an IPv6 /64 as one visitor. The change is in the free plugin's `Throttle` middleware.
+**Fix (merged, #426):** The `Throttle` middleware is removed. It counted inside the route's permission check, which WordPress runs twice for each request. Each registration action now calls `RateLimiter::isSpamming()` as its first step:
+
+- Each limit has a name (`rsvp` 10 per minute, `register_guest` 5 per minute) and covers all events. The portal form and the community form share `register_guest`.
+- A member counts by account, any other visitor by IP, and an IPv6 /64 counts as one visitor.
+- Hit times are kept in a sliding window inside a MySQL named lock, so parallel requests cannot all pass. Refused hits count too.
+- `Utility::getIp()` reads the visitor IP. It reads `CF-Connecting-IP` only from a Cloudflare range, the right-most `X-Forwarded-For` hop behind a trusted proxy, and an IPv4-mapped address as IPv4. The result passes through the `fluent_auth/user_ip` filter.
+
+**Known gap:** only the right-most `X-Forwarded-For` hop is read. Behind Cloudflare plus a trusted load balancer, every visitor resolves to the Cloudflare edge and shares one counter. A site can set the IP with `fluent_auth/user_ip`. A resolver that walks the whole chain is planned for FluentEvent, FluentCommunity and FluentCart together.
+
+The verification, rating and proposed fix below describe the code before #426.
 
 ### Verification
 
@@ -94,7 +103,7 @@ Open, not blockers: L-2 and L-4 (the public registration path). L-5 is optional,
 - **Atomic count (optional):** use `wp_cache_add` and `wp_cache_incr` when a persistent object cache is present. Without one, the transient stays, and the race stays narrow.
 - **Behavior change:** the limit then covers all events together. Five guest registrations per minute is still more than a real visitor needs.
 
-**Verdict:** real, Low. Fix with L-4. Both are on the public registration path, where L-3 is already fixed.
+**Verdict:** fixed in #426, with the chained-proxy gap above. A live burst of 30 parallel requests now lets exactly 5 through, against 15 before.
 
 ---
 
@@ -141,11 +150,11 @@ Open, not blockers: L-2 and L-4 (the public registration path). L-5 is optional,
 
 ---
 
-## 🔴 L-4. Anyone can make the site send its confirmation email to any address, with their own text in it
+## ✅ L-4. Anyone can make the site send its confirmation email to any address, with their own text in it
 
-**Concern:** A stranger can type someone else's email and a misleading "name" into the registration form. The site then sends its own branded confirmation to that person, and the email opens with the stranger's text. This can serve as phishing.
+**Concern (was):** A stranger could type someone else's email and a misleading "name" into the registration form. The site then sent its own branded confirmation to that person, and the email opened with the stranger's text. This could serve as phishing.
 
-**Fix:** Do not greet visitor registrations with the name they typed, or cut the name short. The change is in the free plugin's email builder.
+**Fix (merged, #423):** Emails for a visitor's own registration now open with "Hi there,". Members and guests an admin adds keep their name. When a member claims a row a visitor registered with the same email, the row now takes the member's own name.
 
 ### Verification
 
@@ -177,7 +186,7 @@ Open, not blockers: L-2 and L-4 (the public registration path). L-5 is optional,
 - **Alternative:** keep the name but cut it to about 50 characters. This only shortens the abuse; it does not remove it.
 - **Larger option:** double opt-in for visitor registrations, where the guest confirms by email before the seat counts. That is a product decision.
 
-**Verdict:** real, Low. Small fix.
+**Verdict:** fixed in #423. `EventReminderService::buildGreeting` drops the name when the guest has no `user_id` and was not added by an admin. No action.
 
 ---
 
@@ -427,11 +436,11 @@ add_filter('aioseo_sitemap_exclude_posts', [$this, 'hiddenEventPostIds'], 10, 2)
 |---|---|---|---|
 | ✅ I-1 | Fixed in #420 | `app/Http/Requests/SettingsRequest.php` | The email notification settings are now rebuilt from their known keys. Unknown keys are dropped. |
 | ✅ I-2 | Fixed in #419 | `app/Http/Middleware/Can.php` (deleted) | `Can.php` is deleted, with L-6. |
-| 🔴 I-3 | Confirmed | `app/Hooks/actions.php:24`, `app/Hooks/Handlers/ExceptionHandler.php` | `ExceptionHandler` listens to a hook nothing fires. Delete the registration and the class. |
+| ✅ I-3 | Fixed in #428 | `app/Hooks/actions.php:24`, `app/Hooks/Handlers/ExceptionHandler.php` | `ExceptionHandler` listened to `exception`, which nothing fires (the framework fires `handle_exception`). The registration, the class and its classmap entries are deleted. |
 | ⏸️ I-4 | Confirmed | `boot/app.php:15,24,34,63` | `fluent_exception` is shared with the framework. Optional rename to `fluent_event/exception`. |
 | ⏸️ I-5 | Confirmed | `config/app.php:13`, `app/Utils/Enqueuer/Vite.php:289-317` | The repo keeps `'env' => 'dev'`; `build.sh` sets `production` and fails if it cannot. Ship only through `build.sh`. |
 | ⏸️ I-6 | Confirmed | `app/Views/portal/event-side.php:181-186`, `:248-252` | The "Add to calendar" links use `esc_attr`, which the code comment explains. Keep it and add a `phpcs:ignore` note. |
-| ⏸️ I-7 | Confirmed | `app/Views/**`, `config/app.php:1` | The ABSPATH guard uses an unusual form with a CLI exception. It is safe. Optional change to `defined('ABSPATH') \|\| exit;`. |
+| ✅ I-7 | Fixed in #422 | `app/Views/**`, `config/app.php:1` | Every non-class PHP file now uses the standard `defined('ABSPATH') \|\| exit;` guard. |
 | ✅ I-8 | Fixed in #421 | `app/Models/Post.php`, `app/Models/User.php` | Both models now declare `$fillable = []` and `$guarded = ['*']`. An empty `$fillable` alone did not block anything, because the base model guards only `id` and `ID`. |
 | ⏸️ I-9 | Confirmed | `Modules/FluentCommunity/FeedHandler.php:228-236` | A post moved to another space keeps the old `is_public` on its activity rows. FluentCommunity ignores the flag today. Fix if needed: set `is_public` from the target space. |
 | ⏸️ I-10 | Confirmed | `app/Hooks/Handlers/FrontEndHandler.php:168`, `:448-450` | `limitListings` replaces another query's `post__in`, and the list URL uses the queried object on archive pages. Neither shows more than public events. Fix if needed: intersect `post__in`, and use the queried object only when `is_singular()`. |

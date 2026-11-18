@@ -217,9 +217,9 @@ class PortalHandler
             'Capacity' => __('Capacity', 'fluent-event'),
             'Guest control' => __('Guest control', 'fluent-event'),
             'Seats and the guest count guests see.' => __('Seats and the guest count guests see.', 'fluent-event'),
-            'Cancel registration' => __('Cancel registration', 'fluent-event'),
-            'Cancel your registration?' => __('Cancel your registration?', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
+            'Check your inbox for the confirmation email, or register with a different email.' => __('Check your inbox for the confirmation email, or register with a different email.', 'fluent-event'),
+            'Contact the host if you want to join again.' => __('Contact the host if you want to join again.', 'fluent-event'),
             'Choose a space for this event.' => __('Choose a space for this event.', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
             'Comments' => __('Comments', 'fluent-event'),
@@ -281,6 +281,8 @@ class PortalHandler
             'Nobody registers. Anyone who can see the event sees all of it, meeting link included.' => __('Nobody registers. Anyone who can see the event sees all of it, meeting link included.', 'fluent-event'),
             'None' => __('None', 'fluent-event'),
             'Not going' => __('Not going', 'fluent-event'),
+            'Not going anymore?' => __('Not going anymore?', 'fluent-event'),
+            'OK' => __('OK', 'fluent-event'),
             'Online' => __('Online', 'fluent-event'),
             'Only http and https links are accepted.' => __('Only http and https links are accepted.', 'fluent-event'),
             'Only members of the space can see it.' => __('Only members of the space can see it.', 'fluent-event'),
@@ -288,8 +290,8 @@ class PortalHandler
             'Optional. Shown on the event page.' => __('Optional. Shown on the event page.', 'fluent-event'),
             'Past' => __('Past', 'fluent-event'),
             'Please register for the event to see the meeting link.' => __('Please register for the event to see the meeting link.', 'fluent-event'),
-            /* translators: %s: member's name; the space's name follows, in bold */
-            'Posted by %s in' => __('Posted by %s in', 'fluent-event'),
+            /* translators: 1: member's name, 2: space name (shown in bold) */
+            'Posted by %1$s in %2$s' => __('Posted by %1$s in %2$s', 'fluent-event'),
             /* translators: %s: member's name */
             'Posted by %s on their profile' => __('Posted by %s on their profile', 'fluent-event'),
             'Posted on your profile, outside any space. Everyone in the community can see it.' => __('Posted on your profile, outside any space. Everyone in the community can see it.', 'fluent-event'),
@@ -314,6 +316,7 @@ class PortalHandler
             'Switch between card, timeline and calendar view' => __('Switch between card, timeline and calendar view', 'fluent-event'),
             'Switch between month, week and day view' => __('Switch between month, week and day view', 'fluent-event'),
             'There are no spaces you can post in.' => __('There are no spaces you can post in.', 'fluent-event'),
+            'This email is already registered' => __('This email is already registered', 'fluent-event'),
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
@@ -339,6 +342,7 @@ class PortalHandler
             'Where do you want to post this event?' => __('Where do you want to post this event?', 'fluent-event'),
             /* translators: %s: event title */
             'You will lose your spot for %s. You can register again later.' => __('You will lose your spot for %s. You can register again later.', 'fluent-event'),
+            'Your registration was cancelled' => __('Your registration was cancelled', 'fluent-event'),
             "You're registered" => __("You're registered", 'fluent-event'),
             'e.g. Friday Q&A' => __('e.g. Friday Q&A', 'fluent-event'),
             'e.g. Kingsway Hall' => __('e.g. Kingsway Hall', 'fluent-event'),

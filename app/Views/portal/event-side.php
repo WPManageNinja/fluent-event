@@ -21,7 +21,8 @@
  * @var string     $meeting_link     http(s) only; empty unless this viewer may see it.
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
  * @var array|null $add_to_calendar  google, ics, filename.
- * @var bool       $just_registered  Drawn only in the registration's answer, which portal.js opens.
+ * @var string     $answer           'registered', 'already_registered' or 'cancelled' in the registration's answer, which
+ *                                   portal.js opens; '' on the page.
  */
 defined('ABSPATH') || exit;
 
@@ -225,14 +226,14 @@ $fluentEventDone = $registration && $registration['is_going'];
         </div>
     <?php endif; ?>
 
-    <?php if ( $just_registered ) : ?>
+    <?php if ( 'registered' === $answer ) : ?>
         <div
             id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
             class="fe-register-success"
             popover
             role="dialog"
             aria-labelledby="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>"
-            data-fe-registered
+            data-fe-answer
         >
             <button type="button" class="fe-register__close fe-register-success__close" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" aria-label="<?php esc_attr_e( 'Close', 'fluent-event' ); ?>">
                 <?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
@@ -293,6 +294,34 @@ $fluentEventDone = $registration && $registration['is_going'];
 
             <button type="button" class="fe-event-page__button" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" autofocus>
                 <?php esc_html_e( 'Done', 'fluent-event' ); ?>
+            </button>
+        </div>
+    <?php elseif ( in_array( $answer, array( 'already_registered', 'cancelled' ), true ) ) : ?>
+        <div
+            id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
+            class="fe-register-success fe-register-success--warning"
+            popover
+            role="alertdialog"
+            aria-labelledby="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>"
+            aria-describedby="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>"
+            data-fe-answer
+        >
+            <button type="button" class="fe-register__close fe-register-success__close" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" aria-label="<?php esc_attr_e( 'Close', 'fluent-event' ); ?>">
+                <?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+            </button>
+
+            <div class="fe-register-success__head">
+                <span class="fe-register-success__check"><?php echo Icon::WARNING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                <h2 class="fe-register-success__title" id="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>">
+                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Your registration was cancelled', 'fluent-event' ) : __( 'This email is already registered', 'fluent-event' ) ); ?>
+                </h2>
+                <p class="fe-register-success__text" id="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>">
+                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Contact the host if you want to join again.', 'fluent-event' ) : __( 'Check your inbox for the confirmation email, or register with a different email.', 'fluent-event' ) ); ?>
+                </p>
+            </div>
+
+            <button type="button" class="fe-event-page__button" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" autofocus>
+                <?php esc_html_e( 'OK', 'fluent-event' ); ?>
             </button>
         </div>
     <?php endif; ?>

@@ -121,6 +121,16 @@ describe('EventViewPage', () => {
             expect(global.find('.fe-event-view__origin').text()).toContain('Posted by Jhon Doe on their profile');
         });
 
+        // Bangla puts the space before the verb; one string lets the translation say so.
+        it('lets a translation put the space name anywhere in the line', async () => {
+            vi.stubGlobal('fluentEventFcomPortal', { ...window.fluentEventFcomPortal, i18n: { 'Posted by %1$s in %2$s': '%1$s %2$s-এ পোস্ট করেছেন' } });
+            const { wrapper } = await page(meetup());
+            const origin = wrapper.find('.fe-event-view__origin');
+
+            expect(origin.text()).toContain('Jhon Doe Design-এ পোস্ট করেছেন');
+            expect(origin.find('.fe-event-view__origin-space').text()).toBe('Design');
+        });
+
         it('shows the unavailable state when no visible event has that slug in that space', async () => {
             fetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'This event is not available.' }), { status: 404 }));
             const wrapper = mount(EventViewPage, {
