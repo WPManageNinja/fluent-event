@@ -1,5 +1,5 @@
 import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
-import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE, WARNING } from './icons';
+import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE, TICKET, WARNING } from './icons';
 
 /*
  * The RSVP dropdown, or an open event's Register form (no undo): a member's arrives filled in,
@@ -36,6 +36,10 @@ export default {
             }
 
             return this.event.my_status === 'not_going' ? 'not_going' : '';
+        },
+        // A guest already going keeps their RSVP on a full event, to give up the seat.
+        isFullForMe() {
+            return !!this.event.is_full && this.status !== 'going';
         },
     },
     beforeUnmount() {
@@ -136,19 +140,17 @@ export default {
                 this.busy = false;
             }
         },
-        // The reply carries only the new status and link; the count moves by this answer alone, and a reload brings everyone else's.
+        // The reply carries the event's seats as they stand now, so the count, spots left and full state move together.
         withStatus(response) {
-            const wasSeated = isSeated(this.event);
-            const isNowSeated = isSeated({ my_status: response.status });
-            const count = this.event.guest_count;
-
             return {
                 ...response,
                 event: {
                     ...this.event,
                     my_status: response.status,
                     online_meeting_url: response.online_meeting_url,
-                    guest_count: count === null || count === undefined || wasSeated === isNowSeated ? count : count + (isNowSeated ? 1 : -1),
+                    guest_count: response.guest_count,
+                    spots_left: response.spots_left,
+                    is_full: response.is_full,
                 },
             };
         },
@@ -243,6 +245,11 @@ export default {
     template: `
         <div class="fe-event-actions">
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
+
+            <span v-else-if="isFullForMe" class="fe-event-actions__state">
+                <span class="fe-event-actions__state-icon" aria-hidden="true">${TICKET}</span>
+                {{ t('Event full') }}
+            </span>
 
             <template v-else-if="event.entry_type === 'open'">
                 <!-- A visitor isn't recognised again after a reload, so only a member's badge opens a menu to cancel. -->

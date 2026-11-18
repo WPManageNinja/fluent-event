@@ -16,6 +16,8 @@
  * @var int|null   $countdown_to     The start, as a Unix timestamp, when the event page counts down to it.
  * @var int        $ends_at          The end, as a Unix timestamp.
  * @var string     $count_label
+ * @var array|null $meter            percent, status; the count against the capacity, when both show.
+ * @var array|null $notice           type (full), title, text.
  * @var string     $meeting_link     http(s) only; empty unless this viewer may see it.
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
  * @var array|null $add_to_calendar  google, ics, filename.
@@ -82,7 +84,39 @@ $fluentEventDone = $registration && $registration['is_going'];
         <span class="fe-event-page__status fe-event-page__status--<?php echo esc_attr( $phase ); ?>"><?php echo esc_html( $status_label ); ?></span>
     <?php endif; ?>
 
-    <?php if ( $registration || $count_label ) : ?>
+    <?php if ( $meter ) : ?>
+        <div class="fe-capacity">
+            <div class="fe-capacity__head">
+                <span><?php echo esc_html( $count_label ); ?></span>
+                <?php if ( $meter['status'] ) : ?>
+                    <span class="fe-capacity__status"><?php echo esc_html( $meter['status'] ); ?></span>
+                <?php endif; ?>
+            </div>
+            <div
+                class="fe-capacity__track"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="<?php echo esc_attr( $event['capacity'] ); ?>"
+                aria-valuenow="<?php echo esc_attr( $event['guest_count'] ); ?>"
+                aria-valuetext="<?php echo esc_attr( $count_label ); ?>"
+                aria-label="<?php esc_attr_e( 'Capacity', 'fluent-event' ); ?>"
+            >
+                <span class="fe-capacity__fill" style="width: <?php echo esc_attr( $meter['percent'] ); ?>%"></span>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ( $notice ) : ?>
+        <div class="fe-event-page__notice fe-event-page__notice--<?php echo esc_attr( $notice['type'] ); ?>">
+            <span class="fe-event-page__notice-icon"><?php echo Icon::TICKET; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+            <span class="fe-event-page__notice-text">
+                <span class="fe-event-page__notice-title"><?php echo esc_html( $notice['title'] ); ?></span>
+                <span class="fe-event-page__notice-desc"><?php echo esc_html( $notice['text'] ); ?></span>
+            </span>
+        </div>
+    <?php endif; ?>
+
+    <?php if ( $registration || ( $count_label && ! $meter ) ) : ?>
         <div class="fe-event-page__rsvp">
             <?php if ( $fluentEventDone ) : ?>
                 <span class="fe-event-page__badge" tabindex="-1" data-fe-focus>
@@ -108,7 +142,7 @@ $fluentEventDone = $registration && $registration['is_going'];
                 </div>
             <?php endif; ?>
 
-            <?php if ( $count_label ) : ?>
+            <?php if ( $count_label && ! $meter ) : ?>
                 <span class="fe-event-page__count"><?php echo esc_html( $count_label ); ?></span>
             <?php endif; ?>
         </div>
@@ -170,7 +204,7 @@ $fluentEventDone = $registration && $registration['is_going'];
                 <?php echo Icon::VIDEO; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                 <span><?php esc_html_e( 'Join online', 'fluent-event' ); ?></span>
             </a>
-        <?php elseif ( $event['has_meeting_url'] ) : ?>
+        <?php elseif ( $event['has_meeting_url'] && $registration ) : ?>
             <p class="fe-event-page__note"><?php esc_html_e( 'Please register for the event to see the meeting link.', 'fluent-event' ); ?></p>
         <?php endif; ?>
     <?php endif; ?>

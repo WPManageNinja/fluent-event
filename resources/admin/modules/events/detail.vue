@@ -61,14 +61,6 @@
                                         </el-tag>
                                     </div>
 
-                                    <div v-if="event.meta?.entry_type" class="fe-event-overview__badge">
-                                        <span class="fe-event-overview__badge-label">{{ $t('Registration Type') }}</span>
-
-                                        <span class="fe-badge">
-                                            {{ $entryTypeLabel(event.meta.entry_type) }}
-                                        </span>
-                                    </div>
-
                                     <div class="fe-event-overview__badge">
                                         <span class="fe-event-overview__badge-label">{{ $t('Guests') }}</span>
 
@@ -183,6 +175,8 @@
                     </template>
 
                     <template #settings>
+                        <EventSettings :event="event" />
+
                         <EventDangerZone :event="event" @deleted="goToList" />
                     </template>
                 </Tabs>
@@ -207,6 +201,7 @@
     import EmptyState from '@/components/EmptyState.vue';
     import EventGuests from './parts/EventGuests.vue';
     import EventDangerZone from './parts/EventDangerZone.vue';
+    import EventSettings from './parts/EventSettings.vue';
     import EventShareModal from './parts/EventShareModal.vue';
 
     export default {
@@ -223,6 +218,7 @@
             EmptyState,
             EventGuests,
             EventDangerZone,
+            EventSettings,
             EventShareModal,
         },
         data() {

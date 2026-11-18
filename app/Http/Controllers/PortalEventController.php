@@ -65,6 +65,10 @@ class PortalEventController extends Controller
 
         $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages'], $guest);
 
+        if (is_string($registered)) {
+            return $this->sendError(['message' => $registered], 422);
+        }
+
         if (!$registered) {
             return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
         }

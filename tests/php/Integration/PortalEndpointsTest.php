@@ -293,4 +293,32 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertArrayNotHasKey('html', $response['data']);
         $this->assertCount(0, $this->guestsOf($event));
     }
+
+    // The public page holds the same seat limit as the portal.
+    public function test_a_visitor_is_refused_a_full_event()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 1]);
+        $this->createGuest($full);
+
+        $response = $this->registerGuest($full);
+
+        $this->assertSame(422, $response['status']);
+        $this->assertSame('This event is full.', $response['data']['message']);
+        $this->assertCount(1, $this->guestsOf($full));
+    }
+
+    // Coming back from not going takes a seat like a new registration does.
+    public function test_a_visitor_who_said_not_going_cannot_take_a_seat_once_the_event_is_full()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 1]);
+        $this->createGuest($full);
+        $comeback = $this->createGuest($full, ['email' => 'visitor@example.test', 'status' => 'not_going']);
+
+        $response = $this->registerGuest($full);
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('This event is full.', $response['data']['message']);
+        $this->assertSame('not_going', Guest::query()->find($comeback->id)->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $comeback->id]));
+    }
 }

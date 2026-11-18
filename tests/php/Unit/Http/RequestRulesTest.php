@@ -296,4 +296,18 @@ class RequestRulesTest extends TestCase
 
         $this->assertSame(['2026-10-04', '2026-10-10'], [$start, $end]);
     }
+
+    public function test_a_capacity_is_a_whole_number_and_none_means_unlimited()
+    {
+        $this->assertSame('nullable|integer|min:0', EventRequest::RULES['capacity']);
+        $this->assertSame(25, EventRequest::sanitize(['capacity' => '25'])['capacity']);
+        $this->assertSame(0, EventRequest::format($this->eventInput())['meta']['capacity']);
+    }
+
+    public function test_the_spots_left_switch_is_yes_or_no_and_starts_off()
+    {
+        $this->assertSame('nullable|string|in:yes,no', EventRequest::RULES['show_spots_left']);
+        $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['show_spots_left']);
+        $this->assertSame('yes', EventRequest::format($this->eventInput(['show_spots_left' => 'yes']))['meta']['show_spots_left']);
+    }
 }

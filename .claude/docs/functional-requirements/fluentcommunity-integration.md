@@ -129,7 +129,14 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   start `private`, like their calendars. Both statuses show in the admin and can be changed there.
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
   effect on the upcoming landing page.
-- **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit; each answer shows a
+- **Capacity:** `meta.capacity` caps `going` + `checked_in` guests on `rsvp` and `open` events (0 = unlimited).
+  A full event shows **Event full** in place of the RSVP or Register button and refuses a new one (422); a guest
+  already going keeps their seat and can still give it up, and admins can add guests past it. Two switches decide
+  what guests see: **Show how many guests are going** and **Show how many spots are left** (off by default, only
+  with a capacity). Both on: a meter ("7 out of 10 going", "3 spots left"); count only: "7 going"; spots only:
+  "3 spots left"; neither: nothing until it fills. Event cards follow the same rule, and an ended event shows no
+  spots left.
+- **Entry types:** `rsvp` (logged-in members, going / not going, up to the event's capacity; each answer shows a
   success toast with the server's message, "RSVP updated. You're going!" / "RSVP updated. You're not going."), `open`
   (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
   from the account, name editable, email locked. After registering, a **You're registered** dialog
@@ -139,7 +146,8 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   and shows only until they reload) and `none` (no registration UI for anyone;
   admins can still add guests, who get the usual emails).
 - **Registering again:** guests only answer going or not going; `cancelled` is set by an admin alone. A
-  `not_going` row (member or visitor email) goes back to going with the usual confirmation. Any other row
+  `not_going` row (member or visitor email) goes back to going with the usual confirmation, if the event has a
+  seat left (a full event refuses it like a new registration). Any other row
   gets a warning dialog and nothing changes: "This email is already registered" (going, checked in), or
   "Your registration was cancelled" (`cancelled`, which the guest can't undo, by either answer).
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and

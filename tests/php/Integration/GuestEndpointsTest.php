@@ -228,4 +228,16 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
         $this->assertMailSentTo($guest->email);
     }
+
+    // Capacity limits self-registration only; an admin can always add past it.
+    public function test_an_admin_can_add_a_guest_to_a_full_event()
+    {
+        $full = $this->createEvent([], ['capacity' => 1]);
+        $this->createGuest($full);
+
+        $response = $this->addGuest(['name' => 'Plus one', 'email' => 'plusone@example.test'], $full);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('going', $response['data']['guest']['status']);
+    }
 }

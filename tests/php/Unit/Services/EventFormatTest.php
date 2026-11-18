@@ -142,4 +142,51 @@ class EventFormatTest extends TestCase
     {
         $this->assertSame([], EventService::formatEvents([$this->event(['status' => 'draft']), null]));
     }
+
+    public function test_a_capped_event_is_full_once_its_seats_are_taken()
+    {
+        $event = $this->event([], ['capacity' => 2]);
+
+        $this->assertFalse($this->format($event, 1)['is_full']);
+        $this->assertTrue($this->format($event, 2)['is_full']);
+        $this->assertSame(2, $this->format($event, 2)['capacity']);
+    }
+
+    public function test_an_event_holding_more_guests_than_a_lowered_capacity_is_full()
+    {
+        $this->assertTrue($this->format($this->event([], ['capacity' => 2]), 5)['is_full']);
+    }
+
+    public function test_an_event_without_a_capacity_is_never_full()
+    {
+        $formatted = $this->format($this->event(), 500);
+
+        $this->assertFalse($formatted['is_full']);
+        $this->assertNull($formatted['capacity']);
+    }
+
+    public function test_an_open_event_counts_its_capacity_too()
+    {
+        $formatted = $this->format($this->event([], ['entry_type' => 'open', 'capacity' => 1]), 3);
+
+        $this->assertTrue($formatted['is_full']);
+        $this->assertSame(1, $formatted['capacity']);
+    }
+
+    public function test_the_spots_left_go_out_only_when_the_host_shows_them()
+    {
+        $this->assertNull($this->format($this->event([], ['capacity' => 10]), 7)['spots_left']);
+        $this->assertSame(3, $this->format($this->event([], ['capacity' => 10, 'show_spots_left' => 'yes']), 7)['spots_left']);
+        // Admins can add guests past the capacity.
+        $this->assertSame(0, $this->format($this->event([], ['capacity' => 2, 'show_spots_left' => 'yes']), 5)['spots_left']);
+        $this->assertNull($this->format($this->event([], ['show_spots_left' => 'yes']), 5)['spots_left']);
+    }
+
+    public function test_a_no_entry_event_ignores_a_stored_capacity()
+    {
+        $formatted = $this->format($this->event([], ['entry_type' => 'none', 'capacity' => 1]), 3);
+
+        $this->assertFalse($formatted['is_full']);
+        $this->assertNull($formatted['capacity']);
+    }
 }

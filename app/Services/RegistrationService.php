@@ -5,6 +5,7 @@ namespace FluentEvent\App\Services;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Utils\DateTimeHelper;
+use FluentEvent\Facade\DB;
 use FluentEvent\Framework\Support\Arr;
 
 /**
@@ -37,8 +38,9 @@ class RegistrationService
      *
      * @param array $source source and source_id for a new row.
      * @return array|null|false|string [Guest, previous status, created]; null when another account holds the email;
-     *                                 a repeatRefusal() reason when the row can't take this answer; false when the row
-     *                                 changed under this request to something other than what it asked for.
+     *                                 a repeatRefusal() reason when the row can't take this answer; a message when the
+     *                                 event is full; false when the row changed under this request to something other
+     *                                 than what it asked for.
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
@@ -57,50 +59,57 @@ class RegistrationService
             return $refusal;
         }
 
-        if (!$guest) {
-            return [
-                Guest::create(array_merge($source, [
-                    'event_id'    => $event->id,
-                    'calendar_id' => $event->calendar_id,
-                    'group_id'    => wp_generate_password(32, false, false),
-                    'is_buyer'    => 1,
-                    'name'        => $name ?: $user->display_name,
-                    'email'       => $user->user_email,
-                    'user_id'     => $user->ID,
-                    'status'      => $status,
-                ])),
-                null,
-                true,
-            ];
-        }
-
-        $previousStatus = $guest->status;
-
-        // Claiming a visitor's row drops the name they typed, which emails would otherwise greet the member with.
-        $claim = ['user_id' => $user->ID];
-        if (!$guest->user_id && $guest->source !== 'manual') {
-            $claim['name'] = $name ?: $user->display_name;
-        }
-
-        // Claimed against the status read above: of two requests making the same change (two tabs), only one
-        // reports it, so only one sends the email; the other gets the row back unchanged.
-        if ($status !== $previousStatus) {
-            $claimed = Guest::query()->where('id', $guest->id)->where('status', $previousStatus)
-                ->update(array_merge($claim, ['status' => $status]));
-
-            $guest = Guest::query()->find($guest->id);
-
-            if (!$claimed && $guest->status !== $status) {
-                return false;
+        return DB::transaction(function () use ($event, $user, $status, $name, $source, $guest) {
+            // Past the refusal, going comes from a new row or a not-going one, and either takes a seat.
+            if ($status === 'going' && !self::hasSeatLeft($event)) {
+                return __('This event is full.', 'fluent-event');
             }
 
-            return [$guest, $claimed ? $previousStatus : $guest->status, false];
-        }
+            if (!$guest) {
+                return [
+                    Guest::create(array_merge($source, [
+                        'event_id'    => $event->id,
+                        'calendar_id' => $event->calendar_id,
+                        'group_id'    => wp_generate_password(32, false, false),
+                        'is_buyer'    => 1,
+                        'name'        => $name ?: $user->display_name,
+                        'email'       => $user->user_email,
+                        'user_id'     => $user->ID,
+                        'status'      => $status,
+                    ])),
+                    null,
+                    true,
+                ];
+            }
 
-        $guest->fill($claim);
-        $guest->save();
+            $previousStatus = $guest->status;
 
-        return [$guest, $previousStatus, false];
+            // Claiming a visitor's row drops the name they typed, which emails would otherwise greet the member with.
+            $claim = ['user_id' => $user->ID];
+            if (!$guest->user_id && $guest->source !== 'manual') {
+                $claim['name'] = $name ?: $user->display_name;
+            }
+
+            // Claimed against the status read above: of two requests making the same change (two tabs), only one
+            // reports it, so only one sends the email; the other gets the row back unchanged.
+            if ($status !== $previousStatus) {
+                $claimed = Guest::query()->where('id', $guest->id)->where('status', $previousStatus)
+                    ->update(array_merge($claim, ['status' => $status]));
+
+                $guest = Guest::query()->find($guest->id);
+
+                if (!$claimed && $guest->status !== $status) {
+                    return false;
+                }
+
+                return [$guest, $claimed ? $previousStatus : $guest->status, false];
+            }
+
+            $guest->fill($claim);
+            $guest->save();
+
+            return [$guest, $previousStatus, false];
+        });
     }
 
     // The row this email already holds on the event, if any.
@@ -134,33 +143,54 @@ class RegistrationService
      *
      * @param array      $source source and source_id.
      * @param Guest|null $guest  The email's not-going row.
-     * @return array|false [Guest, its status before, or null when created]; false when the row changed under this
-     *                     request and holds no seat.
+     * @return array|false|string [Guest, its status before, or null when created]; false when the row changed under
+     *                            this request and holds no seat; a message when the event is full.
      */
     public static function registerVisitor(Event $event, array $data, array $source, $guest = null)
     {
-        if ($guest) {
-            // Claimed against "not going", so two requests coming back together send one confirmation.
-            $claimed = Guest::query()->where('id', $guest->id)->where('status', 'not_going')->update(['status' => 'going']);
-            $guest = Guest::query()->find($guest->id);
-
-            // An admin cancelled or deleted the row meanwhile.
-            if (!$claimed && (!$guest || !in_array($guest->status, Event::SEAT_STATUSES, true))) {
-                return false;
+        return DB::transaction(function () use ($event, $data, $source, $guest) {
+            if (!self::hasSeatLeft($event)) {
+                return __('This event is full.', 'fluent-event');
             }
 
-            return [$guest, $claimed ? 'not_going' : $guest->status];
+            if ($guest) {
+                // Claimed against "not going", so two requests coming back together send one confirmation.
+                $claimed = Guest::query()->where('id', $guest->id)->where('status', 'not_going')->update(['status' => 'going']);
+                $guest = Guest::query()->find($guest->id);
+
+                // An admin cancelled or deleted the row meanwhile.
+                if (!$claimed && (!$guest || !in_array($guest->status, Event::SEAT_STATUSES, true))) {
+                    return false;
+                }
+
+                return [$guest, $claimed ? 'not_going' : $guest->status];
+            }
+
+            return [Guest::create(array_merge($source, [
+                'event_id'    => $event->id,
+                'calendar_id' => $event->calendar_id,
+                'group_id'    => wp_generate_password(32, false, false),
+                'is_buyer'    => 1,
+                'name'        => $data['name'],
+                'email'       => $data['email'],
+                'status'      => 'going',
+            ])), null];
+        });
+    }
+
+    // Inside a transaction: whether a capped event has a seat left. Seats are going and checked-in guests.
+    protected static function hasSeatLeft(Event $event)
+    {
+        $capacity = (int) Arr::get((array) $event->meta, 'capacity');
+
+        if (!$capacity) {
+            return true;
         }
 
-        return [Guest::create(array_merge($source, [
-            'event_id'    => $event->id,
-            'calendar_id' => $event->calendar_id,
-            'group_id'    => wp_generate_password(32, false, false),
-            'is_buyer'    => 1,
-            'name'        => $data['name'],
-            'email'       => $data['email'],
-            'status'      => 'going',
-        ])), null];
+        // Holds every other registration to this event until commit, so two guests cannot both take the last seat.
+        Event::query()->where('id', $event->id)->lockForUpdate()->first();
+
+        return Guest::query()->where('event_id', $event->id)->whereIn('status', Event::SEAT_STATUSES)->count() < $capacity;
     }
 
     // Confirmation on becoming going, cancellation on leaving it, each as Settings > Emails allows.

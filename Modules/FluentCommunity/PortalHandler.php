@@ -193,8 +193,13 @@ class PortalHandler
     protected function strings()
     {
         return [
+            /* translators: 1: number of guests going, 2: the event's capacity */
+            '%1$s out of %2$s going' => __('%1$s out of %2$s going', 'fluent-event'),
             /* translators: %d: the number of further events on that day */
             '%d more' => __('%d more', 'fluent-event'),
+            /* translators: %d: seats still open on a capped event */
+            '%d spots left' => __('%d spots left', 'fluent-event'),
+            '1 spot left' => __('1 spot left', 'fluent-event'),
             /* translators: %s: number of guests going */
             '%s going' => __('%s going', 'fluent-event'),
             'A venue for in-person events, a link for online ones.' => __('A venue for in-person events, a link for online ones.', 'fluent-event'),
@@ -209,6 +214,9 @@ class PortalHandler
             'Back' => __('Back', 'fluent-event'),
             'Basics' => __('Basics', 'fluent-event'),
             'Calendar' => __('Calendar', 'fluent-event'),
+            'Capacity' => __('Capacity', 'fluent-event'),
+            'Guest control' => __('Guest control', 'fluent-event'),
+            'Seats and the guest count guests see.' => __('Seats and the guest count guests see.', 'fluent-event'),
             'Cards' => __('Cards', 'fluent-event'),
             'Check your inbox for the confirmation email, or register with a different email.' => __('Check your inbox for the confirmation email, or register with a different email.', 'fluent-event'),
             'Contact the host if you want to join again.' => __('Contact the host if you want to join again.', 'fluent-event'),
@@ -232,6 +240,7 @@ class PortalHandler
             'End must be after the start.' => __('End must be after the start.', 'fluent-event'),
             'End time' => __('End time', 'fluent-event'),
             'Ended' => __('Ended', 'fluent-event'),
+            'Event full' => __('Event full', 'fluent-event'),
             'Entry Type' => __('Entry Type', 'fluent-event'),
             'Error' => __('Error', 'fluent-event'),
             'Event cover image' => __('Event cover image', 'fluent-event'),
@@ -248,6 +257,7 @@ class PortalHandler
             'Guests register with their name and email, no login needed.' => __('Guests register with their name and email, no login needed.', 'fluent-event'),
             'Happening now' => __('Happening now', 'fluent-event'),
             'How guests join and what they see.' => __('How guests join and what they see.', 'fluent-event'),
+            'How many guests can be going at once. Leave empty for no limit.' => __('How many guests can be going at once. Leave empty for no limit.', 'fluent-event'),
             'In a space' => __('In a space', 'fluent-event'),
             'In Person' => __('In Person', 'fluent-event'),
             'Interested?' => __('Interested?', 'fluent-event'),
@@ -294,6 +304,7 @@ class PortalHandler
             'Search events' => __('Search events', 'fluent-event'),
             'Select a space' => __('Select a space', 'fluent-event'),
             'Show how many guests are going' => __('Show how many guests are going', 'fluent-event'),
+            'Show how many spots are left' => __('Show how many spots are left', 'fluent-event'),
             'Shown at the top of the event page and on event cards.' => __('Shown at the top of the event page and on event cards.', 'fluent-event'),
             'Something went wrong. Please try again.' => __('Something went wrong. Please try again.', 'fluent-event'),
             'Space' => __('Space', 'fluent-event'),
@@ -314,7 +325,9 @@ class PortalHandler
             /* translators: a menu path in FluentCommunity's admin; keep the names as FluentCommunity shows them */
             'To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.' => __('To turn it on: FluentCommunity → Portal Settings → General → Global Post Status → Enable Global Posts Status Form.', 'fluent-event'),
             'Today' => __('Today', 'fluent-event'),
+            'This event is full and no longer taking registrations.' => __('This event is full and no longer taking registrations.', 'fluent-event'),
             'Try a different search term.' => __('Try a different search term.', 'fluent-event'),
+            'Unlimited' => __('Unlimited', 'fluent-event'),
             'Upcoming' => __('Upcoming', 'fluent-event'),
             'Update Event' => __('Update Event', 'fluent-event'),
             'Venue Name' => __('Venue Name', 'fluent-event'),

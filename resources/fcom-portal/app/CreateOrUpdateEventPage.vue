@@ -340,7 +340,31 @@
                         </el-radio>
                     </el-radio-group>
 
-                    <div v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-create-event__switch-row">
+                </div>
+            </section>
+
+            <section v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-create-event__section">
+                <div>
+                    <h2 class="fe-create-event__section-title">{{ $t('Guest control') }}</h2>
+                    <p class="fe-create-event__section-desc">{{ $t('Seats and the guest count guests see.') }}</p>
+                </div>
+
+                <div class="fe-create-event__section-fields">
+                    <el-form-item :label="$t('Capacity')" label-position="top" for="fe-create-event-capacity">
+                        <el-input-number
+                            id="fe-create-event-capacity"
+                            v-model="event.capacity"
+                            class="fe-create-event__capacity"
+                            align="left"
+                            :min="1"
+                            step-strictly
+                            :controls="false"
+                            :placeholder="$t('Unlimited')"
+                        />
+                        <span class="fe-create-event__hint">{{ $t('How many guests can be going at once. Leave empty for no limit.') }}</span>
+                    </el-form-item>
+
+                    <div class="fe-create-event__switch-row">
                         <label class="fe-create-event__switch-text" for="fe-create-event-show-guest-count">
                             {{ $t('Show how many guests are going') }}
                         </label>
@@ -348,6 +372,19 @@
                         <el-switch
                             id="fe-create-event-show-guest-count"
                             v-model="event.show_guest_count"
+                            active-value="yes"
+                            inactive-value="no"
+                        />
+                    </div>
+
+                    <div v-if="event.capacity" class="fe-create-event__switch-row">
+                        <label class="fe-create-event__switch-text" for="fe-create-event-show-spots-left">
+                            {{ $t('Show how many spots are left') }}
+                        </label>
+
+                        <el-switch
+                            id="fe-create-event-show-spots-left"
+                            v-model="event.show_spots_left"
                             active-value="yes"
                             inactive-value="no"
                         />
@@ -427,6 +464,8 @@ export default {
                 cover_url: '',
                 entry_type: 'rsvp',
                 show_guest_count: 'yes',
+                capacity: null,
+                show_spots_left: 'no',
                 start_display: 'relative',
             },
             uploading: false,
@@ -459,6 +498,8 @@ export default {
                 cover_url: event.cover_url,
                 entry_type: event.entry_type,
                 show_guest_count: event.show_guest_count,
+                capacity: event.capacity || 0,
+                show_spots_left: event.show_spots_left,
                 start_display: event.start_display,
             };
         },
@@ -568,6 +609,8 @@ export default {
                     cover_url: meta.cover_url || '',
                     entry_type: meta.entry_type || '',
                     show_guest_count: meta.show_guest_count || 'yes',
+                    capacity: meta.capacity || null,
+                    show_spots_left: meta.show_spots_left || 'no',
                     start_display: meta.start_display || 'relative',
                 };
                 this.loadedEvent = event;
