@@ -240,6 +240,25 @@ describe('EventsPage', () => {
             expect(wrapper.find('[aria-current="page"]').text()).toBe('Past');
         });
 
+        it('gives a site admin the FluentEvent admin links in a "⋯" menu', async () => {
+            window.fluentEventFcomPortal.admin_url = 'https://example.test/wp-admin/admin.php?page=fluent-event';
+            const { wrapper, vm } = await eventsPage();
+
+            expect(wrapper.findComponent({ name: 'ElPopover' }).exists()).toBe(true);
+            expect(vm.adminLinks.map(link => [link.label, link.href])).toEqual([
+                ['Dashboard', 'https://example.test/wp-admin/admin.php?page=fluent-event#/'],
+                ['Calendars', 'https://example.test/wp-admin/admin.php?page=fluent-event#/calendars'],
+                ['Settings', 'https://example.test/wp-admin/admin.php?page=fluent-event#/settings'],
+            ]);
+        });
+
+        // The server sends admin_url to site admins only.
+        it('shows no "⋯" menu to anyone else', async () => {
+            const { wrapper } = await eventsPage();
+
+            expect(wrapper.findComponent({ name: 'ElPopover' }).exists()).toBe(false);
+        });
+
         it('leaves the bar to the space header inside a space', async () => {
             const { wrapper } = await eventsPage({ spaceSlug: 'design' });
 
