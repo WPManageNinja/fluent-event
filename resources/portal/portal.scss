@@ -18,6 +18,9 @@ html.dark .fe-portal {
         all: revert;
     }
 
+    // FluentCommunity's page template sets every link to `color: inherit` (`.fcom_wp_content a:not(…)`, 0,2,1), above
+    // our one-class rules. So a link rule, and any later rule for the same link, also lists `.fcom_wp_content .fe-portal &…`.
+
     *,
     *::before,
     *::after {
@@ -62,7 +65,8 @@ html.dark .fe-portal {
         font-size: var(--fe-text-sm, 14px);
     }
 
-    &__button {
+    &__button,
+    .fcom_wp_content .fe-portal &__button {
         display: inline-flex;
         align-items: center;
         min-height: var(--fe-control-height, 36px);
@@ -169,7 +173,8 @@ html.dark .fe-portal {
         flex-wrap: nowrap;
     }
 
-    &__chip {
+    &__chip,
+    .fcom_wp_content .fe-portal &__chip {
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -207,7 +212,8 @@ html.dark .fe-portal {
         white-space: nowrap;
     }
 
-    &__more {
+    &__more,
+    .fcom_wp_content .fe-portal &__more {
         font: inherit;
         font-size: 13px;
         cursor: pointer;
@@ -304,7 +310,8 @@ html.dark .fe-portal {
     border-radius: var(--fe-radius, 8px);
     background-color: var(--fe-active-bg, #f0f0f1);
 
-    &__option {
+    &__option,
+    .fcom_wp_content .fe-portal &__option {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -619,7 +626,9 @@ html.dark .fe-portal {
     }
 
     &__step,
-    &__today {
+    &__today,
+    .fcom_wp_content .fe-portal &__step,
+    .fcom_wp_content .fe-portal &__today {
         display: grid;
         place-items: center;
         min-width: 34px;
@@ -643,7 +652,8 @@ html.dark .fe-portal {
         }
     }
 
-    &__today {
+    &__today,
+    .fcom_wp_content .fe-portal &__today {
         padding: 0 var(--fe-space-3, 12px);
         border-right: 1px solid var(--fe-primary-border, #eaecf0);
         border-left: 1px solid var(--fe-primary-border, #eaecf0);
@@ -703,7 +713,8 @@ html.dark .fe-portal {
     }
 
     // The calendar's colour as a left bar over a tint of it, as in the admin; grey without one.
-    &__chip {
+    &__chip,
+    .fcom_wp_content .fe-portal &__chip {
         display: flex;
         align-items: baseline;
         gap: 4px;
@@ -875,7 +886,8 @@ html.dark .fe-portal {
     }
 
     // The chip's colour bar and tint, but the title wraps instead of cutting off.
-    &__agenda-event {
+    &__agenda-event,
+    .fcom_wp_content .fe-portal &__agenda-event {
         display: flex;
         align-items: baseline;
         gap: 10px;
@@ -927,6 +939,7 @@ html.dark .fe-portal {
         }
 
         &__chip,
+        .fcom_wp_content .fe-portal &__chip,
         &__more {
             display: none;
         }
@@ -1041,7 +1054,8 @@ html.dark .fe-portal {
     }
 
     // Overlapping events split the column into lanes, set per event by the server.
-    &__event {
+    &__event,
+    .fcom_wp_content .fe-portal &__event {
         position: absolute;
         left: calc(4px + (100% - 8px) * var(--fe-lane, 0) / var(--fe-lanes, 1));
         width: calc((100% - 8px) / var(--fe-lanes, 1) - 2px);
@@ -1119,7 +1133,8 @@ html.dark .fe-portal {
     gap: var(--fe-space-3, 12px);
     margin-top: var(--fe-space-2, 8px);
 
-    &__link {
+    &__link,
+    .fcom_wp_content .fe-portal &__link {
         display: inline-flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);
@@ -1322,7 +1337,8 @@ html.dark .fe-portal {
             }
         }
 
-        a {
+        a,
+        .fcom_wp_content .fe-portal & a {
             color: var(--fe-accent-blue, #0e7ff1);
         }
 
@@ -1495,7 +1511,8 @@ html.dark .fe-portal {
         white-space: pre-line;
     }
 
-    &__join {
+    &__join,
+    .fcom_wp_content .fe-portal &__join {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1551,7 +1568,8 @@ html.dark .fe-portal {
         gap: var(--fe-space-2, 8px);
     }
 
-    &__calendar-link {
+    &__calendar-link,
+    .fcom_wp_content .fe-portal &__calendar-link {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2139,56 +2157,5 @@ html.dark .fe-portal {
         letter-spacing: 0.02em;
         white-space: nowrap;
         text-transform: uppercase;
-    }
-}
-
-// FluentCommunity's page template sets every link to `color: inherit` (`.fcom_wp_content a:not(…)`, 0,2,1),
-// above our link rules. Inside it, each link gets its colour back; keep these in step with the rules above.
-.fcom_wp_content .fe-portal {
-    .fe-calendar-chips__chip {
-        color: var(--fe-secondary-text, #525866);
-
-        &:hover {
-            color: var(--fe-primary-text, #19283a);
-        }
-
-        &.fe-calendar-chips__chip--active {
-            color: var(--fe-primary-bg, #ffffff);
-        }
-    }
-
-    .fe-switch__option {
-        color: var(--fe-secondary-text, #525866);
-
-        &:hover,
-        &.fe-switch__option--active {
-            color: var(--fe-primary-text, #19283a);
-        }
-    }
-
-    .fe-calendar-head__step,
-    .fe-calendar-head__today {
-        color: var(--fe-secondary-text, #525866);
-
-        &:hover {
-            color: var(--fe-primary-text, #19283a);
-        }
-    }
-
-    .fe-month__chip,
-    .fe-month__agenda-event,
-    .fe-week__event,
-    .fe-pagination__link,
-    .fe-event-page__calendar-link {
-        color: var(--fe-primary-text, #19283a);
-    }
-
-    .fe-not-found__button,
-    .fe-event-page__join {
-        color: var(--fe-primary-bg, #ffffff);
-    }
-
-    .fe-event-page__description a {
-        color: var(--fe-accent-blue, #0e7ff1);
     }
 }
