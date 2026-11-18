@@ -296,6 +296,7 @@ return [
             'No events are running right now.' => __('No events are running right now.', 'fluent-event'),
             'No events found' => __('No events found', 'fluent-event'),
             'No events match your search or filters.' => __('No events match your search or filters.', 'fluent-event'),
+            'No events on this day.' => __('No events on this day.', 'fluent-event'),
             'No events yet' => __('No events yet', 'fluent-event'),
             'No guest activity in this period.' => __('No guest activity in this period.', 'fluent-event'),
             'No guest will get a reminder before an event starts.' => __('No guest will get a reminder before an event starts.', 'fluent-event'),

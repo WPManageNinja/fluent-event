@@ -267,6 +267,7 @@ class PortalHandler
             'Name' => __('Name', 'fluent-event'),
             'Next' => __('Next', 'fluent-event'),
             'No events found' => __('No events found', 'fluent-event'),
+            'No events on this day.' => __('No events on this day.', 'fluent-event'),
             'No events yet' => __('No events yet', 'fluent-event'),
             'No past events' => __('No past events', 'fluent-event'),
             'No upcoming events' => __('No upcoming events', 'fluent-event'),

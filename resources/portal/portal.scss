@@ -1093,6 +1093,23 @@ html.dark .fe-portal {
             margin: 0 4px 0 0;
         }
     }
+
+    // Phones: the hours stay pinned left while the days scroll sideways.
+    // The body drops its own vertical scroll, or the pin can't follow.
+    @media (max-width: 767px) {
+        &__body {
+            max-height: none;
+            overflow: visible;
+        }
+
+        &__head > :first-child,
+        &__times {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background-color: var(--fe-primary-bg, #ffffff);
+        }
+    }
 }
 
 .fe-pagination {
