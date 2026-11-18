@@ -230,9 +230,11 @@ return [
             'Shortcode' => __('Shortcode', 'fluent-event'),
             'Shortcode copied.' => __('Shortcode copied.', 'fluent-event'),
             'Show how many guests are going' => __('Show how many guests are going', 'fluent-event'),
+            'Show how many spots are left' => __('Show how many spots are left', 'fluent-event'),
             'Capacity' => __('Capacity', 'fluent-event'),
             'Guest control' => __('Guest control', 'fluent-event'),
             'Guest count' => __('Guest count', 'fluent-event'),
+            'Spots left' => __('Spots left', 'fluent-event'),
             'Shown' => __('Shown', 'fluent-event'),
             'Hidden' => __('Hidden', 'fluent-event'),
             /* translators: %d is 1, the seats still open on a capped event */

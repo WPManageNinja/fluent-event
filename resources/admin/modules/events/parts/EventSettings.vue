@@ -49,6 +49,11 @@
                     <dt class="fe-event-settings__label">{{ $t('Guest count') }}</dt>
                     <dd class="fe-event-settings__value">{{ countShown ? $t('Shown') : $t('Hidden') }}</dd>
                 </div>
+
+                <div v-if="capacity" class="fe-event-settings__row">
+                    <dt class="fe-event-settings__label">{{ $t('Spots left') }}</dt>
+                    <dd class="fe-event-settings__value">{{ event.meta?.show_spots_left === 'yes' ? $t('Shown') : $t('Hidden') }}</dd>
+                </div>
             </template>
         </dl>
     </div>

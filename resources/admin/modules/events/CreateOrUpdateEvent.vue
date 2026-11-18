@@ -442,6 +442,19 @@
                                     inactive-value="no"
                                 />
                             </div>
+
+                            <div v-if="event.capacity" class="fe-form__switch-row" data-field="show_spots_left">
+                                <label class="fe-form__switch-text" for="fe-event-show-spots-left">
+                                    {{ $t('Show how many spots are left') }}
+                                </label>
+
+                                <el-switch
+                                    id="fe-event-show-spots-left"
+                                    v-model="event.show_spots_left"
+                                    active-value="yes"
+                                    inactive-value="no"
+                                />
+                            </div>
                         </div>
                     </section>
 
@@ -624,6 +637,7 @@
                     entry_type: event ? (meta.entry_type || '') : 'rsvp',
                     show_guest_count: meta.show_guest_count || 'yes',
                     capacity: meta.capacity || null,
+                    show_spots_left: meta.show_spots_left || 'no',
                     start_display: meta.start_display || 'relative',
                 };
             },
@@ -724,6 +738,7 @@
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
                         capacity: this.event.capacity || 0,
+                        show_spots_left: this.event.show_spots_left,
                         start_display: this.event.start_display,
                     },
                     loadingState: 'saving',
