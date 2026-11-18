@@ -893,33 +893,6 @@
         font-weight: 500;
         color: var(--fe-primary-text, #19283a);
     }
-
-    &__meter {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--fe-space-3, 12px);
-        font-size: var(--fe-text-xs, 12px);
-        font-weight: 400;
-        font-variant-numeric: tabular-nums;
-        color: var(--fe-secondary-text, #525866);
-    }
-
-    &__track {
-        display: block;
-        width: 140px;
-        height: 6px;
-        overflow: hidden;
-        border-radius: 999px;
-        background-color: var(--fe-active-bg, #f0f0f1);
-    }
-
-    &__fill {
-        display: block;
-        min-width: 6px;
-        height: 100%;
-        border-radius: inherit;
-        background-color: var(--fe-primary-button, #2b2e33);
-    }
 }
 
 .fe-danger-zone {

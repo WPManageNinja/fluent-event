@@ -25,24 +25,7 @@
             <template v-if="takesRegistrations">
                 <div class="fe-event-settings__row">
                     <dt class="fe-event-settings__label">{{ $t('Capacity') }}</dt>
-                    <dd class="fe-event-settings__value">
-                        <span>{{ capacity || $t('Unlimited') }}</span>
-
-                        <!-- Seats are going and checked-in guests, as the capacity counts them; admins can add past it. -->
-                        <span v-if="capacity" class="fe-event-settings__meter">
-                            <span
-                                class="fe-event-settings__track"
-                                role="progressbar"
-                                aria-valuemin="0"
-                                :aria-valuemax="capacity"
-                                :aria-valuenow="seats"
-                                :aria-label="$t('Capacity')"
-                            >
-                                <span class="fe-event-settings__fill" :style="{ width: `${seatsPercent}%` }"></span>
-                            </span>
-                            <span class="fe-event-settings__meter-status">{{ seatsLeftLabel }}</span>
-                        </span>
-                    </dd>
+                    <dd class="fe-event-settings__value">{{ capacity || $t('Unlimited') }}</dd>
                 </div>
 
                 <div class="fe-event-settings__row">
@@ -82,17 +65,6 @@
             },
             capacity() {
                 return parseInt(this.event.meta?.capacity, 10) || 0;
-            },
-            seats() {
-                return this.event.seats_count || 0;
-            },
-            seatsPercent() {
-                return Math.min(100, Math.round((this.seats / this.capacity) * 100));
-            },
-            seatsLeftLabel() {
-                const left = this.capacity - this.seats;
-
-                return left > 0 ? this.$_n('%d spot left', '%d spots left', left) : this.$t('Full');
             },
             countShown() {
                 return this.event.meta?.show_guest_count !== 'no';

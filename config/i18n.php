@@ -237,11 +237,6 @@ return [
             'Spots left' => __('Spots left', 'fluent-event'),
             'Shown' => __('Shown', 'fluent-event'),
             'Hidden' => __('Hidden', 'fluent-event'),
-            /* translators: %d is 1, the seats still open on a capped event */
-            '%d spot left' => __('%d spot left', 'fluent-event'),
-            /* translators: %d: seats still open on a capped event */
-            '%d spots left' => __('%d spots left', 'fluent-event'),
-            'Full' => __('Full', 'fluent-event'),
             'Seats and the guest count guests see.' => __('Seats and the guest count guests see.', 'fluent-event'),
             'Unlimited' => __('Unlimited', 'fluent-event'),
             'How many guests can be going at once. Leave empty for no limit.' => __('How many guests can be going at once. Leave empty for no limit.', 'fluent-event'),

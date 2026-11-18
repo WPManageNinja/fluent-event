@@ -70,13 +70,8 @@ class EventController extends Controller
                     $query->select(['id', 'title', 'status', 'meta']);
                 },
             ])
-            // The Overview's "N guests", counted as on the list cards, and the seats the capacity counts.
-            ->withCount([
-                'guests',
-                'guests as seats_count' => function ($query) {
-                    $query->whereIn('status', Event::SEAT_STATUSES);
-                },
-            ])
+            // The Overview's "N guests", counted as on the list cards.
+            ->withCount('guests')
             ->findOrFail($id);
 
         $data = [
