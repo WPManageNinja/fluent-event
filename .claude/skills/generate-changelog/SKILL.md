@@ -25,8 +25,9 @@ release date (`Mon D, YYYY`).
 - No date → use today: `date "+%b %-d, %Y"`.
 - The version already has a block in `readme.txt`:
   - The version is released (in a git tag, or the user says it shipped) → ask before you replace it.
-  - The version is not released → merge the new entries into the block, and keep the user's
-    existing wording unless it breaks the conventions. Report every line you changed.
+  - The version is not released → update the block in place: keep the user's existing wording
+    unless it breaks the conventions, add the new entries, and report every line you changed.
+    The commit range still starts at the previous shipped release (Step 1), never at the draft.
 
 ## Output contract
 
@@ -40,11 +41,24 @@ release date (`Mon D, YYYY`).
 
 ### Step 1 — Find the previous release and its commit
 
-Read `readme.txt`. Find the most recent heading that matches:
+Read `readme.txt`. List the headings that match:
 
 ```
 ^= ([0-9]+\.[0-9]+\.[0-9]+) \(Date: ([A-Z][a-z]{2}) ([0-9]{1,2}), ([0-9]{4})\) =$
 ```
+
+The previous release is the **newest heading whose version is lower than the target**
+(`php -r 'var_dump(version_compare("1.0.5", "1.1.0", "<"));'`). Never the target itself: on a
+re-run, the target's own draft block is the newest heading, and taking it gives an empty or
+partial range.
+
+The previous release must have **shipped** (a git tag, a release-branch merge, or the user says
+so). A heading that is only a draft is not a boundary: skip it and take the next lower heading,
+so the range covers every commit since the last shipped release. When it is unclear whether a
+heading shipped, ask the user.
+
+On a re-run for a draft block, always use this full range. Steps 2–6 rebuild the block and the
+PR map from it, so no retained entry loses its source.
 
 Then find the **release commit** for that version. A commit range is more accurate than
 `--since=$DATE`: a date grabs same-day commits from before the release and misses PRs that
@@ -110,7 +124,9 @@ All `Security:` commits become ONE `Security:` line.
 
 ### Step 5 — Insert into readme.txt
 
-Use the `Edit` tool. Anchor on the previous version heading:
+On a re-run for a draft block, edit that block in place instead of inserting a second one.
+
+For a new block, use the `Edit` tool. Anchor on the previous version heading:
 
 ```
 old_string:
@@ -193,6 +209,7 @@ the table from the block in `readme.txt`. Don't patch rows by hand. Renumber the
 ## Quality gate
 
 - [ ] The heading matches the Step 1 regex. The day has no leading zero.
+- [ ] The lower bound is the newest shipped release below the target, never the target's own draft.
 - [ ] Every line in the block starts with `- `.
 - [ ] Entries are in prefix order. Exactly zero or one `Security:` line.
 - [ ] No `Updated:`, `Resolved:`, `Removed:` or `New:` prefix in the block.
