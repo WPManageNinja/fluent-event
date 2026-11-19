@@ -57,42 +57,51 @@
                             {{ $_n('%d guest selected', '%d guests selected', selectedIds.length) }}
                         </span>
 
-                        <ActionPopover :width="160" placement="bottom-start">
-                            <template #trigger="{ visible }">
-                                <el-button
-                                    class="fe-guests__bulk-action"
-                                    type="primary"
-                                    aria-haspopup="menu"
-                                    :aria-expanded="visible"
-                                >
-                                    {{ $t('Change status') }}
-                                </el-button>
-                            </template>
+                        <el-button
+                            class="fe-guests__clear"
+                            link
+                            :aria-label="$t('Clear selection')"
+                            :title="$t('Clear selection')"
+                            @click="selectedIds = []"
+                        >
+                            <el-icon aria-hidden="true"><Close /></el-icon>
+                        </el-button>
 
-                            <template #default="{ hide }">
-                                <ul class="fe-action-popover__menu" role="menu">
-                                    <li
-                                        v-for="option in statuses"
-                                        :key="option.value"
-                                        class="fe-action-popover__item"
-                                        role="menuitem"
-                                        tabindex="0"
-                                        @click="openBulk({ action: 'change_status', status: option.value, label: option.label }, hide)"
-                                        @keydown.enter.prevent="openBulk({ action: 'change_status', status: option.value, label: option.label }, hide)"
+                        <div class="fe-guests__bulk-actions">
+                            <ActionPopover :width="160" placement="bottom-start">
+                                <template #trigger="{ visible }">
+                                    <el-button
+                                        class="fe-guests__bulk-action"
+                                        size="small"
+                                        type="primary"
+                                        aria-haspopup="menu"
+                                        :aria-expanded="visible"
                                     >
-                                        {{ option.label }}
-                                    </li>
-                                </ul>
-                            </template>
-                        </ActionPopover>
+                                        {{ $t('Change status') }}
+                                    </el-button>
+                                </template>
 
-                        <el-button class="fe-guests__bulk-action" type="danger" @click="openBulk({ action: 'delete' })">
-                            {{ $t('Delete') }}
-                        </el-button>
+                                <template #default="{ hide }">
+                                    <ul class="fe-action-popover__menu" role="menu">
+                                        <li
+                                            v-for="option in statuses"
+                                            :key="option.value"
+                                            class="fe-action-popover__item"
+                                            role="menuitem"
+                                            tabindex="0"
+                                            @click="openBulk({ action: 'change_status', status: option.value, label: option.label }, hide)"
+                                            @keydown.enter.prevent="openBulk({ action: 'change_status', status: option.value, label: option.label }, hide)"
+                                        >
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </template>
+                            </ActionPopover>
 
-                        <el-button class="fe-guests__bulk-action" text @click="selectedIds = []">
-                            {{ $t('Clear selection') }}
-                        </el-button>
+                            <el-button class="fe-guests__bulk-action" size="small" type="danger" @click="openBulk({ action: 'delete' })">
+                                {{ $t('Delete') }}
+                            </el-button>
+                        </div>
                     </div>
 
                     <template v-else>
@@ -217,7 +226,7 @@
 </template>
 
 <script type="text/javascript">
-    import { ArrowDown } from '@element-plus/icons-vue';
+    import { ArrowDown, Close } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import SearchInput from '@/components/SearchInput.vue';
@@ -233,6 +242,7 @@
         name: 'EventGuests',
         components: {
             ArrowDown,
+            Close,
             ErrorState,
             Skeleton,
             SearchInput,

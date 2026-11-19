@@ -3107,16 +3107,32 @@
     }
 
     &__bulk-count {
-        margin-right: var(--fe-space-2, 8px);
+        // The checkbox's height, so a wrapped bar keeps the count level with the checkbox.
+        line-height: 32px;
         font-size: var(--fe-text-sm, 14px);
         font-weight: 600;
         color: var(--fe-primary-text, #19283a);
     }
 
+    // vendor.scss sets every button to the 36px control height, which size="small" alone can't undo.
     &__bulk-action.el-button {
-        height: 32px;
+        height: 28px;
         margin-left: 0;
         padding: 0 var(--fe-space-3, 12px);
+    }
+
+    &__clear.el-button {
+        --el-button-text-color: var(--fe-primary-text, #19283a);
+        --el-button-hover-link-text-color: var(--fe-secondary-text, #525866);
+        height: auto;
+        margin: 0 var(--fe-space-2, 8px) 0 0;
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    &__bulk-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
     }
 
     &__serial {
@@ -3270,6 +3286,7 @@
             // Kept for select-all and the bulk bar; the column titles have no column to name on a card.
             &.fe-guests__row--head {
                 display: flex;
+                align-items: flex-start;
 
                 .fe-guests__avatar,
                 .fe-guests__name,
@@ -3289,6 +3306,12 @@
         &__bulk {
             flex-wrap: wrap;
             height: auto;
+            row-gap: var(--fe-space-1, 4px);
+        }
+
+        // The buttons take their own line under the count, so nothing is left dangling.
+        &__bulk-actions {
+            flex-basis: 100%;
         }
 
         &__serial {
