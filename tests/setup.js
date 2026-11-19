@@ -41,7 +41,7 @@ export const adminVars = () => ({
     },
     baseUrl: 'https://example.test/wp-admin/admin.php?page=fluent-event#/',
     name: 'FluentEvent',
-    hook_prefix: 'fluent-event',
+    hook_prefix: 'fluent_event/',
     logoUrl: 'https://example.test/wp-content/plugins/fluent-events/assets/images/logo.svg',
     me: {
         id: 1,

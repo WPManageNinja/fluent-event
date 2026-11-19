@@ -275,7 +275,7 @@ JS;
      */
     protected function triggerAdminBootingHooks()
     {
-        $this->app->doCustomAction('_admin_booting');
+        $this->app->doCustomAction('admin_booting');
     }
 
     /**
@@ -297,7 +297,7 @@ JS;
      */
     protected function triggerAdminBootedHooks()
     {
-        $this->app->doCustomAction('_admin_booted');
+        $this->app->doCustomAction('admin_booted');
     }
 
     /**
