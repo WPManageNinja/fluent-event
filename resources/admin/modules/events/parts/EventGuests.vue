@@ -42,16 +42,78 @@
                 :aria-busy="loading"
             >
                 <div class="fe-guests__row fe-guests__row--head" role="row">
-                    <span class="fe-guests__serial" role="columnheader">#</span>
-                    <span class="fe-guests__avatar" aria-hidden="true"></span>
-                    <span class="fe-guests__name" role="columnheader">{{ $t('Name') }}</span>
-                    <span class="fe-guests__email" role="columnheader">{{ $t('Email') }}</span>
-                    <span class="fe-guests__source" role="columnheader">{{ $t('Source') }}</span>
-                    <span class="fe-guests__stage" role="columnheader">{{ $t('Status') }}</span>
-                    <span class="fe-guests__actions" role="columnheader">{{ $t('More') }}</span>
+                    <span class="fe-guests__select" role="columnheader">
+                        <el-checkbox
+                            :model-value="allSelected"
+                            :indeterminate="!allSelected && selectedIds.length > 0"
+                            :aria-label="$t('Select all guests on this page')"
+                            @change="toggleAll"
+                        />
+                    </span>
+
+                    <!-- Takes the column titles' place, so selecting never shifts the table. -->
+                    <div v-if="selectedIds.length" class="fe-guests__bulk" role="columnheader">
+                        <span class="fe-guests__bulk-count" role="status">
+                            {{ $_n('%d guest selected', '%d guests selected', selectedIds.length) }}
+                        </span>
+
+                        <ActionPopover :width="160" placement="bottom-start">
+                            <template #trigger="{ visible }">
+                                <el-button
+                                    class="fe-guests__bulk-action"
+                                    type="primary"
+                                    aria-haspopup="menu"
+                                    :aria-expanded="visible"
+                                >
+                                    {{ $t('Change status') }}
+                                </el-button>
+                            </template>
+
+                            <template #default="{ hide }">
+                                <ul class="fe-action-popover__menu" role="menu">
+                                    <li
+                                        v-for="option in statuses"
+                                        :key="option.value"
+                                        class="fe-action-popover__item"
+                                        role="menuitem"
+                                        tabindex="0"
+                                        @click="openBulk({ action: 'change_status', status: option.value, label: option.label }, hide)"
+                                        @keydown.enter.prevent="openBulk({ action: 'change_status', status: option.value, label: option.label }, hide)"
+                                    >
+                                        {{ option.label }}
+                                    </li>
+                                </ul>
+                            </template>
+                        </ActionPopover>
+
+                        <el-button class="fe-guests__bulk-action" type="danger" @click="openBulk({ action: 'delete' })">
+                            {{ $t('Delete') }}
+                        </el-button>
+
+                        <el-button class="fe-guests__bulk-action" text @click="selectedIds = []">
+                            {{ $t('Clear selection') }}
+                        </el-button>
+                    </div>
+
+                    <template v-else>
+                        <span class="fe-guests__serial" role="columnheader">#</span>
+                        <span class="fe-guests__avatar" aria-hidden="true"></span>
+                        <span class="fe-guests__name" role="columnheader">{{ $t('Name') }}</span>
+                        <span class="fe-guests__email" role="columnheader">{{ $t('Email') }}</span>
+                        <span class="fe-guests__source" role="columnheader">{{ $t('Source') }}</span>
+                        <span class="fe-guests__stage" role="columnheader">{{ $t('Status') }}</span>
+                        <span class="fe-guests__actions" role="columnheader">{{ $t('More') }}</span>
+                    </template>
                 </div>
 
                 <div v-for="row in rows" :key="row.id" class="fe-guests__row" role="row">
+                    <span class="fe-guests__select" role="cell">
+                        <el-checkbox
+                            :model-value="selectedIds.includes(row.id)"
+                            :aria-label="$t('Select %s', row.name)"
+                            @change="toggleGuest(row.id)"
+                        />
+                    </span>
                     <span class="fe-guests__serial" role="cell">{{ row.serial }}</span>
 
                     <!-- Hidden like its header column: a row may only own cells, and the name cell follows. -->
@@ -143,6 +205,14 @@
             :guest="activeGuest"
             @deleted="onGuestDeleted"
         />
+
+        <GuestBulkModal
+            v-model="bulkOpen"
+            :event-id="eventId"
+            :guest-ids="selectedIds"
+            :bulk="bulk"
+            @done="onBulkDone"
+        />
     </div>
 </template>
 
@@ -157,6 +227,7 @@
     import GuestFormModal from './GuestFormModal.vue';
     import GuestDetailsModal from './GuestDetailsModal.vue';
     import GuestDeleteModal from './GuestDeleteModal.vue';
+    import GuestBulkModal from './GuestBulkModal.vue';
 
     export default {
         name: 'EventGuests',
@@ -171,6 +242,7 @@
             GuestFormModal,
             GuestDetailsModal,
             GuestDeleteModal,
+            GuestBulkModal,
         },
         props: {
             eventId: {
@@ -189,6 +261,9 @@
                 formOpen: false,
                 detailsOpen: false,
                 deleteOpen: false,
+                bulkOpen: false,
+                bulk: null,
+                selectedIds: [],
                 mutating: false,
                 query: {
                     search: '',
@@ -202,6 +277,9 @@
             };
         },
         computed: {
+            allSelected() {
+                return this.guests.length > 0 && this.guests.every(guest => this.selectedIds.includes(guest.id));
+            },
             emptyMessage() {
                 return this.query.search || this.query.status
                     ? this.$t('No guests match your search or filter.')
@@ -322,6 +400,28 @@
                     this.counts[guest.status] = (this.counts[guest.status] || 0) + 1;
                 }
             },
+            toggleGuest(id) {
+                this.selectedIds = this.selectedIds.includes(id)
+                    ? this.selectedIds.filter(selected => selected !== id)
+                    : [...this.selectedIds, id];
+            },
+            toggleAll() {
+                this.selectedIds = this.allSelected ? [] : this.guests.map(guest => guest.id);
+            },
+            openBulk(bulk, hide) {
+                hide?.();
+                this.bulk = bulk;
+                this.bulkOpen = true;
+            },
+            onBulkDone() {
+                const emptiedPage = this.bulk.action === 'delete' && this.selectedIds.length >= this.guests.length;
+
+                if (emptiedPage && this.pagination.current_page > 1) {
+                    this.pagination.current_page -= 1;
+                }
+
+                this.fetchGuests();
+            },
             promptDelete(row) {
                 this.activeGuest = row;
                 this.deleteOpen = true;
@@ -335,7 +435,10 @@
                     this.pagination.current_page -= 1;
                 }
             },
+            // Selection is per page: a new page, filter or search starts from none.
             fetchGuests() {
+                this.selectedIds = [];
+
                 this.$requestServer({
                     path: `events/${this.eventId}/guests`,
                     payload: {

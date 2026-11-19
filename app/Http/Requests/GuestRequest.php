@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Http\Requests;
 
 use FluentEvent\App\Models\Guest;
+use FluentEvent\Framework\Support\Arr;
 
 class GuestRequest extends BaseRequest
 {
@@ -26,6 +27,8 @@ class GuestRequest extends BaseRequest
         'email'  => 'sanitize_email',
         'status' => 'sanitize_text_field',
         'user_id' => 'intval',
+        'action'  => 'sanitize_text_field',
+        'guest_ids.*' => 'absint',
     ];
     const RULES = [
         'name'   => 'required|string|max:255',
@@ -52,6 +55,20 @@ class GuestRequest extends BaseRequest
         ]);
     }
 
+    public static function bulkRules($data)
+    {
+        $rules = [
+            'action'    => 'required|in:change_status,delete',
+            'guest_ids' => 'required|array|max:' . self::PER_PAGE_MAX,
+        ];
+
+        if (Arr::get($data, 'action') === 'change_status') {
+            $rules['status'] = 'required|in:' . Guest::STATUSES;
+        }
+
+        return $rules;
+    }
+
     public static function messages()
     {
         return [
@@ -66,6 +83,12 @@ class GuestRequest extends BaseRequest
             'user_id.exists' => __('The selected WordPress user no longer exists.', 'fluent-event'),
             'user_id.unique' => __('This WordPress user is already a guest on this event.', 'fluent-event'),
             'status.in'      => __('Status must be going, not going, checked in or cancelled.', 'fluent-event'),
+            'action.required' => __('Choose a bulk action.', 'fluent-event'),
+            'action.in'      => __('Choose a valid bulk action.', 'fluent-event'),
+            'status.required' => __('Choose the status to move the guests to.', 'fluent-event'),
+            'guest_ids.required' => __('Select at least one guest.', 'fluent-event'),
+            'guest_ids.array' => __('The selected guests must be a list.', 'fluent-event'),
+            'guest_ids.max'  => __('Too many guests selected at once.', 'fluent-event'),
         ];
     }
 }

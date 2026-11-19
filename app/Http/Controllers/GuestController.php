@@ -99,11 +99,7 @@ class GuestController extends Controller
         do_action('fluent_event/guest/updated', $guest, $previousStatus);
 
         if ($status !== $previousStatus && $request->getSafe('send_email', 'rest_sanitize_boolean')) {
-            if ($status === 'going') {
-                as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
-            } elseif (in_array($status, ['not_going', 'cancelled'], true)) {
-                as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
-            }
+            $this->queueStatusEmail($guest);
         }
 
         return [
@@ -133,6 +129,80 @@ class GuestController extends Controller
         return [
             'message' => __('Guest has been successfully deleted', 'fluent-event')
         ];
+    }
+
+    // One page of selected guests at a time: change their status, or delete them.
+    // The writes are single queries, so model events don't fire; the bulk hooks are the contract.
+    public function handleBulkActions(Request $request, $eventId)
+    {
+        $event = Event::query()->findOrFail($eventId);
+
+        $data = GuestRequest::sanitize($request->all());
+        $this->validate($data, GuestRequest::bulkRules($data), GuestRequest::messages());
+
+        $guests = Guest::query()
+            ->where('event_id', $event->id)
+            ->whereIn('id', $data['guest_ids'])
+            ->get();
+
+        // No email on delete: a queued job can't load a deleted row, and sending inline would loop wp_mail on the request.
+        if ($data['action'] === 'delete') {
+            if ($guests->isNotEmpty()) {
+                do_action('fluent_event/guest/before_bulk_deleted', $event, $guests);
+
+                Guest::query()->whereIn('id', $guests->modelKeys())->delete();
+
+                do_action('fluent_event/guest/bulk_deleted', $event, $guests);
+            }
+
+            return [
+                /* translators: %d is the number of guests deleted */
+                'message' => sprintf(_n('%d guest has been deleted.', '%d guests have been deleted.', count($guests), 'fluent-event'), count($guests)),
+            ];
+        }
+
+        $changed = $guests->filter(function ($guest) use ($data) {
+            return $guest->status !== $data['status'];
+        })->values();
+
+        if ($changed->isNotEmpty()) {
+            $previousStatuses = $changed->pluck('status', 'id')->all();
+
+            // Guests already checked in were filtered out above, so every one here gets a fresh time.
+            $values = [
+                'status'        => $data['status'],
+                'checked_in_at' => $data['status'] === 'checked_in' ? current_time('mysql') : null,
+            ];
+
+            Guest::query()->whereIn('id', $changed->modelKeys())->update($values);
+
+            foreach ($changed as $guest) {
+                $guest->fill($values);
+            }
+
+            do_action('fluent_event/guest/bulk_updated', $event, $changed, $previousStatuses);
+
+            if ($request->getSafe('send_email', 'rest_sanitize_boolean')) {
+                foreach ($changed as $guest) {
+                    $this->queueStatusEmail($guest);
+                }
+            }
+        }
+
+        return [
+            /* translators: %d is the number of guests whose status changed */
+            'message' => sprintf(_n('%d guest has been updated.', '%d guests have been updated.', count($changed), 'fluent-event'), count($changed)),
+        ];
+    }
+
+    // Each email is its own background job, so a bulk change never sends in a loop on the request.
+    protected function queueStatusEmail($guest)
+    {
+        if ($guest->status === 'going') {
+            as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
+        } elseif (in_array($guest->status, ['not_going', 'cancelled'], true)) {
+            as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
+        }
     }
 
     protected function guestCounts($eventId, $search = '')
