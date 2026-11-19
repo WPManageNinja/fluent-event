@@ -19,6 +19,9 @@ export default {
         editRoute() {
             return { name: 'fe_edit_event', params: { event_slug: this.event.slug } };
         },
+        cloneRoute() {
+            return { name: 'fe_create_event', query: { clone: this.event.slug } };
+        },
         // The event's page in the FluentEvent admin, where its guests are managed.
         adminUrl() {
             const base = portalVars().admin_url;
@@ -108,6 +111,9 @@ export default {
                     <li role="none">
                         <!-- .stop: fcom's document click handler would route the link a second time. -->
                         <a role="menuitem" class="fe-event-menu__item" :href="portalRouter.resolve(editRoute).href" @click.stop.prevent="portalRouter.push(editRoute)">{{ t('Edit Event') }}</a>
+                    </li>
+                    <li role="none">
+                        <a role="menuitem" class="fe-event-menu__item" :href="portalRouter.resolve(cloneRoute).href" @click.stop.prevent="portalRouter.push(cloneRoute)">{{ t('Clone Event') }}</a>
                     </li>
                     <li v-if="adminUrl" role="none">
                         <a role="menuitem" class="fe-event-menu__item" :href="adminUrl" @click.stop>{{ t('View in FluentEvent') }}</a>

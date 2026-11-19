@@ -134,7 +134,9 @@ const createEventShell = {
             // The description's markdown, from fcom's editor; it rides in the composer's event, or in an edit's PATCH.
             description: '',
             // fcom's editor reads its v-model only when it mounts, so an edit waits for the event's markdown.
-            editorReady: !this.$route.params.event_slug,
+            editorReady: !this.$route.params.event_slug && !this.$route.query.clone,
+            // A clone's composer, like the editor, reads the copied post text only when it mounts.
+            composerReady: !this.$route.query.clone,
             // The space picked on the page; kept across a switch to community-wide and back.
             space: this.$route.query.space || '',
             feed: {
@@ -179,6 +181,24 @@ const createEventShell = {
 
             return {
                 router: this.$router,
+                cloneSourceSlug: this.$route.query.clone || '',
+                // A clone's source event and post; both null when it could not be loaded.
+                onLoaded: (event, feed) => {
+                    this.description = ((event || {}).meta || {}).description_md || '';
+
+                    if (feed) {
+                        Object.assign(this.feed, {
+                            title: feed.title || '',
+                            message: feed.message || '',
+                            type: feed.type || 'text',
+                            topic_ids: feed.topic_ids,
+                            send_announcement_email: feed.send_announcement_email || 'no',
+                        });
+                    }
+
+                    this.editorReady = true;
+                    this.composerReady = true;
+                },
                 onChange: (event) => {
                     this.feed.event = { ...event, description_md: this.description };
                 },
@@ -237,7 +257,7 @@ const createEventShell = {
     template: `
         <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event" :class="$attrs.class">
             <div ref="mount"></div>
-            <teleport v-if="ready && !$route.params.event_slug" to="#fe-create-event-composer">
+            <teleport v-if="ready && composerReady && !$route.params.event_slug" to="#fe-create-event-composer">
                 <create-status-form
                     ref="composer"
                     defaultState="active"
