@@ -223,6 +223,28 @@ return [
             'Only accessible via direct link.' => __('Only accessible via direct link.', 'fluent-event'),
             'Send Confirmation Email' => __('Send Confirmation Email', 'fluent-event'),
             'Send Cancellation Email' => __('Send Cancellation Email', 'fluent-event'),
+            'Send Confirmation Emails' => __('Send Confirmation Emails', 'fluent-event'),
+            'Send Cancellation Emails' => __('Send Cancellation Emails', 'fluent-event'),
+            /* translators: %d is 1, the number of selected guests */
+            '%d guest selected' => __('%d guest selected', 'fluent-event'),
+            /* translators: %d is a number of selected guests */
+            '%d guests selected' => __('%d guests selected', 'fluent-event'),
+            'Change status' => __('Change status', 'fluent-event'),
+            'Clear selection' => __('Clear selection', 'fluent-event'),
+            'Select all guests on this page' => __('Select all guests on this page', 'fluent-event'),
+            /* translators: %s is a guest's name */
+            'Select %s' => __('Select %s', 'fluent-event'),
+            /* translators: %d is 1, the number of guests to delete */
+            'Delete %d Guest' => __('Delete %d Guest', 'fluent-event'),
+            /* translators: %d is a number of guests to delete */
+            'Delete %d Guests' => __('Delete %d Guests', 'fluent-event'),
+            /* translators: %d is 1, the number of guests whose status changes */
+            'Change Status of %d Guest' => __('Change Status of %d Guest', 'fluent-event'),
+            /* translators: %d is a number of guests whose status changes */
+            'Change Status of %d Guests' => __('Change Status of %d Guests', 'fluent-event'),
+            'The selected guests will be removed from this event. This cannot be undone.' => __('The selected guests will be removed from this event. This cannot be undone.', 'fluent-event'),
+            /* translators: %s is the status the guests move to, e.g. Going */
+            'The selected guests will be moved to %s.' => __('The selected guests will be moved to %s.', 'fluent-event'),
             'Cancellation Email' => __('Cancellation Email', 'fluent-event'),
             'Send an email when a registration is cancelled' => __('Send an email when a registration is cancelled', 'fluent-event'),
             'Email guests when they cancel or an admin cancels their registration.' => __('Email guests when they cancel or an admin cancels their registration.', 'fluent-event'),

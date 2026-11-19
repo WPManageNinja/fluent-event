@@ -405,6 +405,30 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(0, Meta::query()->where('object_type', Meta::OBJECT_TYPE_EVENT)->where('object_id', $event->id)->count());
     }
 
+    public function test_deleting_an_event_fires_the_guest_bulk_hooks_with_the_event_first()
+    {
+        $event = $this->createEvent();
+        $first = $this->createGuest($event);
+        $second = $this->createGuest($event);
+        $calls = [];
+
+        foreach (['before_bulk_deleted', 'bulk_deleted'] as $hook) {
+            $this->addTestFilter("fluent_event/guest/{$hook}", function ($deletedEvent, $guests) use (&$calls, $hook) {
+                $keys = array_map('intval', $guests->modelKeys());
+                sort($keys);
+                $calls[] = [$hook, (int) $deletedEvent->id, $keys, Guest::query()->whereIn('id', $keys)->count()];
+            }, 10, 2);
+        }
+
+        $this->assertSame(200, $this->rest('DELETE', "events/{$event->id}")['status']);
+
+        $ids = [(int) $first->id, (int) $second->id];
+        $this->assertSame([
+            ['before_bulk_deleted', (int) $event->id, $ids, 2],
+            ['bulk_deleted', (int) $event->id, $ids, 0],
+        ], $calls);
+    }
+
     public function test_a_missing_event_is_a_404()
     {
         $this->assertSame(404, $this->rest('GET', 'events/999999999')['status']);

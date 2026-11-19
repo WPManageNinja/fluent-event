@@ -42,16 +42,87 @@
                 :aria-busy="loading"
             >
                 <div class="fe-guests__row fe-guests__row--head" role="row">
-                    <span class="fe-guests__serial" role="columnheader">#</span>
-                    <span class="fe-guests__avatar" aria-hidden="true"></span>
-                    <span class="fe-guests__name" role="columnheader">{{ $t('Name') }}</span>
-                    <span class="fe-guests__email" role="columnheader">{{ $t('Email') }}</span>
-                    <span class="fe-guests__source" role="columnheader">{{ $t('Source') }}</span>
-                    <span class="fe-guests__stage" role="columnheader">{{ $t('Status') }}</span>
-                    <span class="fe-guests__actions" role="columnheader">{{ $t('More') }}</span>
+                    <span class="fe-guests__select" role="columnheader">
+                        <el-checkbox
+                            :model-value="allSelected"
+                            :indeterminate="!allSelected && selectedIds.length > 0"
+                            :aria-label="$t('Select all guests on this page')"
+                            @change="toggleAll"
+                        />
+                    </span>
+
+                    <!-- Takes the column titles' place, so selecting never shifts the table. -->
+                    <div v-if="selectedIds.length" class="fe-guests__bulk" role="columnheader">
+                        <span class="fe-guests__bulk-count" role="status">
+                            {{ $_n('%d guest selected', '%d guests selected', selectedIds.length) }}
+                        </span>
+
+                        <el-button
+                            class="fe-guests__clear"
+                            link
+                            :aria-label="$t('Clear selection')"
+                            :title="$t('Clear selection')"
+                            @click="selectedIds = []"
+                        >
+                            <el-icon aria-hidden="true"><Close /></el-icon>
+                        </el-button>
+
+                        <div class="fe-guests__bulk-actions">
+                            <ActionPopover :width="160" placement="bottom-start">
+                                <template #trigger="{ visible }">
+                                    <el-button
+                                        class="fe-guests__bulk-action"
+                                        size="small"
+                                        type="primary"
+                                        aria-haspopup="menu"
+                                        :aria-expanded="visible"
+                                    >
+                                        {{ $t('Change status') }}
+                                    </el-button>
+                                </template>
+
+                                <template #default="{ hide }">
+                                    <ul class="fe-action-popover__menu" role="menu">
+                                        <li
+                                            v-for="option in statuses"
+                                            :key="option.value"
+                                            class="fe-action-popover__item"
+                                            role="menuitem"
+                                            tabindex="0"
+                                            @click="openBulk({ action: 'change_status', status: option.value, label: option.label }, hide)"
+                                            @keydown.enter.prevent="openBulk({ action: 'change_status', status: option.value, label: option.label }, hide)"
+                                        >
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </template>
+                            </ActionPopover>
+
+                            <el-button class="fe-guests__bulk-action" size="small" type="danger" @click="openBulk({ action: 'delete' })">
+                                {{ $t('Delete') }}
+                            </el-button>
+                        </div>
+                    </div>
+
+                    <template v-else>
+                        <span class="fe-guests__serial" role="columnheader">#</span>
+                        <span class="fe-guests__avatar" aria-hidden="true"></span>
+                        <span class="fe-guests__name" role="columnheader">{{ $t('Name') }}</span>
+                        <span class="fe-guests__email" role="columnheader">{{ $t('Email') }}</span>
+                        <span class="fe-guests__source" role="columnheader">{{ $t('Source') }}</span>
+                        <span class="fe-guests__stage" role="columnheader">{{ $t('Status') }}</span>
+                        <span class="fe-guests__actions" role="columnheader">{{ $t('More') }}</span>
+                    </template>
                 </div>
 
                 <div v-for="row in rows" :key="row.id" class="fe-guests__row" role="row">
+                    <span class="fe-guests__select" role="cell">
+                        <el-checkbox
+                            :model-value="selectedIds.includes(row.id)"
+                            :aria-label="$t('Select %s', row.name)"
+                            @change="toggleGuest(row.id)"
+                        />
+                    </span>
                     <span class="fe-guests__serial" role="cell">{{ row.serial }}</span>
 
                     <!-- Hidden like its header column: a row may only own cells, and the name cell follows. -->
@@ -143,11 +214,19 @@
             :guest="activeGuest"
             @deleted="onGuestDeleted"
         />
+
+        <GuestBulkModal
+            v-model="bulkOpen"
+            :event-id="eventId"
+            :guest-ids="selectedIds"
+            :bulk="bulk"
+            @done="onBulkDone"
+        />
     </div>
 </template>
 
 <script type="text/javascript">
-    import { ArrowDown } from '@element-plus/icons-vue';
+    import { ArrowDown, Close } from '@element-plus/icons-vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import SearchInput from '@/components/SearchInput.vue';
@@ -157,11 +236,13 @@
     import GuestFormModal from './GuestFormModal.vue';
     import GuestDetailsModal from './GuestDetailsModal.vue';
     import GuestDeleteModal from './GuestDeleteModal.vue';
+    import GuestBulkModal from './GuestBulkModal.vue';
 
     export default {
         name: 'EventGuests',
         components: {
             ArrowDown,
+            Close,
             ErrorState,
             Skeleton,
             SearchInput,
@@ -171,6 +252,7 @@
             GuestFormModal,
             GuestDetailsModal,
             GuestDeleteModal,
+            GuestBulkModal,
         },
         props: {
             eventId: {
@@ -189,6 +271,9 @@
                 formOpen: false,
                 detailsOpen: false,
                 deleteOpen: false,
+                bulkOpen: false,
+                bulk: null,
+                selectedIds: [],
                 mutating: false,
                 query: {
                     search: '',
@@ -202,6 +287,9 @@
             };
         },
         computed: {
+            allSelected() {
+                return this.guests.length > 0 && this.guests.every(guest => this.selectedIds.includes(guest.id));
+            },
             emptyMessage() {
                 return this.query.search || this.query.status
                     ? this.$t('No guests match your search or filter.')
@@ -322,6 +410,22 @@
                     this.counts[guest.status] = (this.counts[guest.status] || 0) + 1;
                 }
             },
+            toggleGuest(id) {
+                this.selectedIds = this.selectedIds.includes(id)
+                    ? this.selectedIds.filter(selected => selected !== id)
+                    : [...this.selectedIds, id];
+            },
+            toggleAll() {
+                this.selectedIds = this.allSelected ? [] : this.guests.map(guest => guest.id);
+            },
+            openBulk(bulk, hide) {
+                hide?.();
+                this.bulk = bulk;
+                this.bulkOpen = true;
+            },
+            onBulkDone() {
+                this.fetchGuests();
+            },
             promptDelete(row) {
                 this.activeGuest = row;
                 this.deleteOpen = true;
@@ -335,7 +439,10 @@
                     this.pagination.current_page -= 1;
                 }
             },
+            // Selection is per page: a new page, filter or search starts from none.
             fetchGuests() {
+                this.selectedIds = [];
+
                 this.$requestServer({
                     path: `events/${this.eventId}/guests`,
                     payload: {
@@ -345,6 +452,15 @@
                         per_page: this.pagination.per_page,
                     },
                     onSuccess: response => {
+                        // A bulk delete, or a status change out of the active filter, can empty the last page.
+                        const lastPage = Math.max(1, Math.ceil(response.guests.total / response.guests.per_page));
+
+                        if (!response.guests.data.length && this.pagination.current_page > lastPage) {
+                            this.pagination.current_page = lastPage;
+                            this.fetchGuests();
+                            return;
+                        }
+
                         this.fetched = true;
                         this.guests = response.guests.data;
                         this.counts = response.counts;

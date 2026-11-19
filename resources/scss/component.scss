@@ -3086,6 +3086,55 @@
         }
     }
 
+    &__select {
+        display: flex;
+        flex: 0 0 20px;
+        align-items: center;
+    }
+
+    // Lives in the head row, so it undoes the head's uppercase column-title type.
+    &__bulk {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        min-width: 0;
+        // The checkbox's height: the row stays the same size with or without a selection.
+        height: 32px;
+        font-weight: 400;
+        letter-spacing: normal;
+        text-transform: none;
+    }
+
+    &__bulk-count {
+        // The checkbox's height, so a wrapped bar keeps the count level with the checkbox.
+        line-height: 32px;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    // vendor.scss sets every button to the 36px control height, which size="small" alone can't undo.
+    &__bulk-action.el-button {
+        height: 28px;
+        margin-left: 0;
+        padding: 0 var(--fe-space-3, 12px);
+    }
+
+    &__clear.el-button {
+        --el-button-text-color: var(--fe-primary-text, #19283a);
+        --el-button-hover-link-text-color: var(--fe-secondary-text, #525866);
+        height: auto;
+        margin: 0 var(--fe-space-2, 8px) 0 0;
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    &__bulk-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+    }
+
     &__serial {
         flex: 0 0 28px;
         font-size: var(--fe-text-sm, 14px);
@@ -3215,12 +3264,12 @@
     @media screen and (max-width: 782px) {
         &__row {
             display: grid;
-            grid-template-columns: 40px minmax(0, 1fr) auto;
+            grid-template-columns: 20px 40px minmax(0, 1fr) auto;
             grid-template-areas:
-                "avatar name    actions"
-                "avatar email   actions"
-                "avatar source  actions"
-                "stage  stage   stage";
+                "select avatar name    actions"
+                "select avatar email   actions"
+                "select avatar source  actions"
+                "stage  stage  stage   stage";
             gap: 0 var(--fe-space-3, 12px);
             padding: var(--fe-space-2, 8px);
             border: 1px solid var(--fe-primary-border, #eaecf0);
@@ -3234,9 +3283,35 @@
                 border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
             }
             
+            // Kept for select-all and the bulk bar; the column titles have no column to name on a card.
             &.fe-guests__row--head {
-                display: none;
+                display: flex;
+                align-items: flex-start;
+
+                .fe-guests__avatar,
+                .fe-guests__name,
+                .fe-guests__email,
+                .fe-guests__source,
+                .fe-guests__stage,
+                .fe-guests__actions {
+                    display: none;
+                }
             }
+        }
+
+        &__select {
+            grid-area: select;
+        }
+
+        &__bulk {
+            flex-wrap: wrap;
+            height: auto;
+            row-gap: var(--fe-space-1, 4px);
+        }
+
+        // The buttons take their own line under the count, so nothing is left dangling.
+        &__bulk-actions {
+            flex-basis: 100%;
         }
 
         &__serial {

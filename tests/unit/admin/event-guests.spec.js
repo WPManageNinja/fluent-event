@@ -45,3 +45,32 @@ describe('EventGuests empty list', () => {
         expect(message({ search: '', status: 'cancelled' })).toBe('No guests match your search or filter.');
     });
 });
+
+describe('EventGuests paging after a bulk change', () => {
+    // The server's reply for each page the list asks for: 20 Going guests left on page 1, none on page 2.
+    const page = number => ({
+        guests: { data: number === 1 ? [{ id: 1, status: 'going' }] : [], total: 20, per_page: 20 },
+        counts: { all: 21, going: 20, cancelled: 1 },
+    });
+
+    it('steps back to the last page when a status change empties the final filtered page', () => {
+        const requested = [];
+        const list = {
+            selectedIds: [9],
+            query: { search: '', status: 'going' },
+            pagination: { total: 21, per_page: 20, current_page: 2 },
+            $requestServer({ payload, onSuccess }) {
+                requested.push(payload.page);
+                onSuccess(page(payload.page));
+            },
+        };
+        list.fetchGuests = EventGuests.methods.fetchGuests.bind(list);
+
+        EventGuests.methods.onBulkDone.call(list);
+
+        expect(requested).toEqual([2, 1]);
+        expect(list.pagination.current_page).toBe(1);
+        expect(list.guests).toHaveLength(1);
+        expect(list.selectedIds).toEqual([]);
+    });
+});
