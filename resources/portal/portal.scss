@@ -1602,8 +1602,9 @@ html.dark .fe-portal {
 
 // Block themes: below 782px the single-event template's columns stack, and the side card would come after the whole
 // description. The text column hands its blocks to the row, so the card sits after the title, as in the classic grid.
+// Columns set not to stack on mobile stay side by side.
 @media (max-width: 781px) {
-    .wp-block-columns:has(> .wp-block-column > .wp-block-fluent-event-event-registration) {
+    .wp-block-columns:not(.is-not-stacked-on-mobile):has(> .wp-block-column > .wp-block-fluent-event-event-registration) {
         flex-direction: column;
 
         > .wp-block-column:not(:has(> .wp-block-fluent-event-event-registration)) {
