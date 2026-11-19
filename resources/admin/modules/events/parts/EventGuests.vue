@@ -423,8 +423,15 @@
                 this.bulk = bulk;
                 this.bulkOpen = true;
             },
-            onBulkDone() {
-                this.fetchGuests();
+            // A status change updates the rows in place, as the inline change does; a delete has rows to drop, so it reloads.
+            onBulkDone(response) {
+                if (this.bulk.action === 'delete') {
+                    this.fetchGuests();
+                    return;
+                }
+
+                (response.guests || []).forEach(guest => this.onGuestSaved(guest));
+                this.selectedIds = [];
             },
             promptDelete(row) {
                 this.activeGuest = row;

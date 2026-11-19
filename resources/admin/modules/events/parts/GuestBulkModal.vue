@@ -103,9 +103,9 @@
                     errorState: null,
                     successNotify: true,
                     errorNotify: true,
-                    onSuccess: () => {
+                    onSuccess: response => {
                         this.close();
-                        this.$emit('done');
+                        this.$emit('done', response);
                     },
                 });
             },
