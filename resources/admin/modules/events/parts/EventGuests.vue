@@ -424,12 +424,6 @@
                 this.bulkOpen = true;
             },
             onBulkDone() {
-                const emptiedPage = this.bulk.action === 'delete' && this.selectedIds.length >= this.guests.length;
-
-                if (emptiedPage && this.pagination.current_page > 1) {
-                    this.pagination.current_page -= 1;
-                }
-
                 this.fetchGuests();
             },
             promptDelete(row) {
@@ -458,6 +452,15 @@
                         per_page: this.pagination.per_page,
                     },
                     onSuccess: response => {
+                        // A bulk delete, or a status change out of the active filter, can empty the last page.
+                        const lastPage = Math.max(1, Math.ceil(response.guests.total / response.guests.per_page));
+
+                        if (!response.guests.data.length && this.pagination.current_page > lastPage) {
+                            this.pagination.current_page = lastPage;
+                            this.fetchGuests();
+                            return;
+                        }
+
                         this.fetched = true;
                         this.guests = response.guests.data;
                         this.counts = response.counts;
