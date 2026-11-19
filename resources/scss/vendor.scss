@@ -567,5 +567,13 @@
         .el-calendar {
             overflow-x: auto;
         }
+
+        // iOS Safari zooms into a focused field under 16px. Core gives wp-admin fields 16px here;
+        // Element Plus's `font-size: inherit` takes it back on its own fields.
+        .el-input__inner,
+        .el-textarea__inner,
+        .el-select__input {
+            font-size: 16px;
+        }
     }
 }
