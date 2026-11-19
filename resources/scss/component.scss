@@ -3689,6 +3689,13 @@
             }
         }
 
+        // iOS Safari zooms into a focused field under 16px; Crepe sets the link field to 14px.
+        @media screen and (max-width: 782px) {
+            milkdown-link-edit > .link-edit > .input-area {
+                font-size: 16px;
+            }
+        }
+
         // As in fcom's editor: no drag handle beside each block; "/" opens the menu.
         milkdown-block-handle {
             display: none;

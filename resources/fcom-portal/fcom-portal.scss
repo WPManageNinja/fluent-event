@@ -351,6 +351,11 @@
         font-size: 14px;
         color: var(--fcom-primary-text, #19283a);
 
+        // iOS Safari zooms into a focused field under 16px and stays zoomed.
+        @media (max-width: 767px) {
+            font-size: 16px;
+        }
+
         &:focus-visible {
             outline: 2px solid var(--fcom-primary-button, #2b2e33);
             outline-offset: 1px;
@@ -568,6 +573,15 @@
         border-radius: 12px;
     }
 
+    // iOS Safari zooms into a focused field under 16px and stays zoomed. Element Plus's fields inherit 14px.
+    @media (max-width: 767px) {
+        .el-input__inner,
+        .el-textarea__inner,
+        .el-select__input {
+            font-size: 16px;
+        }
+    }
+
     // All Events renders fcom's own page frame (header bar + .fcom_max_layout body), edge to edge.
     &.fe-fcom-portal-page--events {
         padding: 0;
@@ -581,6 +595,11 @@
         max-width: 1080px;
         margin: 0 auto;
         padding: 2rem;
+
+        // fcom's own frame narrows to 10px sides on phones; keep step with it.
+        @media (max-width: 768px) {
+            padding-inline: 10px;
+        }
     }
 }
 
@@ -2329,14 +2348,17 @@
         }
     }
 
+    // The 20px column gap holds the dot before "View post". When "View post" wraps, the gap goes and
+    // the dot sits past the row's edge, where the clip cuts it; 4px is kept for the link's focus outline.
     &__origin {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 6px 8px;
+        gap: 6px 20px;
         margin: 12px 0 0;
         font-size: 14px;
         color: var(--fcom-secondary-text, #525866);
+        clip-path: inset(-10px -4px);
     }
 
     &__origin-space {
@@ -2344,11 +2366,27 @@
         color: var(--fcom-primary-text, #19283a);
     }
 
+    &__origin-post {
+        position: relative;
+        white-space: nowrap;
+    }
+
+    &__origin-dot {
+        position: absolute;
+        inset-inline-end: calc(100% + 8px);
+    }
+
     &__origin-avatar {
         width: 24px;
         height: 24px;
         border-radius: 50%;
         object-fit: cover;
+
+        // Back to 8px from the name; the row's wider gap is for the dot. Two classes: fcom's
+        // `.fhr_wrap img { margin: 0 }` outranks one.
+        &.fe-event-view__origin-avatar {
+            margin-inline-end: -12px;
+        }
     }
 
     &__origin-link {

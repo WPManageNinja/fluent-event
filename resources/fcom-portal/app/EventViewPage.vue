@@ -43,8 +43,10 @@
                             <img v-if="feed.xprofile && feed.xprofile.avatar" class="fe-event-view__origin-avatar" :src="feed.xprofile.avatar" alt=""/>
                             <span v-if="feed.space">{{ postedIn[0] }}<strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong>{{ postedIn[1] }}</span>
                             <span v-else>{{ $t('Posted by %s on their profile', author) }}</span>
-                            <span aria-hidden="true">·</span>
-                            <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
+                            <span class="fe-event-view__origin-post">
+                                <span class="fe-event-view__origin-dot" aria-hidden="true">·</span>
+                                <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
+                            </span>
                         </p>
                     </div>
 
