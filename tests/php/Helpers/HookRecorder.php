@@ -8,8 +8,8 @@ namespace FluentEvent\Tests\Helpers;
  */
 class HookRecorder
 {
-    // config/app.php hook_prefix; the framework concatenates it with no separator.
-    const HOOK_PREFIX = 'fluent-event';
+    // config/app.php hook_prefix; the framework prepends it as is, so it ends with the separator.
+    const HOOK_PREFIX = 'fluent_event/';
 
     /** @var array<int, array{type: string, hook: string, callback: mixed, priority: int}> */
     public $registrations = [];

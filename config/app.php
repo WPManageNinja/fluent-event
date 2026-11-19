@@ -7,7 +7,7 @@
   'slug' => 'fluent-event',
   'domain_path' => '/language',
   'text_domain' => 'fluent-event',
-  'hook_prefix' => 'fluent-event',
+  'hook_prefix' => 'fluent_event/',
   'rest_namespace' => 'fluent-event',
   'rest_version' => 'v2',
   'env'            => 'dev',
