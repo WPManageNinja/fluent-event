@@ -430,6 +430,25 @@ describe('fcom-portal entry', () => {
             expect(wrapper.find('.el-loading-mask').exists()).toBe(true);
         }, 15000);
 
+        // fcom's sticky page header rule is `.fcom_sticky_header .fhr_content_layout_header`.
+        it("puts fcom's route classes on the page, but no other attribute fcom hands the route", async () => {
+            const { filters } = await loadPortal();
+            const routes = filters.fluent_com_portal_routes([spaceRoute()]);
+            const shells = [...routes.slice(1), ...routes[0].children.slice(1)].map(route => route.component);
+
+            for (const shell of new Set(shells)) {
+                wrapper = mount(shell, {
+                    attrs: { class: 'fcom_sticky_header', space_profile: 'design' },
+                    global: { mocks: { $route: { params: {}, query: {} }, $router: { push: vi.fn() } }, stubs: { teleport: true, CreateStatusForm: true, CrepeEditor: true, CommentBox: true } }
+                });
+
+                expect(wrapper.classes()).toEqual(expect.arrayContaining(['fe-fcom-portal-page', 'fcom_sticky_header']));
+                expect(wrapper.attributes('space_profile')).toBeUndefined();
+                wrapper.unmount();
+                wrapper = null;
+            }
+        });
+
         // fcom's editor reads its v-model only when it mounts; the post's composer has no place on an edit.
         it("mounts no composer when editing, and fcom's editor only once the event brings its markdown", async () => {
             let respond;
