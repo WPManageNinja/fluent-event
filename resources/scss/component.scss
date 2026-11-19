@@ -1964,8 +1964,33 @@
         grid-template-columns: 160px 16px minmax(0, 1fr);
         column-gap: var(--fe-space-4, 16px);
 
-        @media screen and (max-width: 575px) {
-            grid-template-columns: 80px 16px minmax(0, 1fr);
+        // A phone can't spare a date column: the line keeps a thin rail, the date sits on one line above the card.
+        @media screen and (max-width: 640px) {
+            grid-template-columns: 12px minmax(0, 1fr);
+
+            .fe-events-timeline__gutter {
+                grid-column: 2;
+                grid-row: 1;
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+                padding: 4px 0 8px;
+            }
+
+            .fe-events-timeline__dot {
+                grid-column: 1;
+                grid-row: 1 / span 2;
+
+                // Level with the date line.
+                &::before {
+                    top: 10px;
+                }
+            }
+
+            .fe-event-card {
+                grid-column: 2;
+                grid-row: 2;
+            }
         }
     }
 
@@ -2002,10 +2027,6 @@
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
-
-        @media screen and (max-width: 575px) {
-            font-size: var(--fe-text-xs, 12px);
-        }
     }
 
     &__weekday {
