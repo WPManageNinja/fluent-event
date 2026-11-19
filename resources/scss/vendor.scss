@@ -572,7 +572,8 @@
         // Element Plus's `font-size: inherit` takes it back on its own fields.
         .el-input__inner,
         .el-textarea__inner,
-        .el-select__input {
+        .el-select__input,
+        .el-date-editor .el-range-input {
             font-size: 16px;
         }
     }
