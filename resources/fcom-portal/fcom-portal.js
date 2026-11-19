@@ -21,6 +21,7 @@ function pageShell(page) {
     return {
         name: 'FluentEventPage',
         // fcom hands space routes space_profile, search and the like; the shell reads $route instead.
+        // Its class still lands on the root: fcom's route_classes (fcom_sticky_header…) style the page header.
         inheritAttrs: false,
         data() {
             return { unmount: null, gone: false, ready: false };
@@ -80,7 +81,7 @@ function pageShell(page) {
                 this.ready = true;
             },
         },
-        template: `<div class="fe-fcom-portal-page fe-fcom-portal-page--${page}"><div ref="mount"></div></div>`,
+        template: `<div class="fe-fcom-portal-page fe-fcom-portal-page--${page}" :class="$attrs.class"><div ref="mount"></div></div>`,
     };
 }
 
@@ -109,7 +110,7 @@ function eventViewShell(page) {
             },
         },
         template: `
-            <div class="fe-fcom-portal-page fe-fcom-portal-page--${page}">
+            <div class="fe-fcom-portal-page fe-fcom-portal-page--${page}" :class="$attrs.class">
                 <div ref="mount"></div>
                 <teleport v-if="feed" to="#fe-event-view-comments">
                     <comment-box :feed="feed"/>
@@ -234,7 +235,7 @@ const createEventShell = {
         },
     },
     template: `
-        <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event">
+        <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event" :class="$attrs.class">
             <div ref="mount"></div>
             <teleport v-if="ready && !$route.params.event_slug" to="#fe-create-event-composer">
                 <create-status-form
