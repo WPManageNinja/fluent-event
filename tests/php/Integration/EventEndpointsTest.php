@@ -78,7 +78,11 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(200, $bySlug['status'], wp_json_encode($bySlug['data']));
         $this->assertEquals($byId, $bySlug['data']);
 
-        $this->assertSame(404, $this->rest('GET', 'events/by-slug', ['slug' => $slug . '-missing'])['status']);
+        $missing = $this->rest('GET', 'events/by-slug', ['slug' => $slug . '-missing']);
+
+        $this->assertSame(404, $missing['status']);
+        // A clone of a missing event shows this in a toast, so it must be readable, not the ORM's message.
+        $this->assertSame('This event is not available.', $missing['data']['message']);
         $this->assertSame(404, $this->rest('GET', 'events/by-slug')['status']);
     }
 

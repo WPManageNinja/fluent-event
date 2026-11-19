@@ -676,10 +676,17 @@
                     path: this.isEditing ? `events/${this.eventId}` : 'events/by-slug',
                     payload: this.isEditing ? undefined : { slug: this.cloneSourceSlug },
                     loadingState: 'loadingEvent',
-                    errorState: 'eventError',
+                    errorState: this.isEditing ? 'eventError' : null,
                     notFoundPage: this.isEditing,
                     onSuccess: response => {
                         this.event = this.initForm(response.event);
+                    },
+                    // A clone source that cannot be loaded leaves the blank create form usable; the toast says why.
+                    onError: error => {
+                        if (this.isEditing) return;
+
+                        this.$handleError(error?.status === 404 ? this.$t('The event to clone was not found.') : error);
+                        this.preSelectCalendar();
                     },
                     // loadingEvent drops after onSuccess, so the title input only exists from here.
                     onFinally: () => this.focusTitle(),
@@ -689,8 +696,8 @@
                 this.$nextTick(() => this.$refs.titleInput?.focus());
             },
             preSelectCalendar() {
-                // A loaded event brings its own calendar.
-                if (this.isEditing || this.cloneSourceSlug) return;
+                // A loaded event (edited or cloned) brings its own calendar.
+                if (this.isEditing || this.event.calendar_id) return;
                 const requested = Number(this.$route.query.calendar_id);
                 const preSelected = this.calendars.find(calendar => calendar.id === requested);
                 this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;

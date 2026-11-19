@@ -486,7 +486,7 @@ describe('CreateOrUpdateEventPage', () => {
 
             const { wrapper, vm, props } = await createPage(CreateOrUpdateEventPage, { cloneSourceSlug: 'gone', onLoaded: vi.fn() });
 
-            expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message: 'Event not found' });
+            expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message: 'The event to clone was not found.' });
             expect(vm.event.title).toBe('');
             expect(wrapper.find('.fe-create-event__form').exists()).toBe(true);
             expect(props.onLoaded).toHaveBeenCalledWith(null, null);

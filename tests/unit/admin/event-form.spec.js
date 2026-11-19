@@ -149,7 +149,7 @@ describe('CreateOrUpdateEvent', () => {
             const load = request('events/by-slug');
 
             expect(load.payload).toEqual({ slug: 'book-club' });
-            // A wrong slug is an error to retry, not the 404 page for the create form.
+            // A wrong slug is not the 404 page for the create form.
             expect(load.notFoundPage).toBe(false);
 
             load.onSuccess({ event: source });
@@ -165,6 +165,23 @@ describe('CreateOrUpdateEvent', () => {
             request('calendars/options').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
 
             expect(vm.event.calendar_id).toBe(3);
+        });
+
+        // The create form stays usable: no blocking error panel, a toast says why, and a calendar is picked.
+        it('leaves a blank create form when the source cannot be loaded', () => {
+            const { vm, request } = form({ query: { clone: 'gone' } });
+            const load = request('events/by-slug');
+            vm.$handleError = vi.fn();
+
+            expect(load.errorState).toBe(null);
+
+            load.onError({ status: 404, message: 'This event is not available.' });
+            request('calendars/options').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
+
+            expect(vm.$handleError).toHaveBeenCalledWith('The event to clone was not found.');
+            expect(vm.error).toBe('');
+            expect(vm.event.title).toBe('');
+            expect(vm.event.calendar_id).toBe(2);
         });
 
         it('creates a new event instead of changing the source', () => {

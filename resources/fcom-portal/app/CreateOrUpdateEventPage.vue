@@ -628,7 +628,8 @@ export default {
                     this.loadedEvent = event;
                 }
             } catch (error) {
-                this.showError(error);
+                // No event means the source lookup itself failed, not the post that follows it.
+                this.showError(this.cloneSourceSlug && !event ? { message: this.$t('The event to clone was not found.') } : error);
 
                 // A failed clone still leaves a blank create form, which needs its editors.
                 if (this.eventSlug) {

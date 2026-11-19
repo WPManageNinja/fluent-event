@@ -101,6 +101,10 @@ class EventController extends Controller
             $query->where('post_name', $slug);
         })->value('id') : null;
 
+        if (!$eventId) {
+            return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
+        }
+
         return $this->getEvent($request, (int) $eventId);
     }
 
