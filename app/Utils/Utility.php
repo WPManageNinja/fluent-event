@@ -206,6 +206,9 @@ class Utility
         // Safe mode escapes HTML typed into the markdown; kses then holds the rest to post HTML.
         $html = (new Parsedown())->setSafeMode(true)->setBreaksEnabled(true)->text($markdown);
 
+        // fcom's editor (the portal's) saves each empty line as a lone "<br />", which safe mode escaped to text.
+        $html = preg_replace('#<p>&lt;br\s*/?\s*&gt;</p>#i', '<p><br /></p>', $html);
+
         // The editor's image block keeps its size ratio in the alt ("0.43") and its caption in the title.
         $html = preg_replace_callback('/<img\b[^>]*>/', function ($match) {
             if (!preg_match('/ alt="(\d+(?:\.\d+)?)"/', $match[0], $alt)) {
