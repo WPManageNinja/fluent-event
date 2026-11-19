@@ -1600,6 +1600,37 @@ html.dark .fe-portal {
     }
 }
 
+// Block themes: below 782px the single-event template's columns stack, and the side card would come after the whole
+// description. The text column hands its blocks to the row, so the card sits after the title, as in the classic grid.
+// Columns set not to stack on mobile stay side by side.
+@media (max-width: 781px) {
+    .wp-block-columns:not(.is-not-stacked-on-mobile):has(> .wp-block-column > .wp-block-fluent-event-event-registration) {
+        flex-direction: column;
+
+        > .wp-block-column:not(:has(> .wp-block-fluent-event-event-registration)) {
+            display: contents;
+
+            // The row's gap spaces them. A flex item keeps its children's margins, which collapsed into the gap before.
+            > * {
+                margin-block: 0;
+
+                > :first-child {
+                    margin-top: 0;
+                }
+
+                > :last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        .wp-block-fluent-event-event-description,
+        .wp-block-fluent-event-event-description ~ * {
+            order: 1;
+        }
+    }
+}
+
 // Guests going against the capacity, as the community event page shows it.
 .fe-capacity {
     display: grid;
