@@ -581,6 +581,11 @@
         max-width: 1080px;
         margin: 0 auto;
         padding: 2rem;
+
+        // fcom's own frame narrows to 10px sides on phones; keep step with it.
+        @media (max-width: 768px) {
+            padding-inline: 10px;
+        }
     }
 }
 
