@@ -123,6 +123,17 @@
                     <span>{{ $t('Edit Event') }}</span>
                 </el-button>
 
+                <!-- The list row has no slug; the loaded event does. -->
+                <el-button
+                    v-if="shareEvent"
+                    tag="router-link"
+                    :to="{ name: 'event_create', query: { clone: shareEvent.post?.post_name } }"
+                    @click="close"
+                >
+                    <el-icon aria-hidden="true"><CopyDocument /></el-icon>
+                    <span>{{ $t('Clone Event') }}</span>
+                </el-button>
+
                 <el-button :disabled="!shareEvent" @click="shareVisible = true">
                     <el-icon aria-hidden="true"><Share /></el-icon>
                     <span>{{ $t('Share') }}</span>
@@ -148,7 +159,7 @@
 </template>
 
 <script type="text/javascript">
-    import { EditPen, LocationInformation, Share, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { CopyDocument, EditPen, LocationInformation, Share, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
     import ErrorState from '@/components/ErrorState.vue';
@@ -162,6 +173,7 @@
             ErrorState,
             Skeleton,
             EventShareModal,
+            CopyDocument,
             EditPen,
             LocationInformation,
             Share,
