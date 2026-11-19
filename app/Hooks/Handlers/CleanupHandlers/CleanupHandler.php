@@ -76,11 +76,13 @@ class CleanupHandler
             );
         }
 
-        do_action('fluent_event/guest/before_bulk_deleted', $event);
+        $guests = $event->guests()->get();
+
+        do_action('fluent_event/guest/before_bulk_deleted', $event, $guests);
 
         $event->guests()->delete();
 
-        do_action('fluent_event/guest/bulk_deleted', $event);
+        do_action('fluent_event/guest/bulk_deleted', $event, $guests);
 
         Meta::query()
             ->where('object_type', Meta::OBJECT_TYPE_EVENT)
