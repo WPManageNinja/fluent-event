@@ -180,7 +180,7 @@ const createEventShell = {
 
             return {
                 router: this.$router,
-                cloneSlug: this.$route.query.clone || '',
+                cloneSourceSlug: this.$route.query.clone || '',
                 // A clone's source event and post; both null when it could not be loaded.
                 onLoaded: (event, feed) => {
                     this.description = ((event || {}).meta || {}).description_md || '';

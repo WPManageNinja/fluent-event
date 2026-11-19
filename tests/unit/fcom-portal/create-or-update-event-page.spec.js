@@ -431,7 +431,7 @@ describe('CreateOrUpdateEventPage', () => {
         const mountClone = async (event = source, feed = post, extraProps = {}) => {
             fetch.mockResolvedValueOnce(json({ event })).mockResolvedValueOnce(json({ feed }));
 
-            return createPage(CreateOrUpdateEventPage, { cloneSlug: 'night-walk', onLoaded: vi.fn(), initialSpace: '', ...extraProps });
+            return createPage(CreateOrUpdateEventPage, { cloneSourceSlug: 'night-walk', onLoaded: vi.fn(), initialSpace: '', ...extraProps });
         };
 
         it('prefills a new event from the source and its post, and stays a create form', async () => {
@@ -449,7 +449,7 @@ describe('CreateOrUpdateEventPage', () => {
         it('shows only the skeleton while the source loads, not a blank form under it', async () => {
             fetch.mockReturnValueOnce(new Promise(() => {}));
 
-            const { wrapper } = await createPage(CreateOrUpdateEventPage, { cloneSlug: 'night-walk', onLoaded: vi.fn() });
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, { cloneSourceSlug: 'night-walk', onLoaded: vi.fn() });
 
             expect(wrapper.findComponent({ name: 'ElSkeleton' }).exists()).toBe(true);
             expect(wrapper.find('.fe-create-event__form').exists()).toBe(false);
@@ -484,7 +484,7 @@ describe('CreateOrUpdateEventPage', () => {
             fetch.mockResolvedValueOnce(json({ message: 'Event not found' }, 404));
             ElNotification.mockClear();
 
-            const { wrapper, vm, props } = await createPage(CreateOrUpdateEventPage, { cloneSlug: 'gone', onLoaded: vi.fn() });
+            const { wrapper, vm, props } = await createPage(CreateOrUpdateEventPage, { cloneSourceSlug: 'gone', onLoaded: vi.fn() });
 
             expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message: 'Event not found' });
             expect(vm.event.title).toBe('');

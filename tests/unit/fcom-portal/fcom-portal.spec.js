@@ -300,7 +300,7 @@ describe('fcom-portal entry', () => {
             const vm = { ...shellData(shell, $route.query, true), $route, $router: {}, appVars: {} };
             const props = shell.methods.pageProps.call(vm);
 
-            expect(props.cloneSlug).toBe('night-walk');
+            expect(props.cloneSourceSlug).toBe('night-walk');
             expect(vm.editorReady).toBe(false);
             expect(vm.composerReady).toBe(false);
             expect(shell.template).toContain('<teleport v-if="ready && composerReady && !$route.params.event_slug" to="#fe-create-event-composer">');

@@ -434,7 +434,7 @@ export default {
         initialSpace: { type: String, default: '' },
         onSpace: { type: Function, default: () => {} },
         // "Clone Event" (?clone=<slug>): a new event, prefilled from this one and its post.
-        cloneSlug: { type: String, default: '' },
+        cloneSourceSlug: { type: String, default: '' },
     },
     data() {
         const start = dayjs().add(1, 'hour').startOf('hour');
@@ -473,7 +473,7 @@ export default {
             uploading: false,
             saving: false,
             startDisplayHelp: false,
-            loading: !!(this.eventSlug || this.cloneSlug),
+            loading: !!(this.eventSlug || this.cloneSourceSlug),
             loadedEvent: null,
         };
     },
@@ -566,7 +566,7 @@ export default {
     mounted() {
         setPageTitle(this.eventSlug ? this.$t('Edit Event') : this.$t('Create Event'));
 
-        if (this.eventSlug || this.cloneSlug) {
+        if (this.eventSlug || this.cloneSourceSlug) {
             this.loadEvent();
             return;
         }
@@ -596,9 +596,9 @@ export default {
             let feed = null;
 
             try {
-                ({ event } = await eventsApi.get('events/by-slug', { slug: this.eventSlug || this.cloneSlug }));
+                ({ event } = await eventsApi.get('events/by-slug', { slug: this.eventSlug || this.cloneSourceSlug }));
 
-                if (this.cloneSlug && event.feed_slug) {
+                if (this.cloneSourceSlug && event.feed_slug) {
                     ({ feed } = await communityApi.get(`feeds/${event.feed_slug}/by-slug`, { context: 'edit' }));
                 }
 

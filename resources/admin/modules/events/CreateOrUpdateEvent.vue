@@ -530,7 +530,7 @@
                 return !!this.eventId;
             },
             // "Clone Event" opens the create form with ?clone=<slug> to start from that event.
-            cloneSlug() {
+            cloneSourceSlug() {
                 return this.isEditing ? '' : (this.$route.query.clone || '');
             },
             pageTitle() {
@@ -649,7 +649,7 @@
                 this.event = this.initForm();
                 this.fetchCalendars();
 
-                if (this.isEditing || this.cloneSlug) {
+                if (this.isEditing || this.cloneSourceSlug) {
                     this.fetchEvent();
                     return;
                 }
@@ -674,7 +674,7 @@
             fetchEvent() {
                 this.$requestServer({
                     path: this.isEditing ? `events/${this.eventId}` : 'events/by-slug',
-                    payload: this.isEditing ? undefined : { slug: this.cloneSlug },
+                    payload: this.isEditing ? undefined : { slug: this.cloneSourceSlug },
                     loadingState: 'loadingEvent',
                     errorState: 'eventError',
                     notFoundPage: this.isEditing,
@@ -690,7 +690,7 @@
             },
             preSelectCalendar() {
                 // A loaded event brings its own calendar.
-                if (this.isEditing || this.cloneSlug) return;
+                if (this.isEditing || this.cloneSourceSlug) return;
                 const requested = Number(this.$route.query.calendar_id);
                 const preSelected = this.calendars.find(calendar => calendar.id === requested);
                 this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;
