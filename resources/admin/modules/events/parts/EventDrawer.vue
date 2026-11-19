@@ -127,7 +127,7 @@
                 <el-button
                     v-if="shareEvent"
                     tag="router-link"
-                    :to="{ name: 'event_create', query: { clone: shareEvent.post?.post_name } }"
+                    :to="{ name: 'event_create', query: { clone: shareEvent.slug } }"
                     @click="close"
                 >
                     <el-icon aria-hidden="true"><CopyDocument /></el-icon>

@@ -442,6 +442,17 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('<p>Written by the integration suite; rolled back.</p>', $single['description']);
     }
 
+    // "Clone Event" links to ?clone=<slug>; the post relation is hidden from JSON, so the slug must ride on the event.
+    public function test_the_single_event_response_carries_the_slug_for_cloning()
+    {
+        $event = $this->createEvent();
+
+        $single = $this->rest('GET', "events/{$event->id}")['data']['event'];
+
+        $this->assertSame($event->post->post_name, $single['slug']);
+        $this->assertArrayNotHasKey('post', $single);
+    }
+
     // The cards' "N guests": every guest counts, not going and cancelled included.
     public function test_the_event_list_counts_all_guests_of_each_event()
     {
