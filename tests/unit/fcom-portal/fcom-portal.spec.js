@@ -29,6 +29,7 @@ describe('fcom-portal entry', () => {
         expect(util.hooks.addFilter.mock.calls.map(([name, namespace]) => [name, namespace])).toEqual([
             ['fluent_com_portal_routes', 'fluent-event'],
             ['fluent_com_feed_content_components', 'fluent-event'],
+            ['fluent_com_space_sidebar_widgets', 'fluent-event'],
             ['fluent_com_space_actions', 'fluent-event'],
             ['fluent_com_feed_actions', 'fluent-event'],
             ['fluent_com_composer_config', 'fluent-event']
@@ -41,7 +42,7 @@ describe('fcom-portal entry', () => {
         vi.resetModules();
         await import('../../../resources/fcom-portal/fcom-portal.js');
 
-        expect(util.hooks.addFilter).toHaveBeenCalledTimes(5);
+        expect(util.hooks.addFilter).toHaveBeenCalledTimes(6);
     });
 
     describe('routes', () => {
@@ -128,8 +129,29 @@ describe('fcom-portal entry', () => {
         expect(components.text).toEqual({});
     });
 
+    describe('space sidebar widgets', () => {
+        const space = (show) => ({ slug: 'design', settings: show === undefined ? {} : { show_upcoming_events: show } });
+
+        it('puts Upcoming Events first when the space turns it on', async () => {
+            const { filters } = await loadPortal();
+            const other = { key: 'other', component: {} };
+
+            const widgets = filters.fluent_com_space_sidebar_widgets([other], space('yes'));
+
+            expect(widgets.map((widget) => widget.key)).toEqual(['fe_upcoming_events', 'other']);
+            expect(widgets[0].component.name).toBe('FluentEventSpaceEventsWidget');
+        });
+
+        it('adds nothing while the space setting is off or missing', async () => {
+            const { filters } = await loadPortal();
+
+            expect(filters.fluent_com_space_sidebar_widgets([], space('no'))).toEqual([]);
+            expect(filters.fluent_com_space_sidebar_widgets([], space())).toEqual([]);
+        });
+    });
+
     describe('space actions', () => {
-        const space = (overrides = {}) => ({ slug: 'design', type: 'community', permissions: { can_create_post: true }, ...overrides });
+        const space =(overrides = {}) => ({ slug: 'design', type: 'community', permissions: { can_create_post: true }, ...overrides });
 
         it('offers Create Event to a member who can post in a community space', async () => {
             const { filters } = await loadPortal();

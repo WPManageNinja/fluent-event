@@ -557,6 +557,114 @@
     }
 }
 
+// The space sidebar's Upcoming Events; the box itself is fcom's app_side_widget.
+.fe-space-events {
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    &__all {
+        flex: none;
+        font-size: 13px;
+        color: var(--fcom-text-link, #2271b1);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__list {
+        display: grid;
+        gap: 14px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    // The shared chip, a size down for the narrow sidebar.
+    &__chip {
+        width: 44px;
+
+        .fe-date-chip__month {
+            font-size: 10px;
+        }
+
+        .fe-date-chip__day {
+            padding: 2px 0 3px;
+            font-size: 18px;
+        }
+    }
+
+    &__info {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    &__title {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.35;
+        color: var(--fcom-primary-text, #19283a);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--fcom-text-link, #2271b1);
+        }
+    }
+
+    &__all,
+    &__title {
+        &:focus-visible {
+            outline: 2px solid var(--fcom-primary-button, #2b2e33);
+            outline-offset: 2px;
+        }
+    }
+
+    &__date,
+    &__note {
+        margin: 0;
+        font-size: 13px;
+        color: var(--fcom-secondary-text, #525866);
+    }
+
+    &__skeleton {
+        display: grid;
+        gap: 8px;
+    }
+
+    &__skeleton-line {
+        width: 80%;
+        height: 12px;
+        border-radius: 6px;
+        background: var(--fcom-primary-border, #e3e8ee);
+        animation: fe-skeleton-pulse 1.4s ease-in-out infinite;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+
+        &.fe-space-events__skeleton-line--short {
+            width: 50%;
+        }
+    }
+}
+
 .fe-fcom-portal-page {
     // Our Element Plus reads its primary colour from here, so tabs and controls follow the community theme.
     --el-color-primary: var(--fcom-primary-button, #2B2E33);
