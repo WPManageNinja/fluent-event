@@ -192,6 +192,7 @@ class GuestController extends Controller
         return [
             /* translators: %d is the number of guests whose status changed */
             'message' => sprintf(_n('%d guest has been updated.', '%d guests have been updated.', count($changed), 'fluent-event'), count($changed)),
+            'guests'  => $changed,
         ];
     }
 

@@ -282,6 +282,20 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertNotEmpty(Guest::query()->find($guest->id)->checked_in_at);
     }
 
+    public function test_a_bulk_status_change_returns_only_the_changed_guests_for_the_list_to_update_in_place()
+    {
+        $moved = $this->createGuest($this->event, ['status' => 'going']);
+        $already = $this->createGuest($this->event, ['status' => 'checked_in']);
+
+        $response = $this->bulk(['action' => 'change_status', 'status' => 'checked_in', 'guest_ids' => [$moved->id, $already->id]]);
+        $guests = $response['data']['guests'];
+
+        $this->assertCount(1, $guests);
+        $this->assertSame((int) $moved->id, (int) $guests[0]['id']);
+        $this->assertSame('checked_in', $guests[0]['status']);
+        $this->assertNotEmpty($guests[0]['checked_in_at']);
+    }
+
     public function test_a_bulk_delete_removes_only_the_selected_guests()
     {
         $gone = $this->createGuest($this->event);
