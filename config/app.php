@@ -10,5 +10,5 @@
   'hook_prefix' => 'fluent-event',
   'rest_namespace' => 'fluent-event',
   'rest_version' => 'v2',
-  'env' => 'dev',
+  'env'            => 'dev',
 );
