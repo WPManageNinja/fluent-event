@@ -478,8 +478,9 @@ export default {
         };
     },
     computed: {
+        // A clone has no eventSlug, so without the loading check its blank form would render under the skeleton.
         editable() {
-            return !this.eventSlug || !!this.loadedEvent;
+            return !this.loading && (!this.eventSlug || !!this.loadedEvent);
         },
         venueMaxLength() {
             return portalVars().venue_max_length;

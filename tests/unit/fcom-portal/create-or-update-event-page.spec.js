@@ -446,6 +446,16 @@ describe('CreateOrUpdateEventPage', () => {
             expect(wrapper.find('#fe-create-event-composer').exists()).toBe(true);
         });
 
+        it('shows only the skeleton while the source loads, not a blank form under it', async () => {
+            fetch.mockReturnValueOnce(new Promise(() => {}));
+
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, { cloneSlug: 'night-walk', onLoaded: vi.fn() });
+
+            expect(wrapper.findComponent({ name: 'ElSkeleton' }).exists()).toBe(true);
+            expect(wrapper.find('.fe-create-event__form').exists()).toBe(false);
+            expect(wrapper.find('.fe-create-event__actions').exists()).toBe(false);
+        });
+
         it("posts where the source's post was", async () => {
             const { vm, props } = await mountClone();
 
