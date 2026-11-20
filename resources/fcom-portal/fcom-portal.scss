@@ -2017,6 +2017,18 @@
 
 // The dialog after registering for an open event: Element Plus's message box, rendered into <body>.
 // Its CSS loads after ours, so the box rules carry both classes.
+// The event form's day picker, rendered into <body>: 324px, so it runs off a 320px phone. Narrower side
+// margins make it 310px.
+@media (max-width: 339px) {
+    .fe-date-popper .el-date-picker {
+        width: 308px;
+    }
+
+    .fe-date-popper .el-picker-panel__content {
+        margin-inline: 8px;
+    }
+}
+
 .el-message-box.fe-registered-box {
     width: min(420px, calc(100vw - 32px));
     padding: 28px 24px 24px;

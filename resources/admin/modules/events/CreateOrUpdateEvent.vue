@@ -235,6 +235,7 @@
                                         <el-date-picker
                                             v-model="event[bound.dateKey]"
                                             class="fe-event-form__date"
+                                            popper-class="fe-date-popper"
                                             type="date"
                                             :format="dateFormat"
                                             value-format="YYYY-MM-DD"
