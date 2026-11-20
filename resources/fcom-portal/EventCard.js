@@ -1,4 +1,4 @@
-import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions, communityApi } from './utils';
+import { t, eventStart, eventMonth, eventDay, guestCountLabel, hasEventActions, communityApi, portalVars } from './utils';
 import { MAP_LOCATION, VIDEO_CAMERA } from './icons';
 import EventActions from './EventActions';
 import EventMenu from './EventMenu';
@@ -87,10 +87,13 @@ export default {
         portalUrl() {
             return (window.fluentComAdmin || {}).portal_url || '';
         },
+        // The same paths the portal routes use, since the events slug is configurable.
         portalEventUrl() {
             const { space, event_slug: slug } = this.eventRoute.params;
+            const paths = portalVars().route_paths || {};
+            const path = (space ? paths.space_event_view : paths.event_view) || 'events/:event_slug';
 
-            return this.portalUrl + (space ? `space/${space}/` : '') + `event/${slug}`;
+            return this.portalUrl + (space ? `space/${space}/` : '') + path.replace(':event_slug', slug);
         },
         canOpenEvent() {
             return this.hasEventPage || (!!this.eventRoute && !!this.portalUrl);
