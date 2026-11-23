@@ -4,6 +4,7 @@ namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\CPT\EventPost;
 use FluentEvent\Database\DBMigrator;
+use FluentEvent\Database\Migrations\LegacyPrefixMigrator;
 use FluentEvent\Framework\Foundation\Application;
 
 class ActivationHandler
@@ -73,6 +74,10 @@ class ActivationHandler
     // Runs once per FLUENT_EVENT_DB_VERSION: bump it when a migration changes, and every site migrates again.
     protected function maybeMigrate()
     {
+        // Before the version check and the lock: every request moves the old `fe_` names (once,
+        // then a flag check) before anything reads the tables. Safe when requests overlap.
+        LegacyPrefixMigrator::run();
+
         $dbVersion = get_option(self::DB_VERSION_OPTION);
 
         if ($dbVersion && version_compare($dbVersion, FLUENT_EVENT_DB_VERSION, '>=')) {
@@ -96,6 +101,9 @@ class ActivationHandler
 
     protected function activateSite()
     {
+        // Before DBMigrator, which would otherwise create empty tables under the new names first.
+        LegacyPrefixMigrator::run();
+
         $migrated = DBMigrator::run();
 
         // `init` ran before the plugin was active, so the post type's rules aren't registered yet.
