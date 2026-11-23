@@ -156,6 +156,20 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringNotContainsString('fe-room', $body);
     }
 
+    // A row registered under the member's email while logged out is theirs: registering would claim it, so the card shows it.
+    public function test_a_member_sees_a_visitor_row_under_their_email_as_their_own()
+    {
+        $open = $this->createEvent([], ['entry_type' => 'open']);
+        $memberId = $this->createUser('subscriber');
+        $this->createGuest($open, ['user_id' => null, 'email' => get_userdata($memberId)->user_email, 'source' => 'wordpress_pages']);
+        $this->actAs($memberId);
+
+        $body = $this->page($open)['body'];
+
+        $this->assertStringContainsString(esc_html__('Registered', 'fluent-event'), $body);
+        $this->assertStringNotContainsString('data-fe-register', $body);
+    }
+
     // Logged out, nothing changes: Going opens the name and email form, and the link waits for it.
     public function test_a_visitor_still_gets_the_visitors_card()
     {
