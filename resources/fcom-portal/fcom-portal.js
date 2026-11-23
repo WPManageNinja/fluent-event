@@ -328,7 +328,9 @@ function register() {
             meta: { active_menu: 'fe_events' },
         });
 
-        const spaceRoute = routes.find((route) => route.path === '/space/:space/');
+        // Newer fcom constrains the slug ('/space/:space([a-zA-Z0-9_-]+)/'); match either shape, but not
+        // '/space/:space/settings' and other space routes.
+        const spaceRoute = routes.find((route) => /^\/space\/:space(\(.*\))?\/$/.test(route.path));
 
         if (spaceRoute && spaceRoute.children) {
             spaceRoute.children.push({
