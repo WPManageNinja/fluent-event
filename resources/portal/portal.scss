@@ -130,6 +130,11 @@ html.dark .fe-portal {
         font: inherit;
         font-size: var(--fe-text-sm, 14px);
 
+        // iOS Safari zooms into a focused field under 16px and stays zoomed.
+        @media (max-width: 767px) {
+            font-size: 16px;
+        }
+
         &::placeholder {
             color: var(--fe-secondary-text, #525866);
         }
@@ -1929,6 +1934,11 @@ html.dark .fe-portal {
         color: var(--fe-primary-text, #19283a);
         font: inherit;
         font-size: var(--fe-text-sm, 14px);
+
+        // iOS Safari zooms into a focused field under 16px and stays zoomed.
+        @media (max-width: 767px) {
+            font-size: 16px;
+        }
 
         &:focus-visible {
             outline: 2px solid var(--fe-accent-blue, #0e7ff1);

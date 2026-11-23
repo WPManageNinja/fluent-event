@@ -567,5 +567,25 @@
         .el-calendar {
             overflow-x: auto;
         }
+
+        // iOS Safari zooms into a focused field under 16px. Core gives wp-admin fields 16px here;
+        // Element Plus's `font-size: inherit` takes it back on its own fields.
+        .el-input__inner,
+        .el-textarea__inner,
+        .el-select__input,
+        .el-date-editor .el-range-input {
+            font-size: 16px;
+        }
+    }
+
+    // The event form's day picker is 324px and runs off a 320px phone. Narrower side margins make it 310px.
+    @media screen and (max-width: 339px) {
+        .fe-date-popper .el-date-picker {
+            width: 308px;
+        }
+
+        .fe-date-popper .el-picker-panel__content {
+            margin-inline: 8px;
+        }
     }
 }
