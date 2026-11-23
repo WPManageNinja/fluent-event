@@ -168,5 +168,21 @@ describe('EventDrawer', () => {
             await edit.trigger('click');
             expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
         });
+
+        it('shows Clone Event disabled until the event loads, then links the clone form', async () => {
+            const request = deferred();
+            Rest.get.mockReturnValue(request.promise);
+            const cloneButton = wrapper => wrapper.findAll('.fe-event-detail__actions button').find(button => button.text() === 'Clone Event');
+
+            const wrapper = drawer();
+            expect(cloneButton(wrapper).attributes('disabled')).toBeDefined();
+            expect(cloneButton(wrapper).attributes('data-to')).toBeUndefined();
+
+            request.resolve({ ...loaded('public', 'public'), event: { ...loaded().event, slug: 'meetup' } });
+            await flushPromises();
+
+            expect(cloneButton(wrapper).attributes('disabled')).toBeUndefined();
+            expect(JSON.parse(cloneButton(wrapper).attributes('data-to'))).toEqual({ name: 'event_create', query: { clone: 'meetup' } });
+        });
     });
 });
