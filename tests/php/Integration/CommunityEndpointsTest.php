@@ -721,6 +721,23 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('You left the waitlist.', $response['data']['message']);
     }
 
+    // Joined as a visitor under the account's email, then logged in: the portal shows the waitlist place and lets them leave.
+    public function test_a_member_sees_and_leaves_a_waitlist_place_joined_as_a_visitor()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($event);
+        $this->createGuest($event, ['user_id' => null, 'email' => get_userdata($this->member)->user_email, 'status' => 'waitlisted', 'source' => 'wordpress_pages']);
+
+        $listed = array_column($this->rest('GET', 'community/events', ['per_page' => 100])['data']['events'], null, 'id');
+        $this->assertSame('waitlisted', $listed[$event->id]['my_status']);
+
+        $response = $this->rsvp($event, 'not_going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('You left the waitlist.', $response['data']['message']);
+        $this->assertSame((int) $this->member, (int) Guest::query()->where('event_id', $event->id)->where('status', 'not_going')->value('user_id'));
+    }
+
     public function test_a_visitor_joins_the_waitlist_of_a_full_open_event()
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open', 'capacity' => 1, 'waitlist' => 'yes']);

@@ -7,7 +7,6 @@ use FluentCommunity\App\Services\CustomSanitizer;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
-use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\EventService;
 use FluentEvent\App\Services\RateLimiter;
@@ -163,7 +162,7 @@ class CommunityEventController extends Controller
 
         // An open event's "not going" only gives up a registration (or a waitlist place) the member holds; otherwise a
         // not-going row would appear from nothing. An RSVP's is an answer of its own.
-        $myStatus = Guest::query()->where('event_id', $event->id)->where('user_id', get_current_user_id())->value('status');
+        $myStatus = RegistrationService::memberStatus($event);
 
         if ($status === 'not_going' && $entryType === 'open' && !in_array($myStatus, Event::PLACE_STATUSES, true)) {
             return $this->sendError(['message' => __('You are not registered for this event.', 'fluent-event')], 422);
