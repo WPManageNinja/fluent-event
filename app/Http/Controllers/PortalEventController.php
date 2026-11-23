@@ -89,18 +89,26 @@ class PortalEventController extends Controller
 
     /**
      * @param string|null $status  The guest's status, or null when the registration was refused.
-     * @param string      $refusal Why it was refused: 'already_registered' or 'cancelled'.
+     * @param string      $refusal Why it was refused: 'already_registered', 'cancelled' or 'waitlisted'.
      */
     private function registered(Event $event, $status, $refusal = '')
     {
         $seats = EventService::seatCounts([$event->id]);
-        // A visitor has no account to read their row back by: a registration's card is drawn as going, a refusal's as before.
+        // A visitor has no account to read their row back by: a registration's card is drawn in its new status, a
+        // refusal's as before.
         $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $status, false, false);
+        $joinedWaitlist = $status === 'waitlisted';
+
+        if ($refusal) {
+            $message = RegistrationService::refusalMessage($refusal);
+        } else {
+            $message = $joinedWaitlist ? __("You're on the waitlist.", 'fluent-event') : __('You are registered.', 'fluent-event');
+        }
 
         return [
-            'message' => $refusal ? RegistrationService::refusalMessage($refusal) : __('You are registered.', 'fluent-event'),
+            'message' => $message,
             'status'  => $status,
-            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), $refusal ?: 'registered'),
+            'html'    => EventPageService::sideCard($event, $formatted, EventPageService::url($event), $refusal ?: ($joinedWaitlist ? 'joined_waitlist' : 'registered')),
         ];
     }
 

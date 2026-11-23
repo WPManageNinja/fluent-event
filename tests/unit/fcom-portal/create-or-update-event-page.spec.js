@@ -257,6 +257,7 @@ describe('CreateOrUpdateEventPage', () => {
                 show_guest_count: 'no',
                 capacity: 25,
                 show_spots_left: 'yes',
+                waitlist: 'yes',
                 start_display: 'countdown'
             }
         };
@@ -313,6 +314,7 @@ describe('CreateOrUpdateEventPage', () => {
                 show_guest_count: 'no',
                 capacity: 25,
                 show_spots_left: 'yes',
+                waitlist: 'yes',
                 start_display: 'countdown'
             });
             expect(props.onLoaded).toHaveBeenCalledWith(stored, null);
@@ -369,6 +371,7 @@ describe('CreateOrUpdateEventPage', () => {
                 show_guest_count: 'no',
                 capacity: 25,
                 show_spots_left: 'yes',
+                waitlist: 'yes',
                 start_display: 'countdown'
             });
             expect(ElNotification).toHaveBeenCalledWith({ type: 'success', message: 'Event has been successfully updated' });

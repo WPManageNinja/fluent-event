@@ -447,6 +447,10 @@
         &.fe-rsvp__icon--not-going {
             background: var(--el-color-danger, #f56c6c);
         }
+
+        &.fe-rsvp__icon--waitlisted {
+            background: var(--el-color-warning, #e6a23c);
+        }
     }
 
     // As wide as the trigger, never narrower than 180px (the feed card's trigger is smaller).

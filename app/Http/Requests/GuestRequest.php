@@ -82,7 +82,7 @@ class GuestRequest extends BaseRequest
             'user_id.integer' => __('The WordPress user must be a valid id.', 'fluent-event'),
             'user_id.exists' => __('The selected WordPress user no longer exists.', 'fluent-event'),
             'user_id.unique' => __('This WordPress user is already a guest on this event.', 'fluent-event'),
-            'status.in'      => __('Status must be going, not going, checked in or cancelled.', 'fluent-event'),
+            'status.in'      => __('Status must be going, not going, checked in, waitlisted or cancelled.', 'fluent-event'),
             'action.required' => __('Choose a bulk action.', 'fluent-event'),
             'action.in'      => __('Choose a valid bulk action.', 'fluent-event'),
             'status.required' => __('Choose the status to move the guests to.', 'fluent-event'),

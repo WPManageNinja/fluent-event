@@ -18,6 +18,8 @@ class Event extends Model
     const VENUE_TYPES = 'offline,online';
     const ENTRY_TYPES = 'rsvp,open,none';
     const SEAT_STATUSES = ['going', 'checked_in'];
+    // A guest who holds a seat or waits for one: they can't register again, and can leave.
+    const PLACE_STATUSES = ['going', 'checked_in', 'waitlisted'];
     const POST_STATUSES = [
         'public'   => 'publish',
         'unlisted' => 'publish',
@@ -65,6 +67,8 @@ class Event extends Model
             'capacity'           => 0, // most guests going at once; 0 = unlimited
             // Whether guests see the spots left on a capped event; the going count has its own switch.
             'show_spots_left'    => 'no',
+            // yes: once a capped event is full, new sign-ups join its waitlist instead of being turned away.
+            'waitlist'           => 'no',
             // How the event page shows the time until the start: relative ("Starts in 3 days") or a live countdown.
             'start_display'      => 'relative',
             // The description's markdown, as written in the editor; the post holds its rendered HTML.

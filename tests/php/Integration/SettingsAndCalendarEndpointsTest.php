@@ -25,6 +25,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         return [
             'registration_confirmation' => ['enabled' => true],
             'registration_cancellation' => ['enabled' => true],
+            'registration_waitlist'     => ['enabled' => false],
             'reminder_to_guest'         => ['enabled' => true, 'times' => $times],
         ];
     }
@@ -243,6 +244,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
         $this->assertSame([
             'registration_confirmation' => ['enabled' => true],
             'registration_cancellation' => ['enabled' => true],
+            'registration_waitlist'     => ['enabled' => false],
             'reminder_to_guest'         => ['enabled' => true, 'times' => [['value' => 2, 'unit' => 'hours']]],
         ], Settings::get(Settings::EMAIL_NOTIFICATIONS));
     }

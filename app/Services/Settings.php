@@ -45,6 +45,9 @@ class Settings
             'registration_cancellation' => [
                 'enabled' => true,
             ],
+            'registration_waitlist'     => [
+                'enabled' => true,
+            ],
             'reminder_to_guest' => [
                 'enabled' => true,
                 'times'   => [

@@ -383,6 +383,18 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringNotContainsString('popovertarget="fe-register-' . $full->id . '"', $body);
     }
 
+    // With a waitlist, a full event offers Join waitlist instead of turning visitors away.
+    public function test_a_full_event_with_a_waitlist_offers_to_join_it()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($full);
+        $body = $this->page($full)['body'];
+
+        $this->assertStringContainsString('Join waitlist', $body);
+        $this->assertStringContainsString('popovertarget="fe-register-' . $full->id . '"', $body);
+        $this->assertStringNotContainsString('This event is full and no longer taking registrations.', $body);
+    }
+
     // Each switch shows its own line; the meter needs both.
     public function test_the_guest_count_and_the_spots_left_show_by_their_own_switches()
     {

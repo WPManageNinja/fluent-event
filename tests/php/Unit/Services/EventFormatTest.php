@@ -182,6 +182,13 @@ class EventFormatTest extends TestCase
         $this->assertNull($this->format($this->event([], ['show_spots_left' => 'yes']), 5)['spots_left']);
     }
 
+    public function test_the_waitlist_counts_only_on_a_capped_event()
+    {
+        $this->assertTrue($this->format($this->event([], ['capacity' => 2, 'waitlist' => 'yes']), 2)['waitlist']);
+        $this->assertFalse($this->format($this->event([], ['capacity' => 2]), 2)['waitlist']);
+        $this->assertFalse($this->format($this->event([], ['waitlist' => 'yes']), 2)['waitlist']);
+    }
+
     public function test_a_no_entry_event_ignores_a_stored_capacity()
     {
         $formatted = $this->format($this->event([], ['entry_type' => 'none', 'capacity' => 1]), 3);

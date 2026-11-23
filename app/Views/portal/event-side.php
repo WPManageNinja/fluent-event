@@ -17,12 +17,13 @@
  * @var int        $ends_at          The end, as a Unix timestamp.
  * @var string     $count_label
  * @var array|null $meter            percent, status; the count against the capacity, when both show.
- * @var array|null $notice           type (full), title, text.
+ * @var array|null $notice           type (full|waitlisted), title, text.
  * @var string     $meeting_link     http(s) only; empty unless this viewer may see it.
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
+ * @var bool       $join_waitlist    The event is full, so registering joins its waitlist.
  * @var array|null $add_to_calendar  google, ics, filename.
- * @var string     $answer           'registered', 'already_registered' or 'cancelled' in the registration's answer, which
- *                                   portal.js opens; '' on the page.
+ * @var string     $answer           'registered', 'joined_waitlist', 'already_registered', 'waitlisted' or 'cancelled'
+ *                                   in the registration's answer, which portal.js opens; '' on the page.
  */
 defined('ABSPATH') || exit;
 
@@ -32,6 +33,7 @@ $fluentEventId = (int) $event['id'];
 $fluentEventOpen = 'open' === $event['entry_type'];
 // ✓ Going and ✓ Registered are final: there is no account to change them from.
 $fluentEventDone = $registration && $registration['is_going'];
+$fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __( 'Register', 'fluent-event' );
 ?>
 <aside
     class="fe-event-page__card fe-event-page__side"
@@ -107,8 +109,16 @@ $fluentEventDone = $registration && $registration['is_going'];
     <?php endif; ?>
 
     <?php if ( $notice ) : ?>
-        <div class="fe-event-page__notice fe-event-page__notice--<?php echo esc_attr( $notice['type'] ); ?>">
-            <span class="fe-event-page__notice-icon"><?php echo Icon::TICKET; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+        <?php // Focused after joining the waitlist, like the ✓ badge after registering. ?>
+        <div
+            class="fe-event-page__notice fe-event-page__notice--<?php echo esc_attr( $notice['type'] ); ?>"
+            <?php if ( 'waitlisted' === $notice['type'] ) : ?>
+                tabindex="-1" data-fe-focus
+            <?php endif; ?>
+        >
+            <span class="fe-event-page__notice-icon">
+                <?php echo 'waitlisted' === $notice['type'] ? Icon::CLOCK : Icon::TICKET; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constants ?>
+            </span>
             <span class="fe-event-page__notice-text">
                 <span class="fe-event-page__notice-title"><?php echo esc_html( $notice['title'] ); ?></span>
                 <span class="fe-event-page__notice-desc"><?php echo esc_html( $notice['text'] ); ?></span>
@@ -123,9 +133,9 @@ $fluentEventDone = $registration && $registration['is_going'];
                     <span class="fe-event-page__badge-icon"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php echo esc_html( $fluentEventOpen ? __( 'Registered', 'fluent-event' ) : __( 'Going', 'fluent-event' ) ); ?>
                 </span>
-            <?php elseif ( $registration && $fluentEventOpen ) : ?>
+            <?php elseif ( $registration && ( $fluentEventOpen || $join_waitlist ) ) : ?>
                 <button type="button" class="fe-event-page__button" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>" data-fe-focus>
-                    <?php esc_html_e( 'Register', 'fluent-event' ); ?>
+                    <?php echo esc_html( $fluentEventAction ); ?>
                 </button>
             <?php elseif ( $registration ) : ?>
                 <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
@@ -164,7 +174,7 @@ $fluentEventDone = $registration && $registration['is_going'];
         >
             <div class="fe-register__head">
                 <div>
-                    <h2 class="fe-register__title" id="fe-register-title-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( 'Register', 'fluent-event' ); ?></h2>
+                    <h2 class="fe-register__title" id="fe-register-title-<?php echo esc_attr( $fluentEventId ); ?>"><?php echo esc_html( $fluentEventAction ); ?></h2>
                     <p class="fe-register__event"><?php echo esc_html( $event['title'] ); ?></p>
                 </div>
                 <button type="button" class="fe-register__close" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" aria-label="<?php esc_attr_e( 'Close', 'fluent-event' ); ?>">
@@ -182,7 +192,7 @@ $fluentEventDone = $registration && $registration['is_going'];
 
             <p class="fe-register__error" role="alert"></p>
 
-            <button type="submit" class="fe-event-page__button"><?php esc_html_e( 'Register', 'fluent-event' ); ?></button>
+            <button type="submit" class="fe-event-page__button"><?php echo esc_html( $fluentEventAction ); ?></button>
         </form>
     <?php endif; ?>
 
@@ -204,7 +214,7 @@ $fluentEventDone = $registration && $registration['is_going'];
                 <?php echo Icon::VIDEO; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                 <span><?php esc_html_e( 'Join online', 'fluent-event' ); ?></span>
             </a>
-        <?php elseif ( $event['has_meeting_url'] && $registration ) : ?>
+        <?php elseif ( $event['has_meeting_url'] && $registration && ! $join_waitlist ) : ?>
             <p class="fe-event-page__note"><?php esc_html_e( 'Please register for the event to see the meeting link.', 'fluent-event' ); ?></p>
         <?php endif; ?>
     <?php endif; ?>
@@ -296,7 +306,31 @@ $fluentEventDone = $registration && $registration['is_going'];
                 <?php esc_html_e( 'Done', 'fluent-event' ); ?>
             </button>
         </div>
-    <?php elseif ( in_array( $answer, array( 'already_registered', 'cancelled' ), true ) ) : ?>
+    <?php elseif ( 'joined_waitlist' === $answer ) : ?>
+        <div
+            id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
+            class="fe-register-success"
+            popover
+            role="dialog"
+            aria-labelledby="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>"
+            aria-describedby="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>"
+            data-fe-answer
+        >
+            <button type="button" class="fe-register__close fe-register-success__close" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" aria-label="<?php esc_attr_e( 'Close', 'fluent-event' ); ?>">
+                <?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
+            </button>
+
+            <div class="fe-register-success__head">
+                <span class="fe-register-success__check"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                <h2 class="fe-register-success__title" id="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( "You're on the waitlist", 'fluent-event' ); ?></h2>
+                <p class="fe-register-success__text" id="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( 'The host will let you know if a spot opens up.', 'fluent-event' ); ?></p>
+            </div>
+
+            <button type="button" class="fe-event-page__button" popovertarget="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>" popovertargetaction="hide" autofocus>
+                <?php esc_html_e( 'Done', 'fluent-event' ); ?>
+            </button>
+        </div>
+    <?php elseif ( in_array( $answer, array( 'already_registered', 'cancelled', 'waitlisted' ), true ) ) : ?>
         <div
             id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
             class="fe-register-success fe-register-success--warning"
@@ -313,10 +347,17 @@ $fluentEventDone = $registration && $registration['is_going'];
             <div class="fe-register-success__head">
                 <span class="fe-register-success__check"><?php echo Icon::WARNING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                 <h2 class="fe-register-success__title" id="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>">
-                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Your registration was cancelled', 'fluent-event' ) : __( 'This email is already registered', 'fluent-event' ) ); ?>
+                    <?php
+                    $fluentEventWarnings = array(
+                        'cancelled'          => array( __( 'Your registration was cancelled', 'fluent-event' ), __( 'Contact the host if you want to join again.', 'fluent-event' ) ),
+                        'waitlisted'         => array( __( "You're already on the waitlist", 'fluent-event' ), __( 'The host will let you know if a spot opens up.', 'fluent-event' ) ),
+                        'already_registered' => array( __( 'This email is already registered', 'fluent-event' ), __( 'Check your inbox for the confirmation email, or register with a different email.', 'fluent-event' ) ),
+                    );
+                    echo esc_html( $fluentEventWarnings[ $answer ][0] );
+                    ?>
                 </h2>
                 <p class="fe-register-success__text" id="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>">
-                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Contact the host if you want to join again.', 'fluent-event' ) : __( 'Check your inbox for the confirmation email, or register with a different email.', 'fluent-event' ) ); ?>
+                    <?php echo esc_html( $fluentEventWarnings[ $answer ][1] ); ?>
                 </p>
             </div>
 

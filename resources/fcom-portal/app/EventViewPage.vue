@@ -111,7 +111,7 @@
                         </span>
                         <div class="fe-event-view__notice-text">
                             <span class="fe-event-view__notice-title">{{ $t('Event full') }}</span>
-                            <span class="fe-event-view__notice-desc">{{ $t('This event is full and no longer taking registrations.') }}</span>
+                            <span class="fe-event-view__notice-desc">{{ event.waitlist ? $t('Join the waitlist and the host will let you know if a spot opens up.') : $t('This event is full and no longer taking registrations.') }}</span>
                         </div>
                     </div>
 
@@ -135,7 +135,7 @@
                             <el-icon aria-hidden="true"><VideoCamera/></el-icon>
                             <span>{{ $t('Join online') }}</span>
                         </a>
-                        <p v-else-if="event.has_meeting_url" class="fe-event-view__note">{{ $t('Please register for the event to see the meeting link.') }}</p>
+                        <p v-else-if="event.has_meeting_url && !onWaitlistPath" class="fe-event-view__note">{{ $t('Please register for the event to see the meeting link.') }}</p>
                     </template>
 
                     <div v-if="canAddToCalendar" class="fe-event-view__calendar">
@@ -270,9 +270,13 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        // A guest already going keeps their RSVP on a full event, to give up the seat.
+        // Joining or holding a waitlist place never shows the link, so "register to see it" would mislead.
+        onWaitlistPath() {
+            return this.event.my_status === 'waitlisted' || (!!this.event.is_full && !!this.event.waitlist && !isSeated(this.event));
+        },
+        // A guest already going keeps their RSVP on a full event, to give up the seat; a waitlisted one keeps their place.
         isFullForMe() {
-            return !!this.event.is_full && !isSeated(this.event);
+            return !!this.event.is_full && !isSeated(this.event) && this.event.my_status !== 'waitlisted';
         },
         // With both the count and the spots left shown; an ended one keeps it as a record of how full it got.
         showMeter() {
@@ -284,9 +288,10 @@ export default {
         capacityStatus() {
             return this.event.is_full ? this.$t('Event full') : spotsLeftLabel(this.event);
         },
-        // The status above already says Ended, so an ended event gets no RSVP slot; a full one shows its notice instead.
+        // The status above already says Ended, so an ended event gets no RSVP slot; a full one shows its notice instead,
+        // with Join waitlist under it when the event takes one.
         hasActions() {
-            return this.phase !== 'ended' && hasEventActions(this.event) && !this.isFullForMe;
+            return this.phase !== 'ended' && hasEventActions(this.event) && (!this.isFullForMe || !!this.event.waitlist);
         },
         // Once someone is going, or for a no-entry event anyone can attend.
         canAddToCalendar() {

@@ -65,8 +65,8 @@ class EventPageService
      * @param array  $formatted EventService::formatEvent() shape, as a visitor sees it.
      * @param string $url       The event page.
      */
-    // $answer draws the popup the page opens after a registration: 'registered' confirms it; 'already_registered' and
-    // 'cancelled' warn why it was refused.
+    // $answer draws the popup the page opens after a registration: 'registered' and 'joined_waitlist' confirm it;
+    // 'already_registered', 'waitlisted' and 'cancelled' warn why it was refused.
     public static function sideCard(Event $event, array $formatted, $url, $answer = '')
     {
         $siteZone = wp_timezone_string();
@@ -77,6 +77,8 @@ class EventPageService
         $isSeated = in_array($formatted['my_status'], Event::SEAT_STATUSES, true);
         $meetingLink = preg_match('#^https?://#i', $formatted['online_meeting_url']) ? $formatted['online_meeting_url'] : '';
         $isFull = $formatted['is_full'] && !$isSeated;
+        // Only right after joining: the page doesn't recognise a visitor again.
+        $isWaitlisted = $formatted['my_status'] === 'waitlisted';
         $meter = null;
         $left = (int) $formatted['spots_left'];
         /* translators: %s: number of spots left */
@@ -114,19 +116,31 @@ class EventPageService
             'notice'           => null,
             'meeting_link'     => $meetingLink,
             'registration'     => null,
+            'join_waitlist'    => false,
             'add_to_calendar'  => null,
             'answer'           => $answer,
         ];
 
         if ($phase !== 'ended' && in_array($formatted['entry_type'], ['rsvp', 'open'], true)) {
-            if ($isFull) {
+            if ($isWaitlisted) {
+                $data['notice'] = [
+                    'type'  => 'waitlisted',
+                    'title' => __("You're on the waitlist", 'fluent-event'),
+                    'text'  => __('The host will let you know if a spot opens up.', 'fluent-event'),
+                ];
+            } elseif ($isFull) {
                 $data['notice'] = [
                     'type'  => 'full',
                     'title' => __('Event full', 'fluent-event'),
-                    'text'  => __('This event is full and no longer taking registrations.', 'fluent-event'),
+                    'text'  => $formatted['waitlist']
+                        ? __('Join the waitlist and the host will let you know if a spot opens up.', 'fluent-event')
+                        : __('This event is full and no longer taking registrations.', 'fluent-event'),
                 ];
-            } else {
+            }
+
+            if (!$isWaitlisted && (!$isFull || $formatted['waitlist'])) {
                 $data['registration'] = self::registration($event, $isSeated);
+                $data['join_waitlist'] = $isFull;
             }
         }
 

@@ -51,6 +51,43 @@ describe('EventActions', () => {
         expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
     });
 
+    it('offers Join waitlist on a full event that takes one, and joins it from there', async () => {
+        fetch.mockResolvedValue(new Response(JSON.stringify({ message: "You're on the waitlist.", status: 'waitlisted', online_meeting_url: '', guest_count: 2, spots_left: 0, is_full: true })));
+        wrapper = actions(rsvp({ is_full: true, waitlist: true }));
+
+        expect(wrapper.find('.fe-event-actions__state').exists()).toBe(false);
+        const join = wrapper.find('button.fcom_primary_button');
+        expect(join.text()).toBe('Join waitlist');
+
+        await join.trigger('click');
+        await flushPromises();
+
+        expect(fetch.mock.calls[0][1].body).toBe('{"status":"going"}');
+        expect(wrapper.emitted('done')[0][0].event.my_status).toBe('waitlisted');
+    });
+
+    it('lets a waitlisted member leave the waitlist from its menu', async () => {
+        fetch.mockResolvedValue(new Response(JSON.stringify({ message: 'You left the waitlist.', status: 'not_going', online_meeting_url: '', guest_count: 2, spots_left: 0, is_full: true })));
+        wrapper = actions(rsvp({ entry_type: 'open', is_full: true, waitlist: true, my_status: 'waitlisted' }));
+
+        expect(wrapper.find('.fe-rsvp__label').text()).toBe('On the waitlist');
+
+        await wrapper.find('.fe-rsvp__trigger').trigger('click');
+        await wrapper.find('.fe-rsvp__option--danger').trigger('click');
+        await flushPromises();
+
+        expect(ElMessageBox.confirm).toHaveBeenCalled();
+        expect(fetch.mock.calls[0][1].body).toBe('{"status":"not_going"}');
+    });
+
+    it('shows a visitor who joined the waitlist a badge, with no menu', () => {
+        window.fluentEventFcomPortal.is_logged_in = false;
+        wrapper = actions(rsvp({ entry_type: 'open', is_full: true, waitlist: true, my_status: 'waitlisted' }));
+
+        expect(wrapper.find('.fe-event-actions__badge').text()).toBe('On the waitlist');
+        expect(wrapper.find('.fe-rsvp').exists()).toBe(false);
+    });
+
     it('keeps the RSVP for a guest who already holds a seat on a full event', () => {
         wrapper = actions(rsvp({ is_full: true, my_status: 'checked_in' }));
 

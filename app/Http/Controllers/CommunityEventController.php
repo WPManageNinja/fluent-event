@@ -161,11 +161,11 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('Please choose going or not going.', 'fluent-event')], 422);
         }
 
-        // An open event's "not going" only gives up a registration the member holds; otherwise a not-going row
-        // would appear from nothing. An RSVP's is an answer of its own.
+        // An open event's "not going" only gives up a registration (or a waitlist place) the member holds; otherwise a
+        // not-going row would appear from nothing. An RSVP's is an answer of its own.
         $myStatus = Guest::query()->where('event_id', $event->id)->where('user_id', get_current_user_id())->value('status');
 
-        if ($status === 'not_going' && $entryType === 'open' && !in_array($myStatus, Event::SEAT_STATUSES, true)) {
+        if ($status === 'not_going' && $entryType === 'open' && !in_array($myStatus, Event::PLACE_STATUSES, true)) {
             return $this->sendError(['message' => __('You are not registered for this event.', 'fluent-event')], 422);
         }
 
@@ -183,7 +183,7 @@ class CommunityEventController extends Controller
         }
 
         // A repeat is warned in a dialog; a full event is an error.
-        if (in_array($registered, ['already_registered', 'cancelled'], true)) {
+        if (in_array($registered, ['already_registered', 'cancelled', 'waitlisted'], true)) {
             return self::refused($registered);
         }
 
@@ -206,8 +206,12 @@ class CommunityEventController extends Controller
         RegistrationService::queueEmail($guest, $previousStatus);
 
         // The portal shows an RSVP's message as a toast; an open event's registration gets its own dialog.
-        if ($guest->status === 'not_going') {
+        if ($guest->status === 'not_going' && $previousStatus === 'waitlisted') {
+            $message = __('You left the waitlist.', 'fluent-event');
+        } elseif ($guest->status === 'not_going') {
             $message = $entryType === 'rsvp' ? __("RSVP updated. You're not going.", 'fluent-event') : __("You're no longer going.", 'fluent-event');
+        } elseif ($guest->status === 'waitlisted') {
+            $message = __("You're on the waitlist.", 'fluent-event');
         } elseif ($entryType === 'rsvp') {
             $message = __("RSVP updated. You're going!", 'fluent-event');
         } else {
@@ -285,7 +289,9 @@ class CommunityEventController extends Controller
 
         RegistrationService::queueEmail($guest, $previousStatus);
 
-        return self::answered($event, $guest->status, __('You are registered.', 'fluent-event'));
+        $message = $guest->status === 'waitlisted' ? __("You're on the waitlist.", 'fluent-event') : __('You are registered.', 'fluent-event');
+
+        return self::answered($event, $guest->status, $message);
     }
 
     // A registration refused with nothing saved: no status, so the portal changes nothing and says why.

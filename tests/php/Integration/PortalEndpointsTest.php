@@ -342,4 +342,49 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame('not_going', Guest::query()->find($comeback->id)->status);
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $comeback->id]));
     }
+
+    public function test_a_visitor_joins_the_waitlist_of_a_full_event_with_one()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($full);
+
+        $response = $this->registerGuest($full);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('waitlisted', $response['data']['status']);
+        $this->assertStringContainsString("You&#039;re on the waitlist", $response['data']['html']);
+        $this->assertStringNotContainsString('popovertarget="fe-register-' . $full->id . '"', $response['data']['html']);
+        $waitlisted = Guest::query()->where('event_id', $full->id)->where('email', 'visitor@example.test')->first();
+        $this->assertSame('waitlisted', $waitlisted->status);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_waitlist', [(int) $waitlisted->id]));
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $waitlisted->id]));
+    }
+
+    public function test_a_waitlisted_email_registering_again_is_told_it_is_on_the_waitlist()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'open', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($full);
+        $this->createGuest($full, ['email' => 'visitor@example.test', 'status' => 'waitlisted']);
+
+        $response = $this->registerGuest($full);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull($response['data']['status']);
+        $this->assertSame("You're already on the waitlist for this event.", $response['data']['message']);
+        $this->assertStringContainsString("You&#039;re already on the waitlist", $response['data']['html']);
+        $this->assertCount(2, $this->guestsOf($full));
+    }
+
+    // A member who joined the waitlist from the portal is told so here too, not "already registered".
+    public function test_a_members_waitlisted_email_on_the_public_form_is_told_it_is_on_the_waitlist()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'open', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($full);
+        $this->createGuest($full, ['email' => 'visitor@example.test', 'status' => 'waitlisted', 'user_id' => 1]);
+
+        $response = $this->registerGuest($full);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame("You're already on the waitlist for this event.", $response['data']['message']);
+    }
 }

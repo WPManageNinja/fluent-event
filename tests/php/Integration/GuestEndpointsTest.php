@@ -190,7 +190,7 @@ class GuestEndpointsTest extends IntegrationTestCase
 
         $this->assertSame(200, $response['status']);
         $this->assertSame(
-            ['all' => 1, 'going' => 1, 'not_going' => 0, 'checked_in' => 0, 'cancelled' => 0],
+            ['all' => 1, 'going' => 1, 'not_going' => 0, 'checked_in' => 0, 'cancelled' => 0, 'waitlisted' => 0],
             $response['data']['counts']
         );
     }

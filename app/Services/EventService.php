@@ -158,6 +158,8 @@ class EventService
             // Null unless the host shows the spots left on a capped event.
             'spots_left'         => $capacity > 0 && $meta['show_spots_left'] === 'yes' ? max(0, $capacity - $seats) : null,
             'is_full'            => $capacity > 0 && $seats >= $capacity,
+            // A full event then takes new sign-ups onto its waitlist.
+            'waitlist'           => $capacity > 0 && $meta['waitlist'] === 'yes',
             'start_display'      => $meta['start_display'],
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
