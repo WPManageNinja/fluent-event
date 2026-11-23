@@ -39,7 +39,10 @@ NOT_SHIPPED=(
 
 # VCS files, editor backups and OS metadata that cp carries into the stage
 # (vendor/wpfluent/framework/.gitignore shipped before this sweep).
-JUNK=(".DS_Store" "__MACOSX" "._*" "Thumbs.db" "*~" "*.orig" "*.rej" ".gitignore" ".gitattributes" ".gitkeep" "*.map")
+# Database dumps, logs and backups too: a web server serves them to anyone, so WordPress.org
+# flags them. vendor/wpfluent/framework/database/levenshtein.sql is one; nothing loads it.
+JUNK=(".DS_Store" "__MACOSX" "._*" "Thumbs.db" "*~" "*.orig" "*.rej" ".gitignore" ".gitattributes" ".gitkeep" "*.map"
+    "*.sql" "*.sqlite" "*.log" "*.bak" "*.old" "*.swp" ".env" ".env.*")
 
 die() { echo "Error: $*" >&2; exit 1; }
 
@@ -218,6 +221,11 @@ LISTING="$(unzip -Z1 "$ZIP")" || { rm -f "$ZIP"; die "Could not list $ZIP."; }
 if grep -qE "^$SLUG/((resources|src|dev|node_modules|tests?)/|package(-lock)?\.json$|vite\.config\.js$)" <<<"$LISTING"; then
     rm -f "$ZIP"
     die "The zip contains source or dev files that must not ship."
+fi
+# Checked on the archive too, so dropping a pattern from JUNK cannot ship one of these again.
+if grep -qiE "\.(sql|sqlite|log|bak|old|swp)$|/\.env(\..*)?$" <<<"$LISTING"; then
+    rm -f "$ZIP"
+    die "The zip contains a database dump, log, backup or .env file."
 fi
 
 echo "Built $ZIP"
