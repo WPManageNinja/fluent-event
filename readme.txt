@@ -1,7 +1,7 @@
 === FluentEvent - Event Calendar, RSVP & Registration ===
 Contributors: techjewel, wpmanageninja
 Tags: events, event calendar, rsvp, event registration, fluentcommunity
-Requires at least: 6.7
+Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 1.1.0

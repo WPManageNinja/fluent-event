@@ -20,7 +20,7 @@ if (!function_exists('fluentevent_scheduler_register') && function_exists('add_a
     function fluentevent_scheduler_register()
     { // WRCS: DEFINED_VERSION.
         $versions = ActionScheduler_Versions::instance();
-        $versions->register('3.7.0', 'fluentevent_scheduler_initialize'); // WRCS: DEFINED_VERSION.
+        $versions->register('4.2.0', 'fluentevent_scheduler_initialize'); // WRCS: DEFINED_VERSION.
     }
 
     /**
