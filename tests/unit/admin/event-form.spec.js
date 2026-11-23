@@ -59,11 +59,11 @@ describe('CreateOrUpdateEvent', () => {
             });
         });
 
-        it('defaults to a public RSVP event in the site timezone', () => {
+        it('defaults to a public open-registration event in the site timezone', () => {
             window.fluentEventAdmin.timezone = 'Asia/Dhaka';
             const { vm } = form();
 
-            expect(vm.event).toMatchObject({ status: 'public', entry_type: 'rsvp', show_guest_count: 'yes', timezone: 'Asia/Dhaka' });
+            expect(vm.event).toMatchObject({ status: 'public', entry_type: 'open', show_guest_count: 'yes', timezone: 'Asia/Dhaka' });
         });
 
         it("uses the browser's timezone when the site's is not a real zone", () => {
@@ -156,6 +156,13 @@ describe('CreateOrUpdateEvent', () => {
 
             expect(vm.isEditing).toBe(false);
             expect(vm.event).toMatchObject({ calendar_id: 3, status: 'private', title: 'Book club', start_date: '2026-11-02', start_time: '19:30', venue: 'Library', entry_type: 'open', capacity: 20, description_md: 'Chapter **4**' });
+        });
+
+        it('falls back to open registration when the source has no entry type saved', () => {
+            const { vm, request } = form({ query: { clone: 'book-club' } });
+            request('events/by-slug').onSuccess({ event: { ...source, meta: { ...source.meta, entry_type: '' } } });
+
+            expect(vm.event.entry_type).toBe('open');
         });
 
         it("keeps the source's calendar when the calendars load", () => {
