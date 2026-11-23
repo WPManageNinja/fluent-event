@@ -112,6 +112,14 @@ class RegistrationService
         });
     }
 
+    // The logged-in viewer's own answer on the event, read by account: null when logged out or not on it.
+    public static function memberStatus(Event $event)
+    {
+        $userId = get_current_user_id();
+
+        return $userId ? Guest::query()->where('event_id', $event->id)->where('user_id', $userId)->value('status') : null;
+    }
+
     // The row this email already holds on the event, if any.
     public static function guestByEmail(Event $event, $email)
     {
