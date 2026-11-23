@@ -76,7 +76,7 @@ class ActivationHandler
     {
         // Before the version check and the lock: the old `fe_` tables move first (once, then a flag
         // check). While any is left, creating tables under the new names would split the data.
-        if (!LegacyPrefixMigrator::run()) {
+        if (!self::legacyNamesMoved()) {
             return;
         }
 
@@ -105,7 +105,7 @@ class ActivationHandler
     {
         // Before DBMigrator, which would otherwise create empty tables under the new names first.
         // While old tables remain, no tables are created; maybeUpgrade() tries again later.
-        $migrated = LegacyPrefixMigrator::run() && DBMigrator::run();
+        $migrated = self::legacyNamesMoved() && DBMigrator::run();
 
         // `init` ran before the plugin was active, so the post type's rules aren't registered yet.
         (new EventPost())->registerPostType();
@@ -121,5 +121,12 @@ class ActivationHandler
         if (function_exists('as_enqueue_async_action')) {
             as_enqueue_async_action('fluent_event/reschedule_event_reminders', [0], 'fluent-event');
         }
+    }
+
+    // The WordPress.org build leaves the migrator out (`./build.sh --wporg`): a site installed from
+    // there never held the old `fe_` names, so there is nothing to move and tables may be created.
+    protected static function legacyNamesMoved()
+    {
+        return !class_exists(LegacyPrefixMigrator::class) || LegacyPrefixMigrator::run();
     }
 }
