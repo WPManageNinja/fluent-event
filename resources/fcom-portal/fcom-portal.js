@@ -340,7 +340,7 @@ function register() {
     // fcom's space setting "Show Upcoming Events on the Sidebar" turns it on per space.
     addFilter('fluent_com_space_sidebar_widgets', 'fluent-event', (widgets, space) => {
         if (space && space.settings && space.settings.show_upcoming_events === 'yes') {
-            widgets.unshift({ key: 'fe_upcoming_events', component: SpaceEventsWidget });
+            widgets.push({ key: 'fe_upcoming_events', component: SpaceEventsWidget });
         }
 
         return widgets;

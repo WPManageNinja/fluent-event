@@ -1,7 +1,7 @@
 import { t, eventsApi, eventStart, eventMonth, eventDay } from './utils';
 
 /*
- * The space's next events, at the top of fcom's space sidebar (its fluent_com_space_sidebar_widgets filter).
+ * The space's next events in fcom's space sidebar, below About (its fluent_com_space_sidebar_widgets filter).
  * A string template on fcom's Vue, like the event card; it takes fcom's sidebar widget markup so it sits in line.
  */
 export default {

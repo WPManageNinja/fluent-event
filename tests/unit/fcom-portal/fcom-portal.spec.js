@@ -132,14 +132,14 @@ describe('fcom-portal entry', () => {
     describe('space sidebar widgets', () => {
         const space = (show) => ({ slug: 'design', settings: show === undefined ? {} : { show_upcoming_events: show } });
 
-        it('puts Upcoming Events first when the space turns it on', async () => {
+        it('adds Upcoming Events after other widgets when the space turns it on', async () => {
             const { filters } = await loadPortal();
             const other = { key: 'other', component: {} };
 
             const widgets = filters.fluent_com_space_sidebar_widgets([other], space('yes'));
 
-            expect(widgets.map((widget) => widget.key)).toEqual(['fe_upcoming_events', 'other']);
-            expect(widgets[0].component.name).toBe('FluentEventSpaceEventsWidget');
+            expect(widgets.map((widget) => widget.key)).toEqual(['other', 'fe_upcoming_events']);
+            expect(widgets[1].component.name).toBe('FluentEventSpaceEventsWidget');
         });
 
         it('adds nothing while the space setting is off or missing', async () => {
