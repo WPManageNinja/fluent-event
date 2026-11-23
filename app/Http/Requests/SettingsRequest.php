@@ -38,7 +38,7 @@ class SettingsRequest extends BaseRequest
         'registration_cancellation'       => 'nullable|array',
         'reminder_to_guest'               => 'required|array',
         'reminder_to_guest.enabled'       => 'required',
-        'reminder_to_guest.times'         => 'required|array|max:5',
+        'reminder_to_guest.times'         => 'required|array|max:' . Settings::MAX_REMINDERS,
         'reminder_to_guest.times.*.unit'  => 'required|string|in:minutes,hours,days',
     ];
 
@@ -78,7 +78,7 @@ class SettingsRequest extends BaseRequest
 
                 $seconds = Settings::reminderInSeconds($reminder);
 
-                if ($seconds && ($seconds < 5 * MINUTE_IN_SECONDS || $seconds > Settings::MAX_REMINDER_TIME)) {
+                if ($seconds && !Settings::isReminderTimeAllowed($seconds)) {
                     return __('The reminder must be between 5 minutes and 30 days before the event.', 'fluent-event');
                 }
             }],

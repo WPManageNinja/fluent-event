@@ -36,6 +36,32 @@ class SettingsTest extends TestCase
         $this->assertSame(30 * DAY_IN_SECONDS, Settings::MAX_REMINDER_TIME);
     }
 
+    public function test_reminder_bounds_are_five_reminders_between_five_minutes_and_thirty_days()
+    {
+        $this->assertSame(5, Settings::MAX_REMINDERS);
+        $this->assertSame(5 * MINUTE_IN_SECONDS, Settings::MIN_REMINDER_TIME);
+    }
+
+    /**
+     * @dataProvider reminderTimes
+     */
+    public function test_a_reminder_time_is_allowed_only_within_the_bounds($seconds, $allowed)
+    {
+        $this->assertSame($allowed, Settings::isReminderTimeAllowed($seconds));
+    }
+
+    public function reminderTimes()
+    {
+        return [
+            'zero'              => [0, false],
+            'just under 5 min'  => [5 * MINUTE_IN_SECONDS - 1, false],
+            '5 min'             => [5 * MINUTE_IN_SECONDS, true],
+            '1 day'             => [DAY_IN_SECONDS, true],
+            '30 days'           => [30 * DAY_IN_SECONDS, true],
+            'just over 30 days' => [30 * DAY_IN_SECONDS + 1, false],
+        ];
+    }
+
     public function test_out_of_the_box_guests_get_confirmations_cancellations_and_a_day_ahead_reminder()
     {
         $emails = Settings::DEFAULTS[Settings::EMAIL_NOTIFICATIONS];
