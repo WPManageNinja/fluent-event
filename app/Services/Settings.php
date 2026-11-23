@@ -20,6 +20,10 @@ class Settings
         self::UNIT_HOURS   => HOUR_IN_SECONDS,
         self::UNIT_DAYS    => DAY_IN_SECONDS,
     ];
+    // Guest reminder bounds: they keep a typo from queuing a reminder a year ahead, or
+    // seconds before the start, or dozens of emails for one event.
+    const MAX_REMINDERS = 5;
+    const MIN_REMINDER_TIME = 5 * MINUTE_IN_SECONDS;
     const MAX_REMINDER_TIME = 30 * DAY_IN_SECONDS;
 
     const DEFAULTS = [
@@ -83,6 +87,12 @@ class Settings
     public static function reminderInSeconds($reminder)
     {
         return (int) Arr::get($reminder, 'value') * (self::REMINDER_UNITS[Arr::get($reminder, 'unit')] ?? 0);
+    }
+
+    // The one check both the settings form and the scheduler use, so the two cannot disagree.
+    public static function isReminderTimeAllowed($seconds)
+    {
+        return $seconds >= self::MIN_REMINDER_TIME && $seconds <= self::MAX_REMINDER_TIME;
     }
 
     public static function get($key = self::GENERAL)
