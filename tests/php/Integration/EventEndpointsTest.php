@@ -590,4 +590,125 @@ class EventEndpointsTest extends IntegrationTestCase
             }
         }
     }
+
+    public function test_registration_limits_are_saved_as_offsets_and_cleared_when_emptied()
+    {
+        $event = $this->createEvent();
+
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens'  => ['value' => '7', 'unit' => 'days'],
+            'registration_closes' => ['value' => 2, 'unit' => 'hours'],
+        ]));
+        $meta = Event::query()->find($event->id)->meta;
+
+        $this->assertSame(['value' => 7, 'unit' => 'days'], $meta['registration_opens']);
+        $this->assertSame(['value' => 2, 'unit' => 'hours'], $meta['registration_closes']);
+
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['registration_opens' => null]));
+
+        $this->assertNull(Event::query()->find($event->id)->meta['registration_opens']);
+    }
+
+    public function test_registration_closing_before_it_opens_is_rejected()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens'  => ['value' => 1, 'unit' => 'hours'],
+            'registration_closes' => ['value' => 2, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame(422, $response['status']);
+        $this->assertStringContainsString('Registration must close after it opens.', wp_json_encode($response['data']));
+    }
+
+    public function test_an_update_sending_only_a_closing_time_is_checked_against_the_saved_opening()
+    {
+        $event = $this->createEvent([], ['registration_opens' => ['value' => 1, 'unit' => 'hours']]);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_closes' => ['value' => 1, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertStringContainsString('Registration must close after it opens.', wp_json_encode($response['data']));
+        $this->assertNull(Event::query()->find($event->id)->meta['registration_closes']);
+
+        $cleared = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens'  => null,
+            'registration_closes' => ['value' => 1, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame(200, $cleared['status'], wp_json_encode($cleared['data']));
+        $meta = Event::query()->find($event->id)->meta;
+        $this->assertNull($meta['registration_opens']);
+        $this->assertSame(['value' => 1, 'unit' => 'days'], $meta['registration_closes']);
+    }
+
+    public function test_a_zero_offset_is_kept_as_the_events_start_not_dropped()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens' => ['value' => 0, 'unit' => 'hours'],
+        ]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(['value' => 0, 'unit' => 'hours'], Event::query()->find($event->id)->meta['registration_opens']);
+    }
+
+    /**
+     * @dataProvider malformedLimits
+     */
+    public function test_a_malformed_registration_limit_is_rejected_and_nothing_changes($limit, $field)
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'title'               => 'Should not stick',
+            'registration_closes' => $limit,
+        ]));
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertStringContainsString($field, wp_json_encode($response['data']));
+        $this->assertSame('Integration event', get_post($event->post_id)->post_title);
+        $this->assertNull(Event::query()->find($event->id)->meta['registration_closes'] ?? null);
+    }
+
+    public function malformedLimits()
+    {
+        return [
+            'a unit we do not count in' => [['value' => 2, 'unit' => 'weeks'], 'registration_closes.unit'],
+            'a number without a unit'   => [['value' => 2], 'registration_closes.unit'],
+            'a unit without a number'   => [['unit' => 'hours'], 'registration_closes.value'],
+            'not an offset at all'      => ['tomorrow', 'registration_closes'],
+        ];
+    }
+
+    // Read on the server's clock, so the Overview never trusts the browser's. Every event here starts in 3 days.
+    public function test_one_event_comes_with_the_state_of_its_registration_window()
+    {
+        $cases = [
+            'no limits'             => [[], 'open'],
+            'closes the day before' => [['registration_closes' => ['value' => 1, 'unit' => 'days']], 'open'],
+            'opens a day before'    => [['registration_opens' => ['value' => 1, 'unit' => 'days']], 'not_open'],
+            'closed a week before'  => [['registration_closes' => ['value' => 7, 'unit' => 'days']], 'closed'],
+        ];
+
+        foreach ($cases as $case => [$meta, $state]) {
+            $event = $this->createEvent([], ['entry_type' => 'rsvp'] + $meta);
+            $window = $this->rest('GET', "events/{$event->id}")['data']['registration_window'];
+
+            $this->assertSame($state, $window['state'], $case);
+            $this->assertSame(isset($meta['registration_opens']), $window['opens_at'] !== null, $case);
+            $this->assertSame(isset($meta['registration_closes']), $window['closes_at'] !== null, $case);
+        }
+
+        $ended = $this->createEvent([
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-3 hours')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-1 hour')),
+        ], ['entry_type' => 'rsvp']);
+
+        $this->assertSame('ended', $this->rest('GET', "events/{$ended->id}")['data']['registration_window']['state']);
+    }
 }

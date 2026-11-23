@@ -77,16 +77,24 @@ class EventController extends Controller
         // `post` is hidden from JSON, so "Clone Event" reads the slug from here.
         $event->slug = $event->post->post_name;
 
+        [$opensAt, $closesAt] = Event::registrationWindow($event);
+
         $data = [
             'event'      => $event->append('description'),
             'public_url' => EventPageService::url($event),
             'shortcode'  => '[fluent_event event="' . $event->post->post_name . '"]',
+            // Worked out here, so the event page reads the server's clock, not the browser's. Times are in site time.
+            'registration_window' => [
+                'state'     => Event::registrationState($event),
+                'opens_at'  => $opensAt ? DateTimeHelper::timestampToSite($opensAt) : null,
+                'closes_at' => $closesAt ? DateTimeHelper::timestampToSite($closesAt) : null,
+            ],
         ];
 
         /**
          * One event, as the admin form and the portal edit page load it, for add-ons to append fields.
          *
-         * @param array $data  ['event' => Event, 'public_url' => string, 'shortcode' => string]
+         * @param array $data  ['event' => Event, 'public_url' => string, 'shortcode' => string, 'registration_window' => array]
          * @param Event $event
          */
         return apply_filters('fluent_event/event_api_response', $data, $event);
@@ -130,7 +138,7 @@ class EventController extends Controller
 
         $data = EventRequest::sanitize($request->all());
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
-        EventRequest::validateDateWindow($data);
+        EventRequest::validateDateWindow($data, $event->meta);
 
         $data     = EventRequest::format($data, $event->meta);
         $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));

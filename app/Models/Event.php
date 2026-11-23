@@ -2,6 +2,7 @@
 
 namespace FluentEvent\App\Models;
 
+use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 
 /**
@@ -18,6 +19,7 @@ class Event extends Model
     const VENUE_TYPES = 'offline,online';
     const ENTRY_TYPES = 'rsvp,open,none';
     const SEAT_STATUSES = ['going', 'checked_in'];
+    const REGISTRATION_LIMITS = ['registration_opens', 'registration_closes'];
     const POST_STATUSES = [
         'public'   => 'publish',
         'unlisted' => 'publish',
@@ -67,6 +69,8 @@ class Event extends Model
             'show_spots_left'    => 'no',
             // How the event page shows the time until the start: relative ("Starts in 3 days") or a live countdown.
             'start_display'      => 'relative',
+            'registration_opens'  => null, // {value, unit} before the start; null = as soon as published
+            'registration_closes' => null, // {value, unit} before the start; null = until the event ends
             // The description's markdown, as written in the editor; the post holds its rendered HTML.
             'description_md'     => '',
         ];
@@ -81,6 +85,41 @@ class Event extends Model
     public static function postStatusFor($status)
     {
         return self::POST_STATUSES[$status] ?? 'draft';
+    }
+
+    // [opens, closes] as UTC timestamps, each null where the host set no limit.
+    // Counted back on the event's own clock, as the form previews it, so "7 days before" survives a DST change.
+    public static function registrationWindow($event)
+    {
+        $meta = (array) $event->meta;
+        $startsAt = strtotime(DateTimeHelper::convertFromUtc($event->start_at, $event->timezone) . ' UTC');
+
+        return array_map(function ($key) use ($meta, $startsAt, $event) {
+            if (empty($meta[$key])) {
+                return null;
+            }
+
+            $local = gmdate(DateTimeHelper::FORMAT, $startsAt - Settings::reminderInSeconds($meta[$key]));
+
+            return strtotime(DateTimeHelper::convertToUtc($local, $event->timezone) . ' UTC');
+        }, self::REGISTRATION_LIMITS);
+    }
+
+    // not_open, open, closed or ended, on the server's clock.
+    public static function registrationState($event)
+    {
+        [$opensAt, $closesAt] = self::registrationWindow($event);
+        $now = time();
+
+        if ($event->end_at < gmdate(DateTimeHelper::FORMAT)) {
+            return 'ended';
+        }
+
+        if ($opensAt && $now < $opensAt) {
+            return 'not_open';
+        }
+
+        return $closesAt && $now >= $closesAt ? 'closed' : 'open';
     }
 
     public function guests()
