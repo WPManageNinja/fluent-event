@@ -62,7 +62,7 @@ class EventPageService
     }
 
     /**
-     * @param array  $formatted EventService::formatEvent() shape, as a visitor sees it.
+     * @param array  $formatted EventService::formatEvent() shape, with a logged-in viewer's own status.
      * @param string $url       The event page.
      */
     // $answer draws the popup the page opens after a registration: 'registered' confirms it; 'already_registered' and
@@ -126,7 +126,7 @@ class EventPageService
                     'text'  => __('This event is full and no longer taking registrations.', 'fluent-event'),
                 ];
             } else {
-                $data['registration'] = self::registration($event, $isSeated);
+                $data['registration'] = self::registration($event, $formatted['my_status'], $isSeated);
             }
         }
 
@@ -164,18 +164,25 @@ class EventPageService
         return (string) App::make('view')->make('portal.event-side', $data);
     }
 
-    // Everyone registers as a visitor and posts the event's own nonce, so only its page can register.
-    // WordPress binds that nonce to a logged-in viewer's session, so their post also carries the REST
-    // cookie nonce that lets it verify; nothing else of theirs is used.
-    protected static function registration(Event $event, $isSeated)
+    // Every post carries the event's own nonce, so only its page can register; WordPress binds it to a logged-in
+    // viewer's session, so theirs also carries the REST cookie nonce that lets it verify. A member answers by account,
+    // like on the portal: their Going / Not going posts to member_url, and the form comes prefilled.
+    protected static function registration(Event $event, $myStatus, $isSeated)
     {
         $config = App::make('config');
+        $base = rest_url($config->get('app.rest_namespace') . '/' . $config->get('app.rest_version') . '/portal/events/' . (int) $event->id);
+        $user = wp_get_current_user();
 
         return [
             'is_going'    => $isSeated,
-            'url'         => rest_url($config->get('app.rest_namespace') . '/' . $config->get('app.rest_version') . '/portal/events/' . (int) $event->id . '/register-guest'),
+            'is_member'   => $user->exists(),
+            'status'      => $isSeated ? 'going' : ($myStatus === 'not_going' ? 'not_going' : ''),
+            'name'        => $user->exists() ? $user->display_name : '',
+            'email'       => $user->exists() ? $user->user_email : '',
+            'url'         => $base . '/register-guest',
+            'member_url'  => $user->exists() ? $base . '/register' : '',
             'event_nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
-            'rest_nonce'  => is_user_logged_in() ? wp_create_nonce('wp_rest') : '',
+            'rest_nonce'  => $user->exists() ? wp_create_nonce('wp_rest') : '',
         ];
     }
 }

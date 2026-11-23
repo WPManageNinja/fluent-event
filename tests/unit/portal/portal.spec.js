@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { errorMessage, submitForm, showEvents, fitChips, startCountdowns } from '../../../resources/portal/portal';
+import { errorMessage, submitForm, chooseStatus, showEvents, fitChips, startCountdowns } from '../../../resources/portal/portal';
 
 const respond = (body, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -90,6 +90,49 @@ describe('registration', () => {
         expect(url).toBe('https://site.test/register-guest');
         expect(options.headers['X-WP-Nonce']).toBe('rest-nonce');
         expect(JSON.parse(options.body)).toEqual({ name: 'Zane', email: 'zane@example.test', nonce: 'event-nonce' });
+    });
+
+    const memberMenu = (checked = '') => card(`
+        <div popover>
+            <button data-fe-status="going" aria-checked="${checked === 'going'}">Going</button>
+            <button data-fe-status="not_going" aria-checked="${checked === 'not_going'}">Not going</button>
+        </div>`, 'data-nonce="rest-nonce" data-url="https://site.test/register"');
+
+    it("posts a member's answer by account, with no form, and swaps in the card", async () => {
+        HTMLElement.prototype.hidePopover = vi.fn();
+        document.body.innerHTML = memberMenu();
+        fetch.mockResolvedValue(respond({ html: card('<span class="fe-rsvp__label" tabindex="-1" data-fe-focus>Going</span>') }));
+
+        await chooseStatus(document.querySelector('[data-fe-status="going"]'));
+
+        const [url, options] = fetch.mock.calls[0];
+        expect(url).toBe('https://site.test/register');
+        expect(options.headers['X-WP-Nonce']).toBe('rest-nonce');
+        expect(JSON.parse(options.body)).toEqual({ status: 'going', nonce: 'event-nonce' });
+        expect(document.querySelector('.fe-rsvp__label').textContent).toBe('Going');
+        delete HTMLElement.prototype.hidePopover;
+    });
+
+    it("sends nothing for the member's current answer", async () => {
+        HTMLElement.prototype.hidePopover = vi.fn();
+        document.body.innerHTML = memberMenu('going');
+
+        await chooseStatus(document.querySelector('[data-fe-status="going"]'));
+
+        expect(fetch).not.toHaveBeenCalled();
+        delete HTMLElement.prototype.hidePopover;
+    });
+
+    it("shows a failed answer under the card and lets the member try again", async () => {
+        HTMLElement.prototype.hidePopover = vi.fn();
+        document.body.innerHTML = memberMenu();
+        fetch.mockResolvedValue(respond({ message: 'This event is full.' }, 422));
+
+        await chooseStatus(document.querySelector('[data-fe-status="going"]'));
+
+        expect(document.querySelector('.fe-event-page__error').textContent).toBe('This event is full.');
+        expect(document.querySelector('[data-fe-status="going"]').disabled).toBe(false);
+        delete HTMLElement.prototype.hidePopover;
     });
 
     it('shows a refusal in the form and lets the visitor try again', async () => {

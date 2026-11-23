@@ -28,20 +28,21 @@ Three things people get wrong:
   attachment FK. The column is `meta` on both `event_details` and `calendars` — open-ended,
   holds whatever per-record config accrues, and is documented by the model's `defaultMeta()`.
 
-Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going; on the public event page anyone can also say Going by name + email, final),
+Entry mode lives in `event_details.meta.entry_type` — `rsvp` (logged-in going / not going, on the portal and the public event page alike; there a visitor can also say Going by name + email, final),
 `open` (a Register button opening a name + email popover — prefilled for members, email locked; a Registered badge after; in the portal a member can say Not going (`not_going`) and register again, a visitor's is final) or
 `none` (view-only: nobody registers, every viewer sees the whole event, meeting link included;
 admins can still add, edit and remove guests, who get the usual emails). Guests only ever answer going or not going; `cancelled` is set by an admin alone.
 Registering again with an email (or account) already on the event takes a `not_going` row back to going (a visitor form,
-signed in or not, can't for a row linked to an account: that member answers from the portal); any other row is
+signed in or not, can't for a row linked to an account: that member answers by account); any other row is
 refused with a warning, "already registered", or "registration was cancelled" for a `cancelled` one, and nothing is saved. `show_guest_count` sits beside it for `rsvp` and `open`, and so does `capacity`: the most guests going at once (0 = unlimited); a full event refuses a new Going or Register (a `not_going` row coming back included), a guest already going keeps their seat, and admins can add guests past it. The public landing pages enforce it too. `show_spots_left` (off by default, only with a capacity) shows the spots left: with both switches on guests see the meter ("7 out of 10 going", "3 spots left"), with one only its line ("7 going" or "3 spots left"), and no spots left once the event ends. `ticketed` is a documented future
 mode; `guests.ticket_type_id` stays nullable for it.
 
 Statuses: events are `public | unlisted | private | draft`, calendars `public | private | draft`.
 An `unlisted` event is left off the upcoming landing page but opens by direct link; a calendar has no
 page of its own to share, so it has no `unlisted`.
-`private` means no public page; space calendars start `private`. The public (landing) pages don't know their viewers:
-everyone, logged in or not, sees and registers as a visitor — nothing prefilled, no member state, the meeting link only after registering. FluentCommunity integration (events as posts
+`private` means no public page; space calendars start `private`. On the public event page a logged-in viewer gets the
+member's card, as on the portal: their own answer, Going / Not going straight from the RSVP menu, and on an open event Registered with Not going, or
+the form with name and email prefilled; the email stays editable, and another email registers that address as a visitor. Logged out, it is the visitor's card. FluentCommunity integration (events as posts
 in discussion spaces): [.claude/docs/functional-requirements/fluentcommunity-integration.md](.claude/docs/functional-requirements/fluentcommunity-integration.md).
 
 Schema: [docs/db/fe_db_schema.sql](.claude/docs/db/fe_db_schema.sql).

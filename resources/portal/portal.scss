@@ -1793,6 +1793,10 @@ html.dark .fe-portal {
         &.fe-rsvp__icon--going {
             background-color: var(--fe-accent-green, #1a7f37);
         }
+
+        &.fe-rsvp__icon--not-going {
+            background-color: var(--fe-danger-text, #cf222e);
+        }
     }
 
     // A native popover: a click outside or Escape closes it. Below the trigger where anchor positioning works.

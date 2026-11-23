@@ -75,5 +75,6 @@ $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($ro
 
 // The public event page's registration form.
 $router->prefix('portal')->withPolicy('PortalPolicy')->group(function ($router) {
+    $router->post('/events/{id}/register', [PortalEventController::class, 'register'])->int('id');
     $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])->int('id');
 });

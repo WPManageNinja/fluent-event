@@ -8,8 +8,8 @@ use FluentEvent\App\Models\Guest;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
- * Registration from the public event page: anyone, logged in or not, as a visitor by name and email
- * on RSVP and open events, and only on events that page opens.
+ * Registration from the public event page, only on events that page opens: a visitor by name and email on
+ * RSVP and open events, a logged-in member by account, as on the portal.
  */
 class PortalEndpointsTest extends IntegrationTestCase
 {
@@ -27,6 +27,14 @@ class PortalEndpointsTest extends IntegrationTestCase
             'name'  => 'Walk-in Visitor',
             'email' => 'visitor@example.test',
             'nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
+        ], $params));
+    }
+
+    private function answer(Event $event, $status, array $params = [])
+    {
+        return $this->rest('POST', "portal/events/{$event->id}/register", array_merge([
+            'status' => $status,
+            'nonce'  => wp_create_nonce('fe_portal_register_' . $event->id),
         ], $params));
     }
 
@@ -131,15 +139,15 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
     }
 
-    // A row linked to an account changes only from that account: typing its email can't bring it back, even signed in,
-    // as the page treats everyone as a visitor.
+    // A row linked to an account changes only from that account: typing its email can't bring it back, even signed in
+    // to another account.
     public function test_a_visitor_cannot_bring_back_a_members_not_going_row()
     {
         $event = $this->onlineEvent('rsvp');
         $member = $this->createUser('subscriber');
         $guest = $this->createGuest($event, ['email' => 'visitor@example.test', 'user_id' => $member, 'status' => 'not_going']);
 
-        foreach ([0, $member] as $viewer) {
+        foreach ([0, $this->createUser('subscriber')] as $viewer) {
             $this->actAs($viewer);
             $response = $this->registerGuest($event);
 
@@ -210,10 +218,10 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $this->registerGuest($ended)['status']);
     }
 
-    // The page doesn't know its viewers: a logged-in user registers by the name and email they type, unlinked to their account.
-    public function test_a_logged_in_user_registers_as_a_visitor()
+    // Another email than the account's registers that email as a visitor, unlinked; the member's own card stays open.
+    public function test_a_member_registering_another_email_registers_a_visitor()
     {
-        $event = $this->onlineEvent('rsvp');
+        $event = $this->onlineEvent('open');
         $this->actAs($this->createUser('subscriber'));
 
         $response = $this->registerGuest($event, ['name' => 'Stage Name', 'email' => 'stage@example.test']);
@@ -222,8 +230,97 @@ class PortalEndpointsTest extends IntegrationTestCase
         $guest = $this->guestsOf($event)[0];
         $this->assertSame(['Stage Name', 'stage@example.test', 'going'], [$guest->name, $guest->email, $guest->status]);
         $this->assertEmpty($guest->user_id);
-        $this->assertStringContainsString('fe-event-page__badge', $response['data']['html']);
-        $this->assertStringNotContainsString('data-fe-status', $response['data']['html']);
+        $this->assertStringContainsString('data-fe-register', $response['data']['html']);
+    }
+
+    // Keeping the prefilled account email registers the member by account, under the name they typed.
+    public function test_a_member_keeping_their_email_registers_by_account()
+    {
+        $event = $this->onlineEvent('open');
+        $memberId = $this->createUser('subscriber');
+        $this->actAs($memberId);
+
+        $response = $this->registerGuest($event, ['name' => 'Stage Name', 'email' => strtoupper(get_userdata($memberId)->user_email)]);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $guest = $this->guestsOf($event)[0];
+        $this->assertSame([$memberId, 'Stage Name', 'going'], [(int) $guest->user_id, $guest->name, $guest->status]);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_confirmation', [(int) $guest->id]));
+        $this->assertStringContainsString('data-fe-status="not_going"', $response['data']['html']);
+        $this->assertStringContainsString('https://meet.example.test/fe-room', $response['data']['html']);
+        $this->assertStringContainsString(esc_html__("You're registered", 'fluent-event'), $response['data']['html']);
+    }
+
+    // RSVP Going and Not going straight from the menu, by account, on one row.
+    public function test_a_member_answers_an_rsvp_by_account()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $memberId = $this->createUser('subscriber');
+        $member = get_userdata($memberId);
+        $this->actAs($memberId);
+
+        $going = $this->answer($event, 'going');
+
+        $this->assertSame(200, $going['status'], wp_json_encode($going['data']));
+        $guest = $this->guestsOf($event)[0];
+        $this->assertSame([$memberId, $member->display_name, $member->user_email, 'going', 'wordpress_pages'], [(int) $guest->user_id, $guest->name, $guest->email, $guest->status, $guest->source]);
+        $this->assertStringContainsString('https://meet.example.test/fe-room', $going['data']['html']);
+        $this->assertStringContainsString(esc_html__("You're going", 'fluent-event'), $going['data']['html']);
+
+        $notGoing = $this->answer($event, 'not_going');
+
+        $this->assertSame(200, $notGoing['status'], wp_json_encode($notGoing['data']));
+        $this->assertCount(1, $this->guestsOf($event));
+        $this->assertSame('not_going', $this->guestsOf($event)[0]->status);
+        $this->assertStringNotContainsString('meet.example.test', $notGoing['data']['html']);
+        $this->assertStringNotContainsString('data-fe-answer', $notGoing['data']['html']);
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
+    }
+
+    // An open event takes Not going only from a member holding a seat, and Going only through its form.
+    public function test_a_member_gives_up_an_open_registration()
+    {
+        $event = $this->onlineEvent('open');
+        $memberId = $this->createUser('subscriber');
+        $this->actAs($memberId);
+
+        $this->assertSame(422, $this->answer($event, 'not_going')['status']);
+        $this->assertSame(422, $this->answer($event, 'going')['status']);
+        $this->assertCount(0, $this->guestsOf($event));
+
+        $guest = $this->createGuest($event, ['user_id' => $memberId, 'email' => get_userdata($memberId)->user_email]);
+        $response = $this->answer($event, 'not_going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('not_going', Guest::query()->find($guest->id)->status);
+        $this->assertStringContainsString('data-fe-register', $response['data']['html'], 'They can register again');
+    }
+
+    public function test_the_member_answer_needs_a_login_and_the_events_nonce()
+    {
+        $event = $this->createEvent();
+
+        $this->assertContains($this->answer($event, 'going')['status'], [401, 403]);
+
+        $this->actAs($this->createUser('subscriber'));
+        $this->assertSame(403, $this->answer($event, 'going', ['nonce' => 'wrong'])['status']);
+        $this->assertCount(0, $this->guestsOf($event));
+    }
+
+    // An admin's cancel stands against the member's own answer too.
+    public function test_a_member_an_admin_cancelled_is_told_so()
+    {
+        $event = $this->createEvent();
+        $memberId = $this->createUser('subscriber');
+        $this->createGuest($event, ['user_id' => $memberId, 'status' => 'cancelled']);
+        $this->actAs($memberId);
+
+        $response = $this->answer($event, 'going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull($response['data']['status']);
+        $this->assertStringContainsString(esc_html__('Your registration was cancelled', 'fluent-event'), $response['data']['html']);
+        $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
     }
 
     // The framework's limiter lets cookie-authenticated requests through; a logged-in viewer is counted all the same.
