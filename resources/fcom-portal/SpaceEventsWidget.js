@@ -1,7 +1,5 @@
 import { t, eventsApi, eventStart, eventMonth, eventDay } from './utils';
 
-const LIMIT = 3;
-
 /*
  * The space's next events, at the top of fcom's space sidebar (its fluent_com_space_sidebar_widgets filter).
  * A string template on fcom's Vue, like the event card; it takes fcom's sidebar widget markup so it sits in line.
@@ -38,7 +36,7 @@ export default {
             this.error = '';
 
             try {
-                const response = await eventsApi.get('community/events', { space: this.space_profile.slug, scope: 'upcoming', per_page: LIMIT });
+                const response = await eventsApi.get('community/events', { space: this.space_profile.slug, scope: 'upcoming', per_page: 3 });
 
                 // The member moved to another space; its own request owns the list now.
                 if (requestId === this.requestId) {
