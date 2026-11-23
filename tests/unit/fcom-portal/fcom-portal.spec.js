@@ -501,7 +501,8 @@ describe('fcom-portal entry', () => {
             };
 
             // The page focuses its title once loaded, and the title sits in a form item.
-            const stubs = { ElFormItem: { template: '<div><slot /></div>' }, ElInput: { template: '<input />', methods: { focus() {} } } };
+            // ElInputNumber reads its inner ElInput's element, which the stub doesn't have.
+            const stubs = { ElFormItem: { template: '<div><slot /></div>' }, ElInput: { template: '<input />', methods: { focus() {} } }, ElInputNumber: true };
 
             await mountShell('fe_edit_event', { params: { event_slug: 'night-walk' }, query: {} }, { components, stubs });
 
