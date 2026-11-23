@@ -530,6 +530,10 @@
             isEditing() {
                 return !!this.eventId;
             },
+            // "Clone Event" opens the create form with ?clone=<slug> to start from that event.
+            cloneSourceSlug() {
+                return this.isEditing ? '' : (this.$route.query.clone || '');
+            },
             pageTitle() {
                 return this.isEditing ? this.$t('Edit Event') : this.$t('Create Event');
             },
@@ -646,7 +650,7 @@
                 this.event = this.initForm();
                 this.fetchCalendars();
 
-                if (this.isEditing) {
+                if (this.isEditing || this.cloneSourceSlug) {
                     this.fetchEvent();
                     return;
                 }
@@ -670,12 +674,20 @@
             },
             fetchEvent() {
                 this.$requestServer({
-                    path: `events/${this.eventId}`,
+                    path: this.isEditing ? `events/${this.eventId}` : 'events/by-slug',
+                    payload: this.isEditing ? undefined : { slug: this.cloneSourceSlug },
                     loadingState: 'loadingEvent',
-                    errorState: 'eventError',
-                    notFoundPage: true,
+                    errorState: this.isEditing ? 'eventError' : null,
+                    notFoundPage: this.isEditing,
                     onSuccess: response => {
                         this.event = this.initForm(response.event);
+                    },
+                    // A clone source that cannot be loaded leaves the blank create form usable; the toast says why.
+                    onError: error => {
+                        if (this.isEditing) return;
+
+                        this.$handleError(error?.status === 404 ? this.$t('The event to clone was not found.') : error);
+                        this.preSelectCalendar();
                     },
                     // loadingEvent drops after onSuccess, so the title input only exists from here.
                     onFinally: () => this.focusTitle(),
@@ -685,7 +697,8 @@
                 this.$nextTick(() => this.$refs.titleInput?.focus());
             },
             preSelectCalendar() {
-                if (this.isEditing) return;
+                // A loaded event (edited or cloned) brings its own calendar.
+                if (this.isEditing || this.event.calendar_id) return;
                 const requested = Number(this.$route.query.calendar_id);
                 const preSelected = this.calendars.find(calendar => calendar.id === requested);
                 this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;

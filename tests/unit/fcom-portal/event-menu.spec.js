@@ -40,6 +40,17 @@ describe('EventMenu', () => {
         expect(document.activeElement).toBe(item.element);
     });
 
+    it("clones on the portal's create page, which reads the event from ?clone=", async () => {
+        menu();
+        await wrapper.find('button').trigger('click');
+
+        const clone = wrapper.findAll('[role="menuitem"]')[1];
+        expect(clone.text()).toBe('Clone Event');
+
+        await clone.trigger('click');
+        expect(router.push).toHaveBeenCalledWith({ name: 'fe_create_event', query: { clone: 'night-walk' } });
+    });
+
     // On a phone a short title puts the "⋮" near the left edge; the 200px menu would hang off the screen.
     it.each([
         ['left', { left: -23, right: 177 }, 'translateX(31px)'],

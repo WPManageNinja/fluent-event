@@ -292,6 +292,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $events = array_column($response['data']['events']['data'], null, 'id');
 
         $this->assertSame($feed->getPermalink(), $events[CommunityEvents::eventIdOf($feed)]['feed_url']);
+        $this->assertSame($feed->slug, $events[CommunityEvents::eventIdOf($feed)]['feed_slug']);
         $this->assertArrayNotHasKey('feed_url', $events[$plainEvent->id]);
     }
 

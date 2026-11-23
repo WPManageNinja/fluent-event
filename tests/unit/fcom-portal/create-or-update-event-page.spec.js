@@ -315,7 +315,7 @@ describe('CreateOrUpdateEventPage', () => {
                 show_spots_left: 'yes',
                 start_display: 'countdown'
             });
-            expect(props.onLoaded).toHaveBeenCalledWith(stored);
+            expect(props.onLoaded).toHaveBeenCalledWith(stored, null);
         });
 
         // Space and post text are fcom's post, edited there.
@@ -412,6 +412,84 @@ describe('CreateOrUpdateEventPage', () => {
             await mountEdit(undefined, { eventSlug: '../../wp/v2/users/me' });
 
             expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=..%2F..%2Fwp%2Fv2%2Fusers%2Fme');
+        });
+    });
+
+    describe('cloning', () => {
+        const source = {
+            id: 5,
+            title: 'Night walk',
+            timezone: 'Europe/London',
+            venue_type: 'offline',
+            start_at_local: '2026-11-20 18:30:00',
+            end_at_local: '2026-11-20 20:00:00',
+            feed_slug: 'night-walk-post',
+            meta: { venue: 'Kingsway Hall', entry_type: 'open', capacity: 25, show_spots_left: 'yes', start_display: 'countdown' }
+        };
+        const post = { slug: 'night-walk-post', title: 'Walk', message: 'Join us', space: { slug: 'design' } };
+
+        const mountClone = async (event = source, feed = post, extraProps = {}) => {
+            fetch.mockResolvedValueOnce(json({ event })).mockResolvedValueOnce(json({ feed }));
+
+            return createPage(CreateOrUpdateEventPage, { cloneSourceSlug: 'night-walk', onLoaded: vi.fn(), initialSpace: '', ...extraProps });
+        };
+
+        it('prefills a new event from the source and its post, and stays a create form', async () => {
+            const { wrapper, vm, props } = await mountClone();
+
+            expect(fetch.mock.calls[0][0]).toBe('https://example.test/wp-json/fluent-event/v2/events/by-slug?slug=night-walk');
+            expect(fetch.mock.calls[1][0]).toBe('https://example.test/wp-json/fluent-community/v2/feeds/night-walk-post/by-slug?context=edit');
+            expect(vm.event).toMatchObject({ title: 'Night walk', start_date: '2026-11-20', start_time: '18:30', venue: 'Kingsway Hall', entry_type: 'open', capacity: 25, start_display: 'countdown' });
+            expect(props.onLoaded).toHaveBeenCalledWith(source, post);
+            expect(vm.loadedEvent).toBe(null);
+            expect(wrapper.find('.fe-create-event__heading').text()).toBe('Create Event');
+            expect(wrapper.find('#fe-create-event-composer').exists()).toBe(true);
+        });
+
+        it('shows only the skeleton while the source loads, not a blank form under it', async () => {
+            fetch.mockReturnValueOnce(new Promise(() => {}));
+
+            const { wrapper } = await createPage(CreateOrUpdateEventPage, { cloneSourceSlug: 'night-walk', onLoaded: vi.fn() });
+
+            expect(wrapper.findComponent({ name: 'ElSkeleton' }).exists()).toBe(true);
+            expect(wrapper.find('.fe-create-event__form').exists()).toBe(false);
+            expect(wrapper.find('.fe-create-event__actions').exists()).toBe(false);
+        });
+
+        it("posts where the source's post was", async () => {
+            const { vm, props } = await mountClone();
+
+            expect(vm.placement).toBe('space');
+            expect(vm.space).toBe('design');
+            expect(props.onSpace).toHaveBeenCalledWith('design');
+        });
+
+        it('posts community-wide when the source post was', async () => {
+            const { vm, props } = await mountClone(source, { ...post, space: null });
+
+            expect(vm.placement).toBe('global');
+            expect(props.onPlacement).toHaveBeenCalledWith('global');
+        });
+
+        it('copies just the event when it has no post', async () => {
+            const { vm, props } = await mountClone({ ...source, feed_slug: undefined });
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(vm.event.title).toBe('Night walk');
+            expect(props.onLoaded).toHaveBeenCalledWith({ ...source, feed_slug: undefined }, null);
+        });
+
+        // The editors still need mounting, so a blank create form stays usable.
+        it('says why when the source cannot be loaded, and leaves a blank create form', async () => {
+            fetch.mockResolvedValueOnce(json({ message: 'Event not found' }, 404));
+            ElNotification.mockClear();
+
+            const { wrapper, vm, props } = await createPage(CreateOrUpdateEventPage, { cloneSourceSlug: 'gone', onLoaded: vi.fn() });
+
+            expect(ElNotification).toHaveBeenCalledWith({ type: 'error', title: 'Error', message: 'The event to clone was not found.' });
+            expect(vm.event.title).toBe('');
+            expect(wrapper.find('.fe-create-event__form').exists()).toBe(true);
+            expect(props.onLoaded).toHaveBeenCalledWith(null, null);
         });
     });
 

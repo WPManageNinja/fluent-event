@@ -413,7 +413,7 @@ import { ElNotification } from 'element-plus';
 import { ArrowLeft, Delete, MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
-import { dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
+import { communityApi, dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
 
 export default {
     name: 'CreateOrUpdateEventPage',
@@ -434,6 +434,8 @@ export default {
         spaces: { type: Array, default: () => [] },
         initialSpace: { type: String, default: '' },
         onSpace: { type: Function, default: () => {} },
+        // "Clone Event" (?clone=<slug>): a new event, prefilled from this one and its post.
+        cloneSourceSlug: { type: String, default: '' },
     },
     data() {
         const start = dayjs().add(1, 'hour').startOf('hour');
@@ -472,13 +474,14 @@ export default {
             uploading: false,
             saving: false,
             startDisplayHelp: false,
-            loading: !!this.eventSlug,
+            loading: !!(this.eventSlug || this.cloneSourceSlug),
             loadedEvent: null,
         };
     },
     computed: {
+        // A clone has no eventSlug, so without the loading check its blank form would render under the skeleton.
         editable() {
-            return !this.eventSlug || !!this.loadedEvent;
+            return !this.loading && (!this.eventSlug || !!this.loadedEvent);
         },
         venueMaxLength() {
             return portalVars().venue_max_length;
@@ -564,7 +567,7 @@ export default {
     mounted() {
         setPageTitle(this.eventSlug ? this.$t('Edit Event') : this.$t('Create Event'));
 
-        if (this.eventSlug) {
+        if (this.eventSlug || this.cloneSourceSlug) {
             this.loadEvent();
             return;
         }
@@ -590,8 +593,16 @@ export default {
         },
         // Mapped as the admin form's initForm() maps it.
         async loadEvent() {
+            let event = null;
+            let feed = null;
+
             try {
-                const { event } = await eventsApi.get('events/by-slug', { slug: this.eventSlug });
+                ({ event } = await eventsApi.get('events/by-slug', { slug: this.eventSlug || this.cloneSourceSlug }));
+
+                if (this.cloneSourceSlug && event.feed_slug) {
+                    ({ feed } = await communityApi.get(`feeds/${event.feed_slug}/by-slug`, { context: 'edit' }));
+                }
+
                 const meta = event.meta || {};
                 const start = dayjs(event.start_at_local);
                 const end = dayjs(event.end_at_local);
@@ -614,18 +625,38 @@ export default {
                     show_spots_left: meta.show_spots_left || 'no',
                     start_display: meta.start_display || 'relative',
                 };
-                this.loadedEvent = event;
+                if (this.eventSlug) {
+                    this.loadedEvent = event;
+                }
             } catch (error) {
-                this.showError(error);
-                return;
+                // No event means the source lookup itself failed, not the post that follows it.
+                this.showError(this.cloneSourceSlug && !event ? { message: this.$t('The event to clone was not found.') } : error);
+
+                // A failed clone still leaves a blank create form, which needs its editors.
+                if (this.eventSlug) {
+                    return;
+                }
             } finally {
                 this.loading = false;
             }
 
+            if (feed) {
+                this.placeLike(feed);
+            }
+
             // The shell mounts fcom's editor into the description spot, so the form must be rendered first.
             await this.$nextTick();
-            this.onLoaded(this.loadedEvent);
+            this.onLoaded(event, feed);
             this.$refs.titleInput.focus();
+        },
+        // A clone posts where its source was posted, when the member may still post there.
+        placeLike(feed) {
+            const space = feed.space ? feed.space.slug : '';
+
+            this.placement = !space && this.globalPosts ? 'global' : 'space';
+            this.space = this.spaces.some((option) => option.slug === space) ? space : '';
+            this.onPlacement(this.placement);
+            this.onSpace(this.space);
         },
         async updateEvent() {
             this.saving = true;

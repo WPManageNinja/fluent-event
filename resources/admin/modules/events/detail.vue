@@ -36,6 +36,11 @@
                         >
                             {{ $t('Edit Event') }}
                         </el-button>
+
+                        <el-button tag="router-link" :to="cloneRoute">
+                            <el-icon aria-hidden="true"><CopyDocument /></el-icon>
+                            <span>{{ $t('Clone Event') }}</span>
+                        </el-button>
                     </div>
                 </div>
 
@@ -193,7 +198,7 @@
 </template>
 
 <script type="text/javascript">
-    import { ArrowRight, LocationInformation, Share, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { ArrowRight, CopyDocument, LocationInformation, Share, TopRight, VideoCamera } from '@element-plus/icons-vue';
     import { daySpan, lastDay } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import Skeleton from '@/components/Skeleton.vue';
@@ -208,6 +213,7 @@
         name: 'EventDetail',
         components: {
             ArrowRight,
+            CopyDocument,
             LocationInformation,
             Share,
             TopRight,
@@ -247,6 +253,9 @@
             },
             isOnline() {
                 return this.event.venue_type === 'online';
+            },
+            cloneRoute() {
+                return { name: 'event_create', query: { clone: this.event.slug } };
             },
             calendarStatus() {
                 return this.event.calendar?.status || '';

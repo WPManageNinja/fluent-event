@@ -311,6 +311,8 @@ class FeedHandler
 
             if ($feed && CommunityEvents::eventIdOf($feed) === (int) $event->id) {
                 $event->feed_url = esc_url_raw($feed->getPermalink());
+                // The portal's "Clone Event" loads the post by it to copy its text, space and topics.
+                $event->feed_slug = $feed->slug;
             }
         }
 

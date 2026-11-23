@@ -74,6 +74,9 @@ class EventController extends Controller
             ->withCount('guests')
             ->findOrFail($id);
 
+        // `post` is hidden from JSON, so "Clone Event" reads the slug from here.
+        $event->slug = $event->post->post_name;
+
         $data = [
             'event'      => $event->append('description'),
             'public_url' => EventPageService::url($event),
@@ -97,6 +100,10 @@ class EventController extends Controller
         $eventId = $slug ? Event::query()->whereHas('post', function ($query) use ($slug) {
             $query->where('post_name', $slug);
         })->value('id') : null;
+
+        if (!$eventId) {
+            return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
+        }
 
         return $this->getEvent($request, (int) $eventId);
     }

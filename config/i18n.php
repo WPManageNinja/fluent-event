@@ -223,6 +223,7 @@ return [
             'Only accessible via direct link.' => __('Only accessible via direct link.', 'fluent-event'),
             'Send Confirmation Email' => __('Send Confirmation Email', 'fluent-event'),
             'Send Cancellation Email' => __('Send Cancellation Email', 'fluent-event'),
+            'The event to clone was not found.' => __('The event to clone was not found.', 'fluent-event'),
             'Send Confirmation Emails' => __('Send Confirmation Emails', 'fluent-event'),
             'Send Cancellation Emails' => __('Send Cancellation Emails', 'fluent-event'),
             /* translators: %d is 1, the number of selected guests */

@@ -78,7 +78,11 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(200, $bySlug['status'], wp_json_encode($bySlug['data']));
         $this->assertEquals($byId, $bySlug['data']);
 
-        $this->assertSame(404, $this->rest('GET', 'events/by-slug', ['slug' => $slug . '-missing'])['status']);
+        $missing = $this->rest('GET', 'events/by-slug', ['slug' => $slug . '-missing']);
+
+        $this->assertSame(404, $missing['status']);
+        // A clone of a missing event shows this in a toast, so it must be readable, not the ORM's message.
+        $this->assertSame('This event is not available.', $missing['data']['message']);
         $this->assertSame(404, $this->rest('GET', 'events/by-slug')['status']);
     }
 
@@ -464,6 +468,17 @@ class EventEndpointsTest extends IntegrationTestCase
 
         $this->assertArrayNotHasKey('description', $listed[$event->id]);
         $this->assertSame('<p>Written by the integration suite; rolled back.</p>', $single['description']);
+    }
+
+    // "Clone Event" links to ?clone=<slug>; the post relation is hidden from JSON, so the slug must ride on the event.
+    public function test_the_single_event_response_carries_the_slug_for_cloning()
+    {
+        $event = $this->createEvent();
+
+        $single = $this->rest('GET', "events/{$event->id}")['data']['event'];
+
+        $this->assertSame($event->post->post_name, $single['slug']);
+        $this->assertArrayNotHasKey('post', $single);
     }
 
     // The cards' "N guests": every guest counts, not going and cancelled included.

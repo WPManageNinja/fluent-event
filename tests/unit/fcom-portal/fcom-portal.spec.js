@@ -293,6 +293,36 @@ describe('fcom-portal entry', () => {
             expect(shell.feed.space).toBe('design');
         });
 
+        // fcom's composer and editor read their content only when they mount, so a clone holds both until its source loads.
+        it("copies a clone's post into the composer, then mounts the composer and the editor", async () => {
+            const shell = await createShell();
+            const $route = { params: {}, query: { clone: 'night-walk' } };
+            const vm = { ...shellData(shell, $route.query, true), $route, $router: {}, appVars: {} };
+            const props = shell.methods.pageProps.call(vm);
+
+            expect(props.cloneSourceSlug).toBe('night-walk');
+            expect(vm.editorReady).toBe(false);
+            expect(vm.composerReady).toBe(false);
+            expect(shell.template).toContain('<teleport v-if="ready && composerReady && !$route.params.event_slug" to="#fe-create-event-composer">');
+
+            props.onLoaded(
+                { meta: { description_md: '**Bring** a torch' } },
+                { title: 'Walk', message: 'Join us', type: 'text', topic_ids: [4], send_announcement_email: 'yes' }
+            );
+
+            expect(vm.description).toBe('**Bring** a torch');
+            expect(vm.feed).toMatchObject({ title: 'Walk', message: 'Join us', type: 'text', topic_ids: [4], send_announcement_email: 'yes', content_type: 'event' });
+            expect(vm.editorReady).toBe(true);
+            expect(vm.composerReady).toBe(true);
+        });
+
+        it('mounts the composer and the editor at once without a clone', async () => {
+            const data = shellData(await createShell(), {}, true);
+
+            expect(data.editorReady).toBe(true);
+            expect(data.composerReady).toBe(true);
+        });
+
         it('opens the composer from the start, since the page is there to write a post', async () => {
             expect((await createShell()).template).toContain('defaultState="active"');
         });

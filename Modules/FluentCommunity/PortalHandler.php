@@ -323,6 +323,7 @@ class PortalHandler
             'There are no spaces you can post in.' => __('There are no spaces you can post in.', 'fluent-event'),
             'This email is already registered' => __('This email is already registered', 'fluent-event'),
             'This event is not available.' => __('This event is not available.', 'fluent-event'),
+            'The event to clone was not found.' => __('The event to clone was not found.', 'fluent-event'),
             'Timeline' => __('Timeline', 'fluent-event'),
             'Timezone' => __('Timezone', 'fluent-event'),
             'To change the post text or its space, edit the post itself.' => __('To change the post text or its space, edit the post itself.', 'fluent-event'),
