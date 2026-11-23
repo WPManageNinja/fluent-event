@@ -43,8 +43,6 @@ export default defineConfig({
             vue: 'vue/dist/vue.esm-bundler.js',
             '@': path.resolve(rootDir, 'resources/admin')
         },
-        extensions: ['.js', '.vue', '.json'],
-        // A worktree that symlinks a checkout's node_modules would otherwise load files from outside the root and fail.
-        preserveSymlinks: true
+        extensions: ['.js', '.vue', '.json']
     }
 });
