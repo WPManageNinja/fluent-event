@@ -652,7 +652,7 @@
                     venue: meta.venue || '',
                     address: meta.address || '',
                     cover_url: meta.cover_url || '',
-                    entry_type: event ? (meta.entry_type || '') : 'rsvp',
+                    entry_type: meta.entry_type || 'open',
                     show_guest_count: meta.show_guest_count || 'yes',
                     capacity: meta.capacity || null,
                     show_spots_left: meta.show_spots_left || 'no',

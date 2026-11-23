@@ -8,6 +8,7 @@ use FluentEvent\App\Models\Calendar;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\EventPageService;
 use FluentEvent\App\Services\EventService;
+use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -567,7 +568,7 @@ class FrontEndHandler
         return (string) App::make('view')->make('portal.event-part', $data[spl_object_id($event)] + ['fluentEventPart' => $part]);
     }
 
-    // The community event page's shape, drawn for a visitor whoever is viewing: the public pages don't know their viewers.
+    // The community event page's shape; a logged-in viewer sees their own answer, as on the portal.
     protected function eventBody(Event $event)
     {
         return (string) App::make('view')->make('portal.event', $this->eventData($event));
@@ -577,7 +578,7 @@ class FrontEndHandler
     {
         $calendar = $event->calendar;
         $seats = EventService::seatCounts([$event->id]);
-        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, null, false, false);
+        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, RegistrationService::memberStatus($event), false, false);
         $isOnline = $event->venue_type === 'online';
 
         return [

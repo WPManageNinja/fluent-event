@@ -45,8 +45,7 @@ class RegistrationService
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
-        $guest = Guest::query()->where('event_id', $event->id)->where('user_id', $user->ID)->first()
-            ?: Guest::query()->where('event_id', $event->id)->where('email', $user->user_email)->first();
+        $guest = self::memberGuest($event, $user);
 
         if ($guest && $guest->user_id && (int) $guest->user_id !== (int) $user->ID) {
             return null;
@@ -115,6 +114,23 @@ class RegistrationService
 
             return [$guest, $previousStatus, false];
         });
+    }
+
+    // The member's own row, else one added under their email (a visitor's or an admin's), which registering claims.
+    private static function memberGuest(Event $event, \WP_User $user)
+    {
+        return Guest::query()->where('event_id', $event->id)->where('user_id', $user->ID)->first()
+            ?: Guest::query()->where('event_id', $event->id)->where('email', $user->user_email)->first();
+    }
+
+    // The logged-in viewer's answer, from the same row registering would use: null when logged out, not on the event,
+    // or their email is held by another account.
+    public static function memberStatus(Event $event)
+    {
+        $user = wp_get_current_user();
+        $guest = $user->exists() ? self::memberGuest($event, $user) : null;
+
+        return $guest && (!$guest->user_id || (int) $guest->user_id === (int) $user->ID) ? $guest->status : null;
     }
 
     // The row this email already holds on the event, if any.

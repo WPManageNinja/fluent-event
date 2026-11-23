@@ -104,8 +104,8 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringContainsString('Starts in', $this->page($this->createEvent())['body']);
     }
 
-    // The page doesn't know its viewers: a going member and staff get the visitor's card, with nothing prefilled.
-    public function test_logged_in_viewers_see_the_page_as_a_visitor()
+    // A logged-in viewer gets the member's card, as on the portal: their own answer, which they can change.
+    public function test_a_going_member_sees_their_answer_and_can_change_it()
     {
         $online = ['venue_type' => 'online'];
         $link = ['online_meeting_url' => 'https://meet.example.test/fe-room'];
@@ -116,22 +116,89 @@ class EventLandingPageTest extends IntegrationTestCase
         $member = get_userdata($memberId);
         $this->createGuest($rsvp, ['user_id' => $memberId, 'email' => $member->user_email]);
         $this->createGuest($open, ['user_id' => $memberId, 'email' => $member->user_email]);
+        $this->actAs($memberId);
 
-        foreach ([$memberId, $this->createAdmin()] as $userId) {
-            $this->actAs($userId);
-            $email = get_userdata($userId)->user_email;
+        foreach ([$rsvp, $open] as $event) {
+            $body = $this->page($event)['body'];
 
-            foreach ([$rsvp, $open] as $event) {
-                $body = $this->page($event)['body'];
-
-                $this->assertStringNotContainsString('fe-room', $body);
-                $this->assertStringNotContainsString('fe-event-page__badge', $body);
-                $this->assertStringNotContainsString($email, $body);
-                $this->assertStringContainsString('name="website"', $body, 'The visitor form, honeypot and all');
-            }
-
-            $this->assertStringContainsString('Interested?', $this->page($rsvp)['body']);
+            $this->assertStringContainsString('fe-room', $body);
+            $this->assertStringContainsString('data-fe-status="not_going"', $body);
+            $this->assertStringNotContainsString('fe-event-page__badge', $body, 'Not the final visitor mark');
+            $this->assertStringNotContainsString('data-fe-register', $body, 'No form for a seat already held');
         }
+
+        $this->assertStringContainsString('data-fe-status="going"', $this->page($rsvp)['body']);
+        $this->assertStringContainsString(esc_html__('Registered', 'fluent-event'), $this->page($open)['body']);
+        $this->assertStringNotContainsString('data-fe-status="going"', $this->page($open)['body'], 'An open event registers by its form');
+    }
+
+    // Not yet on the event: an RSVP answers straight from the menu, an open event's form comes filled in, email editable.
+    public function test_a_member_not_on_the_event_answers_by_account()
+    {
+        $online = ['venue_type' => 'online'];
+        $link = ['online_meeting_url' => 'https://meet.example.test/fe-room'];
+        $rsvp = $this->createEvent($online, $link + ['entry_type' => 'rsvp']);
+        $open = $this->createEvent($online, $link + ['entry_type' => 'open']);
+        $memberId = $this->createUser('subscriber');
+        $member = get_userdata($memberId);
+        $this->actAs($memberId);
+
+        $body = $this->page($rsvp)['body'];
+        $this->assertStringContainsString('data-fe-status="going"', $body);
+        $this->assertStringNotContainsString('data-fe-register', $body);
+        $this->assertStringNotContainsString('fe-room', $body);
+
+        $body = $this->page($open)['body'];
+        $this->assertStringContainsString('data-fe-register', $body);
+        $this->assertStringContainsString('value="' . esc_attr($member->user_email) . '"', $body);
+        $this->assertStringContainsString('value="' . esc_attr($member->display_name) . '"', $body);
+        $this->assertDoesNotMatchRegularExpression('/name="email"[^>]*disabled/', $body);
+        $this->assertStringNotContainsString('fe-room', $body);
+    }
+
+    // A row registered under the member's email while logged out is theirs: registering would claim it, so the card shows it.
+    public function test_a_member_sees_a_visitor_row_under_their_email_as_their_own()
+    {
+        $open = $this->createEvent([], ['entry_type' => 'open']);
+        $memberId = $this->createUser('subscriber');
+        $this->createGuest($open, ['user_id' => null, 'email' => get_userdata($memberId)->user_email, 'source' => 'wordpress_pages']);
+        $this->actAs($memberId);
+
+        $body = $this->page($open)['body'];
+
+        $this->assertStringContainsString(esc_html__('Registered', 'fluent-event'), $body);
+        $this->assertStringNotContainsString('data-fe-register', $body);
+    }
+
+    // On a full event with a waitlist a member's Going reads Join waitlist; once waitlisted, they get Leave waitlist.
+    public function test_a_member_sees_the_waitlist_on_a_full_event()
+    {
+        $full = $this->createEvent(['venue_type' => 'online'], ['entry_type' => 'rsvp', 'capacity' => 1, 'waitlist' => 'yes', 'online_meeting_url' => 'https://meet.example.test/fe-room']);
+        $this->createGuest($full);
+        $memberId = $this->createUser('subscriber');
+        $this->actAs($memberId);
+
+        $this->assertStringContainsString('Join waitlist', $this->page($full)['body']);
+
+        $this->createGuest($full, ['user_id' => $memberId, 'email' => get_userdata($memberId)->user_email, 'status' => 'waitlisted']);
+        $body = $this->page($full)['body'];
+
+        $this->assertStringContainsString('Leave waitlist', $body);
+        $this->assertStringNotContainsString('fe-room', $body);
+        $this->assertStringNotContainsString('Please register for the event to see the meeting link.', $body);
+    }
+
+    // Logged out, nothing changes: Going opens the name and email form, and the link waits for it.
+    public function test_a_visitor_still_gets_the_visitors_card()
+    {
+        $rsvp = $this->createEvent(['venue_type' => 'online'], ['entry_type' => 'rsvp', 'online_meeting_url' => 'https://meet.example.test/fe-room']);
+
+        $body = $this->page($rsvp)['body'];
+
+        $this->assertStringContainsString('Interested?', $body);
+        $this->assertStringContainsString('name="website"', $body);
+        $this->assertStringNotContainsString('data-fe-status', $body);
+        $this->assertStringNotContainsString('fe-room', $body);
     }
 
     public function test_the_calendar_file_escapes_text_and_folds_long_lines()

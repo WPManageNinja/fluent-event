@@ -28,7 +28,7 @@ Shipped in 1.0.0:
 - Public pages, no FluentCommunity needed:
   - each event at `/event/<slug>/` (the `event` part set in General Settings → Public Pages); an unknown, private or draft event, or one in a private calendar, answers the theme's 404
   - the All Events Page: `[fluent_events]` or its block on whichever page the admin picks — every public calendar's events, a chip per calendar, search, All / Upcoming / Past, Cards / Timeline / Calendar; `[fluent_event]` or its block shows one event
-  - registration without an account (name + email, rate limit + honeypot); everyone registers as a visitor, with no prefill or member state; guests get source `wordpress_pages`
+  - registration without an account (name + email, rate limit + honeypot); a logged-in viewer answers by account, as on the portal (form prefilled, email editable); guests get source `wordpress_pages`
   - visibility: public is listed, unlisted opens by direct link only, private has no public page
 - Guest management: add, edit, remove; going, not going, checked in, cancelled
 - Guest emails: confirmation, cancellation, reminders (scheduled per event); sender settings; each on / off

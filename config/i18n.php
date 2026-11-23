@@ -124,6 +124,7 @@ return [
             'Choose who can find this calendar.' => __('Choose who can find this calendar.', 'fluent-event'),
             'Choose who can find this event.' => __('Choose who can find this event.', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
+            'Clone Event' => __('Clone Event', 'fluent-event'),
             'Close' => __('Close', 'fluent-event'),
             'Code' => __('Code', 'fluent-event'),
             'Color' => __('Color', 'fluent-event'),

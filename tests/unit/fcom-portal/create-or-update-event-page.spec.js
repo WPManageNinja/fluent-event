@@ -122,7 +122,7 @@ describe('CreateOrUpdateEventPage', () => {
             start_at: '2026-10-14 10:00:00',
             end_at: '2026-10-14 11:00:00',
             venue_type: 'offline',
-            entry_type: 'rsvp',
+            entry_type: 'open',
             show_guest_count: 'yes',
             start_display: 'relative'
         }));
@@ -447,6 +447,12 @@ describe('CreateOrUpdateEventPage', () => {
             expect(vm.loadedEvent).toBe(null);
             expect(wrapper.find('.fe-create-event__heading').text()).toBe('Create Event');
             expect(wrapper.find('#fe-create-event-composer').exists()).toBe(true);
+        });
+
+        it('falls back to open registration when the source has no entry type saved', async () => {
+            const { vm } = await mountClone({ ...source, meta: { ...source.meta, entry_type: '' } });
+
+            expect(vm.event.entry_type).toBe('open');
         });
 
         it('shows only the skeleton while the source loads, not a blank form under it', async () => {

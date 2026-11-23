@@ -1,6 +1,6 @@
 // The landing pages' script. On the events list, a calendar chip swaps the list in place. On an event
-// page, everyone registers as a visitor, by name and email; the server draws every state into the side
-// card, and this posts the form and swaps in the card it gets back. A page can hold several events and lists
+// page, a visitor registers by name and email and a logged-in member also answers Going / Not going by
+// account; the server draws every state into the side card, and this posts and swaps in the card it gets back. A page can hold several events and lists
 // (shortcodes, blocks), so each step acts on the card or list it was started from.
 
 import { padPart, startCountdown } from '@/utils/countdown';
@@ -84,6 +84,12 @@ function swap(card, html) {
     return next;
 }
 
+// The answer to a registration carries its confirmation, or a refusal's warning, which opens over the new card.
+function openAnswer(card) {
+    const answer = card.querySelector('[data-fe-answer]');
+    answer && answer.showPopover();
+}
+
 export async function submitForm(form) {
     const card = form.closest('[data-fe-card]');
     const button = form.querySelector('[type="submit"]');
@@ -93,17 +99,43 @@ export async function submitForm(form) {
     message.textContent = '';
 
     try {
-        const next = swap(card, (await send(card, form.action, Object.fromEntries(new FormData(form)))).html);
-
-        // The answer to a registration carries its confirmation, or the already-registered warning, which opens over
-        // the new card.
-        const answer = next.querySelector('[data-fe-answer]');
-        answer && answer.showPopover();
+        openAnswer(swap(card, (await send(card, form.action, Object.fromEntries(new FormData(form)))).html));
     } catch (error) {
         message.textContent = error.message;
         button.disabled = false;
     }
 }
+
+// A member's Going / Not going, sent straight away by account.
+export async function chooseStatus(option) {
+    const card = option.closest('[data-fe-card]');
+    const message = card.querySelector('.fe-event-page__error');
+    const options = card.querySelectorAll('[data-fe-status]');
+
+    option.closest('[popover]').hidePopover();
+
+    if (option.getAttribute('aria-checked') === 'true') {
+        return;
+    }
+
+    message.textContent = '';
+    options.forEach((button) => { button.disabled = true; });
+
+    try {
+        openAnswer(swap(card, (await send(card, card.dataset.url, { status: option.dataset.feStatus })).html));
+    } catch (error) {
+        message.textContent = error.message;
+        options.forEach((button) => { button.disabled = false; });
+    }
+}
+
+document.addEventListener('click', (event) => {
+    const option = event.target.closest('[data-fe-status]');
+
+    if (option) {
+        chooseStatus(option);
+    }
+});
 
 document.addEventListener('submit', (event) => {
     const form = event.target.closest('[data-fe-register]');

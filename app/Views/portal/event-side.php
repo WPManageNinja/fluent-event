@@ -2,9 +2,9 @@
 /**
  * The event page's side card. Rendered with the page and again by the registration endpoint, whose
  * answer portal.js swaps in, so every state — Register, the RSVP menu, the final mark — is drawn here.
- * Every viewer gets the visitor's card, logged in or not.
+ * A logged-in viewer gets the member's card, as on the portal: their own answer, which they can change.
  *
- * @var array      $event            EventService::formatEvent() shape, as a visitor sees it.
+ * @var array      $event            EventService::formatEvent() shape, with a logged-in viewer's own status.
  * @var bool       $is_online
  * @var string     $chip_month
  * @var string     $chip_day
@@ -31,8 +31,17 @@ use FluentEvent\App\Services\Icon;
 
 $fluentEventId = (int) $event['id'];
 $fluentEventOpen = 'open' === $event['entry_type'];
-// ✓ Going and ✓ Registered are final: there is no account to change them from.
-$fluentEventDone = $registration && $registration['is_going'];
+$fluentEventMember = $registration && $registration['is_member'];
+$fluentEventStatus = $registration ? $registration['status'] : '';
+// A visitor's ✓ Going and ✓ Registered are final: there is no account to change them from.
+$fluentEventDone = $registration && $registration['is_going'] && ! $fluentEventMember;
+// The name and email form: open events not yet registered for, and a visitor's RSVP.
+$fluentEventForm = $registration && ! $registration['is_going'] && 'waitlisted' !== $fluentEventStatus && ( $fluentEventOpen || ! $fluentEventMember );
+$fluentEventRsvpLabels = [
+    'going'     => __( 'Going', 'fluent-event' ),
+    'not_going' => __( 'Not going', 'fluent-event' ),
+    ''          => __( 'Interested?', 'fluent-event' ),
+];
 $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __( 'Register', 'fluent-event' );
 ?>
 <aside
@@ -44,6 +53,9 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
         data-event-nonce="<?php echo esc_attr( $registration['event_nonce'] ); ?>"
         <?php if ( $registration['rest_nonce'] ) : ?>
             data-nonce="<?php echo esc_attr( $registration['rest_nonce'] ); ?>"
+        <?php endif; ?>
+        <?php if ( $fluentEventMember ) : ?>
+            data-url="<?php echo esc_url( $registration['member_url'] ); ?>"
         <?php endif; ?>
     <?php endif; ?>
 >
@@ -133,22 +145,65 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                     <span class="fe-event-page__badge-icon"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php echo esc_html( $fluentEventOpen ? __( 'Registered', 'fluent-event' ) : __( 'Going', 'fluent-event' ) ); ?>
                 </span>
-            <?php elseif ( $registration && ( $fluentEventOpen || $join_waitlist ) ) : ?>
+            <?php elseif ( $fluentEventMember && 'waitlisted' === $fluentEventStatus ) : ?>
+                <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
+                    <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                    <span class="fe-rsvp__label"><?php esc_html_e( 'On the waitlist', 'fluent-event' ); ?></span>
+                    <span class="fe-rsvp__chevron"><?php echo Icon::CHEVRON_DOWN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                </button>
+
+                <div id="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-rsvp__menu" popover role="menu" aria-label="<?php esc_attr_e( 'Waitlist', 'fluent-event' ); ?>">
+                    <button type="button" class="fe-rsvp__option" role="menuitem" data-fe-status="not_going">
+                        <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        <?php esc_html_e( 'Leave waitlist', 'fluent-event' ); ?>
+                    </button>
+                </div>
+            <?php elseif ( $fluentEventOpen && $fluentEventMember && 'going' === $fluentEventStatus ) : ?>
+                <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
+                    <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                    <span class="fe-rsvp__label"><?php esc_html_e( 'Registered', 'fluent-event' ); ?></span>
+                    <span class="fe-rsvp__chevron"><?php echo Icon::CHEVRON_DOWN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                </button>
+
+                <div id="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-rsvp__menu" popover role="menu" aria-label="<?php esc_attr_e( 'Registration', 'fluent-event' ); ?>">
+                    <button type="button" class="fe-rsvp__option" role="menuitem" data-fe-status="not_going">
+                        <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        <?php esc_html_e( 'Not going', 'fluent-event' ); ?>
+                    </button>
+                </div>
+            <?php elseif ( $registration && ( $fluentEventOpen || ( $join_waitlist && ! $fluentEventMember ) ) ) : ?>
                 <button type="button" class="fe-event-page__button" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>" data-fe-focus>
                     <?php echo esc_html( $fluentEventAction ); ?>
                 </button>
             <?php elseif ( $registration ) : ?>
                 <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
-                    <span class="fe-rsvp__label"><?php esc_html_e( 'Interested?', 'fluent-event' ); ?></span>
+                    <?php if ( 'going' === $fluentEventStatus ) : ?>
+                        <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                    <?php elseif ( 'not_going' === $fluentEventStatus ) : ?>
+                        <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                    <?php endif; ?>
+                    <span class="fe-rsvp__label"><?php echo esc_html( $fluentEventRsvpLabels[ $fluentEventStatus ] ); ?></span>
                     <span class="fe-rsvp__chevron"><?php echo Icon::CHEVRON_DOWN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                 </button>
 
                 <div id="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-rsvp__menu" popover role="menu" aria-label="<?php esc_attr_e( 'RSVP', 'fluent-event' ); ?>">
-                    <?php // Only Going: a not-going row by email would block that email from Going later. ?>
-                    <button type="button" class="fe-rsvp__option" role="menuitem" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>">
-                        <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-                        <?php esc_html_e( 'Going', 'fluent-event' ); ?>
-                    </button>
+                    <?php if ( $fluentEventMember ) : ?>
+                        <?php // A member answers by account, straight away, with no form. ?>
+                        <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'going' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="going">
+                            <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                            <?php echo esc_html( $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __( 'Going', 'fluent-event' ) ); ?>
+                        </button>
+                        <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'not_going' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="not_going">
+                            <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                            <?php esc_html_e( 'Not going', 'fluent-event' ); ?>
+                        </button>
+                    <?php else : ?>
+                        <?php // Visitors only say Going: a not-going row by email would block that email from Going later. ?>
+                        <button type="button" class="fe-rsvp__option" role="menuitem" popovertarget="fe-register-<?php echo esc_attr( $fluentEventId ); ?>">
+                            <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                            <?php esc_html_e( 'Going', 'fluent-event' ); ?>
+                        </button>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 
@@ -162,7 +217,7 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
         <?php endif; ?>
     <?php endif; ?>
 
-    <?php if ( $registration && ! $fluentEventDone ) : ?>
+    <?php if ( $fluentEventForm ) : ?>
         <form
             id="fe-register-<?php echo esc_attr( $fluentEventId ); ?>"
             class="fe-register"
@@ -183,10 +238,11 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
             </div>
 
             <label class="fe-register__label" for="fe-register-name-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( 'Name', 'fluent-event' ); ?></label>
-            <input id="fe-register-name-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-register__input" type="text" name="name" autocomplete="name" required autofocus>
+            <input id="fe-register-name-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-register__input" type="text" name="name" autocomplete="name" required autofocus value="<?php echo esc_attr( $registration['name'] ); ?>">
 
             <label class="fe-register__label" for="fe-register-email-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( 'Email', 'fluent-event' ); ?></label>
-            <input id="fe-register-email-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-register__input" type="email" name="email" autocomplete="email" required>
+            <?php // A member's account email comes filled in; keeping it registers them by account, another registers that email. ?>
+            <input id="fe-register-email-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-register__input" type="email" name="email" autocomplete="email" required value="<?php echo esc_attr( $registration['email'] ); ?>">
 
             <input class="fe-register__trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 
@@ -214,7 +270,7 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                 <?php echo Icon::VIDEO; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                 <span><?php esc_html_e( 'Join online', 'fluent-event' ); ?></span>
             </a>
-        <?php elseif ( $event['has_meeting_url'] && $registration && ! $join_waitlist ) : ?>
+        <?php elseif ( $event['has_meeting_url'] && $registration && ! $join_waitlist && 'waitlisted' !== $fluentEventStatus ) : ?>
             <p class="fe-event-page__note"><?php esc_html_e( 'Please register for the event to see the meeting link.', 'fluent-event' ); ?></p>
         <?php endif; ?>
     <?php endif; ?>
