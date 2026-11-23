@@ -273,6 +273,15 @@ class GuestEndpointsTest extends IntegrationTestCase
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $silent->id]));
     }
 
+    public function test_moving_guests_to_the_waitlist_queues_the_waitlist_email_when_asked()
+    {
+        $guest = $this->createGuest($this->event, ['status' => 'going']);
+
+        $this->bulk(['action' => 'change_status', 'status' => 'waitlisted', 'guest_ids' => [$guest->id], 'send_email' => 1]);
+
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_waitlist', [(int) $guest->id]));
+    }
+
     public function test_a_bulk_check_in_stamps_the_time()
     {
         $guest = $this->createGuest($this->event);

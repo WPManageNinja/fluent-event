@@ -224,10 +224,12 @@ return [
             'Only accessible via direct link.' => __('Only accessible via direct link.', 'fluent-event'),
             'Send Confirmation Email' => __('Send Confirmation Email', 'fluent-event'),
             'Send Cancellation Email' => __('Send Cancellation Email', 'fluent-event'),
+            'Send Waitlist Email' => __('Send Waitlist Email', 'fluent-event'),
             'Clone Event' => __('Clone Event', 'fluent-event'),
             'The event to clone was not found.' => __('The event to clone was not found.', 'fluent-event'),
             'Send Confirmation Emails' => __('Send Confirmation Emails', 'fluent-event'),
             'Send Cancellation Emails' => __('Send Cancellation Emails', 'fluent-event'),
+            'Send Waitlist Emails' => __('Send Waitlist Emails', 'fluent-event'),
             /* translators: %d is 1, the number of selected guests */
             '%d guest selected' => __('%d guest selected', 'fluent-event'),
             /* translators: %d is a number of selected guests */
