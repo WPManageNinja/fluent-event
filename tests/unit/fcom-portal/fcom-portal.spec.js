@@ -103,6 +103,18 @@ describe('fcom-portal entry', () => {
             ]);
         });
 
+        // fcom constrains the slug in newer versions; the settings route sits beside it and must not take our pages.
+        it('finds the space route with a constrained slug too, and not the space settings route', async () => {
+            const { filters } = await loadPortal();
+            const settings = { path: '/space/:space([a-zA-Z0-9_-]+)/settings', children: [] };
+            const space = { path: '/space/:space([a-zA-Z0-9_-]+)/', children: [] };
+
+            filters.fluent_com_portal_routes([settings, space]);
+
+            expect(settings.children).toEqual([]);
+            expect(space.children.map(child => child.name)).toEqual(['fe_space_events', 'fe_event_view']);
+        });
+
         it('frames the community-wide event page itself, since no space layout does', async () => {
             const { filters } = await loadPortal();
             const route = filters.fluent_com_portal_routes([spaceRoute()]).find(r => r.name === 'fe_global_event_view');
