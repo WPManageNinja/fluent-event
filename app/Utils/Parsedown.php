@@ -2,9 +2,8 @@
 // phpcs:ignoreFile -- Third-party library. coding-rules-scan: off
 
 /*
- * Parsedown 1.8.0-beta-7 (https://github.com/erusev/parsedown), the version FluentCommunity bundles,
- * so event descriptions render like its posts. Changed only by this namespace and three `?array`
- * parameters, which PHP 8.4 deprecates as implicitly nullable.
+ * Parsedown 1.8.0 (https://github.com/erusev/parsedown), the latest stable release.
+ * Changed only by this namespace, so it cannot collide with another plugin's copy.
  *
  * The MIT License (MIT)
  *
@@ -48,7 +47,7 @@ class Parsedown
 {
     # ~
 
-    const version = '1.8.0-beta-7';
+    const version = '1.8.0';
 
     # ~
 
@@ -138,6 +137,7 @@ class Parsedown
         'ftp://',
         'ftps://',
         'mailto:',
+        'tel:',
         'data:image/png;base64,',
         'data:image/gif;base64,',
         'data:image/jpeg;base64,',
@@ -586,7 +586,7 @@ class Parsedown
 
         $Block = array(
             'element' => array(
-                'name' => 'h' . min(6, $level),
+                'name' => 'h' . $level,
                 'handler' => array(
                     'function' => 'lineElements',
                     'argument' => $text,
@@ -1164,6 +1164,9 @@ class Parsedown
 
     protected function lineElements($text, $nonNestables = array())
     {
+        # standardize line breaks
+        $text = str_replace(array("\r\n", "\r"), "\n", $text);
+
         $Elements = array();
 
         $nonNestables = (empty($nonNestables)
@@ -1521,7 +1524,7 @@ class Parsedown
 
     protected function inlineSpecialCharacter($Excerpt)
     {
-        if ($Excerpt['text'][1] !== ' ' and strpos($Excerpt['text'], ';') !== false
+        if (substr($Excerpt['text'], 1, 1) !== ' ' and strpos($Excerpt['text'], ';') !== false
             and preg_match('/^&(#?+[0-9a-zA-Z]++);/', $Excerpt['text'], $matches)
         ) {
             return array(
@@ -1529,8 +1532,6 @@ class Parsedown
                 'extent' => strlen($matches[0]),
             );
         }
-
-        return;
     }
 
     protected function inlineStrikethrough($Excerpt)
@@ -1878,6 +1879,9 @@ class Parsedown
     # Deprecated Methods
     #
 
+    /**
+     * @deprecated use text() instead
+     */
     function parse($text)
     {
         $markup = $this->text($text);
