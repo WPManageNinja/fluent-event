@@ -40,6 +40,6 @@ use FluentEvent\App\Services\Icon;
 <?php elseif ( 'description' === $fluentEventPart && $description ) : ?>
     <section class="fe-event-page__card fe-event-page__body">
         <h2 class="fe-event-page__section-title"><?php esc_html_e( 'About This Event', 'fluent-event' ); ?></h2>
-        <div class="fe-event-page__description"><?php echo $description; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses'd in Event::getDescriptionAttribute() ?></div>
+        <div class="fe-event-page__description"><?php echo wp_kses_post( $description ); ?></div>
     </section>
 <?php endif; ?>
