@@ -27,7 +27,19 @@ class LegacyPrefixMigrator
 
     const TABLES = ['event_details', 'ticket_types', 'guests', 'calendars', 'notifications', 'notification_users', 'meta'];
 
-    const OPTIONS = ['fe_settings' => 'fevent_settings', 'fe_version' => 'fevent_version'];
+    const OPTIONS = ['fe_settings' => 'fevent_settings'];
+
+    // Version options dropped on the move. With no version stored, ActivationHandler::maybeUpgrade()
+    // flushes the URL rules, after the post type registered with the moved settings' event slug.
+    const VERSION_OPTIONS = ['fe_version', 'fevent_version'];
+
+    /**
+     * What run() returned in this request. Hooked on `init` at priority 0, it runs before the post
+     * type registers, so true means the registration read the moved settings (the custom event slug).
+     *
+     * @var bool|null
+     */
+    protected static $done = null;
 
     const OLD_POST_TYPE = 'fe_event';
 
@@ -102,6 +114,24 @@ class LegacyPrefixMigrator
      *              False while old tables remain: creating new ones then would split the data.
      */
     public static function run()
+    {
+        return self::$done = self::migrate();
+    }
+
+    /**
+     * Whether the move was complete before the post type registered in this request. A request whose
+     * own run() could not finish (another request held the lock) registered the default event slug,
+     * so it gets false here even if the other request finishes meanwhile.
+     *
+     * @return bool
+     */
+    public static function isDone()
+    {
+        // No run() in this request (a unit test, or code loaded outside `init`): the stored flag.
+        return self::$done ?? (bool) get_option(self::DONE_OPTION);
+    }
+
+    protected static function migrate()
     {
         if (get_option(self::DONE_OPTION)) {
             return true;
@@ -189,6 +219,10 @@ class LegacyPrefixMigrator
             delete_option($old);
         }
 
+        foreach (self::VERSION_OPTIONS as $option) {
+            delete_option($option);
+        }
+
         // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time rename of stored names
         $wpdb->update($wpdb->posts, ['post_type' => self::NEW_POST_TYPE], ['post_type' => self::OLD_POST_TYPE]);
 
@@ -208,8 +242,9 @@ class LegacyPrefixMigrator
         );
         // phpcs:enable
 
-        // The stored rules route event URLs to the old post type; WordPress rebuilds them on the next load.
-        delete_option('rewrite_rules');
+        // The stored rules still route event URLs to the old post type. They are not deleted here: a
+        // concurrent request that registered the default slug would rebuild them wrong. The version
+        // options dropped above make maybeUpgrade() rebuild them once the post type is registered.
 
         wp_cache_flush();
     }

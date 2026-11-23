@@ -22,6 +22,14 @@ $app->addAction('in_admin_header', ['AdminMenuHandler', 'removeAdminNotices']);
 $app->addAction('admin_enqueue_scripts', ['AdminMenuHandler', 'enqueueAdminPageAssets']);
 
 /**
+ * Moves a site off the old `fe_` names before the post type registers, so the registration reads
+ * the moved settings (a custom event slug). The WordPress.org build leaves the migrator out.
+ */
+if (class_exists(\FluentEvent\Database\Migrations\LegacyPrefixMigrator::class)) {
+    add_action('init', [\FluentEvent\Database\Migrations\LegacyPrefixMigrator::class, 'run'], 0);
+}
+
+/**
  * Registers the fevent_event post type. Classification taxonomies come later.
  */
 $app->addAction('init', 'CPTHandler@registerPostTypes');

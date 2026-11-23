@@ -60,6 +60,13 @@ class ActivationHandler
     // A plugin update never fires the activation hook, so new tables and URL rules land here.
     public function maybeUpgrade()
     {
+        // The old `fe_` names move on `init` at priority 0, before the post type registers
+        // (app/Hooks/actions.php). Until they have, this request registered the default event slug,
+        // so creating tables would split the data and flushing would save the wrong URL rules.
+        if (!self::legacyNamesMoved()) {
+            return;
+        }
+
         $this->maybeMigrate();
 
         if (get_option('fevent_version') === FLUENT_EVENT_PLUGIN_VERSION) {
@@ -74,12 +81,6 @@ class ActivationHandler
     // Runs once per FLUENT_EVENT_DB_VERSION: bump it when a migration changes, and every site migrates again.
     protected function maybeMigrate()
     {
-        // Before the version check and the lock: the old `fe_` tables move first (once, then a flag
-        // check). While any is left, creating tables under the new names would split the data.
-        if (!self::legacyNamesMoved()) {
-            return;
-        }
-
         $dbVersion = get_option(self::DB_VERSION_OPTION);
 
         if ($dbVersion && version_compare($dbVersion, FLUENT_EVENT_DB_VERSION, '>=')) {
@@ -105,7 +106,8 @@ class ActivationHandler
     {
         // Before DBMigrator, which would otherwise create empty tables under the new names first.
         // While old tables remain, no tables are created; maybeUpgrade() tries again later.
-        $migrated = self::legacyNamesMoved() && DBMigrator::run();
+        // Activation registers the post type again below, after the move, so it may run the move itself.
+        $migrated = (!class_exists(LegacyPrefixMigrator::class) || LegacyPrefixMigrator::run()) && DBMigrator::run();
 
         // `init` ran before the plugin was active, so the post type's rules aren't registered yet.
         (new EventPost())->registerPostType();
@@ -123,10 +125,11 @@ class ActivationHandler
         }
     }
 
-    // The WordPress.org build leaves the migrator out (`./build.sh --wporg`): a site installed from
-    // there never held the old `fe_` names, so there is nothing to move and tables may be created.
+    // Never runs the move: here the post type is already registered, and finishing the move now would
+    // flush rules for the default slug. The WordPress.org build leaves the migrator out
+    // (`./build.sh --wporg`): a site installed from there never held the old names.
     protected static function legacyNamesMoved()
     {
-        return !class_exists(LegacyPrefixMigrator::class) || LegacyPrefixMigrator::run();
+        return !class_exists(LegacyPrefixMigrator::class) || LegacyPrefixMigrator::isDone();
     }
 }

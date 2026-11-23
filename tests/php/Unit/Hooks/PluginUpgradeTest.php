@@ -98,7 +98,17 @@ class PluginUpgradeTest extends TestCase
         global $wpdb;
         $wpdb = $this->sharedWpdb;
 
+        $this->setLegacyMoveResult(null);
+
         parent::tearDown();
+    }
+
+    // What LegacyPrefixMigrator::run() returned on `init` at priority 0, before the post type registered.
+    private function setLegacyMoveResult($done)
+    {
+        $property = new \ReflectionProperty(LegacyPrefixMigrator::class, 'done');
+        $property->setAccessible(true);
+        $property->setValue(null, $done);
     }
 
     private function upgrade()
@@ -179,5 +189,33 @@ class PluginUpgradeTest extends TestCase
         $migrations = $this->migrations;
         $this->upgrade();
         $this->assertSame($migrations, $this->migrations);
+    }
+
+    // This request's own move could not finish (another request held the lock), so the post type
+    // registered the default event slug. Flushing now would save URL rules for the wrong slug, and
+    // creating tables would split the data, even if the other request finished meanwhile.
+    public function test_a_request_that_registered_before_the_move_finished_leaves_rules_and_tables_alone()
+    {
+        $this->setLegacyMoveResult(false);
+        update_option('fevent_version', '0.9.0');
+
+        $this->upgrade();
+
+        $this->assertSame(0, $this->flushes);
+        $this->assertSame(0, $this->migrations);
+        $this->assertSame('0.9.0', get_option('fevent_version'));
+    }
+
+    // The move dropped the version options, so the first request that moved before registering rebuilds the rules.
+    public function test_the_request_after_a_finished_move_rebuilds_the_url_rules()
+    {
+        $this->setLegacyMoveResult(true);
+        delete_option('fevent_version');
+        update_option(ActivationHandler::DB_VERSION_OPTION, FLUENT_EVENT_DB_VERSION);
+
+        $this->upgrade();
+
+        $this->assertSame(1, $this->flushes);
+        $this->assertSame(FLUENT_EVENT_PLUGIN_VERSION, get_option('fevent_version'));
     }
 }
