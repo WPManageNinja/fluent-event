@@ -32,6 +32,14 @@ $app->addAction('init', 'CPTHandler@registerPostTypes');
 $app->addAction('init', 'ActivationHandler@maybeUpgrade');
 
 /**
+ * Links shared before the `fevent` rename keep working. The WordPress.org build leaves the
+ * migrator out (a site installed from there has no such links), so this only runs when it exists.
+ */
+if (class_exists(\FluentEvent\Database\Migrations\LegacyPrefixMigrator::class)) {
+    add_action('template_redirect', [\FluentEvent\Database\Migrations\LegacyPrefixMigrator::class, 'redirectLegacyLink'], 0);
+}
+
+/**
  * Cascade cleanup rides the deletion actions - never model boot hooks.
  */
 (new \FluentEvent\App\Hooks\Handlers\CleanupHandlers\CleanupHandler())->register();

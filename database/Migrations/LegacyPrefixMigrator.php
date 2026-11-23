@@ -13,6 +13,9 @@ namespace FluentEvent\Database\Migrations;
  * A table that holds rows is never dropped. A run that cannot finish (a rename refused, or a
  * new-name table that already holds rows) leaves the flag unset and retries at most every
  * RETRY_DELAY seconds. A MySQL named lock keeps two requests from moving tables at once.
+ *
+ * It also keeps links shared before the rename working: an old `?fe_event=`, `?fe_page=`,
+ * `?fe_calendar=` or `?fe_search=` link is redirected to the same URL with the new names.
  */
 class LegacyPrefixMigrator
 {
@@ -29,6 +32,70 @@ class LegacyPrefixMigrator
     const OLD_POST_TYPE = 'fe_event';
 
     const NEW_POST_TYPE = 'fevent_event';
+
+    // Query args in links made before the rename. `fe_event` is the post type's own query var,
+    // which plain permalinks use for event links; the others are the events list's filters.
+    const LEGACY_QUERY_ARGS = [
+        'fe_event'    => 'fevent_event',
+        'fe_page'     => 'fevent_page',
+        'fe_calendar' => 'fevent_calendar',
+        'fe_search'   => 'fevent_search',
+    ];
+
+    // Hooked on template_redirect, before the event page resolves; the new URL then goes through
+    // the usual checks, so an unlisted event still opens and a private one still does not.
+    public static function redirectLegacyLink()
+    {
+        if (empty($_GET)) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only link translation
+            return;
+        }
+
+        $target = self::legacyLinkTarget(
+            wp_unslash($_GET), // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only re-encoded into the redirect URL; the page sanitizes each value when it reads it
+            wp_unslash($_SERVER['REQUEST_URI'] ?? '/') // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- path only; wp_safe_redirect() sanitizes the URL
+        );
+
+        if ($target === null) {
+            return;
+        }
+
+        wp_safe_redirect($target, 301);
+        exit;
+    }
+
+    /**
+     * @param array  $query      The request's query args, unslashed.
+     * @param string $requestUri The request path, with or without a query string.
+     * @return string|null The same path with the old arg names renamed, or null when there is none.
+     */
+    public static function legacyLinkTarget(array $query, $requestUri)
+    {
+        $renamed = false;
+
+        foreach (self::LEGACY_QUERY_ARGS as $old => $new) {
+            if (!array_key_exists($old, $query)) {
+                continue;
+            }
+
+            $value = $query[$old];
+            unset($query[$old]);
+            $renamed = true;
+
+            // A link that already carries the new name keeps it; a non-scalar value is dropped.
+            if (!array_key_exists($new, $query) && is_scalar($value)) {
+                $query[$new] = (string) $value;
+            }
+        }
+
+        if (!$renamed) {
+            return null;
+        }
+
+        // One leading slash: `//host/...` would otherwise read as another site.
+        $path = '/' . ltrim((string) strtok((string) $requestUri, '?'), '/');
+
+        return $query ? $path . '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986) : $path;
+    }
 
     /**
      * @return bool True when no old table is left, so the caller may create or update tables.
