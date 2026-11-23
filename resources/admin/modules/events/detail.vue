@@ -180,7 +180,7 @@
                     </template>
 
                     <template #settings>
-                        <EventSettings :event="event" />
+                        <EventSettings :event="event" :registration-window="registrationWindow" />
 
                         <EventDangerZone :event="event" @deleted="goToList" />
                     </template>
@@ -235,6 +235,7 @@
                 event: {},
                 publicUrl: '',
                 shortcode: '',
+                registrationWindow: null,
                 shareVisible: false,
             };
         },
@@ -301,6 +302,7 @@
                         this.event = response.event;
                         this.publicUrl = response.public_url;
                         this.shortcode = response.shortcode;
+                        this.registrationWindow = response.registration_window || null;
                         this.$changeTitle(this.event.title);
                     },
                     onError: () => {

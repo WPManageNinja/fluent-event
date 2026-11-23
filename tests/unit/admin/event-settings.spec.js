@@ -3,8 +3,8 @@ import { shallowMount } from '@vue/test-utils';
 import main from '@/mixins/main';
 import EventSettings from '@/modules/events/parts/EventSettings.vue';
 
-const settings = meta => shallowMount(EventSettings, {
-    props: { event: { id: 7, meta } },
+const settings = (meta, registrationWindow = null) => shallowMount(EventSettings, {
+    props: { event: { id: 7, meta }, registrationWindow },
     global: {
         mixins: [main],
         renderStubDefaultSlot: true,
@@ -24,6 +24,8 @@ describe('EventSettings', () => {
             ['Entry Type', 'RSVP'],
             ['Capacity', 'Unlimited'],
             ['Guest count', 'Hidden'],
+            ['Registration opens', 'When published'],
+            ['Registration closes', 'When the event ends'],
         ]);
     });
 
@@ -37,6 +39,8 @@ describe('EventSettings', () => {
             ['Capacity', '10'],
             ['Guest count', 'Shown'],
             ['Spots left', 'Shown'],
+            ['Registration opens', 'When published'],
+            ['Registration closes', 'When the event ends'],
         ]);
     });
 
@@ -44,6 +48,15 @@ describe('EventSettings', () => {
         const wrapper = settings({ entry_type: 'none', capacity: 10 });
 
         expect(rows(wrapper)).toEqual([['Start Time Display', 'Time Left'], ['Entry Type', 'None']]);
+    });
+
+    // The moments come worked out from the server, in site time.
+    it('shows when registration opens and closes', () => {
+        const wrapper = settings({ entry_type: 'rsvp' }, { state: 'open', opens_at: '2026-11-03 10:00:00', closes_at: '2026-11-10 08:00:00' });
+        const window = Object.fromEntries(rows(wrapper));
+
+        expect(window['Registration opens']).toBe(wrapper.vm.$formatDateTime('2026-11-03 10:00:00'));
+        expect(window['Registration closes']).toBe(wrapper.vm.$formatDateTime('2026-11-10 08:00:00'));
     });
 
     it('opens the edit form', async () => {

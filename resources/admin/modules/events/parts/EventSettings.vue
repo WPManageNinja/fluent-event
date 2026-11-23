@@ -37,6 +37,20 @@
                     <dt class="fe-event-settings__label">{{ $t('Spots left') }}</dt>
                     <dd class="fe-event-settings__value">{{ event.meta?.show_spots_left === 'yes' ? $t('Shown') : $t('Hidden') }}</dd>
                 </div>
+
+                <div class="fe-event-settings__row">
+                    <dt class="fe-event-settings__label">{{ $t('Registration opens') }}</dt>
+                    <dd class="fe-event-settings__value">
+                        {{ registrationWindow?.opens_at ? $formatDateTime(registrationWindow.opens_at) : $t('When published') }}
+                    </dd>
+                </div>
+
+                <div class="fe-event-settings__row">
+                    <dt class="fe-event-settings__label">{{ $t('Registration closes') }}</dt>
+                    <dd class="fe-event-settings__value">
+                        {{ registrationWindow?.closes_at ? $formatDateTime(registrationWindow.closes_at) : $t('When the event ends') }}
+                    </dd>
+                </div>
             </template>
         </dl>
     </div>
@@ -54,6 +68,11 @@
             event: {
                 type: Object,
                 required: true,
+            },
+            // The event API's registration_window: opens_at and closes_at in site time, worked out on the server.
+            registrationWindow: {
+                type: Object,
+                default: null,
             },
         },
         computed: {

@@ -1159,6 +1159,16 @@
 }
 
 .fe-event-form {
+    &__limits {
+        grid-template-columns: repeat(auto-fit, minmax(288px, 1fr));
+    }
+
+    &__limits-note.el-alert--info {
+        --el-alert-bg-color: var(--fe-hover-bg, #f9fafb);
+        grid-column: 1 / -1;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+    }
+
     &__calendar-swatch {
         width: 14px;
         height: 14px;
@@ -1324,6 +1334,30 @@
 
     &__placeholder-text {
         font-size: var(--fe-text-sm, 14px);
+    }
+}
+
+.fe-registration-limit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fe-space-2, 8px);
+    width: 100%;
+
+    &__value.el-input-number {
+        width: 120px;
+    }
+
+    &__unit.el-select {
+        width: 160px;
+    }
+
+    &__hint {
+        display: block;
+        width: 100%;
+        margin-top: var(--fe-space-1, 4px);
+        font-size: var(--fe-text-xs, 12px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
     }
 }
 

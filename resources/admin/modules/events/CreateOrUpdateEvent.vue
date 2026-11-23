@@ -459,6 +459,43 @@
                         </div>
                     </section>
 
+                    <section v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-form__section">
+                        <div class="fe-form__section-rail">
+                            <h2 class="fe-form__section-title">{{ $t('Registration window') }}</h2>
+                            <p class="fe-form__section-desc">
+                                {{ $t('When guests can start and stop joining, counted back from the start.') }}
+                            </p>
+                        </div>
+
+                        <div class="fe-form__section-fields fe-event-form__limits">
+                            <RegistrationLimitField
+                                id="fe-event-registration-opens"
+                                v-model="event.registration_opens"
+                                kind="opens"
+                                :start="eventStart"
+                                :time-format="timeFormat"
+                                data-field="registration_opens"
+                            />
+
+                            <RegistrationLimitField
+                                id="fe-event-registration-closes"
+                                v-model="event.registration_closes"
+                                kind="closes"
+                                :start="eventStart"
+                                :time-format="timeFormat"
+                                data-field="registration_closes"
+                            />
+
+                            <el-alert
+                                class="fe-event-form__limits-note"
+                                type="info"
+                                :title="$t('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.')"
+                                :closable="false"
+                                show-icon
+                            />
+                        </div>
+                    </section>
+
                     <div class="fe-form__actions fe-form__actions--bar">
                         <el-button
                             type="primary"
@@ -483,6 +520,7 @@
     import MediaPicker from '@/components/MediaPicker.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
     import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
+    import RegistrationLimitField from '@/components/RegistrationLimitField.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     const config = window.fluentEventAdmin;
@@ -500,6 +538,7 @@
             MediaPicker,
             SegmentedSwitch,
             StartDisplayPreview,
+            RegistrationLimitField,
             Skeleton,
         },
         data() {
@@ -526,6 +565,10 @@
             },
             timeFormat() {
                 return window.fluentEventAdmin?.time_format || 'hh:mm A';
+            },
+            // On the event's own clock, which the window's offsets count back from.
+            eventStart() {
+                return `${this.event.start_date} ${this.event.start_time}`;
             },
             isEditing() {
                 return !!this.eventId;
@@ -644,6 +687,8 @@
                     capacity: meta.capacity || null,
                     show_spots_left: meta.show_spots_left || 'no',
                     start_display: meta.start_display || 'relative',
+                    registration_opens: meta.registration_opens || null,
+                    registration_closes: meta.registration_closes || null,
                 };
             },
             loadForm() {
@@ -754,6 +799,8 @@
                         capacity: this.event.capacity || 0,
                         show_spots_left: this.event.show_spots_left,
                         start_display: this.event.start_display,
+                        registration_opens: this.event.registration_opens,
+                        registration_closes: this.event.registration_closes,
                     },
                     loadingState: 'saving',
                     errorState: null,
