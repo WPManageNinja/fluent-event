@@ -74,9 +74,11 @@ class ActivationHandler
     // Runs once per FLUENT_EVENT_DB_VERSION: bump it when a migration changes, and every site migrates again.
     protected function maybeMigrate()
     {
-        // Before the version check and the lock: every request moves the old `fe_` names (once,
-        // then a flag check) before anything reads the tables. Safe when requests overlap.
-        LegacyPrefixMigrator::run();
+        // Before the version check and the lock: the old `fe_` tables move first (once, then a flag
+        // check). While any is left, creating tables under the new names would split the data.
+        if (!LegacyPrefixMigrator::run()) {
+            return;
+        }
 
         $dbVersion = get_option(self::DB_VERSION_OPTION);
 
@@ -102,9 +104,8 @@ class ActivationHandler
     protected function activateSite()
     {
         // Before DBMigrator, which would otherwise create empty tables under the new names first.
-        LegacyPrefixMigrator::run();
-
-        $migrated = DBMigrator::run();
+        // While old tables remain, no tables are created; maybeUpgrade() tries again later.
+        $migrated = LegacyPrefixMigrator::run() && DBMigrator::run();
 
         // `init` ran before the plugin was active, so the post type's rules aren't registered yet.
         (new EventPost())->registerPostType();

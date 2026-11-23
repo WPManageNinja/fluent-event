@@ -8,14 +8,19 @@ namespace FluentEvent\Database\Migrations;
  *
  * The old names appear here only so the data can leave them; nothing else reads them.
  *
- * Safe to call on every upgrade and from more than one request at once: each step checks
- * before it changes anything, a table that holds rows is never dropped, and the done flag
- * (an autoloaded option) makes later calls free. The flag is set only once no old table is
- * left, so a run that stops halfway is finished by the next request.
+ * Tables move first. Only when no old table is left do the options, posts, templates and menu
+ * items move, and the done flag (an autoloaded option) is set; after that every call is free.
+ * A table that holds rows is never dropped. A run that cannot finish (a rename refused, or a
+ * new-name table that already holds rows) leaves the flag unset and retries at most every
+ * RETRY_DELAY seconds. A MySQL named lock keeps two requests from moving tables at once.
  */
 class LegacyPrefixMigrator
 {
     const DONE_OPTION = 'fevent_prefix_migrated';
+
+    const RETRY_TRANSIENT = 'fevent_prefix_migration_retry';
+
+    const RETRY_DELAY = 10 * MINUTE_IN_SECONDS;
 
     const TABLES = ['event_details', 'ticket_types', 'guests', 'calendars', 'notifications', 'notification_users', 'meta'];
 
@@ -25,15 +30,87 @@ class LegacyPrefixMigrator
 
     const NEW_POST_TYPE = 'fevent_event';
 
+    /**
+     * @return bool True when no old table is left, so the caller may create or update tables.
+     *              False while old tables remain: creating new ones then would split the data.
+     */
     public static function run()
     {
         if (get_option(self::DONE_OPTION)) {
-            return;
+            return true;
         }
 
+        if (get_transient(self::RETRY_TRANSIENT)) {
+            return false;
+        }
+
+        $lock = self::lock();
+
+        // Another request is moving the tables right now.
+        if ($lock === false) {
+            return false;
+        }
+
+        try {
+            self::renameTables();
+
+            if ($remaining = self::remainingOldTables()) {
+                set_transient(self::RETRY_TRANSIENT, 1, self::RETRY_DELAY);
+
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                    error_log('FluentEvent: could not move these tables to the fevent prefix: ' . implode(', ', $remaining));
+                }
+
+                return false;
+            }
+
+            self::moveStoredNames();
+            update_option(self::DONE_OPTION, 1, true);
+
+            return true;
+        } finally {
+            self::unlock($lock);
+        }
+    }
+
+    protected static function renameTables()
+    {
         global $wpdb;
 
-        self::renameTables();
+        $suppressed = $wpdb->suppress_errors(true);
+
+        foreach (self::TABLES as $table) {
+            $old = $wpdb->prefix . 'fe_' . $table;
+            $new = $wpdb->prefix . 'fevent_' . $table;
+
+            if (!self::tableExists($old)) {
+                continue;
+            }
+
+            if (self::tableExists($new)) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names are fixed
+                if ((int) $wpdb->get_var("SELECT COUNT(*) FROM `$new`")) {
+                    continue; // Never overwrite data; the old table stays and the flag stays unset.
+                }
+
+                // An empty copy an earlier build created. Safe under the lock: no other request is renaming.
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names are fixed
+                $wpdb->query("DROP TABLE `$new`");
+            }
+
+            // The same statement works on MySQL, MariaDB and SQLite.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names are fixed
+            $wpdb->query("ALTER TABLE `$old` RENAME TO `$new`");
+        }
+
+        $wpdb->suppress_errors($suppressed);
+    }
+
+    // Runs once, after every table has moved.
+    protected static function moveStoredNames()
+    {
+        global $wpdb;
 
         foreach (self::OPTIONS as $old => $new) {
             $value = get_option($old);
@@ -68,53 +145,15 @@ class LegacyPrefixMigrator
         delete_option('rewrite_rules');
 
         wp_cache_flush();
-
-        if (!self::remainingOldTables()) {
-            update_option(self::DONE_OPTION, 1, true);
-        }
-    }
-
-    protected static function renameTables()
-    {
-        global $wpdb;
-
-        $suppressed = $wpdb->suppress_errors(true);
-
-        foreach (self::TABLES as $table) {
-            $old = $wpdb->prefix . 'fe_' . $table;
-            $new = $wpdb->prefix . 'fevent_' . $table;
-
-            // Already moved, maybe by a request running at the same time.
-            if (!self::tableExists($old)) {
-                continue;
-            }
-
-            if (self::tableExists($new)) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names are fixed
-                if ((int) $wpdb->get_var("SELECT COUNT(*) FROM `$new`")) {
-                    continue; // Never overwrite data; the old table stays and the flag stays unset.
-                }
-
-                // An empty copy that activation created before this ran.
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names are fixed
-                $wpdb->query("DROP TABLE `$new`");
-            }
-
-            // The same statement works on MySQL, MariaDB and SQLite.
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names are fixed
-            $wpdb->query("ALTER TABLE `$old` RENAME TO `$new`");
-        }
-
-        $wpdb->suppress_errors($suppressed);
     }
 
     protected static function remainingOldTables()
     {
         global $wpdb;
 
-        return array_filter(self::TABLES, function ($table) use ($wpdb) {
+        return array_values(array_filter(self::TABLES, function ($table) use ($wpdb) {
             return self::tableExists($wpdb->prefix . 'fe_' . $table);
-        });
+        }));
     }
 
     protected static function tableExists($table)
@@ -123,5 +162,40 @@ class LegacyPrefixMigrator
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         return $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) === $table;
+    }
+
+    /**
+     * @return string|false|null The lock name when held, false when another request holds it,
+     *                           null when the database has no named locks (SQLite): run unlocked.
+     */
+    protected static function lock()
+    {
+        global $wpdb;
+
+        // GET_LOCK is server-wide, so the database and prefix keep two sites on one server apart.
+        $name = 'fevent_prefix_' . md5(constant('DB_NAME') . ':' . $wpdb->prefix);
+
+        $suppressed = $wpdb->suppress_errors(true);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- MySQL advisory lock; a cached result would defeat the lock
+        $locked = $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, %d)', $name, 0));
+        $wpdb->suppress_errors($suppressed);
+
+        if ($locked === null) {
+            return null;
+        }
+
+        return (string) $locked === '1' ? $name : false;
+    }
+
+    protected static function unlock($lock)
+    {
+        if (!is_string($lock)) {
+            return;
+        }
+
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- MySQL advisory lock
+        $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock));
     }
 }
