@@ -9,7 +9,7 @@
  * core tables left unprefixed, and any hardcoded `wp_` table, which passes on a
  * wp_-prefixed dev site and fails everywhere else.
  *
- * A name counts as a table when it is qualified (`fe_guests.id`, backticks
+ * A name counts as a table when it is qualified (`fevent_guests.id`, backticks
  * allowed), follows FROM/JOIN/UPDATE/INTO, or opens a fromRaw(). Quoted SQL
  * values are ignored, heredocs are read, and a variable passed to the call is
  * followed back to its assignments in the same function.
@@ -27,9 +27,9 @@ $rawCall = '/\b(selectRaw|fromRaw|whereRaw|orWhereRaw|whereInRaw|whereNotInRaw'
     . '|havingRaw|orHavingRaw|orderByRaw|groupByRaw|raw)\s*\(/i';
 
 $coreTables = 'posts|postmeta|users|usermeta|options|comments|commentmeta|terms|termmeta|term_taxonomy|term_relationships|links';
-$table = '(?:wp_)?(?:(?:fe|fcom)_[a-z0-9_]+|' . $coreTables . ')(?![a-z0-9_])|wp_[a-z0-9_]+';
+$table = '(?:wp_)?(?:(?:fevent|fcom)_[a-z0-9_]+|' . $coreTables . ')(?![a-z0-9_])|wp_[a-z0-9_]+';
 
-// Not after a word char, `$`, `>` or `}`: `{$wpdb->prefix}fe_x` and `{$wpdb->posts}` are resolved.
+// Not after a word char, `$`, `>` or `}`: `{$wpdb->prefix}fevent_x` and `{$wpdb->posts}` are resolved.
 $qualifiedUse = '/(?<![\w$>}])`?(' . $table . ')`?(?=\s*\.)/i';
 $keywordUse = '/\b(?:FROM|JOIN|UPDATE|INTO)\s+`?(' . $table . ')`?(?![\w{$])/i';
 $leadingUse = '/^\s*`?(' . $table . ')`?(?![\w{$])/i';
@@ -124,7 +124,7 @@ $findUses = function ($source, $start, $end, $isFromRaw) use ($literal, $sqlValu
         }
 
         foreach ($hits as $offset => $ident) {
-            // `$wpdb->prefix . 'fe_x.col'`: the prefix is concatenated directly onto the table.
+            // `$wpdb->prefix . 'fevent_x.col'`: the prefix is concatenated directly onto the table.
             $leading = ltrim(substr($text, 0, $offset), '`') === '';
             if ($leading && preg_match($prefixBefore, substr($segment, 0, $string[0][1]))) {
                 continue;
@@ -220,7 +220,7 @@ foreach ($violations as $violation) {
 }
 
 echo "\nRaw SQL bypasses the query grammar. Resolve the prefix explicitly:\n";
-echo "  global \$wpdb; \$table = \$wpdb->prefix . 'fe_guests';\n";
+echo "  global \$wpdb; \$table = \$wpdb->prefix . 'fevent_guests';\n";
 echo "  ->selectRaw(\"COUNT(`{\$table}`.`id`) AS total\")\n";
 
 exit(1);

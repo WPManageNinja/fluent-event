@@ -16,7 +16,7 @@
 
 ## Data model — 2 tables (fcom split)
 
-**`wp_fe_notifications`** — the notification **record**, one row per event (render-once).
+**`wp_fevent_notifications`** — the notification **record**, one row per event (render-once).
 
 | Column        | Type          | Notes                                        |
 | ------------- | ------------- | -------------------------------------------- |
@@ -40,7 +40,7 @@ No `recipient_id` — recipients live in the next table. `action` is `VARCHAR(12
 for vendor-prefixed add-on actions (widening a VARCHAR costs zero storage; overflow would
 silently truncate the routing key).
 
-**`wp_fe_notification_users`** — per-recipient **delivery** AND per-user **prefs** in one table, split by `object_type` (fcom's model):
+**`wp_fevent_notification_users`** — per-recipient **delivery** AND per-user **prefs** in one table, split by `object_type` (fcom's model):
 
 | Column              | delivery (`object_type='notification'`) | pref (`object_type='notification_pref'`) |
 | ------------------- | --------------------------------------- | ---------------------------------------- |
@@ -78,7 +78,7 @@ silently truncate the routing key).
 **Canonical inbox query** — no filesort, no join until the content fetch:
 
 ```sql
-SELECT * FROM wp_fe_notification_users
+SELECT * FROM wp_fevent_notification_users
 WHERE user_id = ? AND object_type = 'notification'
 ORDER BY object_id DESC LIMIT 20
 ```
@@ -95,7 +95,7 @@ returns newest-first directly.
 strings); the unique index key stays ≈788 bytes, well inside InnoDB's 3072-byte limit.
 `is_read` carries no DB default — the fan-out insert sets it explicitly (`0` for a new delivery row).
 
-Reading the inbox = `notification_users` (the user's `object_type='notification'` rows) **JOIN** `notifications` (the content). Content stored **once** on the record; delivery rows are thin. **Prefs live here too** (`object_type='notification_pref'`) — no separate prefs table, no `wp_fe_meta`. **Email → guests only, no rows in either table** (non-negotiable, no DB trace). In-app = logged-in wp_users only.
+Reading the inbox = `notification_users` (the user's `object_type='notification'` rows) **JOIN** `notifications` (the content). Content stored **once** on the record; delivery rows are thin. **Prefs live here too** (`object_type='notification_pref'`) — no separate prefs table, no `wp_fevent_meta`. **Email → guests only, no rows in either table** (non-negotiable, no DB trace). In-app = logged-in wp_users only.
 
 ## Functional requirements
 
@@ -111,7 +111,7 @@ Dispatch is **always asynchronous** — the triggering request never resolves re
 
 - **Two audience kinds.** A **WP-user audience** (hosts/managers) is keyed by `user_id` → in-app rows **+** email. A **guest audience** (`event_guests`) is keyed by `email` only (anonymous, no account) → **email channel only, no in-app rows**.
 - Resolve the next page from the audience spec — cursor ascending (`user_id` for WP-user audiences, guest row `id` for guest audiences), page ~1000. Re-derive from the spec each chunk; never carry a 100k-id list in the payload.
-- **WP-user audiences:** on the first chunk, insert the **one** `wp_fe_notifications` record (rendered `title`/`content`), keep its `id`. Drop recipients whose `in_app` pref for this `action` is off (read from their `notification_users` `object_type='notification_pref'` rows); **bulk-insert thin delivery rows** (~500–1000 per insert) into `wp_fe_notification_users` (`object_type='notification'`, `notification_type='web'`, `object_id`=the record id, `is_read=0`) with `INSERT IGNORE` against the unique `(user_id, object_type, object_id, notification_type)` key.
+- **WP-user audiences:** on the first chunk, insert the **one** `wp_fevent_notifications` record (rendered `title`/`content`), keep its `id`. Drop recipients whose `in_app` pref for this `action` is off (read from their `notification_users` `object_type='notification_pref'` rows); **bulk-insert thin delivery rows** (~500–1000 per insert) into `wp_fevent_notification_users` (`object_type='notification'`, `notification_type='web'`, `object_id`=the record id, `is_read=0`) with `INSERT IGNORE` against the unique `(user_id, object_type, object_id, notification_type)` key.
 - Hand the `email`-eligible slice to the email channel (FR-4.7) — its own chunked queue. Guest audiences go straight here (email is their only channel).
 - Advance the cursor. If runtime exceeds a budget (~25s) reschedule self with the cursor; else continue until the audience is exhausted.
 

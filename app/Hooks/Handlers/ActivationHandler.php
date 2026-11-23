@@ -61,13 +61,13 @@ class ActivationHandler
     {
         $this->maybeMigrate();
 
-        if (get_option('fe_version') === FLUENT_EVENT_PLUGIN_VERSION) {
+        if (get_option('fevent_version') === FLUENT_EVENT_PLUGIN_VERSION) {
             return;
         }
 
         flush_rewrite_rules(false);
 
-        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION, true);
+        update_option('fevent_version', FLUENT_EVENT_PLUGIN_VERSION, true);
     }
 
     // Runs once per FLUENT_EVENT_DB_VERSION: bump it when a migration changes, and every site migrates again.
@@ -101,7 +101,7 @@ class ActivationHandler
         // `init` ran before the plugin was active, so the post type's rules aren't registered yet.
         (new EventPost())->registerPostType();
         flush_rewrite_rules();
-        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION, true);
+        update_option('fevent_version', FLUENT_EVENT_PLUGIN_VERSION, true);
 
         // Left unset when a table is missing, so maybeUpgrade() tries again.
         if ($migrated) {

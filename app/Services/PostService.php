@@ -11,7 +11,7 @@ use FluentEvent\Framework\Foundation\Exceptions\HttpException;
  * The `wp_posts` half of the event CPT hybrid.
  *
  * Identity (title, body, status, author) lives in WordPress; the typed columns
- * live in `wp_fe_event_details`. Keeping the post writes here means a caller
+ * live in `wp_fevent_event_details`. Keeping the post writes here means a caller
  * only deals with one API, and the WP_Error-to-422 translation happens once.
  *
  * The title and description are wp_slash()ed: WordPress unslashes post fields, and request

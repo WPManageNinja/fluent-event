@@ -53,7 +53,7 @@ One file per table in `database/Migrations/`, each a class with a `$table` prope
 ```php
 class CalendarsTable
 {
-    public $table = 'fe_calendars';
+    public $table = 'fevent_calendars';
 
     public function create(Blueprint $table)
     {
@@ -86,7 +86,7 @@ What that buys over the sibling approach:
 Generate the file rather than writing it by hand:
 
 ```bash
-./wpf make:migration fe_calendars
+./wpf make:migration fevent_calendars
 ./wpf migrate            # migrate:up
 ./wpf migrate:refresh    # drop + rebuild
 ./wpf db:show
@@ -104,7 +104,7 @@ per table keeps the current shape readable in one place.
 
 ## Schema conventions for this plugin
 
-- Table prefix `wp_fe_`; the migrator's `$table` omits the `wp_` (the framework adds it).
+- Table prefix `wp_fevent_`; the migrator's `$table` omits the `wp_` (the framework adds it).
 - Every table: `id` BIGINT UNSIGNED auto-increment PK, `created_at` / `updated_at`.
 - Open-ended config goes in a JSON column, with a `default*()` method on the model
   documenting the keys in use — see [backend.md](backend.md). **The column name is not

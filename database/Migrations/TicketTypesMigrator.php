@@ -4,7 +4,7 @@ namespace FluentEvent\Database\Migrations;
 
 class TicketTypesMigrator
 {
-    static $tableName = 'fe_ticket_types';
+    static $tableName = 'fevent_ticket_types';
 
     public static function migrate()
     {
@@ -21,7 +21,7 @@ class TicketTypesMigrator
 
         $sql = "CREATE TABLE $table (
         `id` BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        `event_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fe_event_details.id',
+        `event_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fevent_event_details.id',
         `tier` VARCHAR(128) NOT NULL COMMENT 'display name, e.g. VIP, General',
         `description` VARCHAR(255) NULL COMMENT 'additional information related to the tier',
         `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,

@@ -25,7 +25,7 @@ class HarnessGuardTest extends IntegrationTestCase
     {
         // Exactly one: this test's own. A sentinel left by an earlier test would mean a commit went unnoticed.
         $sentinels = (int) $this->wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->table('fe_meta')} WHERE object_type = 'fe_rollback_sentinel'"
+            "SELECT COUNT(*) FROM {$this->table('fevent_meta')} WHERE object_type = 'fe_rollback_sentinel'"
         );
 
         $this->assertSame(1, $sentinels);
@@ -33,7 +33,7 @@ class HarnessGuardTest extends IntegrationTestCase
 
     public function test_a_write_is_visible_inside_the_test()
     {
-        $before = $this->rowCount($this->table('fe_meta'));
+        $before = $this->rowCount($this->table('fevent_meta'));
 
         self::$probeId = Meta::query()->create([
             'object_type' => 'fe_harness_probe',
@@ -42,7 +42,7 @@ class HarnessGuardTest extends IntegrationTestCase
             'value'       => ['ok' => true],
         ])->id;
 
-        $this->assertSame($before + 1, $this->rowCount($this->table('fe_meta')));
+        $this->assertSame($before + 1, $this->rowCount($this->table('fevent_meta')));
     }
 
     /**

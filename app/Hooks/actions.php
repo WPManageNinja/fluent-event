@@ -22,7 +22,7 @@ $app->addAction('in_admin_header', ['AdminMenuHandler', 'removeAdminNotices']);
 $app->addAction('admin_enqueue_scripts', ['AdminMenuHandler', 'enqueueAdminPageAssets']);
 
 /**
- * Registers the fe_event post type. Classification taxonomies come later.
+ * Registers the fevent_event post type. Classification taxonomies come later.
  */
 $app->addAction('init', 'CPTHandler@registerPostTypes');
 

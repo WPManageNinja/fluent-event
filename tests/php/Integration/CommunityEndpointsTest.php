@@ -94,7 +94,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
         return $this->rest('POST', "community/events/{$event->id}/register-guest", array_merge([
             'name'  => 'Walk-in Visitor',
             'email' => 'visitor@example.test',
-            'nonce' => wp_create_nonce('fe_guest_register_' . $event->id),
+            'nonce' => wp_create_nonce('fevent_guest_register_' . $event->id),
         ], $params));
     }
 
@@ -366,9 +366,9 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $raced = false;
 
         $this->addTestFilter('query', function ($query) use (&$raced, $guestId) {
-            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'going'") !== false) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fevent_guests') !== false && strpos($query, "'going'") !== false) {
                 $raced = true;
-                $this->wpdb->update($this->table('fe_guests'), ['status' => 'not_going'], ['id' => $guestId]);
+                $this->wpdb->update($this->table('fevent_guests'), ['status' => 'not_going'], ['id' => $guestId]);
             }
 
             return $query;
@@ -389,9 +389,9 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $raced = false;
 
         $this->addTestFilter('query', function ($query) use (&$raced, $guestId) {
-            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'going'") !== false) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fevent_guests') !== false && strpos($query, "'going'") !== false) {
                 $raced = true;
-                $this->wpdb->update($this->table('fe_guests'), ['status' => 'checked_in'], ['id' => $guestId]);
+                $this->wpdb->update($this->table('fevent_guests'), ['status' => 'checked_in'], ['id' => $guestId]);
             }
 
             return $query;
@@ -461,7 +461,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
         [$other] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->asVisitorOnAPublicPortal();
 
-        $this->assertSame(403, $this->registerGuest($event, ['nonce' => wp_create_nonce('fe_guest_register_' . $other->id)])['status']);
+        $this->assertSame(403, $this->registerGuest($event, ['nonce' => wp_create_nonce('fevent_guest_register_' . $other->id)])['status']);
         $this->assertCount(0, $this->guestsOf($event));
     }
 
@@ -543,9 +543,9 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $raced = false;
 
         $this->addTestFilter('query', function ($query) use (&$raced, $guest) {
-            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'not_going'") !== false) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fevent_guests') !== false && strpos($query, "'not_going'") !== false) {
                 $raced = true;
-                $this->wpdb->delete($this->table('fe_guests'), ['id' => $guest->id]);
+                $this->wpdb->delete($this->table('fevent_guests'), ['id' => $guest->id]);
             }
 
             return $query;

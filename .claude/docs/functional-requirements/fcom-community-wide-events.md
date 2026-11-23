@@ -29,7 +29,7 @@ events can be posted (see A6).
 | # | Rule | Status |
 |---|---|---|
 | D1 | A community-wide event's calendar is the **Community** calendar: title `Community` (translatable), slug `community` (`community-2` if taken), status `private`. | Branch |
-| D2 | It is identified by `fe_calendars.meta.fcom_global = true` (no `fcom_space_id`). The lookup confirms the decoded meta in PHP, like the space lookup does. | Build (branch used `fcom_community`, raw `LIKE` only) |
+| D2 | It is identified by `fevent_calendars.meta.fcom_global = true` (no `fcom_space_id`). The lookup confirms the decoded meta in PHP, like the space lookup does. | Build (branch used `fcom_community`, raw `LIKE` only) |
 | D3 | Created lazily on the first community-wide event, reused after. Two first posts at the same moment may create two; accepted, same as space calendars (PR #72). | Branch |
 | D4 | No schema change, no migration (pre-release). | — |
 

@@ -54,7 +54,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_changing_the_event_slug_drops_the_rewrite_rules()
     {
-        update_option('rewrite_rules', ['event/([^/]+)/?$' => 'index.php?fe_event=$matches[1]']);
+        update_option('rewrite_rules', ['event/([^/]+)/?$' => 'index.php?fevent_event=$matches[1]']);
 
         $saved = $this->rest('POST', 'settings/general', ['events_page_id' => 0, 'event_slug' => 'Our Gatherings']);
 
@@ -65,7 +65,7 @@ class SettingsAndCalendarEndpointsTest extends IntegrationTestCase
 
     public function test_saving_the_same_event_slug_keeps_the_rewrite_rules()
     {
-        $rules = ['event/([^/]+)/?$' => 'index.php?fe_event=$matches[1]'];
+        $rules = ['event/([^/]+)/?$' => 'index.php?fevent_event=$matches[1]'];
         update_option('rewrite_rules', $rules);
 
         $this->rest('POST', 'settings/general', ['event_slug' => 'event'] + $this->pages);

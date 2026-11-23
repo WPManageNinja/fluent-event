@@ -12,7 +12,7 @@ function Edit({ attributes, setAttributes }) {
     const inEventTemplate = useSelect(select => {
         const editor = select('core/editor');
 
-        return String((editor && editor.getCurrentPostId()) || '').endsWith('//single-fe_event');
+        return String((editor && editor.getCurrentPostId()) || '').endsWith('//single-fevent_event');
     }, []);
 
     return (

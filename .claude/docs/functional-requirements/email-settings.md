@@ -4,7 +4,7 @@ Every system email is customizable (subject, body, on/off) and wrapped in a shar
 
 ## Approach
 
-- Per-email config (`{enabled, subject, body}`) in the `emails` row of `wp_fe_meta`.
+- Per-email config (`{enabled, subject, body}`) in the `emails` row of `wp_fevent_meta`.
 - Shared branded wrapper, configured once.
 - Merge tags resolved at send: `{{guest.name}}`, `{{event.title}}`, `{{event.date}}`, `{{action_url}}`, etc.
 - Transactional emails (payment receipt) can't be disabled; informational ones can.

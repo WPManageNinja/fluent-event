@@ -25,9 +25,9 @@ class FrontEndHandler
     const SPANS = ['month', 'week', 'day'];
     // Not `page`, `calendar` or `search`: WordPress owns those query vars, so a static front page carrying one shows
     // the blog instead (and a page request carrying `page` is redirected).
-    const PAGE_VAR = 'fe_page';
-    const CALENDAR_VAR = 'fe_calendar';
-    const SEARCH_VAR = 'fe_search';
+    const PAGE_VAR = 'fevent_page';
+    const CALENDAR_VAR = 'fevent_calendar';
+    const SEARCH_VAR = 'fevent_search';
     // The week and day views draw an hour this tall, as the admin calendar does.
     const HOUR_PX = 48;
     const PER_PAGE = 10;
@@ -378,7 +378,7 @@ class FrontEndHandler
         return $slug === '' ? null : Calendar::query()->byStatus('public')->where('slug', $slug)->first();
     }
 
-    // A link like ?fe_calendar[]=x sends an array, which sanitize_title() cannot take on PHP 8.
+    // A link like ?fevent_calendar[]=x sends an array, which sanitize_title() cannot take on PHP 8.
     protected function calendarFromUrl()
     {
         $value = isset($_GET[self::CALENDAR_VAR]) ? wp_unslash($_GET[self::CALENDAR_VAR]) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only page state from the link; sanitized below once known to be a string.
@@ -773,11 +773,11 @@ class FrontEndHandler
         $choices = [];
 
         if ($defaultFilter) {
-            $choices['filter'] = ['key' => 'fe_portal_events_filter', 'allowed' => self::FILTERS, 'fallback' => $defaultFilter];
+            $choices['filter'] = ['key' => 'fevent_portal_events_filter', 'allowed' => self::FILTERS, 'fallback' => $defaultFilter];
         }
 
         if ($defaultView) {
-            $choices['view'] = ['key' => 'fe_portal_events_view', 'allowed' => self::VIEWS, 'fallback' => $defaultView];
+            $choices['view'] = ['key' => 'fevent_portal_events_view', 'allowed' => self::VIEWS, 'fallback' => $defaultView];
         }
 
         if (!$choices) {

@@ -5,11 +5,11 @@ namespace FluentEvent\App\Models;
 /**
  * Meta model.
  *
- * Table: `wp_fe_meta` — see database/Migrations/MetaMigrator.php.
+ * Table: `wp_fevent_meta` — see database/Migrations/MetaMigrator.php.
  */
 class Meta extends Model
 {
-    protected $table = 'fe_meta';
+    protected $table = 'fevent_meta';
 
     const OBJECT_TYPE_OPTION = 'option';
     const OBJECT_TYPE_USER = 'user';

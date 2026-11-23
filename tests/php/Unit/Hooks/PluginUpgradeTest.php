@@ -104,19 +104,19 @@ class PluginUpgradeTest extends TestCase
 
     public function test_an_update_rebuilds_the_url_rules_and_records_the_new_version()
     {
-        update_option('fe_version', '0.9.0');
+        update_option('fevent_version', '0.9.0');
         update_option(ActivationHandler::DB_VERSION_OPTION, FLUENT_EVENT_DB_VERSION);
 
         $this->upgrade();
 
         $this->assertSame(1, $this->flushes);
         $this->assertSame(0, $this->migrations, 'The database is current, so nothing migrates.');
-        $this->assertSame(FLUENT_EVENT_PLUGIN_VERSION, get_option('fe_version'));
+        $this->assertSame(FLUENT_EVENT_PLUGIN_VERSION, get_option('fevent_version'));
     }
 
     public function test_a_site_already_on_this_version_is_left_alone()
     {
-        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION);
+        update_option('fevent_version', FLUENT_EVENT_PLUGIN_VERSION);
         update_option(ActivationHandler::DB_VERSION_OPTION, FLUENT_EVENT_DB_VERSION);
 
         $this->upgrade();
@@ -128,7 +128,7 @@ class PluginUpgradeTest extends TestCase
     // 1.0.0 recorded no database version, so its sites migrate again and get any table they are missing.
     public function test_a_site_without_a_database_version_migrates_and_records_it()
     {
-        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION);
+        update_option('fevent_version', FLUENT_EVENT_PLUGIN_VERSION);
 
         $this->upgrade();
 
@@ -139,7 +139,7 @@ class PluginUpgradeTest extends TestCase
 
     public function test_an_older_database_version_migrates_again()
     {
-        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION);
+        update_option('fevent_version', FLUENT_EVENT_PLUGIN_VERSION);
         update_option(ActivationHandler::DB_VERSION_OPTION, '0.9.0');
 
         $this->upgrade();
@@ -151,7 +151,7 @@ class PluginUpgradeTest extends TestCase
     // Another request is migrating: this one leaves it to finish and records nothing.
     public function test_a_held_migration_lock_skips_the_migration()
     {
-        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION);
+        update_option('fevent_version', FLUENT_EVENT_PLUGIN_VERSION);
         $this->transients[ActivationHandler::MIGRATION_LOCK] = 1;
 
         $this->upgrade();
@@ -163,8 +163,8 @@ class PluginUpgradeTest extends TestCase
     // The server refused a table: saving the version would stop it ever being made, so the next request retries.
     public function test_a_table_still_missing_after_the_migration_holds_the_version_back()
     {
-        update_option('fe_version', FLUENT_EVENT_PLUGIN_VERSION);
-        $this->refused = ['wptest_fe_meta'];
+        update_option('fevent_version', FLUENT_EVENT_PLUGIN_VERSION);
+        $this->refused = ['wptest_fevent_meta'];
 
         $this->upgrade();
 

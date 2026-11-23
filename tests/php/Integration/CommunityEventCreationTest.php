@@ -79,7 +79,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $spaceId = $this->createSpace();
         $request = $this->postRequest();
         $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
-        $eventsBefore = $this->rowCount($this->table('fe_event_details'));
+        $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
 
         // wp_insert_post() then returns a WP_Error, which PostService turns into an exception.
         $this->addTestFilter('wp_insert_post_empty_content', '__return_true');
@@ -92,7 +92,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         }
 
         $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
-        $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')));
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')));
     }
 
     // The space's calendar is looked up before the event is made. A failure there left the post behind.
@@ -101,7 +101,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $spaceId = $this->createSpace();
         $request = $this->postRequest();
         $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
-        $eventsBefore = $this->rowCount($this->table('fe_event_details'));
+        $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
 
         // A space that no longer exists has no title to name its new calendar after.
         $feed->space_id = PHP_INT_MAX;
@@ -114,7 +114,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         }
 
         $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
-        $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')));
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')));
     }
 
     // Without the link the post can't find its event, so the event is rolled back with the post.
@@ -123,10 +123,10 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $spaceId = $this->createSpace();
         $request = $this->postRequest();
         $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
-        $eventsBefore = $this->rowCount($this->table('fe_event_details'));
-        $metaTable = $this->table('fe_meta');
+        $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
+        $metaTable = $this->table('fevent_meta');
 
-        // The link is the only insert into fe_meta; break that one query.
+        // The link is the only insert into fevent_meta; break that one query.
         $this->addTestFilter('query', function ($query) use ($metaTable) {
             return stripos($query, "INSERT INTO `{$metaTable}`") === 0 ? 'INSERT INTO fe_no_such_table VALUES (1)' : $query;
         });
@@ -139,7 +139,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         }
 
         $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
-        $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')), 'The event outlived its post.');
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')), 'The event outlived its post.');
     }
 
     // The post renders its card from meta.event_id; without it the event is lost to the post.
@@ -148,8 +148,8 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $spaceId = $this->createSpace();
         $request = $this->postRequest();
         $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
-        $eventsBefore = $this->rowCount($this->table('fe_event_details'));
-        $metaBefore = $this->rowCount($this->table('fe_meta'));
+        $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
+        $metaBefore = $this->rowCount($this->table('fevent_meta'));
         $postsTable = $this->table('fcom_posts');
 
         // The post's own event_id is saved with an UPDATE on fcom_posts; break that one query.
@@ -165,8 +165,8 @@ class CommunityEventCreationTest extends IntegrationTestCase
         }
 
         $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
-        $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')), 'The event outlived its post.');
-        $this->assertSame($metaBefore, $this->rowCount($this->table('fe_meta')), 'The link outlived its post.');
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')), 'The event outlived its post.');
+        $this->assertSame($metaBefore, $this->rowCount($this->table('fevent_meta')), 'The link outlived its post.');
     }
 
     public function test_deleting_the_post_parks_the_event_as_a_draft_with_its_guests()
@@ -438,7 +438,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->forgetSiteGlobalCalendar();
 
         // A calendar whose meta only mentions the key, with any value but true, is not the global one.
-        $this->wpdb->insert($this->table('fe_calendars'), [
+        $this->wpdb->insert($this->table('fevent_calendars'), [
             'title'  => 'Lookalike',
             'slug'   => 'fe-test-' . strtolower(wp_generate_password(10, false, false)),
             'status' => 'private',

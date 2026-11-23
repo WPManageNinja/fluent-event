@@ -209,15 +209,15 @@ class RequestRulesTest extends TestCase
 
     public function test_a_calendar_slug_must_be_unique_except_against_itself()
     {
-        $this->assertStringEndsWith('unique:fe_calendars,slug', CalendarRequest::createRules()['slug']);
-        $this->assertStringEndsWith('unique:fe_calendars,slug,7,id', CalendarRequest::updateRules(7)['slug']);
+        $this->assertStringEndsWith('unique:fevent_calendars,slug', CalendarRequest::createRules()['slug']);
+        $this->assertStringEndsWith('unique:fevent_calendars,slug,7,id', CalendarRequest::updateRules(7)['slug']);
     }
 
     public function test_a_guest_email_is_unique_per_event_not_site_wide()
     {
-        $this->assertStringContainsString('unique:fe_guests,email,NULL,id,event_id,42', GuestRequest::createRules(42)['email']);
-        $this->assertStringContainsString('unique:fe_guests,user_id,NULL,id,event_id,42', GuestRequest::createRules(42)['user_id']);
-        $this->assertStringContainsString('unique:fe_guests,email,9,id,event_id,42', GuestRequest::updateRules(42, 9)['email']);
+        $this->assertStringContainsString('unique:fevent_guests,email,NULL,id,event_id,42', GuestRequest::createRules(42)['email']);
+        $this->assertStringContainsString('unique:fevent_guests,user_id,NULL,id,event_id,42', GuestRequest::createRules(42)['user_id']);
+        $this->assertStringContainsString('unique:fevent_guests,email,9,id,event_id,42', GuestRequest::updateRules(42, 9)['email']);
     }
 
     /**

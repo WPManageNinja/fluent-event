@@ -5,11 +5,11 @@ namespace FluentEvent\App\Models;
 /**
  * Calendar model.
  *
- * Table: `wp_fe_calendars` — see database/Migrations/CalendarsMigrator.php.
+ * Table: `wp_fevent_calendars` — see database/Migrations/CalendarsMigrator.php.
  */
 class Calendar extends Model
 {
-    protected $table = 'fe_calendars';
+    protected $table = 'fevent_calendars';
 
     const STATUSES = 'public,private,draft';
     const DEFAULT_THEME_COLOR = '#0099ff';
