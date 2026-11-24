@@ -15,7 +15,8 @@ namespace FluentEvent\Database\Migrations;
  * RETRY_DELAY seconds. A MySQL named lock keeps two requests from moving tables at once.
  *
  * It also keeps links shared before the rename working: an old `?fe_event=`, `?fe_page=`,
- * `?fe_calendar=` or `?fe_search=` link is redirected to the same URL with the new names.
+ * `?fe_calendar=`, `?fe_search=` or `?post_type=fe_event` link is redirected to the same URL
+ * with the new names.
  */
 class LegacyPrefixMigrator
 {
@@ -99,6 +100,12 @@ class LegacyPrefixMigrator
             if (!array_key_exists($new, $query) && is_scalar($value)) {
                 $query[$new] = (string) $value;
             }
+        }
+
+        // Plain permalinks put the archive (the events list when no page is chosen) at ?post_type=<type>.
+        if (isset($query['post_type']) && $query['post_type'] === self::OLD_POST_TYPE) {
+            $query['post_type'] = self::NEW_POST_TYPE;
+            $renamed = true;
         }
 
         if (!$renamed) {

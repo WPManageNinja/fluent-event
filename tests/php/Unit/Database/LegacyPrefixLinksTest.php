@@ -48,6 +48,26 @@ class LegacyPrefixLinksTest extends TestCase
         $this->assertNull($this->target([], '/'));
     }
 
+    public function test_an_old_plain_permalink_archive_link_points_at_the_new_post_type()
+    {
+        $this->assertSame('/?post_type=fevent_event', $this->target(['post_type' => 'fe_event'], '/?post_type=fe_event'));
+    }
+
+    public function test_an_old_archive_link_with_filters_gets_the_new_post_type_and_names()
+    {
+        $this->assertSame(
+            '/?post_type=fevent_event&fevent_calendar=team',
+            $this->target(['post_type' => 'fe_event', 'fe_calendar' => 'team'], '/?post_type=fe_event&fe_calendar=team')
+        );
+    }
+
+    public function test_other_post_types_are_left_alone()
+    {
+        $this->assertNull($this->target(['post_type' => 'page'], '/?post_type=page'));
+        $this->assertNull($this->target(['post_type' => ['fe_event']], '/?post_type[]=fe_event'));
+        $this->assertNull($this->target(['post_type' => 'fevent_event'], '/?post_type=fevent_event'));
+    }
+
     public function test_the_redirect_never_leaves_the_site()
     {
         $this->assertSame('/evil.example/x?fevent_event=a', $this->target(['fe_event' => 'a'], '//evil.example/x?fe_event=a'));
