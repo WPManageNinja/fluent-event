@@ -9,7 +9,7 @@ describe('Storage', () => {
     it('namespaces its keys so it cannot collide with another plugin', () => {
         Storage.set('events_view', 'calendar');
 
-        expect(localStorage.getItem('fe_events_view')).toBe('"calendar"');
+        expect(localStorage.getItem('fevent_events_view')).toBe('"calendar"');
         expect(localStorage.getItem('events_view')).toBeNull();
     });
 
@@ -36,7 +36,7 @@ describe('Storage', () => {
 
     it('returns the default when the stored value is not JSON', () => {
         // A value written by hand or by an older build must not break the page that reads it.
-        localStorage.setItem('fe_events_view', 'calendar');
+        localStorage.setItem('fevent_events_view', 'calendar');
 
         expect(Storage.get('events_view', 'timeline')).toBe('timeline');
     });

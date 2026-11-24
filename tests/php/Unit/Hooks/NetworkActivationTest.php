@@ -5,6 +5,7 @@ namespace FluentEvent\Tests\Unit\Hooks;
 use Brain\Monkey\Functions;
 use FluentEvent\App\Hooks\Handlers\ActivationHandler;
 use FluentEvent\App\Hooks\Handlers\DeactivationHandler;
+use FluentEvent\Database\Migrations\LegacyPrefixMigrator;
 use FluentEvent\Framework\Foundation\Application;
 use FluentEvent\Tests\TestCase;
 use Mockery;
@@ -21,6 +22,9 @@ class NetworkActivationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // The one-time `fe_` → `fevent` rename is covered on its own; these tests are about the per-site setup.
+        update_option(LegacyPrefixMigrator::DONE_OPTION, 1);
 
         global $wpdb;
         $wpdb->blogs = 'wptest_blogs';

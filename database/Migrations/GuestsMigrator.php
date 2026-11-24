@@ -4,7 +4,7 @@ namespace FluentEvent\Database\Migrations;
 
 class GuestsMigrator
 {
-    static $tableName = 'fe_guests';
+    static $tableName = 'fevent_guests';
 
     public static function migrate()
     {
@@ -21,8 +21,8 @@ class GuestsMigrator
 
         $sql = "CREATE TABLE $table (
         `id` BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        `event_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fe_event_details.id',
-        `calendar_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fe_calendars.id, denormalised',
+        `event_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fevent_event_details.id',
+        `calendar_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fevent_calendars.id, denormalised',
         `ticket_type_id` BIGINT(20) UNSIGNED NULL COMMENT 'NULL for RSVP, required when ticketed',
         `group_id` VARCHAR(64) NOT NULL COMMENT 'rows sharing this value are one order',
         `is_buyer` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'one per group_id, carries order and payment',

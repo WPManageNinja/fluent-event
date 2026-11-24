@@ -5,10 +5,10 @@ namespace FluentEvent\App\CPT;
 use FluentEvent\App\Services\Settings;
 
 /**
- * The `fe_event` custom post type.
+ * The `fevent_event` custom post type.
  *
  * An event's identity — title, description, author — lives in `wp_posts`;
- * everything typed lives in `wp_fe_event_details`, joined 1:1 on `post_id`.
+ * everything typed lives in `wp_fevent_event_details`, joined 1:1 on `post_id`.
  *
  * Public, as FluentCart's products are: WordPress gives every event its own
  * address, /<event_slug>/<post slug>/, and lists them at /<event_slug>/.
@@ -23,7 +23,7 @@ class EventPost
     /**
      * Post type key.
      */
-    const POST_TYPE = 'fe_event';
+    const POST_TYPE = 'fevent_event';
 
     /**
      * Register the post type. Called from CPTHandler on `init`.

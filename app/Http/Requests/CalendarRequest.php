@@ -18,7 +18,7 @@ class CalendarRequest extends BaseRequest
     ];
     const RULES = [
         'title'       => 'required|string',
-        'slug'        => 'required|string|max:191|unique:fe_calendars,slug',
+        'slug'        => 'required|string|max:191|unique:fevent_calendars,slug',
         'status'      => 'required|string|in:' . Calendar::STATUSES,
         // Six digits only: the admin works out a readable text colour from #rrggbb, and no picker sends #rgb.
         'theme_color' => 'nullable|regex:/^#[A-Fa-f0-9]{6}$/',
@@ -32,7 +32,7 @@ class CalendarRequest extends BaseRequest
     public static function updateRules($currentCalendarId)
     {
         return array_merge(self::createRules(), [
-            'slug' => 'required|string|max:191|unique:fe_calendars,slug,' . $currentCalendarId . ',id',
+            'slug' => 'required|string|max:191|unique:fevent_calendars,slug,' . $currentCalendarId . ',id',
         ]);
     }
 

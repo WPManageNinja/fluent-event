@@ -8,7 +8,7 @@ Applies to REST route files and `wp_ajax_*` registrations.
    `$router->prefix(...)->withPolicy(...)->group(...)`, resolved to
    `register_rest_route`. Most new endpoints belong here.
 2. **`wp_ajax_*` actions** — for the custom auth flow and admin tooling. Prefix every
-   action (`fluent_event_*` / `fe_*`) to avoid collisions.
+   action (`fluent_event_*` / `fevent_*`) to avoid collisions.
 
 ## Namespace
 
@@ -61,7 +61,7 @@ When registering a `_nopriv_` AJAX action OR a REST route with
 - Authenticated REST routes auto-validate `X-WP-Nonce` via the framework — don't
   re-implement.
 - Email-link callbacks (reset, invitation, signed login URL): bind the nonce to the
-  specific resource — `wp_create_nonce("fe_accept_invite_$invitationId")`.
+  specific resource — `wp_create_nonce("fevent_accept_invite_$invitationId")`.
 
 ## Error response
 

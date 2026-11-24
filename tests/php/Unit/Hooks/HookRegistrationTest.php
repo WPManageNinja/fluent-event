@@ -129,7 +129,7 @@ class HookRegistrationTest extends TestCase
 
     public function test_event_deletion_cancels_reminders_and_unlinks_the_post_before_cleanup_runs()
     {
-        // cleanEvent deletes the event's fe_meta, which is what names the queued sends and the linked post.
+        // cleanEvent deletes the event's fevent_meta, which is what names the queued sends and the linked post.
         $entries = $this->loadEverything()->on('fluent_event/event/before_deleted');
 
         $cleanup = $this->priorityOf($entries, [CleanupHandler::class, 'cleanEvent']);

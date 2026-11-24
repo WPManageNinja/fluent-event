@@ -7,7 +7,7 @@ use FluentEvent\Tests\TestCase;
 
 /**
  * General settings live in wp_options and run against the option stub here.
- * The fe_meta-backed sections are covered in the integration tier.
+ * The fevent_meta-backed sections are covered in the integration tier.
  */
 class SettingsTest extends TestCase
 {

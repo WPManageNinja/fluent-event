@@ -4,7 +4,7 @@ namespace FluentEvent\Database\Migrations;
 
 class NotificationUsersMigrator
 {
-    static $tableName = 'fe_notification_users';
+    static $tableName = 'fevent_notification_users';
 
     public static function migrate()
     {

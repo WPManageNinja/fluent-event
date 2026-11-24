@@ -1,5 +1,5 @@
 export default class Storage {
-    static #prefix = 'fe_';
+    static #prefix = 'fevent_';
 
     static get(key, defaultValue = null) {
         try {

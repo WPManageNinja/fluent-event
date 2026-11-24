@@ -40,7 +40,7 @@ class FeedHandler
         add_action('fluent_community/feed/updated', [$this, 'followSpaceMove'], 10, 2);
         add_action('fluent_event/event/calendar_changed', [$this, 'followCalendarChange']);
         add_action('fluent_community/feed/before_deleted', [$this, 'parkEvent']);
-        // Before CleanupHandler (priority 10) wipes the event's fe_meta, which holds the post link.
+        // Before CleanupHandler (priority 10) wipes the event's fevent_meta, which holds the post link.
         add_action('fluent_event/event/before_deleted', [$this, 'unlinkPost'], 5);
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);

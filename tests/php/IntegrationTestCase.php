@@ -58,7 +58,7 @@ abstract class IntegrationTestCase extends BaseTestCase
         $this->connection->beginTransaction();
 
         // Written inside the transaction: if anything commits during the test, this row survives the rollback.
-        $wpdb->insert($wpdb->prefix . 'fe_meta', [
+        $wpdb->insert($wpdb->prefix . 'fevent_meta', [
             'object_type' => 'fe_rollback_sentinel',
             'object_id'   => 0,
             'meta_key'    => wp_generate_password(20, false, false),
@@ -93,7 +93,7 @@ abstract class IntegrationTestCase extends BaseTestCase
         wp_set_current_user($this->previousUser);
         wp_cache_flush();
 
-        $sentinelTable = $this->wpdb->prefix . 'fe_meta';
+        $sentinelTable = $this->wpdb->prefix . 'fevent_meta';
         $sentinelSurvived = (bool) $this->wpdb->get_var(
             $this->wpdb->prepare("SELECT id FROM {$sentinelTable} WHERE id = %d", $this->sentinelId)
         );

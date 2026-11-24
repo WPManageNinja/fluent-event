@@ -203,7 +203,7 @@ class PortalEventController extends Controller
     // otherwise walking ids would find unlisted events, which open only by their link.
     private function cameFromThePage(Request $request, $id)
     {
-        return (bool) wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fe_portal_register_' . (int) $id);
+        return (bool) wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fevent_portal_register_' . (int) $id);
     }
 
     private function expired()

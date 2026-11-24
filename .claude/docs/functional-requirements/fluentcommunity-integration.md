@@ -13,10 +13,10 @@ This is the record of intended behaviour. Keep it in step with `Modules/FluentCo
 | Concern | Owner | Where |
 |---|---|---|
 | Post title, message, comments, reactions, topics, schedule | fcom | `fcom_posts` (`content_type = 'event'`, `meta.event_id`) |
-| Event title, description, dates, venue, cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
-| Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id`; the one Community calendar for community-wide events has `fcom_global = true` ([details](fcom-community-wide-events.md)) |
-| Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (the events list joins on it) |
-| Guests | FluentEvent | `fe_guests` (`source = 'fluent_community'`, `source_id` = post id) |
+| Event title, description, dates, venue, cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fevent_event`) + `fevent_event_details.meta` |
+| Space ↔ calendar link | FluentEvent | `fevent_calendars.meta.fcom_space_id`; the one Community calendar for community-wide events has `fcom_global = true` ([details](fcom-community-wide-events.md)) |
+| Event → post link | FluentEvent | `fevent_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (the events list joins on it) |
+| Guests | FluentEvent | `fevent_guests` (`source = 'fluent_community'`, `source_id` = post id) |
 
 Post and event titles/descriptions are separate. Editing the post uses fcom's normal edit modal.
 The event's "⋮" menu shows site administrators **Edit Event** (the portal edit page) and

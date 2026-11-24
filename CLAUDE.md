@@ -11,11 +11,11 @@ the rule file for whatever you are touching.
 
 An event is a **CPT hybrid**. Identity lives in WordPress, typed columns live in our table.
 
-- `wp_posts` (`post_type=fe_event`) — title, slug, body, status, author.
-- `wp_fe_event_details` — 1:1 on `post_id`, NOT NULL. Dates, calendar, venue, `settings` JSON.
+- `wp_posts` (`post_type=fevent_event`) — title, slug, body, status, author.
+- `wp_fevent_event_details` — 1:1 on `post_id`, NOT NULL. Dates, calendar, venue, `settings` JSON.
 - `wp_postmeta` — open-ended blobs only. Nothing queryable belongs here.
 
-Seven tables, all `wp_fe_*`: `event_details`, `ticket_types`, `guests`, `calendars`,
+Seven tables, all `wp_fevent_*`: `event_details`, `ticket_types`, `guests`, `calendars`,
 `notifications`, `notification_users`, `meta`.
 
 Three things people get wrong:
