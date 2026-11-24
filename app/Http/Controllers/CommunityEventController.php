@@ -39,13 +39,13 @@ class CommunityEventController extends Controller
             ->with(['post'])
             // Visibility is matched in SQL, so only what was asked for is ever loaded.
             ->whereIn('id', function ($query) use ($spaceIds, $withSpaceless) {
-                $query->select('fe_meta.object_id')
-                    ->from('fe_meta')
-                    ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
+                $query->select('fevent_meta.object_id')
+                    ->from('fevent_meta')
+                    ->join('fcom_posts', 'fcom_posts.id', '=', 'fevent_meta.value')
                     // fcom hides posts whose author is blocked, pending or deactivated.
                     ->join('fcom_xprofile', 'fcom_xprofile.user_id', '=', 'fcom_posts.user_id')
-                    ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
-                    ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
+                    ->where('fevent_meta.object_type', Meta::OBJECT_TYPE_EVENT)
+                    ->where('fevent_meta.meta_key', CommunityEvents::FEED_META_KEY)
                     ->where('fcom_posts.content_type', CommunityEvents::CONTENT_TYPE)
                     ->where('fcom_posts.status', 'published')
                     ->where('fcom_xprofile.status', 'active')
@@ -84,11 +84,11 @@ class CommunityEventController extends Controller
         $formatted = EventService::formatEvents($events);
 
         $spaceIds = Meta::query()
-            ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
-            ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
-            ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
-            ->whereIn('fe_meta.object_id', array_keys($formatted))
-            ->pluck('fcom_posts.space_id', 'fe_meta.object_id')
+            ->join('fcom_posts', 'fcom_posts.id', '=', 'fevent_meta.value')
+            ->where('fevent_meta.object_type', Meta::OBJECT_TYPE_EVENT)
+            ->where('fevent_meta.meta_key', CommunityEvents::FEED_META_KEY)
+            ->whereIn('fevent_meta.object_id', array_keys($formatted))
+            ->pluck('fcom_posts.space_id', 'fevent_meta.object_id')
             ->toArray();
 
         $spaces = FcomSpace::query()->whereIn('id', array_filter($spaceIds))->get()->keyBy('id');
@@ -234,7 +234,7 @@ class CommunityEventController extends Controller
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
         }
 
-        if (!wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fe_guest_register_' . $event->id)) {
+        if (!wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fevent_guest_register_' . $event->id)) {
             return $this->sendError(['message' => __('This form has expired. Please reload the page and try again.', 'fluent-event')], 403);
         }
 

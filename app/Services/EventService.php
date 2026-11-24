@@ -173,7 +173,7 @@ class EventService
             'my_status'          => $myStatus,
             'registration_open'  => $takesRegistrations && !$isPast,
             // Bound to the event: a visitor's open registration sends it back.
-            'register_nonce'     => $meta['entry_type'] === 'open' && !$isPast ? wp_create_nonce('fe_guest_register_' . $event->id) : '',
+            'register_nonce'     => $meta['entry_type'] === 'open' && !$isPast ? wp_create_nonce('fevent_guest_register_' . $event->id) : '',
             'edit_url'           => $canEdit ? self::editUrl($event->id) : '',
         ];
     }

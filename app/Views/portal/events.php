@@ -25,11 +25,6 @@ defined('ABSPATH') || exit;
 
 use FluentEvent\App\Services\Icon;
 
-// A calendar's colour, inherited as currentColor by its dot or an empty cover.
-$fluentEventTint = function ( $color ) {
-    return $color ? ' style="color: ' . esc_attr( $color ) . '"' : '';
-};
-
 // add_query_arg() leaves values raw, so encode them; empty values drop out of the link unless kept.
 $fluentEventLink = function ( array $args ) use ( $state, $url, $keep_empty ) {
     $args = array_filter( array_merge( $state, $args ), function ( $value, $key ) use ( $keep_empty ) {
@@ -92,7 +87,7 @@ $fluentEventEmpty = [
                         data-fe-chip
                     >
                         <?php if ( $fluentEventChip['color'] ) : ?>
-                            <span class="fe-calendar-chips__dot"<?php echo $fluentEventTint( $fluentEventChip['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?> aria-hidden="true"></span>
+                            <span class="fe-calendar-chips__dot"<?php if ( $fluentEventChip['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventChip['color'] ); ?>"<?php endif; ?> aria-hidden="true"></span>
                         <?php endif; ?>
                         <span class="fe-calendar-chips__label" title="<?php echo esc_attr( $fluentEventChip['title'] ); ?>"><?php echo esc_html( $fluentEventChip['title'] ); ?></span>
                     </a>
@@ -349,7 +344,7 @@ $fluentEventEmpty = [
                             <div class="fe-event-tile__body">
                                 <?php if ( $show_calendar ) : ?>
                                     <span class="fe-event-tile__calendar">
-                                        <span class="fe-event-tile__calendar-dot"<?php echo $fluentEventTint( $fluentEventRow['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?> aria-hidden="true"></span>
+                                        <span class="fe-event-tile__calendar-dot"<?php if ( $fluentEventRow['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventRow['color'] ); ?>"<?php endif; ?> aria-hidden="true"></span>
                                         <?php echo esc_html( $fluentEventRow['calendar'] ); ?>
                                     </span>
                                 <?php endif; ?>
@@ -364,7 +359,7 @@ $fluentEventEmpty = [
                             <?php if ( $fluentEventRow['cover_url'] ) : ?>
                                 <img class="fe-event-tile__cover" src="<?php echo esc_url( $fluentEventRow['cover_url'] ); ?>" alt="" loading="lazy">
                             <?php else : ?>
-                                <span class="fe-event-tile__cover fe-event-tile__cover--empty"<?php echo $fluentEventTint( $fluentEventRow['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?>></span>
+                                <span class="fe-event-tile__cover fe-event-tile__cover--empty"<?php if ( $fluentEventRow['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventRow['color'] ); ?>"<?php endif; ?>></span>
                             <?php endif; ?>
                         </div>
                     </li>
@@ -378,13 +373,13 @@ $fluentEventEmpty = [
                         <?php if ( $fluentEventRow['cover_url'] ) : ?>
                             <img class="fe-event-tile__cover" src="<?php echo esc_url( $fluentEventRow['cover_url'] ); ?>" alt="" loading="lazy">
                         <?php else : ?>
-                            <span class="fe-event-tile__cover fe-event-tile__cover--empty"<?php echo $fluentEventTint( $fluentEventRow['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?>></span>
+                            <span class="fe-event-tile__cover fe-event-tile__cover--empty"<?php if ( $fluentEventRow['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventRow['color'] ); ?>"<?php endif; ?>></span>
                         <?php endif; ?>
 
                         <div class="fe-event-tile__body">
                             <?php if ( $show_calendar ) : ?>
                                 <span class="fe-event-tile__calendar">
-                                    <span class="fe-event-tile__calendar-dot"<?php echo $fluentEventTint( $fluentEventRow['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?> aria-hidden="true"></span>
+                                    <span class="fe-event-tile__calendar-dot"<?php if ( $fluentEventRow['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventRow['color'] ); ?>"<?php endif; ?> aria-hidden="true"></span>
                                     <?php echo esc_html( $fluentEventRow['calendar'] ); ?>
                                 </span>
                             <?php endif; ?>

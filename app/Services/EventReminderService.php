@@ -287,14 +287,19 @@ class EventReminderService
     }
 
     // Sorted, so scheduleReminders() can compare it to what is queued; empty when the reminder is turned off.
+    // Held to the settings form's bounds, so a stored value that skipped the form (an event override, a
+    // filter, an old row) cannot schedule more or wider reminders than the form allows.
     protected static function leadTimes($reminder)
     {
         if (empty($reminder['enabled'])) return [];
 
-        $leadTimes = array_unique(array_filter(array_map(
-            [Settings::class, 'reminderInSeconds'],
-            (array) ($reminder['times'] ?? [])
-        )));
+        $leadTimes = array_unique(array_filter(
+            array_map([Settings::class, 'reminderInSeconds'], (array) ($reminder['times'] ?? [])),
+            [Settings::class, 'isReminderTimeAllowed']
+        ));
+
+        // The first ones as listed, the order the admin set them in.
+        $leadTimes = array_slice($leadTimes, 0, Settings::MAX_REMINDERS);
 
         sort($leadTimes);
 

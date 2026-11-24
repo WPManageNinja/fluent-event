@@ -10,7 +10,7 @@ class Settings
     const GENERAL = 'general';
     const EMAIL = 'email';
     const EMAIL_NOTIFICATIONS = 'email_notifications';
-    const WP_OPTION_KEY = 'fe_settings';
+    const WP_OPTION_KEY = 'fevent_settings';
 
     const UNIT_MINUTES = 'minutes';
     const UNIT_HOURS = 'hours';
@@ -20,6 +20,10 @@ class Settings
         self::UNIT_HOURS   => HOUR_IN_SECONDS,
         self::UNIT_DAYS    => DAY_IN_SECONDS,
     ];
+    // Guest reminder bounds: they keep a typo from queuing a reminder a year ahead, or
+    // seconds before the start, or dozens of emails for one event.
+    const MAX_REMINDERS = 5;
+    const MIN_REMINDER_TIME = 5 * MINUTE_IN_SECONDS;
     const MAX_REMINDER_TIME = 30 * DAY_IN_SECONDS;
 
     const DEFAULTS = [
@@ -65,7 +69,7 @@ class Settings
             // only general settings are stored in wp_options
             $stored = get_option(self::WP_OPTION_KEY, []);
         } else {
-            // other settings are stored in fe_meta, read once per request per site
+            // other settings are stored in fevent_meta, read once per request per site
             $cacheKey = get_current_blog_id() . ':' . $key;
 
             if (!array_key_exists($cacheKey, self::$stored)) {
@@ -86,6 +90,12 @@ class Settings
     public static function reminderInSeconds($reminder)
     {
         return (int) Arr::get($reminder, 'value') * (self::REMINDER_UNITS[Arr::get($reminder, 'unit')] ?? 0);
+    }
+
+    // The one check both the settings form and the scheduler use, so the two cannot disagree.
+    public static function isReminderTimeAllowed($seconds)
+    {
+        return $seconds >= self::MIN_REMINDER_TIME && $seconds <= self::MAX_REMINDER_TIME;
     }
 
     public static function get($key = self::GENERAL)

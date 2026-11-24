@@ -26,7 +26,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         return $this->rest('POST', "portal/events/{$event->id}/register-guest", array_merge([
             'name'  => 'Walk-in Visitor',
             'email' => 'visitor@example.test',
-            'nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
+            'nonce' => wp_create_nonce('fevent_portal_register_' . $event->id),
         ], $params));
     }
 
@@ -34,7 +34,7 @@ class PortalEndpointsTest extends IntegrationTestCase
     {
         return $this->rest('POST', "portal/events/{$event->id}/register", array_merge([
             'status' => $status,
-            'nonce'  => wp_create_nonce('fe_portal_register_' . $event->id),
+            'nonce'  => wp_create_nonce('fevent_portal_register_' . $event->id),
         ], $params));
     }
 
@@ -87,7 +87,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $event = $this->createEvent();
         $other = $this->createEvent();
 
-        $this->assertSame(403, $this->registerGuest($event, ['nonce' => wp_create_nonce('fe_portal_register_' . $other->id)])['status']);
+        $this->assertSame(403, $this->registerGuest($event, ['nonce' => wp_create_nonce('fevent_portal_register_' . $other->id)])['status']);
         $this->assertSame(200, $this->registerGuest($event, ['website' => 'https://spam.example.test'])['status']);
         $this->assertCount(0, $this->guestsOf($event));
 
@@ -168,9 +168,9 @@ class PortalEndpointsTest extends IntegrationTestCase
         $raced = false;
 
         $this->addTestFilter('query', function ($query) use (&$raced, $guest) {
-            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fe_guests') !== false && strpos($query, "'not_going'") !== false) {
+            if (!$raced && stripos($query, 'update') === 0 && strpos($query, 'fevent_guests') !== false && strpos($query, "'not_going'") !== false) {
                 $raced = true;
-                $this->wpdb->update($this->table('fe_guests'), ['status' => 'cancelled'], ['id' => $guest->id]);
+                $this->wpdb->update($this->table('fevent_guests'), ['status' => 'cancelled'], ['id' => $guest->id]);
             }
 
             return $query;
@@ -381,7 +381,7 @@ class PortalEndpointsTest extends IntegrationTestCase
         $response = $this->rest('POST', "portal/events/{$event->id}/register-guest", [
             'name'  => 'Walk-in Visitor',
             'email' => 'visitor@example.test',
-            'nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
+            'nonce' => wp_create_nonce('fevent_portal_register_' . $event->id),
         ], $parallelRequests);
 
         wp_cache_delete('_transient_' . $key, 'options');

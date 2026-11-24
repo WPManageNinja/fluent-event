@@ -4,7 +4,7 @@ namespace FluentEvent\Database\Migrations;
 
 class MetaMigrator
 {
-    static $tableName = 'fe_meta';
+    static $tableName = 'fevent_meta';
 
     public static function migrate()
     {

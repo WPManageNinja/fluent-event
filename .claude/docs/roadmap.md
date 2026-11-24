@@ -75,14 +75,14 @@ Design:
 ## Release 3 — "Venues, organizers, speakers & categories"
 
 Reusable records instead of retyping them in every event. Designed as WordPress taxonomies
-on `fe_event` with extra fields in term meta (FR-6.17) — not registered yet.
+on `fevent_event` with extra fields in term meta (FR-6.17) — not registered yet.
 
 | Feature | Notes |
 |---|---|
-| Reusable venues: save once (name, address, city), pick in any event; map preview + address lookup | `fe_venue`; FR-6.2. Today each event stores its own address — that stays as a one-off option, so no migration |
-| Organizers: name, email, phone, website, logo; one or more per event | `fe_organizer`; display/credit only — who can manage an event stays with team permissions |
-| Speakers: name, photo, designation, social links; one or more per event | `fe_performer`; thin by design — no profile page |
-| Categories: Workshop, Meetup, Webinar, Conference… with a color and icon; one or more per event, optional parent | `fe_event_type` (the spec calls it "event type"; shown as Categories so it isn't confused with `entry_type` or `venue_type`) |
+| Reusable venues: save once (name, address, city), pick in any event; map preview + address lookup | `fevent_venue`; FR-6.2. Today each event stores its own address — that stays as a one-off option, so no migration |
+| Organizers: name, email, phone, website, logo; one or more per event | `fevent_organizer`; display/credit only — who can manage an event stays with team permissions |
+| Speakers: name, photo, designation, social links; one or more per event | `fevent_performer`; thin by design — no profile page |
+| Categories: Workshop, Meetup, Webinar, Conference… with a color and icon; one or more per event, optional parent | `fevent_event_type` (the spec calls it "event type"; shown as Categories so it isn't confused with `entry_type` or `venue_type`) |
 | Shown on the event (community post + admin), filter events by venue / organizer / speaker / category | public venue / organizer / category pages come later |
 | Host on the public event page | the event's organizers, shown on the landing event page. Left out of Release 1 so the page matches the community event page |
 
@@ -172,7 +172,7 @@ Design:
 |---|---|
 | ⭐ Recurring events | FR-6.16 designed: RRULE on master, each occurrence owns its row |
 | ⭐ Zoom / Google Meet auto-create links | FR-6.3; today hosts paste a link |
-| Sponsors (name, logo, URL, level) | a taxonomy like organizers (`fe_sponsor`), deferred in the spec |
+| Sponsors (name, logo, URL, level) | a taxonomy like organizers (`fevent_sponsor`), deferred in the spec |
 
 ---
 

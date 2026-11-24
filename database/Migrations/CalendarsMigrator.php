@@ -4,7 +4,7 @@ namespace FluentEvent\Database\Migrations;
 
 class CalendarsMigrator
 {
-    static $tableName = 'fe_calendars';
+    static $tableName = 'fevent_calendars';
 
     public static function migrate()
     {

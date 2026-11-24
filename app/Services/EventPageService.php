@@ -196,7 +196,7 @@ class EventPageService
             'email'       => $user->exists() ? $user->user_email : '',
             'url'         => $base . '/register-guest',
             'member_url'  => $user->exists() ? $base . '/register' : '',
-            'event_nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
+            'event_nonce' => wp_create_nonce('fevent_portal_register_' . $event->id),
             'rest_nonce'  => $user->exists() ? wp_create_nonce('wp_rest') : '',
         ];
     }

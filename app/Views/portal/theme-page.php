@@ -1,7 +1,7 @@
 <?php
 /**
  * An event's own address, or the events archive, in a classic theme: its header and footer around ours.
- * Block themes get the same from the single-fe_event and archive-fe_event templates.
+ * Block themes get the same from the single-fevent_event and archive-fevent_event templates.
  */
 defined('ABSPATH') || exit;
 

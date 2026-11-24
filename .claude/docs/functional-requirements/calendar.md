@@ -6,7 +6,7 @@
 
 > **The calendar JSON column is `meta`, not `settings`.** It is deliberately open-ended —
 > any per-calendar config lands here without a migration, and the model's `defaultMeta()`
-> documents the keys in use. v1 writes exactly one, `theme_color`. `wp_fe_event_details`
+> documents the keys in use. v1 writes exactly one, `theme_color`. `wp_fevent_event_details`
 > keeps its own column named `settings`; the two are unrelated and neither name is going to
 > be unified.
 
@@ -14,15 +14,15 @@
 
 ## Approach
 
-- **New table** `wp_fe_calendars`. Per-calendar extra config in the calendar's `meta` column.
-- **Space-owned.** Calendars belong to the space; only host/managers (capability `fe_manage_calendars`) create/manage them. Members browse.
+- **New table** `wp_fevent_calendars`. Per-calendar extra config in the calendar's `meta` column.
+- **Space-owned.** Calendars belong to the space; only host/managers (capability `fevent_manage_calendars`) create/manage them. Members browse.
 - **Events link by `calendar_id`** (FR-6). One event → one calendar (or none = unfiled).
 - **Shareable page** keyed by `slug`; lists that calendar's published events.
 - **Logo/cover = direct image URLs in `meta` JSON** (`meta.logo_url` / `meta.cover_url`) — not columns, not WP attachments. They're view-only (never filtered or joined on), so per the queried→column / display-only→JSON rule they don't earn columns.
 
 ## Data model
 
-**Table: `wp_fe_calendars`**
+**Table: `wp_fevent_calendars`**
 
 | Column           | Type        | Notes                                            |
 | ---------------- | ----------- | ------------------------------------------------ |

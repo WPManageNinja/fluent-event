@@ -1,4 +1,5 @@
 import EventCard from './EventCard';
+import SpaceEventsWidget from './SpaceEventsWidget';
 import { t, portalVars, uploadMedia, elementLocale } from './utils';
 
 /*
@@ -357,6 +358,15 @@ function register() {
     addFilter('fluent_com_feed_content_components', 'fluent-event', (components) => {
         components.event = EventCard;
         return components;
+    });
+
+    // fcom's space setting "Show Upcoming Events on the Sidebar" turns it on per space.
+    addFilter('fluent_com_space_sidebar_widgets', 'fluent-event', (widgets, space) => {
+        if (space && space.settings && space.settings.show_upcoming_events === 'yes') {
+            widgets.push({ key: 'fe_upcoming_events', component: SpaceEventsWidget });
+        }
+
+        return widgets;
     });
 
     addFilter('fluent_com_space_actions', 'fluent-event', (actions, space) => {

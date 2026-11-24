@@ -262,7 +262,7 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertTrue($this->open($this->createEvent(['calendar_id' => $this->createCalendar(['status' => 'private'])->id]))['404']);
     }
 
-    // With plain permalinks the link is ?fe_event=<slug>, which WordPress reads as the event's name, so the unlisted
+    // With plain permalinks the link is ?fevent_event=<slug>, which WordPress reads as the event's name, so the unlisted
     // event still opens by its own link; an ID-based link (?p=) would be refused like any lookup by ID.
     public function test_an_unlisted_event_opens_by_its_own_link_with_plain_permalinks()
     {
@@ -279,7 +279,7 @@ class EventLandingPageTest extends IntegrationTestCase
             $GLOBALS['wp']->parse_request();
             $GLOBALS['wp']->query_posts();
 
-            $this->assertSame('fe_event=' . $unlisted->post->post_name, $query);
+            $this->assertSame('fevent_event=' . $unlisted->post->post_name, $query);
             $this->assertSame([$unlisted->post_id], wp_list_pluck($GLOBALS['wp_query']->posts, 'ID'));
         } finally {
             remove_filter('pre_option_permalink_structure', '__return_empty_string');

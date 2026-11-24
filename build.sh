@@ -148,8 +148,13 @@ file_put_contents($file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_S
 # server, so that zip leaves the updater out. boot/app.php skips it when the class is absent.
 # Removed before the dump, so the classmap never names it.
 UPDATER_DIR="app/Services/PluginManager"
+# Only sites that ran an earlier build hold the old `fe_` names, and those sites get the
+# migration through the self-hosted updater. A site installed from WordPress.org starts on
+# `fevent`, so that zip leaves the one-time migrator out; ActivationHandler skips it when absent.
+MIGRATOR="database/Migrations/LegacyPrefixMigrator.php"
 if "$wporg"; then
     rm -rf "$STAGE/$UPDATER_DIR"
+    rm -f "$STAGE/$MIGRATOR"
 fi
 
 # Dumped in the copy so the working tree keeps its dev autoloader.
@@ -204,9 +209,16 @@ if "$wporg"; then
         --include='*.php' --exclude-dir=woocommerce; then
         die "The WordPress.org build still contains self-hosted update code."
     fi
+    # WordPress.org asks for a prefix of at least 4 characters: no old `fe_` stored or registered
+    # name may ship. FluentCommunity's own route names (fe_events, fe_event_view…) are not ours.
+    if [ -e "$STAGE/$MIGRATOR" ] || grep -rqE "['\"]fe_(event|settings|version|page|calendar|search|meta|guests|calendars|event_details|ticket_types|notifications|notification_users)['\"]|['\"]fe_(portal_register_|guest_register_|rl_)" "$STAGE" \
+        --include='*.php' --include='*.js' --exclude-dir=woocommerce; then
+        die "The WordPress.org build still contains the prefix migration or an old fe_ name."
+    fi
     ZIP="$BUILD_DIR/$SLUG-$VERSION-wporg.zip"
 else
     [ -f "$STAGE/$UPDATER_DIR/PluginUpdater.php" ] || die "The updater is missing from the build."
+    [ -f "$STAGE/$MIGRATOR" ] || die "The prefix migration is missing from the build."
     ZIP="$BUILD_DIR/$SLUG-$VERSION.zip"
 fi
 rm -f "$ZIP"
