@@ -27,7 +27,9 @@ class LegacyPrefixMigrator
 
     const TABLES = ['event_details', 'ticket_types', 'guests', 'calendars', 'notifications', 'notification_users', 'meta'];
 
-    const OPTIONS = ['fe_settings' => 'fevent_settings'];
+    const OLD_SETTINGS_OPTION = 'fe_settings';
+
+    const OPTIONS = [self::OLD_SETTINGS_OPTION => 'fevent_settings'];
 
     // Version options dropped on the move. With no version stored, ActivationHandler::maybeUpgrade()
     // flushes the URL rules, after the post type registered with the moved settings' event slug.
@@ -107,6 +109,22 @@ class LegacyPrefixMigrator
         $path = '/' . ltrim((string) strtok((string) $requestUri, '?'), '/');
 
         return $query ? $path . '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986) : $path;
+    }
+
+    /**
+     * Hooked on `default_option_fevent_settings`: while the new option does not exist, reads get the old
+     * one. A paused move (see run()) thus still shows the site's own settings, and a save during the
+     * pause writes them into the new option together with the edit, so nothing is lost when the move
+     * later deletes the old option.
+     *
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function legacySettingsFallback($default)
+    {
+        $legacy = get_option(self::OLD_SETTINGS_OPTION);
+
+        return is_array($legacy) ? $legacy : $default;
     }
 
     /**
@@ -210,6 +228,9 @@ class LegacyPrefixMigrator
         global $wpdb;
 
         foreach (self::OPTIONS as $old => $new) {
+            // Check the new option as stored: the fallback would answer for it with the old value.
+            remove_filter('default_option_' . $new, [self::class, 'legacySettingsFallback']);
+
             $value = get_option($old);
 
             if ($value !== false && get_option($new) === false) {

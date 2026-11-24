@@ -27,6 +27,9 @@ $app->addAction('admin_enqueue_scripts', ['AdminMenuHandler', 'enqueueAdminPageA
  */
 if (class_exists(\FluentEvent\Database\Migrations\LegacyPrefixMigrator::class)) {
     add_action('init', [\FluentEvent\Database\Migrations\LegacyPrefixMigrator::class, 'run'], 0);
+
+    // Until the settings move, reads (and the merge in a save) see the old settings.
+    add_filter('default_option_' . \FluentEvent\App\Services\Settings::WP_OPTION_KEY, [\FluentEvent\Database\Migrations\LegacyPrefixMigrator::class, 'legacySettingsFallback']);
 }
 
 /**
