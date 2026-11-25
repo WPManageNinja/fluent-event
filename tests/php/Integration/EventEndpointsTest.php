@@ -682,6 +682,10 @@ class EventEndpointsTest extends IntegrationTestCase
             'a number without a unit'   => [['value' => 2], 'registration_closes.unit'],
             'a unit without a number'   => [['unit' => 'hours'], 'registration_closes.value'],
             'not an offset at all'      => ['tomorrow', 'registration_closes'],
+            // Checked as sent, not after a cast turned them into 7, 0 or 1.
+            'a negative number'         => [['value' => -7, 'unit' => 'hours'], 'registration_closes.value'],
+            'a word for a number'       => [['value' => 'abc', 'unit' => 'hours'], 'registration_closes.value'],
+            'a fraction'                => [['value' => '1.5', 'unit' => 'hours'], 'registration_closes.value'],
         ];
     }
 

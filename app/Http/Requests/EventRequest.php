@@ -51,9 +51,10 @@ class EventRequest extends BaseRequest
         'capacity'           => 'intval',
         'show_spots_left'    => 'sanitize_text_field',
         'start_display'      => 'sanitize_text_field',
-        'registration_opens.value'  => 'absint',
+        // Not absint: it would turn -7 into 7 and "abc" into 0 before integer|min:0 could refuse them.
+        'registration_opens.value'  => 'wholeNumber',
         'registration_opens.unit'   => 'sanitize_key',
-        'registration_closes.value' => 'absint',
+        'registration_closes.value' => 'wholeNumber',
         'registration_closes.unit'  => 'sanitize_key',
     ];
     const RULES = [
