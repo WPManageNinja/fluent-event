@@ -221,6 +221,8 @@ class PortalHandler
             'Cards' => __('Cards', 'fluent-event'),
             'Check your inbox for the confirmation email, or register with a different email.' => __('Check your inbox for the confirmation email, or register with a different email.', 'fluent-event'),
             'Contact the host if you want to join again.' => __('Contact the host if you want to join again.', 'fluent-event'),
+            'You are already checked in' => __('You are already checked in', 'fluent-event'),
+            'The host has recorded your attendance. Contact them if something changed.' => __('The host has recorded your attendance. Contact them if something changed.', 'fluent-event'),
             'Choose a space for this event.' => __('Choose a space for this event.', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
             'Comments' => __('Comments', 'fluent-event'),

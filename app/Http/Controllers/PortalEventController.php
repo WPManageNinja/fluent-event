@@ -142,7 +142,7 @@ class PortalEventController extends Controller
         }
 
         // A repeat is warned in the card's dialog; a full event is an error.
-        if (in_array($registered, ['already_registered', 'cancelled'], true)) {
+        if (in_array($registered, ['already_registered', 'cancelled', 'checked_in'], true)) {
             return $this->registered($event, null, $registered);
         }
 
@@ -169,7 +169,7 @@ class PortalEventController extends Controller
 
     /**
      * @param string|null $status  The guest's status, or null when the registration was refused.
-     * @param string      $refusal Why it was refused: 'already_registered' or 'cancelled'.
+     * @param string      $refusal Why it was refused: 'already_registered', 'cancelled' or 'checked_in'.
      */
     private function registered(Event $event, $status, $refusal = '')
     {

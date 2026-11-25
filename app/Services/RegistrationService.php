@@ -38,9 +38,9 @@ class RegistrationService
      *
      * @param array $source source and source_id for a new row.
      * @return array|null|false|string [Guest, previous status, created]; null when another account holds the email;
-     *                                 a repeatRefusal() reason when the row can't take this answer; a message when the
-     *                                 event is full; false when the row changed under this request to something other
-     *                                 than what it asked for.
+     *                                 a repeatRefusal() reason, or 'checked_in', when the row can't take this answer;
+     *                                 a message when the event is full; false when the row changed under this request
+     *                                 to something other than what it asked for.
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
@@ -48,6 +48,11 @@ class RegistrationService
 
         if ($guest && $guest->user_id && (int) $guest->user_id !== (int) $user->ID) {
             return null;
+        }
+
+        // An admin's check-in is an attendance record: neither answer may rewrite it.
+        if ($guest && $guest->status === 'checked_in') {
+            return 'checked_in';
         }
 
         // Going again is refused unless the row said not going, as for visitors; an admin's cancel stands against
@@ -155,6 +160,10 @@ class RegistrationService
     // What a refused repeat registration is told.
     public static function refusalMessage($refusal)
     {
+        if ($refusal === 'checked_in') {
+            return __('You are already checked in for this event.', 'fluent-event');
+        }
+
         return $refusal === 'cancelled'
             ? __('Your registration was cancelled by the host.', 'fluent-event')
             : __('This email is already registered for this event.', 'fluent-event');

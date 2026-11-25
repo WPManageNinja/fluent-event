@@ -65,8 +65,8 @@ class EventPageService
      * @param array  $formatted EventService::formatEvent() shape, with a logged-in viewer's own status.
      * @param string $url       The event page.
      */
-    // $answer draws the popup the page opens after a registration: 'registered' confirms it; 'already_registered' and
-    // 'cancelled' warn why it was refused.
+    // $answer draws the popup the page opens after a registration: 'registered' confirms it; 'already_registered',
+    // 'cancelled' and 'checked_in' warn why it was refused.
     public static function sideCard(Event $event, array $formatted, $url, $answer = '')
     {
         $siteZone = wp_timezone_string();

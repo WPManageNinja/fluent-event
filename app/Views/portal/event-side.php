@@ -21,7 +21,7 @@
  * @var string     $meeting_link     http(s) only; empty unless this viewer may see it.
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
  * @var array|null $add_to_calendar  google, ics, filename.
- * @var string     $answer           'registered', 'already_registered' or 'cancelled' in the registration's answer, which
+ * @var string     $answer           'registered', 'already_registered', 'cancelled' or 'checked_in' in the registration's answer, which
  *                                   portal.js opens; '' on the page.
  */
 defined('ABSPATH') || exit;
@@ -339,7 +339,7 @@ $fluentEventRsvpLabels = [
                 <?php esc_html_e( 'Done', 'fluent-event' ); ?>
             </button>
         </div>
-    <?php elseif ( in_array( $answer, array( 'already_registered', 'cancelled' ), true ) ) : ?>
+    <?php elseif ( in_array( $answer, array( 'already_registered', 'cancelled', 'checked_in' ), true ) ) : ?>
         <div
             id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
             class="fe-register-success fe-register-success--warning"
@@ -356,10 +356,22 @@ $fluentEventRsvpLabels = [
             <div class="fe-register-success__head">
                 <span class="fe-register-success__check"><?php echo Icon::WARNING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                 <h2 class="fe-register-success__title" id="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>">
-                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Your registration was cancelled', 'fluent-event' ) : __( 'This email is already registered', 'fluent-event' ) ); ?>
+                    <?php
+                    if ( 'checked_in' === $answer ) {
+                        esc_html_e( 'You are already checked in', 'fluent-event' );
+                    } else {
+                        echo esc_html( 'cancelled' === $answer ? __( 'Your registration was cancelled', 'fluent-event' ) : __( 'This email is already registered', 'fluent-event' ) );
+                    }
+                    ?>
                 </h2>
                 <p class="fe-register-success__text" id="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>">
-                    <?php echo esc_html( 'cancelled' === $answer ? __( 'Contact the host if you want to join again.', 'fluent-event' ) : __( 'Check your inbox for the confirmation email, or register with a different email.', 'fluent-event' ) ); ?>
+                    <?php
+                    if ( 'checked_in' === $answer ) {
+                        esc_html_e( 'The host has recorded your attendance. Contact them if something changed.', 'fluent-event' );
+                    } else {
+                        echo esc_html( 'cancelled' === $answer ? __( 'Contact the host if you want to join again.', 'fluent-event' ) : __( 'Check your inbox for the confirmation email, or register with a different email.', 'fluent-event' ) );
+                    }
+                    ?>
                 </p>
             </div>
 

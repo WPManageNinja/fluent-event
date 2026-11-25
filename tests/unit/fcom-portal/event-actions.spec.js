@@ -192,6 +192,22 @@ describe('EventActions', () => {
         expect(ElNotification).not.toHaveBeenCalled();
     });
 
+    it('tells a checked-in member saying not going that the check-in stands, and changes nothing', async () => {
+        fetch.mockResolvedValue(new Response(JSON.stringify({ message: 'You are already checked in for this event.', status: null, refusal: 'checked_in' })));
+        wrapper = actions(rsvp({ my_status: 'checked_in' }));
+
+        await wrapper.find('.fe-rsvp__trigger').trigger('click');
+        await wrapper.findAll('[role="menuitemradio"]')[1].trigger('click');
+        await flushPromises();
+
+        expect(fetch.mock.calls[0][1].body).toBe('{"status":"not_going"}');
+        const [content] = ElMessageBox.alert.mock.calls[0];
+        const [, title, text] = content.children[0].children;
+        expect(title.children).toBe('You are already checked in');
+        expect(text.children).toBe('The host has recorded your attendance. Contact them if something changed.');
+        expect(wrapper.emitted('done')).toBeUndefined();
+    });
+
     it("sends a logged-out visitor to fcom's login page and back to this page after", () => {
         window.fluentEventFcomPortal.is_logged_in = false;
         wrapper = actions();

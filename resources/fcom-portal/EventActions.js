@@ -124,7 +124,7 @@ export default {
             try {
                 const reply = await eventsApi.post(`community/events/${this.event.id}/register`, { status });
 
-                // An admin's cancel stands: the member is told why, and nothing changes.
+                // An admin's cancel or check-in stands: the member is told why, and nothing changes.
                 if (!reply.status) {
                     this.showRefusal(reply.refusal);
                     return;
@@ -170,18 +170,19 @@ export default {
 
             this.choose('not_going');
         },
-        // refusal: 'already_registered', or 'cancelled' when an admin cancelled the registration.
+        // refusal: 'already_registered', or 'cancelled' / 'checked_in' when an admin set the registration's status.
         async showRefusal(refusal) {
             const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('element-plus')]);
-            const cancelled = refusal === 'cancelled';
+            const [title, text] = {
+                cancelled: [t('Your registration was cancelled'), t('Contact the host if you want to join again.')],
+                checked_in: [t('You are already checked in'), t('The host has recorded your attendance. Contact them if something changed.')],
+            }[refusal] || [t('This email is already registered'), t('Check your inbox for the confirmation email, or register with a different email.')];
 
             ElMessageBox.alert(h('div', { class: 'fe-registered' }, [
                 h('div', { class: 'fe-registered__head' }, [
                     h('span', { class: 'fe-registered__check fe-registered__check--warning', innerHTML: WARNING }),
-                    h('strong', { class: 'fe-registered__title' }, cancelled ? t('Your registration was cancelled') : t('This email is already registered')),
-                    h('p', { class: 'fe-registered__text' }, cancelled
-                        ? t('Contact the host if you want to join again.')
-                        : t('Check your inbox for the confirmation email, or register with a different email.')),
+                    h('strong', { class: 'fe-registered__title' }, title),
+                    h('p', { class: 'fe-registered__text' }, text),
                 ]),
             ]), '', {
                 customClass: 'fe-registered-box',

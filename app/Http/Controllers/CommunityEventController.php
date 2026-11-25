@@ -183,7 +183,7 @@ class CommunityEventController extends Controller
         }
 
         // A repeat is warned in a dialog; a full event is an error.
-        if (in_array($registered, ['already_registered', 'cancelled'], true)) {
+        if (in_array($registered, ['already_registered', 'cancelled', 'checked_in'], true)) {
             return self::refused($registered);
         }
 
