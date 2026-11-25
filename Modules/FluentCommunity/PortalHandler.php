@@ -352,6 +352,7 @@ class PortalHandler
             'View all' => __('View all', 'fluent-event'),
             'View in FluentEvent' => __('View in FluentEvent', 'fluent-event'),
             'View post' => __('View post', 'fluent-event'),
+            'Waitlisted' => __('Waitlisted', 'fluent-event'),
             'Week' => __('Week', 'fluent-event'),
             'What members see in the feed, above the event.' => __('What members see in the feed, above the event.', 'fluent-event'),
             'What the event is called.' => __('What the event is called.', 'fluent-event'),

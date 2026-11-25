@@ -40,6 +40,7 @@ $fluentEventForm = $registration && ! $registration['is_going'] && 'waitlisted' 
 $fluentEventRsvpLabels = [
     'going'     => __( 'Going', 'fluent-event' ),
     'not_going' => __( 'Not going', 'fluent-event' ),
+    'waitlisted' => __( 'Waitlisted', 'fluent-event' ),
     ''          => __( 'Interested?', 'fluent-event' ),
 ];
 $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __( 'Register', 'fluent-event' );
@@ -145,7 +146,8 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                     <span class="fe-event-page__badge-icon"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php echo esc_html( $fluentEventOpen ? __( 'Registered', 'fluent-event' ) : __( 'Going', 'fluent-event' ) ); ?>
                 </span>
-            <?php elseif ( $fluentEventMember && 'waitlisted' === $fluentEventStatus ) : ?>
+            <?php elseif ( $fluentEventOpen && $fluentEventMember && 'waitlisted' === $fluentEventStatus ) : ?>
+                <?php // An RSVP's waitlist place is an answer in its own menu below. ?>
                 <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
                     <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <span class="fe-rsvp__label"><?php esc_html_e( 'On the waitlist', 'fluent-event' ); ?></span>
@@ -179,6 +181,8 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                 <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
                     <?php if ( 'going' === $fluentEventStatus ) : ?>
                         <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                    <?php elseif ( 'waitlisted' === $fluentEventStatus ) : ?>
+                        <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php elseif ( 'not_going' === $fluentEventStatus ) : ?>
                         <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php endif; ?>
@@ -189,10 +193,18 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                 <div id="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" class="fe-rsvp__menu" popover role="menu" aria-label="<?php esc_attr_e( 'RSVP', 'fluent-event' ); ?>">
                     <?php if ( $fluentEventMember ) : ?>
                         <?php // A member answers by account, straight away, with no form. ?>
-                        <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'going' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="going">
-                            <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
-                            <?php echo esc_html( $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __( 'Going', 'fluent-event' ) ); ?>
-                        </button>
+                        <?php // A waitlisted guest's place is checked here; only an admin moves them to going. ?>
+                        <?php if ( $join_waitlist || 'waitlisted' === $fluentEventStatus ) : ?>
+                            <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'waitlisted' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="going">
+                                <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                                <?php echo esc_html( 'waitlisted' === $fluentEventStatus ? __( 'Waitlisted', 'fluent-event' ) : __( 'Join waitlist', 'fluent-event' ) ); ?>
+                            </button>
+                        <?php else : ?>
+                            <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'going' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="going">
+                                <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                                <?php esc_html_e( 'Going', 'fluent-event' ); ?>
+                            </button>
+                        <?php endif; ?>
                         <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'not_going' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="not_going">
                             <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                             <?php esc_html_e( 'Not going', 'fluent-event' ); ?>

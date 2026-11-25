@@ -293,8 +293,9 @@ export default {
         <div class="fe-event-actions">
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
 
-            <!-- A member leaves the waitlist from its menu; a visitor isn't recognised again after a reload. -->
-            <div v-else-if="status === 'waitlisted' && isLoggedIn" class="fe-rsvp">
+            <!-- On an open event a member leaves the waitlist from its menu; a visitor isn't recognised again after a reload.
+                 An RSVP's waitlist place is an answer in its menu below. -->
+            <div v-else-if="status === 'waitlisted' && event.entry_type === 'open' && isLoggedIn" class="fe-rsvp">
                 <button
                     ref="trigger"
                     type="button"
@@ -317,7 +318,7 @@ export default {
                     </ul>
                 </div>
             </div>
-            <span v-else-if="status === 'waitlisted'" class="fe-event-actions__badge">
+            <span v-else-if="status === 'waitlisted' && event.entry_type === 'open'" class="fe-event-actions__badge">
                 <span class="fe-event-actions__badge-icon" aria-hidden="true">${CLOCK}</span>
                 {{ t('On the waitlist') }}
             </span>
@@ -390,8 +391,6 @@ export default {
 
             <a v-else-if="!isLoggedIn" class="el-button fcom_primary_button" :href="loginUrl()" @click="$event.currentTarget.href = loginUrl()">{{ t('Log in to RSVP') }}</a>
 
-            <button v-else-if="joinsWaitlist" type="button" class="el-button fcom_primary_button" :disabled="busy" @click="choose('going')">{{ t('Join waitlist') }}</button>
-
             <div v-else class="fe-rsvp">
                 <button
                     ref="trigger"
@@ -403,15 +402,21 @@ export default {
                     @click.stop="toggle"
                 >
                     <span v-if="status === 'going'" class="fe-rsvp__icon fe-rsvp__icon--going" aria-hidden="true">${CHECK}</span>
+                    <span v-else-if="status === 'waitlisted'" class="fe-rsvp__icon fe-rsvp__icon--waitlisted" aria-hidden="true">${CLOCK}</span>
                     <span v-else-if="status === 'not_going'" class="fe-rsvp__icon fe-rsvp__icon--not-going" aria-hidden="true">${CROSS}</span>
-                    <span class="fe-rsvp__label">{{ status === 'going' ? t('Going') : status === 'not_going' ? t('Not going') : t('Interested?') }}</span>
+                    <span class="fe-rsvp__label">{{ { going: t('Going'), waitlisted: t('Waitlisted'), not_going: t('Not going') }[status] || t('Interested?') }}</span>
                     <span class="fe-rsvp__chevron" :class="{ 'fe-rsvp__chevron--open': open }" aria-hidden="true">${CHEVRON}</span>
                 </button>
 
                 <div v-if="open" class="el-popover el-popper fcom_menu_below_nav fe-rsvp__pop">
                     <ul class="actions_items" role="menu">
                         <li role="none">
-                            <button type="button" role="menuitemradio" class="fe-rsvp__option" :aria-checked="status === 'going' ? 'true' : 'false'" @click.stop="choose('going')">
+                            <!-- On a full event with a waitlist, Going joins it; a waitlisted guest's place is checked here, and only an admin moves them to going. -->
+                            <button v-if="status === 'waitlisted' || joinsWaitlist" type="button" role="menuitemradio" class="fe-rsvp__option" :aria-checked="status === 'waitlisted' ? 'true' : 'false'" @click.stop="choose(status === 'waitlisted' ? 'waitlisted' : 'going')">
+                                <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted" aria-hidden="true">${CLOCK}</span>
+                                {{ status === 'waitlisted' ? t('Waitlisted') : t('Join waitlist') }}
+                            </button>
+                            <button v-else type="button" role="menuitemradio" class="fe-rsvp__option" :aria-checked="status === 'going' ? 'true' : 'false'" @click.stop="choose('going')">
                                 <span class="fe-rsvp__icon fe-rsvp__icon--going" aria-hidden="true">${CHECK}</span>
                                 {{ t('Going') }}
                             </button>

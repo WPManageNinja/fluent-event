@@ -485,7 +485,8 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame("You're already on the waitlist for this event.", $response['data']['message']);
     }
 
-    // A logged-in member on a full event with a waitlist joins it by account, sees it on the card, and can leave it.
+    // A logged-in member on a full event with a waitlist joins it by account, sees it on the card, and can leave it:
+    // Leave waitlist on an open event, Not going on an RSVP.
     public function test_a_member_joins_and_leaves_the_waitlist_by_account()
     {
         foreach (['rsvp', 'open'] as $entryType) {
@@ -500,7 +501,8 @@ class PortalEndpointsTest extends IntegrationTestCase
 
             $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
             $this->assertSame('waitlisted', $response['data']['status']);
-            $this->assertStringContainsString('Leave waitlist', $response['data']['html']);
+            // An open event's place has its own Leave waitlist menu; an RSVP's is Waitlisted beside Not going.
+            $this->assertStringContainsString($entryType === 'open' ? 'Leave waitlist' : 'data-fe-status="not_going"', $response['data']['html']);
             $this->assertStringNotContainsString('data-fe-register', $response['data']['html']);
 
             $again = $entryType === 'rsvp'

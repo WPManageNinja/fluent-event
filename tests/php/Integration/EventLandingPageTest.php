@@ -170,7 +170,8 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringNotContainsString('data-fe-register', $body);
     }
 
-    // On a full event with a waitlist a member's Going reads Join waitlist; once waitlisted, they get Leave waitlist.
+    // On a full RSVP event with a waitlist a member's Going reads Join waitlist; once waitlisted, the menu holds
+    // Waitlisted beside Not going, with no Leave waitlist.
     public function test_a_member_sees_the_waitlist_on_a_full_event()
     {
         $full = $this->createEvent(['venue_type' => 'online'], ['entry_type' => 'rsvp', 'capacity' => 1, 'waitlist' => 'yes', 'online_meeting_url' => 'https://meet.example.test/fe-room']);
@@ -183,7 +184,9 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->createGuest($full, ['user_id' => $memberId, 'email' => get_userdata($memberId)->user_email, 'status' => 'waitlisted']);
         $body = $this->page($full)['body'];
 
-        $this->assertStringContainsString('Leave waitlist', $body);
+        $this->assertMatchesRegularExpression('/aria-checked="true" data-fe-status="going">\s*<span[^>]*fe-rsvp__icon--waitlisted.*?Waitlisted/s', $body);
+        $this->assertStringContainsString('data-fe-status="not_going"', $body);
+        $this->assertStringNotContainsString('Leave waitlist', $body);
         $this->assertStringNotContainsString('fe-room', $body);
         $this->assertStringNotContainsString('Please register for the event to see the meeting link.', $body);
     }
