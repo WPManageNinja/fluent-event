@@ -90,6 +90,18 @@ class RegistrationWindowTest extends TestCase
         ];
     }
 
+    // 2:30 AM never happens in New York on 2027-03-14; read as 3:30 AM it would open after the 3:00 AM close.
+    public function test_a_time_skipped_by_daylight_saving_opens_when_the_clocks_jump_not_after_closing()
+    {
+        [$opens, $closes] = $this->window('2027-03-14 04:00:00', 'America/New_York', [
+            'registration_opens'  => ['value' => 90, 'unit' => 'minutes'],
+            'registration_closes' => ['value' => 60, 'unit' => 'minutes'],
+        ]);
+
+        $this->assertSame('2027-03-14 03:00:00', $opens);
+        $this->assertSame('2027-03-14 03:00:00', $closes);
+    }
+
     public function test_the_window_moves_with_the_event()
     {
         $meta = ['registration_closes' => ['value' => 1, 'unit' => 'days']];

@@ -100,8 +100,19 @@ class Event extends Model
             }
 
             $local = gmdate(DateTimeHelper::FORMAT, $startsAt - Settings::reminderInSeconds($meta[$key]));
+            $at = strtotime(DateTimeHelper::convertToUtc($local, $event->timezone) . ' UTC');
 
-            return strtotime(DateTimeHelper::convertToUtc($local, $event->timezone) . ' UTC');
+            // A time the clocks skip (2:30 on a spring-forward night) would read as an hour later and could open
+            // after closing; it counts as the moment the clocks jump instead.
+            $skipped = strtotime(DateTimeHelper::convertFromUtc(gmdate(DateTimeHelper::FORMAT, $at), $event->timezone) . ' UTC') - strtotime($local . ' UTC');
+
+            if ($skipped > 0) {
+                $timezone = new \DateTimeZone(DateTimeHelper::getValidatedTimeZone($event->timezone));
+                $jumps = $timezone->getTransitions($at - $skipped, $at);
+                $at = end($jumps)['ts'];
+            }
+
+            return $at;
         }, self::REGISTRATION_LIMITS);
     }
 
