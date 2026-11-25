@@ -65,7 +65,7 @@ class RateLimiter
         global $wpdb;
 
         // GET_LOCK is server-wide, so the database and prefix keep two sites on one server apart.
-        $lockName = 'fe_rl_' . md5(constant('DB_NAME') . ':' . $wpdb->prefix . ':' . $key);
+        $lockName = 'fevent_rl_' . md5(constant('DB_NAME') . ':' . $wpdb->prefix . ':' . $key);
 
         $suppressed = $wpdb->suppress_errors(true);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- MySQL advisory lock; a cached result would defeat the lock

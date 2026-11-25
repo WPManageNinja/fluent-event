@@ -8,11 +8,11 @@ use FluentEvent\App\Utils\DateTimeHelper;
 /**
  * Event model.
  *
- * Table: `wp_fe_event_details` — database/Migrations/EventDetailsMigrator.php.
+ * Table: `wp_fevent_event_details` — database/Migrations/EventDetailsMigrator.php.
  */
 class Event extends Model
 {
-    protected $table = 'fe_event_details';
+    protected $table = 'fevent_event_details';
 
     const STATUSES = 'public,unlisted,private,draft';
     const LIVE_STATUSES = ['public', 'unlisted', 'private'];

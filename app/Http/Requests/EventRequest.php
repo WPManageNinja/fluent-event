@@ -57,7 +57,7 @@ class EventRequest extends BaseRequest
         'registration_closes.unit'  => 'sanitize_key',
     ];
     const RULES = [
-        'calendar_id'        => 'required|exists:fe_calendars,id',
+        'calendar_id'        => 'required|exists:fevent_calendars,id',
         'title'              => 'required|string|max:255',
         'description_md'     => 'nullable|string',
         'status'             => 'required|string|in:' . Event::STATUSES,

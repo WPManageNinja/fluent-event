@@ -10,7 +10,7 @@ class Settings
     const GENERAL = 'general';
     const EMAIL = 'email';
     const EMAIL_NOTIFICATIONS = 'email_notifications';
-    const WP_OPTION_KEY = 'fe_settings';
+    const WP_OPTION_KEY = 'fevent_settings';
 
     const UNIT_MINUTES = 'minutes';
     const UNIT_HOURS = 'hours';
@@ -66,7 +66,7 @@ class Settings
             // only general settings are stored in wp_options
             $stored = get_option(self::WP_OPTION_KEY, []);
         } else {
-            // other settings are stored in fe_meta, read once per request per site
+            // other settings are stored in fevent_meta, read once per request per site
             $cacheKey = get_current_blog_id() . ':' . $key;
 
             if (!array_key_exists($cacheKey, self::$stored)) {

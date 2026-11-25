@@ -17,7 +17,7 @@ defined('ABSPATH') or die;
  */
 
 define('FLUENT_EVENT_PLUGIN_VERSION', '1.1.0');
-define('FLUENT_EVENT_DB_VERSION', '1.0.1');
+define('FLUENT_EVENT_DB_VERSION', '1.0.2');
 define('FLUENT_EVENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FLUENT_EVENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('FLUENT_EVENT_DIR_FILE', __FILE__);

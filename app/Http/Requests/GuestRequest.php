@@ -40,8 +40,8 @@ class GuestRequest extends BaseRequest
     public static function createRules($eventId)
     {
         return array_merge(self::RULES, [
-            'email'   => 'required|email|max:191|unique:fe_guests,email,NULL,id,event_id,' . $eventId,
-            'user_id' => 'nullable|integer|exists:users,ID|unique:fe_guests,user_id,NULL,id,event_id,' . $eventId,
+            'email'   => 'required|email|max:191|unique:fevent_guests,email,NULL,id,event_id,' . $eventId,
+            'user_id' => 'nullable|integer|exists:users,ID|unique:fevent_guests,user_id,NULL,id,event_id,' . $eventId,
         ]);
     }
 
@@ -50,8 +50,8 @@ class GuestRequest extends BaseRequest
         // Updates are partial, so name and email are required only when sent.
         return array_merge(self::RULES, [
             'name'    => 'sometimes|required|string|max:255',
-            'email'   => 'sometimes|required|email|max:191|unique:fe_guests,email,' . $currentGuestId . ',id,event_id,' . $eventId,
-            'user_id' => 'nullable|integer|exists:users,ID|unique:fe_guests,user_id,' . $currentGuestId . ',id,event_id,' . $eventId,
+            'email'   => 'sometimes|required|email|max:191|unique:fevent_guests,email,' . $currentGuestId . ',id,event_id,' . $eventId,
+            'user_id' => 'nullable|integer|exists:users,ID|unique:fevent_guests,user_id,' . $currentGuestId . ',id,event_id,' . $eventId,
         ]);
     }
 

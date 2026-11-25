@@ -39,7 +39,7 @@ describe('Calendars view', () => {
         ['timeline', 'list'],
     ])('opens in %s view as %s', (saved, view) => {
         localStorage.clear();
-        if (saved) localStorage.setItem('fe_calendars_view', JSON.stringify(saved));
+        if (saved) localStorage.setItem('fevent_calendars_view', JSON.stringify(saved));
 
         expect(mountList().vm.view).toBe(view);
     });

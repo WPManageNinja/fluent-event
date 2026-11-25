@@ -66,7 +66,7 @@ public function create(Request $request)
 **We take two of those four and diverge on the other two**, following fluent-affiliate and
 fluent-booking instead. What we keep:
 
-- **Validation rules carry real constraints** — `unique:fe_calendars,slug`,
+- **Validation rules carry real constraints** — `unique:fevent_calendars,slug`,
   `in:public,draft`. Don't settle for `required|string` when the column has a
   vocabulary.
 - **A success response is the returned array**, with `__()` messages; `sendError` is
