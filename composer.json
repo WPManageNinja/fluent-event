@@ -1,18 +1,18 @@
 {
     "name": "wpfluent/fluent-event",
     "type": "project",
-    "description": "WPFluent - The best framework to build WordPress plugins.",
+    "description": "FluentEvent events plugin for WordPress.",
     "keywords": [
         "WordPress",
         "framework",
         "WPFluent"
     ],
-    "license": "MIT",
+    "license": "GPL-2.0-or-later",
     "version": "2.5.1",
     "authors": [
         {
-            "name": "Sheikh Heera",
-            "email": "heera.sheikh77@gmail.com"
+            "name": "WPManageNinja LLC",
+            "homepage": "https://wpmanageninja.com/"
         }
     ],
     "config": {
