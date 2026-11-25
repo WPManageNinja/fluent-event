@@ -811,7 +811,7 @@ class FrontEndHandler
                 });
 
                 if (changed) {
-                    location.replace(location.pathname + '?' + params.toString() + location.hash);
+                    location.replace('?' + params.toString() + location.hash);
                 }
             })(<?php echo wp_json_encode($choices); ?>);
         <?php
