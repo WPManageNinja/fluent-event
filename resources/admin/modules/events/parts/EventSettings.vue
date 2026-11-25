@@ -46,14 +46,14 @@
                 <div class="fe-event-settings__row">
                     <dt class="fe-event-settings__label">{{ $t('Registration opens') }}</dt>
                     <dd class="fe-event-settings__value">
-                        {{ registrationWindow?.opens_at ? $formatDateTime(registrationWindow.opens_at) : $t('When published') }}
+                        {{ registrationWindow?.opens_at ? wallClock(registrationWindow.opens_at) : $t('When published') }}
                     </dd>
                 </div>
 
                 <div class="fe-event-settings__row">
                     <dt class="fe-event-settings__label">{{ $t('Registration closes') }}</dt>
                     <dd class="fe-event-settings__value">
-                        {{ registrationWindow?.closes_at ? $formatDateTime(registrationWindow.closes_at) : $t('When the event ends') }}
+                        {{ registrationWindow?.closes_at ? wallClock(registrationWindow.closes_at) : $t('When the event ends') }}
                     </dd>
                 </div>
             </template>
@@ -62,7 +62,11 @@
 </template>
 
 <script type="text/javascript">
+    import dayjs from 'dayjs';
+    import utc from 'dayjs/plugin/utc';
     import { EditPen } from '@element-plus/icons-vue';
+
+    dayjs.extend(utc);
 
     export default {
         name: 'EventSettings',
@@ -92,6 +96,12 @@
             },
             countShown() {
                 return this.event.meta?.show_guest_count !== 'no';
+            },
+        },
+        methods: {
+            // The site's wall-clock as sent; read in the browser's zone, a time its clocks skip would show an hour on.
+            wallClock(at) {
+                return this.$formatDateTime(dayjs.utc(at));
             },
         },
     };
