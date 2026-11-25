@@ -29,6 +29,9 @@
 
 <script type="text/babel">
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 export default {
     name: 'RegistrationLimitField',
@@ -84,7 +87,8 @@ export default {
                 return '';
             }
 
-            return dayjs(this.start).subtract(this.value, this.unit).format(`ddd, MMM D, YYYY · ${this.timeFormat}`);
+            // Plain wall-clock arithmetic, as the server counts it; the browser's own DST must not shift the hours.
+            return dayjs.utc(this.start).subtract(this.value, this.unit).format(`ddd, MMM D, YYYY · ${this.timeFormat}`);
         }
     },
     watch: {

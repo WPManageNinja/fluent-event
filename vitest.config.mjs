@@ -27,6 +27,9 @@ export default defineConfig({
         environment: 'happy-dom',
         // fcom-portal and date helpers format through the local zone; pinned so every machine agrees.
         env: { TZ: 'UTC' },
+        // A child process, unlike a worker thread, picks up a zone the spec sets at runtime: this one previews in
+        // a browser whose clocks change, and must still count on the event's clock.
+        poolMatchGlobs: [['**/registration-limit-field.spec.js', 'child_process']],
         setupFiles: ['./tests/setup.js'],
         include: ['tests/unit/**/*.spec.js'],
         exclude: ['**/node_modules/**', 'tests/php/**', 'tests/lint/**'],

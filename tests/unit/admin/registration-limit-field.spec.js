@@ -27,6 +27,20 @@ describe('RegistrationLimitField', () => {
         expect(field({ modelValue, ...props }).vm.hint).toBe(expected);
     });
 
+    // 3:30 AM less two hours on the event's clock is 1:30 AM; a New York browser, whose clocks skip 2 AM that
+    // night, would count real hours and preview 12:30 AM.
+    it("previews hours on the event's clock, whatever the browser's own DST does", () => {
+        const tz = process.env.TZ;
+        process.env.TZ = 'America/New_York';
+
+        try {
+            const hint = field({ start: '2027-03-14 03:30', modelValue: { value: 2, unit: 'hours' } }).vm.hint;
+            expect(hint).toBe('Sun, Mar 14, 2027 · 1:30 AM');
+        } finally {
+            process.env.TZ = tz;
+        }
+    });
+
     it('keeps the number when the unit changes, and remembers a unit chosen before any number', () => {
         const set = field({ modelValue: { value: 5, unit: 'hours' } });
         set.vm.setUnit('minutes');
