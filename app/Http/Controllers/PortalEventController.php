@@ -49,7 +49,7 @@ class PortalEventController extends Controller
 
         // An open event's Not going only gives up a seat the member holds; otherwise a not-going row would appear
         // from nothing.
-        if ($isOpen && !in_array(RegistrationService::memberStatus($event), Event::SEAT_STATUSES, true)) {
+        if ($isOpen && !in_array(RegistrationService::memberStatus($event), Event::PLACE_STATUSES, true)) {
             return $this->sendError(['message' => __('You are not registered for this event.', 'fluent-event')], 422);
         }
 
@@ -142,7 +142,7 @@ class PortalEventController extends Controller
         }
 
         // A repeat is warned in the card's dialog; a full event is an error.
-        if (in_array($registered, ['already_registered', 'cancelled'], true)) {
+        if (in_array($registered, ['already_registered', 'cancelled', 'waitlisted'], true)) {
             return $this->registered($event, null, $registered);
         }
 
@@ -164,14 +164,15 @@ class PortalEventController extends Controller
 
         RegistrationService::queueEmail($guest, $previousStatus);
 
-        return $this->registered($event, $guest->status);
+        return $this->registered($event, $guest->status, '', $previousStatus);
     }
 
     /**
      * @param string|null $status  The guest's status, or null when the registration was refused.
-     * @param string      $refusal Why it was refused: 'already_registered' or 'cancelled'.
+     * @param string      $refusal Why it was refused: 'already_registered', 'cancelled' or 'waitlisted'.
+     * @param string|null $previousStatus A member's status before this answer.
      */
-    private function registered(Event $event, $status, $refusal = '')
+    private function registered(Event $event, $status, $refusal = '', $previousStatus = null)
     {
         $seats = EventService::seatCounts([$event->id]);
         // A member's card shows their own row, read back by account. A visitor has none: a registration's card is
@@ -181,16 +182,18 @@ class PortalEventController extends Controller
 
         if ($refusal) {
             $message = RegistrationService::refusalMessage($refusal);
+        } elseif ($status === 'not_going' && $previousStatus === 'waitlisted') {
+            $message = __('You left the waitlist.', 'fluent-event');
         } elseif ($status === 'not_going') {
             $message = Arr::get((array) $event->meta, 'entry_type') === 'open'
                 ? __("You're no longer going.", 'fluent-event')
                 : __("RSVP updated. You're not going.", 'fluent-event');
         } else {
-            $message = __('You are registered.', 'fluent-event');
+            $message = $status === 'waitlisted' ? __("You're on the waitlist.", 'fluent-event') : __('You are registered.', 'fluent-event');
         }
 
-        // Going opens the confirmation over the new card; Not going just redraws it.
-        $answer = $refusal ?: ($status === 'not_going' ? '' : 'registered');
+        // Going or waitlisted opens the confirmation over the new card; Not going just redraws it.
+        $answer = $refusal ?: ($status === 'not_going' ? '' : ($status === 'waitlisted' ? 'joined_waitlist' : 'registered'));
 
         return [
             'message' => $message,

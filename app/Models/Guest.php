@@ -11,7 +11,7 @@ class Guest extends Model
 {
     protected $table = 'fevent_guests';
 
-    const STATUSES = 'going,not_going,checked_in,cancelled';
+    const STATUSES = 'going,not_going,checked_in,cancelled,waitlisted';
     const DEFAULT_STATUS = 'going';
 
     protected $fillable = [

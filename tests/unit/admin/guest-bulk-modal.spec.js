@@ -15,10 +15,11 @@ const modal = (bulk, guestIds = [4, 9]) => {
     return { wrapper, vm: wrapper.vm, requestServer };
 };
 
-const notifications = (confirmation, cancellation) => {
+const notifications = (confirmation, cancellation, waitlist = false) => {
     window.fluentEventAdmin.email_notifications = {
         registration_confirmation: { enabled: confirmation },
-        registration_cancellation: { enabled: cancellation }
+        registration_cancellation: { enabled: cancellation },
+        registration_waitlist: { enabled: waitlist }
     };
 };
 
@@ -51,6 +52,11 @@ describe('GuestBulkModal', () => {
         notifications(false, true);
 
         expect(modal({ action: 'change_status', status: 'not_going', label: 'Not Going' }).vm.emailLabel).toBe('Send Cancellation Emails');
+        expect(modal({ action: 'change_status', status: 'waitlisted', label: 'Waitlisted' }).vm.emailLabel).toBe('');
+
+        notifications(false, false, true);
+
+        expect(modal({ action: 'change_status', status: 'waitlisted', label: 'Waitlisted' }).vm.emailLabel).toBe('Send Waitlist Emails');
     });
 
     it('never sends an email the modal did not offer', () => {

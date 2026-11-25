@@ -189,6 +189,8 @@
     &__switch-row {
         display: flex;
         align-items: center;
+        // Switches end the row, so they line up however long each label runs.
+        justify-content: space-between;
         gap: var(--fe-space-3, 12px);
     }
 

@@ -417,6 +417,33 @@ describe('EventViewPage', () => {
             expect(wrapper.findComponent(EventActions).exists()).toBe(false);
         });
 
+        it('offers the waitlist under the full notice when the event takes one', async () => {
+            const { wrapper } = await page({ ...capped(10), waitlist: true });
+
+            expect(wrapper.find('.fe-event-view__notice-desc').text()).toBe('Join the waitlist and the host will let you know if a spot opens up.');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        it('tells a guest already on the waitlist they are on it, in place of the full notice', async () => {
+            const { wrapper } = await page({ ...capped(10), waitlist: true, my_status: 'waitlisted' });
+
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe("You're on the waitlist");
+            expect(wrapper.find('.fe-event-view__notice-desc').text()).toBe('The host will let you know if a spot opens up.');
+            expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        it('drops the waitlist notice once the event has ended', async () => {
+            const { wrapper } = await page({ ...ended(capped(10)), waitlist: true, my_status: 'waitlisted' });
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+        });
+
+        it('drops the register-to-see-the-link note on the waitlist path', async () => {
+            const { wrapper } = await page({ ...capped(10), waitlist: true, my_status: 'waitlisted', venue_type: 'online', has_meeting_url: true, online_meeting_url: '' });
+
+            expect(wrapper.find('.fe-event-view__note').exists()).toBe(false);
+        });
+
         it('says the event is full even when the host hides the count, with no meter', async () => {
             const { wrapper } = await page(meetup({ guest_count: null, capacity: 10, is_full: true }));
 
