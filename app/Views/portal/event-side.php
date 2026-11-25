@@ -149,7 +149,7 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
             <?php elseif ( $fluentEventOpen && $fluentEventMember && 'waitlisted' === $fluentEventStatus ) : ?>
                 <?php // An RSVP's waitlist place is an answer in its own menu below. ?>
                 <button type="button" class="fe-rsvp__trigger" popovertarget="fe-rsvp-<?php echo esc_attr( $fluentEventId ); ?>" aria-haspopup="menu" data-fe-focus>
-                    <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                    <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK_SMALL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <span class="fe-rsvp__label"><?php esc_html_e( 'On the waitlist', 'fluent-event' ); ?></span>
                     <span class="fe-rsvp__chevron"><?php echo Icon::CHEVRON_DOWN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                 </button>
@@ -182,7 +182,7 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                     <?php if ( 'going' === $fluentEventStatus ) : ?>
                         <span class="fe-rsvp__icon fe-rsvp__icon--going"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php elseif ( 'waitlisted' === $fluentEventStatus ) : ?>
-                        <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                        <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK_SMALL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php elseif ( 'not_going' === $fluentEventStatus ) : ?>
                         <span class="fe-rsvp__icon fe-rsvp__icon--not-going"><?php echo Icon::CROSS; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                     <?php endif; ?>
@@ -196,7 +196,7 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                         <?php // A waitlisted guest's place is checked here; only an admin moves them to going. ?>
                         <?php if ( $join_waitlist || 'waitlisted' === $fluentEventStatus ) : ?>
                             <button type="button" class="fe-rsvp__option" role="menuitemradio" aria-checked="<?php echo 'waitlisted' === $fluentEventStatus ? 'true' : 'false'; ?>" data-fe-status="going">
-                                <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                                <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted"><?php echo Icon::CLOCK_SMALL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                                 <?php echo esc_html( 'waitlisted' === $fluentEventStatus ? __( 'Waitlisted', 'fluent-event' ) : __( 'Join waitlist', 'fluent-event' ) ); ?>
                             </button>
                         <?php else : ?>
@@ -389,7 +389,7 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
             </button>
 
             <div class="fe-register-success__head">
-                <span class="fe-register-success__check"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
+                <span class="fe-register-success__check"><?php echo Icon::CLOCK_SMALL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                 <h2 class="fe-register-success__title" id="fe-registered-title-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( "You're on the waitlist", 'fluent-event' ); ?></h2>
                 <p class="fe-register-success__text" id="fe-registered-text-<?php echo esc_attr( $fluentEventId ); ?>"><?php esc_html_e( 'The host will let you know if a spot opens up.', 'fluent-event' ); ?></p>
             </div>
