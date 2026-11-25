@@ -101,7 +101,10 @@ class ModelContractTest extends TestCase
 
     public function test_every_event_meta_key_the_request_accepts_has_a_default()
     {
-        $defaults = array_keys(Event::defaultMeta());
+        // Worked out on every save from the offsets, never taken from a request.
+        $serverWritten = ['registration_opens_at', 'registration_closes_at'];
+
+        $defaults = array_values(array_diff(array_keys(Event::defaultMeta()), $serverWritten));
         sort($defaults);
 
         $accepted = EventRequest::META_KEYS;

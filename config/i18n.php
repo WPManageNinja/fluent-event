@@ -277,7 +277,7 @@ return [
             'Unlimited' => __('Unlimited', 'fluent-event'),
             'Registration window' => __('Registration window', 'fluent-event'),
             'When guests can start and stop joining, counted back from the start.' => __('When guests can start and stop joining, counted back from the start.', 'fluent-event'),
-            'If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.' => __('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.', 'fluent-event'),
+            'If Opens is empty, registration opens when the event starts. If Closes is empty, it stays open until the event ends.' => __('If Opens is empty, registration opens when the event starts. If Closes is empty, it stays open until the event ends.', 'fluent-event'),
             'Opens' => __('Opens', 'fluent-event'),
             'Closes' => __('Closes', 'fluent-event'),
             'Time before the event starts' => __('Time before the event starts', 'fluent-event'),

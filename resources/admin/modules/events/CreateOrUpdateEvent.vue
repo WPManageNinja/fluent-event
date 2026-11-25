@@ -502,7 +502,7 @@
                             <el-alert
                                 class="fe-event-form__limits-note"
                                 type="info"
-                                :title="$t('If Opens is empty, registration opens as soon as the event is published. If Closes is empty, it stays open until the event ends.')"
+                                :title="$t('If Opens is empty, registration opens when the event starts. If Closes is empty, it stays open until the event ends.')"
                                 :closable="false"
                                 show-icon
                             />

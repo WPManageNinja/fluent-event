@@ -2,8 +2,8 @@
 
 namespace FluentEvent\App\Models;
 
-use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
+use FluentEvent\Framework\Support\Arr;
 
 /**
  * Event model.
@@ -55,6 +55,8 @@ class Event extends Model
         'end_at_local',
         'start_at_site',
         'end_at_site',
+        'registration_opens_at',
+        'registration_closes_at',
     ];
 
     public static function defaultMeta()
@@ -75,6 +77,9 @@ class Event extends Model
             'start_display'      => 'relative',
             'registration_opens'  => null, // {value, unit} before the start; null = as soon as published
             'registration_closes' => null, // {value, unit} before the start; null = until the event ends
+            // UTC moments worked out from the two above on every save (EventService::calculateRegistrationWindow()).
+            'registration_opens_at'  => null,
+            'registration_closes_at' => null,
             // The description's markdown, as written in the editor; the post holds its rendered HTML.
             'description_md'     => '',
         ];
@@ -92,49 +97,32 @@ class Event extends Model
     }
 
     // [opens, closes] as UTC timestamps, each null where the host set no limit.
-    // Counted back on the event's own clock, as the form previews it, so "7 days before" survives a DST change.
-    public static function registrationWindow($event)
-    {
-        $meta = (array) $event->meta;
-        $startsAt = strtotime(DateTimeHelper::convertFromUtc($event->start_at, $event->timezone) . ' UTC');
-
-        return array_map(function ($key) use ($meta, $startsAt, $event) {
-            if (empty($meta[$key])) {
-                return null;
-            }
-
-            $local = gmdate(DateTimeHelper::FORMAT, $startsAt - Settings::reminderInSeconds($meta[$key]));
-            $at = strtotime(DateTimeHelper::convertToUtc($local, $event->timezone) . ' UTC');
-
-            // A time the clocks skip (2:30 on a spring-forward night) would read as an hour later and could open
-            // after closing; it counts as the moment the clocks jump instead.
-            $skipped = strtotime(DateTimeHelper::convertFromUtc(gmdate(DateTimeHelper::FORMAT, $at), $event->timezone) . ' UTC') - strtotime($local . ' UTC');
-
-            if ($skipped > 0) {
-                $timezone = new \DateTimeZone(DateTimeHelper::getValidatedTimeZone($event->timezone));
-                $jumps = $timezone->getTransitions($at - $skipped, $at);
-                $at = end($jumps)['ts'];
-            }
-
-            return $at;
-        }, self::REGISTRATION_LIMITS);
-    }
-
-    // not_open, open, closed or ended, on the server's clock.
+    // not_open, open, closed or ended, on the server's clock, from the window stored on save.
     public static function registrationState($event)
     {
-        [$opensAt, $closesAt] = self::registrationWindow($event);
-        $now = time();
+        $now = gmdate(DateTimeHelper::FORMAT);
 
-        if ($event->end_at < gmdate(DateTimeHelper::FORMAT)) {
+        if ($event->end_at < $now) {
             return 'ended';
         }
 
-        if ($opensAt && $now < $opensAt) {
+        if ($now < $event->registration_opens_at) {
             return 'not_open';
         }
 
-        return $closesAt && $now >= $closesAt ? 'closed' : 'open';
+        return $now >= $event->registration_closes_at ? 'closed' : 'open';
+    }
+
+    // UTC, stored by EventService::calculateRegistrationWindow() on every save; the start or end where no limit is
+    // set, or where a save before the window existed stored none.
+    public function getRegistrationOpensAtAttribute()
+    {
+        return Arr::get((array) $this->meta, 'registration_opens_at') ?: $this->start_at;
+    }
+
+    public function getRegistrationClosesAtAttribute()
+    {
+        return Arr::get((array) $this->meta, 'registration_closes_at') ?: $this->end_at;
     }
 
     public function guests()

@@ -126,11 +126,6 @@ class DateTimeHelper
         return $dateTime->format($format);
     }
 
-    public static function timestampToSite($timestamp)
-    {
-        return self::convertFromUtc(gmdate(self::FORMAT, $timestamp), wp_timezone_string());
-    }
-
     // *_local and *_site are wall-clock strings; read and printed as UTC, they come out as written.
     public static function wallClock($value, $format)
     {

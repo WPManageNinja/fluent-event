@@ -591,6 +591,24 @@ class EventEndpointsTest extends IntegrationTestCase
         }
     }
 
+    // Stored on save and moved with the event: changing only the start moves the window, though no offset was sent.
+    public function test_the_window_is_stored_on_save_and_moves_with_the_start()
+    {
+        $event = $this->createEvent([], ['registration_opens' => ['value' => 1, 'unit' => 'days']]);
+        $meta = Event::query()->find($event->id)->meta;
+
+        $this->assertSame(gmdate('Y-m-d H:i:s', strtotime($event->start_at . ' UTC') - DAY_IN_SECONDS), $meta['registration_opens_at']);
+        $this->assertSame($event->end_at, $meta['registration_closes_at']);
+
+        $start = gmdate('Y-m-d H:i:s', strtotime('+10 days'));
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'start_at' => $start,
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+10 days 2 hours')),
+        ]));
+
+        $this->assertSame(gmdate('Y-m-d H:i:s', strtotime($start . ' UTC') - DAY_IN_SECONDS), Event::query()->find($event->id)->meta['registration_opens_at']);
+    }
+
     public function test_registration_limits_are_saved_as_offsets_and_cleared_when_emptied()
     {
         $event = $this->createEvent();
@@ -690,13 +708,14 @@ class EventEndpointsTest extends IntegrationTestCase
     }
 
     // Read on the server's clock, so the Overview never trusts the browser's. Every event here starts in 3 days.
+    // With no Opens limit registration opens at the start, so before it the window is not open yet.
     public function test_one_event_comes_with_the_state_of_its_registration_window()
     {
         $cases = [
-            'no limits'             => [[], 'open'],
-            'closes the day before' => [['registration_closes' => ['value' => 1, 'unit' => 'days']], 'open'],
-            'opens a day before'    => [['registration_opens' => ['value' => 1, 'unit' => 'days']], 'not_open'],
-            'closed a week before'  => [['registration_closes' => ['value' => 7, 'unit' => 'days']], 'closed'],
+            'no limits'            => [[], 'not_open'],
+            'opens a week before'  => [['registration_opens' => ['value' => 7, 'unit' => 'days']], 'open'],
+            'opens a day before'   => [['registration_opens' => ['value' => 1, 'unit' => 'days']], 'not_open'],
+            'closed a week before' => [['registration_opens' => ['value' => 8, 'unit' => 'days'], 'registration_closes' => ['value' => 7, 'unit' => 'days']], 'closed'],
         ];
 
         foreach ($cases as $case => [$meta, $state]) {
@@ -704,8 +723,8 @@ class EventEndpointsTest extends IntegrationTestCase
             $window = $this->rest('GET', "events/{$event->id}")['data']['registration_window'];
 
             $this->assertSame($state, $window['state'], $case);
-            $this->assertSame(isset($meta['registration_opens']), $window['opens_at'] !== null, $case);
-            $this->assertSame(isset($meta['registration_closes']), $window['closes_at'] !== null, $case);
+            $this->assertNotNull($window['opens_at'], $case);
+            $this->assertNotNull($window['closes_at'], $case);
         }
 
         $ended = $this->createEvent([
