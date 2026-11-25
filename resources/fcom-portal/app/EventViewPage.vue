@@ -115,6 +115,16 @@
                         </div>
                     </div>
 
+                    <div v-else-if="event.my_status === 'waitlisted' && phase !== 'ended'" class="fe-event-view__notice">
+                        <span class="fe-event-view__notice-icon" aria-hidden="true">
+                            <el-icon><Clock/></el-icon>
+                        </span>
+                        <div class="fe-event-view__notice-text">
+                            <span class="fe-event-view__notice-title">{{ $t("You're on the waitlist") }}</span>
+                            <span class="fe-event-view__notice-desc">{{ $t('The host will let you know if a spot opens up.') }}</span>
+                        </div>
+                    </div>
+
                     <div v-if="hasActions || (countLabel && !showMeter)" class="fe-event-view__rsvp">
                         <event-actions v-if="hasActions" :event="event" @done="applyResponse" @error="error = $event"></event-actions>
                         <span v-if="countLabel && !showMeter" class="fe-event-view__count">{{ countLabel }}</span>

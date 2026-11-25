@@ -424,11 +424,18 @@ describe('EventViewPage', () => {
             expect(wrapper.findComponent(EventActions).exists()).toBe(true);
         });
 
-        it('drops the full notice for a guest already on the waitlist', async () => {
+        it('tells a guest already on the waitlist they are on it, in place of the full notice', async () => {
             const { wrapper } = await page({ ...capped(10), waitlist: true, my_status: 'waitlisted' });
 
-            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
+            expect(wrapper.find('.fe-event-view__notice-title').text()).toBe("You're on the waitlist");
+            expect(wrapper.find('.fe-event-view__notice-desc').text()).toBe('The host will let you know if a spot opens up.');
             expect(wrapper.findComponent(EventActions).exists()).toBe(true);
+        });
+
+        it('drops the waitlist notice once the event has ended', async () => {
+            const { wrapper } = await page({ ...ended(capped(10)), waitlist: true, my_status: 'waitlisted' });
+
+            expect(wrapper.find('.fe-event-view__notice').exists()).toBe(false);
         });
 
         it('drops the register-to-see-the-link note on the waitlist path', async () => {
