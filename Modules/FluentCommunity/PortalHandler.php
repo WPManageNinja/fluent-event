@@ -76,7 +76,7 @@ class PortalHandler
             'enabled'      => 'no',
             'permalink'    => FcomHelper::baseUrl($this->routePaths()['events']),
             'link_classes' => 'fcom_fe_events route_url',
-            'shape_svg'    => Icon::CALENDAR,
+            'shape_svg'    => Icon::MENU_CALENDAR,
         ];
     }
 
@@ -95,7 +95,7 @@ class PortalHandler
         $items[] = [
             'route'    => ['name' => 'fe_events'],
             'title'    => Arr::get($menuItem, 'title', __('Events', 'fluent-event')),
-            'icon_svg' => $iconSvg ? CustomSanitizer::sanitizeSvg($iconSvg) : Icon::CALENDAR,
+            'icon_svg' => $iconSvg ? CustomSanitizer::sanitizeSvg($iconSvg) : Icon::MENU_CALENDAR,
         ];
 
         if ($lastItem) {
