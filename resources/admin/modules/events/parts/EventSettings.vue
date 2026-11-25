@@ -37,6 +37,11 @@
                     <dt class="fe-event-settings__label">{{ $t('Spots left') }}</dt>
                     <dd class="fe-event-settings__value">{{ event.meta?.show_spots_left === 'yes' ? $t('Shown') : $t('Hidden') }}</dd>
                 </div>
+
+                <div v-if="capacity" class="fe-event-settings__row">
+                    <dt class="fe-event-settings__label">{{ $t('Waitlist') }}</dt>
+                    <dd class="fe-event-settings__value">{{ event.meta?.waitlist === 'yes' ? $t('On') : $t('Off') }}</dd>
+                </div>
             </template>
         </dl>
     </div>

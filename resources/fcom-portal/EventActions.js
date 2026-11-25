@@ -1,5 +1,5 @@
 import { t, portalVars, eventsApi, errorMessage, eventDay, eventMonth, eventStart, googleCalendarLink, isSeated, saveIcs } from './utils';
-import { APPLE, CHECK, CHEVRON, CROSS, GOOGLE, TICKET, WARNING } from './icons';
+import { APPLE, CHECK, CHEVRON, CLOCK, CROSS, GOOGLE, TICKET, WARNING } from './icons';
 
 /*
  * The RSVP dropdown, or an open event's Register form (no undo): a member's arrives filled in,
@@ -35,11 +35,18 @@ export default {
                 return 'going';
             }
 
-            return this.event.my_status === 'not_going' ? 'not_going' : '';
+            return ['not_going', 'waitlisted'].includes(this.event.my_status) ? this.event.my_status : '';
+        },
+        // Going on a full event with a waitlist joins the waitlist instead.
+        joinsWaitlist() {
+            return !!this.event.is_full && !!this.event.waitlist && !['going', 'waitlisted'].includes(this.status);
         },
         // A guest already going keeps their RSVP on a full event, to give up the seat.
         isFullForMe() {
-            return !!this.event.is_full && this.status !== 'going';
+            return !!this.event.is_full && !this.event.waitlist && !['going', 'waitlisted'].includes(this.status);
+        },
+        registerLabel() {
+            return this.joinsWaitlist ? t('Join waitlist') : t('Register');
         },
     },
     beforeUnmount() {
@@ -104,7 +111,12 @@ export default {
 
                 const done = this.withStatus(response);
                 this.$emit('done', done);
-                this.showRegistered(done.event);
+
+                if (done.status === 'waitlisted') {
+                    this.showWaitlisted();
+                } else {
+                    this.showRegistered(done.event);
+                }
             } catch (error) {
                 this.formError = errorMessage(error);
             } finally {
@@ -170,22 +182,57 @@ export default {
 
             this.choose('not_going');
         },
-        // refusal: 'already_registered', or 'cancelled' when an admin cancelled the registration.
+        async leaveWaitlist() {
+            this.close();
+            const { ElMessageBox } = await import('element-plus');
+
+            try {
+                await ElMessageBox.confirm(
+                    t('You will lose your place on the waitlist for %s.', this.event.title),
+                    t('Leave the waitlist?'),
+                    { confirmButtonText: t('Leave waitlist'), cancelButtonText: t('Stay on it'), confirmButtonClass: 'el-button--danger' },
+                );
+            } catch (dismissed) {
+                return;
+            }
+
+            this.choose('not_going');
+        },
+        // refusal: 'already_registered', 'waitlisted', or 'cancelled' when an admin cancelled the registration.
         async showRefusal(refusal) {
             const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('element-plus')]);
-            const cancelled = refusal === 'cancelled';
+            const [title, text] = {
+                cancelled: [t('Your registration was cancelled'), t('Contact the host if you want to join again.')],
+                waitlisted: [t("You're already on the waitlist"), t('The host will let you know if a spot opens up.')],
+            }[refusal] || [t('This email is already registered'), t('Check your inbox for the confirmation email, or register with a different email.')];
 
             ElMessageBox.alert(h('div', { class: 'fe-registered' }, [
                 h('div', { class: 'fe-registered__head' }, [
                     h('span', { class: 'fe-registered__check fe-registered__check--warning', innerHTML: WARNING }),
-                    h('strong', { class: 'fe-registered__title' }, cancelled ? t('Your registration was cancelled') : t('This email is already registered')),
-                    h('p', { class: 'fe-registered__text' }, cancelled
-                        ? t('Contact the host if you want to join again.')
-                        : t('Check your inbox for the confirmation email, or register with a different email.')),
+                    h('strong', { class: 'fe-registered__title' }, title),
+                    h('p', { class: 'fe-registered__text' }, text),
                 ]),
             ]), '', {
                 customClass: 'fe-registered-box',
                 confirmButtonText: t('OK'),
+                confirmButtonClass: 'fcom_primary_button',
+                closeOnPressEscape: true,
+            }).catch(() => {})
+                .finally(() => this.$refs.trigger && this.$refs.trigger.focus());
+        },
+        // Joining holds no seat, so no calendar links: just where the guest stands.
+        async showWaitlisted() {
+            const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('element-plus')]);
+
+            ElMessageBox.alert(h('div', { class: 'fe-registered' }, [
+                h('div', { class: 'fe-registered__head' }, [
+                    h('span', { class: 'fe-registered__check', innerHTML: CLOCK }),
+                    h('strong', { class: 'fe-registered__title' }, t("You're on the waitlist")),
+                    h('p', { class: 'fe-registered__text' }, t('The host will let you know if a spot opens up.')),
+                ]),
+            ]), '', {
+                customClass: 'fe-registered-box',
+                confirmButtonText: t('Done'),
                 confirmButtonClass: 'fcom_primary_button',
                 closeOnPressEscape: true,
             }).catch(() => {})
@@ -246,6 +293,36 @@ export default {
         <div class="fe-event-actions">
             <span v-if="event.is_past" class="fe-event-actions__badge">{{ t('Ended') }}</span>
 
+            <!-- On an open event a member leaves the waitlist from its menu; a visitor isn't recognised again after a reload.
+                 An RSVP's waitlist place is an answer in its menu below. -->
+            <div v-else-if="status === 'waitlisted' && event.entry_type === 'open' && isLoggedIn" class="fe-rsvp">
+                <button
+                    ref="trigger"
+                    type="button"
+                    class="fe-rsvp__trigger"
+                    aria-haspopup="menu"
+                    :aria-expanded="open ? 'true' : 'false'"
+                    :disabled="busy"
+                    @click.stop="toggle"
+                >
+                    <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted" aria-hidden="true">${CLOCK}</span>
+                    <span class="fe-rsvp__label">{{ t('On the waitlist') }}</span>
+                    <span class="fe-rsvp__chevron" :class="{ 'fe-rsvp__chevron--open': open }" aria-hidden="true">${CHEVRON}</span>
+                </button>
+
+                <div v-if="open" class="el-popover el-popper fcom_menu_below_nav fe-rsvp__pop">
+                    <ul class="actions_items" role="menu">
+                        <li role="none">
+                            <button type="button" role="menuitem" class="fe-rsvp__option fe-rsvp__option--danger" @click.stop="leaveWaitlist">{{ t('Leave waitlist') }}</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <span v-else-if="status === 'waitlisted' && event.entry_type === 'open'" class="fe-event-actions__badge">
+                <span class="fe-event-actions__badge-icon" aria-hidden="true">${CLOCK}</span>
+                {{ t('On the waitlist') }}
+            </span>
+
             <span v-else-if="isFullForMe" class="fe-event-actions__state">
                 <span class="fe-event-actions__state-icon" aria-hidden="true">${TICKET}</span>
                 {{ t('Event full') }}
@@ -288,13 +365,13 @@ export default {
                         aria-haspopup="dialog"
                         :aria-expanded="open ? 'true' : 'false'"
                         @click.stop="toggle"
-                    >{{ t('Register') }}</button>
+                    >{{ registerLabel }}</button>
 
                     <form
                         v-if="open"
                         class="el-popover el-popper fcom_menu_below_nav fe-guest-register__pop"
                         role="dialog"
-                        :aria-label="t('Register')"
+                        :aria-label="registerLabel"
                         @submit.prevent="register"
                     >
                         <label class="fe-guest-register__label" :for="'fe-guest-name-' + event.id">{{ t('Name') }}</label>
@@ -307,7 +384,7 @@ export default {
 
                         <p v-if="formError" class="fe-guest-register__error" role="alert">{{ formError }}</p>
 
-                        <button type="submit" class="el-button fcom_primary_button" :disabled="busy">{{ t('Register') }}</button>
+                        <button type="submit" class="el-button fcom_primary_button" :disabled="busy">{{ registerLabel }}</button>
                     </form>
                 </div>
             </template>
@@ -325,15 +402,21 @@ export default {
                     @click.stop="toggle"
                 >
                     <span v-if="status === 'going'" class="fe-rsvp__icon fe-rsvp__icon--going" aria-hidden="true">${CHECK}</span>
+                    <span v-else-if="status === 'waitlisted'" class="fe-rsvp__icon fe-rsvp__icon--waitlisted" aria-hidden="true">${CLOCK}</span>
                     <span v-else-if="status === 'not_going'" class="fe-rsvp__icon fe-rsvp__icon--not-going" aria-hidden="true">${CROSS}</span>
-                    <span class="fe-rsvp__label">{{ status === 'going' ? t('Going') : status === 'not_going' ? t('Not going') : t('Interested?') }}</span>
+                    <span class="fe-rsvp__label">{{ { going: t('Going'), waitlisted: t('Waitlisted'), not_going: t('Not going') }[status] || t('Interested?') }}</span>
                     <span class="fe-rsvp__chevron" :class="{ 'fe-rsvp__chevron--open': open }" aria-hidden="true">${CHEVRON}</span>
                 </button>
 
                 <div v-if="open" class="el-popover el-popper fcom_menu_below_nav fe-rsvp__pop">
                     <ul class="actions_items" role="menu">
                         <li role="none">
-                            <button type="button" role="menuitemradio" class="fe-rsvp__option" :aria-checked="status === 'going' ? 'true' : 'false'" @click.stop="choose('going')">
+                            <!-- On a full event with a waitlist, Going joins it; a waitlisted guest's place is checked here, and only an admin moves them to going. -->
+                            <button v-if="status === 'waitlisted' || joinsWaitlist" type="button" role="menuitemradio" class="fe-rsvp__option" :aria-checked="status === 'waitlisted' ? 'true' : 'false'" @click.stop="choose(status === 'waitlisted' ? 'waitlisted' : 'going')">
+                                <span class="fe-rsvp__icon fe-rsvp__icon--waitlisted" aria-hidden="true">${CLOCK}</span>
+                                {{ status === 'waitlisted' ? t('Waitlisted') : t('Join waitlist') }}
+                            </button>
+                            <button v-else type="button" role="menuitemradio" class="fe-rsvp__option" :aria-checked="status === 'going' ? 'true' : 'false'" @click.stop="choose('going')">
                                 <span class="fe-rsvp__icon fe-rsvp__icon--going" aria-hidden="true">${CHECK}</span>
                                 {{ t('Going') }}
                             </button>

@@ -5,6 +5,9 @@ export const CHECK = '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M
 // The already-registered warning.
 export const WARNING = '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M8 3.5v5.5M8 12.25v.25" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
 
+// A place on the waitlist.
+export const CLOCK = '<svg viewBox="0 0 16 16" width="10" height="10"><circle cx="8" cy="8" r="5.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.25l2 1.25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 export const CROSS = '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M4.5 4.5l7 7m0-7l-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" width="12" height="12"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';

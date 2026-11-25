@@ -456,6 +456,19 @@
                                     inactive-value="no"
                                 />
                             </div>
+
+                            <div v-if="event.capacity" class="fe-form__switch-row" data-field="waitlist">
+                                <label class="fe-form__switch-text" for="fe-event-waitlist">
+                                    {{ $t('Let guests join a waitlist when the event is full') }}
+                                </label>
+
+                                <el-switch
+                                    id="fe-event-waitlist"
+                                    v-model="event.waitlist"
+                                    active-value="yes"
+                                    inactive-value="no"
+                                />
+                            </div>
                         </div>
                     </section>
 
@@ -643,6 +656,7 @@
                     show_guest_count: meta.show_guest_count || 'yes',
                     capacity: meta.capacity || null,
                     show_spots_left: meta.show_spots_left || 'no',
+                    waitlist: meta.waitlist || 'no',
                     start_display: meta.start_display || 'relative',
                 };
             },
@@ -753,6 +767,7 @@
                         show_guest_count: this.event.show_guest_count,
                         capacity: this.event.capacity || 0,
                         show_spots_left: this.event.show_spots_left,
+                        waitlist: this.event.waitlist,
                         start_display: this.event.start_display,
                     },
                     loadingState: 'saving',

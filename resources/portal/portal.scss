@@ -1797,6 +1797,10 @@ html.dark .fe-portal {
         &.fe-rsvp__icon--not-going {
             background-color: var(--fe-danger-text, #cf222e);
         }
+
+        &.fe-rsvp__icon--waitlisted {
+            background-color: var(--fe-accent-amber, #d97706);
+        }
     }
 
     // A native popover: a click outside or Escape closes it. Below the trigger where anchor positioning works.

@@ -190,7 +190,7 @@ class GuestEndpointsTest extends IntegrationTestCase
 
         $this->assertSame(200, $response['status']);
         $this->assertSame(
-            ['all' => 1, 'going' => 1, 'not_going' => 0, 'checked_in' => 0, 'cancelled' => 0],
+            ['all' => 1, 'going' => 1, 'not_going' => 0, 'checked_in' => 0, 'cancelled' => 0, 'waitlisted' => 0],
             $response['data']['counts']
         );
     }
@@ -271,6 +271,15 @@ class GuestEndpointsTest extends IntegrationTestCase
 
         $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $told->id]));
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $silent->id]));
+    }
+
+    public function test_moving_guests_to_the_waitlist_queues_the_waitlist_email_when_asked()
+    {
+        $guest = $this->createGuest($this->event, ['status' => 'going']);
+
+        $this->bulk(['action' => 'change_status', 'status' => 'waitlisted', 'guest_ids' => [$guest->id], 'send_email' => 1]);
+
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_waitlist', [(int) $guest->id]));
     }
 
     public function test_a_bulk_check_in_stamps_the_time()

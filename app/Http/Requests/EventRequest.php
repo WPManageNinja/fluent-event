@@ -27,6 +27,7 @@ class EventRequest extends BaseRequest
         'show_guest_count',
         'capacity',
         'show_spots_left',
+        'waitlist',
         'start_display',
         'description_md',
     ];
@@ -47,6 +48,7 @@ class EventRequest extends BaseRequest
         'show_guest_count'   => 'sanitize_text_field',
         'capacity'           => 'intval',
         'show_spots_left'    => 'sanitize_text_field',
+        'waitlist'           => 'sanitize_text_field',
         'start_display'      => 'sanitize_text_field',
     ];
     const RULES = [
@@ -67,6 +69,7 @@ class EventRequest extends BaseRequest
         'show_guest_count'   => 'nullable|string|in:yes,no',
         'capacity'           => 'nullable|integer|min:0',
         'show_spots_left'    => 'nullable|string|in:yes,no',
+        'waitlist'           => 'nullable|string|in:yes,no',
         'start_display'      => 'nullable|string|in:relative,countdown',
     ];
 
@@ -137,6 +140,7 @@ class EventRequest extends BaseRequest
             'capacity.integer'            => __('Capacity must be a whole number.', 'fluent-event'),
             'capacity.min'                => __('Capacity cannot be negative.', 'fluent-event'),
             'show_spots_left.in'          => __('Show spots left must be yes or no.', 'fluent-event'),
+            'waitlist.in'                 => __('Waitlist must be yes or no.', 'fluent-event'),
             'start_display.in'            => __('Before the start must show the time left or a countdown.', 'fluent-event'),
         ];
     }

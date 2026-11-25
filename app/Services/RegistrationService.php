@@ -39,8 +39,9 @@ class RegistrationService
      * @param array $source source and source_id for a new row.
      * @return array|null|false|string [Guest, previous status, created]; null when another account holds the email;
      *                                 a repeatRefusal() reason when the row can't take this answer; a message when the
-     *                                 event is full; false when the row changed under this request to something other
-     *                                 than what it asked for.
+     *                                 event is full with no waitlist; false when the row changed under this request to
+     *                                 something other than what it asked for. Going lands as waitlisted on a full event
+     *                                 with a waitlist.
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
@@ -60,8 +61,12 @@ class RegistrationService
 
         return DB::transaction(function () use ($event, $user, $status, $name, $source, $guest) {
             // Past the refusal, going comes from a new row or a not-going one, and either takes a seat.
-            if ($status === 'going' && !self::hasSeatLeft($event)) {
-                return __('This event is full.', 'fluent-event');
+            if ($status === 'going') {
+                $status = self::seatStatus($event);
+
+                if (!$status) {
+                    return __('This event is full.', 'fluent-event');
+                }
             }
 
             if (!$guest) {
@@ -134,15 +139,19 @@ class RegistrationService
         return $email === '' ? null : Guest::query()->where('event_id', $event->id)->where('email', $email)->first();
     }
 
-    // Why a guest can't register again on their own: their row already holds a place, or an admin cancelled it.
-    // '' for a row they marked not going, which registering takes back to going.
+    // Why a guest can't register again on their own: their row already holds a place or waits for one, or an admin
+    // cancelled it. '' for a row they marked not going, which registering takes back to going.
     public static function repeatRefusal(Guest $guest)
     {
         if ($guest->status === 'not_going') {
             return '';
         }
 
-        return $guest->status === 'cancelled' ? 'cancelled' : 'already_registered';
+        if (in_array($guest->status, ['cancelled', 'waitlisted'], true)) {
+            return $guest->status;
+        }
+
+        return 'already_registered';
     }
 
     // A visitor form's answer to an email already on the event. A row linked to an account changes only from that
@@ -155,24 +164,33 @@ class RegistrationService
     // What a refused repeat registration is told.
     public static function refusalMessage($refusal)
     {
-        return $refusal === 'cancelled'
-            ? __('Your registration was cancelled by the host.', 'fluent-event')
-            : __('This email is already registered for this event.', 'fluent-event');
+        if ($refusal === 'cancelled') {
+            return __('Your registration was cancelled by the host.', 'fluent-event');
+        }
+
+        if ($refusal === 'waitlisted') {
+            return __("You're already on the waitlist for this event.", 'fluent-event');
+        }
+
+        return __('This email is already registered for this event.', 'fluent-event');
     }
 
     /**
-     * A logged-out visitor's registration by name and email, already validated. Always going: the email's
-     * not-going row comes back on, keeping its name; otherwise a new row.
+     * A logged-out visitor's registration by name and email, already validated. Going, or waitlisted on a full event
+     * with a waitlist: the email's not-going row comes back on, keeping its name; otherwise a new row.
      *
      * @param array      $source source and source_id.
      * @param Guest|null $guest  The email's not-going row, linked to no account.
      * @return array|false|string [Guest, its status before, or null when created]; false when the row changed under
-     *                            this request and holds no seat; a message when the event is full.
+     *                            this request and neither holds nor waits for a seat; a message when the event is full
+     *                            with no waitlist.
      */
     public static function registerVisitor(Event $event, array $data, array $source, $guest = null)
     {
         return DB::transaction(function () use ($event, $data, $source, $guest) {
-            if (!self::hasSeatLeft($event)) {
+            $status = self::seatStatus($event);
+
+            if (!$status) {
                 return __('This event is full.', 'fluent-event');
             }
 
@@ -180,11 +198,11 @@ class RegistrationService
                 // Claimed against "not going" with no account, so two requests coming back together send one
                 // confirmation, and a row linked to an account meanwhile is left alone.
                 $claimed = Guest::query()->where('id', $guest->id)->where('status', 'not_going')->whereNull('user_id')
-                    ->update(['status' => 'going']);
+                    ->update(['status' => $status]);
                 $guest = Guest::query()->find($guest->id);
 
                 // An admin cancelled or deleted the row meanwhile.
-                if (!$claimed && (!$guest || !in_array($guest->status, Event::SEAT_STATUSES, true))) {
+                if (!$claimed && (!$guest || !in_array($guest->status, Event::PLACE_STATUSES, true))) {
                     return false;
                 }
 
@@ -198,27 +216,33 @@ class RegistrationService
                 'is_buyer'    => 1,
                 'name'        => $data['name'],
                 'email'       => $data['email'],
-                'status'      => 'going',
+                'status'      => $status,
             ])), null];
         });
     }
 
-    // Inside a transaction: whether a capped event has a seat left. Seats are going and checked-in guests.
-    protected static function hasSeatLeft(Event $event)
+    // Inside a transaction: what a new going lands as. Going while a seat is left (seats are going and checked-in
+    // guests), waitlisted on a full event with a waitlist, null on a full one without.
+    protected static function seatStatus(Event $event)
     {
         $capacity = (int) Arr::get((array) $event->meta, 'capacity');
 
         if (!$capacity) {
-            return true;
+            return 'going';
         }
 
         // Holds every other registration to this event until commit, so two guests cannot both take the last seat.
         Event::query()->where('id', $event->id)->lockForUpdate()->first();
 
-        return Guest::query()->where('event_id', $event->id)->whereIn('status', Event::SEAT_STATUSES)->count() < $capacity;
+        if (Guest::query()->where('event_id', $event->id)->whereIn('status', Event::SEAT_STATUSES)->count() < $capacity) {
+            return 'going';
+        }
+
+        return Arr::get((array) $event->meta, 'waitlist') === 'yes' ? 'waitlisted' : null;
     }
 
-    // Confirmation on becoming going, cancellation on leaving it, each as Settings > Emails allows.
+    // Confirmation on becoming going, cancellation on leaving it, the waitlist email on joining it, each as
+    // Settings > Emails allows.
     public static function queueEmail(Guest $guest, $previousStatus)
     {
         $emails = Settings::get(Settings::EMAIL_NOTIFICATIONS);
@@ -229,6 +253,8 @@ class RegistrationService
             as_enqueue_async_action('fluent_event/send_registration_confirmation', [(int) $guest->id], 'fluent-event');
         } elseif (in_array($guest->status, ['not_going', 'cancelled'], true) && $wasGoing && !empty($emails['registration_cancellation']['enabled'])) {
             as_enqueue_async_action('fluent_event/send_registration_cancellation', [(int) $guest->id], 'fluent-event');
+        } elseif ($guest->status === 'waitlisted' && $previousStatus !== 'waitlisted' && !empty($emails['registration_waitlist']['enabled'])) {
+            as_enqueue_async_action('fluent_event/send_registration_waitlist', [(int) $guest->id], 'fluent-event');
         }
     }
 }
