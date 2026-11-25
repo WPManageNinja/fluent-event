@@ -133,14 +133,15 @@ class PluginUpdater
         if ($this->config['show_check_update']) {
 
             $getParam = 'fluent_sl_check_update_' . $this->config['slug'];
+            $nonceAction = 'fsl_check_update_' . $this->config['slug'];
 
-            add_filter('plugin_row_meta', function ($links, $file) use ($getParam) {
+            add_filter('plugin_row_meta', function ($links, $file) use ($getParam, $nonceAction) {
                 // On multisite only a network admin can update plugins, and the link leads to the network screen.
                 if ($this->config['basename'] !== $file || !current_user_can('update_plugins')) {
                     return $links;
                 }
 
-                $checkUpdateUrl = esc_url($this->pluginsScreenUrl('plugins.php?' . $getParam . '=' . time()));
+                $checkUpdateUrl = esc_url(wp_nonce_url($this->pluginsScreenUrl('plugins.php?' . $getParam . '=' . time()), $nonceAction));
                 $row_meta = array(
                     'check_update' => '<a style="color: #583fad;font-weight: 600;" href="' . $checkUpdateUrl . '" aria-label="' . esc_attr__('Check Update', 'fluent-event') . '">' . esc_html__('Check Update', 'fluent-event') . '</a>',
                 );
@@ -150,8 +151,8 @@ class PluginUpdater
             }, 10, 2);
 
             if (isset($_GET[$getParam])) {
-                add_action('admin_init', function () {
-                    if (current_user_can('update_plugins')) {
+                add_action('admin_init', function () use ($nonceAction) {
+                    if (current_user_can('update_plugins') && check_admin_referer($nonceAction)) {
                         delete_transient($this->cache_key);
 
                         add_filter('fluent_sl/api_request_query_params', function ($params) {
