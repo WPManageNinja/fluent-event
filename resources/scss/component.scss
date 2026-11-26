@@ -2606,7 +2606,7 @@
         // hue. color-mix is progressive: without it the neutral badge stands.
         &.fe-event-card__badge--calendar {
             max-width: 100%;
-            color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 40%, var(--fe-primary-text, #19283a));
+            color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 35%, var(--fe-primary-text, #19283a));
             background-color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 12%, transparent);
         }
     }
