@@ -269,7 +269,7 @@ describe('CreateOrUpdateEvent', () => {
             expect(save.payload).toHaveProperty('description_md', '');
 
             save.onSuccess({ event: { id: 55 } });
-            expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 55 } });
+            expect(router.replace).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 55 } });
         });
 
         it('patches an existing event in place', () => {

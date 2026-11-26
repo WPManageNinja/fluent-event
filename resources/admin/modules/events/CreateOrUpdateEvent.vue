@@ -775,15 +775,13 @@
                     successNotify: true,
                     errorNotify: true,
                     onSuccess: response => {
-                        const detail = { name: 'event_detail', params: { id: this.eventId || response.event.id } };
-
-                        // Going back from a clone lands on its source, where Edit would change the original.
-                        if (this.cloneSourceSlug) {
-                            this.$router.replace(detail);
+                        if (this.isEditing) {
+                            this.$goBack({ name: 'event_detail', params: { id: this.eventId } });
                             return;
                         }
 
-                        this.$goBack(detail);
+                        // A new event opens its own page; going back from a clone would land on its source.
+                        this.$router.replace({ name: 'event_detail', params: { id: response.event.id } });
                     },
                 });
             },
