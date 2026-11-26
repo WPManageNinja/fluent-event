@@ -10,14 +10,15 @@ vi.mock('@/utils/http/Rest.js', () => ({
 const form = (params = {}) => {
     const requestServer = vi.fn();
     const notifyError = vi.fn();
+    const router = { push: vi.fn(), back: vi.fn() };
     const wrapper = shallowMount(CreateOrUpdateCalendar, {
         global: {
             mixins: [main, { methods: { $requestServer: requestServer, $changeTitle: vi.fn(), $notifyError: notifyError } }],
-            mocks: { $route: { params, query: {} }, $router: { push: vi.fn() } }
+            mocks: { $route: { params, query: {} }, $router: router }
         }
     });
 
-    return { vm: wrapper.vm, requestServer, notifyError };
+    return { vm: wrapper.vm, requestServer, notifyError, router };
 };
 
 // A calendar made through the API or FluentCommunity gets the server's default colour; the form must agree.
@@ -54,5 +55,31 @@ describe('CreateOrUpdateCalendar colour', () => {
 
         expect(vm.colorOptions).toHaveLength(swatches + 1);
         expect(vm.calendar.theme_color).toBe('#123abc');
+    });
+});
+
+describe('CreateOrUpdateCalendar saving', () => {
+    it("opens the new calendar's page after creating it", () => {
+        window.history.replaceState({ back: '/calendars' }, '');
+        const { vm, requestServer, router } = form();
+
+        vm.saveCalendar();
+        requestServer.mock.calls.at(-1)[0].onSuccess({ calendar: { id: 9 } });
+        window.history.replaceState(null, '');
+
+        expect(router.push).toHaveBeenCalledWith({ name: 'calendar_detail', params: { id: 9 } });
+        expect(router.back).not.toHaveBeenCalled();
+    });
+
+    it("opens the calendar's page after editing, even when opened from the list", () => {
+        window.history.replaceState({ back: '/calendars' }, '');
+        const { vm, requestServer, router } = form({ id: '4' });
+
+        vm.saveCalendar();
+        requestServer.mock.calls.at(-1)[0].onSuccess({ calendar: { id: 4 } });
+        window.history.replaceState(null, '');
+
+        expect(router.push).toHaveBeenCalledWith({ name: 'calendar_detail', params: { id: '4' } });
+        expect(router.back).not.toHaveBeenCalled();
     });
 });

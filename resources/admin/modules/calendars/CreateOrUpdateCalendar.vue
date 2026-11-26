@@ -298,10 +298,7 @@
                     successNotify: true,
                     errorNotify: true,
                     onSuccess: response => {
-                        this.$goBack({
-                            name: 'calendar_detail',
-                            params: { id: this.calendarId || response.calendar.id },
-                        });
+                        this.$router.push({ name: 'calendar_detail', params: { id: this.calendarId || response.calendar.id } });
                     },
                 });
             },
