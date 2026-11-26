@@ -66,13 +66,24 @@ describe('fcom-portal entry', () => {
             expect(routes.find(r => r.name === 'fe_edit_event').component).toBe(routes.find(r => r.name === 'fe_create_event').component);
         });
 
-        it('leaves the create and edit pages out for anyone who cannot create events', async () => {
+        it("shows fcom's Not Found on the create page for anyone who cannot create events, not the event view of slug 'create'", async () => {
             window.fluentEventFcomPortal.can_create_events = false;
             const { filters } = await loadPortal();
 
             const routes = filters.fluent_com_portal_routes([spaceRoute()]);
 
-            expect(routes.slice(1).map(route => route.name)).toEqual(['fe_events', 'fe_global_event_view']);
+            expect(routes.slice(1).map(({ path, name }) => ({ path, name }))).toEqual([
+                { path: '/events', name: 'fe_events' },
+                { path: '/events/create', name: undefined },
+                { path: '/events/:event_slug', name: 'fe_global_event_view' },
+            ]);
+
+            const NotFound = { template: '<p class="not-found">Not Found</p>' };
+            const wrapper = mount(routes[2].component, {
+                global: { mocks: { $router: { getRoutes: () => [{ name: 'not-found', components: { default: NotFound } }] } } },
+            });
+
+            expect(wrapper.find('.not-found').exists()).toBe(true);
         });
 
         it('takes every path from the server, so a renamed slug moves all of them', async () => {

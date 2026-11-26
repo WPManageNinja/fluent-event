@@ -304,8 +304,21 @@ function register() {
         });
 
         // ?space=slug starts on that space; without it, on community-wide.
-        // Only event creators get the pages: anyone else typing the URL lands on fcom's Not Found.
-        if (portalVars().can_create_events) {
+        // Only event creators get the pages. For anyone else, /create would match the event view below,
+        // so it renders fcom's Not Found in place; /:event_slug/edit matches nothing and falls to it anyway.
+        if (!portalVars().can_create_events) {
+            routes.push({
+                path: '/' + paths.create_event,
+                component: {
+                    computed: {
+                        notFound() {
+                            return this.$router.getRoutes().find((route) => route.name === 'not-found').components.default;
+                        },
+                    },
+                    template: '<component :is="notFound"/>',
+                },
+            });
+        } else {
             routes.push({
                 path: '/' + paths.create_event,
                 name: 'fe_create_event',
