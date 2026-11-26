@@ -312,7 +312,6 @@
         --el-button-active-bg-color: var(--fe-danger-button, #B12A07);
         --el-button-active-border-color: var(--fe-danger-button, #B12A07);
 
-        // Fades like the primary button, as in FluentAffiliate; white still reads at 4.5:1 or more.
         &:hover,
         &:focus {
             opacity: 0.8;

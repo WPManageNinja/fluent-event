@@ -19,7 +19,6 @@
         font-weight: 600;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        // fcom's secondary text is 3.6:1 on its dark active bg; half-way to primary passes.
         color: var(--fcom-primary-text, #19283a);
         color: color-mix(in srgb, var(--fcom-secondary-text, #525866) 50%, var(--fcom-primary-text, #19283a));
         background: var(--fcom-active-bg, #f0f3f5);
