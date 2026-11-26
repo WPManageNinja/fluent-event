@@ -811,7 +811,8 @@ class FrontEndHandler
                 });
 
                 if (changed) {
-                    location.replace(location.pathname + '?' + params.toString() + location.hash);
+                    // Relative to the current page, so a path starting with "//" can't send it to another host.
+                    location.replace('?' + params.toString() + location.hash);
                 }
             })(<?php echo wp_json_encode($choices); ?>);
         <?php
