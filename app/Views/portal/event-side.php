@@ -22,8 +22,8 @@
  * @var array|null $registration     EventPageService::registration(); null when the event takes none now.
  * @var bool       $join_waitlist    The event is full, so registering joins its waitlist.
  * @var array|null $add_to_calendar  google, ics, filename.
- * @var string     $answer           'registered', 'joined_waitlist', 'already_registered', 'waitlisted' or 'cancelled'
- *                                   in the registration's answer, which portal.js opens; '' on the page.
+ * @var string     $answer           'registered', 'joined_waitlist', 'already_registered', 'waitlisted', 'cancelled' or
+ *                                   'checked_in' in the registration's answer, which portal.js opens; '' on the page.
  */
 defined('ABSPATH') || exit;
 
@@ -398,7 +398,7 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                 <?php esc_html_e( 'Done', 'fluent-event' ); ?>
             </button>
         </div>
-    <?php elseif ( in_array( $answer, array( 'already_registered', 'cancelled', 'waitlisted' ), true ) ) : ?>
+    <?php elseif ( in_array( $answer, array( 'already_registered', 'cancelled', 'waitlisted', 'checked_in' ), true ) ) : ?>
         <div
             id="fe-registered-<?php echo esc_attr( $fluentEventId ); ?>"
             class="fe-register-success fe-register-success--warning"
@@ -419,6 +419,7 @@ $fluentEventAction = $join_waitlist ? __( 'Join waitlist', 'fluent-event' ) : __
                     $fluentEventWarnings = array(
                         'cancelled'          => array( __( 'Your registration was cancelled', 'fluent-event' ), __( 'Contact the host if you want to join again.', 'fluent-event' ) ),
                         'waitlisted'         => array( __( "You're already on the waitlist", 'fluent-event' ), __( 'The host will let you know if a spot opens up.', 'fluent-event' ) ),
+                        'checked_in'         => array( __( 'You are already checked in', 'fluent-event' ), __( 'The host has recorded your attendance. Contact them if something changed.', 'fluent-event' ) ),
                         'already_registered' => array( __( 'This email is already registered', 'fluent-event' ), __( 'Check your inbox for the confirmation email, or register with a different email.', 'fluent-event' ) ),
                     );
                     echo esc_html( $fluentEventWarnings[ $answer ][0] );
