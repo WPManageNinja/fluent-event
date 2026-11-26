@@ -14,7 +14,7 @@ vi.mock('@/utils/http/Rest.js', () => ({
 
 const form = ({ params = {}, query = {} } = {}) => {
     const requestServer = vi.fn();
-    const router = { push: vi.fn(), back: vi.fn() };
+    const router = { push: vi.fn(), back: vi.fn(), replace: vi.fn() };
     const wrapper = shallowMount(CreateOrUpdateEvent, {
         global: {
             mixins: [main, { methods: { $requestServer: requestServer, $changeTitle: vi.fn() } }],
@@ -200,6 +200,20 @@ describe('CreateOrUpdateEvent', () => {
 
             expect(save).toMatchObject({ method: 'post', path: 'events' });
             expect(save.payload).toMatchObject({ title: 'Book club', calendar_id: 3, start_at: '2026-11-02 19:30:00' });
+        });
+
+        // Going back would land on the source, where Edit changes the original.
+        it('opens the new copy after saving, even when opened from the source', () => {
+            window.history.replaceState({ back: '/events/7' }, '');
+            const { vm, request, requestServer, router } = form({ query: { clone: 'book-club' } });
+            request('events/by-slug').onSuccess({ event: source });
+
+            vm.saveEvent();
+            requestServer.mock.calls.at(-1)[0].onSuccess({ event: { id: 56 } });
+            window.history.replaceState(null, '');
+
+            expect(router.replace).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 56 } });
+            expect(router.back).not.toHaveBeenCalled();
         });
     });
 
