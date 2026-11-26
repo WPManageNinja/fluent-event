@@ -12,3 +12,5 @@
 /**
  * @var $app FluentEvent\Framework\Foundation\Application
  */
+
+(new \FluentEvent\App\Hooks\Handlers\PrivacyHandler())->register();
