@@ -225,7 +225,6 @@ return [
             'Send Confirmation Email' => __('Send Confirmation Email', 'fluent-event'),
             'Send Cancellation Email' => __('Send Cancellation Email', 'fluent-event'),
             'Send Waitlist Email' => __('Send Waitlist Email', 'fluent-event'),
-            'Clone Event' => __('Clone Event', 'fluent-event'),
             'The event to clone was not found.' => __('The event to clone was not found.', 'fluent-event'),
             'Send Confirmation Emails' => __('Send Confirmation Emails', 'fluent-event'),
             'Send Cancellation Emails' => __('Send Cancellation Emails', 'fluent-event'),
