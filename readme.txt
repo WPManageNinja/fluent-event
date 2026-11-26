@@ -155,15 +155,22 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Added: Guest Bulk Actions
 - Added: Member Registration on the Public Event Page
 - Added: Upcoming Events Widget in the Space Sidebar
-- Improved: Open Registration as the Default Entry Type
+- Improved: Open Registration Listed First and Set as the Default Entry Type
+- Improved: Event and Calendar Pages Open After Every Save
+- Improved: Smaller Script on FluentCommunity Portal Pages
 - Improved: Public Pages Use the Portal's Icons
 - Improved: Aligned Switches in the Event Forms
 - Improved: Stored Names Moved to the fevent Prefix With Automatic Migration
 - Improved: Action Scheduler 4.2.0 and Parsedown 1.8.0
-- Security: Output Escaping, Admin-Only Check-In and Admin Link Hardening
+- Security: Output Escaping, Admin Access and Event Ownership Hardening
 - Fixed: Reminder Scheduler Ignoring the Settings Limits
 - Fixed: Space Event Pages Not Loading on Newer FluentCommunity
 - Fixed: Admin Hooks Not Using the fluent_event/ Prefix
+- Fixed: Low Contrast Colours in Light and Dark Mode
+- Fixed: Double Sign-Up Not Showing Already Registered
+- Fixed: Register Notes for Full Events and Host-Cancelled Guests in the Portal
+- Fixed: Space Visibility Note on the Portal Create Page
+- Fixed: Description Editor and RSVP Visitor Form Accessibility
 - Fixed: Empty Lines Showing as Text in Event Descriptions
 - Fixed: Event Description Lost on a Partial Update
 - Fixed: Events Page Header Not Sticky in the Portal
