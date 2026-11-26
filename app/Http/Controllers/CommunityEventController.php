@@ -2,6 +2,7 @@
 
 namespace FluentEvent\App\Http\Controllers;
 
+use FluentCommunity\App\Models\Feed as FcomFeed;
 use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentCommunity\App\Services\CustomSanitizer;
 use FluentEvent\App\Http\Requests\EventRequest;
@@ -24,13 +25,14 @@ class CommunityEventController extends Controller
 {
     public function getEvents(Request $request)
     {
-        $spaceIds = CommunityEvents::visibleSpaceIds();
-        $withSpaceless = CommunityEvents::canViewSpacelessPosts();
-
-        if ($spaceSlug = $request->getSafe('space', 'sanitize_title')) {
-            $spaceIds = FcomSpace::query()->whereIn('id', $spaceIds)->where('slug', $spaceSlug)->pluck('id')->toArray();
-            $withSpaceless = false;
-        }
+        // The posts fcom's own feed would show this viewer, read through fcom's scopes so its access rules stay the record.
+        $feeds = FcomFeed::query()
+            ->select('fcom_posts.id')
+            ->where('content_type', CommunityEvents::CONTENT_TYPE)
+            ->where('status', 'published')
+            ->byUserAccess(get_current_user_id())
+            ->byActiveAuthor()
+            ->filterBySpaceSlug($request->getSafe('space', 'sanitize_title'));
 
         $from = $request->getSafe('from', 'sanitize_text_field');
         $to = $request->getSafe('to', 'sanitize_text_field');
@@ -38,24 +40,12 @@ class CommunityEventController extends Controller
         $query = Event::query()
             ->with(['post'])
             // Visibility is matched in SQL, so only what was asked for is ever loaded.
-            ->whereIn('id', function ($query) use ($spaceIds, $withSpaceless) {
-                $query->select('fevent_meta.object_id')
+            ->whereIn('id', function ($query) use ($feeds) {
+                $query->select('object_id')
                     ->from('fevent_meta')
-                    ->join('fcom_posts', 'fcom_posts.id', '=', 'fevent_meta.value')
-                    // fcom hides posts whose author is blocked, pending or deactivated.
-                    ->join('fcom_xprofile', 'fcom_xprofile.user_id', '=', 'fcom_posts.user_id')
-                    ->where('fevent_meta.object_type', Meta::OBJECT_TYPE_EVENT)
-                    ->where('fevent_meta.meta_key', CommunityEvents::FEED_META_KEY)
-                    ->where('fcom_posts.content_type', CommunityEvents::CONTENT_TYPE)
-                    ->where('fcom_posts.status', 'published')
-                    ->where('fcom_xprofile.status', 'active')
-                    ->where(function ($query) use ($spaceIds, $withSpaceless) {
-                        $query->whereIn('fcom_posts.space_id', $spaceIds);
-
-                        if ($withSpaceless) {
-                            $query->orWhereNull('fcom_posts.space_id');
-                        }
-                    });
+                    ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+                    ->where('meta_key', CommunityEvents::FEED_META_KEY)
+                    ->whereRaw('value IN (' . $feeds->toSql() . ')', $feeds->getBindings());
             })
             ->byStatus(Event::LIVE_STATUSES)
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))

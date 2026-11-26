@@ -106,7 +106,7 @@ slug; `fluent_event/community/route_paths` can still move any single route:
 - The pages are a separate Vue + Element Plus app loaded on first visit (fcom exposes neither
   to add-ons). The card is a string template on fcom's own Vue.
 - REST, `fluent-event/v2/community/*`:
-  - `GET events` — the events list, filtered to visible posts in SQL.
+  - `GET events` — the events list, filtered in SQL to the posts fcom's own feed shows the viewer (its `Feed` scopes `byUserAccess`, `byActiveAuthor`, `filterBySpaceSlug`).
   - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute.
   - `GET editor-assets` — the WordPress editor markup for the create-event page; site administrators only.
 

@@ -3,7 +3,6 @@
 namespace FluentEvent\Modules\FluentCommunity;
 
 use FluentCommunity\App\Models\Feed as FcomFeed;
-use FluentCommunity\App\Models\Space as FcomSpace;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Meta;
@@ -63,28 +62,6 @@ class CommunityEvents
     public static function canViewSpacelessPosts()
     {
         return FcomHelper::getCurrentUser() || FcomHelper::isPublicAccessible();
-    }
-
-    // Discussion spaces whose posts the current viewer can read.
-    public static function visibleSpaceIds()
-    {
-        $user = FcomHelper::getCurrentUser();
-
-        if (!$user) {
-            if (!FcomHelper::isPublicAccessible()) {
-                return [];
-            }
-
-            return FcomSpace::query()->where('privacy', 'public')->pluck('id')->toArray();
-        }
-
-        $spaceIds = array_filter((array) $user->getAccessSpaceIds());
-
-        if (!$spaceIds) {
-            return [];
-        }
-
-        return FcomSpace::query()->whereIn('id', $spaceIds)->pluck('id')->toArray();
     }
 
     public static function canViewFeed($feed)
