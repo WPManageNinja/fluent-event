@@ -155,11 +155,12 @@ document.addEventListener('toggle', (event) => {
         return;
     }
 
-    const menu = form.closest('[data-fe-card]').querySelector('[role="menu"]:popover-open');
+    const card = form.closest('[data-fe-card]');
+    const menu = card.querySelector('[role="menu"]:popover-open');
 
     if (menu) {
         menu.hidePopover();
-        document.querySelector(`[popovertarget="${menu.id}"]`).focus();
+        card.querySelector(`[popovertarget="${menu.id}"]`).focus();
     }
 }, true);
 
