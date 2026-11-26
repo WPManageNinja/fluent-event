@@ -191,7 +191,7 @@
 </template>
 
 <script>
-import { Calendar, Grid, MapLocation, MoreFilled, Search, Tickets, UserFilled, VideoCamera } from '@element-plus/icons-vue';
+import { Calendar, Grid, MapLocation, MoreFilled, Search, Tickets, UserFilled, VideoCamera } from '../element';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import Storage from '@/utils/Storage';
 import { eventsApi, errorMessage, eventMonth, eventDay, eventPhase, guestCountLabel, portalVars, hasEventActions, eventStart, setPageTitle } from '../utils';

@@ -168,7 +168,7 @@
 </template>
 
 <script>
-import { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
+import { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera } from '../element';
 import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, hasSpotsLeft, isSeated, portalVars, saveIcs, setPageTitle, spotsLeftLabel, timeFormat } from '../utils';
 import { lastDay } from '@/utils/date';
 import { padPart, startCountdown } from '@/utils/countdown';
