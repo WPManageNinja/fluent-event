@@ -140,7 +140,7 @@ class PluginUpdater
                     return $links;
                 }
 
-                $checkUpdateUrl = esc_url($this->pluginsScreenUrl('plugins.php?' . $getParam . '=' . time()));
+                $checkUpdateUrl = esc_url(wp_nonce_url($this->pluginsScreenUrl('plugins.php?' . $getParam . '=' . time()), $getParam));
                 $row_meta = array(
                     'check_update' => '<a style="color: #583fad;font-weight: 600;" href="' . $checkUpdateUrl . '" aria-label="' . esc_attr__('Check Update', 'fluent-event') . '">' . esc_html__('Check Update', 'fluent-event') . '</a>',
                 );
@@ -150,8 +150,11 @@ class PluginUpdater
             }, 10, 2);
 
             if (isset($_GET[$getParam])) {
-                add_action('admin_init', function () {
-                    if (current_user_can('update_plugins')) {
+                add_action('admin_init', function () use ($getParam) {
+                    // The link carries a nonce, so another site can't make an admin's browser trigger it.
+                    $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+
+                    if (current_user_can('update_plugins') && wp_verify_nonce($nonce, $getParam)) {
                         delete_transient($this->cache_key);
 
                         add_filter('fluent_sl/api_request_query_params', function ($params) {
