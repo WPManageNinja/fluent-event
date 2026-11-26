@@ -452,6 +452,31 @@ class CalendarLandingPageTest extends IntegrationTestCase
         $this->assertStringContainsString('Page 1 of 2', $first);
         $this->assertStringContainsString('Paged event 11', $second);
         $this->assertStringNotContainsString('Paged event 10', $second);
+
+        $pastTheEnd = $this->page($calendar->slug, ['fe_page' => '99'])['body'];
+
+        $this->assertStringContainsString('Paged event 11', $pastTheEnd);
+        $this->assertStringContainsString('Page 2 of 2', $pastTheEnd);
+        $this->assertStringNotContainsString('No upcoming events.', $pastTheEnd);
+        $this->assertStringContainsString('"fe_page", 2)', $this->footer(), 'The address moves to the page shown');
+
+        $this->page($calendar->slug, ['fe_page' => '2']);
+
+        $this->assertSame('', $this->footer(), 'A page that exists keeps its address');
+    }
+
+    // What the footer prints for the lists rendered since the last call.
+    private function footer()
+    {
+        ob_start();
+        (new FrontEndHandler())->correctPageInAddress();
+        $footer = trim((string) ob_get_clean());
+
+        $shown = new \ReflectionProperty(FrontEndHandler::class, 'shownPage');
+        $shown->setAccessible(true);
+        $shown->setValue(null, 0);
+
+        return $footer;
     }
 
     public function test_the_past_tab_and_search_narrow_the_list()

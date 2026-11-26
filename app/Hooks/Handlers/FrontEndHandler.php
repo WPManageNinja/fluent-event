@@ -36,6 +36,9 @@ class FrontEndHandler
     // The event its own address opened, found before the theme prints so a hidden one can answer 404.
     protected static $pageEvent;
 
+    // The furthest page any list on this request showed; lists on one page share the page number.
+    protected static $shownPage = 0;
+
     public function register()
     {
         add_shortcode('fluent_events', [$this, 'renderEvents']);
@@ -54,6 +57,7 @@ class FrontEndHandler
         add_filter('document_title_parts', [$this, 'documentTitle']);
         add_filter('get_canonical_url', [$this, 'canonicalUrl'], 10, 2);
         add_action('wp_head', [$this, 'printMeta'], 1);
+        add_action('wp_footer', [$this, 'correctPageInAddress']);
     }
 
     // Block themes: the theme's header and footer around ours, as FluentCart's product template does. The event's page
@@ -514,9 +518,12 @@ class FrontEndHandler
         if ($view === 'calendar') {
             $data['grid'] = $this->calendarGrid($span, $date ?: wp_date('Y-m-d'), $events, $calendarsById);
         } else {
-            $paginator = $events
-                ->byPeriod($filter === 'all' ? '' : $filter)
-                ->paginate(self::PER_PAGE, ['*'], 'page', $pageNumber);
+            $query = $events->byPeriod($filter === 'all' ? '' : $filter);
+            $total = $query->count();
+            // A stale link past the end (events ended or were removed) lands on the last page, not an empty list.
+            $pageNumber = min($pageNumber, max(1, (int) ceil($total / self::PER_PAGE)));
+            static::$shownPage = max(static::$shownPage, $pageNumber);
+            $paginator = $query->paginate(self::PER_PAGE, ['*'], 'page', $pageNumber, $total);
 
             // Each row's link reads its post through get_permalink(): one query for the page's posts, not one each.
             _prime_post_caches(wp_list_pluck($paginator->items(), 'post_id'), false, false);
@@ -821,5 +828,32 @@ class FrontEndHandler
         <?php
 
         return wp_get_inline_script_tag((string) ob_get_clean());
+    }
+
+    // A link past the end showed the last page; the address follows, so a copied or bookmarked link opens what was seen.
+    public function correctPageInAddress()
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page state from the link.
+        $requested = absint($_GET[self::PAGE_VAR] ?? 0);
+
+        if (!static::$shownPage || static::$shownPage >= $requested) {
+            return;
+        }
+        ?>
+        <script>
+            (function (name, page) {
+                var params = new URLSearchParams(location.search);
+
+                if (page > 1) {
+                    params.set(name, page);
+                } else {
+                    params.delete(name);
+                }
+
+                var query = params.toString();
+                history.replaceState(history.state, '', location.pathname + (query ? '?' + query : '') + location.hash);
+            })(<?php echo wp_json_encode(self::PAGE_VAR); ?>, <?php echo (int) static::$shownPage; ?>);
+        </script>
+        <?php
     }
 }
