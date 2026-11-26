@@ -775,7 +775,6 @@
                     successNotify: true,
                     errorNotify: true,
                     onSuccess: response => {
-                        // Always the saved event's page: going back from a clone would land on its source.
                         this.$router.push({ name: 'event_detail', params: { id: this.eventId || response.event.id } });
                     },
                 });

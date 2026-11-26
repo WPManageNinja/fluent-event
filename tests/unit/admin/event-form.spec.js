@@ -202,7 +202,6 @@ describe('CreateOrUpdateEvent', () => {
             expect(save.payload).toMatchObject({ title: 'Book club', calendar_id: 3, start_at: '2026-11-02 19:30:00' });
         });
 
-        // Going back would land on the source, where Edit changes the original.
         it('opens the new copy after saving, even when opened from the source', () => {
             window.history.replaceState({ back: '/events/7' }, '');
             const { vm, request, requestServer, router } = form({ query: { clone: 'book-club' } });
