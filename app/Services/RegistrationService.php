@@ -192,20 +192,20 @@ class RegistrationService
      * A logged-out visitor's registration by name and email, already validated. Going, or waitlisted on a full event
      * with a waitlist: the email's not-going row comes back on, keeping its name; otherwise a new row.
      *
-     * @param array      $source source and source_id.
-     * @param Guest|null $guest  The email's not-going row, linked to no account.
+     * @param array $source source and source_id.
      * @return array|false|string [Guest, its status before, or null when created]; false when the row changed under
-     *                            this request and neither holds nor waits for a seat; a visitorRefusal() reason when
-     *                            the email registered meanwhile; a message when the event is full with no waitlist.
+     *                            this request and neither holds nor waits for a seat; a visitorRefusal() reason for an
+     *                            email already on the event; a message when the event is full with no waitlist.
      */
-    public static function registerVisitor(Event $event, array $data, array $source, $guest = null)
+    public static function registerVisitor(Event $event, array $data, array $source)
     {
-        return DB::transaction(function () use ($event, $data, $source, $guest) {
+        return DB::transaction(function () use ($event, $data, $source) {
             // Same lock as registerMember(), and also the first read.
             Event::query()->where('id', $event->id)->lockForUpdate()->first();
 
-            // The caller's lookup ran before the lock, so a twin request may have registered this email since.
-            if (!$guest && ($guest = self::guestByEmail($event, $data['email'])) && ($refusal = self::visitorRefusal($guest))) {
+            $guest = self::guestByEmail($event, $data['email']);
+
+            if ($guest && ($refusal = self::visitorRefusal($guest))) {
                 return $refusal;
             }
 

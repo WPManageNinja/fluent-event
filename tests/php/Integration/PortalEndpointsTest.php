@@ -112,10 +112,61 @@ class PortalEndpointsTest extends IntegrationTestCase
         $event = $this->createEvent();
         $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'going']);
 
-        // The controller looked before the twin committed, so it passes no row.
         $registered = RegistrationService::registerVisitor($event, ['name' => 'Twin', 'email' => 'visitor@example.test'], ['source' => 'wordpress_pages']);
 
         $this->assertSame('already_registered', $registered);
+        $this->assertCount(1, $this->guestsOf($event));
+    }
+
+    // Runs $twin once, just before the first duplicate check or event lock the request sends: the moment a twin
+    // request commits in a real race.
+    private function twinCommitsAtTheRacePoint(callable $twin)
+    {
+        $done = false;
+        add_filter('query', $filter = function ($sql) use (&$done, $twin) {
+            $lower = strtolower($sql);
+            if (!$done && (strpos($lower, 'for update') !== false || (strpos($lower, 'count(') !== false && strpos($lower, 'fevent_guests') !== false))) {
+                $done = true;
+                $twin();
+            }
+            return $sql;
+        });
+
+        return function () use ($filter) {
+            remove_filter('query', $filter);
+        };
+    }
+
+    public function test_a_twin_registering_a_new_email_first_gets_already_registered_not_a_validation_error()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $stop = $this->twinCommitsAtTheRacePoint(function () use ($event) {
+            $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'going']);
+        });
+
+        $response = $this->registerGuest($event);
+        $stop();
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(__('This email is already registered for this event.', 'fluent-event'), $response['data']['message']);
+        $this->assertNull($response['data']['status']);
+        $this->assertCount(1, $this->guestsOf($event));
+    }
+
+    public function test_a_twin_bringing_back_the_same_not_going_row_first_gets_already_registered()
+    {
+        $event = $this->onlineEvent('rsvp');
+        $guest = $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'not_going']);
+        $stop = $this->twinCommitsAtTheRacePoint(function () use ($guest) {
+            Guest::query()->where('id', $guest->id)->update(['status' => 'going']);
+        });
+
+        $response = $this->registerGuest($event);
+        $stop();
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame(__('This email is already registered for this event.', 'fluent-event'), $response['data']['message']);
+        $this->assertNull($response['data']['status']);
         $this->assertCount(1, $this->guestsOf($event));
     }
 

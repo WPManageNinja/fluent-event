@@ -94,23 +94,7 @@ class PortalEventController extends Controller
             return $this->answerAsMember($event, 'going', $data['name']);
         }
 
-        $guest = RegistrationService::guestByEmail($event, $data['email']);
-
-        // A repeated email is warned with nothing saved, unless its row said not going and has no account: that comes
-        // back on.
-        if ($guest && ($refusal = RegistrationService::visitorRefusal($guest))) {
-            return $this->registered($event, null, $refusal);
-        }
-
-        if (!$guest) {
-            $this->validate(
-                $data,
-                Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
-                GuestRequest::messages()
-            );
-        }
-
-        $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages'], $guest);
+        $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages']);
 
         if (in_array($registered, ['already_registered', 'cancelled', 'waitlisted'], true)) {
             return $this->registered($event, null, $registered);

@@ -252,23 +252,7 @@ class CommunityEventController extends Controller
         // Validate first, so bad input fails alike for every email.
         $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
 
-        $guest = RegistrationService::guestByEmail($event, $data['email']);
-
-        // A repeated email is refused with nothing saved, unless its row said not going and has no account: that comes
-        // back on.
-        if ($guest && ($refusal = RegistrationService::visitorRefusal($guest))) {
-            return self::refused($refusal);
-        }
-
-        if (!$guest) {
-            $this->validate(
-                $data,
-                Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
-                GuestRequest::messages()
-            );
-        }
-
-        $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id], $guest);
+        $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id]);
 
         if (in_array($registered, ['already_registered', 'cancelled', 'waitlisted'], true)) {
             return self::refused($registered);
