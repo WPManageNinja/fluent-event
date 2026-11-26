@@ -30,6 +30,9 @@ class FeedHandler
 
     protected $formattedEvents = [];
 
+    // Event id => the post it belongs to, loaded with the events.
+    protected $feedLinks = [];
+
     public function register()
     {
         add_filter('fluent_community/feed/message_required', [$this, 'captionRequired'], 10, 3);
@@ -169,7 +172,7 @@ class FeedHandler
             return;
         }
 
-        $event = Event::query()->find(CommunityEvents::eventIdOf($feed));
+        $event = CommunityEvents::eventOf($feed);
 
         if (!$event) {
             return;
@@ -239,7 +242,7 @@ class FeedHandler
     // Deleting a post is a moderation call, not an event one: the event keeps its guests as a draft.
     public function parkEvent($feed)
     {
-        $event = Event::query()->find(CommunityEvents::eventIdOf($feed));
+        $event = CommunityEvents::eventOf($feed);
 
         if (!$event) {
             return;
@@ -353,10 +356,18 @@ class FeedHandler
             }
 
             $formatted = $this->formattedEvents[$eventId] ?? null;
+            $linkedFeedId = $this->feedLinks[$eventId] ?? 0;
         } else {
             // A single post is the event page, the one view that shows the description.
             $event = Event::query()->with(['post'])->find($eventId);
             $formatted = EventService::formatEvents([$event], ['withDescription' => true])[$eventId] ?? null;
+            $linkedFeedId = $event ? CommunityEvents::feedIdOf($event) : 0;
+        }
+
+        // Only the event that links back to this post: after a reset or reinstall reuses ids, an old
+        // post would otherwise show a new, maybe private or draft, event's title and date.
+        if ($linkedFeedId !== (int) $feed->id) {
+            $formatted = null;
         }
 
         if ($formatted && !in_array($feed->status, ['published', 'unlisted'], true)) {
@@ -383,6 +394,16 @@ class FeedHandler
 
         foreach ($eventIds as $eventId) {
             $this->formattedEvents[$eventId] = $formatted[$eventId] ?? null;
+        }
+
+        $links = Meta::query()
+            ->where('object_type', Meta::OBJECT_TYPE_EVENT)
+            ->where('meta_key', CommunityEvents::FEED_META_KEY)
+            ->whereIn('object_id', $eventIds)
+            ->get(['object_id', 'value']);
+
+        foreach ($links as $link) {
+            $this->feedLinks[(int) $link->object_id] = (int) $link->value;
         }
     }
 

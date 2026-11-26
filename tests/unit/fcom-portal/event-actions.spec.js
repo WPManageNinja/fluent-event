@@ -2,12 +2,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { ElMessageBox, ElNotification } from 'element-plus';
 import EventActions from '../../../resources/fcom-portal/EventActions';
+// Loaded up front: its first transform outlasts flushPromises() when the component imports it mid-test.
+import '../../../resources/fcom-portal/element';
 
+const notify = vi.hoisted(() => vi.fn());
 vi.mock('element-plus', async (importOriginal) => ({
     ...(await importOriginal()),
-    ElNotification: vi.fn(),
+    ElNotification: notify,
     ElMessageBox: { alert: vi.fn(), confirm: vi.fn() },
 }));
+// The RSVP toast imports the notification on its own.
+vi.mock('element-plus/es/components/notification/index.mjs', () => ({ ElNotification: notify }));
 
 const rsvp = (overrides = {}) => ({ id: 5, entry_type: 'rsvp', is_past: false, my_status: null, ...overrides });
 const actions = (event = rsvp()) => mount(EventActions, { props: { event }, attachTo: document.body });

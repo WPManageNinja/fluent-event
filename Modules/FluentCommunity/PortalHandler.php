@@ -225,6 +225,7 @@ class PortalHandler
             'The host has recorded your attendance. Contact them if something changed.' => __('The host has recorded your attendance. Contact them if something changed.', 'fluent-event'),
             'Choose a space for this event.' => __('Choose a space for this event.', 'fluent-event'),
             'Click to add a cover image' => __('Click to add a cover image', 'fluent-event'),
+            'Clone Event' => __('Clone Event', 'fluent-event'),
             'Comments' => __('Comments', 'fluent-event'),
             'Community-wide' => __('Community-wide', 'fluent-event'),
             'Cover Image' => __('Cover Image', 'fluent-event'),
@@ -297,7 +298,6 @@ class PortalHandler
             'On the waitlist' => __('On the waitlist', 'fluent-event'),
             'Online' => __('Online', 'fluent-event'),
             'Only http and https links are accepted.' => __('Only http and https links are accepted.', 'fluent-event'),
-            'Only members of the space can see it.' => __('Only members of the space can see it.', 'fluent-event'),
             'Open' => __('Open', 'fluent-event'),
             'Optional. Shown on the event page.' => __('Optional. Shown on the event page.', 'fluent-event'),
             'Past' => __('Past', 'fluent-event'),
@@ -360,6 +360,7 @@ class PortalHandler
             'What the event is called.' => __('What the event is called.', 'fluent-event'),
             'When the event starts and ends.' => __('When the event starts and ends.', 'fluent-event'),
             'Where do you want to post this event?' => __('Where do you want to post this event?', 'fluent-event'),
+            "Who can see it follows the space's privacy." => __("Who can see it follows the space's privacy.", 'fluent-event'),
             /* translators: %s: the event title */
             'You will lose your place on the waitlist for %s.' => __('You will lose your place on the waitlist for %s.', 'fluent-event'),
             /* translators: %s: event title */

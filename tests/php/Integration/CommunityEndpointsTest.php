@@ -841,6 +841,33 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame($description, $single->fluent_event['description']);
     }
 
+    // An old post naming an event id that now belongs to another post's event (a reset or reinstall
+    // reuses ids) must not show that event, which could be private or a draft.
+    public function test_a_post_shows_only_the_event_that_links_back_to_it()
+    {
+        [$event, $feed] = $this->communityEvent();
+        $stale = FcomFeed::create([
+            'user_id'          => $this->member,
+            'title'            => 'Old event post',
+            'slug'             => 'fe-test-' . strtolower(wp_generate_password(10, false, false)),
+            'message'          => 'Rolled back.',
+            'message_rendered' => '<p>Rolled back.</p>',
+            'type'             => 'text',
+            'content_type'     => CommunityEvents::CONTENT_TYPE,
+            'space_id'         => $this->spaceId,
+            'privacy'          => 'public',
+            'status'           => 'published',
+            'meta'             => ['event_id' => (int) $event->id],
+        ]);
+
+        $page = FcomFeedsHelper::transformFeedsCollection(FcomFeed::query()->whereIn('id', [$feed->id, $stale->id])->orderBy('id')->get());
+        $single = FcomFeedsHelper::transformFeed(FcomFeed::query()->find($stale->id));
+
+        $this->assertSame((int) $event->id, (int) $page->first()->fluent_event['id']);
+        $this->assertNull($page->last()->fluent_event);
+        $this->assertNull($single->fluent_event);
+    }
+
     // fcom's card view shows a post's featured image; an event post's is its event's cover, in lists and alone.
     public function test_an_event_post_carries_its_events_cover_as_its_featured_image()
     {

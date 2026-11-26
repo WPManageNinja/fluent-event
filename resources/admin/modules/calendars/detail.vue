@@ -194,7 +194,7 @@
 
                 return {
                     backgroundColor: color,
-                    color: luminance > 0.45
+                    color: luminance > 0.22
                         ? 'var(--fe-on-hue-dark, #19283a)'
                         : 'var(--fe-on-hue-light, #ffffff)',
                 };

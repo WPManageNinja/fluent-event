@@ -293,6 +293,19 @@ describe('EventViewPage', () => {
             expect(wrapper.find('.fe-event-view__note').text()).toBe('Please register for the event to see the meeting link.');
         });
 
+        it('drops the register note when the event is full and the member holds no seat', async () => {
+            const full = (extra) => meetup({ venue_type: 'online', has_meeting_url: true, capacity: 2, guest_count: 2, is_full: true, ...extra });
+
+            expect((await page(full())).wrapper.find('.fe-event-view__note').exists()).toBe(false);
+            expect((await page(full({ waitlist: true }))).wrapper.find('.fe-event-view__note').exists()).toBe(false);
+        });
+
+        it('drops the register note for a guest the host cancelled', async () => {
+            const { wrapper } = await page(meetup({ venue_type: 'online', has_meeting_url: true, my_status: 'cancelled' }));
+
+            expect(wrapper.find('.fe-event-view__note').exists()).toBe(false);
+        });
+
         it('shows the venue and address for an in-person event', async () => {
             const { wrapper } = await page(meetup());
 

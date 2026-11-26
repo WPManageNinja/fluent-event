@@ -38,7 +38,7 @@
                     >
                         <el-radio value="space" border>
                             <span class="fe-create-event__choice-title">{{ $t('In a space') }}</span>
-                            <span class="fe-create-event__hint">{{ $t('Only members of the space can see it.') }}</span>
+                            <span class="fe-create-event__hint">{{ $t("Who can see it follows the space's privacy.") }}</span>
                         </el-radio>
                         <!-- The disabled card says why; the tooltip says where to turn it on. -->
                         <el-tooltip
@@ -422,8 +422,7 @@
 
 <script>
 import dayjs from 'dayjs';
-import { ElNotification } from 'element-plus';
-import { ArrowLeft, Delete, MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
+import { ArrowLeft, Delete, ElNotification, MapLocation, Picture, QuestionFilled, VideoCamera } from '../element';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
 import { communityApi, dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
@@ -565,8 +564,8 @@ export default {
         },
         entryTypes() {
             return [
-                { value: 'rsvp', label: this.$t('RSVP'), hint: this.$t('Logged-in members say whether they are going.') },
                 { value: 'open', label: this.$t('Open'), hint: this.$t('Guests register with their name and email, no login needed.') },
+                { value: 'rsvp', label: this.$t('RSVP'), hint: this.$t('Logged-in members say whether they are going.') },
                 { value: 'none', label: this.$t('None'), hint: this.$t('Nobody registers. Anyone who can see the event sees all of it, meeting link included.') },
             ];
         },

@@ -55,7 +55,7 @@ function pageShell(page) {
                     import('vue'),
                     pages[page](),
                     import('@/utils/date'),
-                    import('element-plus'),
+                    import('./element'),
                     import('element-plus/dist/locale/en.mjs'),
                 ]);
 

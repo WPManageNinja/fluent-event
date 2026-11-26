@@ -45,26 +45,30 @@ class RegistrationService
      */
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
-        $guest = self::memberGuest($event, $user);
+        return DB::transaction(function () use ($event, $user, $status, $name, $source) {
+            // Holds every other registration to this event until commit. Must be the first read, so the reads
+            // below see a racing request's commit.
+            Event::query()->where('id', $event->id)->lockForUpdate()->first();
 
-        if ($guest && $guest->user_id && (int) $guest->user_id !== (int) $user->ID) {
-            return null;
-        }
+            $guest = self::memberGuest($event, $user);
 
-        // An admin's check-in is an attendance record: neither answer may rewrite it.
-        if ($guest && $guest->status === 'checked_in') {
-            return 'checked_in';
-        }
+            if ($guest && $guest->user_id && (int) $guest->user_id !== (int) $user->ID) {
+                return null;
+            }
 
-        // Going again is refused unless the row said not going, as for visitors; an admin's cancel stands against
-        // either answer.
-        $refusal = $guest && ($status === 'going' || $guest->status === 'cancelled') ? self::repeatRefusal($guest) : '';
+            // An admin's check-in is an attendance record: neither answer may rewrite it.
+            if ($guest && $guest->status === 'checked_in') {
+                return 'checked_in';
+            }
 
-        if ($refusal) {
-            return $refusal;
-        }
+            // Going again is refused unless the row said not going, as for visitors; an admin's cancel stands against
+            // either answer.
+            $refusal = $guest && ($status === 'going' || $guest->status === 'cancelled') ? self::repeatRefusal($guest) : '';
 
-        return DB::transaction(function () use ($event, $user, $status, $name, $source, $guest) {
+            if ($refusal) {
+                return $refusal;
+            }
+
             // Past the refusal, going comes from a new row or a not-going one, and either takes a seat.
             if ($status === 'going') {
                 $status = self::seatStatus($event);
@@ -188,15 +192,23 @@ class RegistrationService
      * A logged-out visitor's registration by name and email, already validated. Going, or waitlisted on a full event
      * with a waitlist: the email's not-going row comes back on, keeping its name; otherwise a new row.
      *
-     * @param array      $source source and source_id.
-     * @param Guest|null $guest  The email's not-going row, linked to no account.
+     * @param array $source source and source_id.
      * @return array|false|string [Guest, its status before, or null when created]; false when the row changed under
-     *                            this request and neither holds nor waits for a seat; a message when the event is full
-     *                            with no waitlist.
+     *                            this request and neither holds nor waits for a seat; a visitorRefusal() reason for an
+     *                            email already on the event; a message when the event is full with no waitlist.
      */
-    public static function registerVisitor(Event $event, array $data, array $source, $guest = null)
+    public static function registerVisitor(Event $event, array $data, array $source)
     {
-        return DB::transaction(function () use ($event, $data, $source, $guest) {
+        return DB::transaction(function () use ($event, $data, $source) {
+            // Same lock as registerMember(), and also the first read.
+            Event::query()->where('id', $event->id)->lockForUpdate()->first();
+
+            $guest = self::guestByEmail($event, $data['email']);
+
+            if ($guest && ($refusal = self::visitorRefusal($guest))) {
+                return $refusal;
+            }
+
             $status = self::seatStatus($event);
 
             if (!$status) {
@@ -230,7 +242,7 @@ class RegistrationService
         });
     }
 
-    // Inside a transaction: what a new going lands as. Going while a seat is left (seats are going and checked-in
+    // Under the event lock: what a new going lands as. Going while a seat is left (seats are going and checked-in
     // guests), waitlisted on a full event with a waitlist, null on a full one without.
     protected static function seatStatus(Event $event)
     {
@@ -239,9 +251,6 @@ class RegistrationService
         if (!$capacity) {
             return 'going';
         }
-
-        // Holds every other registration to this event until commit, so two guests cannot both take the last seat.
-        Event::query()->where('id', $event->id)->lockForUpdate()->first();
 
         if (Guest::query()->where('event_id', $event->id)->whereIn('status', Event::SEAT_STATUSES)->count() < $capacity) {
             return 'going';

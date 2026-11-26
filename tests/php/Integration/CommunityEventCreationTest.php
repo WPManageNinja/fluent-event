@@ -192,6 +192,37 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertFalse($this->hasQueuedAction('fluent_event/send_event_reminders_to_guests', $reminder));
     }
 
+    // After a reset or reinstall reuses ids, an old post can name an event that belongs to another post.
+    public function test_a_stale_post_cannot_move_or_park_an_event_that_belongs_to_another_post()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $event = Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
+        $guest = $this->createGuest($event);
+
+        $stale = $this->savePost([
+            'space_id'     => $spaceId,
+            'content_type' => CommunityEvents::CONTENT_TYPE,
+            'meta'         => ['event_id' => (int) $event->id],
+        ]);
+
+        $otherSpaceId = $this->createSpace();
+        $stale->space_id = $otherSpaceId;
+        $stale->save();
+        do_action('fluent_community/feed/updated', $stale, ['space_id' => $otherSpaceId]);
+
+        $this->assertSame((int) $event->calendar_id, (int) Event::query()->find($event->id)->calendar_id, 'Moving the stale post moved the event.');
+        $this->assertSame((int) $event->calendar_id, (int) $guest->fresh()->calendar_id, 'Moving the stale post moved the guests.');
+
+        do_action('fluent_community/feed/before_deleted', $stale);
+
+        $event = Event::query()->find($event->id);
+        $this->assertSame('private', $event->status, 'Deleting the stale post parked the event.');
+        $this->assertSame((int) $feed->id, CommunityEvents::feedIdOf($event), 'Deleting the stale post unlinked the event from its own post.');
+    }
+
     public function test_editing_the_space_leaves_its_calendar_title_and_slug_alone()
     {
         $spaceId = $this->createSpace();

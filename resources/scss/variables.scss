@@ -63,19 +63,20 @@ body {
     --fe-badge-color: #E1E4EA;
     --fe-wp-link: #2271b1;
     --fe-wp-text: #1d2327;
-    --fe-success-text: #1a7f37;
-    --fe-danger-text: #cf222e;
+    --fe-success-text: #116A53;
+    --fe-danger-text: #B12A07;
+    --fe-danger-button: #B12A07;
     // Element Plus tag text, dark enough on its pale fills (4.5:1 or more).
-    --fe-tag-success: #1a7f37;
-    --fe-tag-warning: #8a5a00;
-    --fe-tag-primary: #135e96;
+    --fe-tag-success: #116A53;
+    --fe-tag-warning: #9A5904;
+    --fe-tag-primary: #2653C7;
     --fe-tag-info: #525866;
-    --fe-tag-danger: #cf222e;
+    --fe-tag-danger: #B12A07;
     --fe-chart-going: #0099ff;
     --fe-chart-checked-in: #1a7f37;
     --fe-chart-cancelled: #e06c75;
     --fe-accent: #253241;
-    --fe-accent-blue: #0e7ff1;
+    --fe-accent-blue: #2653C7;
     --fe-accent-green: #1a7f37;
     --fe-accent-rose: #e06c75;
     --fe-accent-amber: #d97706;
@@ -95,7 +96,7 @@ body {
 
     --el-text-color-primary: rgba(48, 49, 51, 1);
     --el-text-color-secondary: rgba(96, 98, 102, 1);
-    --el-text-color-placeholder: rgba(0, 0, 0, 0.35);
+    --el-text-color-placeholder: var(--fe-tertiary-text);
 
     --el-border-color: rgba(220, 223, 230, 1);
     --el-menu-text-color: rgba(48, 49, 51, 1);
@@ -145,8 +146,9 @@ html.dark body {
     --fe-card-hover-bg: #1C2732;
     --fe-card-line: #2C3C4E;
     --fe-badge-color: #2C3C4E;
-    --fe-success-text: #3fb950;
-    --fe-danger-text: #f85149;
+    --fe-wp-link: #8FB0FF;
+    --fe-success-text: #74C1AD;
+    --fe-danger-text: #EB856B;
     // Element Plus's own tag colours already read well on its dark fills.
     --fe-tag-success: var(--el-color-success);
     --fe-tag-warning: var(--el-color-warning);
@@ -176,7 +178,6 @@ html.dark body {
 
     --el-text-color-primary: rgba(255, 255, 255, 0.82);
     --el-text-color-secondary: rgba(255, 255, 255, 0.45);
-    --el-text-color-placeholder: rgba(255, 255, 255, 0.35);
 
     --el-border-color: rgba(60, 61, 90, 1);
     --el-menu-text-color: rgba(255, 255, 255, 0.75);

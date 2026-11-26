@@ -144,7 +144,8 @@ export default {
 
                 const response = this.withStatus(reply);
                 this.$emit('done', response);
-                const { ElNotification } = await import('element-plus');
+                // On its own: the feed card's first RSVP otherwise downloads the message box and icons too, for a toast.
+                const { ElNotification } = await import('element-plus/es/components/notification/index.mjs');
                 ElNotification({ type: 'success', message: response.message });
             } catch (error) {
                 this.$emit('error', errorMessage(error));
@@ -168,7 +169,7 @@ export default {
         },
         async notGoing() {
             this.close();
-            const { ElMessageBox } = await import('element-plus');
+            const { ElMessageBox } = await import('./element');
 
             try {
                 await ElMessageBox.confirm(
@@ -184,7 +185,7 @@ export default {
         },
         async leaveWaitlist() {
             this.close();
-            const { ElMessageBox } = await import('element-plus');
+            const { ElMessageBox } = await import('./element');
 
             try {
                 await ElMessageBox.confirm(
@@ -200,7 +201,7 @@ export default {
         },
         // refusal: 'already_registered', 'waitlisted', or 'cancelled' / 'checked_in' when an admin set the registration's status.
         async showRefusal(refusal) {
-            const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('element-plus')]);
+            const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('./element')]);
             const [title, text] = {
                 cancelled: [t('Your registration was cancelled'), t('Contact the host if you want to join again.')],
                 waitlisted: [t("You're already on the waitlist"), t('The host will let you know if a spot opens up.')],
@@ -223,7 +224,7 @@ export default {
         },
         // Joining holds no seat, so no calendar links: just where the guest stands.
         async showWaitlisted() {
-            const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('element-plus')]);
+            const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('./element')]);
 
             ElMessageBox.alert(h('div', { class: 'fe-registered' }, [
                 h('div', { class: 'fe-registered__head' }, [
@@ -241,11 +242,7 @@ export default {
         },
         // Registering is a form, so it ends in a dialog: what it was for, and its calendar links.
         async showRegistered(event) {
-            const [{ h }, { ElMessageBox }, { Clock, MapLocation, VideoCamera }] = await Promise.all([
-                import('vue'),
-                import('element-plus'),
-                import('@element-plus/icons-vue'),
-            ]);
+            const [{ h }, { ElMessageBox, Clock, MapLocation, VideoCamera }] = await Promise.all([import('vue'), import('./element')]);
             const online = event.venue_type === 'online';
             const location = online
                 ? (/^https?:\/\//i.test(event.online_meeting_url) ? event.online_meeting_url : '')
