@@ -160,11 +160,12 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Improved: Aligned Switches in the Event Forms
 - Improved: Stored Names Moved to the fevent Prefix With Automatic Migration
 - Improved: Action Scheduler 4.2.0 and Parsedown 1.8.0
-- Security: Event Description and Calendar Colour Output Escaping
+- Security: Output Escaping, Admin-Only Check-In and Admin Link Hardening
 - Fixed: Reminder Scheduler Ignoring the Settings Limits
 - Fixed: Space Event Pages Not Loading on Newer FluentCommunity
 - Fixed: Admin Hooks Not Using the fluent_event/ Prefix
 - Fixed: Empty Lines Showing as Text in Event Descriptions
+- Fixed: Event Description Lost on a Partial Update
 - Fixed: Events Page Header Not Sticky in the Portal
 - Fixed: Community Event Page Layout on Phones
 - Fixed: Admin Timeline Card Squeezed on Phones
