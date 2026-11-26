@@ -4,7 +4,7 @@ Tags: events, event calendar, rsvp, event registration, fluentcommunity
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,7 @@ FluentEvent adds events to your WordPress site. You create events in the WordPre
 * **Calendars** — group your events in calendars.
 * **In person or online** — add a venue and an address, or an online meeting link.
 * **Cover image, date, time and time zone** for each event.
+* **Clone an event** — start a new event from a copy of an existing one.
 * **Four statuses** — Public, Unlisted (not in the event list, but the direct link works), Private (no public page) and Draft.
 
 = Registration =
@@ -34,6 +35,7 @@ For RSVP and Open events, the online meeting link shows only after a guest regis
 * **Capacity** — set how many guests can be going at once. A full event shows "Event full" and takes no new registrations. Admins can still add guests.
 * **Guest count and spots left** — show how many guests are going, how many spots are left, or both as a progress bar.
 * **Going or not going** — guests answer going or not going. A guest who said not going can register again with the same email. An email that is already registered gets a clear warning.
+* **Waitlist** — turn it on for an event with a capacity. When the event is full, new guests join the waitlist instead. An admin moves them to going.
 
 = Event pages =
 
@@ -45,6 +47,7 @@ For RSVP and Open events, the online meeting link shows only after a guest regis
 = Guests =
 
 * Add, edit and remove guests.
+* Change the status of many guests at once, or remove them, with bulk actions.
 * See who is going, not going, checked in or cancelled.
 * Cancel a guest's registration. Only an admin can cancel, and the guest can't undo it.
 
@@ -52,6 +55,7 @@ For RSVP and Open events, the online meeting link shows only after a guest regis
 
 * **Registration confirmation** when a guest registers.
 * **Cancellation notice** when a guest says not going or you cancel their registration.
+* **Waitlist notice** when a guest joins the waitlist.
 * **Reminders** before the event starts. The default is 24 hours before. You can change the times.
 * **Sender settings** — from name and email, reply-to and an email footer.
 * Turn each email on or off.
@@ -70,6 +74,7 @@ If you use [FluentCommunity](https://wordpress.org/plugins/fluent-community/), t
 * Site administrators post events in discussion spaces from the post composer.
 * Each space gets its own events calendar.
 * Members see events in the feed and on the space's events page.
+* An Upcoming Events widget in each space's sidebar.
 * Site administrators get a menu on the community Events page with links to the FluentEvent dashboard, calendars and settings.
 
 FluentEvent does not need FluentCommunity. Without it, all other features work.
@@ -143,6 +148,28 @@ The event page and the registration confirmation show an "Add to Google Calendar
 The other "Add to calendar" option downloads an .ics file that the site creates. It sends no data to any service.
 
 == Changelog ==
+
+= 1.2.0 (Date: Nov 26, 2026) =
+- Introduced: Guest Waitlist for Full Events
+- Added: Clone Event in the Admin and the Portal
+- Added: Guest Bulk Actions
+- Added: Member Registration on the Public Event Page
+- Added: Upcoming Events Widget in the Space Sidebar
+- Improved: Open Registration as the Default Entry Type
+- Improved: Public Pages Use the Portal's Icons
+- Improved: Aligned Switches in the Event Forms
+- Improved: Stored Names Moved to the fevent Prefix With Automatic Migration
+- Improved: Action Scheduler 4.2.0 and Parsedown 1.8.0
+- Security: Event Description and Calendar Colour Output Escaping
+- Fixed: Reminder Scheduler Ignoring the Settings Limits
+- Fixed: Space Event Pages Not Loading on Newer FluentCommunity
+- Fixed: Admin Hooks Not Using the fluent_event/ Prefix
+- Fixed: Empty Lines Showing as Text in Event Descriptions
+- Fixed: Events Page Header Not Sticky in the Portal
+- Fixed: Community Event Page Layout on Phones
+- Fixed: Admin Timeline Card Squeezed on Phones
+- Fixed: Date Picker Wider Than Small Phones
+- Fixed: iPhone Zooming In on Text and Date Fields
 
 = 1.1.0 (Date: Nov 18, 2026) =
 - Added: Guest Capacity Limit for RSVP and Open Events
