@@ -146,6 +146,23 @@ document.addEventListener('submit', (event) => {
     }
 });
 
+// A visitor's RSVP form opens from the menu, so it nests in it: closing the form leaves the menu up and
+// focus on the page. Close the menu too and hand focus back to the RSVP button.
+document.addEventListener('toggle', (event) => {
+    const form = event.target;
+
+    if (event.newState !== 'closed' || !form.matches('[data-fe-register]') || !form.isConnected) {
+        return;
+    }
+
+    const menu = form.closest('[data-fe-card]').querySelector('[role="menu"]:popover-open');
+
+    if (menu) {
+        menu.hidePopover();
+        document.querySelector(`[popovertarget="${menu.id}"]`).focus();
+    }
+}, true);
+
 // On wide screens the chips keep to one row: those that don't fit move into the "More" panel, from the
 // end, and "All" and the selected chip always stay. Phones scroll the row instead; without JS every chip wraps.
 export function fitChips(root = document.querySelector('[data-fe-chips]')) {
