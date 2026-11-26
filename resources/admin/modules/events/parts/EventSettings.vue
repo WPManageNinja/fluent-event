@@ -46,7 +46,7 @@
                 <div class="fe-event-settings__row">
                     <dt class="fe-event-settings__label">{{ $t('Registration opens') }}</dt>
                     <dd class="fe-event-settings__value">
-                        {{ registrationWindow?.opens_at ? wallClock(registrationWindow.opens_at) : $t('When published') }}
+                        {{ registrationWindow?.opens_at ? wallClock(registrationWindow.opens_at) : $t('Immediately') }}
                     </dd>
                 </div>
 

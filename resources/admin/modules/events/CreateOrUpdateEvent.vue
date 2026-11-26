@@ -410,7 +410,7 @@
                         <div class="fe-form__section-rail">
                             <h2 class="fe-form__section-title">{{ $t('Registration window') }}</h2>
                             <p class="fe-form__section-desc">
-                                {{ $t('When guests can start and stop joining, counted back from the start.') }}
+                                {{ $t('When guests can start and stop joining.') }}
                             </p>
                         </div>
 
@@ -420,6 +420,7 @@
                                 v-model="event.registration_opens"
                                 kind="opens"
                                 :start="eventStart"
+                                :end="eventEnd"
                                 :time-format="timeFormat"
                                 data-field="registration_opens"
                             />
@@ -429,16 +430,9 @@
                                 v-model="event.registration_closes"
                                 kind="closes"
                                 :start="eventStart"
+                                :end="eventEnd"
                                 :time-format="timeFormat"
                                 data-field="registration_closes"
-                            />
-
-                            <el-alert
-                                class="fe-event-form__limits-note"
-                                type="info"
-                                :title="$t('If Opens is empty, registration opens when the event starts. If Closes is empty, it stays open until the event ends.')"
-                                :closable="false"
-                                show-icon
                             />
                         </div>
                     </section>
@@ -583,6 +577,9 @@
             eventStart() {
                 return `${this.event.start_date} ${this.event.start_time}`;
             },
+            eventEnd() {
+                return `${this.event.end_date} ${this.event.end_time}`;
+            },
             isEditing() {
                 return !!this.eventId;
             },
@@ -701,8 +698,8 @@
                     show_spots_left: meta.show_spots_left || 'no',
                     waitlist: meta.waitlist || 'no',
                     start_display: meta.start_display || 'relative',
-                    registration_opens: meta.registration_opens || null,
-                    registration_closes: meta.registration_closes || null,
+                    registration_opens: this.onEventClock(meta.registration_opens, event?.timezone || this.defaultTimezone),
+                    registration_closes: this.onEventClock(meta.registration_closes, event?.timezone || this.defaultTimezone),
                 };
             },
             loadForm() {
@@ -766,6 +763,14 @@
                 if (dayjs(this.event.end_date).isBefore(this.event.start_date)) {
                     this.event.end_date = this.event.start_date;
                 }
+            },
+            // A fixed limit is stored in UTC; the form shows and sends it on the event's clock.
+            onEventClock(limit, timezone) {
+                if (limit?.type !== 'fixed' || !limit.at) {
+                    return limit || null;
+                }
+
+                return { ...limit, at: new Date(`${limit.at.replace(' ', 'T')}Z`).toLocaleString('sv-SE', { timeZone: timezone }) };
             },
             isValidTimezone(timezone) {
                 if (!timezone) return false;

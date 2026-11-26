@@ -24,7 +24,7 @@ describe('EventSettings', () => {
             ['Entry Type', 'RSVP'],
             ['Capacity', 'Unlimited'],
             ['Guest count', 'Hidden'],
-            ['Registration opens', 'When published'],
+            ['Registration opens', 'Immediately'],
             ['Registration closes', 'When the event ends'],
         ]);
     });
@@ -40,7 +40,7 @@ describe('EventSettings', () => {
             ['Guest count', 'Shown'],
             ['Spots left', 'Shown'],
             ['Waitlist', 'On'],
-            ['Registration opens', 'When published'],
+            ['Registration opens', 'Immediately'],
             ['Registration closes', 'When the event ends'],
         ]);
     });
