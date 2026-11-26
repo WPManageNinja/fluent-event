@@ -270,6 +270,10 @@ class CommunityEventController extends Controller
 
         $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id], $guest);
 
+        if (in_array($registered, ['already_registered', 'cancelled', 'waitlisted'], true)) {
+            return self::refused($registered);
+        }
+
         if (is_string($registered)) {
             return $this->sendError(['message' => $registered], 422);
         }

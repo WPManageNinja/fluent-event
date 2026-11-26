@@ -112,6 +112,10 @@ class PortalEventController extends Controller
 
         $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'wordpress_pages'], $guest);
 
+        if (in_array($registered, ['already_registered', 'cancelled', 'waitlisted'], true)) {
+            return $this->registered($event, null, $registered);
+        }
+
         if (is_string($registered)) {
             return $this->sendError(['message' => $registered], 422);
         }

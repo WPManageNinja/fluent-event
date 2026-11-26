@@ -5,6 +5,7 @@ namespace FluentEvent\Tests\Integration;
 use FluentEvent\App\App;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
+use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -104,6 +105,18 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertStringNotContainsString('fe-register-success--warning', $first['data']['html']);
         $this->assertCount(1, $this->guestsOf($event));
         $this->assertNotSame('Someone else', $this->guestsOf($event)[0]->name);
+    }
+
+    public function test_a_twin_request_registering_the_same_email_is_told_it_is_already_registered()
+    {
+        $event = $this->createEvent();
+        $this->createGuest($event, ['email' => 'visitor@example.test', 'status' => 'going']);
+
+        // The controller looked before the twin committed, so it passes no row.
+        $registered = RegistrationService::registerVisitor($event, ['name' => 'Twin', 'email' => 'visitor@example.test'], ['source' => 'wordpress_pages']);
+
+        $this->assertSame('already_registered', $registered);
+        $this->assertCount(1, $this->guestsOf($event));
     }
 
     public function test_a_visitor_who_said_not_going_comes_back_on_the_same_row()
