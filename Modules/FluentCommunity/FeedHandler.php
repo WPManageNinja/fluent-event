@@ -228,15 +228,28 @@ class FeedHandler
             return;
         }
 
-        DB::transaction(function () use ($feed, $spaceId) {
+        // A profile post is public, like fcom's own move to a profile.
+        $isPublic = $spaceId ? (int) $space->isPublic() : 1;
+
+        DB::transaction(function () use ($feed, $spaceId, $isPublic) {
             $feed->space_id = $spaceId;
             $feed->save();
 
-            FcomActivity::query()->where('feed_id', $feed->id)->update(['space_id' => $spaceId]);
+            // feed_id holds a course id on course_completed rows, so only the post's own rows move.
+            FcomActivity::query()
+                ->where('feed_id', $feed->id)
+                ->whereIn('action_name', ['feed_published', 'comment_added'])
+                ->update(['space_id' => $spaceId, 'is_public' => $isPublic]);
 
             // Topics are space-scoped; the old space's topics do not carry over.
             $feed->terms()->where('taxonomy_name', 'post_topic')->detach();
         });
+
+        do_action('fluent_community/feed/updated', $feed, ['space_id' => $spaceId]);
+
+        if ($spaceId) {
+            do_action('fluent_community/space_feed/updated', $feed);
+        }
     }
 
     // Deleting a post is a moderation call, not an event one: the event keeps its guests as a draft.

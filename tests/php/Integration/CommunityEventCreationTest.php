@@ -428,6 +428,38 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertSame((int) $event->id, CommunityEvents::eventIdOf($feed), 'The post let go of its event.');
     }
 
+    public function test_moving_an_event_into_a_private_space_calendar_moves_its_post_like_fcom_does()
+    {
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $event = Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
+
+        $activities = $this->table('fcom_user_activities');
+        $this->wpdb->insert($activities, ['user_id' => $this->host, 'feed_id' => $feed->id, 'space_id' => $feed->space_id, 'action_name' => 'feed_published', 'is_public' => 1]);
+        $published = (int) $this->wpdb->insert_id;
+        // A course whose space id matches the post id: its completion row shares feed_id.
+        $this->wpdb->insert($activities, ['user_id' => $this->host, 'feed_id' => $feed->id, 'space_id' => null, 'action_name' => 'course_completed', 'is_public' => 1]);
+        $completed = (int) $this->wpdb->insert_id;
+
+        $fired = [];
+        $this->addTestFilter('fluent_community/feed/updated', function ($feed, $dirty) use (&$fired) {
+            $fired[] = $dirty;
+        }, 10, 2);
+
+        $privateSpaceId = $this->createSpace('community', 'private');
+        $event->calendar_id = CalendarService::createForSpace($privateSpaceId, 'Private space', 'fe-test-private-' . $privateSpaceId)->id;
+        $event->save();
+        do_action('fluent_event/event/calendar_changed', $event);
+
+        $this->assertSame($privateSpaceId, (int) FcomFeed::query()->find($feed->id)->space_id);
+        $row = $this->wpdb->get_row($this->wpdb->prepare("SELECT space_id, is_public FROM {$activities} WHERE id = %d", $published));
+        $this->assertSame([$privateSpaceId, 0], [(int) $row->space_id, (int) $row->is_public]);
+        $row = $this->wpdb->get_row($this->wpdb->prepare("SELECT space_id, is_public FROM {$activities} WHERE id = %d", $completed));
+        $this->assertSame([null, 1], [$row->space_id, (int) $row->is_public], 'A course completion was moved with the post.');
+        $this->assertSame([['space_id' => $privateSpaceId]], $fired);
+    }
+
     public function test_a_post_without_a_caption_keeps_the_event_title_when_it_lets_go_of_its_event()
     {
         $request = $this->postRequest(['title' => 'Friday Q&A']);
@@ -545,14 +577,14 @@ class CommunityEventCreationTest extends IntegrationTestCase
         return Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
     }
 
-    private function createSpace($type = 'community')
+    private function createSpace($type = 'community', $privacy = 'public')
     {
         $this->wpdb->insert($this->table('fcom_spaces'), [
             'created_by' => $this->host,
             'title'      => 'Integration space',
             'slug'       => 'fe-test-' . strtolower(wp_generate_password(10, false, false)),
             'type'       => $type,
-            'privacy'    => 'public',
+            'privacy'    => $privacy,
             'status'     => 'published',
         ]);
 
