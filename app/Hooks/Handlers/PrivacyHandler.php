@@ -116,8 +116,11 @@ class PrivacyHandler
             return Guest::query()->whereRaw('1 = 0');
         }
 
+        // A row linked to an account belongs to that account, even when its email was later handed to someone else.
         return Guest::query()->where(function ($query) use ($email, $user) {
-            $query->where('email', $email);
+            $query->where(function ($byEmail) use ($email) {
+                $byEmail->where('email', $email)->whereNull('user_id');
+            });
 
             if ($user) {
                 $query->orWhere('user_id', $user->ID);

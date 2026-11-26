@@ -40,6 +40,25 @@ class PrivacyTest extends IntegrationTestCase
         $this->assertSame([$other->id], Guest::query()->whereIn('id', [$byEmail->id, $upcoming->id, $byAccount->id, $other->id])->pluck('id')->all());
     }
 
+    public function test_an_email_handed_to_someone_else_does_not_reach_the_old_owners_rows()
+    {
+        $member = $this->createUser('subscriber');
+        $oldEmail = 'old_' . get_userdata($member)->user_email;
+        $memberRow = $this->createGuest($this->createEvent(), ['user_id' => $member, 'email' => $oldEmail]);
+
+        $newOwner = $this->createUser('subscriber');
+        wp_update_user(['ID' => $newOwner, 'user_email' => $oldEmail]);
+        $ownRow = $this->createGuest($this->createEvent(), ['email' => $oldEmail]);
+
+        $handler = new PrivacyHandler();
+
+        $this->assertSame(['fluent-event-guest-' . $ownRow->id], array_column($handler->export($oldEmail, 1)['data'], 'item_id'));
+
+        $handler->erase($oldEmail, 1);
+        $this->assertNotNull(Guest::query()->find($memberRow->id), "The old owner's registration was erased.");
+        $this->assertNull(Guest::query()->find($ownRow->id));
+    }
+
     public function test_an_invalid_email_matches_no_guest_rows()
     {
         $this->createGuest($this->createEvent(), ['email' => null]);
