@@ -81,6 +81,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $request = $this->postRequest();
         $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
         $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
+        $deletedHooks = did_action('fluent_community/feed/deleted');
 
         // wp_insert_post() then returns a WP_Error, which PostService turns into an exception.
         $this->addTestFilter('wp_insert_post_empty_content', '__return_true');
@@ -94,6 +95,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
 
         $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
         $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')));
+        $this->assertSame($deletedHooks + 1, did_action('fluent_community/feed/deleted'), 'fcom cleans up after a post only through its delete hooks.');
     }
 
     // The space's calendar is looked up before the event is made. A failure there left the post behind.
