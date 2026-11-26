@@ -46,7 +46,9 @@ class RegistrationService
     public static function registerMember(Event $event, \WP_User $user, $status, $name, array $source)
     {
         return DB::transaction(function () use ($event, $user, $status, $name, $source) {
-            self::lockEvent($event);
+            // Holds every other registration to this event until commit. Must be the first read, so the reads
+            // below see a racing request's commit.
+            Event::query()->where('id', $event->id)->lockForUpdate()->first();
 
             $guest = self::memberGuest($event, $user);
 
@@ -199,7 +201,8 @@ class RegistrationService
     public static function registerVisitor(Event $event, array $data, array $source, $guest = null)
     {
         return DB::transaction(function () use ($event, $data, $source, $guest) {
-            self::lockEvent($event);
+            // Same lock as registerMember(), and also the first read.
+            Event::query()->where('id', $event->id)->lockForUpdate()->first();
 
             // The caller's lookup ran before the lock, so a twin request may have registered this email since.
             if (!$guest && ($guest = self::guestByEmail($event, $data['email'])) && ($refusal = self::visitorRefusal($guest))) {
@@ -237,13 +240,6 @@ class RegistrationService
                 'status'      => $status,
             ])), null];
         });
-    }
-
-    // Holds every other registration to this event until commit, so two cannot both take the last seat or insert
-    // the same guest. Must be the transaction's first read: later plain reads then snapshot after the racing commit.
-    private static function lockEvent(Event $event)
-    {
-        Event::query()->where('id', $event->id)->lockForUpdate()->first();
     }
 
     // Under the event lock: what a new going lands as. Going while a seat is left (seats are going and checked-in
