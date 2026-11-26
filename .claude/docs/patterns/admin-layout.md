@@ -205,10 +205,10 @@ The switch matches the FluentCommunity portal: a topbar menu with **Light**, **D
 - Two logos in the DOM (`.fe-navbar__logo-img--light`, `--dark`), CSS shows one.
 - The trigger holds three inline SVGs (`Icon::SUN`, `Icon::MOON`, `Icon::SYSTEM`); CSS shows
   the one for the picked mode, read from `html[data-fe-theme]`.
-- The menu reuses the navbar dropdown (`toggleNavbarDropdown`). Its items are
+- The menu reuses the navbar dropdown (`fluentEventToggleNavbarDropdown`). Its items are
   `role="menuitemradio"` with `aria-checked`; opening it focuses the checked item, the arrow
   keys move between items, and Escape returns focus to the trigger.
-- `setColorMode(mode)` stores the pick and writes the resolved classes on `<html>`; the
+- `fluentEventSetColorMode(mode)` stores the pick and writes the resolved classes on `<html>`; the
   token block does the rest.
 
 **The mode is shared with every Fluent plugin** (spec:

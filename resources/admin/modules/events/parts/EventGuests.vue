@@ -300,6 +300,7 @@
                     going: this.$t('Going'),
                     not_going: this.$t('Not Going'),
                     checked_in: this.$t('Checked In'),
+                    waitlisted: this.$t('Waitlisted'),
                     cancelled: this.$t('Cancelled'),
                 };
             },
@@ -346,6 +347,7 @@
                             going: 'success',
                             not_going: 'info',
                             checked_in: 'primary',
+                            waitlisted: 'warning',
                             cancelled: 'danger',
                         }[guest.status] || 'info',
                     };

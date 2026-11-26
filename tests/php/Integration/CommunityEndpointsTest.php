@@ -687,6 +687,79 @@ class CommunityEndpointsTest extends IntegrationTestCase
         );
     }
 
+    public function test_a_member_joins_the_waitlist_of_a_full_event_with_one()
+    {
+        [$event] = $this->communityEvent(['venue_type' => 'online'], ['capacity' => 1, 'waitlist' => 'yes', 'online_meeting_url' => 'https://meet.example.test/fe-room']);
+        $this->createGuest($event);
+
+        $response = $this->rsvp($event, 'going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('waitlisted', $response['data']['status']);
+        $this->assertSame("You're on the waitlist.", $response['data']['message']);
+        // A waitlist place holds no seat, so no meeting link and the count stays.
+        $this->assertSame('', $response['data']['online_meeting_url']);
+        $guest = Guest::query()->where('event_id', $event->id)->where('user_id', $this->member)->first();
+        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_waitlist', [(int) $guest->id]));
+    }
+
+    public function test_a_waitlisted_member_asking_again_is_told_they_are_on_the_waitlist()
+    {
+        [$event] = $this->communityEvent([], ['capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($event);
+        $this->rsvp($event, 'going');
+
+        $response = $this->rsvp($event, 'going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull($response['data']['status']);
+        $this->assertSame('waitlisted', $response['data']['refusal']);
+        $this->assertSame("You're already on the waitlist for this event.", $response['data']['message']);
+    }
+
+    public function test_a_member_leaves_the_waitlist_of_an_open_event_as_not_going()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($event);
+        $this->rsvp($event, 'going');
+
+        $response = $this->rsvp($event, 'not_going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('not_going', $response['data']['status']);
+        $this->assertSame('You left the waitlist.', $response['data']['message']);
+    }
+
+    // Joined as a visitor under the account's email, then logged in: the portal shows the waitlist place and lets them leave.
+    public function test_a_member_sees_and_leaves_a_waitlist_place_joined_as_a_visitor()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($event);
+        $this->createGuest($event, ['user_id' => null, 'email' => get_userdata($this->member)->user_email, 'status' => 'waitlisted', 'source' => 'wordpress_pages']);
+
+        $listed = array_column($this->rest('GET', 'community/events', ['per_page' => 100])['data']['events'], null, 'id');
+        $this->assertSame('waitlisted', $listed[$event->id]['my_status']);
+
+        $response = $this->rsvp($event, 'not_going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('You left the waitlist.', $response['data']['message']);
+        $this->assertSame((int) $this->member, (int) Guest::query()->where('event_id', $event->id)->where('status', 'not_going')->value('user_id'));
+    }
+
+    public function test_a_visitor_joins_the_waitlist_of_a_full_open_event()
+    {
+        [$event] = $this->communityEvent([], ['entry_type' => 'open', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($event);
+        $this->asVisitorOnAPublicPortal();
+
+        $response = $this->registerGuest($event);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('waitlisted', $response['data']['status']);
+        $this->assertSame(['going', 'waitlisted'], $this->guestsOf($event)->pluck('status')->all());
+    }
+
     public function test_a_status_other_than_going_or_not_going_is_refused()
     {
         [$event] = $this->communityEvent();

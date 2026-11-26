@@ -170,6 +170,27 @@ class EventLandingPageTest extends IntegrationTestCase
         $this->assertStringNotContainsString('data-fe-register', $body);
     }
 
+    // On a full RSVP event with a waitlist a member's Going reads Join waitlist; once waitlisted, the menu holds
+    // Waitlisted beside Not going, with no Leave waitlist.
+    public function test_a_member_sees_the_waitlist_on_a_full_event()
+    {
+        $full = $this->createEvent(['venue_type' => 'online'], ['entry_type' => 'rsvp', 'capacity' => 1, 'waitlist' => 'yes', 'online_meeting_url' => 'https://meet.example.test/fe-room']);
+        $this->createGuest($full);
+        $memberId = $this->createUser('subscriber');
+        $this->actAs($memberId);
+
+        $this->assertStringContainsString('Join waitlist', $this->page($full)['body']);
+
+        $this->createGuest($full, ['user_id' => $memberId, 'email' => get_userdata($memberId)->user_email, 'status' => 'waitlisted']);
+        $body = $this->page($full)['body'];
+
+        $this->assertMatchesRegularExpression('/aria-checked="true" data-fe-status="going">\s*<span[^>]*fe-rsvp__icon--waitlisted.*?Waitlisted/s', $body);
+        $this->assertStringContainsString('data-fe-status="not_going"', $body);
+        $this->assertStringNotContainsString('Leave waitlist', $body);
+        $this->assertStringNotContainsString('fe-room', $body);
+        $this->assertStringNotContainsString('Please register for the event to see the meeting link.', $body);
+    }
+
     // Logged out, nothing changes: Going opens the name and email form, and the link waits for it.
     public function test_a_visitor_still_gets_the_visitors_card()
     {
@@ -430,6 +451,18 @@ class EventLandingPageTest extends IntegrationTestCase
 
         $this->assertStringContainsString('This event is full and no longer taking registrations.', $body);
         $this->assertStringNotContainsString('popovertarget="fe-register-' . $full->id . '"', $body);
+    }
+
+    // With a waitlist, a full event offers Join waitlist instead of turning visitors away.
+    public function test_a_full_event_with_a_waitlist_offers_to_join_it()
+    {
+        $full = $this->createEvent([], ['entry_type' => 'rsvp', 'capacity' => 1, 'waitlist' => 'yes']);
+        $this->createGuest($full);
+        $body = $this->page($full)['body'];
+
+        $this->assertStringContainsString('Join waitlist', $body);
+        $this->assertStringContainsString('popovertarget="fe-register-' . $full->id . '"', $body);
+        $this->assertStringNotContainsString('This event is full and no longer taking registrations.', $body);
     }
 
     // Each switch shows its own line; the meter needs both.

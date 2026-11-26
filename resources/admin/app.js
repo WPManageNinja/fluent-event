@@ -107,11 +107,11 @@ const closeNavbarDropdowns = () => {
 // -------------------------------------
 // Global window functions for mobile menu and dropdowns
 // -------------------------------------
-window.toggleMobileMenu = function () {
+window.fluentEventToggleMobileMenu = function () {
     setMobileMenu(!isMobileMenuOpen());
 };
 
-window.setColorMode = function (mode) {
+window.fluentEventSetColorMode = function (mode) {
     if (!COLOR_MODES.includes(mode)) return;
 
     applyColorMode(mode);
@@ -124,7 +124,7 @@ window.setColorMode = function (mode) {
     document.querySelector('[aria-controls="fe-navbar-color-mode-menu"]')?.focus();
 };
 
-window.toggleNavbarDropdown = function (id) {
+window.fluentEventToggleNavbarDropdown = function (id) {
     const menu = document.getElementById(id);
     if (!menu) return;
 

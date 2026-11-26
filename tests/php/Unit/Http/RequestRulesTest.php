@@ -304,6 +304,13 @@ class RequestRulesTest extends TestCase
         $this->assertSame(0, EventRequest::format($this->eventInput())['meta']['capacity']);
     }
 
+    public function test_the_waitlist_switch_is_yes_or_no_and_starts_off()
+    {
+        $this->assertSame('nullable|string|in:yes,no', EventRequest::RULES['waitlist']);
+        $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['waitlist']);
+        $this->assertSame('yes', EventRequest::format($this->eventInput(['waitlist' => 'yes']))['meta']['waitlist']);
+    }
+
     public function test_the_spots_left_switch_is_yes_or_no_and_starts_off()
     {
         $this->assertSame('nullable|string|in:yes,no', EventRequest::RULES['show_spots_left']);
