@@ -61,5 +61,6 @@ class LegacyPrefixFreshInstallTest extends TestCase
         $this->assertSame(['other' => 'plugin'], get_option('fe_settings'));
         $this->assertSame('3.0.0', get_option('fe_version'));
         $this->assertFalse(get_option('fevent_settings'));
+        $this->assertSame([], LegacyPrefixMigrator::legacySettingsFallback([]), 'Settings reads must not fall back to the other plugin\'s option.');
     }
 }

@@ -163,6 +163,11 @@ class LegacyPrefixMigrator
      */
     public static function legacySettingsFallback($default)
     {
+        // Once done, an `fe_settings` left is another plugin's (a fresh install never moves it).
+        if (self::isDone()) {
+            return $default;
+        }
+
         $legacy = get_option(self::OLD_SETTINGS_OPTION);
 
         return is_array($legacy) ? $legacy : $default;
