@@ -122,8 +122,10 @@ class FeedHandler
             });
         } catch (\Throwable $e) {
             // fcom saved the post before this hook. Without its event it would only render a dead card,
-            // and a second try with the same text would be refused as a duplicate.
+            // and a second try with the same text would be refused as a duplicate. fcom's hooks clean up what hangs off it.
+            do_action('fluent_community/feed/before_deleted', $feed);
             $feed->delete();
+            do_action('fluent_community/feed/deleted', $feed->id);
             throw $e;
         }
 

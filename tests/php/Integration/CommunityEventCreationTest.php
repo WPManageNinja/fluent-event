@@ -13,6 +13,7 @@ use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
+use FluentEvent\Modules\FluentCommunity\PortalHandler;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -80,6 +81,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $request = $this->postRequest();
         $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
         $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
+        $deletedHooks = did_action('fluent_community/feed/deleted');
 
         // wp_insert_post() then returns a WP_Error, which PostService turns into an exception.
         $this->addTestFilter('wp_insert_post_empty_content', '__return_true');
@@ -93,6 +95,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
 
         $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
         $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')));
+        $this->assertSame($deletedHooks + 1, did_action('fluent_community/feed/deleted'), 'fcom cleans up after a post only through its delete hooks.');
     }
 
     // The space's calendar is looked up before the event is made. A failure there left the post behind.
@@ -276,6 +279,44 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertNotNull($calendar, 'Deleting the space must not delete its calendar.');
         $this->assertSame('draft', $calendar->status);
         $this->assertNull(CalendarService::findBySpace($spaceId), 'The calendar still points at the deleted space.');
+    }
+
+    // Newer fcom deletes each post through the single-post hooks after space/before_delete; the event is parked once.
+    public function test_deleting_the_space_parks_each_event_once_when_fcom_deletes_post_by_post()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $eventId = (int) FcomFeed::query()->find($feed->id)->meta['event_id'];
+
+        $parks = 0;
+        $this->addTestFilter('fluent_event/event/updated', function ($event) use ($eventId, &$parks) {
+            if ((int) $event->id === $eventId) {
+                $parks++;
+            }
+        });
+
+        do_action('fluent_community/space/before_delete', FcomSpace::query()->find($spaceId));
+
+        foreach (FcomFeed::query()->where('space_id', $spaceId)->get() as $post) {
+            do_action('fluent_community/feed/before_deleted', $post);
+            $post->delete();
+            do_action('fluent_community/feed/deleted', $post->id);
+        }
+
+        $this->assertSame(1, $parks);
+        $this->assertSame('draft', Event::query()->find($eventId)->status);
+    }
+
+    public function test_the_portal_script_loads_in_fcoms_portal_only()
+    {
+        $handler = new PortalHandler();
+
+        $this->assertSame([], $handler->addModuleScript([], 'admin'));
+        $this->assertArrayHasKey('fluent_event_fcom_portal', $handler->addModuleScript([], 'portal'));
+        $this->assertSame(['module_runtime' => 'admin'], $handler->addStylesheet(['module_runtime' => 'admin']));
+        $this->assertArrayHasKey('fluent_event_fcom_portal', $handler->addStylesheet(['module_runtime' => 'portal'])['css_files']);
     }
 
     public function test_a_space_calendar_links_to_its_space_only_while_the_space_exists()

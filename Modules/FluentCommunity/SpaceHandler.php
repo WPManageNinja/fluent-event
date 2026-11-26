@@ -11,7 +11,8 @@ class SpaceHandler
 {
     public function register()
     {
-        // fcom bulk-deletes the space's posts with no per-post hooks, so the per-post park never runs.
+        // Parks every event up front, posted or not: older fcom deletes the posts with no per-post hooks, and on
+        // newer fcom each post's own park then finds no link and does nothing.
         add_action('fluent_community/space/before_delete', [$this, 'parkCalendar']);
         add_filter('fluent_event/calendar_api_response', [$this, 'addSpaceUrl']);
         add_filter('fluent_event/calendars_api_response', [$this, 'addSpaceUrls']);

@@ -61,7 +61,7 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   - `just_created_type_event`: finds or creates the space calendar (or the Community calendar for a
     post with no space), claims uploaded cover and
     description images, creates the event (status `private`, author = post author), writes
-    `meta.event_id` and the `fcom_feed_id` link. If the event can't be created, the post is deleted.
+    `meta.event_id` and the `fcom_feed_id` link. If the event can't be created, the post is deleted through fcom's `feed/before_deleted` and `feed/deleted` hooks, so fcom cleans up after it.
   - `update_feed_data_type_event` / `update_data`: keep the event link through edits (fcom
     rebuilds post meta); block moves to non-discussion spaces, and moves to the profile while
     fcom's global posts are off.
@@ -80,7 +80,8 @@ slug; `fluent_event/community/route_paths` can still move any single route:
 - **SpaceHandler** — `space/before_delete` parks the space calendar the way a deleted post parks
   its event: every event in it becomes a `draft` with its guests and loses its post link, and the
   calendar becomes a `draft` with no space. Nothing is deleted; an admin decides that in FluentEvent.
-  (fcom bulk-deletes the posts without per-post hooks, so `feed/before_deleted` never runs here.)
+  It parks every event up front: older fcom bulk-deletes the posts without per-post hooks, and where fcom
+  deletes post by post, each post's `feed/before_deleted` then finds no link and parks nothing twice.
 
 ## Portal UI (`resources/fcom-portal/`)
 
@@ -105,7 +106,7 @@ slug; `fluent_event/community/route_paths` can still move any single route:
 - The pages are a separate Vue + Element Plus app loaded on first visit (fcom exposes neither
   to add-ons). The card is a string template on fcom's own Vue.
 - REST, `fluent-event/v2/community/*`:
-  - `GET events` — the events list, filtered to visible posts in SQL.
+  - `GET events` — the events list, filtered in SQL to the posts fcom's own feed shows the viewer (its `Feed` scopes `byUserAccess`, `byActiveAuthor`, `filterBySpaceSlug`).
   - `POST events/{id}/register` — RSVP `going` or `not_going`; rate-limited to 10 per minute.
   - `GET editor-assets` — the WordPress editor markup for the create-event page; site administrators only.
 
