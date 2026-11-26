@@ -38,7 +38,7 @@
                     >
                         <el-radio value="space" border>
                             <span class="fe-create-event__choice-title">{{ $t('In a space') }}</span>
-                            <span class="fe-create-event__hint">{{ $t('Only members of the space can see it.') }}</span>
+                            <span class="fe-create-event__hint">{{ $t("Who can see it follows the space's privacy.") }}</span>
                         </el-radio>
                         <!-- The disabled card says why; the tooltip says where to turn it on. -->
                         <el-tooltip
