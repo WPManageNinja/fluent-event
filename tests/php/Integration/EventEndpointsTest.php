@@ -5,6 +5,7 @@ namespace FluentEvent\Tests\Integration;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
+use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -589,5 +590,235 @@ class EventEndpointsTest extends IntegrationTestCase
                 $this->assertSame($expected, array_values(array_intersect($listed, $ids)), "period '{$period}', {$perPage} per page");
             }
         }
+    }
+
+    private function limit($type, $value = null, $unit = null, $at = null)
+    {
+        return ['type' => $type, 'value' => $value, 'unit' => $unit, 'at' => $at];
+    }
+
+    private function hoursFrom($utc, $hours)
+    {
+        return gmdate('Y-m-d H:i:s', strtotime($utc . ' UTC') + (int) round($hours * HOUR_IN_SECONDS));
+    }
+
+    // Stored on save and moved with the event: changing only the start moves the window, though no limit was sent.
+    public function test_the_window_is_stored_on_save_and_moves_with_the_start()
+    {
+        $event = $this->createEvent([], ['registration_opens' => ['type' => 'start', 'value' => 1, 'unit' => 'days']]);
+        $meta = Event::query()->find($event->id)->meta;
+
+        $this->assertSame($this->limit('start', 1, 'days', $this->hoursFrom($event->start_at, -24)), $meta['registration_opens']);
+        $this->assertSame($this->limit('event_end', null, null, $event->end_at), $meta['registration_closes']);
+
+        $start = gmdate('Y-m-d H:i:s', strtotime('+10 days'));
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'start_at' => $start,
+            'end_at'   => $this->hoursFrom($start, 2),
+        ]));
+
+        $this->assertSame($this->hoursFrom($start, -24), Event::query()->find($event->id)->meta['registration_opens']['at']);
+    }
+
+    public function test_registration_limits_are_saved_whole_and_reset_when_emptied()
+    {
+        $event = $this->createEvent();
+
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens'  => ['type' => 'start', 'value' => '7', 'unit' => 'days'],
+            'registration_closes' => ['type' => 'end', 'value' => 2, 'unit' => 'hours', 'at' => '2000-01-01 00:00:00'],
+        ]));
+        $meta = Event::query()->find($event->id)->meta;
+
+        $this->assertSame($this->limit('start', 7, 'days', $this->hoursFrom($event->start_at, -7 * 24)), $meta['registration_opens']);
+        // A sent `at` is ignored for anything but a fixed date: it is worked out on the server.
+        $this->assertSame($this->limit('end', 2, 'hours', $this->hoursFrom($event->end_at, -2)), $meta['registration_closes']);
+
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['registration_opens' => null]));
+
+        $this->assertSame($this->limit('immediately'), Event::query()->find($event->id)->meta['registration_opens']);
+    }
+
+    public function test_an_old_offset_without_a_type_still_counts_back_from_the_start()
+    {
+        $event = $this->createEvent();
+
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens' => ['value' => 7, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame($this->limit('start', 7, 'days', $this->hoursFrom($event->start_at, -7 * 24)), Event::query()->find($event->id)->meta['registration_opens']);
+    }
+
+    // Typed on the event's clock, kept in UTC, and left where it is when the event moves.
+    public function test_a_fixed_date_is_read_on_the_events_clock_and_stays_put()
+    {
+        $event = $this->createEvent(['timezone' => 'America/New_York']);
+        $local = gmdate('Y-m-d 09:00:00', strtotime($event->start_at . ' UTC') - 2 * DAY_IN_SECONDS);
+        $utc = DateTimeHelper::convertToUtc($local, 'America/New_York');
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens' => ['type' => 'fixed', 'at' => $local, 'value' => 3, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame($this->limit('fixed', null, null, $utc), Event::query()->find($event->id)->meta['registration_opens']);
+
+        $event = Event::query()->find($event->id);
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime($event->start_at_local . ' UTC') + DAY_IN_SECONDS),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime($event->end_at_local . ' UTC') + DAY_IN_SECONDS),
+        ]));
+
+        $this->assertSame($utc, Event::query()->find($event->id)->meta['registration_opens']['at']);
+    }
+
+    /**
+     * Checked on the moments that will be stored, whatever mix of types.
+     *
+     * @dataProvider windowsThatCannotSave
+     */
+    public function test_a_window_that_cannot_work_is_rejected($opens, $closes, $message)
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, array_filter([
+            'registration_opens'  => $opens,
+            'registration_closes' => is_callable($closes) ? $closes($event) : $closes,
+        ])));
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertStringContainsString($message, wp_json_encode($response['data']));
+    }
+
+    public function windowsThatCannotSave()
+    {
+        $after = 'Registration must close after it opens.';
+        $end = 'Registration cannot close after the event ends.';
+
+        return [
+            'both before the start, the wrong way' => [['type' => 'start', 'value' => 1, 'unit' => 'hours'], ['type' => 'start', 'value' => 2, 'unit' => 'days'], $after],
+            'a fixed close before a relative open' => [['type' => 'start', 'value' => 1, 'unit' => 'hours'], function ($event) {
+                return ['type' => 'fixed', 'at' => gmdate('Y-m-d H:i:s', strtotime($event->start_at_local . ' UTC') - DAY_IN_SECONDS)];
+            }, $after],
+            'a fixed close after the end'          => [null, function ($event) {
+                return ['type' => 'fixed', 'at' => gmdate('Y-m-d H:i:s', strtotime($event->end_at_local . ' UTC') + DAY_IN_SECONDS)];
+            }, $end],
+        ];
+    }
+
+    public function test_an_update_sending_only_a_closing_time_is_checked_against_the_saved_opening()
+    {
+        $event = $this->createEvent([], ['registration_opens' => ['type' => 'start', 'value' => 1, 'unit' => 'hours']]);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_closes' => ['type' => 'start', 'value' => 1, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertStringContainsString('Registration must close after it opens.', wp_json_encode($response['data']));
+        $this->assertSame('event_end', Event::query()->find($event->id)->meta['registration_closes']['type']);
+    }
+
+    // Opening immediately, any close still ahead works: the old "Closes only, before the start" case.
+    public function test_opening_immediately_can_close_before_the_start()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens'  => ['type' => 'immediately'],
+            'registration_closes' => ['type' => 'start', 'value' => 1, 'unit' => 'days'],
+        ]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame($this->hoursFrom($event->start_at, -24), Event::query()->find($event->id)->meta['registration_closes']['at']);
+    }
+
+    public function test_an_event_whose_registration_has_closed_stays_editable()
+    {
+        $event = $this->createEvent([
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-3 hours')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-1 hour')),
+        ]);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Renamed after the event']));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+    }
+
+    public function test_a_zero_offset_is_kept_as_the_events_start_not_dropped()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'registration_opens' => ['type' => 'start', 'value' => 0, 'unit' => 'hours'],
+        ]));
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame($this->limit('start', 0, 'hours', $event->start_at), Event::query()->find($event->id)->meta['registration_opens']);
+    }
+
+    /**
+     * @dataProvider malformedLimits
+     */
+    public function test_a_malformed_registration_limit_is_rejected_and_nothing_changes($limit, $field)
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
+            'title'               => 'Should not stick',
+            'registration_closes' => $limit,
+        ]));
+
+        $this->assertSame(422, $response['status'], wp_json_encode($response['data']));
+        $this->assertStringContainsString($field, wp_json_encode($response['data']));
+        $this->assertSame('Integration event', get_post($event->post_id)->post_title);
+        $this->assertSame('event_end', Event::query()->find($event->id)->meta['registration_closes']['type']);
+    }
+
+    public function malformedLimits()
+    {
+        return [
+            'a type we do not have'     => [['type' => 'later'], 'registration_closes.type'],
+            "an opening's type"         => [['type' => 'immediately'], 'registration_closes.type'],
+            'a fixed date with no date' => [['type' => 'fixed'], 'registration_closes.at'],
+            'an impossible fixed date'  => [['type' => 'fixed', 'at' => '2026-02-31 09:00:00'], 'registration_closes'],
+            'a unit we do not count in' => [['type' => 'end', 'value' => 2, 'unit' => 'weeks'], 'registration_closes.unit'],
+            'a number without a unit'   => [['value' => 2], 'registration_closes.unit'],
+            'a unit without a number'   => [['type' => 'start', 'unit' => 'hours'], 'registration_closes.value'],
+            'not an offset at all'      => ['tomorrow', 'registration_closes'],
+            // Checked as sent, not after a cast turned them into 7, 0 or 1.
+            'a negative number'         => [['type' => 'start', 'value' => -7, 'unit' => 'hours'], 'registration_closes.value'],
+            'a word for a number'       => [['type' => 'start', 'value' => 'abc', 'unit' => 'hours'], 'registration_closes.value'],
+            'a fraction'                => [['type' => 'start', 'value' => '1.5', 'unit' => 'hours'], 'registration_closes.value'],
+        ];
+    }
+
+    // Read on the server's clock, so the Overview never trusts the browser's. Every event here starts in 3 days.
+    public function test_one_event_comes_with_the_state_of_its_registration_window()
+    {
+        $cases = [
+            'no limits'            => [[], 'open'],
+            'opens a week before'  => [['registration_opens' => ['type' => 'start', 'value' => 7, 'unit' => 'days']], 'open'],
+            'opens a day before'   => [['registration_opens' => ['type' => 'start', 'value' => 1, 'unit' => 'days']], 'not_open'],
+            'closed a week before' => [['registration_closes' => ['type' => 'start', 'value' => 7, 'unit' => 'days']], 'closed'],
+        ];
+
+        foreach ($cases as $case => [$meta, $state]) {
+            $event = $this->createEvent([], ['entry_type' => 'rsvp'] + $meta);
+            $window = $this->rest('GET', "events/{$event->id}")['data']['registration_window'];
+
+            $this->assertSame($state, $window['state'], $case);
+            $this->assertNotNull($window['closes_at'], $case);
+        }
+
+        $this->assertNull($this->rest('GET', "events/{$this->createEvent()->id}")['data']['registration_window']['opens_at']);
+
+        $ended = $this->createEvent([
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-3 hours')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-1 hour')),
+        ], ['entry_type' => 'rsvp']);
+
+        $this->assertSame('ended', $this->rest('GET', "events/{$ended->id}")['data']['registration_window']['state']);
     }
 }

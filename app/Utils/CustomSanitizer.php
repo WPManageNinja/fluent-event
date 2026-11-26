@@ -13,6 +13,14 @@ class CustomSanitizer extends Sanitizer
         return is_scalar($arg) ? sanitize_email($arg) : '';
     }
 
+    // A whole number, from a form's "7" too; anything else stays as sent, for the integer rule to refuse.
+    public static function wholeNumber($arg)
+    {
+        $number = is_scalar($arg) ? filter_var($arg, FILTER_VALIDATE_INT) : false;
+
+        return $number === false ? $arg : $number;
+    }
+
     // Never printed as is: only the HTML rendered from it reaches a page, after kses.
     public static function markdown($arg)
     {

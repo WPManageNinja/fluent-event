@@ -81,12 +81,18 @@ class EventController extends Controller
             'event'      => $event->append('description'),
             'public_url' => EventPageService::url($event),
             'shortcode'  => '[fluent_event event="' . $event->post->post_name . '"]',
+            // Worked out here, so the event page reads the server's clock, not the browser's. Times are in site time.
+            'registration_window' => [
+                'state'     => Event::registrationState($event),
+                'opens_at'  => $event->registration_opens_at ? DateTimeHelper::convertFromUtc($event->registration_opens_at, wp_timezone_string()) : null,
+                'closes_at' => DateTimeHelper::convertFromUtc($event->registration_closes_at, wp_timezone_string()),
+            ],
         ];
 
         /**
          * One event, as the admin form and the portal edit page load it, for add-ons to append fields.
          *
-         * @param array $data  ['event' => Event, 'public_url' => string, 'shortcode' => string]
+         * @param array $data  ['event' => Event, 'public_url' => string, 'shortcode' => string, 'registration_window' => array]
          * @param Event $event
          */
         return apply_filters('fluent_event/event_api_response', $data, $event);
@@ -130,25 +136,30 @@ class EventController extends Controller
 
         $data = EventRequest::sanitize($request->all());
         $this->validate($data, EventRequest::rules($data), EventRequest::messages());
-        EventRequest::validateDateWindow($data);
+        EventRequest::validateDateWindow($data, $event->meta);
 
         $data     = EventRequest::format($data, $event->meta);
         $timezone = DateTimeHelper::getValidatedTimeZone(Arr::get($data, 'timezone'));
+        $startAt  = DateTimeHelper::convertToUtc(Arr::get($data, 'start_at'), $timezone);
+        $endAt    = DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone);
+
+        // Worked out again on every save: moving the start or end moves the window, though no offset was sent.
+        $meta = EventService::withRegistrationWindow(Arr::get($data, 'meta', []), $startAt, $endAt, $timezone);
 
         $previousCalendarId = (int) $event->calendar_id;
         $calendarId         = (int) Arr::get($data, 'calendar_id');
 
-        DB::transaction(function () use ($event, $data, $timezone, $calendarId, $previousCalendarId) {
+        DB::transaction(function () use ($event, $data, $timezone, $startAt, $endAt, $meta, $calendarId, $previousCalendarId) {
             PostService::updateEventPost($event->post_id, $data);
 
             $event->fill([
                 'calendar_id' => $calendarId,
                 'status'      => Arr::get($data, 'status'),
-                'start_at'    => DateTimeHelper::convertToUtc(Arr::get($data, 'start_at'), $timezone),
-                'end_at'      => DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone),
+                'start_at'    => $startAt,
+                'end_at'      => $endAt,
                 'timezone'    => $timezone,
                 'venue_type'  => Arr::get($data, 'venue_type'),
-                'meta'        => Arr::get($data, 'meta', []),
+                'meta'        => $meta,
             ]);
 
             $event->save();

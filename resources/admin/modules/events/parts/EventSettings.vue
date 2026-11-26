@@ -42,13 +42,31 @@
                     <dt class="fe-event-settings__label">{{ $t('Waitlist') }}</dt>
                     <dd class="fe-event-settings__value">{{ event.meta?.waitlist === 'yes' ? $t('On') : $t('Off') }}</dd>
                 </div>
+
+                <div class="fe-event-settings__row">
+                    <dt class="fe-event-settings__label">{{ $t('Registration opens') }}</dt>
+                    <dd class="fe-event-settings__value">
+                        {{ registrationWindow?.opens_at ? wallClock(registrationWindow.opens_at) : $t('Immediately') }}
+                    </dd>
+                </div>
+
+                <div class="fe-event-settings__row">
+                    <dt class="fe-event-settings__label">{{ $t('Registration closes') }}</dt>
+                    <dd class="fe-event-settings__value">
+                        {{ registrationWindow?.closes_at ? wallClock(registrationWindow.closes_at) : $t('When the event ends') }}
+                    </dd>
+                </div>
             </template>
         </dl>
     </div>
 </template>
 
 <script type="text/javascript">
+    import dayjs from 'dayjs';
+    import utc from 'dayjs/plugin/utc';
     import { EditPen } from '@element-plus/icons-vue';
+
+    dayjs.extend(utc);
 
     export default {
         name: 'EventSettings',
@@ -59,6 +77,11 @@
             event: {
                 type: Object,
                 required: true,
+            },
+            // The event API's registration_window: opens_at and closes_at in site time, worked out on the server.
+            registrationWindow: {
+                type: Object,
+                default: null,
             },
         },
         computed: {
@@ -73,6 +96,12 @@
             },
             countShown() {
                 return this.event.meta?.show_guest_count !== 'no';
+            },
+        },
+        methods: {
+            // The site's wall-clock as sent; read in the browser's zone, a time its clocks skip would show an hour on.
+            wallClock(at) {
+                return this.$formatDateTime(dayjs.utc(at));
             },
         },
     };

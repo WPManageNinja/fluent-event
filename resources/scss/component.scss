@@ -1161,6 +1161,10 @@
 }
 
 .fe-event-form {
+    &__limits {
+        grid-template-columns: repeat(auto-fit, minmax(288px, 1fr));
+    }
+
     &__calendar-swatch {
         width: 14px;
         height: 14px;
@@ -1326,6 +1330,40 @@
 
     &__placeholder-text {
         font-size: var(--fe-text-sm, 14px);
+    }
+}
+
+.fe-registration-limit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fe-space-2, 8px);
+    width: 100%;
+
+    &__type.el-select {
+        width: 100%;
+    }
+
+    &__value.el-input-number {
+        width: 120px;
+    }
+
+    &__unit.el-select {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    // Element Plus pins date editors at 220px with `.el-date-editor.el-input`, and its CSS loads after ours.
+    &__date.el-date-editor.el-input {
+        width: 100%;
+    }
+
+    &__hint {
+        display: block;
+        width: 100%;
+        margin-top: var(--fe-space-1, 4px);
+        font-size: var(--fe-text-xs, 12px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
     }
 }
 
