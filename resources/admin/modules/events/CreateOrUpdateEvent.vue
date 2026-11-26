@@ -775,10 +775,7 @@
                     successNotify: true,
                     errorNotify: true,
                     onSuccess: response => {
-                        this.$goBack({
-                            name: 'event_detail',
-                            params: { id: this.eventId || response.event.id },
-                        });
+                        this.$router.push({ name: 'event_detail', params: { id: this.eventId || response.event.id } });
                     },
                 });
             },

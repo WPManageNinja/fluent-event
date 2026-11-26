@@ -201,6 +201,19 @@ describe('CreateOrUpdateEvent', () => {
             expect(save).toMatchObject({ method: 'post', path: 'events' });
             expect(save.payload).toMatchObject({ title: 'Book club', calendar_id: 3, start_at: '2026-11-02 19:30:00' });
         });
+
+        it('opens the new copy after saving, even when opened from the source', () => {
+            window.history.replaceState({ back: '/events/7' }, '');
+            const { vm, request, requestServer, router } = form({ query: { clone: 'book-club' } });
+            request('events/by-slug').onSuccess({ event: source });
+
+            vm.saveEvent();
+            requestServer.mock.calls.at(-1)[0].onSuccess({ event: { id: 56 } });
+            window.history.replaceState(null, '');
+
+            expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 56 } });
+            expect(router.back).not.toHaveBeenCalled();
+        });
     });
 
     describe('dates', () => {
@@ -271,8 +284,7 @@ describe('CreateOrUpdateEvent', () => {
             expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: '12' } });
         });
 
-        // Opened from the events list, saving returns there instead of the event's own page.
-        it('returns to the page the form was opened from', () => {
+        it("opens the event's page after editing, even when opened from the events list", () => {
             window.history.replaceState({ back: '/events' }, '');
             const { vm, router, requestServer } = form({ params: { id: '12' } });
             filled(vm);
@@ -281,8 +293,8 @@ describe('CreateOrUpdateEvent', () => {
             requestServer.mock.calls.at(-1)[0].onSuccess({ event: { id: 12 } });
             window.history.replaceState(null, '');
 
-            expect(router.back).toHaveBeenCalled();
-            expect(router.push).not.toHaveBeenCalled();
+            expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: '12' } });
+            expect(router.back).not.toHaveBeenCalled();
         });
 
         it('leaves every check to the server', () => {
