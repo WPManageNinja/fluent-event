@@ -86,17 +86,23 @@ class PrivacyHandler
         $guests = $this->guestsQuery($email)->orderBy('id')->limit(self::PER_PAGE)->get();
 
         // No controller is on the stack, so this path fires the per-guest delete hooks itself.
+        $removed = 0;
         foreach ($guests as $guest) {
             do_action('fluent_event/guest/before_deleted', $guest);
-            $guest->delete();
-            do_action('fluent_event/guest/deleted', $guest);
+            if ($guest->delete()) {
+                $removed++;
+                do_action('fluent_event/guest/deleted', $guest);
+            }
         }
 
+        $retained = count($guests) - $removed;
+
         return [
-            'items_removed'  => count($guests),
-            'items_retained' => false,
-            'messages'       => [],
-            'done'           => count($guests) < self::PER_PAGE,
+            'items_removed'  => $removed,
+            'items_retained' => $retained > 0,
+            'messages'       => $retained ? [__('Some event registrations could not be deleted. Please try again.', 'fluent-event')] : [],
+            // A failed delete would come back on the next call forever.
+            'done'           => $retained > 0 || count($guests) < self::PER_PAGE,
         ];
     }
 
