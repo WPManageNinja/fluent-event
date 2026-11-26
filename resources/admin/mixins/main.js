@@ -115,14 +115,14 @@ export default {
         $entryTypes() {
             return [
                 {
-                    value: 'rsvp',
-                    label: this.$t('RSVP'),
-                    hint: this.$t('Logged-in members say whether they are going.'),
-                },
-                {
                     value: 'open',
                     label: this.$t('Open'),
                     hint: this.$t('Guests register with their name and email, no login needed.'),
+                },
+                {
+                    value: 'rsvp',
+                    label: this.$t('RSVP'),
+                    hint: this.$t('Logged-in members say whether they are going.'),
                 },
                 {
                     value: 'none',
