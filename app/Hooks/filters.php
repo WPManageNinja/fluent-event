@@ -12,3 +12,5 @@
 /**
  * @var $app FluentEvent\Framework\Foundation\Application
  */
+
+add_filter('wp_unique_post_slug_is_bad_flat_slug', [\FluentEvent\App\CPT\EventPost::class, 'isReservedSlug'], 10, 3);

@@ -73,6 +73,15 @@ class EventPost
     }
 
     /**
+     * The portal's /events/create would shadow an event slugged `create`; `edit` is the
+     * other portal action word. WordPress appends -2 to either.
+     */
+    public static function isReservedSlug($isBad, $slug, $postType)
+    {
+        return $isBad || ($postType === static::POST_TYPE && in_array($slug, ['create', 'edit'], true));
+    }
+
+    /**
      * Labels. Still worth defining even with no admin UI — they surface in
      * error messages, REST schema and anything that reflects on the type.
      *
