@@ -98,7 +98,7 @@ class PrivacyHandler
         $retained = count($guests) - $removed;
 
         return [
-            'items_removed'  => $removed,
+            'items_removed'  => $removed > 0,
             'items_retained' => $retained > 0,
             'messages'       => $retained ? [__('Some event registrations could not be deleted. Please try again.', 'fluent-event')] : [],
             // A failed delete would come back on the next call forever.

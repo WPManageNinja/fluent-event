@@ -34,7 +34,7 @@ class PrivacyTest extends IntegrationTestCase
         );
 
         $erase = $handler->erase($email, 1);
-        $this->assertSame(3, $erase['items_removed']);
+        $this->assertTrue($erase['items_removed']);
         $this->assertTrue($erase['done']);
 
         $this->assertSame([$other->id], Guest::query()->whereIn('id', [$byEmail->id, $upcoming->id, $byAccount->id, $other->id])->pluck('id')->all());
@@ -45,6 +45,6 @@ class PrivacyTest extends IntegrationTestCase
         $this->createGuest($this->createEvent(), ['email' => null]);
 
         $this->assertSame([], (new PrivacyHandler())->export('not-an-email', 1)['data']);
-        $this->assertSame(0, (new PrivacyHandler())->erase('', 1)['items_removed']);
+        $this->assertFalse((new PrivacyHandler())->erase('', 1)['items_removed']);
     }
 }
