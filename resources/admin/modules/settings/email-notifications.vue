@@ -12,7 +12,7 @@
             <section class="fe-form__section">
                 <div class="fe-form__section-rail">
                     <h2 class="fe-form__section-title">{{ $t('Registration') }}</h2>
-                    <p class="fe-form__section-desc">{{ $t('Sent right after a guest registers or cancels.') }}</p>
+                    <p class="fe-form__section-desc">{{ $t('Sent right after a guest registers, joins a waitlist or cancels.') }}</p>
                 </div>
 
                 <div class="fe-form__section-fields">
@@ -66,6 +66,33 @@
                             <el-switch
                                 v-model="cancellation.enabled"
                                 :aria-label="$t('Send an email when a registration is cancelled')"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="fe-form__toggle">
+                        <div class="fe-form__toggle-text">
+                            <span class="fe-form__toggle-title">{{ $t('Waitlist Email') }}</span>
+                            <span class="fe-form__hint">
+                                {{ waitlist.enabled
+                                    ? $t('Email guests when they join the waitlist of a full event.')
+                                    : $t('Guests get no email when they join a waitlist.') }}
+                            </span>
+                        </div>
+
+                        <div class="fe-form__toggle-actions">
+                            <el-button
+                                link
+                                :aria-label="$t('Preview the waitlist email')"
+                                :title="$t('Preview the waitlist email')"
+                                @click="previewEmail('waitlist')"
+                            >
+                                <el-icon><View /></el-icon>
+                            </el-button>
+
+                            <el-switch
+                                v-model="waitlist.enabled"
+                                :aria-label="$t('Send an email when a guest joins the waitlist')"
                             />
                         </div>
                     </div>
@@ -209,6 +236,7 @@
                 error: '',
                 confirmation: { enabled: true },
                 cancellation: { enabled: true },
+                waitlist: { enabled: true },
                 reminder: { enabled: true },
                 times: [{ value: 24, unit: 'hours' }],
                 maxTimes: 5,
@@ -252,6 +280,7 @@
             setSettings(settings) {
                 this.confirmation = { enabled: settings.registration_confirmation.enabled };
                 this.cancellation = { enabled: settings.registration_cancellation.enabled };
+                this.waitlist = { enabled: settings.registration_waitlist.enabled };
                 this.reminder = { enabled: settings.reminder_to_guest.enabled };
                 this.times = settings.reminder_to_guest.times.map(time => ({ ...time }));
             },
@@ -275,6 +304,9 @@
                         },
                         registration_cancellation: {
                             enabled: this.cancellation.enabled,
+                        },
+                        registration_waitlist: {
+                            enabled: this.waitlist.enabled,
                         },
                         reminder_to_guest: {
                             enabled: this.reminder.enabled,

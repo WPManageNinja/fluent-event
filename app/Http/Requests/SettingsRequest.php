@@ -36,6 +36,7 @@ class SettingsRequest extends BaseRequest
     const EMAIL_NOTIFICATION_RULES = [
         'registration_confirmation'       => 'nullable|array',
         'registration_cancellation'       => 'nullable|array',
+        'registration_waitlist'           => 'nullable|array',
         'reminder_to_guest'               => 'required|array',
         'reminder_to_guest.enabled'       => 'required',
         'reminder_to_guest.times'         => 'required|array|max:' . Settings::MAX_REMINDERS,
@@ -90,7 +91,7 @@ class SettingsRequest extends BaseRequest
     {
         $settings = [];
 
-        foreach (['registration_confirmation', 'registration_cancellation'] as $key) {
+        foreach (['registration_confirmation', 'registration_cancellation', 'registration_waitlist'] as $key) {
             if (is_array(Arr::get($data, $key))) {
                 $settings[$key] = ['enabled' => Arr::isTrue($data, $key . '.enabled')];
             }

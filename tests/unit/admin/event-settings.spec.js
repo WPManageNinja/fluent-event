@@ -28,8 +28,8 @@ describe('EventSettings', () => {
     });
 
     // Only the number the host set; the guests are on the Guests tab.
-    it('shows the capacity alone, with the spots left switch beside it', () => {
-        const wrapper = settings({ entry_type: 'open', capacity: 10, show_spots_left: 'yes' });
+    it('shows the capacity alone, with the spots left and waitlist switches beside it', () => {
+        const wrapper = settings({ entry_type: 'open', capacity: 10, show_spots_left: 'yes', waitlist: 'yes' });
 
         expect(rows(wrapper)).toEqual([
             ['Start Time Display', 'Time Left'],
@@ -37,6 +37,7 @@ describe('EventSettings', () => {
             ['Capacity', '10'],
             ['Guest count', 'Shown'],
             ['Spots left', 'Shown'],
+            ['Waitlist', 'On'],
         ]);
     });
 

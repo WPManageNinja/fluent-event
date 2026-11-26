@@ -192,7 +192,7 @@ class SettingsController extends Controller
 
     public function previewEmail(Request $request, $type)
     {
-        $this->validate(['type' => $type], ['type' => 'required|string|in:confirmation,cancellation,reminder']);
+        $this->validate(['type' => $type], ['type' => 'required|string|in:confirmation,cancellation,waitlist,reminder']);
 
         $timezone = wp_timezone()->getName();
 
