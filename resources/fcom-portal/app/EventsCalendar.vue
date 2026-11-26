@@ -161,7 +161,7 @@
 </template>
 
 <script>
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
+import { ArrowLeft, ArrowRight } from '../element';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import { DAY_MS, lastDay, toDayKey, toUtcDay } from '@/utils/date';
 import { timeFormat } from '../utils';

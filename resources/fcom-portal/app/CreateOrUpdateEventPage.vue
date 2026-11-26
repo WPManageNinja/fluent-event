@@ -422,8 +422,7 @@
 
 <script>
 import dayjs from 'dayjs';
-import { ElNotification } from 'element-plus';
-import { ArrowLeft, Delete, MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
+import { ArrowLeft, Delete, ElNotification, MapLocation, Picture, QuestionFilled, VideoCamera } from '../element';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
 import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
 import { communityApi, dateFormat, errorMessage, eventsApi, portalVars, setPageTitle, timeFormat, timezoneOffset, uploadMedia } from '../utils';
