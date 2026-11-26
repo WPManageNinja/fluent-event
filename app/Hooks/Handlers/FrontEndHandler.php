@@ -811,8 +811,11 @@ class FrontEndHandler
                 });
 
                 if (changed) {
-                    // Relative to the current page, so a path starting with "//" can't send it to another host.
-                    location.replace('?' + params.toString() + location.hash);
+                    // Built from the page's own absolute URL, so neither a path starting with "//" nor a <base href>
+                    // can send it to another path or host.
+                    var url = new URL(location.href);
+                    url.search = params.toString();
+                    location.replace(url.href);
                 }
             })(<?php echo wp_json_encode($choices); ?>);
         <?php
