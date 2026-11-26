@@ -50,6 +50,38 @@ class EventReminderServiceTest extends TestCase
         $this->assertSame([1800, 86400], $leadTimes);
     }
 
+    // A stored value that skipped the settings form (an event override, an old row) is held to the form's bounds.
+    public function test_lead_times_outside_the_settings_bounds_are_not_scheduled()
+    {
+        $leadTimes = $this->leadTimes(['enabled' => true, 'times' => [
+            ['value' => 4, 'unit' => 'minutes'],
+            ['value' => 5, 'unit' => 'minutes'],
+            ['value' => 30, 'unit' => 'days'],
+            ['value' => 31, 'unit' => 'days'],
+            ['value' => 365, 'unit' => 'days'],
+        ]]);
+
+        $this->assertSame([5 * MINUTE_IN_SECONDS, 30 * DAY_IN_SECONDS], $leadTimes);
+    }
+
+    public function test_no_more_than_five_reminders_are_scheduled_keeping_the_first_listed()
+    {
+        // Duplicates and out-of-bounds entries do not use up one of the five.
+        $leadTimes = $this->leadTimes(['enabled' => true, 'times' => [
+            ['value' => 1, 'unit' => 'days'],
+            ['value' => 24, 'unit' => 'hours'],
+            ['value' => 1, 'unit' => 'minutes'],
+            ['value' => 2, 'unit' => 'days'],
+            ['value' => 3, 'unit' => 'days'],
+            ['value' => 1, 'unit' => 'hours'],
+            ['value' => 30, 'unit' => 'minutes'],
+            ['value' => 7, 'unit' => 'days'],
+        ]]);
+
+        $this->assertCount(5, $leadTimes);
+        $this->assertSame([1800, 3600, 86400, 172800, 259200], $leadTimes);
+    }
+
     public function test_a_reminder_for_an_online_event_carries_the_meeting_link()
     {
         $body = $this->callProtected(EventReminderService::class, 'buildBody', [$this->event(), (object) ['name' => 'Rafi'], '%1$s on %2$s (%3$s)']);
@@ -78,6 +110,42 @@ class EventReminderServiceTest extends TestCase
 
         $this->assertStringNotContainsString('meet.example.com', $greeting);
         $this->assertStringContainsString('Asia/Dhaka', $greeting);
+    }
+
+    public function test_each_guest_email_has_its_own_subject_and_only_the_cancellation_drops_the_link()
+    {
+        $expected = [
+            'confirmation' => ['You are registered for Launch party', true],
+            'cancellation' => ['Your registration for Launch party is cancelled', false],
+            'reminder'     => ['Reminder: Launch party is coming up', true],
+        ];
+
+        foreach ($expected as $type => [$subject, $hasLink]) {
+            $email = EventReminderService::buildEmail($type, $this->event(), (object) ['name' => 'Rafi']);
+
+            $this->assertSame($subject, $email['subject'], $type);
+            $this->assertSame($hasLink, strpos($email['body'], 'meet.example.com') !== false, $type);
+        }
+    }
+
+    /**
+     * @dataProvider greetedGuests
+     */
+    public function test_only_a_visitor_registration_is_greeted_without_the_typed_name($guest, $expected)
+    {
+        $greeting = $this->callProtected(EventReminderService::class, 'buildGreeting', [$this->event(), (object) $guest, '%1$s']);
+
+        $this->assertStringContainsString($expected, $greeting);
+    }
+
+    public function greetedGuests()
+    {
+        return [
+            'visitor on a page'      => [['name' => 'Click evil.example', 'user_id' => null, 'source' => 'wordpress_pages'], 'Hi there,'],
+            'visitor in a community' => [['name' => 'Click evil.example', 'user_id' => null, 'source' => 'fluent_community'], 'Hi there,'],
+            'member'                 => [['name' => 'Rafi', 'user_id' => 7, 'source' => 'fluent_community'], 'Hi Rafi,'],
+            'added by an admin'      => [['name' => 'Rafi', 'user_id' => null, 'source' => 'manual'], 'Hi Rafi,'],
+        ];
     }
 
     public function test_a_guest_without_a_name_is_greeted_generically()

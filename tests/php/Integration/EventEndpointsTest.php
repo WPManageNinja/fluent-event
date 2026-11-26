@@ -48,6 +48,44 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('private', $event->status);
     }
 
+    public function test_an_event_carries_its_own_public_address()
+    {
+        $event = $this->createEvent();
+
+        $url = $this->rest('GET', "events/{$event->id}")['data']['public_url'];
+
+        $this->assertSame(get_permalink($event->post_id), $url);
+        $this->assertStringContainsString('/event/' . get_post($event->post_id)->post_name, $url);
+    }
+
+    public function test_an_event_carries_the_shortcode_that_embeds_it()
+    {
+        $event = $this->createEvent();
+
+        $shortcode = $this->rest('GET', "events/{$event->id}")['data']['shortcode'];
+
+        $this->assertSame('[fluent_event event="' . get_post($event->post_id)->post_name . '"]', $shortcode);
+    }
+
+    public function test_an_event_loads_by_its_slug_as_it_does_by_its_id()
+    {
+        $event = $this->createEvent();
+        $slug = get_post($event->post_id)->post_name;
+
+        $byId = $this->rest('GET', "events/{$event->id}")['data'];
+        $bySlug = $this->rest('GET', 'events/by-slug', ['slug' => $slug]);
+
+        $this->assertSame(200, $bySlug['status'], wp_json_encode($bySlug['data']));
+        $this->assertEquals($byId, $bySlug['data']);
+
+        $missing = $this->rest('GET', 'events/by-slug', ['slug' => $slug . '-missing']);
+
+        $this->assertSame(404, $missing['status']);
+        // A clone of a missing event shows this in a toast, so it must be readable, not the ORM's message.
+        $this->assertSame('This event is not available.', $missing['data']['message']);
+        $this->assertSame(404, $this->rest('GET', 'events/by-slug')['status']);
+    }
+
     public function test_updating_an_event_keeps_its_post_in_step()
     {
         $event = $this->createEvent();
@@ -166,7 +204,7 @@ class EventEndpointsTest extends IntegrationTestCase
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
             'title'       => 'AC\DC Live',
-            'description' => '<p>Slides in C:\Reports</p>',
+            'description_md' => 'Slides in C:\Reports',
         ]));
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
@@ -281,6 +319,16 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('Integration event', get_post($event->post_id)->post_title);
     }
 
+    public function test_a_start_that_is_not_a_date_gets_a_readable_message()
+    {
+        $event = $this->createEvent();
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_at' => 'next-ish']));
+
+        $this->assertSame(422, $response['status']);
+        $this->assertSame(['date' => 'Start must be a valid date and time.'], $response['data']['start_at']);
+    }
+
     public function test_an_online_event_without_a_meeting_link_is_rejected()
     {
         $event = $this->createEvent();
@@ -288,7 +336,7 @@ class EventEndpointsTest extends IntegrationTestCase
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['venue_type' => 'online', 'online_meeting_url' => '']));
 
         $this->assertSame(422, $response['status']);
-        $this->assertStringContainsString('online_meeting_url', wp_json_encode($response['data']));
+        $this->assertSame(['required'], array_keys($response['data']['online_meeting_url']));
     }
 
     public function test_an_event_cannot_be_moved_into_a_calendar_that_does_not_exist()
@@ -300,18 +348,37 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame(422, $response['status']);
     }
 
-    public function test_script_in_an_event_description_is_stripped_on_save()
+    // Saved with the event and kept when a form that doesn't know it (the community one) saves again.
+    public function test_the_start_display_is_saved_and_only_takes_its_two_choices()
+    {
+        $event = $this->createEvent();
+
+        $this->assertSame('relative', $this->rest('GET', "events/{$event->id}")['data']['event']['meta']['start_display']);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_display' => 'countdown']));
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+
+        $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['title' => 'Renamed']));
+        $this->assertSame('countdown', Event::find($event->id)->meta['start_display']);
+
+        $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['start_display' => 'flip']));
+        $this->assertSame(422, $response['status']);
+        $this->assertSame(['in'], array_keys($response['data']['start_display']));
+    }
+
+    public function test_script_in_an_event_description_is_saved_as_text()
     {
         $event = $this->createEvent();
 
         $response = $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, [
-            'description' => '<p>Bring snacks</p><script>alert(1)</script>',
+            'description_md' => "Bring snacks\n\n<script>alert(1)</script>",
         ]));
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
 
         $content = get_post($event->post_id)->post_content;
         $this->assertStringContainsString('<p>Bring snacks</p>', $content);
+        $this->assertStringContainsString('&lt;script&gt;', $content);
         $this->assertStringNotContainsString('<script', $content);
     }
 
@@ -340,6 +407,30 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertNull(get_post($event->post_id));
         $this->assertSame(0, Guest::query()->where('event_id', $event->id)->count());
         $this->assertSame(0, Meta::query()->where('object_type', Meta::OBJECT_TYPE_EVENT)->where('object_id', $event->id)->count());
+    }
+
+    public function test_deleting_an_event_fires_the_guest_bulk_hooks_with_the_event_first()
+    {
+        $event = $this->createEvent();
+        $first = $this->createGuest($event);
+        $second = $this->createGuest($event);
+        $calls = [];
+
+        foreach (['before_bulk_deleted', 'bulk_deleted'] as $hook) {
+            $this->addTestFilter("fluent_event/guest/{$hook}", function ($deletedEvent, $guests) use (&$calls, $hook) {
+                $keys = array_map('intval', $guests->modelKeys());
+                sort($keys);
+                $calls[] = [$hook, (int) $deletedEvent->id, $keys, Guest::query()->whereIn('id', $keys)->count()];
+            }, 10, 2);
+        }
+
+        $this->assertSame(200, $this->rest('DELETE', "events/{$event->id}")['status']);
+
+        $ids = [(int) $first->id, (int) $second->id];
+        $this->assertSame([
+            ['before_bulk_deleted', (int) $event->id, $ids, 2],
+            ['bulk_deleted', (int) $event->id, $ids, 0],
+        ], $calls);
     }
 
     public function test_a_missing_event_is_a_404()
@@ -377,6 +468,47 @@ class EventEndpointsTest extends IntegrationTestCase
 
         $this->assertArrayNotHasKey('description', $listed[$event->id]);
         $this->assertSame('<p>Written by the integration suite; rolled back.</p>', $single['description']);
+    }
+
+    // "Clone Event" links to ?clone=<slug>; the post relation is hidden from JSON, so the slug must ride on the event.
+    public function test_the_single_event_response_carries_the_slug_for_cloning()
+    {
+        $event = $this->createEvent();
+
+        $single = $this->rest('GET', "events/{$event->id}")['data']['event'];
+
+        $this->assertSame($event->post->post_name, $single['slug']);
+        $this->assertArrayNotHasKey('post', $single);
+    }
+
+    // The cards' "N guests": every guest counts, not going and cancelled included.
+    public function test_the_event_list_counts_all_guests_of_each_event()
+    {
+        $event = $this->createEvent();
+        $empty = $this->createEvent(['calendar_id' => $event->calendar_id]);
+
+        foreach (['going', 'going', 'checked_in', 'not_going', 'cancelled'] as $status) {
+            $this->createGuest($event, ['status' => $status]);
+        }
+
+        $listed = array_column($this->rest('GET', 'events', ['calendar_id' => $event->calendar_id])['data']['events']['data'], 'guests_count', 'id');
+
+        $this->assertSame(5, (int) $listed[$event->id]);
+        $this->assertSame(0, (int) $listed[$empty->id]);
+    }
+
+    // The Overview's "N guests" comes with the event, counted as on the list cards.
+    public function test_a_single_event_counts_all_its_guests()
+    {
+        $event = $this->createEvent();
+        $empty = $this->createEvent(['calendar_id' => $event->calendar_id]);
+
+        foreach (['going', 'checked_in', 'not_going', 'cancelled'] as $status) {
+            $this->createGuest($event, ['status' => $status]);
+        }
+
+        $this->assertSame(4, (int) $this->rest('GET', "events/{$event->id}")['data']['event']['guests_count']);
+        $this->assertSame(0, (int) $this->rest('GET', "events/{$empty->id}")['data']['event']['guests_count']);
     }
 
     public function test_the_event_list_filters_by_calendar()
@@ -425,5 +557,37 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('2030-10-19 22:00:00', $data['start_at_local']);
         $this->assertSame('2030-10-20 03:00:00', $data['start_at_site']);
         $this->assertSame('2030-10-20 04:00:00', $data['end_at_site']);
+    }
+
+    public function test_events_starting_at_the_same_time_each_appear_on_exactly_one_page()
+    {
+        $calendarId = $this->createCalendar()->id;
+        $ids = [];
+
+        for ($i = 0; $i < 12; $i++) {
+            $ids[] = (int) $this->createEvent(['calendar_id' => $calendarId, 'start_at' => '2030-05-01 09:00:00', 'end_at' => '2030-05-01 10:00:00'])->id;
+        }
+
+        foreach (['upcoming', 'past', ''] as $period) {
+            if ($period === 'past') {
+                Event::query()->whereIn('id', $ids)->update(['start_at' => '2020-05-01 09:00:00', 'end_at' => '2020-05-01 10:00:00']);
+            }
+
+            $expected = $period === 'past' ? array_reverse($ids) : $ids;
+
+            // Unfiltered, as the list first loads: MySQL reorders equal keys only for some LIMIT/OFFSET pairs.
+            foreach ([3, 5, 7] as $perPage) {
+                $listed = [];
+                $pages = 1;
+
+                for ($page = 1; $page <= $pages; $page++) {
+                    $events = $this->rest('GET', 'events', ['period' => $period, 'per_page' => $perPage, 'page' => $page])['data']['events'];
+                    $pages = (int) ceil($events['total'] / $perPage);
+                    $listed = array_merge($listed, array_map('intval', array_column($events['data'], 'id')));
+                }
+
+                $this->assertSame($expected, array_values(array_intersect($listed, $ids)), "period '{$period}', {$perPage} per page");
+            }
+        }
     }
 }

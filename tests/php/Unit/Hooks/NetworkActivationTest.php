@@ -5,6 +5,7 @@ namespace FluentEvent\Tests\Unit\Hooks;
 use Brain\Monkey\Functions;
 use FluentEvent\App\Hooks\Handlers\ActivationHandler;
 use FluentEvent\App\Hooks\Handlers\DeactivationHandler;
+use FluentEvent\Database\Migrations\LegacyPrefixMigrator;
 use FluentEvent\Framework\Foundation\Application;
 use FluentEvent\Tests\TestCase;
 use Mockery;
@@ -22,6 +23,9 @@ class NetworkActivationTest extends TestCase
     {
         parent::setUp();
 
+        // The one-time `fe_` → `fevent` rename is covered on its own; these tests are about the per-site setup.
+        update_option(LegacyPrefixMigrator::DONE_OPTION, 1);
+
         global $wpdb;
         $wpdb->blogs = 'wptest_blogs';
         $wpdb->shouldReceive('get_charset_collate')->andReturn('');
@@ -29,7 +33,7 @@ class NetworkActivationTest extends TestCase
         $this->currentBlog = 1;
 
         Functions\when('dbDelta')->justReturn([]);
-        Functions\when('add_rewrite_rule')->justReturn(null);
+        Functions\when('register_post_type')->justReturn(null);
         Functions\when('flush_rewrite_rules')->justReturn(null);
         Functions\when('is_super_admin')->justReturn(true);
 
@@ -84,17 +88,26 @@ class NetworkActivationTest extends TestCase
         $this->assertSame(1, $this->currentBlog);
     }
 
-    public function test_network_deactivation_clears_queued_actions_on_every_site()
+    public function test_network_deactivation_clears_queued_actions_and_landing_rewrites_on_every_site()
     {
         $clearedOn = [];
+        $rewritesDroppedOn = [];
 
         Functions\when('as_unschedule_all_actions')->alias(function () use (&$clearedOn) {
             $clearedOn[] = $this->currentBlog;
+        });
+        Functions\when('delete_option')->alias(function ($option) use (&$rewritesDroppedOn) {
+            if ($option === 'rewrite_rules') {
+                $rewritesDroppedOn[] = $this->currentBlog;
+            }
+
+            return true;
         });
 
         (new DeactivationHandler($this->app()))->handle(true);
 
         $this->assertSame(range(1, 150), $clearedOn);
+        $this->assertSame(range(1, 150), $rewritesDroppedOn);
         $this->assertSame(1, $this->currentBlog);
     }
 

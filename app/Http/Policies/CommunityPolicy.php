@@ -31,17 +31,10 @@ class CommunityPolicy extends Policy
         return !get_current_user_id() && $this->portalAllows(0);
     }
 
-    // Only the create-event page asks for the editor, and only site administrators reach it.
-    public function getEditorAssets(Request $request, ...$args)
-    {
-        $userId = get_current_user_id();
-
-        return $userId && user_can($userId, 'manage_options') && $this->portalAllows($userId);
-    }
-
     private function portalAllows($userId)
     {
-        if (!defined('FLUENT_COMMUNITY_PLUGIN_VERSION')) {
+        // Covers fcom being inactive too: it fires this only while FluentEvent is enabled there.
+        if (!did_action('fluent_community/fluent_event/init')) {
             return false;
         }
 

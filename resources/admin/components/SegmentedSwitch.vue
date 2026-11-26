@@ -1,6 +1,6 @@
 <template>
     <div ref="root" class="fe-switch" role="group" :aria-label="label">
-        <span class="fe-switch__indicator" aria-hidden="true"></span>
+        <span ref="indicator" class="fe-switch__indicator" aria-hidden="true"></span>
 
         <button
             v-for="option in options"
@@ -62,13 +62,19 @@ export default {
             this.$emit('change', value);
         },
         moveIndicator() {
-            const root = this.$refs.root;
+            const { root, indicator } = this.$refs;
             const active = root && root.querySelector('.fe-switch__option--active');
 
-            if (!active) return;
+            if (!active || !indicator) return;
 
-            root.style.setProperty('--fe-switch-x', `${active.offsetLeft}px`);
-            root.style.setProperty('--fe-switch-w', `${active.offsetWidth}px`);
+            // The RTL stylesheet flips the indicator's `left: 0` to `right: 0`, but the shift below is
+            // measured from the left. Anchored on the left, the indicator rests at 0; anchored on the right,
+            // it rests one width in from the right edge. offsetLeft ignores the transform.
+            const width = active.offsetWidth;
+            const rest = indicator.offsetLeft === 0 ? 0 : root.clientWidth - width;
+
+            root.style.setProperty('--fe-switch-x', `${active.offsetLeft - rest}px`);
+            root.style.setProperty('--fe-switch-w', `${width}px`);
         }
     },
     mounted() {

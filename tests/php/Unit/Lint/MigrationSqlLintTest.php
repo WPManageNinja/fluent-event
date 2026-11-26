@@ -16,7 +16,14 @@ class MigrationSqlLintTest extends TestCase
         $this->assertNotEmpty($files);
 
         foreach ($files as $file) {
-            preg_match_all('/"CREATE TABLE.*?";/s', file_get_contents($file), $statements);
+            $source = file_get_contents($file);
+
+            // Only the table migrators build a CREATE TABLE; LegacyPrefixMigrator renames tables instead.
+            if (strpos($source, '$tableName') === false) {
+                continue;
+            }
+
+            preg_match_all('/"CREATE TABLE.*?";/s', $source, $statements);
             $this->assertNotEmpty($statements[0], basename($file) . ' has no CREATE TABLE to check');
 
             foreach ($statements[0] as $sql) {

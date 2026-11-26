@@ -5,6 +5,7 @@ import main from '@/mixins/main';
 import Skeleton from '@/components/Skeleton.vue';
 import ErrorState from '@/components/ErrorState.vue';
 import EventDrawer from '@/modules/events/parts/EventDrawer.vue';
+import EventShareModal from '@/modules/events/parts/EventShareModal.vue';
 
 vi.mock('@/utils/http/Rest.js', () => ({
     default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() }
@@ -37,7 +38,8 @@ const drawer = () => mount(EventDrawer, {
         stubs: {
             Drawer: { template: '<div><slot /></div>' },
             ElResult: { template: '<div><slot name="extra" /></div>' },
-            ElButton: { emits: ['click'], template: '<button @click="$emit(\'click\')"><slot /></button>' }
+            ElButton: { props: ['to', 'disabled'], emits: ['click'], template: '<button :data-to="to && JSON.stringify(to)" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>' },
+            EventShareModal: true
         }
     }
 });
@@ -119,5 +121,68 @@ describe('EventDrawer', () => {
 
         expect(wrapper.findComponent(ErrorState).exists()).toBe(false);
         expect(wrapper.find('.fe-event-detail__description').html()).toContain('<p>Bring snacks</p>');
+    });
+
+    describe('share and actions', () => {
+        const loaded = (status, calendarStatus) => ({
+            event: { id: 1, status, calendar: { status: calendarStatus }, description: '' },
+            public_url: 'https://site.test/events/meetup/',
+            shortcode: '[fluent_event event="meetup"]'
+        });
+        const shareButton = wrapper => wrapper.findAll('.fe-event-detail__actions button').find(button => button.text() === 'Share');
+
+        // The list's copy of the event has no calendar status, so the modal waits for the loaded one.
+        it('hands the loaded event, its link and shortcode to the share modal', async () => {
+            const request = deferred();
+            Rest.get.mockReturnValue(request.promise);
+
+            const wrapper = drawer();
+            expect(shareButton(wrapper).attributes('disabled')).toBeDefined();
+            expect(wrapper.findComponent(EventShareModal).exists()).toBe(false);
+
+            request.resolve(loaded('unlisted', 'public'));
+            await flushPromises();
+            await shareButton(wrapper).trigger('click');
+
+            const modal = wrapper.findComponent(EventShareModal);
+            expect(modal.props()).toMatchObject({
+                modelValue: true,
+                event: { id: 1, status: 'unlisted', calendar: { status: 'public' } },
+                publicUrl: 'https://site.test/events/meetup/',
+                shortcode: '[fluent_event event="meetup"]'
+            });
+        });
+
+        it('links the full page and the edit page, so either opens in a new tab too, and closes on a click', async () => {
+            Rest.get.mockResolvedValue(loaded('public', 'public'));
+
+            const wrapper = drawer();
+            await flushPromises();
+
+            const [view, edit] = wrapper.findAll('.fe-event-detail__actions button');
+            expect(view.text()).toBe('View Full Details');
+            expect(edit.text()).toBe('Edit Event');
+            expect(JSON.parse(view.attributes('data-to'))).toEqual({ name: 'event_detail', params: { id: 1 } });
+            expect(JSON.parse(edit.attributes('data-to'))).toEqual({ name: 'event_edit', params: { id: 1 } });
+
+            await edit.trigger('click');
+            expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
+        });
+
+        it('shows Clone Event disabled until the event loads, then links the clone form', async () => {
+            const request = deferred();
+            Rest.get.mockReturnValue(request.promise);
+            const cloneButton = wrapper => wrapper.findAll('.fe-event-detail__actions button').find(button => button.text() === 'Clone Event');
+
+            const wrapper = drawer();
+            expect(cloneButton(wrapper).attributes('disabled')).toBeDefined();
+            expect(cloneButton(wrapper).attributes('data-to')).toBeUndefined();
+
+            request.resolve({ ...loaded('public', 'public'), event: { ...loaded().event, slug: 'meetup' } });
+            await flushPromises();
+
+            expect(cloneButton(wrapper).attributes('disabled')).toBeUndefined();
+            expect(JSON.parse(cloneButton(wrapper).attributes('data-to'))).toEqual({ name: 'event_create', query: { clone: 'meetup' } });
+        });
     });
 });

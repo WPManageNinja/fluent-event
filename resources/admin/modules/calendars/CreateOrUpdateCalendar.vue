@@ -37,6 +37,7 @@
                                 <el-form-item :label="$t('Title')" required>
                                     <el-input
                                         v-model="calendar.title"
+                                        :maxlength="appVars.calendar_title_max_length"
                                         :placeholder="$t('e.g. Personal')"
                                         @input="deriveSlug"
                                     />
@@ -243,6 +244,12 @@
                 });
             },
             selectColor(color) {
+                // The picker emits an empty value for text it can't parse; taking it added a blank swatch and saved the default.
+                if (!/^#[0-9a-f]{6}$/i.test(color || '')) {
+                    this.$notifyError(this.$t('Theme color must be a hex value like #0099ff.'));
+                    return;
+                }
+
                 if (!this.colorOptions.some(option => option.value === color)) {
                     this.customColors.push(color);
                 }
@@ -257,9 +264,9 @@
             unlockSlug() {
                 this.$confirm(
                     this.$t('Existing links to this calendar will be affected. Do you still want to change the slug?'),
-                    this.$t('Change slug'),
+                    this.$t('Change Slug'),
                     {
-                        confirmButtonText: this.$t('Change slug'),
+                        confirmButtonText: this.$t('Change Slug'),
                         cancelButtonText: this.$t('Cancel'),
                         type: 'warning',
                     }

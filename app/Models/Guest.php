@@ -5,13 +5,13 @@ namespace FluentEvent\App\Models;
 /**
  * Guest model.
  *
- * Table: `wp_fe_guests` — database/Migrations/GuestsMigrator.php.
+ * Table: `wp_fevent_guests` — database/Migrations/GuestsMigrator.php.
  */
 class Guest extends Model
 {
-    protected $table = 'fe_guests';
+    protected $table = 'fevent_guests';
 
-    const STATUSES = 'going,not_going,checked_in,cancelled';
+    const STATUSES = 'going,not_going,checked_in,cancelled,waitlisted';
     const DEFAULT_STATUS = 'going';
 
     protected $fillable = [

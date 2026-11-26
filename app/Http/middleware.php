@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 /**
  * This is an example of using middleware in routes. The global middleware group will be

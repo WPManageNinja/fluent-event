@@ -1,3 +1,4 @@
+import path from 'path';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises, RouterLinkStub } from '@vue/test-utils';
 import EventCard from '../../../resources/fcom-portal/EventCard';
@@ -41,6 +42,34 @@ describe('EventCard', () => {
         const link = card({ fluent_event: meetup() }).findComponent(RouterLinkStub);
 
         expect(link.props('to')).toEqual({ name: 'fe_global_event_view', params: { event_slug: 'community-meetup' } });
+    });
+
+    it("opens the event's page from the cover, as the title link does", async () => {
+        const push = vi.fn();
+        const wrapper = mount(EventCard, {
+            props: { feed: { slug: 'meetup-post', space: { slug: 'design' }, fluent_event: meetup({ cover_url: 'https://example.test/cover.jpg' }) } },
+            global: { mocks: { $router: { hasRoute: () => true, push } } },
+        });
+        const cover = wrapper.find('.fe-event-card__cover');
+
+        await cover.trigger('click');
+
+        expect(cover.classes()).toContain('fe-event-card__cover--link');
+        expect(push).toHaveBeenCalledWith({ name: 'fe_event_view', params: { space: 'design', event_slug: 'community-meetup' } });
+    });
+
+    it('leaves the cover inert when the title has nowhere to go', async () => {
+        const push = vi.fn();
+        const wrapper = mount(EventCard, {
+            props: { feed: { space_id: 4, fluent_event: meetup({ cover_url: 'https://example.test/cover.jpg' }) } },
+            global: { mocks: { $router: { hasRoute: () => true, push } } },
+        });
+        const cover = wrapper.find('.fe-event-card__cover');
+
+        await cover.trigger('click');
+
+        expect(cover.classes()).not.toContain('fe-event-card__cover--link');
+        expect(push).not.toHaveBeenCalled();
     });
 
     it('shows a plain title when a space post arrives without its space', () => {
@@ -111,7 +140,7 @@ describe('EventCard', () => {
     });
 
     it('says whether the event is online or in person', () => {
-        expect(card().find('.fe-event-card__meta--venue').text()).toBe('In person');
+        expect(card().find('.fe-event-card__meta--venue').text()).toBe('In Person');
         expect(card({ fluent_event: meetup({ venue_type: 'online' }) }).find('.fe-event-card__meta--venue').text()).toBe('Online');
     });
 
@@ -151,5 +180,61 @@ describe('EventCard', () => {
         await wrapper.setProps({ feed: { slug: 'community-meetup', fluent_event: meetup({ title: 'Renamed meetup' }) } });
 
         expect(wrapper.find('.fe-event-card__title').text()).toBe('Renamed meetup');
+    });
+
+    describe('beside our page apps, which render the same form on their own Vue', () => {
+        // A second, self-contained copy of Vue, by file path so the `vue` alias can't fold it into the first.
+        const otherVue = () => import(path.resolve(__dirname, '../../../node_modules/vue/dist/vue.esm-browser.js'));
+
+        afterEach(() => {
+            vi.unstubAllGlobals();
+        });
+
+        it('sends what a visitor types after our Vue rendered the form first', async () => {
+            // Fresh modules, as on a page load: nothing has compiled the shared template yet.
+            vi.resetModules();
+            const { default: SharedActions } = await import('../../../resources/fcom-portal/EventActions');
+            const { default: FeedCard } = await import('../../../resources/fcom-portal/EventCard');
+            const event = meetup({ entry_type: 'open', register_nonce: 'n0nce' });
+            window.fluentEventFcomPortal.is_logged_in = false;
+            vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ message: 'Refused.' }), { status: 422 })));
+
+            const ourVue = await otherVue();
+            const ourApp = ourVue.createApp({ render: () => ourVue.h(SharedActions, { event }) });
+            ourApp.mount(document.createElement('div'));
+            ourApp.unmount();
+
+            const wrapper = mount(FeedCard, {
+                props: { feed: { slug: 'meetup-post', space: { slug: 'design' }, fluent_event: event } },
+                global: { mocks: { $router: { hasRoute: () => true } } },
+            });
+            await wrapper.find('.fe-guest-register > button').trigger('click');
+            await wrapper.find('#fe-guest-name-5').setValue('Rafi');
+            await wrapper.find('#fe-guest-email-5').setValue('rafi@example.test');
+            await wrapper.find('form').trigger('submit');
+            await flushPromises();
+
+            expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ name: 'Rafi', email: 'rafi@example.test' });
+        });
+    });
+
+    describe('on a post that is not published yet', () => {
+        it('notes when members can RSVP', () => {
+            const wrapper = card({ slug: 'later', fluent_event: meetup({ registration_open: false }) });
+
+            expect(wrapper.find('.fe-event-card__note').text()).toBe('Members can RSVP once this post is published.');
+        });
+
+        it('says register for an open event', () => {
+            const wrapper = card({ slug: 'later', fluent_event: meetup({ entry_type: 'open', registration_open: false }) });
+
+            expect(wrapper.find('.fe-event-card__note').text()).toBe('Members can register once this post is published.');
+        });
+
+        it('leaves a published post as it was', () => {
+            const wrapper = card({ slug: 'now', fluent_event: meetup({ registration_open: true }) });
+
+            expect(wrapper.find('.fe-event-card__note').exists()).toBe(false);
+        });
     });
 });

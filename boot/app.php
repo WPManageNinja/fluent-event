@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 use FluentEvent\Framework\Foundation\Application;
 use FluentEvent\App\Hooks\Handlers\ActivationHandler;
@@ -38,6 +38,11 @@ return function($file) {
         add_action('plugins_loaded', function() use ($app) {
             do_action('fluent_event/loaded', $app);
         });
+
+        // Absent from the WordPress.org build (`./build.sh --wporg`), which WordPress.org updates.
+        if (class_exists(\FluentEvent\App\Services\PluginManager\PluginUpdater::class)) {
+            \FluentEvent\App\Services\PluginManager\PluginUpdater::register($file);
+        }
 
         return $app;
 

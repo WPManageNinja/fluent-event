@@ -112,10 +112,38 @@ class Vite extends Enqueuer
             $srcPath = static::getVitePath() . ltrim($src, '/');
         } else {
             $manifestEntry = $this->getFileFromManifest($src);
-            $srcPath = static::getProductionFilePath($manifestEntry);
+            $srcPath = static::styleUrl(static::getProductionFilePath($manifestEntry));
         }
 
         wp_enqueue_style($handle, $srcPath, $dependency, $version);
+    }
+
+    /**
+     * On an RTL site, the built stylesheet's mirrored twin. resources/vite/rtl-css.js writes a
+     * foo.rtl.css next to every foo.css at build time, and build.sh fails if one is missing.
+     * The dev server serves the SCSS itself and has no twin, so dev mode stays left to right.
+     *
+     * @param string $url A built file URL; anything that is not a .css file comes back unchanged.
+     * @return string
+     */
+    public static function styleUrl(string $url): string
+    {
+        if (static::isOnDevMode() || !preg_match('/\.css$/', $url)) {
+            return $url;
+        }
+
+        return static::isRtl() ? preg_replace('/\.css$/', '.rtl.css', $url) : $url;
+    }
+
+    /**
+     * Whether the built stylesheets load their .rtl.css twins. The fcom portal's lazy chunks read the
+     * same answer from PortalHandler::printVars(), so PHP and the browser never pick different files.
+     *
+     * @return bool
+     */
+    public static function isRtl(): bool
+    {
+        return (bool) apply_filters('fluent_event/is_rtl', is_rtl());
     }
 
     /**
@@ -128,7 +156,7 @@ class Vite extends Enqueuer
             return static::getVitePath() . ltrim($src, '/');
         }
 
-        return static::getProductionFilePath($this->getFileFromManifest($src));
+        return static::styleUrl(static::getProductionFilePath($this->getFileFromManifest($src)));
     }
 
     /**
@@ -174,7 +202,10 @@ class Vite extends Enqueuer
 
             foreach ($file['css'] as $key => $path) {
                 wp_enqueue_style(
-                    $file['file'] . '_' . $key . '_css', $assetPath . $path, [], null
+                    'fluent-event-' . sanitize_title($file['file']) . '-' . $key,
+                    static::styleUrl($assetPath . $path),
+                    [],
+                    FLUENT_EVENT_PLUGIN_VERSION
                 );
             }
         }
@@ -262,7 +293,7 @@ class Vite extends Enqueuer
 
     /**
      * Vite dev server URL base — reads the dynamic port from the plugin's
-     * `.vite-port` file (written by `npm run watch`) or falls back to 8880.
+     * `.vite-port` file (create it when `PORT` overrides the dev port) or falls back to 8890.
      * Append the resource path to get the full URL of a source file served
      * by the HMR server.
      *
@@ -271,7 +302,7 @@ class Vite extends Enqueuer
     public static function getVitePath(): string
     {
         $portFile = App::make('path') . '.vite-port';
-        $vitePort = '8880';
+        $vitePort = '8890';
 
         if (file_exists($portFile)) {
             $fileContent = trim(file_get_contents($portFile));

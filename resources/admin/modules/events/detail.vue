@@ -5,7 +5,8 @@
 
             <ErrorState v-else-if="error" :message="error" @retry="fetchEvent" />
 
-            <template v-else>
+            <!-- A 404 leaves the event empty while the not-found page replaces this route. -->
+            <template v-else-if="event.id">
                 <div class="fe-page__header">
                     <div>
                         <nav class="fe-page__breadcrumb" :aria-label="$t('Breadcrumb')">
@@ -25,10 +26,20 @@
                     </div>
 
                     <div class="fe-page__actions">
+                        <el-button @click="shareVisible = true">
+                            <el-icon aria-hidden="true"><Share /></el-icon>
+                            <span>{{ $t('Share') }}</span>
+                        </el-button>
+
                         <el-button
                             @click="goToEdit"
                         >
                             {{ $t('Edit Event') }}
+                        </el-button>
+
+                        <el-button tag="router-link" :to="cloneRoute">
+                            <el-icon aria-hidden="true"><CopyDocument /></el-icon>
+                            <span>{{ $t('Clone Event') }}</span>
                         </el-button>
                     </div>
                 </div>
@@ -55,12 +66,10 @@
                                         </el-tag>
                                     </div>
 
-                                    <div v-if="event.meta?.entry_type" class="fe-event-overview__badge">
-                                        <span class="fe-event-overview__badge-label">{{ $t('Registration Type') }}</span>
+                                    <div class="fe-event-overview__badge">
+                                        <span class="fe-event-overview__badge-label">{{ $t('Guests') }}</span>
 
-                                        <span class="fe-badge">
-                                            {{ $entryTypeLabel(event.meta.entry_type) }}
-                                        </span>
+                                        <span class="fe-badge">{{ guestCountLabel }}</span>
                                     </div>
                                 </div>
 
@@ -86,7 +95,7 @@
                                     </span>
 
                                     <div v-if="isOnline">
-                                        <p class="fe-event-overview__row-title">{{ $t('Online event') }}</p>
+                                        <p class="fe-event-overview__row-title">{{ $t('Online Event') }}</p>
 
                                         <a
                                             v-if="meetingUrl"
@@ -104,7 +113,7 @@
                                             {{ event.meta?.venue || $t('No venue yet') }}
                                         </p>
 
-                                        <p v-if="event.meta?.address" class="fe-event-overview__row-text">
+                                        <p v-if="event.meta?.address" class="fe-event-overview__row-text fe-event-overview__row-text--address">
                                             {{ event.meta.address }}
                                         </p>
                                     </div>
@@ -138,9 +147,9 @@
 
                                         <p
                                             v-if="calendarStatus"
-                                            class="fe-event-overview__row-text capitalize"
+                                            class="fe-event-overview__row-text"
                                         >
-                                            {{ $t('Status: %s', $calendarStatusLabel(calendarStatus)) }}
+                                            {{ $t('Calendar status: %s', $calendarStatusLabel(calendarStatus)) }}
                                         </p>
                                     </div>
                                 </div>
@@ -171,29 +180,42 @@
                     </template>
 
                     <template #settings>
+                        <EventSettings :event="event" />
+
                         <EventDangerZone :event="event" @deleted="goToList" />
                     </template>
                 </Tabs>
+
+                <EventShareModal
+                    v-model="shareVisible"
+                    :event="event"
+                    :public-url="publicUrl"
+                    :shortcode="shortcode"
+                />
             </template>
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
-    import { ArrowRight, LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
-    import { daySpan } from '@/utils/date';
+    import { ArrowRight, CopyDocument, LocationInformation, Share, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { daySpan, lastDay } from '@/utils/date';
     import Tabs from '@/components/Tabs.vue';
     import Skeleton from '@/components/Skeleton.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import EmptyState from '@/components/EmptyState.vue';
     import EventGuests from './parts/EventGuests.vue';
     import EventDangerZone from './parts/EventDangerZone.vue';
+    import EventSettings from './parts/EventSettings.vue';
+    import EventShareModal from './parts/EventShareModal.vue';
 
     export default {
         name: 'EventDetail',
         components: {
             ArrowRight,
+            CopyDocument,
             LocationInformation,
+            Share,
             TopRight,
             VideoCamera,
             Tabs,
@@ -202,6 +224,8 @@
             EmptyState,
             EventGuests,
             EventDangerZone,
+            EventSettings,
+            EventShareModal,
         },
         data() {
             return {
@@ -209,9 +233,16 @@
                 error: '',
                 tab: 'overview',
                 event: {},
+                publicUrl: '',
+                shortcode: '',
+                shareVisible: false,
             };
         },
         computed: {
+            // As on the list cards: every guest of the event, from the event's own response.
+            guestCountLabel() {
+                return this.$_n('%d guest', '%d guests', this.event.guests_count || 0);
+            },
             tabs() {
                 return [
                     { value: 'overview', label: this.$t('Overview') },
@@ -222,6 +253,9 @@
             },
             isOnline() {
                 return this.event.venue_type === 'online';
+            },
+            cloneRoute() {
+                return { name: 'event_create', query: { clone: this.event.slug } };
             },
             calendarStatus() {
                 return this.event.calendar?.status || '';
@@ -244,7 +278,7 @@
                 }
 
                 const start = this.$formatDate(this.event.start_at_local, 'MMM D');
-                const end = this.$formatDate(this.event.end_at_local, 'MMM D, YYYY');
+                const end = this.$formatDate(lastDay(this.event.start_at_local, this.event.end_at_local), 'MMM D, YYYY');
 
                 return `${start} – ${end}`;
             },
@@ -265,6 +299,8 @@
                     notFoundPage: true,
                     onSuccess: response => {
                         this.event = response.event;
+                        this.publicUrl = response.public_url;
+                        this.shortcode = response.shortcode;
                         this.$changeTitle(this.event.title);
                     },
                     onError: () => {

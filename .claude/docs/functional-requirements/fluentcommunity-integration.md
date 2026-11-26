@@ -13,18 +13,37 @@ This is the record of intended behaviour. Keep it in step with `Modules/FluentCo
 | Concern | Owner | Where |
 |---|---|---|
 | Post title, message, comments, reactions, topics, schedule | fcom | `fcom_posts` (`content_type = 'event'`, `meta.event_id`) |
-| Event title, description, dates, venue, cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fe_event`) + `fe_event_details.meta` |
-| Space ↔ calendar link | FluentEvent | `fe_calendars.meta.fcom_space_id`; the one Community calendar for community-wide events has `fcom_global = true` ([details](fcom-community-wide-events.md)) |
-| Event → post link | FluentEvent | `fe_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (the events list joins on it) |
-| Guests | FluentEvent | `fe_guests` (`source = 'community'`, `source_id` = post id) |
+| Event title, description, dates, venue, cover, entry type, guest-count switch | FluentEvent | `wp_posts` (`fevent_event`) + `fevent_event_details.meta` |
+| Space ↔ calendar link | FluentEvent | `fevent_calendars.meta.fcom_space_id`; the one Community calendar for community-wide events has `fcom_global = true` ([details](fcom-community-wide-events.md)) |
+| Event → post link | FluentEvent | `fevent_meta` row: `object_type=event`, `meta_key=fcom_feed_id` (the events list joins on it) |
+| Guests | FluentEvent | `fevent_guests` (`source = 'fluent_community'`, `source_id` = post id) |
 
 Post and event titles/descriptions are separate. Editing the post uses fcom's normal edit modal.
-The event card shows an **Edit event** link to site administrators, which opens the FluentEvent
-edit page.
+The event's "⋮" menu shows site administrators **Edit Event** (the portal edit page) and
+**View in FluentEvent** (the event in the FluentEvent admin, where its guests are managed).
 
 ## Bridge (`Modules/FluentCommunity/`)
 
-Registered on `fluent_community/portal_loaded`, so it only runs while fcom is active.
+Opt-in. fcom lists FluentEvent under **Settings → Features → Add-ons**; its **View Settings**
+drawer holds one **Enable FluentEvent** checkbox (fcom option `_fluent_event_settings`, off by
+default). Only while it is on does fcom fire `fluent_community/fluent_event/init`, and the bridge
+registers on that action. While it is off, FluentEvent adds nothing to fcom: no menu item, space
+tab, composer option, portal pages or assets, and `CommunityPolicy` refuses every `community/*`
+route. Event posts already in a feed stay as plain posts with no event card. The FluentEvent admin
+keeps listing community calendars and events; turning the switch back on restores everything.
+
+The same drawer holds the **Events URL slug** (`route_slug`, default `events`). fcom rejects a slug
+that is empty, already one of its portal route paths, or one of its space child paths, and passes
+its settings with the init action (`$app, $settings`). Every community events URL hangs off that
+slug; `fluent_event/community/route_paths` can still move any single route:
+
+| Key | Default path | Route |
+|---|---|---|
+| `events` | `{slug}` | `fe_events` |
+| `create_event` | `{slug}/create` | `fe_create_event` |
+| `event_view` | `{slug}/:event_slug` | `fe_global_event_view` |
+| `space_events` | `{slug}` under `space/:space/` | `fe_space_events` |
+| `space_event_view` | `{slug}/:event_slug` under `space/:space/` | `fe_event_view` |
 
 - **PortalHandler**
   - An **Events** item in fcom's Menu Settings, off until an admin enables it; the mobile menu
@@ -32,7 +51,8 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
     `fluent_community/default_main_menu_items`; fcom keeps the admin's saved label and order and
     drops the saved row when nothing supplies it, so the link leaves with the plugin.
   - A space **Events** tab for discussion spaces only, off until a space admin enables it.
-  - `events` in fcom's route paths, and the portal script and styles printed at
+  - The first segment of each top-level route in fcom's route paths, so a reload serves the
+    portal; the menu item links to the `events` path. The route paths, the portal script and styles are printed at
     `fluent_community/before_js_loaded` (the portal is headless, so enqueues never print).
 - **FeedHandler** — the event-post lifecycle:
   - `new_feed_data_type_event`: requires a site administrator (`manage_options`), a discussion space
@@ -64,10 +84,10 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
 
 ## Portal UI (`resources/fcom-portal/`)
 
-- `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`: `/events`,
-  `/create-new-event`, `/event/:event_slug` (a community-wide event), and two children of fcom's
-  space route, `/space/:space/events` and
-  `/space/:space/event/:event_slug`. The event page renders under the space's header and tabs (at
+- `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`, taking every path
+  from the printed `route_paths` (by default `/events`, `/events/create`, `/events/:event_slug` for
+  a community-wide event, and two children of fcom's space route, `/space/:space/events` and
+  `/space/:space/events/:event_slug`). Links use route names, never paths. The event page renders under the space's header and tabs (at
   the top level when community-wide) and
   is addressed by the event's own slug (`wp_posts.post_name`, as on the public page), not the
   post's: `GET community/events/by-slug?space=&slug=` returns the post's slug, and the page then
@@ -109,15 +129,29 @@ Registered on `fluent_community/portal_loaded`, so it only runs while fcom is ac
   start `private`, like their calendars. Both statuses show in the admin and can be changed there.
   The portal shows every status except `draft`, which is never returned. `unlisted` only takes
   effect on the upcoming landing page.
-- **Entry types:** `rsvp` (logged-in members, going / not going, no seat limit; each answer shows a
+- **Capacity:** `meta.capacity` caps `going` + `checked_in` guests on `rsvp` and `open` events (0 = unlimited).
+  A full event shows **Event full** in place of the RSVP or Register button and refuses a new one (422); a guest
+  already going keeps their seat and can still give it up, and admins can add guests past it. Two switches decide
+  what guests see: **Show how many guests are going** and **Show how many spots are left** (off by default, only
+  with a capacity). Both on: a meter ("7 out of 10 going", "3 spots left"); count only: "7 going"; spots only:
+  "3 spots left"; neither: nothing until it fills. Event cards follow the same rule, and an ended event shows no
+  spots left.
+- **Entry types:** `rsvp` (logged-in members, going / not going, up to the event's capacity; each answer shows a
   success toast with the server's message, "RSVP updated. You're going!" / "RSVP updated. You're not going."), `open`
   (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
   from the account, name editable, email locked. After registering, a **You're registered** dialog
   shows the event (cover, date, place) and Add to calendar links, and a **✓ Registered** badge replaces
-  the button. A member's badge is a menu (like RSVP's) with **Cancel registration**: a confirm, then status `cancelled`
+  the button. A member's badge is a menu (like RSVP's) with **Not going**: a confirm, then status `not_going`
   (the cancellation email when on) and the Register button back; a visitor's registration is final
   and shows only until they reload) and `none` (no registration UI for anyone;
   admins can still add guests, who get the usual emails).
+- **Registering again:** guests only answer going or not going; `cancelled` and `checked_in` are set by an admin alone. A
+  `not_going` row (member or visitor email) goes back to going with the usual confirmation, if the event has a
+  seat left (a full event refuses it like a new registration). A visitor form, on the portal or the public page, can't
+  bring back a row linked to an account: that member answers by account, on either. Any other row
+  gets a warning dialog and nothing changes: "This email is already registered" (going; a visitor form on a checked-in
+  row too), "Your registration was cancelled" (`cancelled`), or, to the member, "You are already checked in"
+  (`checked_in`). The guest can't undo either admin status, by either answer.
 - **Times:** lists, the feed card and the calendar show the site's clock (`start_at_site`), and
   the `from`/`to` filter means site days. The event page shows the event's own clock with its
   offset, plus the site's clock when that reads differently.

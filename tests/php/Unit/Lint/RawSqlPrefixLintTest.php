@@ -70,7 +70,7 @@ class RawSqlPrefixLintTest extends TestCase
 
     public function test_a_hardcoded_prefix_is_named_as_one()
     {
-        $this->assertStringContainsString('hardcoded prefix: wp_fe_guests', $this->runOnFixture()['output']);
+        $this->assertStringContainsString('hardcoded prefix: wp_fevent_guests', $this->runOnFixture()['output']);
     }
 
     public function test_it_actually_scans_the_plugin_source()

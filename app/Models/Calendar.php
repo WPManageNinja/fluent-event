@@ -5,11 +5,11 @@ namespace FluentEvent\App\Models;
 /**
  * Calendar model.
  *
- * Table: `wp_fe_calendars` — see database/Migrations/CalendarsMigrator.php.
+ * Table: `wp_fevent_calendars` — see database/Migrations/CalendarsMigrator.php.
  */
 class Calendar extends Model
 {
-    protected $table = 'fe_calendars';
+    protected $table = 'fevent_calendars';
 
     const STATUSES = 'public,private,draft';
     const DEFAULT_THEME_COLOR = '#0099ff';
@@ -43,6 +43,18 @@ class Calendar extends Model
     public function guests()
     {
         return $this->hasMany(Guest::class, 'calendar_id', 'id');
+    }
+
+    // Capped at 255: the title column is VARCHAR(255).
+    public static function titleMaxLength()
+    {
+        return min(255, max(1, (int) apply_filters('fluent_event/calendar_title_max_length', 100)));
+    }
+
+    public function getTitleAttribute($title)
+    {
+        // Plain text, as Event's title: sanitize_text_field() stores a lone "<" as "&lt;". Every sink must escape it.
+        return strtr((string) $title, ['&amp;' => '&', '&lt;' => '<', '&gt;' => '>', '&quot;' => '"', '&#039;' => "'"]);
     }
 
     public static function defaultMeta()

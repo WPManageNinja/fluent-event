@@ -7,7 +7,7 @@ use FluentEvent\Tests\TestCase;
 
 /**
  * General settings live in wp_options and run against the option stub here.
- * The fe_meta-backed sections are covered in the integration tier.
+ * The fevent_meta-backed sections are covered in the integration tier.
  */
 class SettingsTest extends TestCase
 {
@@ -34,6 +34,32 @@ class SettingsTest extends TestCase
     public function test_the_longest_reminder_is_thirty_days()
     {
         $this->assertSame(30 * DAY_IN_SECONDS, Settings::MAX_REMINDER_TIME);
+    }
+
+    public function test_reminder_bounds_are_five_reminders_between_five_minutes_and_thirty_days()
+    {
+        $this->assertSame(5, Settings::MAX_REMINDERS);
+        $this->assertSame(5 * MINUTE_IN_SECONDS, Settings::MIN_REMINDER_TIME);
+    }
+
+    /**
+     * @dataProvider reminderTimes
+     */
+    public function test_a_reminder_time_is_allowed_only_within_the_bounds($seconds, $allowed)
+    {
+        $this->assertSame($allowed, Settings::isReminderTimeAllowed($seconds));
+    }
+
+    public function reminderTimes()
+    {
+        return [
+            'zero'              => [0, false],
+            'just under 5 min'  => [5 * MINUTE_IN_SECONDS - 1, false],
+            '5 min'             => [5 * MINUTE_IN_SECONDS, true],
+            '1 day'             => [DAY_IN_SECONDS, true],
+            '30 days'           => [30 * DAY_IN_SECONDS, true],
+            'just over 30 days' => [30 * DAY_IN_SECONDS + 1, false],
+        ];
     }
 
     public function test_out_of_the_box_guests_get_confirmations_cancellations_and_a_day_ahead_reminder()
@@ -73,7 +99,7 @@ class SettingsTest extends TestCase
 
         $saved = Settings::update(Settings::GENERAL, ['disable_event_view_switch' => 'yes', 'injected' => 'x']);
 
-        $this->assertSame(['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'enable_landing_pages' => 'no', 'portal_slug' => 'events'], $saved);
+        $this->assertSame(['default_events_view' => 'cards', 'disable_event_view_switch' => 'yes', 'events_page_id' => 0, 'event_slug' => 'event'], $saved);
         $this->assertSame($saved, get_option(Settings::WP_OPTION_KEY));
     }
 }

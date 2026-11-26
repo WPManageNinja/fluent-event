@@ -39,7 +39,7 @@
                 >
                     <section class="fe-form__section" data-field="cover_url">
                         <div class="fe-form__section-rail">
-                            <h2 class="fe-form__section-title">{{ $t('Cover image') }}</h2>
+                            <h2 class="fe-form__section-title">{{ $t('Cover Image') }}</h2>
                             <p class="fe-form__section-desc">
                                 {{ $t('Shown at the top of the event page and on event cards.') }}
                             </p>
@@ -53,7 +53,7 @@
                                 :action-label="$t('Use this image')"
                                 :alt="$t('Event cover image')"
                                 :add-label="$t('Add a cover image')"
-                                :change-label="$t('Change cover image')"
+                                :change-label="$t('Change Cover Image')"
                                 :remove-label="$t('Remove cover image')"
                             >
                                 <template #placeholder>
@@ -80,7 +80,7 @@
 
                         <div class="fe-form__section-fields">
                             <el-form-item
-                                :label="$t('Event name')"
+                                :label="$t('Event Name')"
                                 for="fe-event-title"
                                 required
                                 data-field="title"
@@ -103,6 +103,7 @@
                                     :aria-label="$t('Calendar')"
                                     :placeholder="$t('Choose a calendar')"
                                     filterable
+                                    fit-input-width
                                     :loading="loadingCalendars"
                                     :loading-text="$t('Loading…')"
                                 >
@@ -124,7 +125,7 @@
                                                 class="fe-color-swatch fe-event-form__calendar-swatch"
                                                 :style="{ background: calendar.meta?.theme_color }"
                                             ></span>
-                                            {{ calendar.title }}
+                                            <span class="fe-event-form__calendar-name" :title="calendar.title">{{ calendar.title }}</span>
                                             <el-tag
                                                 v-if="calendar.status !== 'public'"
                                                 class="fe-event-form__calendar-status"
@@ -164,6 +165,30 @@
                                     <span class="fe-form__hint">{{ option.hint }}</span>
                                 </el-radio>
                             </el-radio-group>
+
+                            <el-dialog
+                                v-model="startDisplayHelp"
+                                :title="$t('Start Time Display')"
+                                width="560px"
+                                append-to-body
+                                destroy-on-close
+                            >
+                                <figure
+                                    v-for="option in startDisplays"
+                                    :key="option.value"
+                                    class="fe-start-display-help__item"
+                                >
+                                    <figcaption class="fe-start-display-help__caption">
+                                        <span class="fe-start-display-help__title">{{ option.label }}</span>
+                                        <span class="fe-start-display-help__text">{{ option.details }}</span>
+                                    </figcaption>
+                                    <StartDisplayPreview
+                                        :value="option.value"
+                                        role="img"
+                                        :aria-label="$t('%s on the event page', option.label)"
+                                    />
+                                </figure>
+                            </el-dialog>
                         </div>
                     </section>
 
@@ -178,11 +203,10 @@
                         </div>
 
                         <div class="fe-form__section-fields">
-                            <WpEditor
-                                v-model="event.description"
-                                :height="280"
-                                media-buttons
-                                quick-tags
+                            <MarkdownEditor
+                                v-model="event.description_md"
+                                :upload="uploadImage"
+                                :placeholder="$t('Describe the event, or type / to add images, lists and more')"
                                 aria-labelledby="fe-event-description-label"
                             />
                         </div>
@@ -190,7 +214,7 @@
 
                     <section class="fe-form__section">
                         <div class="fe-form__section-rail">
-                            <h2 class="fe-form__section-title">{{ $t('Date and time') }}</h2>
+                            <h2 class="fe-form__section-title">{{ $t('Date and Time') }}</h2>
                             <p class="fe-form__section-desc">
                                 {{ $t('When the event starts and ends.') }}
                             </p>
@@ -211,6 +235,7 @@
                                         <el-date-picker
                                             v-model="event[bound.dateKey]"
                                             class="fe-event-form__date"
+                                            popper-class="fe-date-popper"
                                             type="date"
                                             :format="dateFormat"
                                             value-format="YYYY-MM-DD"
@@ -248,9 +273,46 @@
                         </div>
                     </section>
 
+                    <section class="fe-form__section" data-field="start_display">
+                        <div class="fe-form__section-rail">
+                            <h2 class="fe-form__section-title fe-form__section-title--info">
+                                {{ $t('Start Time Display') }}
+                                <button
+                                    type="button"
+                                    class="fe-form__label-info"
+                                    :aria-label="$t('What the two choices look like')"
+                                    @click="startDisplayHelp = true"
+                                >
+                                    <el-icon><QuestionFilled /></el-icon>
+                                </button>
+                            </h2>
+                            <p class="fe-form__section-desc">
+                                {{ $t('How the event page shows the time until the start.') }}
+                            </p>
+                        </div>
+
+                        <div class="fe-form__section-fields">
+                            <el-radio-group
+                                v-model="event.start_display"
+                                class="fe-form__choices"
+                                :aria-label="$t('Start Time Display')"
+                            >
+                                <el-radio
+                                    v-for="option in startDisplays"
+                                    :key="option.value"
+                                    :value="option.value"
+                                    border
+                                >
+                                    <span class="fe-form__choice-title">{{ option.label }}</span>
+                                    <span class="fe-form__hint">{{ option.hint }}</span>
+                                </el-radio>
+                            </el-radio-group>
+                        </div>
+                    </section>
+
                     <section class="fe-form__section" data-field="venue_type">
                         <div class="fe-form__section-rail">
-                            <h2 class="fe-form__section-title">{{ $t('Venue type') }}</h2>
+                            <h2 class="fe-form__section-title">{{ $t('Venue Type') }}</h2>
                             <p class="fe-form__section-desc">
                                 {{ $t('A venue for in-person events, a link for online ones.') }}
                             </p>
@@ -261,13 +323,13 @@
                                 v-model="event.venue_type"
                                 class="fe-event-form__venue-switch"
                                 :options="venueTypes"
-                                :label="$t('Venue type')"
+                                :label="$t('Venue Type')"
                                 show-labels
                             />
 
                             <el-form-item
                                 v-if="event.venue_type === 'online'"
-                                :label="$t('Meeting link')"
+                                :label="$t('Meeting Link')"
                                 for="fe-event-meeting-link"
                                 required
                                 data-field="online_meeting_url"
@@ -285,13 +347,14 @@
 
                             <template v-else>
                                 <el-form-item
-                                    :label="$t('Venue name')"
+                                    :label="$t('Venue Name')"
                                     for="fe-event-venue"
                                     data-field="venue"
                                 >
                                     <el-input
                                         id="fe-event-venue"
                                         v-model="event.venue"
+                                        :maxlength="appVars.event_venue_max_length"
                                         :placeholder="$t('e.g. Kingsway Hall')"
                                     />
                                 </el-form-item>
@@ -322,11 +385,11 @@
                         </div>
 
                         <div class="fe-form__section-fields">
-                            <el-form-item :label="$t('Entry type')" data-field="entry_type">
+                            <el-form-item :label="$t('Entry Type')" data-field="entry_type">
                                 <el-radio-group
                                     v-model="event.entry_type"
                                     class="fe-form__choices"
-                                    :aria-label="$t('Entry type')"
+                                    :aria-label="$t('Entry Type')"
                                 >
                                     <el-radio
                                         v-for="option in $entryTypes()"
@@ -340,7 +403,35 @@
                                 </el-radio-group>
                             </el-form-item>
 
-                            <div v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-form__switch-row" data-field="show_guest_count">
+                        </div>
+                    </section>
+
+                    <section v-if="['rsvp', 'open'].includes(event.entry_type)" class="fe-form__section">
+                        <div class="fe-form__section-rail">
+                            <h2 class="fe-form__section-title">{{ $t('Guest control') }}</h2>
+                            <p class="fe-form__section-desc">
+                                {{ $t('Seats and the guest count guests see.') }}
+                            </p>
+                        </div>
+
+                        <div class="fe-form__section-fields">
+                            <el-form-item :label="$t('Capacity')" for="fe-event-capacity" data-field="capacity">
+                                <el-input-number
+                                    id="fe-event-capacity"
+                                    v-model="event.capacity"
+                                    class="fe-event-form__capacity"
+                                    align="left"
+                                    :min="1"
+                                    step-strictly
+                                    :controls="false"
+                                    :placeholder="$t('Unlimited')"
+                                />
+                                <span class="fe-form__hint">
+                                    {{ $t('How many guests can be going at once. Leave empty for no limit.') }}
+                                </span>
+                            </el-form-item>
+
+                            <div class="fe-form__switch-row" data-field="show_guest_count">
                                 <label class="fe-form__switch-text" for="fe-event-show-guest-count">
                                     {{ $t('Show how many guests are going') }}
                                 </label>
@@ -348,6 +439,32 @@
                                 <el-switch
                                     id="fe-event-show-guest-count"
                                     v-model="event.show_guest_count"
+                                    active-value="yes"
+                                    inactive-value="no"
+                                />
+                            </div>
+
+                            <div v-if="event.capacity" class="fe-form__switch-row" data-field="show_spots_left">
+                                <label class="fe-form__switch-text" for="fe-event-show-spots-left">
+                                    {{ $t('Show how many spots are left') }}
+                                </label>
+
+                                <el-switch
+                                    id="fe-event-show-spots-left"
+                                    v-model="event.show_spots_left"
+                                    active-value="yes"
+                                    inactive-value="no"
+                                />
+                            </div>
+
+                            <div v-if="event.capacity" class="fe-form__switch-row" data-field="waitlist">
+                                <label class="fe-form__switch-text" for="fe-event-waitlist">
+                                    {{ $t('Let guests join a waitlist when the event is full') }}
+                                </label>
+
+                                <el-switch
+                                    id="fe-event-waitlist"
+                                    v-model="event.waitlist"
                                     active-value="yes"
                                     inactive-value="no"
                                 />
@@ -373,11 +490,12 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
-    import { MapLocation, Picture, VideoCamera } from '@element-plus/icons-vue';
-    import WpEditor from '@/components/WpEditor.vue';
+    import { MapLocation, Picture, QuestionFilled, VideoCamera } from '@element-plus/icons-vue';
+    import MarkdownEditor from '@/components/MarkdownEditor.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import MediaPicker from '@/components/MediaPicker.vue';
     import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
+    import StartDisplayPreview from '@/components/StartDisplayPreview.vue';
     import Skeleton from '@/components/Skeleton.vue';
 
     const config = window.fluentEventAdmin;
@@ -389,10 +507,12 @@
         name: 'CreateOrUpdateEvent',
         components: {
             Picture,
-            WpEditor,
+            QuestionFilled,
+            MarkdownEditor,
             ErrorState,
             MediaPicker,
             SegmentedSwitch,
+            StartDisplayPreview,
             Skeleton,
         },
         data() {
@@ -402,6 +522,7 @@
                 calendarError: '',
                 eventError: '',
                 saving: false,
+                startDisplayHelp: false,
                 calendars: [],
                 event: {},
             };
@@ -422,6 +543,10 @@
             isEditing() {
                 return !!this.eventId;
             },
+            // "Clone Event" opens the create form with ?clone=<slug> to start from that event.
+            cloneSourceSlug() {
+                return this.isEditing ? '' : (this.$route.query.clone || '');
+            },
             pageTitle() {
                 return this.isEditing ? this.$t('Edit Event') : this.$t('Create Event');
             },
@@ -438,8 +563,24 @@
             },
             venueTypes() {
                 return [
-                    { value: 'offline', label: this.$t('In person'), icon: MapLocation },
+                    { value: 'offline', label: this.$t('In Person'), icon: MapLocation },
                     { value: 'online', label: this.$t('Online'), icon: VideoCamera },
+                ];
+            },
+            startDisplays() {
+                return [
+                    {
+                        value: 'relative',
+                        label: this.$t('Time Left'),
+                        hint: this.$t('A short line, like "Starts in 3 days".'),
+                        details: this.$t('A short line with the time left, worked out when the page opens. It reads in the largest unit, like "Starts in 2 days" or "Starts in 5 hours".'),
+                    },
+                    {
+                        value: 'countdown',
+                        label: this.$t('Countdown'),
+                        hint: this.$t('Days, hours, minutes and seconds, ticking down to the start.'),
+                        details: this.$t('Days, hours, minutes and seconds, ticking down every second while the page is open. Anything over a day stays in days, so six weeks reads 42 days.'),
+                    },
                 ];
             },
             bounds() {
@@ -500,7 +641,7 @@
                     calendar_id: event?.calendar_id || null,
                     status: event?.status || this.statuses[0].value,
                     title: event?.title || '',
-                    description: event?.description || '',
+                    description_md: meta.description_md || '',
                     start_date: start.format('YYYY-MM-DD'),
                     start_time: start.format('HH:mm'),
                     end_date: end.format('YYYY-MM-DD'),
@@ -511,15 +652,19 @@
                     venue: meta.venue || '',
                     address: meta.address || '',
                     cover_url: meta.cover_url || '',
-                    entry_type: event ? (meta.entry_type || '') : 'rsvp',
+                    entry_type: meta.entry_type || 'open',
                     show_guest_count: meta.show_guest_count || 'yes',
+                    capacity: meta.capacity || null,
+                    show_spots_left: meta.show_spots_left || 'no',
+                    waitlist: meta.waitlist || 'no',
+                    start_display: meta.start_display || 'relative',
                 };
             },
             loadForm() {
                 this.event = this.initForm();
                 this.fetchCalendars();
 
-                if (this.isEditing) {
+                if (this.isEditing || this.cloneSourceSlug) {
                     this.fetchEvent();
                     return;
                 }
@@ -543,12 +688,20 @@
             },
             fetchEvent() {
                 this.$requestServer({
-                    path: `events/${this.eventId}`,
+                    path: this.isEditing ? `events/${this.eventId}` : 'events/by-slug',
+                    payload: this.isEditing ? undefined : { slug: this.cloneSourceSlug },
                     loadingState: 'loadingEvent',
-                    errorState: 'eventError',
-                    notFoundPage: true,
+                    errorState: this.isEditing ? 'eventError' : null,
+                    notFoundPage: this.isEditing,
                     onSuccess: response => {
                         this.event = this.initForm(response.event);
+                    },
+                    // A clone source that cannot be loaded leaves the blank create form usable; the toast says why.
+                    onError: error => {
+                        if (this.isEditing) return;
+
+                        this.$handleError(error?.status === 404 ? this.$t('The event to clone was not found.') : error);
+                        this.preSelectCalendar();
                     },
                     // loadingEvent drops after onSuccess, so the title input only exists from here.
                     onFinally: () => this.focusTitle(),
@@ -558,7 +711,8 @@
                 this.$nextTick(() => this.$refs.titleInput?.focus());
             },
             preSelectCalendar() {
-                if (this.isEditing) return;
+                // A loaded event (edited or cloned) brings its own calendar.
+                if (this.isEditing || this.event.calendar_id) return;
                 const requested = Number(this.$route.query.calendar_id);
                 const preSelected = this.calendars.find(calendar => calendar.id === requested);
                 this.event.calendar_id = preSelected?.id || this.calendars[0]?.id;
@@ -600,7 +754,7 @@
                         calendar_id: this.event.calendar_id,
                         status: this.event.status,
                         title: this.event.title,
-                        description: this.event.description,
+                        description_md: this.event.description_md,
                         start_at: `${this.event.start_date} ${this.event.start_time}:00`,
                         end_at: `${this.event.end_date} ${this.event.end_time}:00`,
                         timezone: this.event.timezone,
@@ -611,6 +765,10 @@
                         address: this.event.address,
                         entry_type: this.event.entry_type,
                         show_guest_count: this.event.show_guest_count,
+                        capacity: this.event.capacity || 0,
+                        show_spots_left: this.event.show_spots_left,
+                        waitlist: this.event.waitlist,
+                        start_display: this.event.start_display,
                     },
                     loadingState: 'saving',
                     errorState: null,
@@ -623,6 +781,18 @@
                         });
                     },
                 });
+            },
+            // Description images go to the media library, as the cover does.
+            async uploadImage(file) {
+                const data = new FormData();
+                data.append('file', file);
+
+                try {
+                    return (await wp.apiFetch({ path: '/wp/v2/media', method: 'POST', body: data })).source_url;
+                } catch (error) {
+                    this.$handleError(error);
+                    throw error;
+                }
             },
             goToCalendarCreate() {
                 this.$router.push({ name: 'calendar_create' });

@@ -11,7 +11,7 @@
                     <span>{{ $t('Back') }}</span>
                 </button>
 
-                <event-menu :event="event"></event-menu>
+                <event-menu :event="event" :router="router"></event-menu>
             </div>
 
             <img v-if="event.cover_url" class="fe-event-view__cover" :src="event.cover_url" alt=""/>
@@ -35,16 +35,18 @@
                                     <VideoCamera v-if="isOnline"/>
                                     <MapLocation v-else/>
                                 </el-icon>
-                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In person')) }}</span>
+                                <span>{{ isOnline ? $t('Online') : (event.venue || $t('In Person')) }}</span>
                             </li>
                         </ul>
 
                         <p class="fe-event-view__origin">
                             <img v-if="feed.xprofile && feed.xprofile.avatar" class="fe-event-view__origin-avatar" :src="feed.xprofile.avatar" alt=""/>
-                            <span v-if="feed.space">{{ $t('Posted by %s in', author) }} <strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong></span>
+                            <span v-if="feed.space">{{ postedIn[0] }}<strong class="fe-event-view__origin-space">{{ feed.space.title }}</strong>{{ postedIn[1] }}</span>
                             <span v-else>{{ $t('Posted by %s on their profile', author) }}</span>
-                            <span aria-hidden="true">·</span>
-                            <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
+                            <span class="fe-event-view__origin-post">
+                                <span class="fe-event-view__origin-dot" aria-hidden="true">·</span>
+                                <a class="fe-event-view__origin-link" :href="router.resolve(postRoute).href" @click.prevent="router.push(postRoute)">{{ $t('View post') }}</a>
+                            </span>
                         </p>
                     </div>
 
@@ -52,6 +54,12 @@
                         <section v-if="event.description" class="fe-event-view__card">
                             <h2 class="fe-event-view__section-title">{{ $t('About This Event') }}</h2>
                             <div class="fe-event-view__description" v-html="event.description"></div> <!-- coding-rules-scan:ignore — wp_kses_post runs in Event::getDescriptionAttribute() -->
+                        </section>
+
+                        <!-- fcom's own comment box for the post, teleported in by the route shell. -->
+                        <section v-if="commentsOpen" class="fe-event-view__card">
+                            <h2 class="fe-event-view__section-title">{{ $t('Comments') }}</h2>
+                            <div id="fe-event-view-comments" class="fe-event-view__comments"></div>
                         </section>
                     </div>
                 </div>
@@ -71,11 +79,55 @@
                     </div>
 
                     <span v-if="phase === 'live'" class="fe-live-badge">{{ $t('Happening now') }}</span>
+                    <div v-else-if="countdown && !countdown.done" class="fe-countdown" role="timer" :aria-label="$t('Time until the event starts')">
+                        <span v-for="unit in countdownUnits" :key="unit.key" class="fe-countdown__unit">
+                            <span class="fe-countdown__value">{{ unit.value }}</span>
+                            <span class="fe-countdown__label">{{ unit.label }}</span>
+                        </span>
+                    </div>
                     <span v-else class="fe-event-view__status" :class="`fe-event-view__status--${phase}`">{{ statusLabel }}</span>
 
-                    <div v-if="hasActions || countLabel" class="fe-event-view__rsvp">
+                    <div v-if="showMeter" class="fe-capacity">
+                        <div class="fe-capacity__head">
+                            <span>{{ countLabel }}</span>
+                            <span v-if="!isFullForMe && phase !== 'ended'" class="fe-capacity__status">{{ capacityStatus }}</span>
+                        </div>
+                        <div
+                            class="fe-capacity__track"
+                            role="progressbar"
+                            aria-valuemin="0"
+                            :aria-valuemax="event.capacity"
+                            :aria-valuenow="event.guest_count"
+                            :aria-valuetext="countLabel"
+                            :aria-label="$t('Capacity')"
+                        >
+                            <span class="fe-capacity__fill" :style="{ width: `${capacityPercent}%` }"></span>
+                        </div>
+                    </div>
+
+                    <div v-if="isFullForMe" class="fe-event-view__notice">
+                        <span class="fe-event-view__notice-icon" aria-hidden="true">
+                            <el-icon><Ticket/></el-icon>
+                        </span>
+                        <div class="fe-event-view__notice-text">
+                            <span class="fe-event-view__notice-title">{{ $t('Event full') }}</span>
+                            <span class="fe-event-view__notice-desc">{{ event.waitlist ? $t('Join the waitlist and the host will let you know if a spot opens up.') : $t('This event is full and no longer taking registrations.') }}</span>
+                        </div>
+                    </div>
+
+                    <div v-else-if="event.my_status === 'waitlisted' && phase !== 'ended'" class="fe-event-view__notice">
+                        <span class="fe-event-view__notice-icon" aria-hidden="true">
+                            <el-icon><Clock/></el-icon>
+                        </span>
+                        <div class="fe-event-view__notice-text">
+                            <span class="fe-event-view__notice-title">{{ $t("You're on the waitlist") }}</span>
+                            <span class="fe-event-view__notice-desc">{{ $t('The host will let you know if a spot opens up.') }}</span>
+                        </div>
+                    </div>
+
+                    <div v-if="hasActions || (countLabel && !showMeter)" class="fe-event-view__rsvp">
                         <event-actions v-if="hasActions" :event="event" @done="applyResponse" @error="error = $event"></event-actions>
-                        <span v-if="countLabel" class="fe-event-view__count">{{ countLabel }}</span>
+                        <span v-if="countLabel && !showMeter" class="fe-event-view__count">{{ countLabel }}</span>
                     </div>
 
                     <p v-if="error" class="fe-event-view__error" role="alert">{{ error }}</p>
@@ -93,7 +145,7 @@
                             <el-icon aria-hidden="true"><VideoCamera/></el-icon>
                             <span>{{ $t('Join online') }}</span>
                         </a>
-                        <p v-else-if="event.has_meeting_url" class="fe-event-view__note">{{ $t('Please register for the event to see the meeting link.') }}</p>
+                        <p v-else-if="event.has_meeting_url && !onWaitlistPath" class="fe-event-view__note">{{ $t('Please register for the event to see the meeting link.') }}</p>
                     </template>
 
                     <div v-if="canAddToCalendar" class="fe-event-view__calendar">
@@ -116,8 +168,10 @@
 </template>
 
 <script>
-import { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera } from '@element-plus/icons-vue';
-import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, isSeated, portalVars, saveIcs, timeFormat } from '../utils';
+import { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera } from '@element-plus/icons-vue';
+import { communityApi, eventsApi, dateFormat, eventPhase, googleCalendarLink, guestCountLabel, hasEventActions, hasSpotsLeft, isSeated, portalVars, saveIcs, setPageTitle, spotsLeftLabel, timeFormat } from '../utils';
+import { lastDay } from '@/utils/date';
+import { padPart, startCountdown } from '@/utils/countdown';
 import { APPLE, GOOGLE } from '../icons';
 import EventActions from '../EventActions';
 import EventMenu from '../EventMenu';
@@ -129,12 +183,14 @@ const utc = (value) => window.dayjs.utc(value);
 // read through fcom's post endpoint so it is visible exactly when its post is.
 export default {
     name: 'EventViewPage',
-    components: { ArrowLeft, Calendar, Clock, MapLocation, VideoCamera, EventActions, EventMenu },
+    components: { ArrowLeft, Calendar, Clock, MapLocation, Ticket, VideoCamera, EventActions, EventMenu },
     props: {
         // Empty for a community-wide event.
         spaceSlug: { type: String, default: '' },
         eventSlug: { type: String, required: true },
         router: { type: Object, required: true },
+        // Hands the post to the shell, which renders fcom's comment box for it.
+        onFeed: { type: Function, required: true },
     },
     data() {
         return {
@@ -143,6 +199,9 @@ export default {
             feed: null,
             error: '',
             icons: { APPLE, GOOGLE },
+            requestId: 0,
+            countdown: null,
+            stopCountdown: null,
         };
     },
     computed: {
@@ -151,6 +210,15 @@ export default {
         },
         author() {
             return (this.feed.xprofile || {}).display_name || '';
+        },
+        // One string, so a language can put the space anywhere; split around it to keep the name bold without v-html.
+        postedIn() {
+            const [before, after = ''] = this.$t('Posted by %1$s in %2$s', this.author, '\u0000').split('\u0000');
+
+            return [before, after];
+        },
+        commentsOpen() {
+            return (this.feed.meta || {}).comments_disabled !== 'yes';
         },
         postRoute() {
             return { name: 'single_feed', params: { feed_slug: this.feed.slug } };
@@ -186,8 +254,17 @@ export default {
 
             return `${dayjs(start).format(`MMM D, ${timeFormat()}`)} – ${dayjs(end).format(endFormat)} (${portalVars().timezone})`;
         },
+        // The countdown reaching 0 is the start, so the page turns live without a reload; a tab that slept
+        // through the whole event lands on Ended instead.
         phase() {
-            return eventPhase(this.event);
+            const phase = eventPhase(this.event);
+
+            return this.countdown && this.countdown.done && phase !== 'ended' ? 'live' : phase;
+        },
+        countdownUnits() {
+            const labels = { days: this.$t('Days'), hours: this.$t('Hours'), minutes: this.$t('Minutes'), seconds: this.$t('Seconds') };
+
+            return Object.keys(labels).map((key) => ({ key, label: labels[key], value: padPart(this.countdown[key]) }));
         },
         statusLabel() {
             if (this.phase === 'ended') {
@@ -203,9 +280,28 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        // The status above already says Ended, so an ended event gets no RSVP slot of its own here.
+        // Joining or holding a waitlist place never shows the link, so "register to see it" would mislead.
+        onWaitlistPath() {
+            return this.event.my_status === 'waitlisted' || (!!this.event.is_full && !!this.event.waitlist && !isSeated(this.event));
+        },
+        // A guest already going keeps their RSVP on a full event, to give up the seat; a waitlisted one keeps their place.
+        isFullForMe() {
+            return !!this.event.is_full && !isSeated(this.event) && this.event.my_status !== 'waitlisted';
+        },
+        // With both the count and the spots left shown; an ended one keeps it as a record of how full it got.
+        showMeter() {
+            return hasSpotsLeft(this.event) && this.event.guest_count !== null && this.event.guest_count !== undefined;
+        },
+        capacityPercent() {
+            return Math.min(100, Math.round((this.event.guest_count / this.event.capacity) * 100));
+        },
+        capacityStatus() {
+            return this.event.is_full ? this.$t('Event full') : spotsLeftLabel(this.event);
+        },
+        // The status above already says Ended, so an ended event gets no RSVP slot; a full one shows its notice instead,
+        // with Join waitlist under it when the event takes one.
         hasActions() {
-            return this.phase !== 'ended' && hasEventActions(this.event);
+            return this.phase !== 'ended' && hasEventActions(this.event) && (!this.isFullForMe || !!this.event.waitlist);
         },
         // Once someone is going, or for a no-entry event anyone can attend.
         canAddToCalendar() {
@@ -233,6 +329,11 @@ export default {
     mounted() {
         this.fetchEvent();
     },
+    // A read still on its way must not title the next page's tab.
+    beforeUnmount() {
+        this.requestId++;
+        this.stopCountdown && this.stopCountdown();
+    },
     methods: {
         googleCalendarLink,
         saveIcs,
@@ -241,31 +342,57 @@ export default {
         },
         dateRange(start, end) {
             const from = dayjs(start);
+            const last = lastDay(start, end);
 
-            if (from.isSame(dayjs(end), 'day')) {
+            if (start.slice(0, 10) === last) {
                 return from.format(dateFormat());
             }
 
-            return `${from.format('MMM D')} – ${dayjs(end).format('MMM D, YYYY')}`;
+            return `${from.format('MMM D')} – ${dayjs(last).format('MMM D, YYYY')}`;
         },
         timeRange(start, end, zone) {
-            const format = dayjs(start).isSame(dayjs(end), 'day') ? timeFormat() : `MMM D, ${timeFormat()}`;
+            const format = start.slice(0, 10) === lastDay(start, end) ? timeFormat() : `MMM D, ${timeFormat()}`;
             const range = `${dayjs(start).format(format)} – ${dayjs(end).format(format)}`;
 
             return zone ? `${range} (${zone})` : range;
         },
         async fetchEvent() {
+            const requestId = ++this.requestId;
+            let feed = null;
+
             try {
                 // The URL carries the event's own slug; its post's slug is what fcom reads it by.
                 const { feed_slug: feedSlug } = await eventsApi.get('community/events/by-slug', { space: this.spaceSlug, slug: this.eventSlug });
                 const response = await communityApi.get(`feeds/${feedSlug}/by-slug`);
 
-                this.feed = response.feed;
-                this.event = response.feed.fluent_event || null;
+                // The member left before both answers came back: the tab belongs to the page open now.
+                if (requestId !== this.requestId) {
+                    return;
+                }
+
+                feed = response.feed;
+                this.feed = feed;
+                this.event = feed.fluent_event || null;
+
+                if (this.event) {
+                    setPageTitle(this.event.title);
+                }
+
+                if (this.event && this.event.start_display === 'countdown' && this.phase === 'upcoming') {
+                    this.stopCountdown = startCountdown(utc(this.event.start_at).valueOf(), (parts) => {
+                        this.countdown = parts;
+                    });
+                }
             } catch (error) {
                 this.event = null;
             } finally {
                 this.loading = false;
+            }
+
+            // Once the Comments card is on the page to take it. The raw post: fcom tracks it with its own Vue.
+            if (this.event && this.commentsOpen) {
+                await this.$nextTick();
+                this.onFeed(feed);
             }
         },
         goBack() {

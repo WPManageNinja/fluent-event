@@ -1,11 +1,11 @@
 <?php
 /**
- * Landing 404: an unknown, private or draft calendar or event.
+ * [fluent_event]'s 404: an unknown, private or draft event.
  *
  * @var string $description
  * @var string $portal_url
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+defined('ABSPATH') || exit;
 ?>
 <div class="fe-not-found">
     <p class="fe-not-found__code">404</p>

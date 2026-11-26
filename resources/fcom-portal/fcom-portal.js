@@ -1,5 +1,6 @@
 import EventCard from './EventCard';
-import { t, portalVars } from './utils';
+import SpaceEventsWidget from './SpaceEventsWidget';
+import { t, portalVars, uploadMedia, elementLocale } from './utils';
 
 /*
  * Plugs FluentEvent into the FluentCommunity portal through fcom's JS hooks.
@@ -10,7 +11,7 @@ import { t, portalVars } from './utils';
 const pages = {
     events: () => import('./app/EventsPage.vue'),
     space_events: () => import('./app/EventsPage.vue'),
-    create_event: () => import('./app/CreateEventPage.vue'),
+    create_event: () => import('./app/CreateOrUpdateEventPage.vue'),
     event_view: () => import('./app/EventViewPage.vue'),
     // The same page outside any space, where no space layout frames it.
     global_event_view: () => import('./app/EventViewPage.vue'),
@@ -21,6 +22,7 @@ function pageShell(page) {
     return {
         name: 'FluentEventPage',
         // fcom hands space routes space_profile, search and the like; the shell reads $route instead.
+        // Its class still lands on the root: fcom's route_classes (fcom_sticky_header…) style the page header.
         inheritAttrs: false,
         data() {
             return { unmount: null, gone: false, ready: false };
@@ -49,10 +51,12 @@ function pageShell(page) {
                 };
             },
             async remount() {
-                const [{ createApp }, { default: Page }, { applyWeekStart }] = await Promise.all([
+                const [{ createApp }, { default: Page }, { applyWeekStart, siteLocale }, { vLoading, provideGlobalConfig }, { default: en }] = await Promise.all([
                     import('vue'),
                     pages[page](),
                     import('@/utils/date'),
+                    import('element-plus'),
+                    import('element-plus/dist/locale/en.mjs'),
                 ]);
 
                 if (this.gone) {
@@ -67,13 +71,53 @@ function pageShell(page) {
                 // Its own Vue app: fcom exposes neither its Vue nor Element Plus to add-ons.
                 const app = createApp(Page, this.pageProps());
                 app.config.globalProperties.$t = t;
+                // Element Plus in the site's language, from the strings and date names fcom translates for itself.
+                const fcom = window.fluentComAdmin || {};
+                provideGlobalConfig({ locale: { ...elementLocale(en, fcom.el_i18n), name: siteLocale(fcom.dateTime18n) } }, app);
+                // The pages' v-loading spinners (list, calendar, cover upload, editor) need it registered here.
+                app.directive('loading', vLoading);
                 app.mount(this.$refs.mount);
 
                 this.unmount = () => app.unmount();
                 this.ready = true;
             },
         },
-        template: `<div class="fe-fcom-portal-page fe-fcom-portal-page--${page}"><div ref="mount"></div></div>`,
+        template: `<div class="fe-fcom-portal-page fe-fcom-portal-page--${page}" :class="$attrs.class"><div ref="mount"></div></div>`,
+    };
+}
+
+// The event page with fcom's comment box for its post, teleported into the page's Comments card once the page has the post.
+function eventViewShell(page) {
+    const base = pageShell(page);
+
+    return {
+        extends: base,
+        data() {
+            return { feed: null };
+        },
+        methods: {
+            pageProps() {
+                return {
+                    ...base.methods.pageProps.call(this),
+                    onFeed: (feed) => {
+                        this.feed = feed;
+                    },
+                };
+            },
+            // The box leaves with the page it sits in; the next page hands its own post.
+            remount() {
+                this.feed = null;
+                return base.methods.remount.call(this);
+            },
+        },
+        template: `
+            <div class="fe-fcom-portal-page fe-fcom-portal-page--${page}" :class="$attrs.class">
+                <div ref="mount"></div>
+                <teleport v-if="feed" to="#fe-event-view-comments">
+                    <comment-box :feed="feed"/>
+                </teleport>
+            </div>
+        `,
     };
 }
 
@@ -88,6 +132,14 @@ const createEventShell = {
         return {
             onPosting: null,
             placement: 'space',
+            // The description's markdown, from fcom's editor; it rides in the composer's event, or in an edit's PATCH.
+            description: '',
+            // fcom's editor reads its v-model only when it mounts, so an edit waits for the event's markdown.
+            editorReady: !this.$route.params.event_slug && !this.$route.query.clone,
+            // A clone's composer, like the editor, reads the copied post text only when it mounts.
+            composerReady: !this.$route.query.clone,
+            // The space picked on the page; kept across a switch to community-wide and back.
+            space: this.$route.query.space || '',
             feed: {
                 title: '',
                 message: '',
@@ -97,32 +149,84 @@ const createEventShell = {
                 topic_ids: [],
                 send_announcement_email: 'no',
                 status: 'published',
-                // The composer shares this object and posts to feed.space, so its picker opens on a space
-                // from the menu link. Community-wide sets PROFILE_POST here, never through the composer's
-                // space prop: the composer hides itself for a space it can't find, and PROFILE_POST isn't one.
+                // The composer shares this object and posts to feed.space; its own picker is hidden, so the
+                // page sets it. Community-wide sets PROFILE_POST here, never through the composer's space
+                // prop: the composer hides itself for a space it can't find, and PROFILE_POST isn't one.
                 space: this.$route.query.space || '',
             },
         };
     },
     watch: {
         placement(placement) {
-            this.feed.space = placement === 'global' ? PROFILE_POST : (this.$route.query.space || '');
+            this.feed.space = placement === 'global' ? PROFILE_POST : this.space;
+        },
+        description(markdown) {
+            this.feed.event = { ...this.feed.event, description_md: markdown };
         },
     },
     methods: {
         t,
         pageProps() {
+            // Editing changes the event only; its space and post text are edited on fcom's post.
+            if (this.$route.params.event_slug) {
+                return {
+                    router: this.$router,
+                    eventSlug: this.$route.params.event_slug,
+                    onLoaded: (event) => {
+                        this.description = (event.meta || {}).description_md || '';
+                        this.editorReady = true;
+                    },
+                    getDescription: () => this.description,
+                };
+            }
+
             return {
                 router: this.$router,
+                cloneSourceSlug: this.$route.query.clone || '',
+                // A clone's source event and post; both null when it could not be loaded.
+                onLoaded: (event, feed) => {
+                    this.description = ((event || {}).meta || {}).description_md || '';
+
+                    if (feed) {
+                        Object.assign(this.feed, {
+                            title: feed.title || '',
+                            message: feed.message || '',
+                            type: feed.type || 'text',
+                            topic_ids: feed.topic_ids,
+                            send_announcement_email: feed.send_announcement_email || 'no',
+                        });
+                    }
+
+                    this.editorReady = true;
+                    this.composerReady = true;
+                },
                 onChange: (event) => {
-                    this.feed.event = event;
+                    this.feed.event = { ...event, description_md: this.description };
                 },
                 submitPost: (onPosting) => this.submitPost(onPosting),
                 globalPosts: !!portalVars().global_posts,
                 onPlacement: (placement) => {
                     this.placement = placement;
                 },
+                // fcom's own list for its composer picker: discussion spaces, keyed by slug, with the member's permissions.
+                spaces: Object.values(((this.appVars || {}).auth || {}).spaces || {})
+                    .filter((space) => space.permissions && space.permissions.can_create_post)
+                    .map((space) => ({ slug: space.slug, title: space.title, emoji: (space.settings || {}).emoji || '' })),
+                initialSpace: this.space,
+                onSpace: (space) => {
+                    this.space = space;
+                    this.feed.space = space;
+                },
             };
+        },
+        // Images go to the media library, like the cover; fcom's editor just places the URL.
+        async uploadDescriptionImage(file) {
+            try {
+                return await uploadMedia(file);
+            } catch (error) {
+                this.$handleError(error);
+                throw error;
+            }
         },
         // Our Create button submits fcom's composer, which reports back while it posts.
         submitPost(onPosting) {
@@ -152,12 +256,13 @@ const createEventShell = {
         },
     },
     template: `
-        <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event">
+        <div class="fe-fcom-portal-page fe-fcom-portal-page--create_event" :class="$attrs.class">
             <div ref="mount"></div>
-            <teleport v-if="ready" to="#fe-create-event-composer">
+            <teleport v-if="ready && composerReady && !$route.params.event_slug" to="#fe-create-event-composer">
                 <create-status-form
                     ref="composer"
-                    :disableSpace="placement === 'global'"
+                    defaultState="active"
+                    :disableSpace="true"
                     :hideSubmit="true"
                     :editing_feed="feed"
                     @vue:mounted="watchPosting"
@@ -165,55 +270,85 @@ const createEventShell = {
                     @scheduled="posted"
                 />
             </teleport>
+            <!-- fcom's own Milkdown: a second copy on this page would clash with the composer's over the custom elements both define. -->
+            <teleport v-if="ready && editorReady" to="#fe-create-event-description">
+                <crepe-editor
+                    v-model="description"
+                    :placeholder="t('Describe the event, or type / to add images, lists and more')"
+                    :disable_mention="true"
+                    :onInlineUpload="uploadDescriptionImage"
+                />
+            </teleport>
         </div>
     `,
 };
 
 function register() {
+    // fcom loads this entry with ?ver= and our lazy pages import it without, so it runs twice; hook in once.
+    if (window.fluentEventPortalRegistered) {
+        return;
+    }
+    window.fluentEventPortalRegistered = true;
+
     const { addFilter } = window.FluentCommunityUtil.hooks;
 
     addFilter('fluent_com_portal_routes', 'fluent-event', (routes) => {
+        // Built server-side from fcom's events slug, through the fluent_event/community/route_paths filter.
+        const paths = portalVars().route_paths;
+
         routes.push({
-            path: '/events',
+            path: '/' + paths.events,
             name: 'fe_events',
             component: pageShell('events'),
             meta: { active_menu: 'fe_events' },
         });
 
         // ?space=slug starts on that space; without it, on community-wide.
-        routes.push({
-            path: '/create-new-event',
-            name: 'fe_create_event',
-            component: createEventShell,
-            meta: { active_menu: 'fe_events' },
-        });
+        // Only event creators get the pages: anyone else typing the URL lands on fcom's Not Found.
+        if (portalVars().can_create_events) {
+            routes.push({
+                path: '/' + paths.create_event,
+                name: 'fe_create_event',
+                component: createEventShell,
+                meta: { active_menu: 'fe_events' },
+            });
 
-        // A community-wide event, beside fcom's /post/:feed_slug as the space one sits beside space/:space/post.
+            routes.push({
+                path: '/' + paths.edit_event,
+                name: 'fe_edit_event',
+                component: createEventShell,
+                meta: { active_menu: 'fe_events' },
+            });
+        }
+
+        // A community-wide event; the space one below sits under its space's header and tabs.
         routes.push({
-            path: '/event/:event_slug',
+            path: '/' + paths.event_view,
             name: 'fe_global_event_view',
-            component: pageShell('global_event_view'),
+            component: eventViewShell('global_event_view'),
             meta: { active_menu: 'fe_events' },
         });
 
-        const spaceRoute = routes.find((route) => route.path === '/space/:space/');
+        // Newer fcom constrains the slug ('/space/:space([a-zA-Z0-9_-]+)/'); match either shape, but not
+        // '/space/:space/settings' and other space routes.
+        const spaceRoute = routes.find((route) => /^\/space\/:space(\(.*\))?\/$/.test(route.path));
 
         if (spaceRoute && spaceRoute.children) {
             spaceRoute.children.push({
-                path: 'events',
+                path: paths.space_events,
                 name: 'fe_space_events',
                 component: pageShell('space_events'),
                 props: true,
                 meta: { in_space: true, show_sidebar: false },
             });
 
-            // Beside fcom's space/:space/post/:feed_slug: one event, under its space's header and tabs.
             spaceRoute.children.push({
-                path: 'event/:event_slug',
+                path: paths.space_event_view,
                 name: 'fe_event_view',
-                component: pageShell('event_view'),
+                component: eventViewShell('event_view'),
                 props: true,
-                meta: { in_space: true, show_sidebar: false },
+                // fcom's space route then leaves the event's own tab title alone.
+                meta: { in_space: true, show_sidebar: false, owns_title: true },
             });
         }
 
@@ -225,11 +360,20 @@ function register() {
         return components;
     });
 
+    // fcom's space setting "Show Upcoming Events on the Sidebar" turns it on per space.
+    addFilter('fluent_com_space_sidebar_widgets', 'fluent-event', (widgets, space) => {
+        if (space && space.settings && space.settings.show_upcoming_events === 'yes') {
+            widgets.push({ key: 'fe_upcoming_events', component: SpaceEventsWidget });
+        }
+
+        return widgets;
+    });
+
     addFilter('fluent_com_space_actions', 'fluent-event', (actions, space) => {
         if (portalVars().can_create_events && space.type === 'community' && space.permissions && space.permissions.can_create_post) {
             actions.push({
                 key: 'fe_create_event',
-                title: t('Create new event'),
+                title: t('Create Event'),
                 route: { name: 'fe_create_event', query: { space: space.slug } },
             });
         }
@@ -241,7 +385,7 @@ function register() {
         if (portalVars().can_create_events) {
             actions.push({
                 key: 'fe_create_event',
-                title: t('Create new event'),
+                title: t('Create Event'),
                 route: { name: 'fe_create_event' },
             });
         }

@@ -2,11 +2,13 @@
 
 namespace FluentEvent\Tests\Unit\Http;
 
+use Brain\Monkey\Functions;
 use FluentEvent\App\Http\Requests\CalendarRequest;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Http\Requests\ReportRequest;
 use FluentEvent\App\Http\Requests\SettingsRequest;
+use FluentEvent\App\Models\Event;
 use FluentEvent\Framework\Validator\ValidationException;
 use FluentEvent\Tests\TestCase;
 
@@ -42,7 +44,7 @@ class RequestRulesTest extends TestCase
         return array_merge([
             'calendar_id'        => 3,
             'title'              => 'Launch party',
-            'description'        => '<p>Come along</p>',
+            'description_md'     => 'Come along',
             'status'             => 'public',
             'start_at'           => '2026-11-01 18:00:00',
             'end_at'             => '2026-11-01 21:00:00',
@@ -58,8 +60,18 @@ class RequestRulesTest extends TestCase
 
     public function test_an_online_event_needs_a_meeting_link()
     {
-        $this->assertSame('required|url', EventRequest::rules(['venue_type' => 'online'])['online_meeting_url']);
+        $this->assertSame('required', EventRequest::rules(['venue_type' => 'online'])['online_meeting_url']);
+        $this->assertSame('url', EventRequest::rules(['venue_type' => 'online', 'online_meeting_url' => 'meet'])['online_meeting_url']);
         $this->assertSame('nullable|url', EventRequest::rules(['venue_type' => 'offline'])['online_meeting_url']);
+    }
+
+    // 100 by default; a site may raise it with a filter, never past 255.
+    public function test_a_venue_name_is_capped_at_its_filterable_limit()
+    {
+        $this->assertSame('nullable|string|max:100', EventRequest::rules([])['venue']);
+
+        Functions\when('apply_filters')->justReturn(1000);
+        $this->assertSame(255, Event::venueMaxLength());
     }
 
     public function test_formatting_an_event_drops_fields_the_request_does_not_own()
@@ -90,6 +102,23 @@ class RequestRulesTest extends TestCase
         $this->assertSame('', $formatted['meta']['cover_url']);
         $this->assertSame('no', $formatted['meta']['show_guest_count']);
         $this->assertSame('rsvp', $formatted['meta']['entry_type']);
+    }
+
+    public function test_the_description_is_rendered_from_its_markdown_and_the_markdown_kept()
+    {
+        $markdown = "**Bring** a tripod&#x20;\n\n- warm layer\n\n<script>alert(1)</script>\n\n![1.00](https://x.test/a.png \"Sunset\")\n\n![0.43](https://x.test/b.png)\n\n![1.50](https://x.test/c.png)";
+        $formatted = EventRequest::format($this->eventInput(['description_md' => $markdown]));
+
+        $this->assertSame($markdown, $formatted['meta']['description_md']);
+        // Milkdown's "&#x20;" for an edge space never reaches the page as text.
+        $this->assertStringContainsString('<p><strong>Bring</strong> a tripod</p>', $formatted['description']);
+        $this->assertStringContainsString('<li>warm layer</li>', $formatted['description']);
+        // Typed HTML stays text; the image block's ratio alt gives way to its caption and sizes the image,
+        // never past the column.
+        $this->assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $formatted['description']);
+        $this->assertStringContainsString('<img src="https://x.test/a.png" alt="Sunset" style="display: block; margin: 0 auto; max-width: 100%;" title="Sunset" />', $formatted['description']);
+        $this->assertStringContainsString('<img src="https://x.test/b.png" alt="" style="display: block; margin: 0 auto; max-width: 43%;" />', $formatted['description']);
+        $this->assertStringContainsString('<img src="https://x.test/c.png" alt="" style="display: block; margin: 0 auto; max-width: 100%;" />', $formatted['description']);
     }
 
     public function test_an_offline_event_never_keeps_a_meeting_link()
@@ -138,8 +167,28 @@ class RequestRulesTest extends TestCase
         return [
             'ends when it starts' => ['2026-11-01 18:00', '2026-11-01 18:00'],
             'ends before it starts' => ['2026-11-01 18:00', '2026-11-01 17:00'],
-            'unparseable end' => ['2026-11-01 18:00', 'soon'],
-            'missing start' => ['', '2026-11-01 18:00'],
+        ];
+    }
+
+    /**
+     * @dataProvider unreadableDates
+     */
+    public function test_an_unreadable_date_gets_its_own_message($field, $start, $end, $message)
+    {
+        try {
+            EventRequest::validateDateWindow(['start_at' => $start, 'end_at' => $end]);
+            $this->fail('The unreadable date was accepted');
+        } catch (ValidationException $e) {
+            $this->assertSame([$field => ['date' => $message]], $e->errors());
+        }
+    }
+
+    public function unreadableDates()
+    {
+        return [
+            'words for an end' => ['end_at', '2026-11-01 18:00', 'soon', 'End must be a valid date and time.'],
+            'missing start' => ['start_at', '', '2026-11-01 18:00', 'Start must be a valid date and time.'],
+            'day past the month' => ['start_at', '2026-02-30 18:00', '2026-03-01 18:00', 'Start must be a valid date and time.'],
         ];
     }
 
@@ -160,15 +209,15 @@ class RequestRulesTest extends TestCase
 
     public function test_a_calendar_slug_must_be_unique_except_against_itself()
     {
-        $this->assertStringEndsWith('unique:fe_calendars,slug', CalendarRequest::createRules()['slug']);
-        $this->assertStringEndsWith('unique:fe_calendars,slug,7,id', CalendarRequest::updateRules(7)['slug']);
+        $this->assertStringEndsWith('unique:fevent_calendars,slug', CalendarRequest::createRules()['slug']);
+        $this->assertStringEndsWith('unique:fevent_calendars,slug,7,id', CalendarRequest::updateRules(7)['slug']);
     }
 
     public function test_a_guest_email_is_unique_per_event_not_site_wide()
     {
-        $this->assertStringContainsString('unique:fe_guests,email,NULL,id,event_id,42', GuestRequest::createRules(42)['email']);
-        $this->assertStringContainsString('unique:fe_guests,user_id,NULL,id,event_id,42', GuestRequest::createRules(42)['user_id']);
-        $this->assertStringContainsString('unique:fe_guests,email,9,id,event_id,42', GuestRequest::updateRules(42, 9)['email']);
+        $this->assertStringContainsString('unique:fevent_guests,email,NULL,id,event_id,42', GuestRequest::createRules(42)['email']);
+        $this->assertStringContainsString('unique:fevent_guests,user_id,NULL,id,event_id,42', GuestRequest::createRules(42)['user_id']);
+        $this->assertStringContainsString('unique:fevent_guests,email,9,id,event_id,42', GuestRequest::updateRules(42, 9)['email']);
     }
 
     /**
@@ -219,8 +268,10 @@ class RequestRulesTest extends TestCase
             'thirty days'       => [30, 'days', true],
             'thirty-one days'   => [31, 'days', false],
             'thirty days + 1h'  => [721, 'hours', false],
-            // Zero is left to the min:1 rule, so this closure stays quiet.
-            'zero'              => [0, 'hours', true],
+            'zero'              => [0, 'hours', false],
+            'negative'          => [-5, 'hours', false],
+            'decimal'           => [1.5, 'hours', false],
+            'empty'             => ['', 'hours', false],
         ];
     }
 
@@ -244,5 +295,26 @@ class RequestRulesTest extends TestCase
         [$start, $end] = ReportRequest::resolveRange($this->request(['start_date' => "2026-10-01' OR 1=1", 'end_date' => '2026-10-10']));
 
         $this->assertSame(['2026-10-04', '2026-10-10'], [$start, $end]);
+    }
+
+    public function test_a_capacity_is_a_whole_number_and_none_means_unlimited()
+    {
+        $this->assertSame('nullable|integer|min:0', EventRequest::RULES['capacity']);
+        $this->assertSame(25, EventRequest::sanitize(['capacity' => '25'])['capacity']);
+        $this->assertSame(0, EventRequest::format($this->eventInput())['meta']['capacity']);
+    }
+
+    public function test_the_waitlist_switch_is_yes_or_no_and_starts_off()
+    {
+        $this->assertSame('nullable|string|in:yes,no', EventRequest::RULES['waitlist']);
+        $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['waitlist']);
+        $this->assertSame('yes', EventRequest::format($this->eventInput(['waitlist' => 'yes']))['meta']['waitlist']);
+    }
+
+    public function test_the_spots_left_switch_is_yes_or_no_and_starts_off()
+    {
+        $this->assertSame('nullable|string|in:yes,no', EventRequest::RULES['show_spots_left']);
+        $this->assertSame('no', EventRequest::format($this->eventInput())['meta']['show_spots_left']);
+        $this->assertSame('yes', EventRequest::format($this->eventInput(['show_spots_left' => 'yes']))['meta']['show_spots_left']);
     }
 }

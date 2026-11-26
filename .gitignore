@@ -7,6 +7,7 @@ node_modules
 # Secrets / local env
 .env
 .env.local
+.vite-port
 
 # OS cruft
 .DS_Store

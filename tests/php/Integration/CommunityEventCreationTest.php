@@ -79,7 +79,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $spaceId = $this->createSpace();
         $request = $this->postRequest();
         $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
-        $eventsBefore = $this->rowCount($this->table('fe_event_details'));
+        $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
 
         // wp_insert_post() then returns a WP_Error, which PostService turns into an exception.
         $this->addTestFilter('wp_insert_post_empty_content', '__return_true');
@@ -92,7 +92,81 @@ class CommunityEventCreationTest extends IntegrationTestCase
         }
 
         $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
-        $this->assertSame($eventsBefore, $this->rowCount($this->table('fe_event_details')));
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')));
+    }
+
+    // The space's calendar is looked up before the event is made. A failure there left the post behind.
+    public function test_a_post_whose_calendar_lookup_fails_is_deleted()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
+
+        // A space that no longer exists has no title to name its new calendar after.
+        $feed->space_id = PHP_INT_MAX;
+
+        try {
+            do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+            $this->fail('A failed calendar lookup must not be swallowed.');
+        } catch (\Throwable $e) {
+            // Thrown, as fcom's own hook call expects.
+        }
+
+        $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')));
+    }
+
+    // Without the link the post can't find its event, so the event is rolled back with the post.
+    public function test_an_event_whose_post_link_fails_to_save_is_rolled_back_with_the_post()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
+        $metaTable = $this->table('fevent_meta');
+
+        // The link is the only insert into fevent_meta; break that one query.
+        $this->addTestFilter('query', function ($query) use ($metaTable) {
+            return stripos($query, "INSERT INTO `{$metaTable}`") === 0 ? 'INSERT INTO fe_no_such_table VALUES (1)' : $query;
+        });
+
+        try {
+            do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+            $this->fail('A failed link save must not be swallowed.');
+        } catch (\Throwable $e) {
+            // Thrown, as fcom's own hook call expects.
+        }
+
+        $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')), 'The event outlived its post.');
+    }
+
+    // The post renders its card from meta.event_id; without it the event is lost to the post.
+    public function test_an_event_whose_post_update_fails_is_rolled_back_with_the_post()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        $eventsBefore = $this->rowCount($this->table('fevent_event_details'));
+        $metaBefore = $this->rowCount($this->table('fevent_meta'));
+        $postsTable = $this->table('fcom_posts');
+
+        // The post's own event_id is saved with an UPDATE on fcom_posts; break that one query.
+        $this->addTestFilter('query', function ($query) use ($postsTable) {
+            return stripos($query, "UPDATE `{$postsTable}`") === 0 ? 'UPDATE fe_no_such_table SET x = 1' : $query;
+        });
+
+        try {
+            do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+            $this->fail('A failed post update must not be swallowed.');
+        } catch (\Throwable $e) {
+            // Thrown, as fcom's own hook call expects.
+        }
+
+        $this->assertNull(FcomFeed::query()->find($feed->id), 'An event post without its event would render a dead card.');
+        $this->assertSame($eventsBefore, $this->rowCount($this->table('fevent_event_details')), 'The event outlived its post.');
+        $this->assertSame($metaBefore, $this->rowCount($this->table('fevent_meta')), 'The link outlived its post.');
     }
 
     public function test_deleting_the_post_parks_the_event_as_a_draft_with_its_guests()
@@ -188,6 +262,23 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertArrayNotHasKey('space_url', $this->rest('GET', "calendars/{$calendarId}")['data']);
     }
 
+    public function test_the_calendars_list_links_a_space_calendar_to_its_space()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        do_action('fluent_community/feed/just_created_type_event', $this->savePost($this->validate(['space_id' => $spaceId], $request)), $request);
+        $spaceCalendar = CalendarService::findBySpace($spaceId);
+        $siteCalendar = $this->createCalendar();
+
+        $response = $this->rest('GET', 'calendars');
+        $this->assertSame(200, $response['status']);
+        $calendars = array_column($response['data']['calendars'], null, 'id');
+
+        $this->assertSame(FcomSpace::query()->find($spaceId)->getPermalink(), $calendars[$spaceCalendar->id]['space_url']);
+        $this->assertArrayNotHasKey('space_url', $calendars[$siteCalendar->id]);
+    }
+
+
     public function test_the_events_list_links_a_community_event_to_its_post()
     {
         $request = $this->postRequest(['title' => 'Feed link probe']);
@@ -201,6 +292,7 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $events = array_column($response['data']['events']['data'], null, 'id');
 
         $this->assertSame($feed->getPermalink(), $events[CommunityEvents::eventIdOf($feed)]['feed_url']);
+        $this->assertSame($feed->slug, $events[CommunityEvents::eventIdOf($feed)]['feed_slug']);
         $this->assertArrayNotHasKey('feed_url', $events[$plainEvent->id]);
     }
 
@@ -305,12 +397,48 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertSame((int) $event->id, CommunityEvents::eventIdOf($feed), 'The post let go of its event.');
     }
 
+    public function test_a_post_without_a_caption_keeps_the_event_title_when_it_lets_go_of_its_event()
+    {
+        $request = $this->postRequest(['title' => 'Friday Q&A']);
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $request), '');
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $event = Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
+
+        // A site calendar has no space to hold the post, so the post becomes a plain one.
+        $event->calendar_id = $this->createCalendar()->id;
+        $event->save();
+        do_action('fluent_event/event/calendar_changed', $event);
+
+        $feed = FcomFeed::query()->find($feed->id);
+        $this->assertSame('text', $feed->content_type);
+        $this->assertSame(0, CommunityEvents::eventIdOf($feed));
+        $this->assertSame('Friday Q&A', $feed->message, 'The post was left blank.');
+        $this->assertStringContainsString('Friday Q&amp;A', $feed->message_rendered);
+    }
+
+    public function test_a_post_with_a_caption_keeps_it_when_it_lets_go_of_its_event()
+    {
+        $request = $this->postRequest(['title' => 'Friday Q&A']);
+        $feed = $this->savePost($this->validate(['space_id' => $this->createSpace()], $request), 'Bring a laptop.');
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $event = Event::query()->find(CommunityEvents::eventIdOf(FcomFeed::query()->find($feed->id)));
+
+        $event->calendar_id = $this->createCalendar()->id;
+        $event->save();
+        do_action('fluent_event/event/calendar_changed', $event);
+
+        $feed = FcomFeed::query()->find($feed->id);
+        $this->assertSame('text', $feed->content_type);
+        $this->assertSame('Bring a laptop.', $feed->message);
+        $this->assertSame('<p>Bring a laptop.</p>', $feed->message_rendered);
+    }
+
     public function test_the_global_calendar_lookup_reads_the_decoded_meta()
     {
         $this->forgetSiteGlobalCalendar();
 
         // A calendar whose meta only mentions the key, with any value but true, is not the global one.
-        $this->wpdb->insert($this->table('fe_calendars'), [
+        $this->wpdb->insert($this->table('fevent_calendars'), [
             'title'  => 'Lookalike',
             'slug'   => 'fe-test-' . strtolower(wp_generate_password(10, false, false)),
             'status' => 'private',
@@ -427,14 +555,14 @@ class CommunityEventCreationTest extends IntegrationTestCase
         return apply_filters('fluent_community/feed/new_feed_data_type_event', array_merge(['meta' => []], $data), $request);
     }
 
-    private function savePost(array $data)
+    private function savePost(array $data, $message = 'Rolled back.')
     {
         return FcomFeed::create(array_merge($data, [
             'user_id'          => $this->host,
             'title'            => 'Integration event post',
             'slug'             => 'fe-test-' . strtolower(wp_generate_password(10, false, false)),
-            'message'          => 'Rolled back.',
-            'message_rendered' => '<p>Rolled back.</p>',
+            'message'          => $message,
+            'message_rendered' => $message === '' ? '' : '<p>' . esc_html($message) . '</p>',
             'type'             => 'text',
             'privacy'          => 'public',
             'status'           => 'published',

@@ -16,12 +16,23 @@ export const toUtcDay = (value) => Date.parse(`${value.slice(0, 10)}T00:00:00Z`)
 export const toDayKey = (time) => new Date(time).toISOString().slice(0, 10);
 
 /**
+ * The date an event ends on, 'YYYY-MM-DD': one ending at exactly midnight ends the day before,
+ * as calendars show it (22:00 → 00:00 is one evening, not two days).
+ * @param  {string} start
+ * @param  {string} end
+ * @returns {string}
+ */
+export const lastDay = (start, end) => (end > start && /[ T]00:00(:00)?$/.test(end)
+    ? toDayKey(toUtcDay(end) - DAY_MS)
+    : end.slice(0, 10));
+
+/**
  * Inclusive day span between two bounds; 1 when both fall on the same date.
  * @param  {string} start
  * @param  {string} end
  * @returns {number}
  */
-export const daySpan = (start, end) => (toUtcDay(end) - toUtcDay(start)) / DAY_MS + 1;
+export const daySpan = (start, end) => (toUtcDay(lastDay(start, end)) - toUtcDay(start)) / DAY_MS + 1;
 
 // WordPress "Week Starts On" for our dayjs (Element Plus reads it) and, in the portal, fcom's window.dayjs.
 export function applyWeekStart(value, hostDayjs) {
@@ -30,6 +41,31 @@ export function applyWeekStart(value, hostDayjs) {
 
     dayjs.updateLocale('en', { weekStart });
     hostDayjs?.updateLocale('en', { weekStart });
+}
+
+// The site's day and month names from fcom's dateTime18n, for Element Plus to write a picked date with.
+// They go in a copy of "en" under their own name, never into "en" itself: Element Plus keys its picker
+// labels off "en"'s short names, so renaming those breaks the weekday header and the month table.
+// Call after applyWeekStart() so the copy keeps the week start. Returns the name Element Plus should use.
+export const SITE_LOCALE = 'fe-site';
+const DATE_NAME_KEYS = ['weekdays', 'weekdaysShort', 'weekdaysMin', 'months', 'monthsShort'];
+
+export function siteLocale(dateTime18n) {
+    const names = {};
+
+    DATE_NAME_KEYS.forEach((key) => {
+        if (typeof dateTime18n?.[key] === 'string') {
+            names[key] = dateTime18n[key].split('_');
+        }
+    });
+
+    if (!Object.keys(names).length) {
+        return 'en';
+    }
+
+    dayjs.locale({ ...dayjs.Ls.en, ...names, name: SITE_LOCALE }, null, true);
+
+    return SITE_LOCALE;
 }
 
 // "Add to calendar" files (.ics).
@@ -80,7 +116,7 @@ export function buildIcs(event) {
     const lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Fluent Events//EN',
+        'PRODID:-//FluentEvent//EN',
         'CALSCALE:GREGORIAN',
         'BEGIN:VEVENT',
         `UID:fluent-event-${event.id}@${window.location.host}`,

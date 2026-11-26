@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { mount } from '@vue/test-utils';
 import dayjs from 'dayjs';
-import { DAY_MS, toUtcDay, toDayKey, daySpan, icsStamp, buildIcs, downloadIcs } from '@/utils/date';
+import { ElDatePicker, provideGlobalConfig } from 'element-plus';
+import en from 'element-plus/dist/locale/en.mjs';
+import { DAY_MS, toUtcDay, toDayKey, daySpan, lastDay, icsStamp, buildIcs, downloadIcs, applyWeekStart, siteLocale, SITE_LOCALE } from '@/utils/date';
 
 const encoder = new TextEncoder();
 const bytes = (line) => encoder.encode(line).length;
@@ -41,6 +44,19 @@ describe('day arithmetic', () => {
 
     it('spans a leap day correctly', () => {
         expect(daySpan('2028-02-28', '2028-03-01')).toBe(3);
+    });
+
+    // 22:00 → 00:00 is one evening: the end at midnight belongs to the day before.
+    it('ends an event at midnight on the day before', () => {
+        expect(lastDay('2026-11-12 22:00:00', '2026-11-13 00:00:00')).toBe('2026-11-12');
+        expect(daySpan('2026-11-12 22:00:00', '2026-11-13 00:00:00')).toBe(1);
+        expect(daySpan('2026-11-12 10:00:00', '2026-11-14 00:00:00')).toBe(2);
+        expect(lastDay('2026-02-28 20:00:00', '2026-03-01 00:00:00')).toBe('2026-02-28');
+    });
+
+    it('keeps an end just past midnight, and a zero-length midnight event, on their own day', () => {
+        expect(lastDay('2026-11-12 22:00:00', '2026-11-13 00:30:00')).toBe('2026-11-13');
+        expect(lastDay('2026-11-13 00:00:00', '2026-11-13 00:00:00')).toBe('2026-11-13');
     });
 });
 
@@ -156,5 +172,57 @@ describe('downloadIcs', () => {
         expect(clicked.download).toBe('meetup.ics');
         expect(clicked.href).toBe('blob:fake-ics');
         expect(revoke).toHaveBeenCalledWith('blob:fake-ics');
+    });
+});
+
+// fcom's dateTime18n: WordPress-translated names joined with "_", here in Spanish.
+const spanish = {
+    weekdays: 'domingo_lunes_martes_miércoles_jueves_viernes_sábado',
+    weekdaysShort: 'dom_lun_mar_mié_jue_vie_sáb',
+    weekdaysMin: 'do_lu_ma_mi_ju_vi_sá',
+    months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre',
+    monthsShort: 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'
+};
+describe('siteLocale', () => {
+    afterEach(() => {
+        applyWeekStart(0);
+    });
+
+    it("names the site's days and months in its own locale, keeping the WordPress week start", () => {
+        applyWeekStart(6);
+
+        expect(siteLocale(spanish)).toBe(SITE_LOCALE);
+        expect(dayjs('2026-11-14').locale(SITE_LOCALE).format('dddd D MMMM, YYYY')).toBe('sábado 14 noviembre, 2026');
+        expect(dayjs('2026-11-14').locale(SITE_LOCALE).format('ddd dd MMM')).toBe('sáb sá nov');
+        expect(dayjs.Ls[SITE_LOCALE].weekStart).toBe(6);
+    });
+
+    it('leaves "en" alone, since Element Plus keys its picker labels off its short names', () => {
+        siteLocale(spanish);
+
+        expect(dayjs.locale()).toBe('en');
+        expect(dayjs().locale('en').format('ddd MMM')).toMatch(/^[A-Z][a-z]{2} [A-Z][a-z]{2}$/);
+        expect(dayjs.Ls.en.weekdaysShort).toBeUndefined();
+        expect(dayjs.Ls.en.monthsShort).toBeUndefined();
+    });
+
+    it('keeps English for names fcom does not send, and stays on "en" with none', () => {
+        siteLocale({ months: spanish.months });
+
+        expect(dayjs('2026-11-14').locale(SITE_LOCALE).format('dddd D MMMM')).toBe('Saturday 14 noviembre');
+        expect(siteLocale(undefined)).toBe('en');
+    });
+
+    it('makes Element Plus write a picked date in that language', () => {
+        const name = siteLocale(spanish);
+        const wrapper = mount(ElDatePicker, {
+            props: { modelValue: '2026-11-14', type: 'date', format: 'D MMMM, YYYY', valueFormat: 'YYYY-MM-DD' },
+            global: {
+                stubs: { ElInput: false, ElIcon: false, ElTooltip: false },
+                plugins: [{ install: (app) => provideGlobalConfig({ locale: { ...en, name } }, app) }]
+            }
+        });
+
+        expect(wrapper.find('input').element.value).toBe('14 noviembre, 2026');
     });
 });

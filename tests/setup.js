@@ -41,7 +41,7 @@ export const adminVars = () => ({
     },
     baseUrl: 'https://example.test/wp-admin/admin.php?page=fluent-event#/',
     name: 'FluentEvent',
-    hook_prefix: 'fluent-event',
+    hook_prefix: 'fluent_event/',
     logoUrl: 'https://example.test/wp-content/plugins/fluent-events/assets/images/logo.svg',
     me: {
         id: 1,
@@ -54,11 +54,20 @@ export const adminVars = () => ({
 
 export const portalVars = () => ({
     rest_url: 'https://example.test/wp-json/fluent-event/v2',
+    wp_rest_url: 'https://example.test/wp-json/wp/v2',
     is_logged_in: true,
     can_create_events: true,
     default_view: 'timeline',
     disable_view_switch: false,
     start_of_week: 0,
+    route_paths: {
+        events: 'events',
+        create_event: 'events/create',
+        edit_event: 'events/:event_slug/edit',
+        event_view: 'events/:event_slug',
+        space_events: 'events',
+        space_event_view: 'events/:event_slug'
+    },
     i18n: {}
 });
 

@@ -7,6 +7,16 @@
 @include meta.load-css("element-plus/theme-chalk/dark/css-vars");
 
 .toplevel_page_fluent-event {
+    // Element Plus colours tag text with the base hue, 2–2.8:1 on its pale light-mode fill. One class
+    // deeper than its `.el-tag.el-tag--x`, which loads after ours.
+    .el-tag.el-tag {
+        &--success { --el-tag-text-color: var(--fe-tag-success, #1a7f37); }
+        &--warning { --el-tag-text-color: var(--fe-tag-warning, #8a5a00); }
+        &--primary { --el-tag-text-color: var(--fe-tag-primary, #135e96); }
+        &--info { --el-tag-text-color: var(--fe-tag-info, #525866); }
+        &--danger { --el-tag-text-color: var(--fe-tag-danger, #cf222e); }
+    }
+
     .el {
         &-select {
             width: 100%;
@@ -23,25 +33,6 @@
             &-multiple {
                 input {
                     height: 40px !important;
-                }
-            }
-
-            .el-input.is-focus {
-                input {
-                    &:focus {
-                        outline: none !important;
-                        box-shadow: none !important;
-                        border-color: var(--fe-primary-button, #2b2e33);
-                    }
-                }
-            }
-
-            &:hover,
-            &:focus {
-                .el-input {
-                    input {
-                        box-shadow: none !important;
-                    }
                 }
             }
         }
@@ -76,11 +67,6 @@
         &-popover {
             padding: var(--fe-space-3, 12px);
             text-align: left;
-
-            .action-buttons {
-                margin: 0;
-                text-align: center;
-            }
         }
 
         &-button {
@@ -575,6 +561,26 @@
     @media screen and (max-width: 782px) {
         .el-calendar {
             overflow-x: auto;
+        }
+
+        // iOS Safari zooms into a focused field under 16px. Core gives wp-admin fields 16px here;
+        // Element Plus's `font-size: inherit` takes it back on its own fields.
+        .el-input__inner,
+        .el-textarea__inner,
+        .el-select__input,
+        .el-date-editor .el-range-input {
+            font-size: 16px;
+        }
+    }
+
+    // The event form's day picker is 324px and runs off a 320px phone. Narrower side margins make it 310px.
+    @media screen and (max-width: 339px) {
+        .fe-date-popper .el-date-picker {
+            width: 308px;
+        }
+
+        .fe-date-popper .el-picker-panel__content {
+            margin-inline: 8px;
         }
     }
 }

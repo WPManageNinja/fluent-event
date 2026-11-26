@@ -14,14 +14,57 @@ jQuery(document).on('heartbeat-tick', (event, data) => {
 });
 
 // -------------------------------------
-// Toggle theme mode 
+// Color theme: Light, Dark or System
 // -------------------------------------
-const applyColorMode = (mode) => {
-    const isDark = mode === 'dark';
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.classList.toggle('light', !isDark);
+// Shared with every Fluent plugin through `fluent_theme_mode` (`light`, `dark`, `system:<resolved>`).
+const THEME_KEY = 'fluent_theme_mode';
+const DARK_CLASS = 'fluent_theme_dark';
+const COLOR_MODES = ['light', 'dark', 'system'];
+const systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+const readColorMode = () => {
+    let mode = '';
+    try {
+        mode = String(localStorage.getItem(THEME_KEY) || '').split(':')[0];
+    } catch (e) {}
+
+    return COLOR_MODES.includes(mode) ? mode : 'system';
 };
-applyColorMode(localStorage.getItem('fe_color_mode') === 'dark' ? 'dark' : 'light');
+
+const applyColorMode = (mode, store = true) => {
+    const resolved = mode === 'system' ? (systemDark?.matches ? 'dark' : 'light') : mode;
+    const isDark = resolved === 'dark';
+    const root = document.documentElement;
+
+    root.classList.toggle(DARK_CLASS, isDark);
+    root.classList.toggle('dark', isDark);
+    root.setAttribute('data-fe-theme', mode);
+    document.body.classList.toggle(DARK_CLASS, isDark);
+
+    document.querySelectorAll('.fe-navbar__mode-item').forEach((item) => {
+        item.setAttribute('aria-checked', String(item.dataset.mode === mode));
+    });
+
+    if (store) {
+        try {
+            localStorage.setItem(THEME_KEY, mode === 'system' ? `system:${resolved}` : mode);
+        } catch (e) {}
+    }
+};
+
+window.addEventListener('storage', (event) => {
+    if (event.key === THEME_KEY) {
+        applyColorMode(readColorMode(), false);
+    }
+});
+
+systemDark?.addEventListener?.('change', () => {
+    if (readColorMode() === 'system') {
+        applyColorMode('system');
+    }
+});
+
+applyColorMode(readColorMode());
 
 
 // -------------------------------------
@@ -41,11 +84,18 @@ const setMobileMenu = (open) => {
 // -------------------------------------
 // Toggle navbar dropdowns (the Settings menu)
 // -------------------------------------
+const dropdownTrigger = (menu) =>
+    menu.parentElement?.querySelector(`[aria-controls="${menu.id}"]`);
+
+const menuItems = (menu) => [...menu.querySelectorAll('[role^="menuitem"]')];
+
 const setNavbarDropdown = (menu, open) => {
     menu.classList.toggle('fe-navbar__dropdown--open', open);
-    menu.parentElement
-        ?.querySelector(`[aria-controls="${menu.id}"]`)
-        ?.setAttribute('aria-expanded', String(open));
+    dropdownTrigger(menu)?.setAttribute('aria-expanded', String(open));
+
+    if (open && menu.getAttribute('role') === 'menu') {
+        (menu.querySelector('[aria-checked="true"]') || menuItems(menu)[0])?.focus();
+    }
 };
 
 const closeNavbarDropdowns = () => {
@@ -57,18 +107,24 @@ const closeNavbarDropdowns = () => {
 // -------------------------------------
 // Global window functions for mobile menu and dropdowns
 // -------------------------------------
-window.toggleMobileMenu = function () {
+window.fluentEventToggleMobileMenu = function () {
     setMobileMenu(!isMobileMenuOpen());
 };
 
-window.toggleColorMode = function () {
-    const mode = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+window.fluentEventSetColorMode = function (mode) {
+    if (!COLOR_MODES.includes(mode)) return;
 
     applyColorMode(mode);
-    localStorage.setItem('fe_color_mode', mode);
+    // FluentCart listens on this channel, not the `storage` event.
+    if (typeof BroadcastChannel !== 'undefined') {
+        const channel = new BroadcastChannel('fluent_theme_changed:' + window.location.origin);
+        channel.postMessage({ mode });
+        channel.close();
+    }
+    document.querySelector('[aria-controls="fe-navbar-color-mode-menu"]')?.focus();
 };
 
-window.toggleNavbarDropdown = function (id) {
+window.fluentEventToggleNavbarDropdown = function (id) {
     const menu = document.getElementById(id);
     if (!menu) return;
 
@@ -85,12 +141,26 @@ document.addEventListener('click', (event) => {
         setMobileMenu(false);
     }
 
-    if (!event.target.closest('.fe-navbar__link--toggle')) {
+    if (!event.target.closest('.fe-navbar__link--toggle, .fe-navbar__color-mode')) {
         closeNavbarDropdowns();
     }
 });
 
 document.addEventListener('keydown', (event) => {
+    const openMenu = document.querySelector('.fe-navbar__dropdown--open[role="menu"]');
+
+    if (openMenu && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+        event.preventDefault();
+
+        const items = menuItems(openMenu);
+        const index = items.indexOf(document.activeElement);
+        const step = event.key === 'ArrowDown' ? 1 : -1;
+        const next = index === -1 ? (step === 1 ? 0 : items.length - 1) : index + step;
+
+        items[(next + items.length) % items.length]?.focus();
+        return;
+    }
+
     if (event.key !== 'Escape') return;
 
     if (isMobileMenuOpen()) {
@@ -98,5 +168,18 @@ document.addEventListener('keydown', (event) => {
         navbarToggle?.focus();
     }
 
+    if (openMenu?.contains(document.activeElement)) {
+        dropdownTrigger(openMenu)?.focus();
+    }
+
     closeNavbarDropdowns();
+});
+
+document.addEventListener('focusout', (event) => {
+    const menu = event.target.closest?.('.fe-navbar__dropdown--open[role="menu"]');
+    const wrapper = menu?.parentElement;
+
+    if (wrapper && event.relatedTarget && !wrapper.contains(event.relatedTarget)) {
+        setNavbarDropdown(menu, false);
+    }
 });

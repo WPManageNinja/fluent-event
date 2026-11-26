@@ -13,6 +13,19 @@ export function t(text, ...args) {
     });
 }
 
+// Element Plus's built-in strings (date picker, calendar, pagination, select…) in the site's language: fcom
+// translates them for its own app as el_i18n, and we lay the same set over our English locale. A string
+// fcom leaves out keeps its English; the shared locale object is not changed.
+export function elementLocale(locale, translations) {
+    const el = { ...locale.el };
+
+    Object.keys(translations || {}).forEach((group) => {
+        el[group] = { ...el[group], ...translations[group] };
+    });
+
+    return { ...locale, el };
+}
+
 // One REST client for the portal: FluentEvent routes and FluentCommunity's own feed routes.
 async function request(base, method, route, data) {
     const fcomRest = (window.fluentComAdmin && window.fluentComAdmin.rest) || {};
@@ -50,7 +63,16 @@ async function request(base, method, route, data) {
 export const eventsApi = {
     get: (route, data) => request(portalVars().rest_url, 'GET', route, data),
     post: (route, data) => request(portalVars().rest_url, 'POST', route, data),
+    patch: (route, data) => request(portalVars().rest_url, 'PATCH', route, data),
 };
+
+// Event covers and description images are media library attachments: the event owns them, not its post.
+export async function uploadMedia(file) {
+    const data = new FormData();
+    data.append('file', file);
+
+    return (await request(portalVars().wp_rest_url, 'POST', 'media', data)).source_url;
+}
 
 export const communityApi = {
     get: (route, data) => request(window.fluentComAdmin.rest.url, 'GET', route, data),
@@ -160,10 +182,33 @@ export function hasEventActions(event) {
     return event.is_past || ['rsvp', 'open'].includes(event.entry_type);
 }
 
+// The going count, out of the capacity when the spots left show too; with only the spots left on, those until the end.
 export function guestCountLabel(event) {
     if (event.guest_count === null || event.guest_count === undefined) {
-        return '';
+        return event.is_past ? '' : spotsLeftLabel(event);
+    }
+
+    if (hasSpotsLeft(event)) {
+        return t('%1$s out of %2$s going', event.guest_count, event.capacity);
     }
 
     return t('%s going', event.guest_count);
+}
+
+// Whether the host shows the spots left on this capped event.
+export function hasSpotsLeft(event) {
+    return event.spots_left !== null && event.spots_left !== undefined;
+}
+
+export function spotsLeftLabel(event) {
+    if (!event.spots_left) {
+        return '';
+    }
+
+    return event.spots_left === 1 ? t('1 spot left') : t('%d spots left', event.spots_left);
+}
+
+// fcom titles its own pages "<title> - <site>"; ours would keep the previous page's tab title.
+export function setPageTitle(title) {
+    document.title = [title, (window.fluentComAdmin || {}).site_title].filter(Boolean).join(' - ');
 }

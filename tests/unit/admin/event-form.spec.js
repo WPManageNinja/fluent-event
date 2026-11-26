@@ -59,11 +59,11 @@ describe('CreateOrUpdateEvent', () => {
             });
         });
 
-        it('defaults to a public RSVP event in the site timezone', () => {
+        it('defaults to a public open-registration event in the site timezone', () => {
             window.fluentEventAdmin.timezone = 'Asia/Dhaka';
             const { vm } = form();
 
-            expect(vm.event).toMatchObject({ status: 'public', entry_type: 'rsvp', show_guest_count: 'yes', timezone: 'Asia/Dhaka' });
+            expect(vm.event).toMatchObject({ status: 'public', entry_type: 'open', show_guest_count: 'yes', timezone: 'Asia/Dhaka' });
         });
 
         it("uses the browser's timezone when the site's is not a real zone", () => {
@@ -103,11 +103,12 @@ describe('CreateOrUpdateEvent', () => {
                     end_at_local: '2026-11-02 21:00:00',
                     timezone: 'Europe/Berlin',
                     venue_type: 'online',
-                    meta: { online_meeting_url: 'https://meet.example.test/x', entry_type: 'open', show_guest_count: 'no' }
+                    meta: { online_meeting_url: 'https://meet.example.test/x', entry_type: 'open', show_guest_count: 'no', description_md: 'Chapter **4**' }
                 }
             });
 
             expect(vm.event).toMatchObject({
+                description_md: 'Chapter **4**',
                 calendar_id: 3,
                 status: 'private',
                 start_date: '2026-11-02',
@@ -130,6 +131,78 @@ describe('CreateOrUpdateEvent', () => {
         });
     });
 
+    describe('cloning', () => {
+        const source = {
+            id: 12,
+            calendar_id: 3,
+            status: 'private',
+            title: 'Book club',
+            start_at_local: '2026-11-02 19:30:00',
+            end_at_local: '2026-11-02 21:00:00',
+            timezone: 'Europe/Berlin',
+            venue_type: 'offline',
+            meta: { venue: 'Library', entry_type: 'open', capacity: 20, show_spots_left: 'yes', description_md: 'Chapter **4**' }
+        };
+
+        it('prefills the create form from the event named in ?clone=, loaded by its slug', () => {
+            const { vm, request } = form({ query: { clone: 'book-club' } });
+            const load = request('events/by-slug');
+
+            expect(load.payload).toEqual({ slug: 'book-club' });
+            // A wrong slug is not the 404 page for the create form.
+            expect(load.notFoundPage).toBe(false);
+
+            load.onSuccess({ event: source });
+
+            expect(vm.isEditing).toBe(false);
+            expect(vm.event).toMatchObject({ calendar_id: 3, status: 'private', title: 'Book club', start_date: '2026-11-02', start_time: '19:30', venue: 'Library', entry_type: 'open', capacity: 20, description_md: 'Chapter **4**' });
+        });
+
+        it('falls back to open registration when the source has no entry type saved', () => {
+            const { vm, request } = form({ query: { clone: 'book-club' } });
+            request('events/by-slug').onSuccess({ event: { ...source, meta: { ...source.meta, entry_type: '' } } });
+
+            expect(vm.event.entry_type).toBe('open');
+        });
+
+        it("keeps the source's calendar when the calendars load", () => {
+            const { vm, request } = form({ query: { clone: 'book-club', calendar_id: '2' } });
+            request('events/by-slug').onSuccess({ event: source });
+
+            request('calendars/options').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
+
+            expect(vm.event.calendar_id).toBe(3);
+        });
+
+        // The create form stays usable: no blocking error panel, a toast says why, and a calendar is picked.
+        it('leaves a blank create form when the source cannot be loaded', () => {
+            const { vm, request } = form({ query: { clone: 'gone' } });
+            const load = request('events/by-slug');
+            vm.$handleError = vi.fn();
+
+            expect(load.errorState).toBe(null);
+
+            load.onError({ status: 404, message: 'This event is not available.' });
+            request('calendars/options').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
+
+            expect(vm.$handleError).toHaveBeenCalledWith('The event to clone was not found.');
+            expect(vm.error).toBe('');
+            expect(vm.event.title).toBe('');
+            expect(vm.event.calendar_id).toBe(2);
+        });
+
+        it('creates a new event instead of changing the source', () => {
+            const { vm, request, requestServer } = form({ query: { clone: 'book-club' } });
+            request('events/by-slug').onSuccess({ event: source });
+
+            vm.saveEvent();
+            const save = requestServer.mock.calls.at(-1)[0];
+
+            expect(save).toMatchObject({ method: 'post', path: 'events' });
+            expect(save.payload).toMatchObject({ title: 'Book club', calendar_id: 3, start_at: '2026-11-02 19:30:00' });
+        });
+    });
+
     describe('dates', () => {
         it('pulls the end date forward when the start moves past it', () => {
             const { vm } = form();
@@ -138,6 +211,32 @@ describe('CreateOrUpdateEvent', () => {
             vm.syncEndDate();
 
             expect(vm.event.end_date).toBe('2026-10-25');
+        });
+    });
+
+    describe('description images', () => {
+        afterEach(() => {
+            delete window.wp;
+        });
+
+        it('upload to the media library and hand back the URL', async () => {
+            window.wp = { apiFetch: vi.fn(() => Promise.resolve({ id: 9, source_url: 'https://example.test/uploads/walk.png' })) };
+            const { vm } = form();
+            const file = new File(['x'], 'walk.png', { type: 'image/png' });
+
+            await expect(vm.uploadImage(file)).resolves.toBe('https://example.test/uploads/walk.png');
+
+            const request = window.wp.apiFetch.mock.calls[0][0];
+            expect(request).toMatchObject({ path: '/wp/v2/media', method: 'POST' });
+            expect(request.body.get('file')).toBe(file);
+        });
+
+        it("show WordPress's reason when an upload is refused", async () => {
+            window.wp = { apiFetch: vi.fn(() => Promise.reject({ code: 'rest_upload_sideload_error', message: 'Sorry, you are not allowed to upload this file type.' })) };
+            const { vm } = form();
+
+            await expect(vm.uploadImage(new File(['x'], 'a.exe'))).rejects.toMatchObject({ code: 'rest_upload_sideload_error' });
+            expect(ElNotification).toHaveBeenCalledWith(expect.objectContaining({ type: 'error', message: 'Sorry, you are not allowed to upload this file type.' }));
         });
     });
 
@@ -151,6 +250,9 @@ describe('CreateOrUpdateEvent', () => {
 
             expect(save.method).toBe('post');
             expect(save.payload).toMatchObject({ start_at: '2026-10-20 18:00:00', end_at: '2026-10-20 20:00:00', calendar_id: 3 });
+            // The markdown only; the server renders the HTML from it.
+            expect(save.payload).not.toHaveProperty('description');
+            expect(save.payload).toHaveProperty('description_md', '');
 
             save.onSuccess({ event: { id: 55 } });
             expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 55 } });
@@ -190,6 +292,15 @@ describe('CreateOrUpdateEvent', () => {
             vm.saveEvent();
 
             expect(request('events').payload).toMatchObject({ title: '', calendar_id: null, end_at: '2026-10-20 17:00:00' });
+        });
+
+        it('sends an emptied capacity as 0, the unlimited value', () => {
+            const { vm, request } = form();
+            filled(vm, { capacity: null });
+
+            vm.saveEvent();
+
+            expect(request('events').payload.capacity).toBe(0);
         });
 
         describe('when the server rejects it', () => {

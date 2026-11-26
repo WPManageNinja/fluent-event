@@ -50,11 +50,15 @@
     }
 
     &__number.el-input-number {
+        flex: none;
         width: 96px;
     }
 
+    // Grows to 200px and wraps under the number when the card is narrow.
     &__unit.el-select {
-        width: 200px;
+        flex: 1 1 112px;
+        max-width: 200px;
+        min-width: 0;
     }
 
     &__times {
@@ -67,6 +71,8 @@
     &__time {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
         gap: var(--fe-space-2, 8px);
     }
 
@@ -87,6 +93,13 @@
         min-width: 0;
     }
 
+    &__toggle-actions {
+        display: flex;
+        flex: none;
+        align-items: center;
+        gap: var(--fe-space-3, 12px);
+    }
+
     &__toggle-title {
         display: block;
         font-size: var(--fe-text-sm, 14px);
@@ -97,6 +110,8 @@
 
     &__panel {
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
         gap: var(--fe-space-3, 12px);
         padding: var(--fe-space-4, 16px);
         border: 1px solid var(--fe-primary-border, #eaecf0);
@@ -174,6 +189,8 @@
     &__switch-row {
         display: flex;
         align-items: center;
+        // Switches end the row, so they line up however long each label runs.
+        justify-content: space-between;
         gap: var(--fe-space-3, 12px);
     }
 
@@ -244,6 +261,13 @@
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
+    }
+
+    // A section title with a help button beside it.
+    &__section-title--info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
     &__section-desc {
@@ -595,7 +619,7 @@
     }
 
     &__group-count {
-        color: var(--fe-tertiary-text, #6b7280);
+        color: var(--fe-secondary-text, #525866);
         font-variant-numeric: tabular-nums;
     }
 
@@ -616,6 +640,7 @@
         margin: 0;
         padding: var(--fe-space-3, 12px) var(--fe-space-4, 16px);
         border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        cursor: pointer;
 
         &:last-child {
             border-bottom: 0;
@@ -623,6 +648,11 @@
 
         &:hover {
             background-color: var(--fe-hover-bg, #f9fafb);
+        }
+
+        // The status, counts and buttons don't open the calendar.
+        [data-row-click="off"] {
+            cursor: default;
         }
 
         @media screen and (max-width: 782px) {
@@ -778,6 +808,12 @@
         line-height: 1.4;
         color: var(--fe-secondary-text, #525866);
 
+        // Four tabs fit a 360px phone.
+        @media screen and (max-width: 480px) {
+            padding-right: var(--fe-space-2, 8px);
+            padding-left: var(--fe-space-2, 8px);
+        }
+
         &::after {
             content: '';
             position: absolute;
@@ -809,6 +845,69 @@
                 background-color: var(--fe-primary-text, #19283a);
             }
         }
+    }
+}
+
+// The event's settings, read-only, above the danger zone: each setting's name, then what it is set to.
+.fe-event-settings {
+    margin-bottom: var(--fe-space-5, 20px);
+    padding: 0;
+    overflow: hidden;
+
+    // Same bar as the danger zone's title, so the two cards read as a pair.
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--fe-space-3, 12px);
+        padding: var(--fe-space-3, 12px) var(--fe-space-5, 20px);
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        background-color: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__title {
+        margin: 0;
+        font-size: var(--fe-text-base, 16px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__list {
+        margin: 0;
+        padding: 0 var(--fe-space-5, 20px);
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        align-items: center;
+        gap: var(--fe-space-4, 16px);
+        min-height: 52px;
+        padding: var(--fe-space-3, 12px) 0;
+        font-size: var(--fe-text-sm, 14px);
+
+        & + .fe-event-settings__row {
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
+        }
+
+        @media screen and (max-width: 575px) {
+            grid-template-columns: minmax(0, 1fr);
+            gap: var(--fe-space-1, 4px);
+        }
+    }
+
+    &__label {
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__value {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--fe-space-2, 8px) var(--fe-space-5, 20px);
+        margin: 0;
+        font-weight: 500;
+        color: var(--fe-primary-text, #19283a);
     }
 }
 
@@ -853,8 +952,9 @@
         color: var(--fe-primary-text, #19283a);
     }
 
-    &__input {
-        display: block;
+    // .el-input sets inline-flex and loads after us, so this needs its class to win.
+    &__input.el-input {
+        display: flex;
         max-width: 480px;
         margin-bottom: var(--fe-space-4, 16px);
 
@@ -896,6 +996,15 @@
         display: block;
         max-width: 100%;
         overflow-x: auto;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 6px 12px;
+        border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+        text-align: left;
+        vertical-align: top;
     }
 
     > :first-child { margin-top: 0; }
@@ -950,6 +1059,24 @@
         border: 0;
         border-top: 1px solid var(--fe-primary-border, #eaecf0);
     }
+
+    code {
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: var(--fe-secondary-bg, #f3f5fa);
+        font-size: 0.9em;
+    }
+
+    pre {
+        padding: 12px 14px;
+        border-radius: var(--fe-radius, 8px);
+        background: var(--fe-secondary-bg, #f3f5fa);
+
+        code {
+            padding: 0;
+            background: none;
+        }
+    }
 }
 
 .fe-calendar-detail {
@@ -996,8 +1123,10 @@
         gap: var(--fe-space-2, 8px);
         flex-wrap: wrap;
 
+        // A long unbroken title wraps instead of running under the actions.
         .fe-page__title {
             margin: 0;
+            overflow-wrap: anywhere;
         }
     }
 
@@ -1012,6 +1141,7 @@
 
     &__slug {
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        overflow-wrap: anywhere;
     }
 
     &__actions {
@@ -1041,6 +1171,19 @@
         display: flex;
         align-items: center;
         gap: var(--fe-space-2, 8px);
+    }
+
+    // The dropdown is as wide as the field, so a long calendar name ends in "…" and keeps its status tag.
+    &__calendar-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__calendar-swatch,
+    &__calendar-status {
+        flex-shrink: 0;
     }
 
     &__calendar-status {
@@ -1102,6 +1245,11 @@
             flex: 1 1 0;
             min-width: 0;
         }
+    }
+
+    &__capacity.el-input-number {
+        width: 220px;
+        max-width: 100%;
     }
 }
 
@@ -1676,11 +1824,20 @@
             margin: 0;
         }
 
+        // Never wider than the card, so a long date format fits on a phone.
         .el-date-editor {
-            width: 280px;
-            max-width: 280px;
-            flex-shrink: 0;
+            --el-date-editor-width: 280px;
+            flex: none;
+            max-width: 100%;
             margin-left: auto;
+
+            &.fe-dashboard__range--wide {
+                --el-date-editor-width: 370px;
+
+                .el-range-input {
+                    width: 43%;
+                }
+            }
         }
     }
 
@@ -1809,8 +1966,33 @@
         grid-template-columns: 160px 16px minmax(0, 1fr);
         column-gap: var(--fe-space-4, 16px);
 
-        @media screen and (max-width: 575px) {
-            grid-template-columns: 80px 16px minmax(0, 1fr);
+        // A phone can't spare a date column: the line keeps a thin rail, the date sits on one line above the card.
+        @media screen and (max-width: 640px) {
+            grid-template-columns: 12px minmax(0, 1fr);
+
+            .fe-events-timeline__gutter {
+                grid-column: 2;
+                grid-row: 1;
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+                padding: 4px 0 8px;
+            }
+
+            .fe-events-timeline__dot {
+                grid-column: 1;
+                grid-row: 1 / span 2;
+
+                // Level with the date line.
+                &::before {
+                    top: 10px;
+                }
+            }
+
+            .fe-event-card {
+                grid-column: 2;
+                grid-row: 2;
+            }
         }
     }
 
@@ -1847,10 +2029,6 @@
         font-weight: 600;
         line-height: 1.4;
         color: var(--fe-primary-text, #19283a);
-
-        @media screen and (max-width: 575px) {
-            font-size: var(--fe-text-xs, 12px);
-        }
     }
 
     &__weekday {
@@ -1958,6 +2136,30 @@
         border: 1px solid var(--fe-primary-border, #eaecf0);
         border-radius: var(--fe-radius-lg, 12px);
         background-color: var(--fe-primary-bg, #ffffff);
+
+        // Phones: the week scrolls sideways with the hours pinned left.
+        // The body drops its own vertical scroll, or the pin can't follow.
+        @media screen and (max-width: 767px) {
+            overflow-x: auto;
+
+            .fe-events-grid__week-head,
+            .fe-events-grid__week-body {
+                min-width: 560px;
+            }
+
+            .fe-events-grid__week-body {
+                max-height: none;
+                overflow: visible;
+            }
+
+            .fe-events-grid__week-gutter,
+            .fe-events-grid__week-times {
+                position: sticky;
+                left: 0;
+                z-index: 2;
+                background-color: var(--fe-primary-bg, #ffffff);
+            }
+        }
     }
 
     &__week-head {
@@ -2172,6 +2374,150 @@
         color: var(--fe-primary-text, #19283a);
     }
 
+    // Phones: the whole day is the tap target, with up to three bars.
+    &__day-button {
+        display: none;
+        position: absolute;
+        inset: 0;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 2px;
+        padding: 0 5px 6px;
+        border: 0;
+        background: none;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-wp-link, #2271b1);
+            outline-offset: -2px;
+        }
+
+        &[aria-pressed="true"] {
+            box-shadow: inset 0 0 0 2px var(--fe-primary-text, #19283a);
+        }
+    }
+
+    &__bar {
+        display: block;
+        height: 3px;
+        border-radius: 2px;
+        background-color: var(--fe-event-color, var(--fe-secondary-text, #525866));
+    }
+
+    // Phones only: the tapped day's events.
+    &__agenda {
+        display: none;
+        gap: 6px;
+        margin-top: var(--fe-space-5, 20px);
+        // Clears the admin bar and our header when scrolled into view.
+        scroll-margin: 110px 0 16px;
+    }
+
+    &__agenda-date {
+        display: flex;
+        align-items: baseline;
+        gap: var(--fe-space-2, 8px);
+        margin: 0 0 6px;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__agenda-number {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__agenda-weekday {
+        font-size: var(--fe-text-xs, 12px);
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    // Like an entry, but the title wraps.
+    &__agenda-event {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 12px;
+        border: 0;
+        border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        background-color: color-mix(
+            in srgb,
+            var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 12%,
+            transparent
+        );
+        cursor: pointer;
+        text-align: left;
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.4;
+        color: var(--fe-primary-text, #19283a);
+
+        &:hover {
+            background-color: color-mix(
+                in srgb,
+                var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 22%,
+                transparent
+            );
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-wp-link, #2271b1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__agenda-event-time {
+        flex-shrink: 0;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__agenda-event-title {
+        min-width: 0;
+        font-weight: 500;
+    }
+
+    &__agenda-empty {
+        margin: 0;
+        padding: var(--fe-space-3, 12px) 0;
+        font-size: var(--fe-text-sm, 14px);
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    // Phones: bars instead of entries, and the tapped day's list below.
+    @media screen and (max-width: 767px) {
+        // Outranks vendor.scss, which may load later.
+        .el-calendar-table td .el-calendar-day {
+            height: 52px;
+            min-height: 0;
+        }
+
+        &__cell {
+            position: relative;
+            align-items: center;
+            height: 100%;
+            padding: 6px 4px;
+        }
+
+        &__entries {
+            display: none;
+        }
+
+        &__day-button {
+            display: flex;
+        }
+
+        &__agenda {
+            display: grid;
+        }
+    }
+
     &__skeleton-header {
         display: flex;
         align-items: center;
@@ -2259,9 +2605,18 @@
         // The calendar badge is the same box, tinted with the calendar's own
         // hue. color-mix is progressive: without it the neutral badge stands.
         &.fe-event-card__badge--calendar {
+            max-width: 100%;
             color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 72%, var(--fe-primary-text, #19283a));
             background-color: color-mix(in srgb, var(--fe-calendar-hue, #9ca3af) 12%, transparent);
         }
+    }
+
+    // One line ending in "…": the badge's height is pinned, so a long calendar name cannot wrap.
+    &__badge-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     &__title {
@@ -2316,7 +2671,8 @@
         color: var(--fe-secondary-text, #525866);
     }
 
-    &__venue {
+    &__venue,
+    &__guests {
         display: inline-flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);
@@ -2530,12 +2886,14 @@
         color: var(--fe-primary-text, #19283a);
     }
 
+    // "anywhere", not "break-word": only it lets the flex row shrink, so an unbroken venue wraps inside the card.
     &__row-title {
         margin: 0;
         font-size: var(--fe-text-base, 16px);
         font-weight: 500;
         line-height: 1.5;
         color: var(--fe-primary-text, #19283a);
+        overflow-wrap: anywhere;
     }
 
     &__row-link {
@@ -2567,10 +2925,16 @@
         font-size: var(--fe-text-sm, 14px);
         line-height: 1.4;
         color: var(--fe-secondary-text, #525866);
+        overflow-wrap: anywhere;
 
         &--muted {
             font-size: var(--fe-text-xs, 12px);
             color: var(--fe-tertiary-text, #6B7280);
+        }
+
+        // The address is typed in a textarea; keep the lines it was typed on.
+        &.fe-event-overview__row-text--address {
+            white-space: pre-line;
         }
     }
 
@@ -2595,6 +2959,77 @@
         &__info {
             width: 100%;
         }
+    }
+}
+
+.fe-share-modal {
+    &__title {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+    }
+
+    &__note,
+    &__text {
+        margin: 0 0 var(--fe-space-3, 12px);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    &__note {
+        margin-bottom: 0;
+    }
+
+    // The shortcode is the button's label, so it must wrap rather than overflow the dialog.
+    .fe-share-modal__shortcode {
+        height: auto;
+        max-width: 100%;
+        padding: var(--fe-space-2, 8px) var(--fe-space-3, 12px);
+        white-space: normal;
+        text-align: left;
+    }
+
+    &__shortcode-text {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: var(--fe-text-sm, 14px);
+        overflow-wrap: anywhere;
+    }
+
+    &__link {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+
+        .el-button + .el-button {
+            margin-left: 0;
+        }
+    }
+
+    &__url {
+        flex: 1;
+        min-width: 0;
+        box-sizing: border-box;
+        height: var(--fe-control-height, 36px);
+        padding: 0 var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: calc(var(--fe-control-height, 36px) - 2px);
+        color: var(--fe-primary-text, #19283a);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    // A screenshot of the light block editor, in either admin theme; the border keeps its edge on light.
+    &__image {
+        display: block;
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
     }
 }
 
@@ -2651,6 +3086,55 @@
             font-weight: inherit;
             color: inherit;
         }
+    }
+
+    &__select {
+        display: flex;
+        flex: 0 0 20px;
+        align-items: center;
+    }
+
+    // Lives in the head row, so it undoes the head's uppercase column-title type.
+    &__bulk {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
+        min-width: 0;
+        // The checkbox's height: the row stays the same size with or without a selection.
+        height: 32px;
+        font-weight: 400;
+        letter-spacing: normal;
+        text-transform: none;
+    }
+
+    &__bulk-count {
+        // The checkbox's height, so a wrapped bar keeps the count level with the checkbox.
+        line-height: 32px;
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    // vendor.scss sets every button to the 36px control height, which size="small" alone can't undo.
+    &__bulk-action.el-button {
+        height: 28px;
+        margin-left: 0;
+        padding: 0 var(--fe-space-3, 12px);
+    }
+
+    &__clear.el-button {
+        --el-button-text-color: var(--fe-primary-text, #19283a);
+        --el-button-hover-link-text-color: var(--fe-secondary-text, #525866);
+        height: auto;
+        margin: 0 var(--fe-space-2, 8px) 0 0;
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    &__bulk-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-2, 8px);
     }
 
     &__serial {
@@ -2714,10 +3198,10 @@
         gap: var(--fe-space-1, 4px);
     }
 
+    // Wraps inside the column: unwrapped, a long check-in date widens this row's cell and shifts its other columns.
     &__time {
         font-size: var(--fe-text-xs, 12px);
         line-height: 1.3;
-        white-space: nowrap;
         color: var(--fe-secondary-text, #525866);
     }
 
@@ -2782,12 +3266,12 @@
     @media screen and (max-width: 782px) {
         &__row {
             display: grid;
-            grid-template-columns: 40px minmax(0, 1fr) auto;
+            grid-template-columns: 20px 40px minmax(0, 1fr) auto;
             grid-template-areas:
-                "avatar name    actions"
-                "avatar email   actions"
-                "avatar source  actions"
-                "stage  stage   stage";
+                "select avatar name    actions"
+                "select avatar email   actions"
+                "select avatar source  actions"
+                "stage  stage  stage   stage";
             gap: 0 var(--fe-space-3, 12px);
             padding: var(--fe-space-2, 8px);
             border: 1px solid var(--fe-primary-border, #eaecf0);
@@ -2801,9 +3285,35 @@
                 border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
             }
             
+            // Kept for select-all and the bulk bar; the column titles have no column to name on a card.
             &.fe-guests__row--head {
-                display: none;
+                display: flex;
+                align-items: flex-start;
+
+                .fe-guests__avatar,
+                .fe-guests__name,
+                .fe-guests__email,
+                .fe-guests__source,
+                .fe-guests__stage,
+                .fe-guests__actions {
+                    display: none;
+                }
             }
+        }
+
+        &__select {
+            grid-area: select;
+        }
+
+        &__bulk {
+            flex-wrap: wrap;
+            height: auto;
+            row-gap: var(--fe-space-1, 4px);
+        }
+
+        // The buttons take their own line under the count, so nothing is left dangling.
+        &__bulk-actions {
+            flex-basis: 100%;
         }
 
         &__serial {
@@ -2911,6 +3421,9 @@
 }
 
 .fe-event-detail {
+    // Inherited by every row: an unbroken title, venue or address would otherwise scroll the drawer sideways.
+    overflow-wrap: anywhere;
+
     > :first-child {
         margin-top: 0;
     }
@@ -3026,6 +3539,10 @@
             font-size: var(--fe-text-xs, 12px);
             color: var(--fe-tertiary-text, #6B7280);
         }
+
+        &.fe-event-detail__row-text--address {
+            white-space: pre-line;
+        }
     }
 
     &__row-link {
@@ -3037,9 +3554,15 @@
         color: var(--fe-wp-link, #2271b1);
     }
 
-    &__action {
-        width: 100%;
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--fe-space-2, 8px);
         margin-top: var(--fe-space-5, 20px);
+
+        .el-button + .el-button {
+            margin-left: 0;
+        }
     }
 
     &__section {
@@ -3056,6 +3579,272 @@
     }
 
     &__description {
+        color: var(--fe-secondary-text, #525866);
+    }
+}
+
+// Milkdown's editor in our colours, so both modes follow the admin theme. Crepe sets its
+// variables on `.milkdown`; one class deeper wins whichever stylesheet loads last.
+.fe-markdown-editor {
+    // Over the fields below it, so its slash menu and toolbar aren't painted under them.
+    position: relative;
+    z-index: 2;
+    min-height: 240px;
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius, 8px);
+    background-color: var(--fe-primary-bg, #ffffff);
+
+    // Crepe drops the editor's own focus outline; the frame shows focus instead.
+    &:focus-within {
+        border-color: var(--fe-border-strong, #808b9c);
+    }
+
+    .milkdown {
+        --crepe-color-background: var(--fe-primary-bg, #ffffff);
+        --crepe-color-on-background: var(--fe-primary-text, #19283a);
+        --crepe-color-surface: var(--fe-secondary-bg, #f3f5fa);
+        --crepe-color-surface-low: var(--fe-hover-bg, #f9fafb);
+        --crepe-color-on-surface: var(--fe-primary-text, #19283a);
+        --crepe-color-on-surface-variant: var(--fe-secondary-text, #525866);
+        --crepe-color-outline: var(--fe-border-strong, #808b9c);
+        --crepe-color-primary: var(--fe-accent, #253241);
+        --crepe-color-secondary: var(--fe-active-bg, #f0f0f1);
+        --crepe-color-on-secondary: var(--fe-primary-text, #19283a);
+        --crepe-color-inverse: var(--fe-primary-text, #19283a);
+        --crepe-color-on-inverse: var(--fe-primary-bg, #ffffff);
+        --crepe-color-inline-code: var(--fe-danger-text, #cf222e);
+        --crepe-color-error: var(--fe-danger-text, #cf222e);
+        --crepe-color-hover: var(--fe-hover-bg, #f9fafb);
+        --crepe-color-selected: var(--fe-active-bg, #f0f0f1);
+        --crepe-color-inline-area: var(--fe-secondary-bg, #f3f5fa);
+        --crepe-font-title: inherit;
+        --crepe-font-default: inherit;
+        --crepe-shadow-1: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        --crepe-shadow-2: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        // The frame paints the background, so its rounded border isn't covered at the corners.
+        background: transparent;
+
+        // Crepe pads for a full page.
+        .ProseMirror {
+            min-height: 240px;
+            padding: 12px 16px;
+
+            // wp-admin's common.css colours headings #1d2327, and Crepe sets none; dark mode needs the editor's.
+            h1, h2, h3, h4, h5, h6 {
+                color: inherit;
+            }
+
+            // Crepe's heading margin would push a first-line heading away from the frame's top.
+            > :first-child {
+                margin-top: 0;
+            }
+
+            // Crepe sizes paragraphs (16px on a 24px line) but not list numbers, which took wp-admin's
+            // 13px and sat high beside the text.
+            milkdown-list-item-block li .label-wrapper {
+                color: var(--fe-secondary-text, #525866);
+
+                .label {
+                    font-size: 16px;
+                    line-height: 24px;
+                }
+
+                svg {
+                    fill: currentColor;
+                }
+            }
+
+            // Crepe indents a quote 40px past its bar; the event page uses 16px.
+            blockquote {
+                padding-left: 16px;
+            }
+        }
+
+        // Crepe's other floating boxes, like the "/" menu below: the selection toolbar, the link
+        // preview and editor, a table column's tools and a code block's language list.
+        milkdown-toolbar,
+        milkdown-link-preview > .link-preview,
+        milkdown-link-edit > .link-edit,
+        milkdown-table-block .cell-handle .button-group,
+        milkdown-code-block .list-wrapper {
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius, 8px);
+            background: var(--fe-primary-bg, #ffffff);
+            box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+        }
+
+        // Crepe names the link boxes' icon buttons `.button`, which wp-admin styles as its own (border, 40px height).
+        milkdown-link-preview > .link-preview > .button,
+        milkdown-link-edit > .link-edit > .button {
+            min-height: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+
+            &:hover {
+                background: var(--fe-hover-bg, #f9fafb);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--fe-primary-text, #19283a);
+                outline-offset: 1px;
+            }
+        }
+
+        // iOS Safari zooms into a focused field under 16px; Crepe sets the link field to 14px.
+        @media screen and (max-width: 782px) {
+            milkdown-link-edit > .link-edit > .input-area {
+                font-size: 16px;
+            }
+        }
+
+        // As in fcom's editor: no drag handle beside each block; "/" opens the menu.
+        milkdown-block-handle {
+            display: none;
+        }
+
+        // The "/" menu, sized and coloured like the navbar's dropdowns. No group tabs: the list
+        // scrolls, and typing after "/" filters it.
+        milkdown-slash-menu {
+            min-width: 200px;
+            padding: var(--fe-space-2, 8px);
+            border: 1px solid var(--fe-primary-border, #eaecf0);
+            border-radius: var(--fe-radius, 8px);
+            background: var(--fe-primary-bg, #ffffff);
+            box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
+
+            .tab-group {
+                display: none;
+            }
+
+            .menu-groups {
+                max-height: 320px;
+                padding: 0;
+            }
+
+            .menu-groups .menu-group {
+                h6 {
+                    padding: 6px 12px 4px;
+                    font-size: 11px;
+                    line-height: 16px;
+                    letter-spacing: 0.04em;
+                    color: var(--fe-tertiary-text, #6b7280);
+                }
+
+                li {
+                    min-width: 0;
+                    gap: var(--fe-space-2, 8px);
+                    padding: 8px 12px;
+                    color: var(--fe-secondary-text, #525866);
+
+                    > svg {
+                        width: 18px;
+                        height: 18px;
+                        color: currentColor;
+                        fill: currentColor;
+                    }
+
+                    > span {
+                        font-size: var(--fe-text-sm, 14px);
+                        font-weight: 500;
+                    }
+                }
+
+                li.hover {
+                    background: var(--fe-hover-bg, #f9fafb);
+                    color: var(--fe-primary-text, #19283a);
+                }
+
+                li.active {
+                    background: var(--fe-active-bg, #f0f0f1);
+                    color: var(--fe-accent, #253241);
+                }
+            }
+
+            .menu-groups .menu-group + .menu-group::before {
+                margin: 4px 12px;
+                background: var(--fe-primary-border, #eaecf0);
+            }
+        }
+    }
+}
+
+// The event form's "Start Time Display" help: each choice above how it looks on the event page.
+.fe-start-display-help {
+    &__item {
+        display: grid;
+        gap: var(--fe-space-2, 8px);
+        margin: 0;
+    }
+
+    &__item + &__item {
+        margin-top: var(--fe-space-5, 20px);
+    }
+
+    &__caption {
+        display: grid;
+        gap: 2px;
+    }
+
+    &__title {
+        font-size: var(--fe-text-sm, 14px);
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__text {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+}
+
+// StartDisplayPreview: a choice drawn as it shows on the event page.
+.fe-start-preview {
+    max-width: 320px;
+    padding: var(--fe-space-4, 16px);
+    border: 1px solid var(--fe-primary-border, #eaecf0);
+    border-radius: var(--fe-radius-lg, 12px);
+
+    &__status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--fe-primary-text, #19283a);
+        background: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__countdown {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--fe-space-2, 8px);
+    }
+
+    &__unit {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        padding: 8px 4px;
+        border-radius: var(--fe-radius, 8px);
+        background: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__value {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__label {
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        text-transform: uppercase;
         color: var(--fe-secondary-text, #525866);
     }
 }

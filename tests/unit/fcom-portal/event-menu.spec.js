@@ -1,12 +1,16 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import EventMenu from '../../../resources/fcom-portal/EventMenu';
 
-const editable = { id: 5, edit_url: 'https://example.test/wp-admin/admin.php?page=fluent-event#/events/5/edit' };
+const editable = { id: 5, slug: 'night-walk', edit_url: 'https://example.test/wp-admin/admin.php?page=fluent-event#/events/5/edit' };
+const editRoute = { name: 'fe_edit_event', params: { event_slug: 'night-walk' } };
+const fcomRouter = () => ({ resolve: vi.fn(() => ({ href: '/portal/events/night-walk/edit' })), push: vi.fn() });
 
 let wrapper;
+let router;
 const menu = (event = editable) => {
-    wrapper = mount(EventMenu, { props: { event }, attachTo: document.body });
+    router = fcomRouter();
+    wrapper = mount(EventMenu, { props: { event, router }, attachTo: document.body });
     return wrapper;
 };
 
@@ -24,15 +28,71 @@ describe('EventMenu', () => {
         expect(menu().find('button').attributes('aria-label')).toBe('More actions');
     });
 
-    it("opens on the event's edit link and moves focus to it", async () => {
+    it("opens on the portal's edit page for the event and moves focus to it", async () => {
         menu();
 
         await wrapper.find('button').trigger('click');
         await wrapper.vm.$nextTick();
 
         const item = wrapper.find('[role="menuitem"]');
-        expect(item.attributes('href')).toBe(editable.edit_url);
+        expect(router.resolve).toHaveBeenCalledWith(editRoute);
+        expect(item.attributes('href')).toBe('/portal/events/night-walk/edit');
         expect(document.activeElement).toBe(item.element);
+    });
+
+    it("clones on the portal's create page, which reads the event from ?clone=", async () => {
+        menu();
+        await wrapper.find('button').trigger('click');
+
+        const clone = wrapper.findAll('[role="menuitem"]')[1];
+        expect(clone.text()).toBe('Clone Event');
+
+        await clone.trigger('click');
+        expect(router.push).toHaveBeenCalledWith({ name: 'fe_create_event', query: { clone: 'night-walk' } });
+    });
+
+    // On a phone a short title puts the "⋮" near the left edge; the 200px menu would hang off the screen.
+    it.each([
+        ['left', { left: -23, right: 177 }, 'translateX(31px)'],
+        ['right', { left: 200, right: 400 }, 'translateX(-48px)'],
+    ])('slides back on screen when it would leave the %s edge', async (side, box, transform) => {
+        Object.defineProperty(document.documentElement, 'clientWidth', { value: 360, configurable: true });
+        const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ ...box, top: 0, bottom: 80, width: 200, height: 80 });
+        menu();
+
+        await wrapper.find('button').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.fe-event-menu__pop').element.style.transform).toBe(transform);
+        rect.mockRestore();
+        delete document.documentElement.clientWidth;
+    });
+
+    // fcom's document click handler would route the link a second time.
+    it('edits inside the portal, without the click reaching the page', async () => {
+        menu();
+        await wrapper.find('button').trigger('click');
+        const onDocumentClick = vi.fn();
+        document.addEventListener('click', onDocumentClick);
+
+        const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+        wrapper.find('[role="menuitem"]').element.dispatchEvent(click);
+        document.removeEventListener('click', onDocumentClick);
+
+        expect(router.push).toHaveBeenCalledWith(editRoute);
+        expect(click.defaultPrevented).toBe(true);
+        expect(onDocumentClick).not.toHaveBeenCalled();
+    });
+
+    // The feed card runs on fcom's Vue, which has the router; our page apps pass it in.
+    it("falls back to fcom's own router when none is passed", async () => {
+        const $router = fcomRouter();
+        wrapper = mount(EventMenu, { props: { event: editable }, global: { mocks: { $router } }, attachTo: document.body });
+
+        await wrapper.find('button').trigger('click');
+        await wrapper.find('[role="menuitem"]').trigger('click');
+
+        expect($router.push).toHaveBeenCalledWith(editRoute);
     });
 
     it('closes on Escape and hands focus back to the trigger', async () => {

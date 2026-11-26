@@ -46,6 +46,13 @@ class ModelContractTest extends TestCase
         }
     }
 
+    public function test_the_read_only_models_refuse_mass_assignment()
+    {
+        foreach (self::READ_ONLY_MODELS as $model) {
+            $this->assertTrue((new $model())->totallyGuarded(), "{$model} allows mass assignment");
+        }
+    }
+
     public function test_a_calendar_owner_is_set_server_side_not_mass_assigned()
     {
         $this->assertNotContains('created_by', (new Calendar())->getFillable());
@@ -53,10 +60,10 @@ class ModelContractTest extends TestCase
 
     public function test_each_model_maps_to_its_own_table()
     {
-        $this->assertSame('fe_event_details', (new Event())->getTable());
-        $this->assertSame('fe_calendars', (new Calendar())->getTable());
-        $this->assertSame('fe_guests', (new Guest())->getTable());
-        $this->assertSame('fe_meta', (new Meta())->getTable());
+        $this->assertSame('fevent_event_details', (new Event())->getTable());
+        $this->assertSame('fevent_calendars', (new Calendar())->getTable());
+        $this->assertSame('fevent_guests', (new Guest())->getTable());
+        $this->assertSame('fevent_meta', (new Meta())->getTable());
     }
 
     public function test_calendars_use_the_event_statuses_except_unlisted()

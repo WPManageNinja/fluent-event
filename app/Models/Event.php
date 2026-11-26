@@ -7,17 +7,19 @@ use FluentEvent\App\Utils\DateTimeHelper;
 /**
  * Event model.
  *
- * Table: `wp_fe_event_details` — database/Migrations/EventDetailsMigrator.php.
+ * Table: `wp_fevent_event_details` — database/Migrations/EventDetailsMigrator.php.
  */
 class Event extends Model
 {
-    protected $table = 'fe_event_details';
+    protected $table = 'fevent_event_details';
 
     const STATUSES = 'public,unlisted,private,draft';
     const LIVE_STATUSES = ['public', 'unlisted', 'private'];
     const VENUE_TYPES = 'offline,online';
     const ENTRY_TYPES = 'rsvp,open,none';
     const SEAT_STATUSES = ['going', 'checked_in'];
+    // A guest who holds a seat or waits for one: they can't register again, and can leave.
+    const PLACE_STATUSES = ['going', 'checked_in', 'waitlisted'];
     const POST_STATUSES = [
         'public'   => 'publish',
         'unlisted' => 'publish',
@@ -62,7 +64,22 @@ class Event extends Model
             'address'            => '',
             'entry_type'         => '',
             'show_guest_count'   => 'yes',
+            'capacity'           => 0, // most guests going at once; 0 = unlimited
+            // Whether guests see the spots left on a capped event; the going count has its own switch.
+            'show_spots_left'    => 'no',
+            // yes: once a capped event is full, new sign-ups join its waitlist instead of being turned away.
+            'waitlist'           => 'no',
+            // How the event page shows the time until the start: relative ("Starts in 3 days") or a live countdown.
+            'start_display'      => 'relative',
+            // The description's markdown, as written in the editor; the post holds its rendered HTML.
+            'description_md'     => '',
         ];
+    }
+
+    // Capped at 255, where the venue rule stood before the filter.
+    public static function venueMaxLength()
+    {
+        return min(255, max(1, (int) apply_filters('fluent_event/event_venue_max_length', 100)));
     }
 
     public static function postStatusFor($status)
@@ -163,21 +180,22 @@ class Event extends Model
         return $query;
     }
 
+    // Each order ends on id: MySQL orders rows with equal keys differently per LIMIT, so pages would repeat or skip events.
     public function scopeByPeriod($query, $period)
     {
         $now = gmdate(DateTimeHelper::FORMAT);
 
         if ($period === 'upcoming') {
-            return $query->where('end_at', '>=', $now)->orderBy('start_at', 'ASC');
+            return $query->where('end_at', '>=', $now)->orderBy('start_at', 'ASC')->orderBy('id', 'ASC');
         }
 
         if ($period === 'past') {
-            return $query->where('end_at', '<', $now)->orderBy('start_at', 'DESC');
+            return $query->where('end_at', '<', $now)->orderBy('start_at', 'DESC')->orderBy('id', 'DESC');
         }
 
         return $query->orderByRaw(
             '(end_at < ?) ASC, ABS(TIMESTAMPDIFF(SECOND, ?, start_at)) ASC',
             [$now, $now]
-        );
+        )->orderBy('id', 'ASC');
     }
 }

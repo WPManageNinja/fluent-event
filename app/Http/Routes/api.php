@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+<?php defined('ABSPATH') || exit;
 
 /** @var \FluentEvent\Framework\Http\Router $router */
 
@@ -22,12 +22,15 @@ $router->prefix('users')->withDefaultPolicy()->group(function ($router) {
 $router->prefix('settings')->withDefaultPolicy()->group(function ($router) {
     $router->get('/general', [SettingsController::class, 'getGeneral']);
     $router->post('/general', [SettingsController::class, 'updateGeneral']);
+    $router->get('/pages', [SettingsController::class, 'getPages']);
+    $router->post('/create-page', [SettingsController::class, 'createPage']);
 
     $router->get('/email', [SettingsController::class, 'getEmail']);
     $router->post('/email', [SettingsController::class, 'updateEmail']);
 
     $router->get('/email-notifications', [SettingsController::class, 'getEmailNotifications']);
     $router->post('/email-notifications', [SettingsController::class, 'updateEmailNotifications']);
+    $router->get('/email-notifications/preview/{type}', [SettingsController::class, 'previewEmail'])->alphaNumDash('type');
 });
 
 $router->prefix('calendars')->withDefaultPolicy()->group(function ($router) {
@@ -47,6 +50,7 @@ $router->prefix('reports')->withDefaultPolicy()->group(function ($router) {
 
 $router->prefix('events')->withDefaultPolicy()->group(function ($router) {
     $router->get('/', [EventController::class, 'getAllEvents']);
+    $router->get('/by-slug', [EventController::class, 'getEventBySlug']);
     $router->get('/{id}', [EventController::class, 'getEvent'])->int('id');
 
     $router->post('/', [EventController::class, 'createEvent']);
@@ -55,6 +59,7 @@ $router->prefix('events')->withDefaultPolicy()->group(function ($router) {
 
     $router->get('/{eventId}/guests', [GuestController::class, 'getGuests'])->int('eventId');
     $router->post('/{eventId}/guests', [GuestController::class, 'createGuest'])->int('eventId');
+    $router->post('/{eventId}/guests/bulk-action', [GuestController::class, 'handleBulkActions'])->int('eventId');
     $router->patch('/{eventId}/guests/{guestId}', [GuestController::class, 'updateGuest'])
         ->int('eventId')->int('guestId');
     $router->delete('/{eventId}/guests/{guestId}', [GuestController::class, 'deleteGuest'])
@@ -64,15 +69,12 @@ $router->prefix('events')->withDefaultPolicy()->group(function ($router) {
 $router->prefix('community')->withPolicy('CommunityPolicy')->group(function ($router) {
     $router->get('/events', [CommunityEventController::class, 'getEvents']);
     $router->get('/events/by-slug', [CommunityEventController::class, 'getEventBySlug']);
-    $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])
-        ->int('id')->rateLimitPerMinute(10);
-    $router->post('/events/{id}/register-guest', [CommunityEventController::class, 'registerGuest'])
-        ->int('id')->rateLimitPerMinute(5);
-    $router->get('/editor-assets', [CommunityEventController::class, 'getEditorAssets']);
+    $router->post('/events/{id}/register', [CommunityEventController::class, 'register'])->int('id');
+    $router->post('/events/{id}/register-guest', [CommunityEventController::class, 'registerGuest'])->int('id');
 });
 
-// The public event page under the portal slug.
+// The public event page's registration form.
 $router->prefix('portal')->withPolicy('PortalPolicy')->group(function ($router) {
-    $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])
-        ->int('id')->rateLimitPerMinute(5);
+    $router->post('/events/{id}/register', [PortalEventController::class, 'register'])->int('id');
+    $router->post('/events/{id}/register-guest', [PortalEventController::class, 'registerGuest'])->int('id');
 });

@@ -1,34 +1,37 @@
 <?php
 /**
- * The landing home: every public calendar's events, or one calendar's, as cards, a timeline or a
+ * [fluent_events]: every public calendar's events, or one calendar's, as cards, a timeline or a
  * month, with a chip per calendar to switch. Every control is a plain link, so each state has its own
  * URL and works without JavaScript; portal.js swaps the list in place when a chip is picked.
  *
  * @var array  $chips          title, slug ('' for All), color (sanitized hex or ''), active. Empty with one calendar.
  * @var bool   $show_calendar  Name each event's calendar: there are chips to switch between them.
- * @var string $url            The landing home, without query args.
+ * @var string $url            The page showing the list, without query args.
  * @var string $view           cards|timeline|calendar
  * @var bool   $view_locked
  * @var string $filter         upcoming|all|past
  * @var string $search
  * @var array  $state          Query args every link carries.
+ * @var array  $keep_empty     State keys a link keeps even when empty.
+ * @var string $fluentEventPageVar       The pagination query arg.
+ * @var string $fluentEventCalendarVar   The calendar query arg.
+ * @var string $fluentEventSearchVar     The search query arg.
  * @var array  $rows           List views: one eventRow() per event.
  * @var int    $current_page
  * @var int    $last_page
- * @var array  $grid           Calendar view: LandingPageHandler::calendarGrid().
+ * @var array  $grid           Calendar view: FrontEndHandler::calendarGrid().
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
+defined('ABSPATH') || exit;
 
 use FluentEvent\App\Services\Icon;
 
-// A calendar's colour, inherited as currentColor by its dot or an empty cover.
-$fluentEventTint = function ( $color ) {
-    return $color ? ' style="color: ' . esc_attr( $color ) . '"' : '';
-};
+// add_query_arg() leaves values raw, so encode them; empty values drop out of the link unless kept.
+$fluentEventLink = function ( array $args ) use ( $state, $url, $keep_empty ) {
+    $args = array_filter( array_merge( $state, $args ), function ( $value, $key ) use ( $keep_empty ) {
+        return strlen( $value ) || in_array( $key, $keep_empty, true );
+    }, ARRAY_FILTER_USE_BOTH );
 
-// add_query_arg() leaves values raw, so encode them; empty values drop out of the link.
-$fluentEventLink = function ( array $args ) use ( $state, $url ) {
-    return add_query_arg( array_map( 'rawurlencode', array_filter( array_merge( $state, $args ), 'strlen' ) ), $url );
+    return add_query_arg( array_map( 'rawurlencode', $args ), $url );
 };
 
 $fluentEventSpans = [
@@ -44,7 +47,7 @@ $fluentEventEntry = function ( array $entry, $class, $style = '' ) {
     <a class="<?php echo esc_attr( $class ); ?>" href="<?php echo esc_url( $entry['url'] ); ?>" title="<?php echo esc_attr( $entry['title'] ); ?>"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?>>
         <span class="<?php echo esc_attr( $class ); ?>-time">
             <?php
-            /* translators: %d: which day of a multi-day event this is */
+            /* translators: %d: the day number within a multi-day event */
             echo esc_html( $entry['day_index'] > 1 ? sprintf( __( 'Day %d', 'fluent-event' ), $entry['day_index'] ) : $entry['time'] );
             ?>
         </span>
@@ -72,11 +75,6 @@ $fluentEventEmpty = [
 ];
 ?>
 <div class="fe-events-page" data-fe-events>
-    <header class="fe-portal__header">
-        <h1 class="fe-portal__title"><?php esc_html_e( 'Events', 'fluent-event' ); ?></h1>
-        <p class="fe-portal__subtitle"><?php esc_html_e( 'Events from our calendars.', 'fluent-event' ); ?></p>
-    </header>
-
     <?php if ( $chips ) : ?>
         <?php // Every chip in one row; on wide screens portal.js moves those that don't fit into the "More" panel. ?>
         <div class="fe-calendar-chips" data-fe-chips>
@@ -84,12 +82,12 @@ $fluentEventEmpty = [
                 <?php foreach ( $chips as $fluentEventChip ) : ?>
                     <a
                         class="fe-calendar-chips__chip<?php echo $fluentEventChip['active'] ? ' fe-calendar-chips__chip--active' : ''; ?>"
-                        href="<?php echo esc_url( $fluentEventLink( [ 'calendar' => $fluentEventChip['slug'] ] ) ); ?>"
+                        href="<?php echo esc_url( $fluentEventLink( [ $fluentEventCalendarVar => $fluentEventChip['slug'] ] ) ); ?>"
                         <?php echo $fluentEventChip['active'] ? 'aria-current="page"' : ''; ?>
                         data-fe-chip
                     >
                         <?php if ( $fluentEventChip['color'] ) : ?>
-                            <span class="fe-calendar-chips__dot"<?php echo $fluentEventTint( $fluentEventChip['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?> aria-hidden="true"></span>
+                            <span class="fe-calendar-chips__dot"<?php if ( $fluentEventChip['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventChip['color'] ); ?>"<?php endif; ?> aria-hidden="true"></span>
                         <?php endif; ?>
                         <span class="fe-calendar-chips__label" title="<?php echo esc_attr( $fluentEventChip['title'] ); ?>"><?php echo esc_html( $fluentEventChip['title'] ); ?></span>
                     </a>
@@ -113,13 +111,13 @@ $fluentEventEmpty = [
         <form class="fe-events-page__search" method="get" action="<?php echo esc_url( $url ); ?>" role="search">
             <input
                 type="search"
-                name="search"
+                name="<?php echo esc_attr( $fluentEventSearchVar ); ?>"
                 class="fe-events-page__search-input"
                 value="<?php echo esc_attr( $search ); ?>"
                 placeholder="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
                 aria-label="<?php esc_attr_e( 'Search events', 'fluent-event' ); ?>"
             >
-            <?php foreach ( array_diff_key( $state, [ 'search' => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
+            <?php foreach ( array_diff_key( $state, [ $fluentEventSearchVar => '' ] ) as $fluentEventKey => $fluentEventValue ) : ?>
                 <input type="hidden" name="<?php echo esc_attr( $fluentEventKey ); ?>" value="<?php echo esc_attr( $fluentEventValue ); ?>">
             <?php endforeach; ?>
         </form>
@@ -252,8 +250,39 @@ $fluentEventEmpty = [
                                 </div>
                             <?php endif; ?>
 
-                            <?php if ( $fluentEventDay['entries'] ) : ?>
-                                <span class="fe-month__dot" aria-hidden="true"></span>
+                            <?php // Phones hide the chips: the day shows a bar per event and, tapped, lists them under the grid. ?>
+                            <?php
+                            $fluentEventDayLabel = sprintf(
+                                /* translators: 1: the day, e.g. "Thursday, Dec 3", 2: number of events that day */
+                                _n( '%1$s: %2$d event', '%1$s: %2$d events', count( $fluentEventDay['entries'] ), 'fluent-event' ),
+                                $fluentEventDay['label'],
+                                count( $fluentEventDay['entries'] )
+                            );
+                            ?>
+                            <button type="button" class="fe-month__day-button" data-fe-day="<?php echo esc_attr( $fluentEventDay['date'] ); ?>" aria-pressed="false" aria-controls="fe-month-day-<?php echo esc_attr( $fluentEventDay['date'] ); ?>-events" aria-label="<?php echo esc_attr( $fluentEventDayLabel ); ?>">
+                                <?php foreach ( array_slice( $fluentEventDay['entries'], 0, 3 ) as $fluentEventItem ) : ?>
+                                    <span class="fe-month__bar"<?php echo $fluentEventItem['color'] ? ' style="' . esc_attr( '--fe-event-color: ' . $fluentEventItem['color'] . ';' ) . '"' : ''; ?>></span>
+                                <?php endforeach; ?>
+                            </button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php // Phones only: the tapped day's events, or that there are none. Nothing until a day is tapped. ?>
+                <div class="fe-month__agenda">
+                    <?php foreach ( $grid['days'] as $fluentEventDay ) : ?>
+                        <div class="fe-month__agenda-day" id="fe-month-day-<?php echo esc_attr( $fluentEventDay['date'] ); ?>-events" data-fe-day-events="<?php echo esc_attr( $fluentEventDay['date'] ); ?>" role="region" aria-label="<?php echo esc_attr( $fluentEventDay['label'] ); ?>" hidden>
+                            <p class="fe-month__agenda-date">
+                                <span class="fe-month__agenda-number"><?php echo esc_html( number_format_i18n( $fluentEventDay['number'] ) ); ?></span>
+                                <span class="fe-month__agenda-weekday"><?php echo esc_html( $fluentEventDay['name'] ); ?></span>
+                            </p>
+
+                            <?php foreach ( $fluentEventDay['entries'] as $fluentEventItem ) : ?>
+                                <?php $fluentEventEntry( $fluentEventItem, 'fe-month__agenda-event' ); ?>
+                            <?php endforeach; ?>
+
+                            <?php if ( ! $fluentEventDay['entries'] ) : ?>
+                                <p class="fe-month__agenda-empty"><?php esc_html_e( 'No events on this day.', 'fluent-event' ); ?></p>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
@@ -315,7 +344,7 @@ $fluentEventEmpty = [
                             <div class="fe-event-tile__body">
                                 <?php if ( $show_calendar ) : ?>
                                     <span class="fe-event-tile__calendar">
-                                        <span class="fe-event-tile__calendar-dot"<?php echo $fluentEventTint( $fluentEventRow['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?> aria-hidden="true"></span>
+                                        <span class="fe-event-tile__calendar-dot"<?php if ( $fluentEventRow['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventRow['color'] ); ?>"<?php endif; ?> aria-hidden="true"></span>
                                         <?php echo esc_html( $fluentEventRow['calendar'] ); ?>
                                     </span>
                                 <?php endif; ?>
@@ -330,7 +359,7 @@ $fluentEventEmpty = [
                             <?php if ( $fluentEventRow['cover_url'] ) : ?>
                                 <img class="fe-event-tile__cover" src="<?php echo esc_url( $fluentEventRow['cover_url'] ); ?>" alt="" loading="lazy">
                             <?php else : ?>
-                                <span class="fe-event-tile__cover fe-event-tile__cover--empty"<?php echo $fluentEventTint( $fluentEventRow['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?>></span>
+                                <span class="fe-event-tile__cover fe-event-tile__cover--empty"<?php if ( $fluentEventRow['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventRow['color'] ); ?>"<?php endif; ?>></span>
                             <?php endif; ?>
                         </div>
                     </li>
@@ -344,13 +373,13 @@ $fluentEventEmpty = [
                         <?php if ( $fluentEventRow['cover_url'] ) : ?>
                             <img class="fe-event-tile__cover" src="<?php echo esc_url( $fluentEventRow['cover_url'] ); ?>" alt="" loading="lazy">
                         <?php else : ?>
-                            <span class="fe-event-tile__cover fe-event-tile__cover--empty"<?php echo $fluentEventTint( $fluentEventRow['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?>></span>
+                            <span class="fe-event-tile__cover fe-event-tile__cover--empty"<?php if ( $fluentEventRow['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventRow['color'] ); ?>"<?php endif; ?>></span>
                         <?php endif; ?>
 
                         <div class="fe-event-tile__body">
                             <?php if ( $show_calendar ) : ?>
                                 <span class="fe-event-tile__calendar">
-                                    <span class="fe-event-tile__calendar-dot"<?php echo $fluentEventTint( $fluentEventRow['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure ?> aria-hidden="true"></span>
+                                    <span class="fe-event-tile__calendar-dot"<?php if ( $fluentEventRow['color'] ) : ?> style="color: <?php echo esc_attr( $fluentEventRow['color'] ); ?>"<?php endif; ?> aria-hidden="true"></span>
                                     <?php echo esc_html( $fluentEventRow['calendar'] ); ?>
                                 </span>
                             <?php endif; ?>
@@ -370,7 +399,7 @@ $fluentEventEmpty = [
         <?php if ( 'calendar' !== $view && $last_page > 1 ) : ?>
             <nav class="fe-pagination" aria-label="<?php esc_attr_e( 'Pages', 'fluent-event' ); ?>">
                 <?php if ( $current_page > 1 ) : ?>
-                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ 'page' => $current_page - 1 ] ) ); ?>" rel="prev">
+                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $fluentEventPageVar => $current_page - 1 ] ) ); ?>" rel="prev">
                         <?php echo Icon::CHEVRON_LEFT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                         <span><?php esc_html_e( 'Previous', 'fluent-event' ); ?></span>
                     </a>
@@ -384,7 +413,7 @@ $fluentEventEmpty = [
                 </span>
 
                 <?php if ( $current_page < $last_page ) : ?>
-                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ 'page' => $current_page + 1 ] ) ); ?>" rel="next">
+                    <a class="fe-pagination__link" href="<?php echo esc_url( $fluentEventLink( [ $fluentEventPageVar => $current_page + 1 ] ) ); ?>" rel="next">
                         <span><?php esc_html_e( 'Next', 'fluent-event' ); ?></span>
                         <?php echo Icon::CHEVRON_RIGHT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
                     </a>

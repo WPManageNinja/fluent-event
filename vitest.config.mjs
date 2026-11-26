@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vitest/config';
@@ -36,6 +37,9 @@ export default defineConfig({
             }
         }
     },
+
+    // A worktree may symlink node_modules; Vite only serves files under an allowed root, so allow its real path too.
+    server: { fs: { allow: [rootDir, fs.realpathSync(path.join(rootDir, 'node_modules'))] } },
 
     resolve: {
         alias: {

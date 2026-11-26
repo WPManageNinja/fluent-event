@@ -109,12 +109,16 @@ class RouteSmokeTest extends TestCase
         }
     }
 
-    public function test_the_member_rsvp_endpoint_is_rate_limited()
+    // Registration is rate-limited in the controller (RateLimiter::isSpamming). Before-middleware runs in the
+    // permission callback, which WordPress runs again for the Allow header, so a count there is taken twice.
+    public function test_no_registration_endpoint_counts_in_the_permission_check()
     {
-        $register = $this->find('POST', 'community/events/{id}/register');
+        foreach (['community/events/{id}/register', 'community/events/{id}/register-guest', 'portal/events/{id}/register-guest'] as $uri) {
+            $route = $this->find('POST', $uri);
 
-        $this->assertNotNull($register, 'The community RSVP route is gone');
-        $this->assertArrayHasKey('rate_limit_per_minute', $register['meta']);
+            $this->assertNotNull($route, "POST {$uri} is gone");
+            $this->assertEmpty($route['meta']['before'] ?? [], "POST {$uri} runs before-middleware");
+        }
     }
 
     public function test_no_two_routes_share_a_verb_and_uri()

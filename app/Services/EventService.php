@@ -38,7 +38,7 @@ class EventService
         });
     }
 
-    protected static function editUrl($eventId)
+    public static function editUrl($eventId)
     {
         return admin_url('admin.php?page=fluent-event#/events/' . (int) $eventId . '/edit');
     }
@@ -91,13 +91,21 @@ class EventService
         $myStatuses = [];
 
         if ($userId) {
+            $email = wp_get_current_user()->user_email;
+            // The member's own rows, else an unlinked one under their email, as RegistrationService::memberStatus() reads.
             $guests = Guest::query()
                 ->whereIn('event_id', $eventIds)
-                ->where('user_id', $userId)
-                ->get(['event_id', 'status']);
+                ->where(function ($query) use ($userId, $email) {
+                    $query->where('user_id', $userId)->orWhere(function ($query) use ($email) {
+                        $query->whereNull('user_id')->where('email', $email);
+                    });
+                })
+                ->get(['event_id', 'status', 'user_id']);
 
             foreach ($guests as $guest) {
-                $myStatuses[(int) $guest->event_id] = $guest->status;
+                if ($guest->user_id || !isset($myStatuses[(int) $guest->event_id])) {
+                    $myStatuses[(int) $guest->event_id] = $guest->status;
+                }
             }
         }
 
@@ -131,6 +139,7 @@ class EventService
         $isRegistered = in_array($myStatus, Event::SEAT_STATUSES, true);
         $isPast = $event->end_at < gmdate(DateTimeHelper::FORMAT);
         $hasMeetingUrl = $event->venue_type === 'online' && !empty($meta['online_meeting_url']);
+        $capacity = $takesRegistrations ? (int) $meta['capacity'] : 0;
 
         return [
             'id'                 => (int) $event->id,
@@ -153,11 +162,18 @@ class EventService
             'online_meeting_url' => $hasMeetingUrl && ($meta['entry_type'] === 'none' || $isRegistered || $isStaff) ? $meta['online_meeting_url'] : '',
             'entry_type'         => $meta['entry_type'],
             'guest_count'        => $takesRegistrations && $meta['show_guest_count'] === 'yes' ? $seats : null,
+            'capacity'           => $capacity ?: null,
+            // Null unless the host shows the spots left on a capped event.
+            'spots_left'         => $capacity > 0 && $meta['show_spots_left'] === 'yes' ? max(0, $capacity - $seats) : null,
+            'is_full'            => $capacity > 0 && $seats >= $capacity,
+            // A full event then takes new sign-ups onto its waitlist.
+            'waitlist'           => $capacity > 0 && $meta['waitlist'] === 'yes',
+            'start_display'      => $meta['start_display'],
             'is_past'            => $isPast,
             'my_status'          => $myStatus,
             'registration_open'  => $takesRegistrations && !$isPast,
             // Bound to the event: a visitor's open registration sends it back.
-            'register_nonce'     => $meta['entry_type'] === 'open' && !$isPast ? wp_create_nonce('fe_guest_register_' . $event->id) : '',
+            'register_nonce'     => $meta['entry_type'] === 'open' && !$isPast ? wp_create_nonce('fevent_guest_register_' . $event->id) : '',
             'edit_url'           => $canEdit ? self::editUrl($event->id) : '',
         ];
     }

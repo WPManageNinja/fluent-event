@@ -2,6 +2,7 @@
 
 namespace FluentEvent\Tests\Unit\Modules;
 
+use Brain\Monkey\Functions;
 use FluentEvent\Modules\FluentCommunity\PortalHandler;
 use FluentEvent\Tests\TestCase;
 
@@ -11,17 +12,20 @@ use FluentEvent\Tests\TestCase;
  */
 class PortalRoutePathsTest extends TestCase
 {
-    public function test_reloading_any_top_level_portal_route_serves_the_portal()
+    public function test_every_top_level_route_reloads_under_the_slug_fcom_passes()
     {
-        $script = file_get_contents(dirname(__DIR__, 4) . '/resources/fcom-portal/fcom-portal.js');
-        preg_match_all("/routes\.push\(\{\s*path: '\/([a-z-]+)/", $script, $matches);
+        $this->assertSame(['spaces', 'meetups'], (new PortalHandler('meetups'))->addRoutePath(['spaces']));
+    }
 
-        $this->assertContains('create-new-event', $matches[1]);
+    public function test_a_route_moved_by_the_filter_reloads_too()
+    {
+        Functions\when('apply_filters')->alias(function ($hook, $paths) {
+            $paths['create_event'] = 'new-event';
+            $paths['edit_event'] = 'edit-event/:event_slug';
 
-        $paths = (new PortalHandler())->addRoutePath([]);
+            return $paths;
+        });
 
-        foreach ($matches[1] as $segment) {
-            $this->assertContains($segment, $paths, "/$segment 404s on reload");
-        }
+        $this->assertSame(['events', 'new-event', 'edit-event'], (new PortalHandler())->addRoutePath([]));
     }
 }

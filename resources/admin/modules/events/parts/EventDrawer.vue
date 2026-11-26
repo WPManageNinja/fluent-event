@@ -37,6 +37,50 @@
 
             <h2 class="fe-event-detail__title">{{ event.title }}</h2>
 
+            <div class="fe-event-detail__row">
+                <div class="fe-event-detail__date-box">
+                    <span class="fe-event-detail__date-month">{{ month }}</span>
+                    <span class="fe-event-detail__date-day">{{ day }}</span>
+                </div>
+
+                <div>
+                    <p class="fe-event-detail__row-title">{{ fullDate }}</p>
+                    <p class="fe-event-detail__row-text">{{ $formatTimeRange(event) }}</p>
+                    <p v-if="showSiteTime" class="fe-event-detail__row-text fe-event-detail__row-text--muted">{{ $formatTimeRange(event, 'site') }}</p>
+                </div>
+            </div>
+
+            <div class="fe-event-detail__row">
+                <span class="fe-event-detail__row-icon">
+                    <el-icon aria-hidden="true">
+                        <VideoCamera v-if="isOnline" />
+                        <LocationInformation v-else />
+                    </el-icon>
+                </span>
+
+                <div v-if="isOnline">
+                    <p class="fe-event-detail__row-title">{{ $t('Online Event') }}</p>
+                    <a
+                        v-if="meetingUrl"
+                        class="fe-event-detail__row-link"
+                        :href="meetingUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ meetingUrl }}
+                    </a>
+                </div>
+
+                <div v-else>
+                    <p class="fe-event-detail__row-title">
+                        {{ event.meta?.venue || $t('No venue yet') }}
+                    </p>
+                    <p v-if="event.meta?.address" class="fe-event-detail__row-text fe-event-detail__row-text--address">
+                        {{ event.meta.address }}
+                    </p>
+                </div>
+            </div>
+
             <div v-if="event.calendar" class="fe-event-detail__row">
                 <span class="fe-event-detail__row-icon">
                     <span
@@ -63,57 +107,46 @@
                 </div>
             </div>
 
-            <div class="fe-event-detail__row">
-                <div class="fe-event-detail__date-box">
-                    <span class="fe-event-detail__date-month">{{ month }}</span>
-                    <span class="fe-event-detail__date-day">{{ day }}</span>
-                </div>
+            <!-- Links, so a modified click or the context menu can open them in a new tab. -->
+            <div class="fe-event-detail__actions">
+                <el-button
+                    type="primary"
+                    tag="router-link"
+                    :to="{ name: 'event_detail', params: { id: event.id } }"
+                    @click="close"
+                >
+                    {{ $t('View Full Details') }}
+                </el-button>
 
-                <div>
-                    <p class="fe-event-detail__row-title">{{ fullDate }}</p>
-                    <p class="fe-event-detail__row-text">{{ $formatTimeRange(event) }}</p>
-                    <p v-if="showSiteTime" class="fe-event-detail__row-text fe-event-detail__row-text--muted">{{ $formatTimeRange(event, 'site') }}</p>
-                </div>
+                <el-button tag="router-link" :to="{ name: 'event_edit', params: { id: event.id } }" @click="close">
+                    <el-icon aria-hidden="true"><EditPen /></el-icon>
+                    <span>{{ $t('Edit Event') }}</span>
+                </el-button>
+
+                <!-- The list row has no slug; the loaded event does. A disabled router-link still navigates, so it's a plain button until then. -->
+                <el-button
+                    :tag="shareEvent ? 'router-link' : 'button'"
+                    :to="shareEvent ? { name: 'event_create', query: { clone: shareEvent.slug } } : undefined"
+                    :disabled="!shareEvent"
+                    @click="close"
+                >
+                    <el-icon aria-hidden="true"><CopyDocument /></el-icon>
+                    <span>{{ $t('Clone Event') }}</span>
+                </el-button>
+
+                <el-button :disabled="!shareEvent" @click="shareVisible = true">
+                    <el-icon aria-hidden="true"><Share /></el-icon>
+                    <span>{{ $t('Share') }}</span>
+                </el-button>
             </div>
 
-            <div class="fe-event-detail__row">
-                <span class="fe-event-detail__row-icon">
-                    <el-icon aria-hidden="true">
-                        <VideoCamera v-if="isOnline" />
-                        <LocationInformation v-else />
-                    </el-icon>
-                </span>
-
-                <div v-if="isOnline">
-                    <p class="fe-event-detail__row-title">{{ $t('Online event') }}</p>
-                    <a
-                        v-if="meetingUrl"
-                        class="fe-event-detail__row-link"
-                        :href="meetingUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        {{ meetingUrl }}
-                    </a>
-                </div>
-
-                <div v-else>
-                    <p class="fe-event-detail__row-title">
-                        {{ event.meta?.venue || $t('No venue yet') }}
-                    </p>
-                    <p v-if="event.meta?.address" class="fe-event-detail__row-text">
-                        {{ event.meta.address }}
-                    </p>
-                </div>
-            </div>
-
-            <el-button
-                class="fe-event-detail__action"
-                type="primary"
-                @click="goToDetail"
-            >
-                {{ $t('View Full Details') }}
-            </el-button>
+            <EventShareModal
+                v-if="shareEvent"
+                v-model="shareVisible"
+                :event="shareEvent"
+                :public-url="publicUrl"
+                :shortcode="shortcode"
+            />
 
             <div v-if="loadingDescription || description" class="fe-event-detail__section">
                 <h3 class="fe-event-detail__section-title">{{ $t('Description') }}</h3>
@@ -126,11 +159,12 @@
 </template>
 
 <script type="text/javascript">
-    import { LocationInformation, TopRight, VideoCamera } from '@element-plus/icons-vue';
-    import { daySpan } from '@/utils/date';
+    import { CopyDocument, EditPen, LocationInformation, Share, TopRight, VideoCamera } from '@element-plus/icons-vue';
+    import { daySpan, lastDay } from '@/utils/date';
     import Drawer from '@/components/Drawer.vue';
     import ErrorState from '@/components/ErrorState.vue';
     import Skeleton from '@/components/Skeleton.vue';
+    import EventShareModal from './EventShareModal.vue';
 
     export default {
         name: 'EventDrawer',
@@ -138,7 +172,11 @@
             Drawer,
             ErrorState,
             Skeleton,
+            EventShareModal,
+            CopyDocument,
+            EditPen,
             LocationInformation,
+            Share,
             TopRight,
             VideoCamera,
         },
@@ -158,6 +196,11 @@
                 description: '',
                 loadingDescription: false,
                 loadError: '',
+                // The loaded event, not the list's copy: the share modal needs its calendar's status.
+                shareEvent: null,
+                publicUrl: '',
+                shortcode: '',
+                shareVisible: false,
             };
         },
         watch: {
@@ -188,7 +231,7 @@
                 }
 
                 const start = this.$formatDate(this.event.start_at_local, 'MMM D');
-                const end = this.$formatDate(this.event.end_at_local, 'MMM D, YYYY');
+                const end = this.$formatDate(lastDay(this.event.start_at_local, this.event.end_at_local), 'MMM D, YYYY');
 
                 return `${start} – ${end}`;
             },
@@ -209,6 +252,7 @@
             loadEvent(event) {
                 this.description = '';
                 this.loadError = '';
+                this.shareEvent = null;
 
                 if (!event) return;
 
@@ -219,6 +263,9 @@
                     errorState: null,
                     onSuccess: response => {
                         this.description = response.event.description;
+                        this.shareEvent = response.event;
+                        this.publicUrl = response.public_url;
+                        this.shortcode = response.shortcode;
                     },
                     onError: error => {
                         // A deleted event can't come back, so the list drops it too; anything else is worth a retry.
@@ -232,10 +279,6 @@
             },
             close() {
                 this.$emit('update:modelValue', false);
-            },
-            goToDetail() {
-                this.close();
-                this.$router.push({ name: 'event_detail', params: { id: this.event.id } });
             },
         },
     };

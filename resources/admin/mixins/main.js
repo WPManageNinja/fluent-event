@@ -134,6 +134,15 @@ export default {
         $entryTypeLabel(type) {
             return this.$entryTypes().find(item => item.value === type)?.label || type;
         },
+        $guestSourceLabel(source) {
+            const labels = {
+                manual: this.$t('Manual'),
+                wordpress_pages: this.$t('WordPress Pages'),
+                fluent_community: this.$t('FluentCommunity'),
+            };
+
+            return labels[source] || titleCase(source);
+        },
         $calendarStatusType(status) {
             return statusTypes.find(item => item.value === status)?.type || 'info';
         },
@@ -214,7 +223,7 @@ export default {
         $changeTitle(title) {
             document.querySelector(
                 'head title'
-            ).textContent = title + ' - ' + titleCase(config.slug);
+            ).textContent = title + ' - ' + config.name;
         },
         $handleError(e, fallback = null) {
             const fallbackMessage = fallback || this.$t('Something went wrong');
@@ -227,7 +236,9 @@ export default {
                 return notify('warning', this.$t('Error'), e.message || this.$t('Request aborted.'));
             }
 
-            const message = e?.message || convertToText(e?.errors, ' ') || fallbackMessage;
+            // One message per field: an empty email fails both "required" and "email", which would read as two.
+            const firstPerField = errors => errors && Object.values(errors).map(rules => (rules && typeof rules === 'object' ? Object.values(rules)[0] : rules));
+            const message = e?.message || convertToText(firstPerField(e?.errors), ' ') || fallbackMessage;
 
             notify('error', this.$t('Error'), message || fallbackMessage);
         },

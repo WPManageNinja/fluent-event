@@ -7,9 +7,9 @@ use FluentCommunity\App\Services\CustomSanitizer;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Http\Requests\GuestRequest;
 use FluentEvent\App\Models\Event;
-use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\EventService;
+use FluentEvent\App\Services\RateLimiter;
 use FluentEvent\App\Services\RegistrationService;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Framework\Http\Request\Request;
@@ -39,13 +39,13 @@ class CommunityEventController extends Controller
             ->with(['post'])
             // Visibility is matched in SQL, so only what was asked for is ever loaded.
             ->whereIn('id', function ($query) use ($spaceIds, $withSpaceless) {
-                $query->select('fe_meta.object_id')
-                    ->from('fe_meta')
-                    ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
+                $query->select('fevent_meta.object_id')
+                    ->from('fevent_meta')
+                    ->join('fcom_posts', 'fcom_posts.id', '=', 'fevent_meta.value')
                     // fcom hides posts whose author is blocked, pending or deactivated.
                     ->join('fcom_xprofile', 'fcom_xprofile.user_id', '=', 'fcom_posts.user_id')
-                    ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
-                    ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
+                    ->where('fevent_meta.object_type', Meta::OBJECT_TYPE_EVENT)
+                    ->where('fevent_meta.meta_key', CommunityEvents::FEED_META_KEY)
                     ->where('fcom_posts.content_type', CommunityEvents::CONTENT_TYPE)
                     ->where('fcom_posts.status', 'published')
                     ->where('fcom_xprofile.status', 'active')
@@ -84,11 +84,11 @@ class CommunityEventController extends Controller
         $formatted = EventService::formatEvents($events);
 
         $spaceIds = Meta::query()
-            ->join('fcom_posts', 'fcom_posts.id', '=', 'fe_meta.value')
-            ->where('fe_meta.object_type', Meta::OBJECT_TYPE_EVENT)
-            ->where('fe_meta.meta_key', CommunityEvents::FEED_META_KEY)
-            ->whereIn('fe_meta.object_id', array_keys($formatted))
-            ->pluck('fcom_posts.space_id', 'fe_meta.object_id')
+            ->join('fcom_posts', 'fcom_posts.id', '=', 'fevent_meta.value')
+            ->where('fevent_meta.object_type', Meta::OBJECT_TYPE_EVENT)
+            ->where('fevent_meta.meta_key', CommunityEvents::FEED_META_KEY)
+            ->whereIn('fevent_meta.object_id', array_keys($formatted))
+            ->pluck('fcom_posts.space_id', 'fevent_meta.object_id')
             ->toArray();
 
         $spaces = FcomSpace::query()->whereIn('id', array_filter($spaceIds))->get()->keyBy('id');
@@ -139,6 +139,10 @@ class CommunityEventController extends Controller
     // Members answer an RSVP either way; an open event only registers them (from its form), with no undo.
     public function register(Request $request, $id)
     {
+        if (RateLimiter::isSpamming('rsvp', 10)) {
+            return $this->tooManyRequests();
+        }
+
         [$event, $feed] = CommunityEvents::visibleEvent($id);
 
         if (!$event) {
@@ -152,14 +156,15 @@ class CommunityEventController extends Controller
         $entryType = Arr::get((array) $event->meta, 'entry_type');
         $status = $request->getSafe('status', 'sanitize_text_field');
 
-        if (!in_array($status, $entryType === 'open' ? ['going', 'cancelled'] : ['going', 'not_going'], true)) {
+        if (!in_array($status, ['going', 'not_going'], true)) {
             return $this->sendError(['message' => __('Please choose going or not going.', 'fluent-event')], 422);
         }
 
-        // Only a registration the member holds can be cancelled; otherwise a cancelled row would appear from nothing.
-        $myStatus = Guest::query()->where('event_id', $event->id)->where('user_id', get_current_user_id())->value('status');
+        // An open event's "not going" only gives up a registration (or a waitlist place) the member holds; otherwise a
+        // not-going row would appear from nothing. An RSVP's is an answer of its own.
+        $myStatus = RegistrationService::memberStatus($event);
 
-        if ($status === 'cancelled' && !in_array($myStatus, Event::SEAT_STATUSES, true)) {
+        if ($status === 'not_going' && $entryType === 'open' && !in_array($myStatus, Event::PLACE_STATUSES, true)) {
             return $this->sendError(['message' => __('You are not registered for this event.', 'fluent-event')], 422);
         }
 
@@ -174,6 +179,15 @@ class CommunityEventController extends Controller
 
         if ($registered === false) {
             return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
+        }
+
+        // A repeat is warned in a dialog; a full event is an error.
+        if (in_array($registered, ['already_registered', 'cancelled', 'waitlisted', 'checked_in'], true)) {
+            return self::refused($registered);
+        }
+
+        if (is_string($registered)) {
+            return $this->sendError(['message' => $registered], 422);
         }
 
         if (!$registered) {
@@ -191,34 +205,36 @@ class CommunityEventController extends Controller
         RegistrationService::queueEmail($guest, $previousStatus);
 
         // The portal shows an RSVP's message as a toast; an open event's registration gets its own dialog.
-        if ($guest->status === 'cancelled') {
-            $message = __('Registration cancelled.', 'fluent-event');
+        if ($guest->status === 'not_going' && $previousStatus === 'waitlisted') {
+            $message = __('You left the waitlist.', 'fluent-event');
         } elseif ($guest->status === 'not_going') {
-            $message = __("RSVP updated. You're not going.", 'fluent-event');
+            $message = $entryType === 'rsvp' ? __("RSVP updated. You're not going.", 'fluent-event') : __("You're no longer going.", 'fluent-event');
+        } elseif ($guest->status === 'waitlisted') {
+            $message = __("You're on the waitlist.", 'fluent-event');
         } elseif ($entryType === 'rsvp') {
             $message = __("RSVP updated. You're going!", 'fluent-event');
         } else {
             $message = __('You are registered.', 'fluent-event');
         }
 
-        // Only what changed: the portal updates its own copy of the event, count included, and a reload brings the rest.
-        return [
-            'message'            => $message,
-            'status'             => $guest->status,
-            'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
-        ];
+        return self::answered($event, $guest->status, $message);
     }
 
     // A logged-out visitor registers for an open event by name and email; members use register().
     public function registerGuest(Request $request, $id)
     {
+        // Shares 'register_guest' with the public page's form, so switching forms gives no new allowance.
+        if (RateLimiter::isSpamming('register_guest', 5)) {
+            return $this->tooManyRequests();
+        }
+
         [$event, $feed] = CommunityEvents::visibleEvent($id);
 
         if (!$event) {
             return $this->sendError(['message' => __('This event is not available.', 'fluent-event')], 404);
         }
 
-        if (!wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fe_guest_register_' . $event->id)) {
+        if (!wp_verify_nonce($request->getSafe('nonce', 'sanitize_text_field'), 'fevent_guest_register_' . $event->id)) {
             return $this->sendError(['message' => __('This form has expired. Please reload the page and try again.', 'fluent-event')], 403);
         }
 
@@ -232,47 +248,71 @@ class CommunityEventController extends Controller
         }
 
         $data = GuestRequest::sanitize(Arr::only($request->all(), ['name', 'email']));
-        $this->validate(
-            $data,
-            Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
-            GuestRequest::messages()
-        );
 
-        $guest = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id]);
+        // Validate first, so bad input fails alike for every email.
+        $this->validate($data, Arr::only(GuestRequest::RULES, ['name', 'email']), GuestRequest::messages());
 
-        do_action('fluent_event/guest/created', $guest);
+        $guest = RegistrationService::guestByEmail($event, $data['email']);
 
-        RegistrationService::queueEmail($guest, null);
+        // A repeated email is refused with nothing saved, unless its row said not going and has no account: that comes
+        // back on.
+        if ($guest && ($refusal = RegistrationService::visitorRefusal($guest))) {
+            return self::refused($refusal);
+        }
 
+        if (!$guest) {
+            $this->validate(
+                $data,
+                Arr::only(GuestRequest::createRules($event->id), ['name', 'email']),
+                GuestRequest::messages()
+            );
+        }
+
+        $registered = RegistrationService::registerVisitor($event, $data, ['source' => 'fluent_community', 'source_id' => (int) $feed->id], $guest);
+
+        if (is_string($registered)) {
+            return $this->sendError(['message' => $registered], 422);
+        }
+
+        if (!$registered) {
+            return $this->sendError(['message' => __('Your registration just changed. Please try again.', 'fluent-event')], 409);
+        }
+
+        [$guest, $previousStatus] = $registered;
+
+        if ($previousStatus === null) {
+            do_action('fluent_event/guest/created', $guest);
+        } elseif ($previousStatus !== $guest->status) {
+            do_action('fluent_event/guest/updated', $guest, $previousStatus);
+        }
+
+        RegistrationService::queueEmail($guest, $previousStatus);
+
+        $message = $guest->status === 'waitlisted' ? __("You're on the waitlist.", 'fluent-event') : __('You are registered.', 'fluent-event');
+
+        return self::answered($event, $guest->status, $message);
+    }
+
+    // A registration refused with nothing saved: no status, so the portal changes nothing and says why.
+    private static function refused($refusal)
+    {
         return [
-            'message'            => __('You are registered.', 'fluent-event'),
-            'status'             => $guest->status,
-            'online_meeting_url' => self::meetingUrlFor($event, $guest->status),
+            'message' => RegistrationService::refusalMessage($refusal),
+            'status'  => null,
+            'refusal' => $refusal,
         ];
     }
 
-    // The link is revealed once a guest holds a seat, as EventService::formatEvent() reveals it.
-    private static function meetingUrlFor(Event $event, $status)
+    // The guest's new status with the event's seats as they stand now, everyone's answers included, so the portal
+    // redraws the count, the spots left and the full state together. The link shows once the guest holds a seat.
+    private static function answered(Event $event, $status, $message)
     {
-        return $event->venue_type === 'online' && in_array($status, Event::SEAT_STATUSES, true)
-            ? (string) Arr::get((array) $event->meta, 'online_meeting_url', '')
-            : '';
-    }
+        $seats = EventService::seatCounts([$event->id]);
+        $formatted = EventService::formatEvent($event, $seats[(int) $event->id] ?? 0, $status, false, false);
 
-    // The portal renders headless, so the WordPress editor its create-event page uses is handed over
-    // as the markup WordPress would print, and loaded only when that page opens.
-    public function getEditorAssets(Request $request)
-    {
-        wp_enqueue_editor();
-
-        // wplink searches posts over admin-ajax, which only wp-admin defines.
-        wp_add_inline_script('wplink', 'window.ajaxurl = window.ajaxurl || ' . wp_json_encode(admin_url('admin-ajax.php')) . ';', 'before');
-
-        ob_start();
-        wp_print_styles(['editor-buttons', 'buttons']);
-        wp_print_scripts(['editor', 'quicktags', 'wplink', 'jquery-ui-autocomplete']);
-        \_WP_Editors::print_default_editor_scripts();
-
-        return ['html' => ob_get_clean()];
+        return array_merge(
+            ['message' => $message, 'status' => $status],
+            Arr::only($formatted, ['online_meeting_url', 'guest_count', 'spots_left', 'is_full'])
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace FluentEvent\App\Hooks\Handlers;
 
 use FluentEvent\App\App;
 use FluentEvent\App\Models\Calendar;
+use FluentEvent\App\Models\Event;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\App\Utils\Enqueuer\Enqueue;
@@ -48,8 +49,8 @@ class AdminMenuHandler
         $this->app = App::make();
         $this->config = $this->app->config;
         $this->slug = $this->config->get('app.slug');
-        $this->baseUrl = $this->app->applyFilters(
-            'fluent_connector_base_url',
+        $this->baseUrl = apply_filters(
+            'fluent_event/admin_base_url',
             admin_url('admin.php?page=' . $this->slug . '#/')
         );
     }
@@ -67,7 +68,7 @@ class AdminMenuHandler
             'manage_options',
             $this->slug,
             [$this, 'render'],
-            $this->getMenuIcon(),
+            $this->getSidebarIcon(),
             $this->position
         );
 
@@ -112,14 +113,49 @@ class AdminMenuHandler
     }
 
     /**
+     * Set the dark class in <head> before paint, so dark mode has no light flash.
+     *
+     * @return null
+     */
+    protected function enqueueThemeClass()
+    {
+        $script = <<<'JS'
+(function(){var d=document.documentElement,t='';try{t=localStorage.getItem('fluent_theme_mode')||'';}catch(e){}
+var p=t.split(':'),m=(p[0]==='light'||p[0]==='dark')?p[0]:'system',r=p[1]||(m!=='system'?m:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+d.setAttribute('data-fe-theme',m);if(r==='dark'){d.classList.add('fluent_theme_dark','dark');}})();
+JS;
+
+        wp_register_script($this->slug . '_theme_class', false, [], FLUENT_EVENT_PLUGIN_VERSION, false);
+        wp_enqueue_script($this->slug . '_theme_class');
+        wp_add_inline_script($this->slug . '_theme_class', $script);
+    }
+
+    /**
+     * Enqueue the admin page assets before the admin header prints, so the
+     * theme class and stylesheet land in <head> and the PHP topbar paints
+     * already styled.
+     *
+     * @param string $hookSuffix The current admin page.
+     *
+     * @return null
+     */
+    public function enqueueAdminPageAssets($hookSuffix)
+    {
+        if ($hookSuffix !== 'toplevel_page_' . $this->slug) {
+            return;
+        }
+
+        $this->enqueueThemeClass();
+        $this->enqueueAssets($this->slug);
+    }
+
+    /**
      * Render the menu page
-     * 
+     *
      * @return null
      */
     public function render()
     {
-        $this->enqueueAssets($this->slug);
-
         $this->app->view->render('admin.menu', [
             'slug'           => $this->slug,
             'baseUrl'        => $this->baseUrl,
@@ -138,7 +174,7 @@ class AdminMenuHandler
      */
     protected function getMenuItemsList()
     {
-        $items = [
+        return [
             [
                 'key'       => 'dashboard',
                 'label'     => __('Dashboard', 'fluent-event'),
@@ -155,17 +191,6 @@ class AdminMenuHandler
                 'permalink' => $this->baseUrl . 'events',
             ],
         ];
-
-        if (Settings::landingPagesEnabled()) {
-            $items[] = [
-                'key'       => 'frontend_portal',
-                'label'     => __('Frontend Portal', 'fluent-event'),
-                'permalink' => home_url(user_trailingslashit(Settings::portalSlug())),
-                'new_tab'   => true,
-            ];
-        }
-
-        return $items;
     }
 
     /**
@@ -250,7 +275,7 @@ class AdminMenuHandler
      */
     protected function triggerAdminBootingHooks()
     {
-        $this->app->doCustomAction('_admin_booting');
+        $this->app->doCustomAction('admin_booting');
     }
 
     /**
@@ -272,7 +297,7 @@ class AdminMenuHandler
      */
     protected function triggerAdminBootedHooks()
     {
-        $this->app->doCustomAction('_admin_booted');
+        $this->app->doCustomAction('admin_booted');
     }
 
     /**
@@ -323,19 +348,15 @@ class AdminMenuHandler
     {
         $authUser = get_user_by('ID', get_current_user_id());
 
-        $theme = null;
-        if ($themes = $this->config->get('theme.themes')) {
-            $theme = $themes[$this->config->get('theme.default')] ?? null;
-        }
-
         wp_localize_script($slug . '_admin_app', 'fluentEventAdmin', [
             'env'           => $this->app->env(),
             'slug'          => $slug,
-            'theme'         => $theme,
             'user_locale'   => get_locale(),
             'timezone'      => wp_timezone_string(),
             'start_of_week' => (int) get_option('start_of_week', 0),
             'calendar_default_color' => Calendar::DEFAULT_THEME_COLOR,
+            'calendar_title_max_length' => Calendar::titleMaxLength(),
+            'event_venue_max_length' => Event::venueMaxLength(),
             'general_settings' => Settings::get(),
             'email_notifications' => Settings::get(Settings::EMAIL_NOTIFICATIONS),
             'date_format'      => DateTimeHelper::convertToDayJsFormat(get_option('date_format')),
@@ -349,6 +370,7 @@ class AdminMenuHandler
             'hook_prefix'   => $this->config->get('app.hook_prefix'),
             'logoUrl'       => Enqueue::getStaticFilePath('images/logo.svg'),
             'fcom_logo'     => Enqueue::getStaticFilePath('images/fluent-community.svg'),
+            'block_inserter_image' => Enqueue::getStaticFilePath('images/block-inserter.webp'),
             'me'            => [
                 'id'          => $authUser->ID ?? null,
                 'email'       => $authUser->user_email ?? null,
@@ -439,6 +461,17 @@ class AdminMenuHandler
 
         return 'dashicons-wordpress-alt';
 
+    }
+
+    /**
+     * The FluentEvent ticket-date mark in one colour, so WordPress tints it with
+     * the admin colour scheme, as it does the other Fluent plugins' menu icons.
+     *
+     * @return string
+     */
+    protected function getSidebarIcon()
+    {
+        return 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="50 50 140 140"><path fill="white" fill-rule="evenodd" d="M50 76A26 26 0 0 1 76 50H164A26 26 0 0 1 190 76V84H50ZM50 96H190V128A12 12 0 0 0 190 152V164A26 26 0 0 1 164 190H76A26 26 0 0 1 50 164V152A12 12 0 0 0 50 128ZM84.65 137.97C84.65 133.55 86.41 129.31 89.53 126.18C92.66 123.06 96.9 121.3 101.32 121.3H155.62C155.62 125.72 153.86 129.96 150.73 133.09C147.61 136.21 143.37 137.97 138.95 137.97H84.65ZM84.65 162.7C84.65 160.51 85.08 158.34 85.92 156.32C86.76 154.3 87.99 152.46 89.53 150.91C91.08 149.37 92.92 148.14 94.94 147.3C96.96 146.46 99.13 146.03 101.32 146.03H131.83C131.83 150.45 130.07 154.69 126.95 157.82C123.82 160.94 119.58 162.7 115.16 162.7H84.65Z"/></svg>');
     }
 
     /**

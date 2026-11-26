@@ -105,6 +105,13 @@ describe('status and entry type labels', () => {
         expect(component().$entryTypeLabel('open')).toBe('Open');
         expect(component().$entryTypeLabel('none')).toBe('None');
     });
+
+    it('labels each guest source and title-cases one it does not know', () => {
+        expect(component().$guestSourceLabel('manual')).toBe('Manual');
+        expect(component().$guestSourceLabel('wordpress_pages')).toBe('WordPress Pages');
+        expect(component().$guestSourceLabel('fluent_community')).toBe('FluentCommunity');
+        expect(component().$guestSourceLabel('zapier_import')).toBe('Zapier Import');
+    });
 });
 
 describe('url and colour guards', () => {
@@ -212,7 +219,7 @@ describe('number and date formatting', () => {
 
         vm.$changeTitle('Events');
 
-        expect(document.title).toBe('Events - Fluent Event');
+        expect(document.title).toBe('Events - FluentEvent');
     });
 });
 
@@ -265,5 +272,19 @@ describe('$requestServer', () => {
 
         expect(vm.$router.replace).not.toHaveBeenCalled();
         expect(vm.error).toContain('No query results');
+    });
+});
+
+describe('$handleError', () => {
+    it('shows one validation message per field', () => {
+        component().$handleError(new ResponseProxyItr({
+            status: 422,
+            responseJSON: {
+                name: { required: 'Name is required.' },
+                email: { required: 'Email is required.', email: 'Please provide a valid email address.' },
+            },
+        }));
+
+        expect(lastNotification().message).toBe('Name is required. Email is required.');
     });
 });

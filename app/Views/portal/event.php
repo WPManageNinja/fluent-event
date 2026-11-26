@@ -1,69 +1,34 @@
 <?php
 /**
  * One event's page, laid out like the community event page: details on the left, and the side card
- * with when, where and how to join on the right (above the details on narrow screens).
+ * with when, where and how to join on the right (above the details on narrow screens). Each piece
+ * comes from event-part.php, which the single-event template's blocks also render one by one.
  *
  * @var array  $event          EventService::formatEvent() shape.
  * @var string $description    kses'd in Event::getDescriptionAttribute().
  * @var string $calendar_title
  * @var string $calendar_url   The events home filtered to this calendar.
  * @var string $calendar_color Sanitized hex or ''.
- * @var string $events_url     The events home.
  * @var bool   $is_online
  * @var string $location
  * @var string $site_date
  * @var string $site_time
  * @var string $side           The rendered side card (portal/event-side.php).
  */
-if ( ! defined( 'ABSPATH' ) ) { 'cli' === PHP_SAPI || exit; }
-
-use FluentEvent\App\Services\Icon;
+defined('ABSPATH') || exit;
 ?>
 <div class="fe-event-page">
-    <a class="fe-event-page__back" href="<?php echo esc_url( $events_url ); ?>">
-        <?php echo Icon::ARROW_LEFT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
-        <span><?php esc_html_e( 'Go Back', 'fluent-event' ); ?></span>
-    </a>
-
-    <?php if ( $event['cover_url'] ) : ?>
-        <img class="fe-event-page__cover" src="<?php echo esc_url( $event['cover_url'] ); ?>" alt="">
-    <?php endif; ?>
+    <?php $fluentEventPart = 'cover'; include __DIR__ . '/event-part.php'; ?>
 
     <div class="fe-event-page__grid">
         <div class="fe-event-page__main">
             <div class="fe-event-page__intro">
-                <h1 class="fe-event-page__title"><?php echo esc_html( $event['title'] ); ?></h1>
-
-                <ul class="fe-event-page__meta">
-                    <li class="fe-event-page__meta-item">
-                        <?php echo Icon::CALENDAR; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
-                        <span><?php echo esc_html( $site_date ); ?></span>
-                    </li>
-                    <li class="fe-event-page__meta-item">
-                        <?php echo Icon::CLOCK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?>
-                        <span><?php echo esc_html( $site_time ); ?></span>
-                    </li>
-                    <li class="fe-event-page__meta-item">
-                        <?php echo $is_online ? Icon::VIDEO : Icon::MAP_PIN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constants ?>
-                        <span><?php echo esc_html( $location ); ?></span>
-                    </li>
-                    <li class="fe-event-page__meta-item fe-calendar-chips">
-                        <a class="fe-calendar-chips__chip" href="<?php echo esc_url( $calendar_url ); ?>">
-                            <?php if ( $calendar_color ) : ?>
-                                <span class="fe-calendar-chips__dot" style="color: <?php echo esc_attr( $calendar_color ); ?>" aria-hidden="true"></span>
-                            <?php endif; ?>
-                            <span class="fe-calendar-chips__label" title="<?php echo esc_attr( $calendar_title ); ?>"><?php echo esc_html( $calendar_title ); ?></span>
-                        </a>
-                    </li>
-                </ul>
+                <?php foreach ( [ 'title', 'meta', 'calendar' ] as $fluentEventPart ) : ?>
+                    <?php include __DIR__ . '/event-part.php'; ?>
+                <?php endforeach; ?>
             </div>
 
-            <?php if ( $description ) : ?>
-                <section class="fe-event-page__card fe-event-page__body">
-                    <h2 class="fe-event-page__section-title"><?php esc_html_e( 'About This Event', 'fluent-event' ); ?></h2>
-                    <div class="fe-event-page__description"><?php echo $description; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses'd in Event::getDescriptionAttribute() ?></div>
-                </section>
-            <?php endif; ?>
+            <?php $fluentEventPart = 'description'; include __DIR__ . '/event-part.php'; ?>
         </div>
 
         <?php echo $side; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered by EventPageService::sideCard(), escaped there ?>

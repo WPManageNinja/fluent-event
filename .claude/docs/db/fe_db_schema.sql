@@ -21,12 +21,12 @@ CREATE SCHEMA IF NOT EXISTS `default_schema` ;
 USE `default_schema` ;
 
 -- -----------------------------------------------------
--- Table `default_schema`.`wp_fe_calendars`
+-- Table `default_schema`.`wp_fevent_calendars`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_calendars` (
+CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fevent_calendars` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(255) NOT NULL,
-  `slug` VARCHAR(255) NOT NULL,
+  `slug` VARCHAR(191) NOT NULL,
   `description` TEXT NULL DEFAULT NULL COMMENT 'optional, no UI or endpoint sets it',
   `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | private | draft',
   `meta` LONGTEXT NULL DEFAULT NULL COMMENT 'logo_url, cover_url, managers, preferences',
@@ -40,13 +40,13 @@ DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `default_schema`.`wp_fe_meta`
+-- Table `default_schema`.`wp_fevent_meta`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_meta` (
+CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fevent_meta` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `object_type` VARCHAR(64) NOT NULL COMMENT 'option | user | calendar | event',
+  `object_type` VARCHAR(50) NOT NULL COMMENT 'option | user | calendar | event',
   `object_id` BIGINT UNSIGNED NULL DEFAULT NULL,
-  `meta_key` VARCHAR(255) NOT NULL,
+  `meta_key` VARCHAR(191) NOT NULL,
   `value` LONGTEXT NULL DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -58,9 +58,9 @@ DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `default_schema`.`wp_fe_notifications`
+-- Table `default_schema`.`wp_fevent_notifications`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_notifications` (
+CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fevent_notifications` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'actor who caused it',
   `action` VARCHAR(128) NOT NULL,
@@ -76,9 +76,9 @@ DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `default_schema`.`wp_fe_notification_users`
+-- Table `default_schema`.`wp_fevent_notification_users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_notification_users` (
+CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fevent_notification_users` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `object_type` VARCHAR(64) NOT NULL COMMENT 'notification | notification_pref',
   `notification_type` VARCHAR(128) NOT NULL,
@@ -96,12 +96,12 @@ DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `default_schema`.`wp_fe_event_details`
+-- Table `default_schema`.`wp_fevent_event_details`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_event_details` (
+CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fevent_event_details` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `post_id` BIGINT UNSIGNED NOT NULL COMMENT 'wp_posts.ID of the fe_event post',
-  `calendar_id` BIGINT UNSIGNED NOT NULL COMMENT 'fe_calendars.id',
+  `post_id` BIGINT UNSIGNED NOT NULL COMMENT 'wp_posts.ID of the fevent_event post',
+  `calendar_id` BIGINT UNSIGNED NOT NULL COMMENT 'fevent_calendars.id',
   `parent_event_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'recurrence parent',
   `status` VARCHAR(64) NOT NULL DEFAULT 'public' COMMENT 'public | unlisted | private | draft',
   `start_at` DATETIME NOT NULL,
@@ -118,22 +118,22 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_event_details` (
   INDEX `idx_events_calendar_startat` (`calendar_id` ASC, `start_at` ASC) VISIBLE,
   CONSTRAINT `fk_events_calendar_id`
     FOREIGN KEY (`calendar_id`)
-    REFERENCES `default_schema`.`wp_fe_calendars` (`id`)
+    REFERENCES `default_schema`.`wp_fevent_calendars` (`id`)
     ON DELETE RESTRICT,
   CONSTRAINT `fk_events_parent_event_id`
     FOREIGN KEY (`parent_event_id`)
-    REFERENCES `default_schema`.`wp_fe_event_details` (`id`)
+    REFERENCES `default_schema`.`wp_fevent_event_details` (`id`)
     ON DELETE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `default_schema`.`wp_fe_ticket_types`
+-- Table `default_schema`.`wp_fevent_ticket_types`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_ticket_types` (
+CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fevent_ticket_types` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `event_id` BIGINT UNSIGNED NOT NULL COMMENT 'fe_event_details.id',
+  `event_id` BIGINT UNSIGNED NOT NULL COMMENT 'fevent_event_details.id',
   `tier` VARCHAR(128) NOT NULL COMMENT 'display name, e.g. VIP, General',
   `description` VARCHAR(255) NULL DEFAULT NULL COMMENT 'additional information related to the tier',
   `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
@@ -152,24 +152,24 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_ticket_types` (
   INDEX `idx_ticket_types_event` (`event_id` ASC) VISIBLE,
   CONSTRAINT `fk_ticket_types_event_id`
     FOREIGN KEY (`event_id`)
-    REFERENCES `default_schema`.`wp_fe_event_details` (`id`)
+    REFERENCES `default_schema`.`wp_fevent_event_details` (`id`)
     ON DELETE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `default_schema`.`wp_fe_guests`
+-- Table `default_schema`.`wp_fevent_guests`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_guests` (
+CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fevent_guests` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `event_id` BIGINT UNSIGNED NOT NULL COMMENT 'fe_event_details.id',
-  `calendar_id` BIGINT UNSIGNED NOT NULL COMMENT 'fe_calendars.id, denormalised',
+  `event_id` BIGINT UNSIGNED NOT NULL COMMENT 'fevent_event_details.id',
+  `calendar_id` BIGINT UNSIGNED NOT NULL COMMENT 'fevent_calendars.id, denormalised',
   `ticket_type_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'NULL for RSVP, required when ticketed',
   `group_id` VARCHAR(64) NOT NULL COMMENT 'rows sharing this value are one order',
   `is_buyer` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'one per group_id, carries order and payment',
   `name` VARCHAR(255) NULL DEFAULT NULL,
-  `email` VARCHAR(192) NULL DEFAULT NULL,
+  `email` VARCHAR(191) NULL DEFAULT NULL,
   `user_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'wp_users.ID when logged in',
   `status` VARCHAR(64) NOT NULL COMMENT 'going | not_going | checked_in | cancelled',
   `hash` VARCHAR(64) NULL DEFAULT NULL COMMENT 'per-ticket token, wp_generate_password',
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_guests` (
   `payment_ref` VARCHAR(255) NULL DEFAULT NULL,
   `price` DECIMAL(10,2) NULL DEFAULT NULL,
   `paid_at` DATETIME NULL DEFAULT NULL,
-  `source` VARCHAR(64) NULL DEFAULT NULL COMMENT 'manual | portal | fluent_community',
+  `source` VARCHAR(64) NULL DEFAULT NULL COMMENT 'manual | wordpress_pages | fluent_community',
   `source_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'id in the originating system, scoped by source',
   `meta` LONGTEXT NULL DEFAULT NULL COMMENT 'form_response and other per-guest data',
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -195,15 +195,15 @@ CREATE TABLE IF NOT EXISTS `default_schema`.`wp_fe_guests` (
   INDEX `idx_guest_created` (`created_at` ASC) VISIBLE,
   CONSTRAINT `fk_guests_event_id`
     FOREIGN KEY (`event_id`)
-    REFERENCES `default_schema`.`wp_fe_event_details` (`id`)
+    REFERENCES `default_schema`.`wp_fevent_event_details` (`id`)
     ON DELETE CASCADE,
   CONSTRAINT `fk_guests_calendar_id`
     FOREIGN KEY (`calendar_id`)
-    REFERENCES `default_schema`.`wp_fe_calendars` (`id`)
+    REFERENCES `default_schema`.`wp_fevent_calendars` (`id`)
     ON DELETE RESTRICT,
   CONSTRAINT `fk_guests_ticket_type_id`
     FOREIGN KEY (`ticket_type_id`)
-    REFERENCES `default_schema`.`wp_fe_ticket_types` (`id`)
+    REFERENCES `default_schema`.`wp_fevent_ticket_types` (`id`)
     ON DELETE RESTRICT)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;

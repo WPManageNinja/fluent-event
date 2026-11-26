@@ -54,6 +54,9 @@ abstract class TestCase extends BaseTestCase
                 return vsprintf(str_replace(['%s', '%d', '%f'], ["'%s'", '%d', '%f'], $query), $args);
             });
 
+            $wpdb->shouldReceive('esc_like')->andReturnUsing(function ($text) {
+                return addcslashes($text, '_%\\');
+            });
             $wpdb->shouldReceive('get_results')->andReturn([]);
             $wpdb->shouldReceive('get_row')->andReturn(null);
             $wpdb->shouldReceive('get_var')->andReturn(null);

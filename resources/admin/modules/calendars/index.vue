@@ -156,7 +156,7 @@
                 return [
                     {
                         key: 'site',
-                        title: this.$t('Site calendars'),
+                        title: this.$t('Own calendars'),
                         calendars: this.calendars.filter(calendar => !calendar.meta?.fcom_space_id && !calendar.meta?.fcom_global),
                     },
                     {

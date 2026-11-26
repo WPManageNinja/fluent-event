@@ -5,6 +5,7 @@ namespace FluentEvent\Modules\FluentCommunity;
 use FluentCommunity\App\Models\Activity as FcomActivity;
 use FluentCommunity\App\Models\BaseSpace as FcomBaseSpace;
 use FluentCommunity\App\Models\Feed as FcomFeed;
+use FluentCommunity\App\Services\FeedsHelper as FcomFeedsHelper;
 use FluentCommunity\App\Services\Helper as FcomHelper;
 use FluentEvent\App\Http\Requests\EventRequest;
 use FluentEvent\App\Models\Calendar;
@@ -42,11 +43,12 @@ class FeedHandler
         add_action('fluent_community/feed/updated', [$this, 'followSpaceMove'], 10, 2);
         add_action('fluent_event/event/calendar_changed', [$this, 'followCalendarChange']);
         add_action('fluent_community/feed/before_deleted', [$this, 'parkEvent']);
-        // Before CleanupHandler (priority 10) wipes the event's fe_meta, which holds the post link.
+        // Before CleanupHandler (priority 10) wipes the event's fevent_meta, which holds the post link.
         add_action('fluent_event/event/before_deleted', [$this, 'unlinkPost'], 5);
         add_filter('fluent_community/feed_general_config', [$this, 'preloadEvents'], 10, 2);
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);
         add_filter('fluent_event/events_api_response', [$this, 'addFeedUrls']);
+        add_filter('fluent_event/event_api_response', [$this, 'addFeedUrl']);
     }
 
     // The event card is the post's content, so its caption is optional, when posting and when editing.
@@ -90,39 +92,40 @@ class FeedHandler
 
     public function createEvent($feed, $requestData)
     {
-        $input = $this->eventInput($requestData);
-        $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
-
-        $input['cover_url'] = $this->claimMedia(Arr::get($input, 'cover_url'), $feed, 'event_cover');
-
-        // Images added to the description are fcom uploads too, and need the same claim.
-        $input['description'] = preg_replace_callback('/(<img\b[^>]*\bsrc=)(["\'])(.*?)\2/i', function ($match) use ($feed) {
-            $url = $this->claimMedia(html_entity_decode($match[3]), $feed, 'event_description');
-
-            return $match[1] . $match[2] . esc_attr($url) . $match[2];
-        }, (string) Arr::get($input, 'description', ''));
-
-        $data = EventRequest::format($input);
-
         try {
-            $event = EventService::createEvent($data, $feed->user_id);
+            $input = $this->eventInput($requestData);
+            $input['calendar_id'] = $this->calendarFor($feed->space_id)->id;
+
+            $data = EventRequest::format($input);
+
+            // The event and both links between it and the post land together: the post renders its card
+            // from meta.event_id, so an event the post can't find is lost.
+            $event = DB::transaction(function () use ($data, $feed) {
+                $event = EventService::createEvent($data, $feed->user_id);
+
+                Meta::query()->create([
+                    'object_type' => Meta::OBJECT_TYPE_EVENT,
+                    'object_id'   => $event->id,
+                    'meta_key'    => CommunityEvents::FEED_META_KEY,
+                    'value'       => (int) $feed->id,
+                ]);
+
+                $meta = (array) $feed->meta;
+                $meta['event_id'] = (int) $event->id;
+                $feed->meta = $meta;
+
+                if (!$feed->save()) {
+                    throw new \RuntimeException('The event post could not be linked to its event.');
+                }
+
+                return $event;
+            });
         } catch (\Throwable $e) {
-            // An event post without its event would only render a dead card.
+            // fcom saved the post before this hook. Without its event it would only render a dead card,
+            // and a second try with the same text would be refused as a duplicate.
             $feed->delete();
             throw $e;
         }
-
-        $meta = (array) $feed->meta;
-        $meta['event_id'] = (int) $event->id;
-        $feed->meta = $meta;
-        $feed->save();
-
-        Meta::query()->create([
-            'object_type' => Meta::OBJECT_TYPE_EVENT,
-            'object_id'   => $event->id,
-            'meta_key'    => CommunityEvents::FEED_META_KEY,
-            'value'       => (int) $feed->id,
-        ]);
 
         do_action('fluent_event/event/created', $event);
     }
@@ -263,7 +266,22 @@ class FeedHandler
 
         $feed->content_type = 'text';
         $feed->meta = Arr::except((array) $feed->meta, ['event_id']);
+
+        // The event card was the post's content and its caption is optional, so an empty one would leave a blank post.
+        if (trim((string) $feed->message) === '') {
+            $feed->message = $event->title ?: __('This event is no longer available.', 'fluent-event');
+            $feed->message_rendered = wp_kses_post(FcomFeedsHelper::mdToHtml($feed->message));
+        }
+
         $feed->save();
+    }
+
+    // The portal edit page links here: the post's text and space are edited on the post itself.
+    public function addFeedUrl($data)
+    {
+        $this->addFeedUrls(['events' => [$data['event']]]);
+
+        return $data;
     }
 
     public function addFeedUrls($data)
@@ -296,6 +314,8 @@ class FeedHandler
 
             if ($feed && CommunityEvents::eventIdOf($feed) === (int) $event->id) {
                 $event->feed_url = esc_url_raw($feed->getPermalink());
+                // The portal's "Clone Event" loads the post by it to copy its text, space and topics.
+                $event->feed_slug = $feed->slug;
             }
         }
 
@@ -355,6 +375,8 @@ class FeedHandler
         }
 
         $feed->fluent_event = $formatted;
+        // fcom's views show a post's featured image; an event post's is its event's cover.
+        $feed->featured_image = $formatted ? ($formatted['cover_url'] ?: null) : null;
 
         return $feed;
     }
@@ -383,28 +405,6 @@ class FeedHandler
         foreach ($links as $link) {
             $this->feedLinks[(int) $link->object_id] = (int) $link->value;
         }
-    }
-
-    // fcom's cron deletes an unclaimed upload after two hours; tying it to the post also
-    // retires it with the post. An active upload already belongs to something else.
-    protected function claimMedia($url, $feed, $source)
-    {
-        $media = FcomHelper::getMediaFromUrl($url);
-
-        if (!$media) {
-            return $url;
-        }
-
-        if (!$media->is_active) {
-            $media->update([
-                'is_active'     => true,
-                'user_id'       => $feed->user_id,
-                'feed_id'       => $feed->id,
-                'object_source' => $source,
-            ]);
-        }
-
-        return $media->public_url;
     }
 
     protected function eventInput($requestData)

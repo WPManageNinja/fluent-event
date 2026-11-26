@@ -2,9 +2,18 @@
 
 export const CHECK = '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+// The already-registered warning.
+export const WARNING = '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M8 3.5v5.5M8 12.25v.25" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+
+// A place on the waitlist.
+export const CLOCK = '<svg viewBox="0 0 16 16" width="10" height="10"><circle cx="8" cy="8" r="5.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.25l2 1.25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 export const CROSS = '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M4.5 4.5l7 7m0-7l-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" width="12" height="12"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+// Element Plus's Ticket, as the event page's full notice shows it.
+export const TICKET = '<svg viewBox="0 0 1024 1024" width="1em" height="1em"><path fill="currentColor" d="M640 832H64V640a128 128 0 1 0 0-256V192h576v160h64V192h256v192a128 128 0 1 0 0 256v192H704V672h-64zm0-416v192h64V416z"/></svg>';
 
 // Element Plus's VideoCamera and MapLocation, as the Events page shows them.
 export const VIDEO_CAMERA = '<svg viewBox="0 0 1024 1024" width="1em" height="1em"><path fill="currentColor" d="M704 768V256H128v512zm64-416 192-96v512l-192-96v128a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V224a32 32 0 0 1 32-32h640a32 32 0 0 1 32 32zm0 71.552v176.896l128 64V359.552zM192 320h192v64H192z"/></svg>';

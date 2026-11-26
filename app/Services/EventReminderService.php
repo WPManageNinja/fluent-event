@@ -22,12 +22,13 @@ class EventReminderService
         $eventId = (int) $event->id;
         $startsAt = strtotime($event->start_at . ' UTC');
         $leadTimes = [];
+        $configured = in_array($event->status, Event::LIVE_STATUSES, true)
+            ? self::leadTimes(self::reminderFor($eventId))
+            : [];
 
-        if (in_array($event->status, Event::LIVE_STATUSES, true)) {
-            foreach (self::leadTimes(self::reminderFor($eventId)) as $leadTime) {
-                if ($startsAt - $leadTime > time()) {
-                    $leadTimes[] = $leadTime;
-                }
+        foreach ($configured as $leadTime) {
+            if ($startsAt - $leadTime > time()) {
+                $leadTimes[] = $leadTime;
             }
         }
 
@@ -56,6 +57,12 @@ class EventReminderService
         }
 
         sort($queued);
+
+        if (!$resend) {
+            // A send past its time but still pending waits on a late queue runner (WP-Cron needs traffic); dropping it loses it.
+            $leadTimes = array_values(array_unique(array_merge($leadTimes, array_intersect($queued, $configured))));
+            sort($leadTimes);
+        }
 
         if (!$resend && $queued === $leadTimes) {
             return;
@@ -144,22 +151,14 @@ class EventReminderService
             return;
         }
 
-        $subject = sprintf(
-            /* translators: %s is the event title */
-            __('Reminder: %s is coming up', 'fluent-event'),
-            $event->title
-        );
-
-        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
-        $intro = __('This is a friendly reminder that %1$s starts on %2$s (%3$s).', 'fluent-event');
-
         $sent = 0;
         $tick = microtime(true);
 
         do {
             $guests = Guest::query()
                 ->where('event_id', $event->id)
-                ->whereNotIn('status', ['cancelled', 'not_going'])
+                // Seat holders by name, so a status added later (waitlisted, pending payment) never gets the meeting link.
+                ->whereIn('status', Event::SEAT_STATUSES)
                 ->where('id', '>', (int) ($reminderMeta->value['cursor'] ?? 0))
                 ->orderBy('id', 'ASC')
                 ->limit(self::BATCH_SIZE)
@@ -170,7 +169,8 @@ class EventReminderService
                 $reminderMeta->save();
 
                 if (is_email($guest->email)) {
-                    Mailer::send($guest->email, $subject, self::buildBody($event, $guest, $intro));
+                    $email = self::buildEmail('reminder', $event, $guest);
+                    Mailer::send($guest->email, $email['subject'], $email['body']);
                     $sent++;
                 }
 
@@ -208,16 +208,8 @@ class EventReminderService
 
         if (!$event || $event->status === 'draft') return;
 
-        $subject = sprintf(
-            /* translators: %s is the event title */
-            __('You are registered for %s', 'fluent-event'),
-            $event->title
-        );
-
-        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
-        $intro = __('You are registered for %1$s on %2$s (%3$s).', 'fluent-event');
-
-        Mailer::send($guest->email, $subject, self::buildBody($event, $guest, $intro));
+        $email = self::buildEmail('confirmation', $event, $guest);
+        Mailer::send($guest->email, $email['subject'], $email['body']);
 
         do_action('fluent_event/guest/confirmation_sent', $guest, $event);
     }
@@ -239,29 +231,75 @@ class EventReminderService
 
         if (!$event || $event->status === 'draft') return;
 
-        $subject = sprintf(
-            /* translators: %s is the event title */
-            __('Your registration for %s is cancelled', 'fluent-event'),
-            $event->title
-        );
-
-        /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
-        $intro = __('Your registration for %1$s on %2$s (%3$s) has been cancelled.', 'fluent-event');
-
-        Mailer::send($guest->email, $subject, self::buildGreeting($event, $guest, $intro));
+        $email = self::buildEmail('cancellation', $event, $guest);
+        Mailer::send($guest->email, $email['subject'], $email['body']);
 
         do_action('fluent_event/guest/cancellation_sent', $guest, $event);
     }
 
+    public static function sendWaitlist($guestId)
+    {
+        if (empty(Settings::get(Settings::EMAIL_NOTIFICATIONS)['registration_waitlist']['enabled'])) return;
+
+        $guest = Guest::query()->find((int) $guestId);
+
+        if (!$guest || $guest->status !== 'waitlisted' || !is_email($guest->email)) return;
+
+        $event = Event::query()->find($guest->event_id);
+
+        if (!$event || $event->status === 'draft') return;
+
+        $email = self::buildEmail('waitlist', $event, $guest);
+        Mailer::send($guest->email, $email['subject'], $email['body']);
+
+        do_action('fluent_event/guest/waitlist_sent', $guest, $event);
+    }
+
+    public static function buildEmail($type, $event, $guest)
+    {
+        if ($type === 'confirmation') {
+            /* translators: %s is the event title */
+            $subject = __('You are registered for %s', 'fluent-event');
+            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+            $body = self::buildBody($event, $guest, __('You are registered for %1$s on %2$s (%3$s).', 'fluent-event'));
+        } elseif ($type === 'cancellation') {
+            /* translators: %s is the event title */
+            $subject = __('Your registration for %s is cancelled', 'fluent-event');
+            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+            $body = self::buildGreeting($event, $guest, __('Your registration for %1$s on %2$s (%3$s) has been cancelled.', 'fluent-event'));
+        } elseif ($type === 'waitlist') {
+            /* translators: %s is the event title */
+            $subject = __("You're on the waitlist for %s", 'fluent-event');
+            // A greeting only: the meeting link is for guests holding a seat.
+            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+            $body = self::buildGreeting($event, $guest, __("You're on the waitlist for %1\$s on %2\$s (%3\$s). The host will let you know if a spot opens up.", 'fluent-event'));
+        } else {
+            /* translators: %s is the event title */
+            $subject = __('Reminder: %s is coming up', 'fluent-event');
+            /* translators: 1: event title, 2: formatted start date/time, 3: timezone */
+            $body = self::buildBody($event, $guest, __('This is a friendly reminder that %1$s starts on %2$s (%3$s).', 'fluent-event'));
+        }
+
+        return [
+            'subject' => sprintf($subject, $event->title),
+            'body'    => $body,
+        ];
+    }
+
     // Sorted, so scheduleReminders() can compare it to what is queued; empty when the reminder is turned off.
+    // Held to the settings form's bounds, so a stored value that skipped the form (an event override, a
+    // filter, an old row) cannot schedule more or wider reminders than the form allows.
     protected static function leadTimes($reminder)
     {
         if (empty($reminder['enabled'])) return [];
 
-        $leadTimes = array_unique(array_filter(array_map(
-            [Settings::class, 'reminderInSeconds'],
-            (array) ($reminder['times'] ?? [])
-        )));
+        $leadTimes = array_unique(array_filter(
+            array_map([Settings::class, 'reminderInSeconds'], (array) ($reminder['times'] ?? [])),
+            [Settings::class, 'isReminderTimeAllowed']
+        ));
+
+        // The first ones as listed, the order the admin set them in.
+        $leadTimes = array_slice($leadTimes, 0, Settings::MAX_REMINDERS);
 
         sort($leadTimes);
 
@@ -335,10 +373,14 @@ class EventReminderService
             strtotime($event->start_at_local)
         );
 
+        // A visitor's typed name is unverified, and the address may not be theirs.
+        $isVisitor = empty($guest->user_id) && ($guest->source ?? 'manual') !== 'manual';
+        $name = $isVisitor ? '' : $guest->name;
+
         $body = '<p>' . sprintf(
             /* translators: %s is the guest's name */
             esc_html__('Hi %s,', 'fluent-event'),
-            esc_html($guest->name ?: __('there', 'fluent-event'))
+            esc_html($name ?: __('there', 'fluent-event'))
         ) . '</p>';
 
         $body .= '<p>' . sprintf(

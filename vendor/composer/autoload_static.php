@@ -11,7 +11,7 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
     );
 
     public static $prefixLengthsPsr4 = array (
-        'F' =>
+        'F' => 
         array (
             'FluentEvent\\Modules\\' => 20,
             'FluentEvent\\Framework\\' => 22,
@@ -21,19 +21,19 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
     );
 
     public static $prefixDirsPsr4 = array (
-        'FluentEvent\\Modules\\' =>
+        'FluentEvent\\Modules\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Modules',
         ),
-        'FluentEvent\\Framework\\' =>
+        'FluentEvent\\Framework\\' => 
         array (
             0 => __DIR__ . '/..' . '/wpfluent/framework/src/WPFluent',
         ),
-        'FluentEvent\\Dev\\' =>
+        'FluentEvent\\Dev\\' => 
         array (
             0 => __DIR__ . '/../..' . '/dev',
         ),
-        'FluentEvent\\App\\' =>
+        'FluentEvent\\App\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
         ),
@@ -45,28 +45,26 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
         'FluentEvent\\App\\CPT\\EventPost' => __DIR__ . '/../..' . '/app/CPT/EventPost.php',
         'FluentEvent\\App\\Hooks\\Handlers\\ActivationHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/ActivationHandler.php',
         'FluentEvent\\App\\Hooks\\Handlers\\AdminMenuHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/AdminMenuHandler.php',
+        'FluentEvent\\App\\Hooks\\Handlers\\BlockEditorHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/BlockEditorHandler.php',
         'FluentEvent\\App\\Hooks\\Handlers\\CPTHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/CPTHandler.php',
         'FluentEvent\\App\\Hooks\\Handlers\\CleanupHandlers\\CleanupHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/CleanupHandlers/CleanupHandler.php',
         'FluentEvent\\App\\Hooks\\Handlers\\DeactivationHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/DeactivationHandler.php',
         'FluentEvent\\App\\Hooks\\Handlers\\EmailNotificationHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/EmailNotificationHandler.php',
-        'FluentEvent\\App\\Hooks\\Handlers\\ExceptionHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/ExceptionHandler.php',
+        'FluentEvent\\App\\Hooks\\Handlers\\FrontEndHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/FrontEndHandler.php',
         'FluentEvent\\App\\Hooks\\Handlers\\HeartBeat' => __DIR__ . '/../..' . '/app/Hooks/Handlers/HeartBeat.php',
-        'FluentEvent\\App\\Hooks\\Handlers\\SchedulerHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/SchedulerHandler.php',
         'FluentEvent\\App\\Http\\Controllers\\CalendarController' => __DIR__ . '/../..' . '/app/Http/Controllers/CalendarController.php',
+        'FluentEvent\\App\\Http\\Controllers\\CommunityEventController' => __DIR__ . '/../..' . '/app/Http/Controllers/CommunityEventController.php',
         'FluentEvent\\App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'FluentEvent\\App\\Http\\Controllers\\DashboardController' => __DIR__ . '/../..' . '/app/Http/Controllers/DashboardController.php',
         'FluentEvent\\App\\Http\\Controllers\\EventController' => __DIR__ . '/../..' . '/app/Http/Controllers/EventController.php',
         'FluentEvent\\App\\Http\\Controllers\\GuestController' => __DIR__ . '/../..' . '/app/Http/Controllers/GuestController.php',
+        'FluentEvent\\App\\Http\\Controllers\\PortalEventController' => __DIR__ . '/../..' . '/app/Http/Controllers/PortalEventController.php',
         'FluentEvent\\App\\Http\\Controllers\\ReportController' => __DIR__ . '/../..' . '/app/Http/Controllers/ReportController.php',
         'FluentEvent\\App\\Http\\Controllers\\SettingsController' => __DIR__ . '/../..' . '/app/Http/Controllers/SettingsController.php',
         'FluentEvent\\App\\Http\\Controllers\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserController.php',
-        'FluentEvent\\App\\Http\\Middleware\\Can' => __DIR__ . '/../..' . '/app/Http/Middleware/Can.php',
-        'FluentEvent\\App\\Http\\Policies\\CalendarPolicy' => __DIR__ . '/../..' . '/app/Http/Policies/CalendarPolicy.php',
-        'FluentEvent\\App\\Http\\Policies\\EventPolicy' => __DIR__ . '/../..' . '/app/Http/Policies/EventPolicy.php',
+        'FluentEvent\\App\\Http\\Policies\\CommunityPolicy' => __DIR__ . '/../..' . '/app/Http/Policies/CommunityPolicy.php',
         'FluentEvent\\App\\Http\\Policies\\Policy' => __DIR__ . '/../..' . '/app/Http/Policies/Policy.php',
-        'FluentEvent\\App\\Http\\Policies\\ReportPolicy' => __DIR__ . '/../..' . '/app/Http/Policies/ReportPolicy.php',
-        'FluentEvent\\App\\Http\\Policies\\SettingsPolicy' => __DIR__ . '/../..' . '/app/Http/Policies/SettingsPolicy.php',
-        'FluentEvent\\App\\Http\\Policies\\UserPolicy' => __DIR__ . '/../..' . '/app/Http/Policies/UserPolicy.php',
+        'FluentEvent\\App\\Http\\Policies\\PortalPolicy' => __DIR__ . '/../..' . '/app/Http/Policies/PortalPolicy.php',
         'FluentEvent\\App\\Http\\Requests\\BaseRequest' => __DIR__ . '/../..' . '/app/Http/Requests/BaseRequest.php',
         'FluentEvent\\App\\Http\\Requests\\CalendarRequest' => __DIR__ . '/../..' . '/app/Http/Requests/CalendarRequest.php',
         'FluentEvent\\App\\Http\\Requests\\EventRequest' => __DIR__ . '/../..' . '/app/Http/Requests/EventRequest.php',
@@ -81,15 +79,16 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
         'FluentEvent\\App\\Models\\Post' => __DIR__ . '/../..' . '/app/Models/Post.php',
         'FluentEvent\\App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'FluentEvent\\App\\Services\\CalendarService' => __DIR__ . '/../..' . '/app/Services/CalendarService.php',
+        'FluentEvent\\App\\Services\\EventPageService' => __DIR__ . '/../..' . '/app/Services/EventPageService.php',
         'FluentEvent\\App\\Services\\EventReminderService' => __DIR__ . '/../..' . '/app/Services/EventReminderService.php',
         'FluentEvent\\App\\Services\\EventService' => __DIR__ . '/../..' . '/app/Services/EventService.php',
-        'FluentEvent\\App\\Services\\GuestService' => __DIR__ . '/../..' . '/app/Services/GuestService.php',
         'FluentEvent\\App\\Services\\Icon' => __DIR__ . '/../..' . '/app/Services/Icon.php',
         'FluentEvent\\App\\Services\\Mailer' => __DIR__ . '/../..' . '/app/Services/Mailer.php',
-        'FluentEvent\\App\\Services\\PermissionManager' => __DIR__ . '/../..' . '/app/Services/PermissionManager.php',
+        'FluentEvent\\App\\Services\\PluginManager\\PluginUpdater' => __DIR__ . '/../..' . '/app/Services/PluginManager/PluginUpdater.php',
         'FluentEvent\\App\\Services\\PostService' => __DIR__ . '/../..' . '/app/Services/PostService.php',
+        'FluentEvent\\App\\Services\\RateLimiter' => __DIR__ . '/../..' . '/app/Services/RateLimiter.php',
+        'FluentEvent\\App\\Services\\RegistrationService' => __DIR__ . '/../..' . '/app/Services/RegistrationService.php',
         'FluentEvent\\App\\Services\\ReportService' => __DIR__ . '/../..' . '/app/Services/ReportService.php',
-        'FluentEvent\\App\\Services\\Service' => __DIR__ . '/../..' . '/app/Services/Service.php',
         'FluentEvent\\App\\Services\\Settings' => __DIR__ . '/../..' . '/app/Services/Settings.php',
         'FluentEvent\\App\\Utils\\Auth\\Auth' => __DIR__ . '/../..' . '/app/Utils/Auth/Auth.php',
         'FluentEvent\\App\\Utils\\Auth\\Authorizer' => __DIR__ . '/../..' . '/app/Utils/Auth/Authorizer.php',
@@ -98,18 +97,13 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
         'FluentEvent\\App\\Utils\\Enqueuer\\Enqueue' => __DIR__ . '/../..' . '/app/Utils/Enqueuer/Enqueue.php',
         'FluentEvent\\App\\Utils\\Enqueuer\\Enqueuer' => __DIR__ . '/../..' . '/app/Utils/Enqueuer/Enqueuer.php',
         'FluentEvent\\App\\Utils\\Enqueuer\\Vite' => __DIR__ . '/../..' . '/app/Utils/Enqueuer/Vite.php',
-        'FluentEvent\\App\\Utils\\Vue\\Adder' => __DIR__ . '/../..' . '/app/Utils/Vue/Adder.php',
-        'FluentEvent\\App\\Utils\\Vue\\Children' => __DIR__ . '/../..' . '/app/Utils/Vue/Children.php',
-        'FluentEvent\\App\\Utils\\Vue\\CommonTrait' => __DIR__ . '/../..' . '/app/Utils/Vue/CommonTrait.php',
-        'FluentEvent\\App\\Utils\\Vue\\Enqueueable' => __DIR__ . '/../..' . '/app/Utils/Vue/Enqueueable.php',
-        'FluentEvent\\App\\Utils\\Vue\\Group' => __DIR__ . '/../..' . '/app/Utils/Vue/Group.php',
-        'FluentEvent\\App\\Utils\\Vue\\Route' => __DIR__ . '/../..' . '/app/Utils/Vue/Route.php',
-        'FluentEvent\\App\\Utils\\Vue\\Router' => __DIR__ . '/../..' . '/app/Utils/Vue/Router.php',
-        'FluentEvent\\App\\Utils\\Vue\\Submenu' => __DIR__ . '/../..' . '/app/Utils/Vue/Submenu.php',
+        'FluentEvent\\App\\Utils\\Parsedown' => __DIR__ . '/../..' . '/app/Utils/Parsedown.php',
+        'FluentEvent\\App\\Utils\\Utility' => __DIR__ . '/../..' . '/app/Utils/Utility.php',
         'FluentEvent\\Database\\DBMigrator' => __DIR__ . '/../..' . '/database/DBMigrator.php',
         'FluentEvent\\Database\\Migrations\\CalendarsMigrator' => __DIR__ . '/../..' . '/database/Migrations/CalendarsMigrator.php',
         'FluentEvent\\Database\\Migrations\\EventDetailsMigrator' => __DIR__ . '/../..' . '/database/Migrations/EventDetailsMigrator.php',
         'FluentEvent\\Database\\Migrations\\GuestsMigrator' => __DIR__ . '/../..' . '/database/Migrations/GuestsMigrator.php',
+        'FluentEvent\\Database\\Migrations\\LegacyPrefixMigrator' => __DIR__ . '/../..' . '/database/Migrations/LegacyPrefixMigrator.php',
         'FluentEvent\\Database\\Migrations\\MetaMigrator' => __DIR__ . '/../..' . '/database/Migrations/MetaMigrator.php',
         'FluentEvent\\Database\\Migrations\\NotificationUsersMigrator' => __DIR__ . '/../..' . '/database/Migrations/NotificationUsersMigrator.php',
         'FluentEvent\\Database\\Migrations\\NotificationsMigrator' => __DIR__ . '/../..' . '/database/Migrations/NotificationsMigrator.php',
@@ -369,7 +363,10 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
         'FluentEvent\\Framework\\Validator\\Validator' => __DIR__ . '/..' . '/wpfluent/framework/src/WPFluent/Validator/Validator.php',
         'FluentEvent\\Framework\\View\\View' => __DIR__ . '/..' . '/wpfluent/framework/src/WPFluent/View/View.php',
         'FluentEvent\\Modules\\FluentCommunity\\Bootstrap' => __DIR__ . '/../..' . '/Modules/FluentCommunity/Bootstrap.php',
-        'FluentEvent\\Modules\\FluentCommunity\\Listeners\\SpaceSync' => __DIR__ . '/../..' . '/Modules/FluentCommunity/Listeners/SpaceSync.php',
+        'FluentEvent\\Modules\\FluentCommunity\\CommunityEvents' => __DIR__ . '/../..' . '/Modules/FluentCommunity/CommunityEvents.php',
+        'FluentEvent\\Modules\\FluentCommunity\\FeedHandler' => __DIR__ . '/../..' . '/Modules/FluentCommunity/FeedHandler.php',
+        'FluentEvent\\Modules\\FluentCommunity\\PortalHandler' => __DIR__ . '/../..' . '/Modules/FluentCommunity/PortalHandler.php',
+        'FluentEvent\\Modules\\FluentCommunity\\SpaceHandler' => __DIR__ . '/../..' . '/Modules/FluentCommunity/SpaceHandler.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

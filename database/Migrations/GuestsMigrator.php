@@ -4,7 +4,7 @@ namespace FluentEvent\Database\Migrations;
 
 class GuestsMigrator
 {
-    static $tableName = 'fe_guests';
+    static $tableName = 'fevent_guests';
 
     public static function migrate()
     {
@@ -21,13 +21,13 @@ class GuestsMigrator
 
         $sql = "CREATE TABLE $table (
         `id` BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        `event_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fe_event_details.id',
-        `calendar_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fe_calendars.id, denormalised',
+        `event_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fevent_event_details.id',
+        `calendar_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'fevent_calendars.id, denormalised',
         `ticket_type_id` BIGINT(20) UNSIGNED NULL COMMENT 'NULL for RSVP, required when ticketed',
         `group_id` VARCHAR(64) NOT NULL COMMENT 'rows sharing this value are one order',
         `is_buyer` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'one per group_id, carries order and payment',
         `name` VARCHAR(255) NULL,
-        `email` VARCHAR(192) NULL,
+        `email` VARCHAR(191) NULL,
         `user_id` BIGINT(20) UNSIGNED NULL COMMENT 'wp_users.ID when logged in',
         `status` VARCHAR(64) NOT NULL COMMENT 'going | not_going | checked_in | cancelled',
         `hash` VARCHAR(64) NULL COMMENT 'per-ticket token, wp_generate_password',
@@ -36,7 +36,7 @@ class GuestsMigrator
         `payment_ref` VARCHAR(255) NULL,
         `price` DECIMAL(10,2) NULL,
         `paid_at` DATETIME NULL,
-        `source` VARCHAR(64) NULL COMMENT 'manual | portal | fluent_community',
+        `source` VARCHAR(64) NULL COMMENT 'manual | wordpress_pages | fluent_community',
         `source_id` BIGINT(20) UNSIGNED NULL COMMENT 'id in the originating system, scoped by source',
         `meta` LONGTEXT NULL COMMENT 'form_response and other per-guest data',
         `created_at` TIMESTAMP NULL,

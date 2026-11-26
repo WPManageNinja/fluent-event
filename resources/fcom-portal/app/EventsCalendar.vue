@@ -72,11 +72,47 @@
                             </button>
                         </el-popover>
                     </div>
+
+                    <!-- Phones: a bar per event; a tap lists the day's events below. -->
+                    <button
+                        type="button"
+                        class="fe-events-calendar__day-button"
+                        :aria-pressed="pickedDay === data.day ? 'true' : 'false'"
+                        :aria-label="dayjs(data.day).format('dddd, MMM D')"
+                        @click.stop="pickDay(data.day)"
+                    >
+                        <span
+                            v-for="entry in entriesFor(data.day).slice(0, visiblePerDay)"
+                            :key="`bar-${entry.event.id}`"
+                            class="fe-events-calendar__bar"
+                        ></span>
+                    </button>
                 </div>
             </template>
         </el-calendar>
 
-        <div v-else class="fe-events-calendar__week">
+        <div v-if="mode === 'month' && pickedDay" ref="agenda" class="fe-events-calendar__agenda" role="region" :aria-label="dayjs(pickedDay).format('dddd, MMM D')">
+            <p class="fe-events-calendar__agenda-date">
+                <span class="fe-events-calendar__agenda-number">{{ dayjs(pickedDay).format('D') }}</span>
+                <span class="fe-events-calendar__agenda-weekday">{{ dayjs(pickedDay).format('ddd') }}</span>
+            </p>
+
+            <button
+                v-for="entry in entriesFor(pickedDay)"
+                :key="`agenda-${entry.event.id}`"
+                type="button"
+                class="fe-events-calendar__agenda-event"
+                :aria-label="$t('View %s', entry.event.title)"
+                @click="$emit('open', entry.event)"
+            >
+                <span class="fe-events-calendar__agenda-event-time">{{ entryTime(entry) }}</span>
+                <span class="fe-events-calendar__agenda-event-title">{{ entry.event.title }}</span>
+            </button>
+
+            <p v-if="!entriesFor(pickedDay).length" class="fe-events-calendar__agenda-empty">{{ $t('No events on this day.') }}</p>
+        </div>
+
+        <div v-if="mode !== 'month'" class="fe-events-calendar__week">
             <div class="fe-events-calendar__week-head" :style="{ gridTemplateColumns: weekColumns }">
                 <span aria-hidden="true"></span>
 
@@ -127,7 +163,7 @@
 <script>
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
 import SegmentedSwitch from '@/components/SegmentedSwitch.vue';
-import { DAY_MS, toDayKey, toUtcDay } from '@/utils/date';
+import { DAY_MS, lastDay, toDayKey, toUtcDay } from '@/utils/date';
 import { timeFormat } from '../utils';
 
 // Month / week / day grid, after the admin EventsGrid; dates come from fcom's own dayjs.
@@ -144,7 +180,20 @@ export default {
         return {
             visiblePerDay: 3,
             timeFormat: timeFormat(),
+            // The day tapped on a phone; its events show below the grid.
+            pickedDay: null,
         };
+    },
+    watch: {
+        // Another month clears the picked day, even one picked from that month's days.
+        date(date, previous) {
+            if (date.slice(0, 7) !== String(previous).slice(0, 7)) {
+                this.pickedDay = null;
+            }
+        },
+        mode() {
+            this.pickedDay = null;
+        },
     },
     computed: {
         currentMode: {
@@ -212,7 +261,7 @@ export default {
 
             this.events.forEach((event) => {
                 const start = toUtcDay(event.start_at_site);
-                const end = toUtcDay(event.end_at_site);
+                const end = toUtcDay(lastDay(event.start_at_site, event.end_at_site));
 
                 for (let day = Math.max(start, first); day <= Math.min(end, last); day += DAY_MS) {
                     const key = toDayKey(day);
@@ -262,6 +311,15 @@ export default {
                 top: `${(block.from / (24 * 60)) * 100}%`,
                 height: `calc(${((block.until - block.from) / (24 * 60)) * 100}% - 2px)`,
             };
+        },
+        // Scrolls the list into view, no further than needed.
+        pickDay(day) {
+            this.pickedDay = day;
+
+            this.$nextTick(() => {
+                const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                this.$refs.agenda && this.$refs.agenda.scrollIntoView({ block: 'nearest', behavior: still ? 'auto' : 'smooth' });
+            });
         },
         moveStep(step) {
             this.moveTo(this.dayjs(this.date).add(step, this.mode));

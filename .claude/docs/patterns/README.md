@@ -70,8 +70,8 @@ because the topbar could not paint until the SPA mounted.
 | Text domain | `fluent-event` |
 | REST | `fluent-event/v2` |
 | Hook prefix | `fluent_event/` |
-| Tables | `wp_fe_*` |
-| CPT / taxonomies | `fe_event`, `fe_*` |
+| Tables | `wp_fevent_*` |
+| CPT / taxonomies | `fevent_event`, `fevent_*` |
 | Vue | Options API only |
 
 The enforced subset lives in [.claude/rules/](../../rules/) and is checked by the

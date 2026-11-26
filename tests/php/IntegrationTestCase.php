@@ -58,7 +58,7 @@ abstract class IntegrationTestCase extends BaseTestCase
         $this->connection->beginTransaction();
 
         // Written inside the transaction: if anything commits during the test, this row survives the rollback.
-        $wpdb->insert($wpdb->prefix . 'fe_meta', [
+        $wpdb->insert($wpdb->prefix . 'fevent_meta', [
             'object_type' => 'fe_rollback_sentinel',
             'object_id'   => 0,
             'meta_key'    => wp_generate_password(20, false, false),
@@ -93,7 +93,7 @@ abstract class IntegrationTestCase extends BaseTestCase
         wp_set_current_user($this->previousUser);
         wp_cache_flush();
 
-        $sentinelTable = $this->wpdb->prefix . 'fe_meta';
+        $sentinelTable = $this->wpdb->prefix . 'fevent_meta';
         $sentinelSurvived = (bool) $this->wpdb->get_var(
             $this->wpdb->prepare("SELECT id FROM {$sentinelTable} WHERE id = %d", $this->sentinelId)
         );
@@ -115,9 +115,11 @@ abstract class IntegrationTestCase extends BaseTestCase
     /**
      * Dispatch a REST request in-process, as the current user.
      *
+     * @param callable|null $beforeAllowHeader Runs between the dispatch and the Allow-header pass,
+     *                                         to stand in for a parallel request.
      * @return array{status: int, data: array}
      */
-    protected function rest($method, $route, array $params = [])
+    protected function rest($method, $route, array $params = [], $beforeAllowHeader = null)
     {
         // The framework binds Request as a singleton and array_merges each dispatch into it,
         // so without a fresh one a later request sees an earlier one's parameters.
@@ -140,6 +142,14 @@ abstract class IntegrationTestCase extends BaseTestCase
         }
 
         $response = rest_do_request($request);
+
+        if ($beforeAllowHeader) {
+            $beforeAllowHeader();
+        }
+
+        // Over HTTP, WordPress runs the route's permission callback again to build the Allow header.
+        $response = rest_send_allow_header($response, rest_get_server(), $request);
+
         $data = rest_get_server()->response_to_data($response, false);
 
         return [
@@ -173,6 +183,22 @@ abstract class IntegrationTestCase extends BaseTestCase
     protected function createAdmin()
     {
         return $this->createUser('administrator');
+    }
+
+    // The All Events Page, published and set: [fluent_events] at `fe-test-fluent-events-*`.
+    protected function createPublicPages()
+    {
+        $ids = ['events_page_id' => wp_insert_post([
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            'post_title'   => '',
+            'post_name'    => 'fe-test-fluent-events-' . strtolower(wp_generate_password(6, false, false)),
+            'post_content' => '[fluent_events]',
+        ])];
+
+        Settings::update(Settings::GENERAL, $ids);
+
+        return $ids;
     }
 
     protected function createCalendar(array $overrides = [])
@@ -229,7 +255,7 @@ abstract class IntegrationTestCase extends BaseTestCase
         return array_merge([
             'calendar_id'      => $event->calendar_id,
             'title'            => $event->title,
-            'description'      => $event->description,
+            'description_md'   => (string) (((array) $event->meta)['description_md'] ?? ''),
             'status'           => $event->status,
             'start_at'         => $event->start_at_local,
             'end_at'           => $event->end_at_local,

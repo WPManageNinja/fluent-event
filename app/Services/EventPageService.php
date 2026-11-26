@@ -3,6 +3,7 @@
 namespace FluentEvent\App\Services;
 
 use FluentEvent\App\App;
+use FluentEvent\App\CPT\EventPost;
 use FluentEvent\App\Models\Event;
 use FluentEvent\App\Utils\DateTimeHelper;
 
@@ -13,18 +14,60 @@ use FluentEvent\App\Utils\DateTimeHelper;
  */
 class EventPageService
 {
-    // Straight under the portal slug: an event's post slug is unique among events.
+    // The settings "+" creates these. The content is ours, never a request's.
+    const PAGES = [
+        'events_page_id' => ['shortcode' => 'fluent_events', 'block' => 'fluent-event/events'],
+    ];
+
+    // A setting's page while it is published, else 0: a trashed or draft page turns its links off.
+    public static function pageId($key)
+    {
+        $id = (int) (Settings::get()[$key] ?? 0);
+
+        return $id && get_post_type($id) === 'page' && get_post_status($id) === 'publish' ? $id : 0;
+    }
+
+    // The All Events Page, else the events archive, which lists them itself.
+    public static function listUrl()
+    {
+        $id = self::pageId('events_page_id');
+
+        return (string) ($id ? get_permalink($id) : get_post_type_archive_link(EventPost::POST_TYPE));
+    }
+
     public static function url(Event $event)
     {
-        return home_url(user_trailingslashit(Settings::portalSlug() . '/' . $event->post->post_name));
+        return (string) get_permalink($event->post_id);
+    }
+
+    public static function createPage($key, $title)
+    {
+        $id = wp_insert_post([
+            'post_type'      => 'page',
+            'post_status'    => 'publish',
+            'post_title'     => $title,
+            // The block, not the shortcode: the editor shows it with its settings, aligned wide like the list's frame.
+            'post_content'   => '<!-- wp:' . self::PAGES[$key]['block'] . ' {"align":"wide"} /-->',
+            'comment_status' => 'closed',
+            'ping_status'    => 'closed',
+        ]);
+
+        if (!$id || is_wp_error($id)) {
+            return 0;
+        }
+
+        Settings::update(Settings::GENERAL, [$key => (int) $id]);
+
+        return (int) $id;
     }
 
     /**
-     * @param array  $formatted EventService::formatEvent() shape, as a visitor sees it.
+     * @param array  $formatted EventService::formatEvent() shape, with a logged-in viewer's own status.
      * @param string $url       The event page.
      */
-    // $justRegistered draws the confirmation the page opens right after a registration.
-    public static function sideCard(Event $event, array $formatted, $url, $justRegistered = false)
+    // $answer draws the popup the page opens after a registration: 'registered' and 'joined_waitlist' confirm it;
+    // 'already_registered', 'waitlisted', 'cancelled' and 'checked_in' warn why it was refused.
+    public static function sideCard(Event $event, array $formatted, $url, $answer = '')
     {
         $siteZone = wp_timezone_string();
         $isOnline = $event->venue_type === 'online';
@@ -33,6 +76,21 @@ class EventPageService
         $phase = time() >= $end ? 'ended' : (time() >= $start ? 'live' : 'upcoming');
         $isSeated = in_array($formatted['my_status'], Event::SEAT_STATUSES, true);
         $meetingLink = preg_match('#^https?://#i', $formatted['online_meeting_url']) ? $formatted['online_meeting_url'] : '';
+        $isFull = $formatted['is_full'] && !$isSeated;
+        // A member's own row, or a visitor's right after joining: the page doesn't recognise a visitor again.
+        $isWaitlisted = $formatted['my_status'] === 'waitlisted';
+        $meter = null;
+        $left = (int) $formatted['spots_left'];
+        /* translators: %s: number of spots left */
+        $spotsLabel = $left > 0 && $phase !== 'ended' ? sprintf(_n('%s spot left', '%s spots left', $left, 'fluent-event'), number_format_i18n($left)) : '';
+
+        // With both the count and the spots left shown; an ended one keeps it as a record of how full it got.
+        if ($formatted['guest_count'] !== null && $formatted['spots_left'] !== null) {
+            $meter = [
+                'percent' => min(100, (int) round($formatted['guest_count'] / $formatted['capacity'] * 100)),
+                'status'  => $phase === 'ended' || $isFull ? '' : ($spotsLabel ?: __('Event full', 'fluent-event')),
+            ];
+        }
 
         $data = [
             'event'            => $formatted,
@@ -48,16 +106,43 @@ class EventPageService
             'phase'            => $phase,
             /* translators: %s: time until the event starts, e.g. "3 days" */
             'status_label'     => $phase === 'ended' ? __('Ended', 'fluent-event') : sprintf(__('Starts in %s', 'fluent-event'), human_time_diff(time(), $start)),
+            // The start as a Unix timestamp when the host chose a countdown; portal.js ticks it down.
+            'countdown_to'     => $phase === 'upcoming' && $formatted['start_display'] === 'countdown' ? $start : null,
+            'ends_at'          => $end,
+            // The going count, or the spots left when only those show.
             /* translators: %s: number of guests going */
-            'count_label'      => $formatted['guest_count'] === null ? '' : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
+            'count_label'      => $formatted['guest_count'] === null ? $spotsLabel : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
+            'meter'            => $meter,
+            'notice'           => null,
             'meeting_link'     => $meetingLink,
             'registration'     => null,
+            'join_waitlist'    => false,
             'add_to_calendar'  => null,
-            'just_registered'  => $justRegistered,
+            'answer'           => $answer,
         ];
 
         if ($phase !== 'ended' && in_array($formatted['entry_type'], ['rsvp', 'open'], true)) {
-            $data['registration'] = self::registration($event, $isSeated);
+            if ($isWaitlisted) {
+                $data['notice'] = [
+                    'type'  => 'waitlisted',
+                    'title' => __("You're on the waitlist", 'fluent-event'),
+                    'text'  => __('The host will let you know if a spot opens up.', 'fluent-event'),
+                ];
+            } elseif ($isFull) {
+                $data['notice'] = [
+                    'type'  => 'full',
+                    'title' => __('Event full', 'fluent-event'),
+                    'text'  => $formatted['waitlist']
+                        ? __('Join the waitlist and the host will let you know if a spot opens up.', 'fluent-event')
+                        : __('This event is full and no longer taking registrations.', 'fluent-event'),
+                ];
+            }
+
+            // A waitlisted member keeps the card's menu, to leave the waitlist; a visitor who just joined has no account to.
+            if ($isWaitlisted ? is_user_logged_in() : (!$isFull || $formatted['waitlist'])) {
+                $data['registration'] = self::registration($event, $formatted['my_status'], $isSeated);
+                $data['join_waitlist'] = $isFull && !$isWaitlisted;
+            }
         }
 
         // Once someone is going, or for a no-entry event anyone can attend.
@@ -94,18 +179,25 @@ class EventPageService
         return (string) App::make('view')->make('portal.event-side', $data);
     }
 
-    // Everyone registers as a visitor and posts the event's own nonce, so only its page can register.
-    // WordPress binds that nonce to a logged-in viewer's session, so their post also carries the REST
-    // cookie nonce that lets it verify; nothing else of theirs is used.
-    protected static function registration(Event $event, $isSeated)
+    // Every post carries the event's own nonce, so only its page can register; WordPress binds it to a logged-in
+    // viewer's session, so theirs also carries the REST cookie nonce that lets it verify. A member answers by account,
+    // like on the portal: their Going / Not going posts to member_url, and the form comes prefilled.
+    protected static function registration(Event $event, $myStatus, $isSeated)
     {
         $config = App::make('config');
+        $base = rest_url($config->get('app.rest_namespace') . '/' . $config->get('app.rest_version') . '/portal/events/' . (int) $event->id);
+        $user = wp_get_current_user();
 
         return [
             'is_going'    => $isSeated,
-            'url'         => rest_url($config->get('app.rest_namespace') . '/' . $config->get('app.rest_version') . '/portal/events/' . (int) $event->id . '/register-guest'),
-            'event_nonce' => wp_create_nonce('fe_portal_register_' . $event->id),
-            'rest_nonce'  => is_user_logged_in() ? wp_create_nonce('wp_rest') : '',
+            'is_member'   => $user->exists(),
+            'status'      => $isSeated ? 'going' : (in_array($myStatus, ['not_going', 'waitlisted'], true) ? $myStatus : ''),
+            'name'        => $user->exists() ? $user->display_name : '',
+            'email'       => $user->exists() ? $user->user_email : '',
+            'url'         => $base . '/register-guest',
+            'member_url'  => $user->exists() ? $base . '/register' : '',
+            'event_nonce' => wp_create_nonce('fevent_portal_register_' . $event->id),
+            'rest_nonce'  => $user->exists() ? wp_create_nonce('wp_rest') : '',
         ];
     }
 }

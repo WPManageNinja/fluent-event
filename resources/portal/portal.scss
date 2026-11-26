@@ -1,67 +1,30 @@
 @use "../scss/variables";
 
-html.dark {
+// A theme that puts `dark` on <html> (FluentCommunity's frame does) gets our dark tokens; otherwise light.
+html.dark .fe-portal {
     color-scheme: dark;
 }
 
+// Inside the theme: no background of its own, so the page's shows through; the theme's font too.
 .fe-portal {
-    margin: 0;
-    background-color: var(--fe-secondary-bg, #f3f5fa);
     color: var(--fe-primary-text, #19283a);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: var(--fe-text-base, 16px);
     line-height: 1.5;
+    text-align: start;
+
+    // Themes restyle bare elements. Back to the browser's defaults, which every fe- rule was written over;
+    // a theme rule more specific than one class still reaches in. SVGs keep their fill and stroke attributes.
+    :where(*:not(svg, svg *)) {
+        all: revert;
+    }
+
+    // FluentCommunity's page template sets every link to `color: inherit` (`.fcom_wp_content a:not(…)`, 0,2,1), above
+    // our one-class rules. So a link rule, and any later rule for the same link, also lists `.fcom_wp_content .fe-portal &…`.
 
     *,
     *::before,
     *::after {
         box-sizing: border-box;
-    }
-
-    // No top bar: the theme switch floats in the corner, clear of titles and covers.
-    &__mode-toggle {
-        position: fixed;
-        right: var(--fe-space-5, 20px);
-        bottom: var(--fe-space-5, 20px);
-        z-index: 10;
-        display: grid;
-        place-items: center;
-        width: 44px;
-        height: 44px;
-        padding: 0;
-        border: 1px solid var(--fe-primary-border, #eaecf0);
-        border-radius: 50%;
-        background-color: var(--fe-primary-bg, #ffffff);
-        box-shadow: var(--fe-shadow-dropdown, 0 4px 16px rgba(0, 0, 0, 0.12));
-        color: var(--fe-secondary-text, #525866);
-        cursor: pointer;
-        overflow: hidden;
-
-        &:hover {
-            color: var(--fe-primary-text, #19283a);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
-            outline-offset: 2px;
-        }
-    }
-
-    // Both icons stay mounted and swap by scale, as in the admin navbar.
-    &__mode-icon {
-        display: flex;
-        transition: transform 0.4s;
-
-        &.fe-portal__mode-icon--dark {
-            position: absolute;
-            transform: scale(0);
-
-            html.dark & { transform: scale(1); }
-        }
-
-        &.fe-portal__mode-icon--light {
-            html.dark & { transform: scale(0); }
-        }
     }
 
     &__main {
@@ -72,24 +35,6 @@ html.dark {
         @media (max-width: 767px) {
             padding: var(--fe-space-8, 32px) var(--fe-space-4, 16px);
         }
-    }
-
-    &__header {
-        margin-bottom: var(--fe-space-8, 32px);
-        text-align: center;
-    }
-
-    &__title {
-        margin: 0 0 var(--fe-space-1, 4px);
-        font-size: var(--fe-text-2xl, 24px);
-        font-weight: 600;
-        line-height: 1.2;
-    }
-
-    &__subtitle {
-        margin: 0;
-        color: var(--fe-secondary-text, #525866);
-        font-size: var(--fe-text-sm, 14px);
     }
 }
 
@@ -120,7 +65,8 @@ html.dark {
         font-size: var(--fe-text-sm, 14px);
     }
 
-    &__button {
+    &__button,
+    .fcom_wp_content .fe-portal &__button {
         display: inline-flex;
         align-items: center;
         min-height: var(--fe-control-height, 36px);
@@ -184,6 +130,11 @@ html.dark {
         font: inherit;
         font-size: var(--fe-text-sm, 14px);
 
+        // iOS Safari zooms into a focused field under 16px and stays zoomed.
+        @media (max-width: 767px) {
+            font-size: 16px;
+        }
+
         &::placeholder {
             color: var(--fe-secondary-text, #525866);
         }
@@ -205,7 +156,7 @@ html.dark {
     }
 }
 
-// One chip per calendar, filtering the list by `?calendar=`; "All" clears it. Every chip wraps without
+// One chip per calendar, filtering the list by `?fevent_calendar=`; "All" clears it. Every chip wraps without
 // JavaScript; with it, wide screens keep one row (--fitted) and the rest go in the "More" panel.
 .fe-calendar-chips {
     &__row {
@@ -227,7 +178,8 @@ html.dark {
         flex-wrap: nowrap;
     }
 
-    &__chip {
+    &__chip,
+    .fcom_wp_content .fe-portal &__chip {
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -265,7 +217,8 @@ html.dark {
         white-space: nowrap;
     }
 
-    &__more {
+    &__more,
+    .fcom_wp_content .fe-portal &__more {
         font: inherit;
         font-size: 13px;
         cursor: pointer;
@@ -362,7 +315,8 @@ html.dark {
     border-radius: var(--fe-radius, 8px);
     background-color: var(--fe-active-bg, #f0f0f1);
 
-    &__option {
+    &__option,
+    .fcom_wp_content .fe-portal &__option {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -677,7 +631,9 @@ html.dark {
     }
 
     &__step,
-    &__today {
+    &__today,
+    .fcom_wp_content .fe-portal &__step,
+    .fcom_wp_content .fe-portal &__today {
         display: grid;
         place-items: center;
         min-width: 34px;
@@ -701,7 +657,8 @@ html.dark {
         }
     }
 
-    &__today {
+    &__today,
+    .fcom_wp_content .fe-portal &__today {
         padding: 0 var(--fe-space-3, 12px);
         border-right: 1px solid var(--fe-primary-border, #eaecf0);
         border-left: 1px solid var(--fe-primary-border, #eaecf0);
@@ -733,6 +690,7 @@ html.dark {
     }
 
     &__cell {
+        position: relative;
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -742,8 +700,8 @@ html.dark {
         background-color: var(--fe-primary-bg, #ffffff);
     }
 
-    // The neighbouring months' days, faded like the admin's.
-    &__cell--outside > * {
+    // The neighbouring months' days, faded like the admin's; not the day's popover, which opens over the page.
+    &__cell--outside > :not(.fe-month__popover) {
         opacity: 0.5;
     }
 
@@ -760,7 +718,8 @@ html.dark {
     }
 
     // The calendar's colour as a left bar over a tint of it, as in the admin; grey without one.
-    &__chip {
+    &__chip,
+    .fcom_wp_content .fe-portal &__chip {
         display: flex;
         align-items: baseline;
         gap: 4px;
@@ -861,28 +820,140 @@ html.dark {
         font-weight: 600;
     }
 
-    &__dot {
+    // The whole day is the tap target on a phone, with a bar per event (three at most); wider screens show the chips.
+    &__day-button {
         display: none;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background-color: var(--fe-secondary-text, #525866);
+        position: absolute;
+        inset: 0;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 2px;
+        padding: 0 5px 6px;
+        border: 0;
+        border-radius: 0;
+        background: none;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: -2px;
+        }
+
+        &[aria-pressed="true"] {
+            box-shadow: inset 0 0 0 2px var(--fe-primary-text, #19283a);
+        }
     }
 
-    // Phones show a dot per busy day instead of the chips.
+    &__bar {
+        display: block;
+        height: 3px;
+        border-radius: 2px;
+        background-color: var(--fe-event-color, var(--fe-secondary-text, #525866));
+    }
+
+    // Phones show the tapped day's events under the grid; wider screens show them in the cells.
+    &__agenda {
+        display: none;
+        margin-top: var(--fe-space-5, 20px);
+    }
+
+    &__agenda-day {
+        display: grid;
+        gap: 6px;
+        // Room below when a tap scrolls it into view, and above for a sticky theme header.
+        scroll-margin: 80px 0 16px;
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    &__agenda-date {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin: 0 0 6px;
+        color: var(--fe-primary-text, #19283a);
+    }
+
+    &__agenda-number {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__agenda-weekday {
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 13px);
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    // The chip's colour bar and tint, but the title wraps instead of cutting off.
+    &__agenda-event,
+    .fcom_wp_content .fe-portal &__agenda-event {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 10px 12px;
+        border-left: 3px solid var(--fe-event-color, var(--fe-secondary-border, #9ca3af));
+        border-radius: var(--fe-radius-sm, 4px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 12%, transparent);
+        color: var(--fe-primary-text, #19283a);
+        font-size: var(--fe-text-sm, 14px);
+        line-height: 1.4;
+        text-decoration: none;
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--fe-event-color, var(--fe-secondary-border, #9ca3af)) 22%, transparent);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline-offset: 1px;
+        }
+    }
+
+    &__agenda-event-time {
+        flex-shrink: 0;
+        color: var(--fe-secondary-text, #525866);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__agenda-event-title {
+        min-width: 0;
+        font-weight: 500;
+    }
+
+    &__agenda-empty {
+        margin: 0;
+        padding: 12px 0;
+        color: var(--fe-secondary-text, #525866);
+        font-size: var(--fe-text-sm, 14px);
+    }
+
+    // Phones show bars per busy day instead of the chips, and the tapped day's events under the grid.
     @media (max-width: 767px) {
         &__cell {
             align-items: center;
-            min-height: 48px;
+            min-height: 52px;
             padding: 4px;
         }
 
         &__chip,
+        .fcom_wp_content .fe-portal &__chip,
         &__more {
             display: none;
         }
 
-        &__dot {
+        &__day-button {
+            display: flex;
+        }
+
+        &__agenda {
             display: block;
         }
     }
@@ -988,7 +1059,8 @@ html.dark {
     }
 
     // Overlapping events split the column into lanes, set per event by the server.
-    &__event {
+    &__event,
+    .fcom_wp_content .fe-portal &__event {
         position: absolute;
         left: calc(4px + (100% - 8px) * var(--fe-lane, 0) / var(--fe-lanes, 1));
         width: calc((100% - 8px) / var(--fe-lanes, 1) - 2px);
@@ -1040,6 +1112,23 @@ html.dark {
             margin: 0 4px 0 0;
         }
     }
+
+    // Phones: the hours stay pinned left while the days scroll sideways.
+    // The body drops its own vertical scroll, or the pin can't follow.
+    @media (max-width: 767px) {
+        &__body {
+            max-height: none;
+            overflow: visible;
+        }
+
+        &__head > :first-child,
+        &__times {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background-color: var(--fe-primary-bg, #ffffff);
+        }
+    }
 }
 
 .fe-pagination {
@@ -1049,7 +1138,8 @@ html.dark {
     gap: var(--fe-space-3, 12px);
     margin-top: var(--fe-space-2, 8px);
 
-    &__link {
+    &__link,
+    .fcom_wp_content .fe-portal &__link {
         display: inline-flex;
         align-items: center;
         gap: var(--fe-space-1, 4px);
@@ -1084,30 +1174,6 @@ html.dark {
 }
 
 .fe-event-page {
-    &__back {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--fe-space-1, 4px);
-        margin-bottom: var(--fe-space-4, 16px);
-        color: var(--fe-secondary-text, #525866);
-        font-size: var(--fe-text-sm, 14px);
-        text-decoration: none;
-
-        svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        &:hover {
-            color: var(--fe-primary-text, #19283a);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
-            outline-offset: 2px;
-        }
-    }
-
     // Wide and short, so the title and the side card still show without scrolling.
     &__cover {
         display: block;
@@ -1150,6 +1216,11 @@ html.dark {
 
     &__intro {
         grid-area: intro;
+    }
+
+    // The calendar pill under the meta row; the side card's "Add to calendar" is __calendar.
+    &__calendar-tag {
+        margin-top: var(--fe-space-3, 12px);
     }
 
     &__body {
@@ -1213,31 +1284,95 @@ html.dark {
             margin-bottom: 0;
         }
 
-        // Organizer headings stay below the section title above them.
+        // Three steps, as the admin shows them: the editor offers six heading levels.
         h1,
         h2,
-        h3 {
+        h3,
+        h4,
+        h5,
+        h6 {
             margin: 18px 0 8px;
-            font-size: var(--fe-text-base, 16px);
             font-weight: 600;
             line-height: 1.4;
         }
 
-        h4,
-        h5,
-        h6 {
-            margin: 14px 0 6px;
-            font-size: 15px;
-            font-weight: 600;
+        h1,
+        h2 {
+            font-size: 18px;
         }
 
-        a {
+        h3,
+        h4 {
+            font-size: 16px;
+        }
+
+        h5,
+        h6 {
+            font-size: 15px;
+        }
+
+        blockquote {
+            margin: 0 0 16px;
+            padding-left: 16px;
+            border-left: 3px solid var(--fe-primary-border, #eaecf0);
+            color: var(--fe-secondary-text, #525866);
+        }
+
+        hr {
+            margin: 20px 0;
+            border: 0;
+            border-top: 1px solid var(--fe-primary-border, #eaecf0);
+        }
+
+        code {
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: var(--fe-secondary-bg, #f3f5fa);
+            font-size: 0.9em;
+        }
+
+        pre {
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: var(--fe-secondary-bg, #f3f5fa);
+
+            code {
+                padding: 0;
+                background: none;
+            }
+        }
+
+        a,
+        .fcom_wp_content .fe-portal & a {
             color: var(--fe-accent-blue, #0e7ff1);
         }
 
         img {
             max-width: 100%;
             height: auto;
+        }
+
+        // A long code line or a wide table scrolls inside the card, not the page.
+        pre {
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-wrap: normal;
+        }
+
+        table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+            overflow-wrap: normal;
+        }
+
+        th,
+        td {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--fe-primary-border, #eaecf0);
+            text-align: left;
+            vertical-align: top;
         }
     }
 
@@ -1299,6 +1434,50 @@ html.dark {
         font-size: var(--fe-text-sm, 14px);
     }
 
+    // Why a full event has no Register button.
+    &__notice {
+        display: flex;
+        align-items: center;
+        gap: var(--fe-space-3, 12px);
+        padding: var(--fe-space-3, 12px);
+        border: 1px solid var(--fe-primary-border, #eaecf0);
+        border-radius: var(--fe-radius, 8px);
+    }
+
+    &__notice-icon {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+        color: var(--fe-secondary-text, #525866);
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    &__notice-text {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+        line-height: 1.45;
+    }
+
+    &__notice-title {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    &__notice-desc {
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+    }
+
     // Sits where online events show Join online, so "where" has one place in the card.
     &__place {
         display: flex;
@@ -1329,13 +1508,16 @@ html.dark {
         font-weight: 600;
     }
 
+    // Typed in a textarea; keep its lines.
     &__address {
         display: block;
         color: var(--fe-secondary-text, #525866);
         font-size: 13px;
+        white-space: pre-line;
     }
 
-    &__join {
+    &__join,
+    .fcom_wp_content .fe-portal &__join {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1391,7 +1573,8 @@ html.dark {
         gap: var(--fe-space-2, 8px);
     }
 
-    &__calendar-link {
+    &__calendar-link,
+    .fcom_wp_content .fe-portal &__calendar-link {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1419,6 +1602,72 @@ html.dark {
             outline: 2px solid var(--fe-accent-blue, #0e7ff1);
             outline-offset: 2px;
         }
+    }
+}
+
+// Block themes: below 782px the single-event template's columns stack, and the side card would come after the whole
+// description. The text column hands its blocks to the row, so the card sits after the title, as in the classic grid.
+// Columns set not to stack on mobile stay side by side.
+@media (max-width: 781px) {
+    .wp-block-columns:not(.is-not-stacked-on-mobile):has(> .wp-block-column > .wp-block-fluent-event-event-registration) {
+        flex-direction: column;
+
+        > .wp-block-column:not(:has(> .wp-block-fluent-event-event-registration)) {
+            display: contents;
+
+            // The row's gap spaces them. A flex item keeps its children's margins, which collapsed into the gap before.
+            > * {
+                margin-block: 0;
+
+                > :first-child {
+                    margin-top: 0;
+                }
+
+                > :last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        .wp-block-fluent-event-event-description,
+        .wp-block-fluent-event-event-description ~ * {
+            order: 1;
+        }
+    }
+}
+
+// Guests going against the capacity, as the community event page shows it.
+.fe-capacity {
+    display: grid;
+    gap: 6px;
+
+    &__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--fe-space-3, 12px);
+        color: var(--fe-secondary-text, #525866);
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__status {
+        color: var(--fe-primary-text, #19283a);
+        font-weight: 600;
+    }
+
+    &__track {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background-color: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__fill {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background-color: var(--fe-primary-button, #2b2e33);
     }
 }
 
@@ -1543,6 +1792,14 @@ html.dark {
 
         &.fe-rsvp__icon--going {
             background-color: var(--fe-accent-green, #1a7f37);
+        }
+
+        &.fe-rsvp__icon--not-going {
+            background-color: var(--fe-danger-text, #cf222e);
+        }
+
+        &.fe-rsvp__icon--waitlisted {
+            background-color: var(--fe-accent-amber, #d97706);
         }
     }
 
@@ -1686,6 +1943,11 @@ html.dark {
         font: inherit;
         font-size: var(--fe-text-sm, 14px);
 
+        // iOS Safari zooms into a focused field under 16px and stays zoomed.
+        @media (max-width: 767px) {
+            font-size: 16px;
+        }
+
         &:focus-visible {
             outline: 2px solid var(--fe-accent-blue, #0e7ff1);
             outline-offset: 1px;
@@ -1775,6 +2037,19 @@ html.dark {
         margin: 0;
         font-size: 20px;
         font-weight: 700;
+    }
+
+    &__text {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--fe-secondary-text, #525866);
+    }
+
+    // The already-registered warning: the same popup with an amber mark.
+    &--warning &__check {
+        background-color: color-mix(in srgb, var(--fe-accent-amber, #d97706) 14%, transparent);
+        color: var(--fe-accent-amber, #d97706);
     }
 
     &__event {
@@ -1898,5 +2173,38 @@ html.dark {
 
     to {
         box-shadow: 0 0 0 6px transparent;
+    }
+}
+
+// The event page's countdown to the start, when the host picked it over "Starts in…".
+.fe-countdown {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--fe-space-2, 8px);
+
+    &__unit {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        padding: var(--fe-space-2, 8px) 4px;
+        border-radius: var(--fe-radius, 8px);
+        background-color: var(--fe-active-bg, #f0f0f1);
+    }
+
+    &__value {
+        color: var(--fe-primary-text, #19283a);
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__label {
+        color: var(--fe-secondary-text, #525866);
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        text-transform: uppercase;
     }
 }

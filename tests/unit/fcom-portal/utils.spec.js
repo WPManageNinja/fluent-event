@@ -13,8 +13,11 @@ import {
     timezoneOffset,
     isSeated,
     hasEventActions,
-    guestCountLabel
+    guestCountLabel,
+    setPageTitle,
+    elementLocale
 } from '../../../resources/fcom-portal/utils';
+import en from 'element-plus/dist/locale/en.mjs';
 
 const respond = (body, status = 200) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
 const sent = () => {
@@ -229,5 +232,64 @@ describe('RSVP helpers', () => {
     it('hides the count when the server withholds it', () => {
         expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null })).toBe('');
         expect(guestCountLabel({ entry_type: 'none' })).toBe('');
+    });
+
+    it('counts against the capacity only when the spots left show too', () => {
+        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 12, capacity: 50, spots_left: 38 })).toBe('12 out of 50 going');
+        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: 12, capacity: 50, spots_left: null })).toBe('12 going');
+        expect(guestCountLabel({ entry_type: 'rsvp', guest_count: null, capacity: 50, spots_left: null })).toBe('');
+    });
+
+    it('shows the spots left alone when the count is hidden, until the event ends or fills', () => {
+        expect(guestCountLabel({ guest_count: null, capacity: 50, spots_left: 38 })).toBe('38 spots left');
+        expect(guestCountLabel({ guest_count: null, capacity: 50, spots_left: 1 })).toBe('1 spot left');
+        expect(guestCountLabel({ guest_count: null, capacity: 50, spots_left: 0 })).toBe('');
+        expect(guestCountLabel({ guest_count: null, capacity: 50, spots_left: 38, is_past: true })).toBe('');
+    });
+});
+
+describe('setPageTitle', () => {
+    it("titles the tab the way fcom titles its own pages", () => {
+        window.fluentComAdmin.site_title = 'Acme Community';
+        setPageTitle('All Events');
+
+        expect(document.title).toBe('All Events - Acme Community');
+    });
+
+    it('uses the title alone when the site has none', () => {
+        window.fluentComAdmin.site_title = '';
+        setPageTitle('Create Event');
+
+        expect(document.title).toBe('Create Event');
+    });
+});
+
+describe('elementLocale', () => {
+    // fcom's el_i18n, as it sends it to its own app: whole groups, German here.
+    const german = {
+        datepicker: { today: 'Heute', month3: 'März', weeks: { mon: 'Mo.' }, months: { mar: 'Mär.' } },
+        pagination: { goto: 'Gehe zu' }
+    };
+
+    it("lays fcom's translated Element Plus strings over the English ones", () => {
+        const { el } = elementLocale(en, german);
+
+        expect(el.datepicker.today).toBe('Heute');
+        expect(el.datepicker.month3).toBe('März');
+        expect(el.datepicker.weeks.mon).toBe('Mo.');
+        expect(el.pagination.goto).toBe('Gehe zu');
+    });
+
+    it('keeps English for what fcom leaves out and leaves the English locale untouched', () => {
+        const locale = elementLocale(en, german);
+
+        expect(locale.name).toBe('en');
+        expect(locale.el.datepicker.now).toBe('Now');
+        expect(locale.el.select.noData).toBe('No data');
+        expect(en.el.datepicker.today).toBe('Today');
+    });
+
+    it('stays English when fcom sends no translations', () => {
+        expect(elementLocale(en, undefined).el).toEqual(en.el);
     });
 });

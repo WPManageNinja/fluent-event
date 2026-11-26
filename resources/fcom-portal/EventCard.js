@@ -9,7 +9,9 @@ import EventMenu from './EventMenu';
  */
 export default {
     name: 'FluentEventCard',
-    components: { EventActions, EventMenu },
+    // Copies: Vue caches a compiled template on the component object, and our page apps render these
+    // on our own Vue, whose compiled render silently drops v-model when fcom's Vue runs it.
+    components: { EventActions: { ...EventActions }, EventMenu: { ...EventMenu } },
     props: {
         feed: { type: Object, required: true },
         is_single: { type: Boolean, default: false },
@@ -46,11 +48,22 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        isOnline() {
+        // Not isOnline: this card runs on fcom's Vue, whose global mixin has an isOnline(dateTime) method.
+        isOnlineEvent() {
             return this.event.venue_type === 'online';
         },
         hasActions() {
             return !this.is_child && hasEventActions(this.event);
+        },
+        // A scheduled or pending post: the server takes answers once it is published.
+        unpublishedNote() {
+            if (this.event.registration_open !== false || this.event.is_past) {
+                return '';
+            }
+
+            return this.event.entry_type === 'open'
+                ? t('Members can register once this post is published.')
+                : t('Members can RSVP once this post is published.');
         },
         eventRoute() {
             const space = this.feed.space && this.feed.space.slug;
@@ -79,9 +92,20 @@ export default {
 
             return this.portalUrl + (space ? `space/${space}/` : '') + `event/${slug}`;
         },
+        canOpenEvent() {
+            return this.hasEventPage || (!!this.eventRoute && !!this.portalUrl);
+        },
     },
     methods: {
         t,
+        // Where the title link goes.
+        openEvent() {
+            if (this.hasEventPage) {
+                this.$router.push(this.eventRoute);
+            } else if (this.canOpenEvent) {
+                window.location.href = this.portalEventUrl;
+            }
+        },
         apply(response) {
             this.event = response.event;
         },
@@ -115,7 +139,15 @@ export default {
             </div>
             <p v-else-if="!event" class="fe-event-card__unavailable">{{ t('This event is not available.') }}</p>
             <template v-else>
-                <img v-if="event.cover_url" class="fe-event-card__cover" :src="event.cover_url" alt="" />
+                <!-- A mouse shortcut to the title link, which stays the keyboard and screen-reader route. -->
+                <img
+                    v-if="event.cover_url"
+                    class="fe-event-card__cover"
+                    :class="{ 'fe-event-card__cover--link': canOpenEvent }"
+                    :src="event.cover_url"
+                    alt=""
+                    @click="openEvent"
+                />
                 <div class="fe-event-card__body">
                     <div class="fe-date-chip" aria-hidden="true">
                         <span class="fe-date-chip__month">{{ month }}</span>
@@ -136,9 +168,9 @@ export default {
                         </div>
                         <p class="fe-event-card__meta">{{ startDate }}</p>
                         <p class="fe-event-card__meta fe-event-card__meta--venue">
-                            <span v-if="isOnline" class="fe-event-card__venue-icon" aria-hidden="true">${VIDEO_CAMERA}</span>
+                            <span v-if="isOnlineEvent" class="fe-event-card__venue-icon" aria-hidden="true">${VIDEO_CAMERA}</span>
                             <span v-else class="fe-event-card__venue-icon" aria-hidden="true">${MAP_LOCATION}</span>
-                            {{ isOnline ? t('Online') : t('In person') }}
+                            {{ isOnlineEvent ? t('Online') : t('In Person') }}
                         </p>
                     </div>
                 </div>
@@ -148,6 +180,7 @@ export default {
                     <event-actions :event="event" @done="apply" @error="error = $event"></event-actions>
                 </div>
 
+                <p v-if="hasActions && unpublishedNote" class="fe-event-card__note">{{ unpublishedNote }}</p>
                 <p v-if="error" class="fe-event-card__error" role="alert">{{ error }}</p>
             </template>
         </div>
