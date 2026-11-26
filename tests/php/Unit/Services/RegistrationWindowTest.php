@@ -7,8 +7,9 @@ use FluentEvent\App\Utils\DateTimeHelper;
 use FluentEvent\Tests\TestCase;
 
 /**
- * When an event takes registrations: offsets counted back from its start, on its own clock, so the moment
- * matches what the event form previews. With no limit a side falls on the event's own start or end.
+ * When an event takes registrations: offsets counted back from its start or end on its own clock, so the moment
+ * matches what the event form previews, or a fixed date. With no limit it opens at once and closes at the end.
+ * The limits here are mostly the old {value, unit}, which still reads as "before the start".
  */
 class RegistrationWindowTest extends TestCase
 {
@@ -21,14 +22,38 @@ class RegistrationWindowTest extends TestCase
         $window = EventService::calculateRegistrationWindow($startAt, $endAt, $timezone, $opens, $closes);
 
         return [
-            DateTimeHelper::convertFromUtc($window['opens_at'], $timezone),
+            $window['opens_at'] ? DateTimeHelper::convertFromUtc($window['opens_at'], $timezone) : null,
             DateTimeHelper::convertFromUtc($window['closes_at'], $timezone),
         ];
     }
 
-    public function test_with_no_limit_registration_opens_at_the_start_and_closes_at_the_end()
+    public function test_with_no_limit_registration_is_open_at_once_and_closes_at_the_end()
     {
-        $this->assertSame(['2026-11-10 18:00:00', '2026-11-10 20:00:00'], $this->window('2026-11-10 18:00:00', 'Asia/Dhaka'));
+        $this->assertSame([null, '2026-11-10 20:00:00'], $this->window('2026-11-10 18:00:00', 'Asia/Dhaka'));
+        $this->assertSame([null, '2026-11-10 20:00:00'], $this->window('2026-11-10 18:00:00', 'Asia/Dhaka', ['type' => 'immediately'], ['type' => 'event_end']));
+    }
+
+    public function test_closing_can_count_back_from_the_end()
+    {
+        $this->assertSame(
+            ['2026-11-03 18:00:00', '2026-11-10 19:30:00'],
+            $this->window('2026-11-10 18:00:00', 'Asia/Dhaka', ['type' => 'start', 'value' => 7, 'unit' => 'days'], ['type' => 'end', 'value' => 30, 'unit' => 'minutes'])
+        );
+    }
+
+    // A fixed date is already UTC by the time it gets here; it does not follow the event.
+    public function test_a_fixed_date_is_kept_as_it_is()
+    {
+        $window = EventService::calculateRegistrationWindow('2026-11-10 12:00:00', '2026-11-10 14:00:00', 'Asia/Dhaka',
+            ['type' => 'fixed', 'at' => '2026-11-01 03:00:00'], ['type' => 'fixed', 'at' => '2026-11-09 11:00:00']);
+
+        $this->assertSame(['opens_at' => '2026-11-01 03:00:00', 'closes_at' => '2026-11-09 11:00:00'], $window);
+    }
+
+    public function test_a_fixed_date_typed_in_a_skipped_hour_counts_from_the_jump()
+    {
+        $this->assertSame('2026-12-01 14:00:00', EventService::wallClockToUtc('2026-12-01 09:00:00', 'America/New_York'));
+        $this->assertSame('2027-03-14 07:00:00', EventService::wallClockToUtc('2027-03-14 02:30:00', 'America/New_York'));
     }
 
     public function test_both_moments_are_stored_in_utc()

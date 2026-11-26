@@ -21,7 +21,11 @@ class Event extends Model
     const SEAT_STATUSES = ['going', 'checked_in'];
     // A guest who holds a seat or waits for one: they can't register again, and can leave.
     const PLACE_STATUSES = ['going', 'checked_in', 'waitlisted'];
-    const REGISTRATION_LIMITS = ['registration_opens', 'registration_closes'];
+    // Each limit's types; the first is the default, used when none is set.
+    const REGISTRATION_LIMITS = [
+        'registration_opens'  => ['immediately', 'start', 'fixed'],
+        'registration_closes' => ['event_end', 'start', 'end', 'fixed'],
+    ];
     const POST_STATUSES = [
         'public'   => 'publish',
         'unlisted' => 'publish',
@@ -75,11 +79,9 @@ class Event extends Model
             'waitlist'           => 'no',
             // How the event page shows the time until the start: relative ("Starts in 3 days") or a live countdown.
             'start_display'      => 'relative',
-            'registration_opens'  => null, // {value, unit} before the start; null = as soon as published
-            'registration_closes' => null, // {value, unit} before the start; null = until the event ends
-            // UTC moments worked out from the two above on every save (EventService::calculateRegistrationWindow()).
-            'registration_opens_at'  => null,
-            'registration_closes_at' => null,
+            // {type, value, unit, at}: at is the UTC moment, worked out on every save; null = the first type.
+            'registration_opens'  => null,
+            'registration_closes' => null,
             // The description's markdown, as written in the editor; the post holds its rendered HTML.
             'description_md'     => '',
         ];
@@ -96,7 +98,6 @@ class Event extends Model
         return self::POST_STATUSES[$status] ?? 'draft';
     }
 
-    // [opens, closes] as UTC timestamps, each null where the host set no limit.
     // not_open, open, closed or ended, on the server's clock, from the window stored on save.
     public static function registrationState($event)
     {
@@ -106,23 +107,38 @@ class Event extends Model
             return 'ended';
         }
 
-        if ($now < $event->registration_opens_at) {
+        if ($event->registration_opens_at && $now < $event->registration_opens_at) {
             return 'not_open';
         }
 
         return $now >= $event->registration_closes_at ? 'closed' : 'open';
     }
 
-    // UTC, stored by EventService::calculateRegistrationWindow() on every save; the start or end where no limit is
-    // set, or where a save before the window existed stored none.
+    // A limit in its full shape. A missing one is the first type; an old {value, unit} counts before the start.
+    public static function registrationLimit($key, $limit)
+    {
+        $limit = is_array($limit) ? $limit : [];
+        $type = Arr::get($limit, 'type')
+            ?: (isset($limit['value']) || isset($limit['unit']) ? 'start' : self::REGISTRATION_LIMITS[$key][0]);
+        $relative = in_array($type, ['start', 'end'], true);
+
+        return [
+            'type'  => $type,
+            'value' => $relative ? Arr::get($limit, 'value') : null,
+            'unit'  => $relative ? Arr::get($limit, 'unit') : null,
+            'at'    => Arr::get($limit, 'at'),
+        ];
+    }
+
+    // UTC; null opens from the save on.
     public function getRegistrationOpensAtAttribute()
     {
-        return Arr::get((array) $this->meta, 'registration_opens_at') ?: $this->start_at;
+        return Arr::get((array) $this->meta, 'registration_opens.at');
     }
 
     public function getRegistrationClosesAtAttribute()
     {
-        return Arr::get((array) $this->meta, 'registration_closes_at') ?: $this->end_at;
+        return Arr::get((array) $this->meta, 'registration_closes.at') ?: $this->end_at;
     }
 
     public function guests()

@@ -84,7 +84,7 @@ class EventController extends Controller
             // Worked out here, so the event page reads the server's clock, not the browser's. Times are in site time.
             'registration_window' => [
                 'state'     => Event::registrationState($event),
-                'opens_at'  => DateTimeHelper::convertFromUtc($event->registration_opens_at, wp_timezone_string()),
+                'opens_at'  => $event->registration_opens_at ? DateTimeHelper::convertFromUtc($event->registration_opens_at, wp_timezone_string()) : null,
                 'closes_at' => DateTimeHelper::convertFromUtc($event->registration_closes_at, wp_timezone_string()),
             ],
         ];
@@ -144,10 +144,7 @@ class EventController extends Controller
         $endAt    = DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone);
 
         // Worked out again on every save: moving the start or end moves the window, though no offset was sent.
-        $meta   = Arr::get($data, 'meta', []);
-        $window = EventService::calculateRegistrationWindow($startAt, $endAt, $timezone, Arr::get($meta, 'registration_opens'), Arr::get($meta, 'registration_closes'));
-        $meta['registration_opens_at']  = $window['opens_at'];
-        $meta['registration_closes_at'] = $window['closes_at'];
+        $meta = EventService::withRegistrationWindow(Arr::get($data, 'meta', []), $startAt, $endAt, $timezone);
 
         $previousCalendarId = (int) $event->calendar_id;
         $calendarId         = (int) Arr::get($data, 'calendar_id');

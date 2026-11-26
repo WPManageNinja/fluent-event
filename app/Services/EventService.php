@@ -23,10 +23,7 @@ class EventService
         $startAt = DateTimeHelper::convertToUtc(Arr::get($data, 'start_at'), $timezone);
         $endAt = DateTimeHelper::convertToUtc(Arr::get($data, 'end_at'), $timezone);
 
-        $meta = Arr::get($data, 'meta', []);
-        $window = self::calculateRegistrationWindow($startAt, $endAt, $timezone, Arr::get($meta, 'registration_opens'), Arr::get($meta, 'registration_closes'));
-        $meta['registration_opens_at'] = $window['opens_at'];
-        $meta['registration_closes_at'] = $window['closes_at'];
+        $meta = self::withRegistrationWindow(Arr::get($data, 'meta', []), $startAt, $endAt, $timezone);
 
         // The post and its details row must land together — a post without its
         // typed row is an event the app cannot read.
@@ -46,42 +43,75 @@ class EventService
     }
 
     /**
-     * When registration opens and closes, from the event's times and its relative window. Counted back on the
-     * event's own clock, so "7 days before" keeps its wall-clock time across a DST change. Stored on every save;
-     * anything that moves the start, end or timezone must store it again.
+     * When registration opens and closes, from the event's times and its two limits. Counted on the event's own
+     * clock, so "7 days before" keeps its wall-clock time across a DST change. Stored on every save; anything that
+     * moves the start, end or timezone must store it again.
      *
      * @param string     $startAt  UTC 'Y-m-d H:i:s'.
      * @param string     $endAt    UTC 'Y-m-d H:i:s'.
      * @param string     $timezone The event's timezone.
-     * @param array|null $opens    {value, unit} before the start; null opens at the start itself.
-     * @param array|null $closes   {value, unit} before the start; null closes at the end.
-     * @return array ['opens_at' => UTC string, 'closes_at' => UTC string], both always set.
+     * @param array|null $opens    {type, value, unit, at}, a fixed at in UTC; see Event::registrationLimit().
+     * @param array|null $closes   The same.
+     * @return array ['opens_at' => UTC string or null (open from the save on), 'closes_at' => UTC string]
      */
     public static function calculateRegistrationWindow($startAt, $endAt, $timezone, $opens, $closes)
     {
         $timezone = DateTimeHelper::getValidatedTimeZone($timezone);
-        $localStart = strtotime(DateTimeHelper::convertFromUtc($startAt, $timezone) . ' UTC');
 
-        $before = function ($offset) use ($localStart, $timezone) {
-            $local = gmdate(DateTimeHelper::FORMAT, $localStart - Settings::reminderInSeconds($offset));
-            $at = strtotime(DateTimeHelper::convertToUtc($local, $timezone) . ' UTC');
+        $before = function ($utc, $limit) use ($timezone) {
+            $local = strtotime(DateTimeHelper::convertFromUtc($utc, $timezone) . ' UTC') - Settings::reminderInSeconds($limit);
 
-            // A time the clocks skip (2:30 on a spring-forward night) would read as an hour later and could open
-            // after closing; it counts as the moment the clocks jump instead.
-            $skipped = strtotime(DateTimeHelper::convertFromUtc(gmdate(DateTimeHelper::FORMAT, $at), $timezone) . ' UTC') - strtotime($local . ' UTC');
+            return self::wallClockToUtc(gmdate(DateTimeHelper::FORMAT, $local), $timezone);
+        };
 
-            if ($skipped > 0) {
-                $jumps = (new \DateTimeZone($timezone))->getTransitions($at - $skipped, $at);
-                $at = end($jumps)['ts'];
+        $moment = function ($key, $limit) use ($startAt, $endAt, $before) {
+            $limit = Event::registrationLimit($key, $limit);
+
+            switch ($limit['type']) {
+                case 'start':
+                    return $before($startAt, $limit);
+                case 'end':
+                    return $before($endAt, $limit);
+                case 'fixed':
+                    return $limit['at'];
+                case 'event_end':
+                    return $endAt;
             }
 
-            return gmdate(DateTimeHelper::FORMAT, $at);
+            return null;
         };
 
         return [
-            'opens_at'  => $opens ? $before($opens) : $startAt,
-            'closes_at' => $closes ? $before($closes) : $endAt,
+            'opens_at'  => $moment('registration_opens', $opens),
+            'closes_at' => $moment('registration_closes', $closes),
         ];
+    }
+
+    // The meta with both limits in full shape and their worked-out moment in `at`.
+    public static function withRegistrationWindow(array $meta, $startAt, $endAt, $timezone)
+    {
+        $window = self::calculateRegistrationWindow($startAt, $endAt, $timezone, Arr::get($meta, 'registration_opens'), Arr::get($meta, 'registration_closes'));
+
+        foreach (['registration_opens' => 'opens_at', 'registration_closes' => 'closes_at'] as $key => $at) {
+            $meta[$key] = array_merge(Event::registrationLimit($key, Arr::get($meta, $key)), ['at' => $window[$at]]);
+        }
+
+        return $meta;
+    }
+
+    // A time the clocks skip (2:30 on a spring-forward night) would read as an hour later and could open after
+    // closing; it counts as the moment the clocks jump instead.
+    public static function wallClockToUtc($local, $timezone)
+    {
+        $at = strtotime(DateTimeHelper::convertToUtc($local, $timezone) . ' UTC');
+        $skipped = strtotime(DateTimeHelper::convertFromUtc(gmdate(DateTimeHelper::FORMAT, $at), $timezone) . ' UTC') - strtotime($local . ' UTC');
+
+        if ($skipped > 0) {
+            $jumps = (new \DateTimeZone($timezone))->getTransitions($at - $skipped, $at);
+            $at = end($jumps)['ts'];
+        }
+
+        return gmdate(DateTimeHelper::FORMAT, $at);
     }
 
     public static function editUrl($eventId)
