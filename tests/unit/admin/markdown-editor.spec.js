@@ -22,7 +22,7 @@ vi.mock('@milkdown/crepe', () => {
 
     return { Crepe };
 });
-vi.mock('@milkdown/kit/core', () => ({ editorViewCtx: 'editorViewCtx' }));
+vi.mock('@milkdown/kit/core', () => ({ editorViewCtx: 'editorViewCtx', editorViewOptionsCtx: 'editorViewOptionsCtx' }));
 vi.mock('@milkdown/kit/plugin/listener', () => ({ listener: {}, listenerCtx: 'listenerCtx' }));
 vi.mock('@milkdown/kit/plugin/upload', () => ({ upload: {}, uploadConfig: { key: 'uploadConfig' } }));
 vi.mock('@milkdown/crepe/theme/common/style.css', () => ({}));
@@ -44,7 +44,7 @@ const configured = () => {
     const found = {};
     const ctx = {
         get: () => ({ markdownUpdated: (fn) => (found.onMarkdown = fn) }),
-        update: (key, fn) => (found.uploader = fn({}).uploader),
+        update: (key, fn) => (found[key] = fn({ editable: 'kept' })),
     };
     milkdown.configs.at(-1)(ctx);
 
@@ -68,6 +68,15 @@ describe('MarkdownEditor', () => {
         expect(wrapper.emitted('update:modelValue')).toEqual([['**Bring** a tripod and a torch']]);
     });
 
+    it('names the editable area itself, keeping the view options Crepe set', async () => {
+        await editor({ ariaLabelledby: 'fe-event-description-label' });
+
+        expect(configured().editorViewOptionsCtx).toEqual({
+            editable: 'kept',
+            attributes: { role: 'textbox', 'aria-multiline': 'true', 'aria-labelledby': 'fe-event-description-label' },
+        });
+    });
+
     it("sends the image block's uploads, and pasted or dropped images, through the caller's upload", async () => {
         const { crepe, upload } = await editor();
         const create = vi.fn((attrs) => attrs);
@@ -77,7 +86,7 @@ describe('MarkdownEditor', () => {
 
         expect(crepe.options.featureConfigs['image-block'].onUpload).toBe(upload);
 
-        const nodes = await configured().uploader([photo, notes], schema);
+        const nodes = await configured().uploadConfig.uploader([photo, notes], schema);
         expect(upload).toHaveBeenCalledTimes(1);
         expect(nodes).toEqual([{ src: 'https://example.test/uploads/walk.png' }]);
     });
@@ -87,7 +96,7 @@ describe('MarkdownEditor', () => {
         await editor({ upload });
         const schema = { nodes: { 'image-block': { create: (attrs) => attrs } } };
 
-        const nodes = await configured().uploader([new File(['x'], 'bad.png', { type: 'image/png' }), new File(['x'], 'ok.png', { type: 'image/png' })], schema);
+        const nodes = await configured().uploadConfig.uploader([new File(['x'], 'bad.png', { type: 'image/png' }), new File(['x'], 'ok.png', { type: 'image/png' })], schema);
 
         expect(nodes).toEqual([{ src: 'https://example.test/ok.png' }]);
     });

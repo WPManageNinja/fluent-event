@@ -1,6 +1,6 @@
 <template>
     <div v-loading="!ready" class="fe-markdown-editor" @click.capture="keepButtonInEditor" @keydown.enter.capture="keepEnterInEditor">
-        <div ref="root" class="fe-markdown-editor__root" :aria-labelledby="ariaLabelledby || null" @click.capture="pickFromLibrary"></div>
+        <div ref="root" class="fe-markdown-editor__root" @click.capture="pickFromLibrary"></div>
     </div>
 </template>
 
@@ -44,7 +44,7 @@
             };
         },
         async mounted() {
-            const [{ Crepe }, { editorViewCtx }, { listener, listenerCtx }, { upload, uploadConfig }] = await loadMilkdown();
+            const [{ Crepe }, { editorViewCtx, editorViewOptionsCtx },{ listener, listenerCtx }, { upload, uploadConfig }] = await loadMilkdown();
 
             if (this.gone) {
                 return;
@@ -62,6 +62,13 @@
 
             this.crepe.editor
                 .config((ctx) => {
+                    // The name goes on the contenteditable itself; a label on a wrapper div isn't read.
+                    if (this.ariaLabelledby) {
+                        ctx.update(editorViewOptionsCtx, (options) => ({
+                            ...options,
+                            attributes: { role: 'textbox', 'aria-multiline': 'true', 'aria-labelledby': this.ariaLabelledby },
+                        }));
+                    }
                     ctx.get(listenerCtx).markdownUpdated((_, markdown) => this.$emit('update:modelValue', markdown));
                     ctx.update(uploadConfig.key, (config) => ({ ...config, uploader: this.uploadFiles }));
                 })
