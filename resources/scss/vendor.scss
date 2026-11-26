@@ -180,6 +180,7 @@
     // Hover reads like the action popover: the text takes the primary colour, no fill.
     .el-dropdown__popper.el-popper {
         --el-dropdown-menuItem-hover-fill: transparent;
+        --el-dropdown-menuItem-hover-color: var(--fe-tag-primary, #135e96);
     }
 
     // The picker borders itself and its arrow with its own variable, not --el-border-color-light.
@@ -302,14 +303,14 @@
 
     .el-button--danger {
         --el-button-text-color: var(--el-color-white);
-        --el-button-bg-color: var(--el-color-danger);
-        --el-button-border-color: var(--el-color-danger);
+        --el-button-bg-color: var(--fe-danger-button, #cf222e);
+        --el-button-border-color: var(--fe-danger-button, #cf222e);
         --el-button-hover-text-color: var(--el-color-white);
-        --el-button-hover-bg-color: var(--el-color-danger-light-3);
-        --el-button-hover-border-color: var(--el-color-danger-light-3);
+        --el-button-hover-bg-color: var(--fe-danger-button-hover, #a40e26);
+        --el-button-hover-border-color: var(--fe-danger-button-hover, #a40e26);
         --el-button-active-text-color: var(--el-color-white);
-        --el-button-active-bg-color: var(--el-color-danger-dark-2);
-        --el-button-active-border-color: var(--el-color-danger-dark-2);
+        --el-button-active-bg-color: var(--fe-danger-button-hover, #a40e26);
+        --el-button-active-border-color: var(--fe-danger-button-hover, #a40e26);
     }
 
     .el-switch {

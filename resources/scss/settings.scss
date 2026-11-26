@@ -49,7 +49,7 @@
         }
 
         &:focus-visible {
-            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline: 2px solid var(--fe-accent-blue, #0b6bcb);
             outline-offset: 1px;
         }
 
@@ -172,7 +172,7 @@
         }
 
         &:has(.el-radio__original:focus-visible) .fe-view-picker__preview {
-            outline: 2px solid var(--fe-accent-blue, #0e7ff1);
+            outline: 2px solid var(--fe-accent-blue, #0b6bcb);
             outline-offset: 2px;
             border-radius: var(--fe-radius, 8px);
         }
@@ -247,6 +247,11 @@
         flex-wrap: wrap;
         align-items: center;
         gap: var(--fe-space-1, 4px);
+    }
+
+    // wp-admin's link colour has no dark value.
+    &__preview {
+        color: var(--fe-wp-link, #2271b1);
     }
 
     &__code {

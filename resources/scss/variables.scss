@@ -65,6 +65,9 @@ body {
     --fe-wp-text: #1d2327;
     --fe-success-text: #1a7f37;
     --fe-danger-text: #cf222e;
+    // White label on a solid danger button, both modes: 5.36:1, 7.87:1 on hover.
+    --fe-danger-button: #cf222e;
+    --fe-danger-button-hover: #a40e26;
     // Element Plus tag text, dark enough on its pale fills (4.5:1 or more).
     --fe-tag-success: #1a7f37;
     --fe-tag-warning: #8a5a00;
@@ -75,7 +78,7 @@ body {
     --fe-chart-checked-in: #1a7f37;
     --fe-chart-cancelled: #e06c75;
     --fe-accent: #253241;
-    --fe-accent-blue: #0e7ff1;
+    --fe-accent-blue: #0b6bcb;
     --fe-accent-green: #1a7f37;
     --fe-accent-rose: #e06c75;
     --fe-accent-amber: #d97706;
@@ -95,7 +98,7 @@ body {
 
     --el-text-color-primary: rgba(48, 49, 51, 1);
     --el-text-color-secondary: rgba(96, 98, 102, 1);
-    --el-text-color-placeholder: rgba(0, 0, 0, 0.35);
+    --el-text-color-placeholder: var(--fe-tertiary-text);
 
     --el-border-color: rgba(220, 223, 230, 1);
     --el-menu-text-color: rgba(48, 49, 51, 1);
@@ -125,7 +128,7 @@ body {
 
 html.dark body {
     --fe-primary-text: #F0F3F5;
-    --fe-secondary-text: #99A0AE;
+    --fe-secondary-text: #A8AFBC;
     --fe-tertiary-text: #8A91A0;
     --fe-text-mid: #C1C7D1;
     --fe-primary-button: #FFFFFF;
@@ -145,8 +148,9 @@ html.dark body {
     --fe-card-hover-bg: #1C2732;
     --fe-card-line: #2C3C4E;
     --fe-badge-color: #2C3C4E;
+    --fe-wp-link: #72aee6;
     --fe-success-text: #3fb950;
-    --fe-danger-text: #f85149;
+    --fe-danger-text: #ff7b72;
     // Element Plus's own tag colours already read well on its dark fills.
     --fe-tag-success: var(--el-color-success);
     --fe-tag-warning: var(--el-color-warning);
@@ -176,7 +180,6 @@ html.dark body {
 
     --el-text-color-primary: rgba(255, 255, 255, 0.82);
     --el-text-color-secondary: rgba(255, 255, 255, 0.45);
-    --el-text-color-placeholder: rgba(255, 255, 255, 0.35);
 
     --el-border-color: rgba(60, 61, 90, 1);
     --el-menu-text-color: rgba(255, 255, 255, 0.75);
