@@ -211,7 +211,7 @@ const createEventShell = {
                 // fcom's own list for its composer picker: discussion spaces, keyed by slug, with the member's permissions.
                 spaces: Object.values(((this.appVars || {}).auth || {}).spaces || {})
                     .filter((space) => space.permissions && space.permissions.can_create_post)
-                    .map((space) => ({ slug: space.slug, title: space.title, privacy: space.privacy, emoji: (space.settings || {}).emoji || '' })),
+                    .map((space) => ({ slug: space.slug, title: space.title, emoji: (space.settings || {}).emoji || '' })),
                 initialSpace: this.space,
                 onSpace: (space) => {
                     this.space = space;
