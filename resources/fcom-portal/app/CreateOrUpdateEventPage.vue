@@ -38,7 +38,7 @@
                     >
                         <el-radio value="space" border>
                             <span class="fe-create-event__choice-title">{{ $t('In a space') }}</span>
-                            <span class="fe-create-event__hint">{{ $t('Only members of the space can see it.') }}</span>
+                            <span class="fe-create-event__hint">{{ spaceHint }}</span>
                         </el-radio>
                         <!-- The disabled card says why; the tooltip says where to turn it on. -->
                         <el-tooltip
@@ -496,6 +496,16 @@ export default {
         // A clone has no eventSlug, so without the loading check its blank form would render under the skeleton.
         editable() {
             return !this.loading && (!this.eventSlug || !!this.loadedEvent);
+        },
+        // A public space's posts are open to non-members and visitors too.
+        spaceHint() {
+            const space = this.spaces.find((option) => option.slug === this.space);
+
+            if (!space) {
+                return this.$t("Who can see it follows the space's privacy.");
+            }
+
+            return space.privacy === 'public' ? this.$t('Anyone who can open the space can see it, members or not.') : this.$t('Only members of the space can see it.');
         },
         venueMaxLength() {
             return portalVars().venue_max_length;

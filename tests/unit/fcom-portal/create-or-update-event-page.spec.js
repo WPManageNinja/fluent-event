@@ -56,6 +56,14 @@ describe('CreateOrUpdateEventPage', () => {
         const placementGroup = (wrapper) => wrapper.findAllComponents({ name: 'ElRadioGroup' })[0];
         const radio = (wrapper, value) => wrapper.findAllComponents({ name: 'ElRadio' }).find(r => r.props('value') === value);
 
+        it("says who sees a space's events from the chosen space's privacy", async () => {
+            const spaces = [{ slug: 'open', title: 'Open', privacy: 'public' }, { slug: 'closed', title: 'Closed', privacy: 'private' }];
+
+            expect((await createPage(undefined, { spaces, initialSpace: '' })).vm.spaceHint).toBe("Who can see it follows the space's privacy.");
+            expect((await createPage(undefined, { spaces, initialSpace: 'open' })).vm.spaceHint).toBe('Anyone who can open the space can see it, members or not.');
+            expect((await createPage(undefined, { spaces, initialSpace: 'closed' })).vm.spaceHint).toBe('Only members of the space can see it.');
+        });
+
         it('starts on In a space and reports a change to the shell', async () => {
             const { wrapper, props } = await createPage();
 
