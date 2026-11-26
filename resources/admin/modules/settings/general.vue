@@ -114,6 +114,7 @@
                         </el-button>
                         <a
                             v-if="selectedPages[field.key]"
+                            class="fe-page-picker__preview"
                             :href="selectedPages[field.key].link"
                             target="_blank"
                             rel="noopener"

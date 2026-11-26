@@ -19,7 +19,8 @@
         font-weight: 600;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: var(--fcom-secondary-text, #525866);
+        color: var(--fcom-primary-text, #19283a);
+        color: color-mix(in srgb, var(--fcom-secondary-text, #525866) 50%, var(--fcom-primary-text, #19283a));
         background: var(--fcom-active-bg, #f0f3f5);
     }
 
@@ -285,7 +286,8 @@
         border-radius: 999px;
         font-size: 13px;
         background: var(--fcom-active-bg, #f0f3f5);
-        color: var(--fcom-secondary-text, #525866);
+        color: var(--fcom-primary-text, #19283a);
+        color: color-mix(in srgb, var(--fcom-secondary-text, #525866) 50%, var(--fcom-primary-text, #19283a));
     }
 
     // A state, not a refusal: plain text where the RSVP would be (Event full).
