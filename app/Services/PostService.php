@@ -42,12 +42,18 @@ class PostService
 
     public static function updateEventPost($postId, $data)
     {
-        $result = wp_update_post([
-            'ID'           => $postId,
-            'post_title'   => wp_slash(Arr::get($data, 'title')),
-            'post_content' => wp_slash(Arr::get($data, 'description', '')),
-            'post_status'  => Event::postStatusFor(Arr::get($data, 'status')),
-        ], true);
+        $post = [
+            'ID'          => $postId,
+            'post_title'  => wp_slash(Arr::get($data, 'title')),
+            'post_status' => Event::postStatusFor(Arr::get($data, 'status')),
+        ];
+
+        // An update without a description keeps the body, as it keeps the markdown.
+        if (array_key_exists('description', $data)) {
+            $post['post_content'] = wp_slash($data['description']);
+        }
+
+        $result = wp_update_post($post, true);
 
         if (is_wp_error($result)) {
             throw new HttpException(
