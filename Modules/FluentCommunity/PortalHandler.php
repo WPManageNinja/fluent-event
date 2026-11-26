@@ -49,7 +49,7 @@ class PortalHandler
     public function register()
     {
         add_action('fluent_community/before_js_loaded', [$this, 'printVars']);
-        add_filter('fluent_community/module_scripts', [$this, 'addModuleScript']);
+        add_filter('fluent_community/module_scripts', [$this, 'addModuleScript'], 10, 2);
         add_filter('fluent_community/portal_data_vars', [$this, 'addStylesheet'], 20);
         add_filter('fluent_community/default_main_menu_items', [$this, 'addMenuItem']);
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
@@ -134,8 +134,13 @@ class PortalHandler
     }
 
     // fcom places it after its start.js and before its app, so the routes are in place before the router is built.
-    public function addModuleScript($scripts)
+    // fcom's admin app runs the same filter, and its router has no use for the portal routes.
+    public function addModuleScript($scripts, $runtime = 'portal')
     {
+        if ($runtime !== 'portal') {
+            return $scripts;
+        }
+
         $script = Enqueue::url('fcom-portal/fcom-portal.js');
 
         if ($script) {

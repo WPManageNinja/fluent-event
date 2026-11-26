@@ -13,6 +13,7 @@ use FluentEvent\App\Models\Meta;
 use FluentEvent\App\Services\CalendarService;
 use FluentEvent\App\Services\Settings;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
+use FluentEvent\Modules\FluentCommunity\PortalHandler;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -276,6 +277,14 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertNotNull($calendar, 'Deleting the space must not delete its calendar.');
         $this->assertSame('draft', $calendar->status);
         $this->assertNull(CalendarService::findBySpace($spaceId), 'The calendar still points at the deleted space.');
+    }
+
+    public function test_the_portal_script_loads_in_fcoms_portal_only()
+    {
+        $handler = new PortalHandler();
+
+        $this->assertSame([], $handler->addModuleScript([], 'admin'));
+        $this->assertArrayHasKey('fluent_event_fcom_portal', $handler->addModuleScript([], 'portal'));
     }
 
     public function test_a_space_calendar_links_to_its_space_only_while_the_space_exists()
