@@ -74,7 +74,7 @@ class EventController extends Controller
             ->withCount('guests')
             ->findOrFail($id);
 
-        // `post` is hidden from JSON, so "Clone Event" reads the slug from here.
+        // `post` is hidden from JSON, so the slug is copied onto the event.
         $event->slug = $event->post->post_name;
 
         $data = [

@@ -123,13 +123,7 @@
                     <span>{{ $t('Edit Event') }}</span>
                 </el-button>
 
-                <!-- The list row has no slug; the loaded event does. A disabled router-link still navigates, so it's a plain button until then. -->
-                <el-button
-                    :tag="shareEvent ? 'router-link' : 'button'"
-                    :to="shareEvent ? { name: 'event_create', query: { clone: shareEvent.slug } } : undefined"
-                    :disabled="!shareEvent"
-                    @click="close"
-                >
+                <el-button tag="router-link" :to="{ name: 'event_create', query: { clone: event.id } }" @click="close">
                     <el-icon aria-hidden="true"><CopyDocument /></el-icon>
                     <span>{{ $t('Clone Event') }}</span>
                 </el-button>
