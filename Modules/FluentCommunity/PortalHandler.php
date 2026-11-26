@@ -150,8 +150,13 @@ class PortalHandler
         return $scripts;
     }
 
+    // fcom's admin app reuses the portal data vars; it sets module_runtime before this runs (priority 20).
     public function addStylesheet($vars)
     {
+        if (Arr::get($vars, 'module_runtime', 'portal') !== 'portal') {
+            return $vars;
+        }
+
         $style = Enqueue::url('fcom-portal/fcom-portal.scss');
 
         if ($style) {

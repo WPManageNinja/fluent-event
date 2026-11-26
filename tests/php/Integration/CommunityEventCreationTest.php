@@ -315,6 +315,8 @@ class CommunityEventCreationTest extends IntegrationTestCase
 
         $this->assertSame([], $handler->addModuleScript([], 'admin'));
         $this->assertArrayHasKey('fluent_event_fcom_portal', $handler->addModuleScript([], 'portal'));
+        $this->assertSame(['module_runtime' => 'admin'], $handler->addStylesheet(['module_runtime' => 'admin']));
+        $this->assertArrayHasKey('fluent_event_fcom_portal', $handler->addStylesheet(['module_runtime' => 'portal'])['css_files']);
     }
 
     public function test_a_space_calendar_links_to_its_space_only_while_the_space_exists()
