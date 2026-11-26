@@ -2,6 +2,8 @@
 
 namespace FluentEvent\Database\Migrations;
 
+use FluentEvent\App\Hooks\Handlers\ActivationHandler;
+
 /**
  * Moves a site from the old `fe_` names to the `fevent` prefix: the tables, the two options,
  * the event posts' post type, saved block templates and menu items.
@@ -17,6 +19,8 @@ namespace FluentEvent\Database\Migrations;
  * It also keeps links shared before the rename working: an old `?fe_event=`, `?fe_page=`,
  * `?fe_calendar=`, `?fe_search=` or `?post_type=fe_event` link is redirected to the same URL
  * with the new names.
+ *
+ * A site that never ran the old FluentEvent (no db version, no events table) is marked done untouched.
  */
 class LegacyPrefixMigrator
 {
@@ -162,6 +166,14 @@ class LegacyPrefixMigrator
             return true;
         }
 
+        // Only a site that ran the old FluentEvent moves: on a fresh install, `fe_settings` or a `wp_fe_*`
+        // table is another plugin's. The new events table means an older build's move stopped partway.
+        if (!self::wasInstalled()) {
+            update_option(self::DONE_OPTION, 1, true);
+
+            return true;
+        }
+
         if (get_transient(self::RETRY_TRANSIENT)) {
             return false;
         }
@@ -275,6 +287,15 @@ class LegacyPrefixMigrator
         // options dropped above make maybeUpgrade() rebuild them once the post type is registered.
 
         wp_cache_flush();
+    }
+
+    protected static function wasInstalled()
+    {
+        global $wpdb;
+
+        return get_option(ActivationHandler::DB_VERSION_OPTION)
+            || self::tableExists($wpdb->prefix . 'fe_event_details')
+            || self::tableExists($wpdb->prefix . 'fevent_event_details');
     }
 
     protected static function remainingOldTables()
