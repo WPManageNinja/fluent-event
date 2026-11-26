@@ -194,7 +194,8 @@
 
                 return {
                     backgroundColor: color,
-                    color: luminance > 0.45
+                    // 0.22 is where white and the dark ink tie on contrast; 0.45 put white on #0099ff at 3:1.
+                    color: luminance > 0.22
                         ? 'var(--fe-on-hue-dark, #19283a)'
                         : 'var(--fe-on-hue-light, #ffffff)',
                 };
