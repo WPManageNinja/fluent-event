@@ -169,20 +169,14 @@ describe('EventDrawer', () => {
             expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
         });
 
-        it('shows Clone Event disabled until the event loads, then links the clone form', async () => {
-            const request = deferred();
-            Rest.get.mockReturnValue(request.promise);
-            const cloneButton = wrapper => wrapper.findAll('.fe-event-detail__actions button').find(button => button.text() === 'Clone Event');
-
+        // By the row's id, so a draft (no slug) clones too, without waiting for the event to load.
+        it('links Clone Event to the clone form by event id', () => {
+            Rest.get.mockReturnValue(deferred().promise);
             const wrapper = drawer();
-            expect(cloneButton(wrapper).attributes('disabled')).toBeDefined();
-            expect(cloneButton(wrapper).attributes('data-to')).toBeUndefined();
+            const clone = wrapper.findAll('.fe-event-detail__actions button').find(button => button.text() === 'Clone Event');
 
-            request.resolve({ ...loaded('public', 'public'), event: { ...loaded().event, slug: 'meetup' } });
-            await flushPromises();
-
-            expect(cloneButton(wrapper).attributes('disabled')).toBeUndefined();
-            expect(JSON.parse(cloneButton(wrapper).attributes('data-to'))).toEqual({ name: 'event_create', query: { clone: 'meetup' } });
+            expect(clone.attributes('disabled')).toBeUndefined();
+            expect(JSON.parse(clone.attributes('data-to'))).toEqual({ name: 'event_create', query: { clone: 1 } });
         });
     });
 });

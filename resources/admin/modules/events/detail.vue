@@ -255,7 +255,7 @@
                 return this.event.venue_type === 'online';
             },
             cloneRoute() {
-                return { name: 'event_create', query: { clone: this.event.slug } };
+                return { name: 'event_create', query: { clone: this.event.id } };
             },
             calendarStatus() {
                 return this.event.calendar?.status || '';

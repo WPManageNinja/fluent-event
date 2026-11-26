@@ -543,9 +543,9 @@
             isEditing() {
                 return !!this.eventId;
             },
-            // "Clone Event" opens the create form with ?clone=<slug> to start from that event.
-            cloneSourceSlug() {
-                return this.isEditing ? '' : (this.$route.query.clone || '');
+            // "Clone Event" opens the create form with ?clone=<id>: a draft has no slug to look it up by.
+            cloneSourceId() {
+                return this.isEditing ? 0 : (parseInt(this.$route.query.clone) || 0);
             },
             pageTitle() {
                 return this.isEditing ? this.$t('Edit Event') : this.$t('Create Event');
@@ -664,7 +664,7 @@
                 this.event = this.initForm();
                 this.fetchCalendars();
 
-                if (this.isEditing || this.cloneSourceSlug) {
+                if (this.isEditing || this.cloneSourceId) {
                     this.fetchEvent();
                     return;
                 }
@@ -688,8 +688,7 @@
             },
             fetchEvent() {
                 this.$requestServer({
-                    path: this.isEditing ? `events/${this.eventId}` : 'events/by-slug',
-                    payload: this.isEditing ? undefined : { slug: this.cloneSourceSlug },
+                    path: `events/${this.eventId || this.cloneSourceId}`,
                     loadingState: 'loadingEvent',
                     errorState: this.isEditing ? 'eventError' : null,
                     notFoundPage: this.isEditing,

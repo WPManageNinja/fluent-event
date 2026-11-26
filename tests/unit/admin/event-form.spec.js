@@ -144,12 +144,12 @@ describe('CreateOrUpdateEvent', () => {
             meta: { venue: 'Library', entry_type: 'open', capacity: 20, show_spots_left: 'yes', description_md: 'Chapter **4**' }
         };
 
-        it('prefills the create form from the event named in ?clone=, loaded by its slug', () => {
-            const { vm, request } = form({ query: { clone: 'book-club' } });
-            const load = request('events/by-slug');
+        // By id, not slug: a draft has no slug.
+        it('prefills the create form from the event named in ?clone=, loaded by its id', () => {
+            const { vm, request } = form({ query: { clone: '7' } });
+            const load = request('events/7');
 
-            expect(load.payload).toEqual({ slug: 'book-club' });
-            // A wrong slug is not the 404 page for the create form.
+            // A wrong id is not the 404 page for the create form.
             expect(load.notFoundPage).toBe(false);
 
             load.onSuccess({ event: source });
@@ -159,15 +159,15 @@ describe('CreateOrUpdateEvent', () => {
         });
 
         it('falls back to open registration when the source has no entry type saved', () => {
-            const { vm, request } = form({ query: { clone: 'book-club' } });
-            request('events/by-slug').onSuccess({ event: { ...source, meta: { ...source.meta, entry_type: '' } } });
+            const { vm, request } = form({ query: { clone: '7' } });
+            request('events/7').onSuccess({ event: { ...source, meta: { ...source.meta, entry_type: '' } } });
 
             expect(vm.event.entry_type).toBe('open');
         });
 
         it("keeps the source's calendar when the calendars load", () => {
-            const { vm, request } = form({ query: { clone: 'book-club', calendar_id: '2' } });
-            request('events/by-slug').onSuccess({ event: source });
+            const { vm, request } = form({ query: { clone: '7', calendar_id: '2' } });
+            request('events/7').onSuccess({ event: source });
 
             request('calendars/options').onSuccess({ calendars: [{ id: 2 }, { id: 3 }] });
 
@@ -176,8 +176,8 @@ describe('CreateOrUpdateEvent', () => {
 
         // The create form stays usable: no blocking error panel, a toast says why, and a calendar is picked.
         it('leaves a blank create form when the source cannot be loaded', () => {
-            const { vm, request } = form({ query: { clone: 'gone' } });
-            const load = request('events/by-slug');
+            const { vm, request } = form({ query: { clone: '999' } });
+            const load = request('events/999');
             vm.$handleError = vi.fn();
 
             expect(load.errorState).toBe(null);
@@ -192,8 +192,8 @@ describe('CreateOrUpdateEvent', () => {
         });
 
         it('creates a new event instead of changing the source', () => {
-            const { vm, request, requestServer } = form({ query: { clone: 'book-club' } });
-            request('events/by-slug').onSuccess({ event: source });
+            const { vm, request, requestServer } = form({ query: { clone: '7' } });
+            request('events/7').onSuccess({ event: source });
 
             vm.saveEvent();
             const save = requestServer.mock.calls.at(-1)[0];
