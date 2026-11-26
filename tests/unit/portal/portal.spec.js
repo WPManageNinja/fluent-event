@@ -151,6 +151,53 @@ describe('registration', () => {
     });
 });
 
+describe("closing a visitor's RSVP form", () => {
+    const close = () => {
+        const event = new Event('toggle');
+        event.newState = 'closed';
+        document.querySelector('form').dispatchEvent(event);
+    };
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        document.body.innerHTML = '';
+    });
+
+    // happy-dom has no :popover-open, so the menu's open state is stubbed.
+    const render = (menuOpen) => {
+        document.body.innerHTML = card(`
+            <button type="button" popovertarget="fe-rsvp-1" data-fe-focus>RSVP</button>
+            <div id="fe-rsvp-1" popover role="menu"><button type="button" popovertarget="fe-register-1">Going</button></div>
+            <form id="fe-register-1" popover data-fe-register></form>`);
+        const menu = document.querySelector('[role="menu"]');
+        menu.hidePopover = vi.fn();
+        const querySelector = Element.prototype.querySelector;
+        vi.spyOn(Element.prototype, 'querySelector').mockImplementation(function (selector) {
+            return selector.includes(':popover-open') ? (menuOpen ? menu : null) : querySelector.call(this, selector);
+        });
+
+        return menu;
+    };
+
+    it('closes the RSVP menu it opened from and returns focus to the RSVP button', () => {
+        const menu = render(true);
+
+        close();
+
+        expect(menu.hidePopover).toHaveBeenCalled();
+        expect(document.activeElement).toBe(document.querySelector('[popovertarget="fe-rsvp-1"]'));
+    });
+
+    it('leaves focus alone when no menu is open', () => {
+        const menu = render(false);
+
+        close();
+
+        expect(menu.hidePopover).not.toHaveBeenCalled();
+        expect(document.activeElement).toBe(document.body);
+    });
+});
+
 describe('calendar chips', () => {
     const list = (active, events) => `
         <div data-fe-events>
