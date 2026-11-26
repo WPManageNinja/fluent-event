@@ -18,6 +18,7 @@ return array(
     'FluentEvent\\App\\Hooks\\Handlers\\EmailNotificationHandler' => $baseDir . '/app/Hooks/Handlers/EmailNotificationHandler.php',
     'FluentEvent\\App\\Hooks\\Handlers\\FrontEndHandler' => $baseDir . '/app/Hooks/Handlers/FrontEndHandler.php',
     'FluentEvent\\App\\Hooks\\Handlers\\HeartBeat' => $baseDir . '/app/Hooks/Handlers/HeartBeat.php',
+    'FluentEvent\\App\\Hooks\\Handlers\\PrivacyHandler' => $baseDir . '/app/Hooks/Handlers/PrivacyHandler.php',
     'FluentEvent\\App\\Http\\Controllers\\CalendarController' => $baseDir . '/app/Http/Controllers/CalendarController.php',
     'FluentEvent\\App\\Http\\Controllers\\CommunityEventController' => $baseDir . '/app/Http/Controllers/CommunityEventController.php',
     'FluentEvent\\App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',

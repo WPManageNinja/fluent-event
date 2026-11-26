@@ -52,6 +52,7 @@ class ComposerStaticInitadd0725c549f3f774957925fd356e3f5
         'FluentEvent\\App\\Hooks\\Handlers\\EmailNotificationHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/EmailNotificationHandler.php',
         'FluentEvent\\App\\Hooks\\Handlers\\FrontEndHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/FrontEndHandler.php',
         'FluentEvent\\App\\Hooks\\Handlers\\HeartBeat' => __DIR__ . '/../..' . '/app/Hooks/Handlers/HeartBeat.php',
+        'FluentEvent\\App\\Hooks\\Handlers\\PrivacyHandler' => __DIR__ . '/../..' . '/app/Hooks/Handlers/PrivacyHandler.php',
         'FluentEvent\\App\\Http\\Controllers\\CalendarController' => __DIR__ . '/../..' . '/app/Http/Controllers/CalendarController.php',
         'FluentEvent\\App\\Http\\Controllers\\CommunityEventController' => __DIR__ . '/../..' . '/app/Http/Controllers/CommunityEventController.php',
         'FluentEvent\\App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
