@@ -300,6 +300,12 @@ describe('EventViewPage', () => {
             expect((await page(full({ waitlist: true }))).wrapper.find('.fe-event-view__note').exists()).toBe(false);
         });
 
+        it('drops the register note for a guest the host cancelled', async () => {
+            const { wrapper } = await page(meetup({ venue_type: 'online', has_meeting_url: true, my_status: 'cancelled' }));
+
+            expect(wrapper.find('.fe-event-view__note').exists()).toBe(false);
+        });
+
         it('shows the venue and address for an in-person event', async () => {
             const { wrapper } = await page(meetup());
 

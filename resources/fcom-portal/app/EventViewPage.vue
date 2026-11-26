@@ -280,9 +280,9 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        // A full event or a waitlist place never shows the link, so "register to see it" would mislead.
+        // A full event, a waitlist place or a host-cancelled registration never shows the link, so "register to see it" would mislead.
         canRegister() {
-            return this.event.my_status !== 'waitlisted' && !(this.event.is_full && !isSeated(this.event));
+            return !['waitlisted', 'cancelled'].includes(this.event.my_status) && !(this.event.is_full && !isSeated(this.event));
         },
         // A guest already going keeps their RSVP on a full event, to give up the seat; a waitlisted one keeps their place.
         isFullForMe() {
