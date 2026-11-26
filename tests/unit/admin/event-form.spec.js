@@ -14,7 +14,7 @@ vi.mock('@/utils/http/Rest.js', () => ({
 
 const form = ({ params = {}, query = {} } = {}) => {
     const requestServer = vi.fn();
-    const router = { push: vi.fn(), back: vi.fn(), replace: vi.fn() };
+    const router = { push: vi.fn(), back: vi.fn() };
     const wrapper = shallowMount(CreateOrUpdateEvent, {
         global: {
             mixins: [main, { methods: { $requestServer: requestServer, $changeTitle: vi.fn() } }],
@@ -212,7 +212,7 @@ describe('CreateOrUpdateEvent', () => {
             requestServer.mock.calls.at(-1)[0].onSuccess({ event: { id: 56 } });
             window.history.replaceState(null, '');
 
-            expect(router.replace).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 56 } });
+            expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 56 } });
             expect(router.back).not.toHaveBeenCalled();
         });
     });
@@ -269,7 +269,7 @@ describe('CreateOrUpdateEvent', () => {
             expect(save.payload).toHaveProperty('description_md', '');
 
             save.onSuccess({ event: { id: 55 } });
-            expect(router.replace).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 55 } });
+            expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: 55 } });
         });
 
         it('patches an existing event in place', () => {
@@ -285,8 +285,7 @@ describe('CreateOrUpdateEvent', () => {
             expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: '12' } });
         });
 
-        // Opened from the events list, saving returns there instead of the event's own page.
-        it('returns to the page the form was opened from', () => {
+        it("opens the event's page after editing, even when opened from the events list", () => {
             window.history.replaceState({ back: '/events' }, '');
             const { vm, router, requestServer } = form({ params: { id: '12' } });
             filled(vm);
@@ -295,8 +294,8 @@ describe('CreateOrUpdateEvent', () => {
             requestServer.mock.calls.at(-1)[0].onSuccess({ event: { id: 12 } });
             window.history.replaceState(null, '');
 
-            expect(router.back).toHaveBeenCalled();
-            expect(router.push).not.toHaveBeenCalled();
+            expect(router.push).toHaveBeenCalledWith({ name: 'event_detail', params: { id: '12' } });
+            expect(router.back).not.toHaveBeenCalled();
         });
 
         it('leaves every check to the server', () => {

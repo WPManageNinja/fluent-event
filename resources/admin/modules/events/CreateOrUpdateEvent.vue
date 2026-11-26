@@ -775,13 +775,8 @@
                     successNotify: true,
                     errorNotify: true,
                     onSuccess: response => {
-                        if (this.isEditing) {
-                            this.$goBack({ name: 'event_detail', params: { id: this.eventId } });
-                            return;
-                        }
-
-                        // A new event opens its own page; going back from a clone would land on its source.
-                        this.$router.replace({ name: 'event_detail', params: { id: response.event.id } });
+                        // Always the saved event's page: going back from a clone would land on its source.
+                        this.$router.push({ name: 'event_detail', params: { id: this.eventId || response.event.id } });
                     },
                 });
             },
