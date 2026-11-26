@@ -323,6 +323,21 @@ class PortalEndpointsTest extends IntegrationTestCase
         $this->assertSame('cancelled', $this->guestsOf($event)[0]->status);
     }
 
+    public function test_a_checked_in_member_saying_not_going_is_told_so_and_stays_checked_in()
+    {
+        $event = $this->createEvent();
+        $memberId = $this->createUser('subscriber');
+        $this->createGuest($event, ['user_id' => $memberId, 'status' => 'checked_in']);
+        $this->actAs($memberId);
+
+        $response = $this->answer($event, 'not_going');
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertNull($response['data']['status']);
+        $this->assertStringContainsString(esc_html__('You are already checked in', 'fluent-event'), $response['data']['html']);
+        $this->assertSame('checked_in', $this->guestsOf($event)[0]->status);
+    }
+
     // The framework's limiter lets cookie-authenticated requests through; a logged-in viewer is counted all the same.
     // 5 a minute, counted once although WordPress runs the check again for the Allow header.
     public function test_a_logged_in_viewer_is_held_to_the_visitor_rate_limit()

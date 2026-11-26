@@ -100,6 +100,24 @@ class EventEndpointsTest extends IntegrationTestCase
         $this->assertSame('private', Event::query()->find($event->id)->status);
     }
 
+    public function test_an_update_without_a_description_keeps_it_and_an_empty_one_clears_it()
+    {
+        $event = $this->createEvent();
+        $this->assertSame(200, $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['description_md' => 'Bring a **laptop**.']))['status']);
+        $event = Event::query()->find($event->id);
+
+        $withoutDescription = $this->eventPayload($event, ['title' => 'Renamed']);
+        unset($withoutDescription['description_md']);
+        $response = $this->rest('PATCH', "events/{$event->id}", $withoutDescription);
+
+        $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
+        $this->assertSame('Renamed', get_post($event->post_id)->post_title);
+        $this->assertStringContainsString('<strong>laptop</strong>', get_post($event->post_id)->post_content);
+
+        $this->assertSame(200, $this->rest('PATCH', "events/{$event->id}", $this->eventPayload($event, ['description_md' => '']))['status']);
+        $this->assertSame('', get_post($event->post_id)->post_content);
+    }
+
     public function test_an_event_saves_each_entry_type_and_refuses_any_other()
     {
         $event = $this->createEvent();

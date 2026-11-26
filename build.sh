@@ -155,6 +155,14 @@ MIGRATOR="database/Migrations/LegacyPrefixMigrator.php"
 if "$wporg"; then
     rm -rf "$STAGE/$UPDATER_DIR"
     rm -f "$STAGE/$MIGRATOR"
+    # The readme's External services section must not describe the updater this zip leaves out.
+    php -r '
+$file = $argv[1];
+$readme = preg_replace("/^= WPManageNinja update server =\R.*?(?=^= )/ms", "", file_get_contents($file), -1, $dropped);
+$readme = preg_replace("/^FluentEvent connects to two external services:.*$/m", "FluentEvent connects to one external service: Google Calendar, only when a person clicks a link.", $readme, -1, $reworded);
+if ($dropped !== 1 || $reworded !== 1) { fwrite(STDERR, "readme.txt External services section did not match\n"); exit(1); }
+file_put_contents($file, $readme);
+' "$STAGE/readme.txt" || die "Could not drop the update server from readme.txt."
 fi
 
 # Dumped in the copy so the working tree keeps its dev autoloader.
@@ -208,6 +216,9 @@ if "$wporg"; then
     if grep -rqE "fluentapi\.wpmanageninja\.com|pre_set_site_transient_update_plugins|upgrader_pre_download" "$STAGE" \
         --include='*.php' --exclude-dir=woocommerce; then
         die "The WordPress.org build still contains self-hosted update code."
+    fi
+    if grep -qiE "fluentapi\.wpmanageninja\.com|update server" "$STAGE/readme.txt"; then
+        die "The WordPress.org readme.txt still describes the self-hosted update server."
     fi
     # WordPress.org asks for a prefix of at least 4 characters: no old `fe_` stored or registered
     # name may ship. FluentCommunity's own route names (fe_events, fe_event_view…) are not ours.

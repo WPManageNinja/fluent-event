@@ -136,7 +136,7 @@ export default {
             try {
                 const reply = await eventsApi.post(`community/events/${this.event.id}/register`, { status });
 
-                // An admin's cancel stands: the member is told why, and nothing changes.
+                // An admin's cancel or check-in stands: the member is told why, and nothing changes.
                 if (!reply.status) {
                     this.showRefusal(reply.refusal);
                     return;
@@ -198,12 +198,13 @@ export default {
 
             this.choose('not_going');
         },
-        // refusal: 'already_registered', 'waitlisted', or 'cancelled' when an admin cancelled the registration.
+        // refusal: 'already_registered', 'waitlisted', or 'cancelled' / 'checked_in' when an admin set the registration's status.
         async showRefusal(refusal) {
             const [{ h }, { ElMessageBox }] = await Promise.all([import('vue'), import('element-plus')]);
             const [title, text] = {
                 cancelled: [t('Your registration was cancelled'), t('Contact the host if you want to join again.')],
                 waitlisted: [t("You're already on the waitlist"), t('The host will let you know if a spot opens up.')],
+                checked_in: [t('You are already checked in'), t('The host has recorded your attendance. Contact them if something changed.')],
             }[refusal] || [t('This email is already registered'), t('Check your inbox for the confirmation email, or register with a different email.')];
 
             ElMessageBox.alert(h('div', { class: 'fe-registered' }, [

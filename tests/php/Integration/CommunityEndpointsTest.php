@@ -212,13 +212,18 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame(array_merge(array_fill(0, 10, 200), [429]), $statuses);
     }
 
-    public function test_a_checked_in_member_saying_going_again_is_told_so_and_stays_checked_in()
+    // A check-in is the host's record of attendance: neither answer rewrites it.
+    public function test_a_checked_in_member_is_told_so_and_stays_checked_in()
     {
         [$event] = $this->communityEvent();
         $this->createGuest($event, ['user_id' => $this->member, 'email' => get_userdata($this->member)->user_email, 'status' => 'checked_in']);
 
-        $this->assertSame('already_registered', $this->rsvp($event, 'going')['data']['refusal']);
-        $this->assertSame('checked_in', $this->guestsOf($event)[0]->status);
+        foreach (['going', 'not_going'] as $status) {
+            $response = $this->rsvp($event, $status);
+
+            $this->assertSame(['message' => __('You are already checked in for this event.', 'fluent-event'), 'status' => null, 'refusal' => 'checked_in'], $response['data'], $status);
+            $this->assertSame('checked_in', $this->guestsOf($event)[0]->status, $status);
+        }
     }
 
     public function test_a_row_an_admin_added_under_the_members_email_is_claimed_not_duplicated()
@@ -268,7 +273,11 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $response = $this->rest('POST', "community/events/{$event->id}/register", ['status' => 'going', 'name' => 'Member Name']);
 
         $this->assertSame(200, $response['status'], wp_json_encode($response['data']));
-        $this->assertSame(['message' => __('This email is already registered for this event.', 'fluent-event'), 'status' => null, 'refusal' => 'already_registered'], $response['data']);
+        // A check-in is refused as such; a going row as an email already registered.
+        $expected = $status === 'checked_in'
+            ? ['message' => __('You are already checked in for this event.', 'fluent-event'), 'status' => null, 'refusal' => 'checked_in']
+            : ['message' => __('This email is already registered for this event.', 'fluent-event'), 'status' => null, 'refusal' => 'already_registered'];
+        $this->assertSame($expected, $response['data']);
         $row = $this->guestsOf($event)[0];
         $this->assertSame([$status, 'Typed On The Page'], [$row->status, $row->name]);
         $this->assertEmpty($row->user_id);
@@ -343,17 +352,17 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('going', $this->guestsOf($event)[0]->status);
     }
 
-    public function test_a_checked_in_member_who_says_not_going_gets_the_cancellation_email()
+    public function test_a_checked_in_member_who_says_not_going_stays_checked_in_with_no_email()
     {
         [$event] = $this->communityEvent([], ['entry_type' => 'open']);
         $this->rsvp($event, 'going');
         Guest::query()->where('event_id', $event->id)->update(['status' => 'checked_in']);
 
-        $this->assertSame(200, $this->rsvp($event, 'not_going')['status']);
+        $this->assertSame('checked_in', $this->rsvp($event, 'not_going')['data']['refusal']);
 
         $guest = $this->guestsOf($event)[0];
-        $this->assertSame('not_going', $guest->status);
-        $this->assertTrue($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
+        $this->assertSame('checked_in', $guest->status);
+        $this->assertFalse($this->hasQueuedAction('fluent_event/send_registration_cancellation', [(int) $guest->id]));
     }
 
     // Two tabs saying not going together: the other tab's update lands first, so this request's claim on
