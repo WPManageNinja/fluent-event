@@ -17,8 +17,8 @@ use FluentEvent\App\Hooks\Handlers\ActivationHandler;
  * RETRY_DELAY seconds. A MySQL named lock keeps two requests from moving tables at once.
  *
  * It also keeps links shared before the rename working: an old `?fe_event=`, `?fe_page=`,
- * `?fe_calendar=`, `?fe_search=` or `?post_type=fe_event` link is redirected to the same URL
- * with the new names.
+ * `?fe_calendar=`, `?fe_search=` or `?post_type=fe_event` link to an event or an events page is
+ * redirected to the same URL with the new names.
  *
  * A site that never ran the old FluentEvent (no db version, no events table) is marked done untouched.
  */
@@ -74,12 +74,42 @@ class LegacyPrefixMigrator
             wp_unslash($_SERVER['REQUEST_URI'] ?? '/') // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- path only; wp_safe_redirect() sanitizes the URL
         );
 
-        if ($target === null) {
+        if ($target === null || !self::isFluentEventPage(wp_unslash($_GET))) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only; only compared and looked up
             return;
         }
 
-        wp_safe_redirect($target, 301);
+        // 302: a browser caches a 301 for good, and another plugin's page may reuse these arg names.
+        wp_safe_redirect($target, 302);
         exit;
+    }
+
+    /**
+     * An old event link, or a page that shows events. Elsewhere `fe_page` and the like are another plugin's args.
+     *
+     * @param array $query The request's query args, unslashed.
+     * @return bool
+     */
+    public static function isFluentEventPage(array $query)
+    {
+        if (($query['post_type'] ?? '') === self::OLD_POST_TYPE
+            || is_singular(self::NEW_POST_TYPE) || is_post_type_archive(self::NEW_POST_TYPE)) {
+            return true;
+        }
+
+        // A plain-permalink event link: WordPress no longer knows the `fe_event` var, so it resolved some other page.
+        // Viewable events only, so the redirect can't tell a visitor a draft's slug exists.
+        $event = isset($query['fe_event']) && is_string($query['fe_event']) && $query['fe_event'] !== ''
+            ? get_page_by_path($query['fe_event'], OBJECT, self::NEW_POST_TYPE)
+            : null;
+
+        if ($event && is_post_publicly_viewable($event)) {
+            return true;
+        }
+
+        $post = is_singular() ? get_post() : null;
+
+        return $post && (has_shortcode($post->post_content, 'fluent_events') || has_shortcode($post->post_content, 'fluent_event')
+            || has_block('fluent-event/events', $post) || has_block('fluent-event/event', $post));
     }
 
     /**
