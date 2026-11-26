@@ -155,10 +155,8 @@ The other "Add to calendar" option downloads an .ics file that the site creates.
 - Added: Guest Bulk Actions
 - Added: Member Registration on the Public Event Page
 - Added: Upcoming Events Widget in the Space Sidebar
-- Improved: Open Registration Listed First and Set as the Default Entry Type
-- Improved: Event and Calendar Pages Open After Every Save
 - Improved: Smaller Script on FluentCommunity Portal Pages
-- Improved: Public Pages Use the Portal's Icons
+- Improved: Icons Synced Between the Public Pages and the Portal
 - Improved: Aligned Switches in the Event Forms
 - Improved: Stored Names Moved to the fevent Prefix With Automatic Migration
 - Improved: Action Scheduler 4.2.0 and Parsedown 1.8.0
