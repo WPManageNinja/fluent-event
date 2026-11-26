@@ -32,6 +32,14 @@ class CommunityEvents
             ->value('value');
     }
 
+    // The post's event only when that event links back to the post: a reset or reinstall can reuse an old post's event id.
+    public static function eventOf($feed)
+    {
+        $event = Event::query()->find(self::eventIdOf($feed));
+
+        return $event && self::feedIdOf($event) === (int) $feed->id ? $event : null;
+    }
+
     public static function parkEvent($event)
     {
         Meta::query()

@@ -172,7 +172,7 @@ class FeedHandler
             return;
         }
 
-        $event = Event::query()->find(CommunityEvents::eventIdOf($feed));
+        $event = CommunityEvents::eventOf($feed);
 
         if (!$event) {
             return;
@@ -242,7 +242,7 @@ class FeedHandler
     // Deleting a post is a moderation call, not an event one: the event keeps its guests as a draft.
     public function parkEvent($feed)
     {
-        $event = Event::query()->find(CommunityEvents::eventIdOf($feed));
+        $event = CommunityEvents::eventOf($feed);
 
         if (!$event) {
             return;
