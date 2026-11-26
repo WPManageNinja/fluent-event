@@ -63,22 +63,22 @@ body {
     --fe-badge-color: #E1E4EA;
     --fe-wp-link: #2271b1;
     --fe-wp-text: #1d2327;
-    --fe-success-text: #1a7f37;
-    --fe-danger-text: #cf222e;
-    // White label on a solid danger button, both modes: 5.36:1, 7.87:1 on hover.
-    --fe-danger-button: #cf222e;
-    --fe-danger-button-hover: #a40e26;
+    --fe-success-text: #116A53;
+    --fe-danger-text: #B12A07;
+    // FluentBooking's danger colour; white label on it 6.55:1, darker on hover.
+    --fe-danger-button: #B12A07;
+    --fe-danger-button-hover: #8E2205;
     // Element Plus tag text, dark enough on its pale fills (4.5:1 or more).
-    --fe-tag-success: #1a7f37;
-    --fe-tag-warning: #8a5a00;
-    --fe-tag-primary: #135e96;
+    --fe-tag-success: #116A53;
+    --fe-tag-warning: #9A5904;
+    --fe-tag-primary: #2653C7;
     --fe-tag-info: #525866;
-    --fe-tag-danger: #cf222e;
+    --fe-tag-danger: #B12A07;
     --fe-chart-going: #0099ff;
     --fe-chart-checked-in: #1a7f37;
     --fe-chart-cancelled: #e06c75;
     --fe-accent: #253241;
-    --fe-accent-blue: #0b6bcb;
+    --fe-accent-blue: #2653C7;
     --fe-accent-green: #1a7f37;
     --fe-accent-rose: #e06c75;
     --fe-accent-amber: #d97706;
@@ -128,7 +128,7 @@ body {
 
 html.dark body {
     --fe-primary-text: #F0F3F5;
-    --fe-secondary-text: #A8AFBC;
+    --fe-secondary-text: #99A0AE;
     --fe-tertiary-text: #8A91A0;
     --fe-text-mid: #C1C7D1;
     --fe-primary-button: #FFFFFF;
@@ -148,9 +148,9 @@ html.dark body {
     --fe-card-hover-bg: #1C2732;
     --fe-card-line: #2C3C4E;
     --fe-badge-color: #2C3C4E;
-    --fe-wp-link: #72aee6;
-    --fe-success-text: #3fb950;
-    --fe-danger-text: #ff7b72;
+    --fe-wp-link: #8FB0FF;
+    --fe-success-text: #74C1AD;
+    --fe-danger-text: #EB856B;
     // Element Plus's own tag colours already read well on its dark fills.
     --fe-tag-success: var(--el-color-success);
     --fe-tag-warning: var(--el-color-warning);

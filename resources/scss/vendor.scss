@@ -10,11 +10,11 @@
     // Element Plus colours tag text with the base hue, 2–2.8:1 on its pale light-mode fill. One class
     // deeper than its `.el-tag.el-tag--x`, which loads after ours.
     .el-tag.el-tag {
-        &--success { --el-tag-text-color: var(--fe-tag-success, #1a7f37); }
-        &--warning { --el-tag-text-color: var(--fe-tag-warning, #8a5a00); }
-        &--primary { --el-tag-text-color: var(--fe-tag-primary, #135e96); }
+        &--success { --el-tag-text-color: var(--fe-tag-success, #116A53); }
+        &--warning { --el-tag-text-color: var(--fe-tag-warning, #9A5904); }
+        &--primary { --el-tag-text-color: var(--fe-tag-primary, #2653C7); }
         &--info { --el-tag-text-color: var(--fe-tag-info, #525866); }
-        &--danger { --el-tag-text-color: var(--fe-tag-danger, #cf222e); }
+        &--danger { --el-tag-text-color: var(--fe-tag-danger, #B12A07); }
     }
 
     .el {
@@ -180,7 +180,7 @@
     // Hover reads like the action popover: the text takes the primary colour, no fill.
     .el-dropdown__popper.el-popper {
         --el-dropdown-menuItem-hover-fill: transparent;
-        --el-dropdown-menuItem-hover-color: var(--fe-tag-primary, #135e96);
+        --el-dropdown-menuItem-hover-color: var(--fe-tag-primary, #2653C7);
     }
 
     // The picker borders itself and its arrow with its own variable, not --el-border-color-light.
@@ -303,14 +303,14 @@
 
     .el-button--danger {
         --el-button-text-color: var(--el-color-white);
-        --el-button-bg-color: var(--fe-danger-button, #cf222e);
-        --el-button-border-color: var(--fe-danger-button, #cf222e);
+        --el-button-bg-color: var(--fe-danger-button, #B12A07);
+        --el-button-border-color: var(--fe-danger-button, #B12A07);
         --el-button-hover-text-color: var(--el-color-white);
-        --el-button-hover-bg-color: var(--fe-danger-button-hover, #a40e26);
-        --el-button-hover-border-color: var(--fe-danger-button-hover, #a40e26);
+        --el-button-hover-bg-color: var(--fe-danger-button-hover, #8E2205);
+        --el-button-hover-border-color: var(--fe-danger-button-hover, #8E2205);
         --el-button-active-text-color: var(--el-color-white);
-        --el-button-active-bg-color: var(--fe-danger-button-hover, #a40e26);
-        --el-button-active-border-color: var(--fe-danger-button-hover, #a40e26);
+        --el-button-active-bg-color: var(--fe-danger-button-hover, #8E2205);
+        --el-button-active-border-color: var(--fe-danger-button-hover, #8E2205);
     }
 
     .el-switch {
