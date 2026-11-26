@@ -306,11 +306,17 @@
         --el-button-bg-color: var(--fe-danger-button, #B12A07);
         --el-button-border-color: var(--fe-danger-button, #B12A07);
         --el-button-hover-text-color: var(--el-color-white);
-        --el-button-hover-bg-color: var(--fe-danger-button-hover, #8E2205);
-        --el-button-hover-border-color: var(--fe-danger-button-hover, #8E2205);
+        --el-button-hover-bg-color: var(--fe-danger-button, #B12A07);
+        --el-button-hover-border-color: var(--fe-danger-button, #B12A07);
         --el-button-active-text-color: var(--el-color-white);
-        --el-button-active-bg-color: var(--fe-danger-button-hover, #8E2205);
-        --el-button-active-border-color: var(--fe-danger-button-hover, #8E2205);
+        --el-button-active-bg-color: var(--fe-danger-button, #B12A07);
+        --el-button-active-border-color: var(--fe-danger-button, #B12A07);
+
+        // Fades like the primary button, as in FluentAffiliate; white still reads at 4.5:1 or more.
+        &:hover,
+        &:focus {
+            opacity: 0.8;
+        }
     }
 
     .el-switch {
