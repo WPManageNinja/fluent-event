@@ -145,7 +145,7 @@
                             <el-icon aria-hidden="true"><VideoCamera/></el-icon>
                             <span>{{ $t('Join online') }}</span>
                         </a>
-                        <p v-else-if="event.has_meeting_url && !onWaitlistPath" class="fe-event-view__note">{{ $t('Please register for the event to see the meeting link.') }}</p>
+                        <p v-else-if="event.has_meeting_url && canRegister" class="fe-event-view__note">{{ $t('Please register for the event to see the meeting link.') }}</p>
                     </template>
 
                     <div v-if="canAddToCalendar" class="fe-event-view__calendar">
@@ -280,9 +280,9 @@ export default {
         countLabel() {
             return guestCountLabel(this.event);
         },
-        // Joining or holding a waitlist place never shows the link, so "register to see it" would mislead.
-        onWaitlistPath() {
-            return this.event.my_status === 'waitlisted' || (!!this.event.is_full && !!this.event.waitlist && !isSeated(this.event));
+        // A full event or a waitlist place never shows the link, so "register to see it" would mislead.
+        canRegister() {
+            return this.event.my_status !== 'waitlisted' && !(this.event.is_full && !isSeated(this.event));
         },
         // A guest already going keeps their RSVP on a full event, to give up the seat; a waitlisted one keeps their place.
         isFullForMe() {
