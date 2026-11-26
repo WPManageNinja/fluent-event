@@ -23,7 +23,7 @@ use FluentEvent\App\Services\Icon;
                 aria-label="<?php echo esc_attr__( 'Toggle menu', 'fluent-event' ); ?>"
                 aria-expanded="false"
                 aria-controls="fe-navbar-links"
-                onclick="toggleMobileMenu()">
+                onclick="fluentEventToggleMobileMenu()">
             <span class="el-icon"><?php echo Icon::MENU; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
         </button>
 
@@ -61,7 +61,7 @@ use FluentEvent\App\Services\Icon;
                         aria-haspopup="menu"
                         aria-expanded="false"
                         aria-controls="fe-navbar-color-mode-menu"
-                        onclick="toggleNavbarDropdown('fe-navbar-color-mode-menu')">
+                        onclick="fluentEventToggleNavbarDropdown('fe-navbar-color-mode-menu')">
                     <span class="el-icon">
                         <span class="fe-navbar__mode-icon fe-navbar__mode-icon--light"><?php echo Icon::SUN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                         <span class="fe-navbar__mode-icon fe-navbar__mode-icon--dark"><?php echo Icon::MOON; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
@@ -85,7 +85,7 @@ use FluentEvent\App\Services\Icon;
                                 role="menuitemradio"
                                 aria-checked="false"
                                 data-mode="<?php echo esc_attr( $fluentEventMode ); ?>"
-                                onclick="setColorMode('<?php echo esc_attr( $fluentEventMode ); ?>')">
+                                onclick="fluentEventSetColorMode('<?php echo esc_attr( $fluentEventMode ); ?>')">
                             <span class="el-icon"><?php echo $fluentEventModeItem[1]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                             <span class="fe-navbar__link-text"><?php echo esc_html( $fluentEventModeItem[0] ); ?></span>
                             <span class="fe-navbar__mode-check"><?php echo Icon::CHECK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
@@ -111,7 +111,7 @@ use FluentEvent\App\Services\Icon;
                                 aria-label="<?php echo esc_attr( $fluentEventRightMenuItem['label'] ); ?>"
                                 aria-expanded="false"
                                 aria-controls="fe-navbar-<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>-menu"
-                                onclick="toggleNavbarDropdown('fe-navbar-<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>-menu')">
+                                onclick="fluentEventToggleNavbarDropdown('fe-navbar-<?php echo esc_attr( $fluentEventRightMenuItem['key'] ); ?>-menu')">
                             <span class="el-icon"><?php echo Icon::SETTING; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG constant ?></span>
                             <span class="fe-navbar__link-text"><?php
                                 echo esc_html( $fluentEventRightMenuItem['label'] );
