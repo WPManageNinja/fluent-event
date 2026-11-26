@@ -281,6 +281,34 @@ class CommunityEventCreationTest extends IntegrationTestCase
         $this->assertNull(CalendarService::findBySpace($spaceId), 'The calendar still points at the deleted space.');
     }
 
+    // Newer fcom deletes each post through the single-post hooks after space/before_delete; the event is parked once.
+    public function test_deleting_the_space_parks_each_event_once_when_fcom_deletes_post_by_post()
+    {
+        $spaceId = $this->createSpace();
+        $request = $this->postRequest();
+        $feed = $this->savePost($this->validate(['space_id' => $spaceId], $request));
+        do_action('fluent_community/feed/just_created_type_event', $feed, $request);
+        $eventId = (int) FcomFeed::query()->find($feed->id)->meta['event_id'];
+
+        $parks = 0;
+        $this->addTestFilter('fluent_event/event/updated', function ($event) use ($eventId, &$parks) {
+            if ((int) $event->id === $eventId) {
+                $parks++;
+            }
+        });
+
+        do_action('fluent_community/space/before_delete', FcomSpace::query()->find($spaceId));
+
+        foreach (FcomFeed::query()->where('space_id', $spaceId)->get() as $post) {
+            do_action('fluent_community/feed/before_deleted', $post);
+            $post->delete();
+            do_action('fluent_community/feed/deleted', $post->id);
+        }
+
+        $this->assertSame(1, $parks);
+        $this->assertSame('draft', Event::query()->find($eventId)->status);
+    }
+
     public function test_the_portal_script_loads_in_fcoms_portal_only()
     {
         $handler = new PortalHandler();

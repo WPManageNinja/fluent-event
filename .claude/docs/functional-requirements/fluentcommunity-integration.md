@@ -80,7 +80,8 @@ slug; `fluent_event/community/route_paths` can still move any single route:
 - **SpaceHandler** — `space/before_delete` parks the space calendar the way a deleted post parks
   its event: every event in it becomes a `draft` with its guests and loses its post link, and the
   calendar becomes a `draft` with no space. Nothing is deleted; an admin decides that in FluentEvent.
-  (fcom bulk-deletes the posts without per-post hooks, so `feed/before_deleted` never runs here.)
+  It parks every event up front: older fcom bulk-deletes the posts without per-post hooks, and where fcom
+  deletes post by post, each post's `feed/before_deleted` then finds no link and parks nothing twice.
 
 ## Portal UI (`resources/fcom-portal/`)
 
