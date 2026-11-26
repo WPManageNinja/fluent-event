@@ -69,7 +69,10 @@ slug; `fluent_event/community/route_paths` can still move any single route:
     space's calendar (or the Community calendar), and the guests follow.
   - `fluent_event/event/calendar_changed`: an event moved to another calendar in the admin moves
     its post to that calendar's space, or out of any space for the Community calendar; if the
-    calendar is a site calendar, the post lets go of the event and becomes a plain post.
+    calendar is a site calendar, the post lets go of the event and becomes a plain post. The move
+    matches fcom's own: the post's `feed_published` / `comment_added` activity rows take the new
+    space and its privacy (`is_public`), other rows sharing `feed_id` (a course's `course_completed`)
+    stay put, and fcom's `feed/updated` (plus `space_feed/updated` into a space) fires after.
   - `feed/before_deleted`: deleting the post keeps the event. It drops the post link and parks
     the event as a `draft` with its guests, so its reminders stop and an event manager decides
     whether to delete it.
