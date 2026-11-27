@@ -87,7 +87,9 @@ slug; `fluent_event/community/route_paths` can still move any single route:
 - `fcom-portal.js` registers routes through fcom's `fluent_com_portal_routes`, taking every path
   from the printed `route_paths` (by default `/events`, `/events/create`, `/events/:event_slug` for
   a community-wide event, and two children of fcom's space route, `/space/:space/events` and
-  `/space/:space/events/:event_slug`). Links use route names, never paths. The event page renders under the space's header and tabs (at
+  `/space/:space/events/:event_slug`). Anyone who can't create events gets fcom's Not Found at
+  the create path, and `create` / `edit` are never event slugs (WordPress appends `-2`).
+  Links use route names, never paths. The event page renders under the space's header and tabs (at
   the top level when community-wide) and
   is addressed by the event's own slug (`wp_posts.post_name`, as on the public page), not the
   post's: `GET community/events/by-slug?space=&slug=` returns the post's slug, and the page then
