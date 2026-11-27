@@ -22,21 +22,21 @@
         "vue-router": "4.6.4"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^4.3.4",
+        "@vitejs/plugin-vue": "6.0.11",
         "@vue/compiler-sfc": "3.5.44",
-        "@vue/test-utils": "2.4.11",
-        "glob": "^10.3.4",
-        "happy-dom": "20.14.5",
+        "@vue/test-utils": "2.6.0",
+        "glob": "14.0.6",
+        "happy-dom": "21.0.4",
         "resolve-url-loader": "^5.0.0",
         "rtlcss": "4.3.0",
         "sass": "^1.93.2",
         "sass-loader": "^13.0.2",
         "unplugin-auto-import": "^0.11.2",
         "unplugin-vue-components": "^0.22.7",
-        "vite": "^4.4.9",
-        "vite-plugin-live-reload": "^3.0.2",
-        "vite-plugin-static-copy": "^0.16.0",
-        "vitest": "0.34.6",
+        "vite": "7.3.8",
+        "vite-plugin-live-reload": "4.0.0",
+        "vite-plugin-static-copy": "4.1.1",
+        "vitest": "4.1.12",
         "vue-loader": "^17.0.0"
     }
 }
