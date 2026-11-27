@@ -190,8 +190,8 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   *going* to *not going* (each toggled in Email Notifications, default on), plus the event
   reminders. "New event" notifications are fcom's own new-post notifications.
 - **Search:** the portal search palette has an **Events** tab (and an Events group in All) listing the
-  events the viewer could see on the Events page whose title has every word, upcoming soonest first, then
-  past most recent first; a space search lists that space's. While the Events menu item is on, Jump to
+  events the viewer could see on the Events page whose title has every word: ongoing, then upcoming (each
+  by start), then past most recent first; a space search lists that space's. While the Events menu item is on, Jump to
   lists Events 3rd (under the menu's label). Built on fcom's `fluent_community/search/providers`
   and the palette's `fluent_com_search_types` / `fluent_com_search_nav_pages` JS filters. Where fcom names
   a post (notifications, emails, activity) by its title or caption, an event post with neither is

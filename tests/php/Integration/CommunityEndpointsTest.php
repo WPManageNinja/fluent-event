@@ -793,7 +793,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame('', $handler->eventExcerpt('', $feed, 60));
     }
 
-    public function test_portal_search_lists_the_events_the_viewer_can_see_by_title_upcoming_first()
+    public function test_portal_search_lists_the_events_the_viewer_can_see_by_title_ongoing_then_upcoming_then_past()
     {
         $word = strtolower(wp_generate_password(8, false, false));
         [$past] = $this->communityEvent([
@@ -802,6 +802,17 @@ class CommunityEndpointsTest extends IntegrationTestCase
             'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-3 days +2 hours')),
         ]);
         [$upcoming] = $this->communityEvent(['title' => 'Searchable ' . $word . ' upcoming']);
+        [$tomorrow] = $this->communityEvent([
+            'title'    => 'Searchable ' . $word . ' tomorrow',
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('+1 day')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+1 day +2 hours')),
+        ]);
+        // Started two days ago and still running: closer to now by its end, farther by its start.
+        [$ongoing] = $this->communityEvent([
+            'title'    => 'Searchable ' . $word . ' ongoing',
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-2 days')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+2 days')),
+        ]);
         $this->communityEvent(['title' => 'Another event']);
 
         $this->wpdb->insert($this->table('fcom_spaces'), [
@@ -830,8 +841,9 @@ class CommunityEndpointsTest extends IntegrationTestCase
             return array_map('intval', wp_list_pluck(Arr::get($response, 'results.events.items', []), 'id'));
         };
 
-        $this->assertSame([(int) $upcoming->id, (int) $past->id], $search([]));
-        $this->assertSame([(int) $upcoming->id, (int) $past->id], $search(['space' => $this->spaceSlug()]));
+        $order = [(int) $ongoing->id, (int) $tomorrow->id, (int) $upcoming->id, (int) $past->id];
+        $this->assertSame($order, $search([]));
+        $this->assertSame($order, $search(['space' => $this->spaceSlug()]));
     }
 
     private function spaceSlug()

@@ -113,7 +113,7 @@ class CommunityEvents
     }
 
     // fcom's global search, `events` type: the events the portal's Events page would list whose title has every
-    // word, upcoming soonest first, then past most recent first. $args: limit, page, space (slug), sort.
+    // word: ongoing, then upcoming (each by start), then past most recent first. $args: limit, page, space (slug), sort.
     public static function search($searchQuery, $user, array $args)
     {
         $spaceIds = self::visibleSpaceIds();
@@ -126,13 +126,18 @@ class CommunityEvents
 
         $limit = max(1, (int) Arr::get($args, 'limit', 6));
         $page = max(1, (int) Arr::get($args, 'page', 1));
+        $now = gmdate('Y-m-d H:i:s');
 
         $events = self::whereVisible(Event::query()->with(['post']), $spaceIds, $withSpaceless)
             ->byStatus(Event::LIVE_STATUSES)
             ->whereHas('post', function ($query) use ($searchQuery) {
                 $searchQuery->whereAllTerms($query, ['post_title']);
             })
-            ->byPeriod('')
+            ->orderByRaw(
+                'CASE WHEN end_at < ? THEN 2 WHEN start_at <= ? THEN 0 ELSE 1 END ASC, CASE WHEN end_at >= ? THEN start_at END ASC, start_at DESC',
+                [$now, $now, $now]
+            )
+            ->orderBy('id', 'ASC')
             ->offset(($page - 1) * $limit)
             ->limit($limit + 1)
             ->get()
