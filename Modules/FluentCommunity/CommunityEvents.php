@@ -131,7 +131,17 @@ class CommunityEvents
         $events = self::whereVisible(Event::query()->with(['post']), $spaceIds, $withSpaceless)
             ->byStatus(Event::LIVE_STATUSES)
             ->whereHas('post', function ($query) use ($searchQuery) {
-                $searchQuery->whereAllTerms($query, ['post_title']);
+                global $wpdb;
+                // The title as Event::getTitleAttribute() shows it: kses can store "&" as "&amp;". "&amp;" goes last, so one
+                // pass, like strtr. CHAR() because the query builder turns every double quote into a backtick.
+                $title = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(post_title, '&lt;', '<'), '&gt;', '>'), '&quot;', CHAR(34)), '&#039;', CHAR(39)), '&amp;', '&')";
+                foreach ($searchQuery->terms as $term) {
+                    // Entities never change the other characters, so those parts narrow the rows on the plain column first.
+                    foreach (preg_split('/[&<>"\']+/', $term, -1, PREG_SPLIT_NO_EMPTY) as $part) {
+                        $query->where('post_title', 'LIKE', '%' . $wpdb->esc_like($part) . '%');
+                    }
+                    $query->whereRaw($title . ' LIKE ?', ['%' . $wpdb->esc_like($term) . '%']);
+                }
             })
             ->orderByRaw(
                 'CASE WHEN end_at < ? THEN 2 WHEN start_at <= ? THEN 0 ELSE 1 END ASC, CASE WHEN end_at >= ? THEN start_at END ASC, start_at DESC',

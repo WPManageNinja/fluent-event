@@ -846,6 +846,27 @@ class CommunityEndpointsTest extends IntegrationTestCase
         $this->assertSame($order, $search(['space' => $this->spaceSlug()]));
     }
 
+    // kses can store "&" in a title as "&amp;"; search matches the title people see, not the stored entity.
+    public function test_portal_search_matches_the_decoded_event_title()
+    {
+        $word = strtolower(wp_generate_password(8, false, false));
+        [$rnd] = $this->communityEvent(['title' => 'Searchable ' . $word . ' R and D']);
+        [$wine] = $this->communityEvent(['title' => 'Wine and Cheese ' . $word]);
+        $this->wpdb->update($this->table('posts'), ['post_title' => 'Searchable ' . $word . ' R&amp;D'], ['ID' => $rnd->post_id]);
+        $this->wpdb->update($this->table('posts'), ['post_title' => 'Wine &amp; Cheese ' . $word], ['ID' => $wine->post_id]);
+
+        $search = function ($q) {
+            $request = new \WP_REST_Request('GET', '/fluent-community/v2/search');
+            $request->set_query_params(['q' => $q, 'types' => ['events'], 'per_type' => 10]);
+            $response = json_decode(wp_json_encode(rest_do_request($request)->get_data()), true);
+
+            return array_map('intval', wp_list_pluck(Arr::get($response, 'results.events.items', []), 'id'));
+        };
+
+        $this->assertSame([(int) $rnd->id], $search('r&d ' . $word));
+        $this->assertSame([], $search('amp ' . $word));
+    }
+
     private function spaceSlug()
     {
         return $this->wpdb->get_var($this->wpdb->prepare("SELECT slug FROM {$this->table('fcom_spaces')} WHERE id = %d", $this->spaceId));
