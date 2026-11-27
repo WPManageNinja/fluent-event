@@ -35,28 +35,7 @@ class CommunityEventController extends Controller
         $from = $request->getSafe('from', 'sanitize_text_field');
         $to = $request->getSafe('to', 'sanitize_text_field');
 
-        $query = Event::query()
-            ->with(['post'])
-            // Visibility is matched in SQL, so only what was asked for is ever loaded.
-            ->whereIn('id', function ($query) use ($spaceIds, $withSpaceless) {
-                $query->select('fevent_meta.object_id')
-                    ->from('fevent_meta')
-                    ->join('fcom_posts', 'fcom_posts.id', '=', 'fevent_meta.value')
-                    // fcom hides posts whose author is blocked, pending or deactivated.
-                    ->join('fcom_xprofile', 'fcom_xprofile.user_id', '=', 'fcom_posts.user_id')
-                    ->where('fevent_meta.object_type', Meta::OBJECT_TYPE_EVENT)
-                    ->where('fevent_meta.meta_key', CommunityEvents::FEED_META_KEY)
-                    ->where('fcom_posts.content_type', CommunityEvents::CONTENT_TYPE)
-                    ->where('fcom_posts.status', 'published')
-                    ->where('fcom_xprofile.status', 'active')
-                    ->where(function ($query) use ($spaceIds, $withSpaceless) {
-                        $query->whereIn('fcom_posts.space_id', $spaceIds);
-
-                        if ($withSpaceless) {
-                            $query->orWhereNull('fcom_posts.space_id');
-                        }
-                    });
-            })
+        $query = CommunityEvents::whereVisible(Event::query()->with(['post']), $spaceIds, $withSpaceless)
             ->byStatus(Event::LIVE_STATUSES)
             ->searchBy($request->getSafe('search', 'sanitize_text_field'))
             ->inDateRange($from, $to)

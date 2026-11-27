@@ -52,7 +52,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
     /**
      * An event linked to a published post in the space, as FeedHandler::createEvent() leaves it.
      */
-    private function communityEvent(array $overrides = [], array $meta = [])
+    private function communityEvent(array $overrides = [], array $meta = [], $spaceId = null)
     {
         $event = $this->createEvent($overrides, $meta);
 
@@ -64,7 +64,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
             'message_rendered' => '<p>Rolled back.</p>',
             'type'             => 'text',
             'content_type'     => CommunityEvents::CONTENT_TYPE,
-            'space_id'         => $this->spaceId,
+            'space_id'         => $spaceId ?: $this->spaceId,
             'privacy'          => 'public',
             'status'           => 'published',
             'meta'             => ['event_id' => (int) $event->id],
@@ -791,6 +791,80 @@ class CommunityEndpointsTest extends IntegrationTestCase
 
         $feed->content_type = 'text';
         $this->assertSame('', $handler->eventExcerpt('', $feed, 60));
+    }
+
+    public function test_portal_search_lists_the_events_the_viewer_can_see_by_title_ongoing_then_upcoming_then_past()
+    {
+        $word = strtolower(wp_generate_password(8, false, false));
+        [$past] = $this->communityEvent([
+            'title'    => 'Searchable ' . $word . ' past',
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-3 days')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-3 days +2 hours')),
+        ]);
+        [$upcoming] = $this->communityEvent(['title' => 'Searchable ' . $word . ' upcoming']);
+        [$tomorrow] = $this->communityEvent([
+            'title'    => 'Searchable ' . $word . ' tomorrow',
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('+1 day')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+1 day +2 hours')),
+        ]);
+        // Started two days ago and still running: closer to now by its end, farther by its start.
+        [$ongoing] = $this->communityEvent([
+            'title'    => 'Searchable ' . $word . ' ongoing',
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-2 days')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('+2 days')),
+        ]);
+        $this->communityEvent(['title' => 'Another event']);
+
+        $this->wpdb->insert($this->table('fcom_spaces'), [
+            'title'      => 'Secret search space',
+            'slug'       => 'fe-secret-' . strtolower(wp_generate_password(8, false, false)),
+            'type'       => 'community',
+            'privacy'    => 'secret',
+            'status'     => 'published',
+            'settings'   => maybe_serialize([]),
+            'created_at' => current_time('mysql'),
+            'updated_at' => current_time('mysql'),
+        ]);
+        $this->communityEvent(['title' => 'Searchable ' . $word . ' secret'], [], (int) $this->wpdb->insert_id);
+
+        // In the public space only; the events' author is someone else.
+        $viewer = $this->createUser('subscriber');
+        FcomHelper::addToSpace($this->spaceId, $viewer, 'member', 'by_admin');
+        $this->actAs($viewer);
+        FcomHelper::getCurrentProfile(false);
+
+        $search = function (array $params) use ($word) {
+            $request = new \WP_REST_Request('GET', '/fluent-community/v2/search');
+            $request->set_query_params(array_merge(['q' => 'searchable ' . $word, 'types' => ['events'], 'per_type' => 10], $params));
+            $response = json_decode(wp_json_encode(rest_do_request($request)->get_data()), true);
+
+            return array_map('intval', wp_list_pluck(Arr::get($response, 'results.events.items', []), 'id'));
+        };
+
+        $order = [(int) $ongoing->id, (int) $tomorrow->id, (int) $upcoming->id, (int) $past->id];
+        $this->assertSame($order, $search([]));
+        $this->assertSame($order, $search(['space' => $this->spaceSlug()]));
+    }
+
+    // kses can store "&" in a title as "&amp;"; search matches the title people see, not the stored entity.
+    public function test_portal_search_matches_the_decoded_event_title()
+    {
+        $word = strtolower(wp_generate_password(8, false, false));
+        [$rnd] = $this->communityEvent(['title' => 'Searchable ' . $word . ' R and D']);
+        [$wine] = $this->communityEvent(['title' => 'Wine and Cheese ' . $word]);
+        $this->wpdb->update($this->table('posts'), ['post_title' => 'Searchable ' . $word . ' R&amp;D'], ['ID' => $rnd->post_id]);
+        $this->wpdb->update($this->table('posts'), ['post_title' => 'Wine &amp; Cheese ' . $word], ['ID' => $wine->post_id]);
+
+        $search = function ($q) {
+            $request = new \WP_REST_Request('GET', '/fluent-community/v2/search');
+            $request->set_query_params(['q' => $q, 'types' => ['events'], 'per_type' => 10]);
+            $response = json_decode(wp_json_encode(rest_do_request($request)->get_data()), true);
+
+            return array_map('intval', wp_list_pluck(Arr::get($response, 'results.events.items', []), 'id'));
+        };
+
+        $this->assertSame([(int) $rnd->id], $search('r&d ' . $word));
+        $this->assertSame([], $search('amp ' . $word));
     }
 
     private function spaceSlug()

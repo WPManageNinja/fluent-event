@@ -1,6 +1,6 @@
 import EventCard from './EventCard';
 import SpaceEventsWidget from './SpaceEventsWidget';
-import { t, portalVars, uploadMedia, elementLocale } from './utils';
+import { t, portalVars, uploadMedia, elementLocale, eventStart } from './utils';
 
 /*
  * Plugs FluentEvent into the FluentCommunity portal through fcom's JS hooks.
@@ -353,6 +353,41 @@ function register() {
         }
 
         return routes;
+    });
+
+    // The search palette's Events tab, fed by the `events` search type (CommunityEvents::search), in a space search too.
+    addFilter('fluent_com_search_types', 'fluent-event', (types) => {
+        types.push({
+            key: 'events',
+            label: t('Events'),
+            seeAllLabel: t('See all events'),
+            inSpace: true,
+            icon: 'calendar',
+            toItem: (event) => ({
+                key: event.id,
+                title: event.title,
+                meta: [eventStart(event), event.space ? event.space.title : '', event.venue_type === 'online' ? t('Online') : t('In Person')].filter(Boolean),
+                hint: t('Event'),
+                route: event.space
+                    ? { name: 'fe_event_view', params: { space: event.space.slug, event_slug: event.slug } }
+                    : { name: 'fe_global_event_view', params: { event_slug: event.slug } },
+            }),
+        });
+
+        return types;
+    });
+
+    // Jump to lists Events 3rd, under the menu's own label, while its menu item is on. The empty palette shows only five pages.
+    addFilter('fluent_com_search_nav_pages', 'fluent-event', (pages) => {
+        const title = portalVars().events_menu;
+
+        if (!title) {
+            return pages;
+        }
+
+        pages.splice(2, 0, { key: 'fe_events', title, icon: 'calendar', route: { name: 'fe_events' } });
+
+        return pages;
     });
 
     addFilter('fluent_com_feed_content_components', 'fluent-event', (components) => {

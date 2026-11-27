@@ -28,6 +28,8 @@ describe('fcom-portal entry', () => {
 
         expect(util.hooks.addFilter.mock.calls.map(([name, namespace]) => [name, namespace])).toEqual([
             ['fluent_com_portal_routes', 'fluent-event'],
+            ['fluent_com_search_types', 'fluent-event'],
+            ['fluent_com_search_nav_pages', 'fluent-event'],
             ['fluent_com_feed_content_components', 'fluent-event'],
             ['fluent_com_space_sidebar_widgets', 'fluent-event'],
             ['fluent_com_space_actions', 'fluent-event'],
@@ -42,7 +44,7 @@ describe('fcom-portal entry', () => {
         vi.resetModules();
         await import('../../../resources/fcom-portal/fcom-portal.js');
 
-        expect(util.hooks.addFilter).toHaveBeenCalledTimes(6);
+        expect(util.hooks.addFilter).toHaveBeenCalledTimes(8);
     });
 
     describe('routes', () => {
@@ -130,6 +132,21 @@ describe('fcom-portal entry', () => {
 
             expect(routes.map(route => route.name)).toEqual(['all_feeds', 'fe_events', 'fe_create_event', 'fe_edit_event', 'fe_global_event_view']);
         });
+    });
+
+    it('lists Events 3rd in the search palette Jump to, only while its menu item is on', async () => {
+        const { filters } = await loadPortal();
+        const pages = () => [{ key: 'feed' }, { key: 'spaces' }, { key: 'courses' }, { key: 'members' }];
+
+        window.fluentEventFcomPortal = { events_menu: '' };
+        expect(filters.fluent_com_search_nav_pages(pages()).map((page) => page.key)).toEqual(['feed', 'spaces', 'courses', 'members']);
+
+        window.fluentEventFcomPortal = { events_menu: 'Meetups' };
+        const added = filters.fluent_com_search_nav_pages(pages());
+        expect(added.map((page) => page.key)).toEqual(['feed', 'spaces', 'fe_events', 'courses', 'members']);
+        expect(added[2]).toMatchObject({ title: 'Meetups', route: { name: 'fe_events' } });
+
+        delete window.fluentEventFcomPortal;
     });
 
     it('renders event posts with the event card', async () => {
