@@ -34,6 +34,15 @@ export const lastDay = (start, end) => (end > start && /[ T]00:00(:00)?$/.test(e
  */
 export const daySpan = (start, end) => (toUtcDay(lastDay(start, end)) - toUtcDay(start)) / DAY_MS + 1;
 
+// Today on the site clock, which guests and events are stamped on; it can be a day ahead of (or behind) the browser.
+export function siteToday() {
+    try {
+        return dayjs(new Intl.DateTimeFormat('en-CA', { timeZone: window.fluentEventAdmin?.timezone }).format(new Date()));
+    } catch (e) {
+        return dayjs();
+    }
+}
+
 // WordPress "Week Starts On" for our dayjs (Element Plus reads it) and, in the portal, fcom's window.dayjs.
 export function applyWeekStart(value, hostDayjs) {
     const day = parseInt(value, 10);

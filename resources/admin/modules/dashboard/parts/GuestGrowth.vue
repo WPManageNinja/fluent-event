@@ -11,6 +11,7 @@
                 :format="pickerFormat"
                 value-format="YYYY-MM-DD"
                 :clearable="false"
+                :disabled-date="outsideReportWindow"
                 :start-placeholder="$t('From')"
                 :end-placeholder="$t('To')"
                 @change="fetchChartData"
@@ -27,6 +28,7 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
+    import { siteToday } from '@/utils/date';
     import * as echarts from 'echarts/core';
     import { LineChart } from 'echarts/charts';
     import { CanvasRenderer } from 'echarts/renderers';
@@ -71,8 +73,8 @@
                 loading: false,
                 narrow: false,
                 range: [
-                    dayjs().subtract(6, 'day').format('YYYY-MM-DD'),
-                    dayjs().format('YYYY-MM-DD'),
+                    siteToday().subtract(6, 'day').format('YYYY-MM-DD'),
+                    siteToday().format('YYYY-MM-DD'),
                 ],
                 chartData: {
                     xAxisData: [],
@@ -101,6 +103,13 @@
             },
         },
         methods: {
+            // Guests are never created in the future, and the server draws at most five years.
+            outsideReportWindow(date) {
+                const day = dayjs(date);
+                const today = siteToday();
+
+                return day.isAfter(today, 'day') || day.isBefore(today.subtract(5, 'year'), 'day');
+            },
             fetchChartData() {
                 if (!this.endPoint) return;
 

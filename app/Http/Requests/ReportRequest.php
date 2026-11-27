@@ -18,6 +18,15 @@ class ReportRequest extends BaseRequest
             [$start, $end] = [$end, $start];
         }
 
+        // One bucket per day/month is built for the span, so an unbounded range is unbounded work.
+        $earliest = sprintf('%04d', substr($end, 0, 4) - 5) . substr($end, 4);
+        if (!DateTimeHelper::isDate($earliest)) {
+            $earliest = substr($earliest, 0, 8) . '28';
+        }
+        if ($start < $earliest) {
+            $start = $earliest;
+        }
+
         return [$start, $end];
     }
 }
