@@ -47,6 +47,15 @@
         LegendComponent,
     ]);
 
+    // Guests are stamped on the site clock, which can already be a day ahead of (or behind) the browser.
+    const siteToday = function () {
+        try {
+            return dayjs(new Intl.DateTimeFormat('en-CA', { timeZone: window.fluentEventAdmin?.timezone }).format(new Date()));
+        } catch (e) {
+            return dayjs();
+        }
+    };
+
     const cssVar = function (name, fallback) {
         const value = getComputedStyle(document.body)
             .getPropertyValue(name)
@@ -72,8 +81,8 @@
                 loading: false,
                 narrow: false,
                 range: [
-                    dayjs().subtract(6, 'day').format('YYYY-MM-DD'),
-                    dayjs().format('YYYY-MM-DD'),
+                    siteToday().subtract(6, 'day').format('YYYY-MM-DD'),
+                    siteToday().format('YYYY-MM-DD'),
                 ],
                 chartData: {
                     xAxisData: [],
@@ -105,8 +114,9 @@
             // Guests are never created in the future, and the server draws at most five years.
             outsideReportWindow(date) {
                 const day = dayjs(date);
+                const today = siteToday();
 
-                return day.isAfter(dayjs(), 'day') || day.isBefore(dayjs().subtract(5, 'year'), 'day');
+                return day.isAfter(today, 'day') || day.isBefore(today.subtract(5, 'year'), 'day');
             },
             fetchChartData() {
                 if (!this.endPoint) return;
