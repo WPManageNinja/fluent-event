@@ -28,6 +28,7 @@
 
 <script type="text/javascript">
     import dayjs from 'dayjs';
+    import { siteToday } from '@/utils/date';
     import * as echarts from 'echarts/core';
     import { LineChart } from 'echarts/charts';
     import { CanvasRenderer } from 'echarts/renderers';
@@ -46,15 +47,6 @@
         TooltipComponent,
         LegendComponent,
     ]);
-
-    // Guests are stamped on the site clock, which can already be a day ahead of (or behind) the browser.
-    const siteToday = function () {
-        try {
-            return dayjs(new Intl.DateTimeFormat('en-CA', { timeZone: window.fluentEventAdmin?.timezone }).format(new Date()));
-        } catch (e) {
-            return dayjs();
-        }
-    };
 
     const cssVar = function (name, fallback) {
         const value = getComputedStyle(document.body)
