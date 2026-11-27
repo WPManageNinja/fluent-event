@@ -377,7 +377,7 @@ function register() {
         return types;
     });
 
-    // Jump to lists Events beside Courses (or Spaces) while its menu item is on, under the menu's own label.
+    // Jump to lists Events 3rd, under the menu's own label, while its menu item is on. The empty palette shows only five pages.
     addFilter('fluent_com_search_nav_pages', 'fluent-event', (pages) => {
         const title = portalVars().events_menu;
 
@@ -385,9 +385,7 @@ function register() {
             return pages;
         }
 
-        const after = pages.findIndex((page) => page.key === 'courses');
-        const at = after === -1 ? pages.findIndex((page) => page.key === 'spaces') + 1 : after + 1;
-        pages.splice(at, 0, { key: 'fe_events', title, icon: 'calendar', route: { name: 'fe_events' } });
+        pages.splice(2, 0, { key: 'fe_events', title, icon: 'calendar', route: { name: 'fe_events' } });
 
         return pages;
     });
