@@ -138,8 +138,8 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   spots left.
 - **Waitlist:** `meta.waitlist` (off by default, only with a capacity) turns the full-event refusal into a
   `waitlisted` row: the button reads **Join waitlist**, and the guest gets the waitlist email (its own switch in
-  Settings > Emails). A waitlisted guest holds no seat (no count, no meeting link, no reminders), can leave as
-  `not_going`, and is refused with "already on the waitlist" on registering again. A freed seat is not handed
+  Settings > Emails). A waitlisted guest holds no seat (no count, no meeting link, no reminders) and is refused
+  with "already on the waitlist" on registering again; a member can leave as `not_going`. A freed seat is not handed
   over: there is no auto-promote and no hold, so the next Going or Register takes it. Only an admin moves a
   waitlisted guest to going.
 - **Entry types:** `rsvp` (logged-in members, going / not going, up to the event's capacity; each answer shows a
