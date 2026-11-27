@@ -85,8 +85,7 @@ export default defineConfig(({ mode, command }) => {
             liveReload([`${__dirname}/**/*.php`]),
             viteStaticCopy({
                 targets: [
-                    { src: 'resources/images/*', dest: 'images' },
-                    { src: 'resources/public/lib', dest: 'public/' }
+                    { src: 'resources/images/*', dest: 'images', rename: { stripBase: true } }
                 ]
             }),
             AutoImport({ resolvers: [ElementPlusResolver()] }),
@@ -102,6 +101,8 @@ export default defineConfig(({ mode, command }) => {
             ...(isDev ? {} : { pure: ['console.log', 'console.info', 'console.debug'] }),
         },
         build: {
+            // Vite 4's default; Vite 7's would drop browsers the shipped assets supported.
+            target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
             // One manifest per run; build.js merges them into manifest.json.
             manifest: appName ? `manifest-${appName}.json` : true,
             outDir: 'assets',

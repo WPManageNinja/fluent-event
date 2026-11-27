@@ -9,7 +9,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
-// test.env alone does not move the clock: vitest 0.34 runs in worker threads, which only see a copy of
+// test.env alone does not move the clock: vitest runs tests in workers, which only see a copy of
 // process.env. Set here, in the main process, the zone is already UTC when the workers start.
 process.env.TZ = 'UTC';
 
