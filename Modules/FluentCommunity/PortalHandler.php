@@ -55,6 +55,15 @@ class PortalHandler
         add_filter('fluent_community/mobile_menu', [$this, 'addMobileMenuItem']);
         add_filter('fluent_community/app_route_paths', [$this, 'addRoutePath']);
         add_filter('fluent_community/space_header_links', [$this, 'addSpaceTab'], 10, 2);
+        add_filter('fluent_community/search/providers', [$this, 'addSearchProvider']);
+    }
+
+    // The portal search palette's Events tab; fcom_search_types in the portal script shows it.
+    public function addSearchProvider($providers)
+    {
+        $providers['events'] = [CommunityEvents::class, 'search'];
+
+        return $providers;
     }
 
     // Supplied beside fcom's built-ins on every request: a saved row keeps the admin's label, icon and order,
@@ -181,6 +190,8 @@ class PortalHandler
             'start_of_week'       => (int) get_option('start_of_week', 0),
             'venue_max_length'    => Event::venueMaxLength(),
             'route_paths'         => $this->routePaths(),
+            // The Events menu item's label while it is on, for the search palette's Jump to; empty when off.
+            'events_menu'         => $this->enabledMenuTitle(),
             'i18n'                => $this->strings(),
             // The lazy chunks load their stylesheets themselves; this picks the .rtl.css twins.
             'is_rtl'              => Enqueue::isRtl(),
@@ -189,10 +200,23 @@ class PortalHandler
         wp_print_inline_script_tag('window.fluentEventFcomPortal = ' . wp_json_encode($vars, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';');
     }
 
+    protected function enabledMenuTitle()
+    {
+        $menuItem = Arr::get(FcomHelper::getMenuItemsGroup('view'), 'mainMenuItems.' . self::MENU_SLUG);
+
+        if (!$menuItem || Arr::get($menuItem, 'enabled', 'yes') !== 'yes') {
+            return '';
+        }
+
+        return (string) Arr::get($menuItem, 'title', __('Events', 'fluent-event'));
+    }
+
     // Keyed by the English text, the same contract as the admin app's $t().
     protected function strings()
     {
         return [
+            'Event' => __('Event', 'fluent-event'),
+            'See all events' => __('See all events', 'fluent-event'),
             /* translators: 1: number of guests going, 2: the event's capacity */
             '%1$s out of %2$s going' => __('%1$s out of %2$s going', 'fluent-event'),
             /* translators: %d: the number of further events on that day */

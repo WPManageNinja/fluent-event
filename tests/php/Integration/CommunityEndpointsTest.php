@@ -52,7 +52,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
     /**
      * An event linked to a published post in the space, as FeedHandler::createEvent() leaves it.
      */
-    private function communityEvent(array $overrides = [], array $meta = [])
+    private function communityEvent(array $overrides = [], array $meta = [], $spaceId = null)
     {
         $event = $this->createEvent($overrides, $meta);
 
@@ -64,7 +64,7 @@ class CommunityEndpointsTest extends IntegrationTestCase
             'message_rendered' => '<p>Rolled back.</p>',
             'type'             => 'text',
             'content_type'     => CommunityEvents::CONTENT_TYPE,
-            'space_id'         => $this->spaceId,
+            'space_id'         => $spaceId ?: $this->spaceId,
             'privacy'          => 'public',
             'status'           => 'published',
             'meta'             => ['event_id' => (int) $event->id],
@@ -791,6 +791,47 @@ class CommunityEndpointsTest extends IntegrationTestCase
 
         $feed->content_type = 'text';
         $this->assertSame('', $handler->eventExcerpt('', $feed, 60));
+    }
+
+    public function test_portal_search_lists_the_events_the_viewer_can_see_by_title_upcoming_first()
+    {
+        $word = strtolower(wp_generate_password(8, false, false));
+        [$past] = $this->communityEvent([
+            'title'    => 'Searchable ' . $word . ' past',
+            'start_at' => gmdate('Y-m-d H:i:s', strtotime('-3 days')),
+            'end_at'   => gmdate('Y-m-d H:i:s', strtotime('-3 days +2 hours')),
+        ]);
+        [$upcoming] = $this->communityEvent(['title' => 'Searchable ' . $word . ' upcoming']);
+        $this->communityEvent(['title' => 'Another event']);
+
+        $this->wpdb->insert($this->table('fcom_spaces'), [
+            'title'      => 'Secret search space',
+            'slug'       => 'fe-secret-' . strtolower(wp_generate_password(8, false, false)),
+            'type'       => 'community',
+            'privacy'    => 'secret',
+            'status'     => 'published',
+            'settings'   => maybe_serialize([]),
+            'created_at' => current_time('mysql'),
+            'updated_at' => current_time('mysql'),
+        ]);
+        $this->communityEvent(['title' => 'Searchable ' . $word . ' secret'], [], (int) $this->wpdb->insert_id);
+
+        // In the public space only; the events' author is someone else.
+        $viewer = $this->createUser('subscriber');
+        FcomHelper::addToSpace($this->spaceId, $viewer, 'member', 'by_admin');
+        $this->actAs($viewer);
+        FcomHelper::getCurrentProfile(false);
+
+        $search = function (array $params) use ($word) {
+            $request = new \WP_REST_Request('GET', '/fluent-community/v2/search');
+            $request->set_query_params(array_merge(['q' => 'searchable ' . $word, 'types' => ['events'], 'per_type' => 10], $params));
+            $response = json_decode(wp_json_encode(rest_do_request($request)->get_data()), true);
+
+            return array_map('intval', wp_list_pluck(Arr::get($response, 'results.events.items', []), 'id'));
+        };
+
+        $this->assertSame([(int) $upcoming->id, (int) $past->id], $search([]));
+        $this->assertSame([(int) $upcoming->id, (int) $past->id], $search(['space' => $this->spaceSlug()]));
     }
 
     private function spaceSlug()

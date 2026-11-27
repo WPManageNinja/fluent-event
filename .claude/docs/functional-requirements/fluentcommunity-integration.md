@@ -188,7 +188,12 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   deactivated) hides its event until the profile is active again. The admin still lists all of them.
 - **Email:** a confirmation when a member becomes *going* and a cancellation when they move from
   *going* to *not going* (each toggled in Email Notifications, default on), plus the event
-  reminders. "New event" notifications are fcom's own new-post notifications. Where fcom names
+  reminders. "New event" notifications are fcom's own new-post notifications.
+- **Search:** the portal search palette has an **Events** tab (and an Events group in All) listing the
+  events the viewer could see on the Events page whose title has every word, upcoming soonest first, then
+  past most recent first; a space search lists that space's. While the Events menu item is on, Jump to
+  lists Events (under the menu's label) beside Courses. Built on fcom's `fluent_community/search/providers`
+  and the palette's `fluent_com_search_types` / `fluent_com_search_nav_pages` JS filters. Where fcom names
   a post (notifications, emails, activity) by its title or caption, an event post with neither is
   named by its event's title (`fluent_community/feed/human_excerpt`).
 - **FluentEvent admin:** calendars and events can be created here too, with no space or post
