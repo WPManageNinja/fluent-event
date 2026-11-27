@@ -478,6 +478,7 @@ class EventLandingPageTest extends IntegrationTestCase
         $both = $capped('yes', 'yes');
         $this->assertStringContainsString('fe-capacity__track', $both);
         $this->assertStringContainsString('2 spots left', $both);
+        $this->assertStringContainsString('1 out of 3 going', $both);
 
         $countOnly = $capped('yes', 'no');
         $this->assertStringNotContainsString('fe-capacity__track', $countOnly);

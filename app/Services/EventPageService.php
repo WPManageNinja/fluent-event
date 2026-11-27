@@ -61,6 +61,24 @@ class EventPageService
         return (int) $id;
     }
 
+    // The going count, out of the capacity when the spots left show too; the spots left alone when only those show.
+    public static function countLabel(array $formatted, $spotsLabel)
+    {
+        $count = $formatted['guest_count'];
+
+        if ($count === null) {
+            return $spotsLabel;
+        }
+
+        if ($formatted['spots_left'] !== null) {
+            /* translators: 1: number of guests going, 2: the event's capacity */
+            return sprintf(_n('%1$s out of %2$s going', '%1$s out of %2$s going', $count, 'fluent-event'), number_format_i18n($count), number_format_i18n($formatted['capacity']));
+        }
+
+        /* translators: %s: number of guests going */
+        return sprintf(_n('%s going', '%s going', $count, 'fluent-event'), number_format_i18n($count));
+    }
+
     /**
      * @param array  $formatted EventService::formatEvent() shape, with a logged-in viewer's own status.
      * @param string $url       The event page.
@@ -109,9 +127,7 @@ class EventPageService
             // The start as a Unix timestamp when the host chose a countdown; portal.js ticks it down.
             'countdown_to'     => $phase === 'upcoming' && $formatted['start_display'] === 'countdown' ? $start : null,
             'ends_at'          => $end,
-            // The going count, or the spots left when only those show.
-            /* translators: %s: number of guests going */
-            'count_label'      => $formatted['guest_count'] === null ? $spotsLabel : sprintf(__('%s going', 'fluent-event'), number_format_i18n($formatted['guest_count'])),
+            'count_label'      => self::countLabel($formatted, $spotsLabel),
             'meter'            => $meter,
             'notice'           => null,
             'meeting_link'     => $meetingLink,
