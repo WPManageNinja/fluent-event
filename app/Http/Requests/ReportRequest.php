@@ -19,7 +19,11 @@ class ReportRequest extends BaseRequest
         }
 
         // One bucket per day/month is built for the span, so an unbounded range is unbounded work.
-        $earliest = gmdate('Y-m-d', strtotime($end . ' -5 years'));
+        // Same day five years back; Feb 29 falls to Feb 28 (strtotime would roll it to Mar 1), as the picker does.
+        $earliest = sprintf('%04d', substr($end, 0, 4) - 5) . substr($end, 4);
+        if (!DateTimeHelper::isDate($earliest)) {
+            $earliest = substr($earliest, 0, 8) . '28';
+        }
         if ($start < $earliest) {
             $start = $earliest;
         }

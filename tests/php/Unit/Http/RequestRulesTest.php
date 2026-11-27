@@ -309,6 +309,18 @@ class RequestRulesTest extends TestCase
         );
     }
 
+    public function test_a_leap_day_report_range_keeps_the_start_the_picker_allows()
+    {
+        $this->assertSame(
+            ['2023-02-28', '2028-02-29'],
+            ReportRequest::resolveRange($this->request(['start_date' => '2023-02-28', 'end_date' => '2028-02-29']))
+        );
+        $this->assertSame(
+            ['2023-02-28', '2028-02-29'],
+            ReportRequest::resolveRange($this->request(['start_date' => '2001-01-01', 'end_date' => '2028-02-29']))
+        );
+    }
+
     public function test_a_capacity_is_a_whole_number_and_none_means_unlimited()
     {
         $this->assertSame('nullable|integer|min:0', EventRequest::RULES['capacity']);
