@@ -113,6 +113,10 @@
                     errorState: null,
                     errorNotify: true,
                     onSuccess: response => {
+                        // The server caps the span, so show the range it actually drew.
+                        if (response.range) {
+                            this.range = [response.range.start, response.range.end];
+                        }
                         this.chartData = {
                             xAxisData: response.xAxisData || [],
                             series: response.series || [],

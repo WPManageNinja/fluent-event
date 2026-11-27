@@ -31,3 +31,20 @@ describe('GuestGrowth date range width', () => {
         expect(picker('YYYY-MM-DD').classes()).not.toContain('fe-dashboard__range--wide');
     });
 });
+
+describe('GuestGrowth range', () => {
+    it('shows the range the server drew, which caps the span', () => {
+        const $requestServer = vi.fn(({ onSuccess }) => onSuccess({
+            range: { start: '2021-10-10', end: '2026-10-10' }, xAxisData: [], series: []
+        }));
+        const wrapper = shallowMount(GuestGrowth, {
+            props: { sectionTitle: 'Guest Trends', endPoint: 'reports/guest-trends' },
+            global: { mixins: [main, { methods: { $requestServer } }] }
+        });
+
+        wrapper.vm.range = ['2001-01-01', '2026-10-10'];
+        wrapper.vm.fetchChartData();
+
+        expect(wrapper.vm.range).toEqual(['2021-10-10', '2026-10-10']);
+    });
+});
