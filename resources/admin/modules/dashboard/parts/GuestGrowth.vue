@@ -11,6 +11,7 @@
                 :format="pickerFormat"
                 value-format="YYYY-MM-DD"
                 :clearable="false"
+                :disabled-date="outsideReportWindow"
                 :start-placeholder="$t('From')"
                 :end-placeholder="$t('To')"
                 @change="fetchChartData"
@@ -101,6 +102,12 @@
             },
         },
         methods: {
+            // Guests are never created in the future, and the server draws at most five years.
+            outsideReportWindow(date) {
+                const day = dayjs(date);
+
+                return day.isAfter(dayjs(), 'day') || day.isBefore(dayjs().subtract(5, 'year'), 'day');
+            },
             fetchChartData() {
                 if (!this.endPoint) return;
 
@@ -113,10 +120,6 @@
                     errorState: null,
                     errorNotify: true,
                     onSuccess: response => {
-                        // The server caps the span, so show the range it actually drew.
-                        if (response.range) {
-                            this.range = [response.range.start, response.range.end];
-                        }
                         this.chartData = {
                             xAxisData: response.xAxisData || [],
                             series: response.series || [],

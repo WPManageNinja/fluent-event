@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
+import dayjs from 'dayjs';
 import main from '@/mixins/main';
 import GuestGrowth from '@/modules/dashboard/parts/GuestGrowth.vue';
 
@@ -33,18 +34,16 @@ describe('GuestGrowth date range width', () => {
 });
 
 describe('GuestGrowth range', () => {
-    it('shows the range the server drew, which caps the span', () => {
-        const $requestServer = vi.fn(({ onSuccess }) => onSuccess({
-            range: { start: '2021-10-10', end: '2026-10-10' }, xAxisData: [], series: []
-        }));
-        const wrapper = shallowMount(GuestGrowth, {
-            props: { sectionTitle: 'Guest Trends', endPoint: 'reports/guest-trends' },
-            global: { mixins: [main, { methods: { $requestServer } }] }
-        });
+    it('offers only the last five years, up to today', () => {
+        const vm = shallowMount(GuestGrowth, {
+            props: { sectionTitle: 'Guest Trends', endPoint: '' },
+            global: { mixins: [main, { methods: { $requestServer: vi.fn() } }] }
+        }).vm;
+        const day = (offset, unit) => dayjs().add(offset, unit).toDate();
 
-        wrapper.vm.range = ['2001-01-01', '2026-10-10'];
-        wrapper.vm.fetchChartData();
-
-        expect(wrapper.vm.range).toEqual(['2021-10-10', '2026-10-10']);
+        expect(vm.outsideReportWindow(day(0, 'day'))).toBe(false);
+        expect(vm.outsideReportWindow(day(-5, 'year'))).toBe(false);
+        expect(vm.outsideReportWindow(day(1, 'day'))).toBe(true);
+        expect(vm.outsideReportWindow(dayjs().subtract(5, 'year').subtract(1, 'day').toDate())).toBe(true);
     });
 });
