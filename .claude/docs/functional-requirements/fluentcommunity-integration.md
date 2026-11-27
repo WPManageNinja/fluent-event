@@ -136,6 +136,13 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   with a capacity). Both on: a meter ("7 out of 10 going", "3 spots left"); count only: "7 going"; spots only:
   "3 spots left"; neither: nothing until it fills. Event cards follow the same rule, and an ended event shows no
   spots left.
+- **Waitlist:** `meta.waitlist` (off by default, only with a capacity) turns the full-event refusal into a
+  `waitlisted` row: the button reads **Join waitlist**, and the guest gets the waitlist email (its own switch in
+  Settings > Emails). A waitlisted guest holds no seat (no count, no meeting link, no reminders) and is refused
+  with "already on the waitlist" on registering again; a member can leave as `not_going`, a visitor's place is
+  final. A freed seat is not handed
+  over: there is no auto-promote and no hold, so the next Going or Register takes it. Only an admin moves a
+  waitlisted guest to going.
 - **Entry types:** `rsvp` (logged-in members, going / not going, up to the event's capacity; each answer shows a
   success toast with the server's message, "RSVP updated. You're going!" / "RSVP updated. You're not going."), `open`
   (a **Register** button that opens a name + email popover; a logged-in member's arrives filled in
@@ -198,5 +205,5 @@ slug; `fluent_event/community/route_paths` can still move any single route:
 
 ## Out of scope
 
-Ticketed mode, waitlists, recurring events in posts, host notifications per registration,
+Ticketed mode, recurring events in posts, host notifications per registration,
 schema.org markup.
