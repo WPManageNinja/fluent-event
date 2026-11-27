@@ -188,7 +188,9 @@ slug; `fluent_event/community/route_paths` can still move any single route:
   deactivated) hides its event until the profile is active again. The admin still lists all of them.
 - **Email:** a confirmation when a member becomes *going* and a cancellation when they move from
   *going* to *not going* (each toggled in Email Notifications, default on), plus the event
-  reminders. "New event" notifications are fcom's own new-post notifications.
+  reminders. "New event" notifications are fcom's own new-post notifications. Where fcom names
+  a post (notifications, emails, activity) by its title or caption, an event post with neither is
+  named by its event's title (`fluent_community/feed/human_excerpt`).
 - **FluentEvent admin:** calendars and events can be created here too, with no space or post
   linked. An event created here has no post, so the portal doesn't show it, even in a space calendar.
   The fcom logo links out: on a space calendar's page to its space, on an event card to its post.

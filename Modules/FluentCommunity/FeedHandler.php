@@ -49,6 +49,19 @@ class FeedHandler
         add_filter('fluent_community/rendering_feed_model', [$this, 'attachEvent'], 10, 2);
         add_filter('fluent_event/events_api_response', [$this, 'addFeedUrls']);
         add_filter('fluent_event/event_api_response', [$this, 'addFeedUrl']);
+        add_filter('fluent_community/feed/human_excerpt', [$this, 'eventExcerpt'], 10, 3);
+    }
+
+    // fcom names a post by its title or caption in notifications and emails; an event post may have neither.
+    public function eventExcerpt($excerpt, $feed, $length)
+    {
+        if ($excerpt !== '' || $feed->content_type !== CommunityEvents::CONTENT_TYPE) {
+            return $excerpt;
+        }
+
+        $event = CommunityEvents::eventOf($feed);
+
+        return $event ? FcomHelper::getHumanExcerpt($event->title, $length) : $excerpt;
     }
 
     // The event card is the post's content, so its caption is optional, when posting and when editing.

@@ -11,6 +11,7 @@ use FluentEvent\App\Models\Guest;
 use FluentEvent\App\Models\Meta;
 use FluentEvent\Framework\Support\Arr;
 use FluentEvent\Modules\FluentCommunity\CommunityEvents;
+use FluentEvent\Modules\FluentCommunity\FeedHandler;
 use FluentEvent\Tests\IntegrationTestCase;
 
 /**
@@ -778,6 +779,18 @@ class CommunityEndpointsTest extends IntegrationTestCase
     public function test_an_event_with_no_community_post_is_not_found()
     {
         $this->assertSame(404, $this->rsvp($this->createEvent(), 'going')['status']);
+    }
+
+    public function test_an_event_post_with_no_title_or_caption_is_named_by_its_event()
+    {
+        [, $feed] = $this->communityEvent(['title' => 'Q4 **Design** Review']);
+        $handler = new FeedHandler();
+
+        $this->assertSame('Q4 Design Review', $handler->eventExcerpt('', $feed, 60));
+        $this->assertSame('Join us', $handler->eventExcerpt('Join us', $feed, 60));
+
+        $feed->content_type = 'text';
+        $this->assertSame('', $handler->eventExcerpt('', $feed, 60));
     }
 
     private function spaceSlug()
