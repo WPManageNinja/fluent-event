@@ -147,7 +147,7 @@ Deliberately **not** unique on `email` — a buyer commonly uses their own addre
 | `requested`  | Asked to join; waiting on host approval.                       |
 | `approved`   | Host said yes; spot not final yet (e.g. payment due).          |
 | `attending`  | Confirmed; has a spot, counts toward capacity.                 |
-| `waitlisted` | Event full; waiting for a spot (auto-promoted when one opens). |
+| `waitlisted` | Event full; waiting for a spot (an admin promotes them; no auto-promote). |
 | `declined`   | The join didn't happen — host rejected, or invite refused.     |
 | `cancelled`  | Was in, then pulled out (or was removed).                      |
 | `checked_in` | Showed up and checked in at the event.                         |
@@ -193,7 +193,7 @@ be a taxonomy (`fevent_sponsor`, like organizer), not a custom table.
 ### FR-6.4 — Ticket tiers, capacity, approval, free/paid
 
 - **Ticket tiers** (`ticket_types`): each event has ≥1 tier (auto **"General"** if the host defines none). A tier sets `price` (0 = free), `slot` (seats; null = unlimited), `min_per_reg` / `max_per_reg`, and an optional sale window.
-- **Capacity is per tier** — the `slot` column (total event capacity = sum of tier slots). `remaining = slot − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). Freeing a ticket auto-promotes the oldest waitlisted guest. _(Waitlist may ship post-v1; schema supports it.)_
+- **Capacity is per tier** — the `slot` column (total event capacity = sum of tier slots). `remaining = slot − sold`; a tier is **sold-out when `remaining ≤ 0`** (computed, not a status). On registration, check remaining; if **full**, the ticket is **auto-waitlisted** (`waitlisted`). A freed ticket is not handed to the waitlist: an admin moves waitlisted guests to `attending` by hand.
 - **Approval** via `settings.join_policy = approval` — the registration/guests sit at `requested`/`pending` until the host approves.
 - **Free or paid.** Paid events take payment through **Paymattic** before the order is confirmed. Payment is **per order** (one payment for all tickets in a `group_id` group).
 - **Payment record = thin reference on the `is_buyer=1` row.** Paymattic is the source of truth (gateways, receipts, refunds, cards). We store only `payment_status` / `payment_ref` / `price` / `paid_at` on that row (currency is a global plugin setting, stored nowhere per-record), NULL on companion tickets. Flow: pay → Paymattic → **webhook** → `UPDATE … WHERE group_id=? AND is_buyer=1` sets `payment_status = paid` + `payment_ref` → the group's guests go `attending`. No card/gateway data our side (out of PCI scope).
@@ -285,7 +285,7 @@ be a taxonomy (`fevent_sponsor`, like organizer), not a custom table.
 - A manager creates a draft, publishes it, and it shows in listings based on its visibility.
 - Joining a free, no-approval event → the member is `attending` right away.
 - Approval event → the member stays `requested` until the host approves; a paid event isn't confirmed until payment succeeds.
-- When an event is full → new joiners are auto-`waitlisted`; freeing a spot auto-promotes the oldest waitlisted to `attending`.
+- When an event is full → new joiners are auto-`waitlisted`; a freed spot goes to the next joiner; only an admin moves a waitlisted guest to `attending`.
 - Invite by email, invite link, and import each create the right guest rows (email + optional name), no account flow.
 - Cloning makes a separate draft; deleting removes the event and notifies confirmed guests.
 - Event times show in each viewer's own timezone.
