@@ -18,6 +18,12 @@ class ReportRequest extends BaseRequest
             [$start, $end] = [$end, $start];
         }
 
+        // One bucket per day/month is built for the span, so an unbounded range is unbounded work.
+        $earliest = gmdate('Y-m-d', strtotime($end . ' -5 years'));
+        if ($start < $earliest) {
+            $start = $earliest;
+        }
+
         return [$start, $end];
     }
 }

@@ -297,6 +297,18 @@ class RequestRulesTest extends TestCase
         $this->assertSame(['2026-10-04', '2026-10-10'], [$start, $end]);
     }
 
+    public function test_a_report_range_is_capped_at_five_years()
+    {
+        $this->assertSame(
+            ['2021-10-10', '2026-10-10'],
+            ReportRequest::resolveRange($this->request(['start_date' => '0001-01-01', 'end_date' => '2026-10-10']))
+        );
+        $this->assertSame(
+            ['2021-10-10', '2026-10-10'],
+            ReportRequest::resolveRange($this->request(['start_date' => '2021-10-10', 'end_date' => '2026-10-10']))
+        );
+    }
+
     public function test_a_capacity_is_a_whole_number_and_none_means_unlimited()
     {
         $this->assertSame('nullable|integer|min:0', EventRequest::RULES['capacity']);
